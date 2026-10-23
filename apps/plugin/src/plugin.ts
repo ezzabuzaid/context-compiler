@@ -285,43 +285,27 @@ export class Plugin {
   // stops, since its outcome reaches no other server; its checkpoints resume
   // the next pass. Settles whatever the passes do: each pass records how it
   // ended in its import's sync history.
-  async import(
-    selections: readonly Selection[],
-    options?: { afterCurrent: boolean },
-  ): Promise<void> {
+  async import(selections: readonly Selection[]): Promise<void> {
     await Promise.allSettled(
       selections.map(async (selection) => {
         using settings = this.#open();
         await using flights = this.flights();
         const directory = settings.directory(selection);
-        let joined = false;
-        const run = () =>
-          flights.run(
-            directory,
-            async ({ signal }) => {
-              await using owner = await owners(settings, directory).campaign();
-              if (owner === undefined) return;
-              try {
-                await this.connector(selection.connector).import(
-                  settings,
-                  selection,
-                  undefined,
-                  signal,
-                );
-              } finally {
-                if (settings.staleImports().includes(directory))
-                  rmSync(directory, { recursive: true, force: true });
-              }
-            },
-            {
-              onJoin: () => {
-                joined = true;
-              },
-            },
-          );
-        await run();
-        // A changed parser must get its own pass after an older pass finishes.
-        if (options?.afterCurrent === true && joined) await run();
+        await flights.run(directory, async ({ signal }) => {
+          await using owner = await owners(settings, directory).campaign();
+          if (owner === undefined) return;
+          try {
+            await this.connector(selection.connector).import(
+              settings,
+              selection,
+              undefined,
+              signal,
+            );
+          } finally {
+            if (settings.staleImports().includes(directory))
+              rmSync(directory, { recursive: true, force: true });
+          }
+        });
       }),
     );
     // Like each pass, the check settles: a monitor's failure, settings it

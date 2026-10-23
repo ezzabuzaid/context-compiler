@@ -324,7 +324,6 @@ mcpServer.registerTool(
         plugin
           .status()
           .connectors.filter(({ includeAttachments }) => includeAttachments),
-        { afterCurrent: true },
       );
     return structured(await transcription.choices());
   },
