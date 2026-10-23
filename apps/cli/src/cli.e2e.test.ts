@@ -2499,6 +2499,29 @@ test('after a sync whose import can no longer write its database, status shows t
   assert.match(photos.error, /^attempt to write a readonly database/);
 });
 
+test('a connector whose import fails before a pass can record it fails alone: the other connectors finish and show their passes, and sync exits 1 naming the error', async () => {
+  await using mac = await mkdtempDisposable(join(tmpdir(), 'cli-e2e-'));
+  await withNotes(mac.path);
+  await withConnectors(mac.path);
+  cli(mac.path, 'setup', '--connector', 'photos', '--connector', 'notes');
+  cli(mac.path, 'sync');
+  const photos = JSON.parse(cli(mac.path, 'status', '--json').stdout).find(
+    ({ connector }: { connector: string }) => connector === 'photos',
+  );
+  // Photos' sync history cannot install itself, so no pass begins to record
+  // why, as with a database another reader keeps busy.
+  await chmod(photos.database, 0o444);
+
+  const synced = cli(mac.path, 'sync', '--json');
+
+  assert.equal(synced.status, 1, synced.stdout);
+  assert.match(synced.stderr, /attempt to write a readonly database/);
+  assert.deepEqual(
+    lines(synced.stdout).map(({ connector, status }) => [connector, status]),
+    [['notes', 'succeeded']],
+  );
+});
+
 test('sync watch exits 1 and names the error when an import’s sync history cannot record a pass, though another connector keeps watching', async () => {
   await using mac = await mkdtempDisposable(join(tmpdir(), 'cli-e2e-'));
   const history = await withSafari(mac.path);

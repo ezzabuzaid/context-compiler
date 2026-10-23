@@ -173,11 +173,14 @@ export class Imports {
   // once: what it committed stays and its checkpoints resume it. A pass that
   // did not load completely, or one it waited for whose sync stopped first,
   // leaves exit status 1; a connector another setup removed meanwhile does
-  // not.
+  // not. An error no pass recorded, as when an import's sync history cannot
+  // install itself, fails only its connector: the others finish and show
+  // their passes, then the sync names it and exits 1.
   async sync(
     only: readonly string[] | undefined,
     observer: SyncObserver,
   ): Promise<void> {
+    const errors: unknown[] = [];
     await this.#each(only, observer, async (run) => {
       const { settings, flights, connector, selection, show } = run;
       const directory = settings.directory(selection);
@@ -219,9 +222,19 @@ export class Imports {
           show({ connector: connector.name, status: 'interrupted' });
         else if (error instanceof FlightFailedError)
           show(failed(connector, error.failure.message, 0));
-        else throw error;
+        else errors.push(error);
       }
     });
+    if (errors.length === 1) throw errors[0];
+    if (errors.length > 1)
+      throw new AggregateError(
+        errors,
+        errors
+          .map((error) =>
+            error instanceof Error ? error.message : String(error),
+          )
+          .join('\n'),
+      );
   }
 
   // Keeps each selected connector's import current, or only those named: a
