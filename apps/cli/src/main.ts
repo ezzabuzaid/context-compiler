@@ -5,7 +5,7 @@ import { Connectors } from '@workspace/connector-manifest/connectors';
 import { provideHostModules } from '@workspace/connector-manifest/host-modules';
 import { userConnectors } from '@workspace/connector-manifest/user-connectors';
 import { Transcription } from '@workspace/connector/transcription';
-import { HandyModels } from '@workspace/sdk-handy-models';
+import { SpeechModels } from '@workspace/sdk-macos-speech-models';
 
 import { OptionsCommand } from './commands/options.ts';
 import { QueryCommand } from './commands/query.ts';
@@ -32,7 +32,7 @@ const program = new Program('context-compiler')
   )
   .option(
     '--transcription-model <id>',
-    'local audio model installed in Handy: cohere-transcribe-arabic-07-2026, or off',
+    'file name of a speech model installed on this Mac, such as cohere-transcribe-arabic-07-2026-Q8_0.gguf, or off',
   )
   .showHelpAfterError()
   // Each command reads its own options, so sync watch --connector reaches
@@ -47,7 +47,7 @@ const { directory, transcriptionModel } = program.opts<{
   directory: string;
   transcriptionModel?: string;
 }>();
-await using transcription = new Transcription(directory, new HandyModels());
+await using transcription = new Transcription(directory, new SpeechModels());
 if (transcriptionModel === undefined) await transcription.refresh();
 else
   await transcription

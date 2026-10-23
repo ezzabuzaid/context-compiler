@@ -335,11 +335,14 @@ test('the transcription choice persists independently of connector selections an
       [{ connector: 'notes', scope: {}, includeAttachments: true }],
       options,
     );
-    settings.setTranscription('cohere-transcribe-arabic-07-2026');
+    settings.setTranscription('cohere-transcribe-arabic-07-2026-Q8_0.gguf');
   }
   {
     using settings = new Settings(directory.path);
-    assert.equal(settings.transcription(), 'cohere-transcribe-arabic-07-2026');
+    assert.equal(
+      settings.transcription(),
+      'cohere-transcribe-arabic-07-2026-Q8_0.gguf',
+    );
     assert.equal(settings.selections()[0]?.connector, 'notes');
     settings.setTranscription(null);
   }

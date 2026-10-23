@@ -13,16 +13,13 @@ test('the bundled page tools discover models, save the selection and reject an u
   await using scratch = await mkdtempDisposable(
     join(tmpdir(), 'page-transcription-'),
   );
-  const models = join(
+  const snapshot = join(
     scratch.path,
-    'Library/Application Support/com.pais.handy/models',
+    '.cache/huggingface/hub/models--ggerganov--whisper.cpp/snapshots/a1',
   );
-  await mkdir(models, { recursive: true });
+  await mkdir(snapshot, { recursive: true });
   // Only discovery runs: no connector is selected and no weights are loaded.
-  await writeFile(
-    join(models, 'cohere-transcribe-arabic-07-2026-Q8_0.gguf'),
-    '',
-  );
+  await writeFile(join(snapshot, 'ggml-small.bin'), 'lmgg');
   const client = new Client({ name: 'transcription-test', version: '1.0.0' });
   const transport = new StdioClientTransport({
     command: process.execPath,
@@ -39,16 +36,11 @@ test('the bundled page tools discover models, save the selection and reject an u
     assert.equal(listed.isError, undefined);
     assert.deepEqual(listed.structuredContent, {
       selected: null,
-      models: [
-        {
-          id: 'cohere-transcribe-arabic-07-2026',
-          title: 'Cohere Transcribe Arabic',
-        },
-      ],
+      models: [{ id: 'ggml-small.bin', title: 'ggml-small' }],
     });
     const enabled = await client.callTool({
       name: 'transcription_update',
-      arguments: { model: 'cohere-transcribe-arabic-07-2026' },
+      arguments: { model: 'ggml-small.bin' },
     });
     assert.equal(enabled.isError, undefined);
     using settings = new Settings(
@@ -57,13 +49,13 @@ test('the bundled page tools discover models, save the selection and reject an u
         'Library/Application Support/Context Compiler/Imports',
       ),
     );
-    assert.equal(settings.transcription(), 'cohere-transcribe-arabic-07-2026');
+    assert.equal(settings.transcription(), 'ggml-small.bin');
     const unavailable = await client.callTool({
       name: 'transcription_update',
       arguments: { model: 'missing' },
     });
     assert.equal(unavailable.isError, true);
-    assert.equal(settings.transcription(), 'cohere-transcribe-arabic-07-2026');
+    assert.equal(settings.transcription(), 'ggml-small.bin');
     const disabled = await client.callTool({
       name: 'transcription_update',
       arguments: { model: null },
@@ -76,17 +68,15 @@ test('the bundled page tools discover models, save the selection and reject an u
   }
 });
 
-// A home where Handy installed the Cohere model, and the plugin store in it.
-async function homeWithCohere(home: string) {
-  const models = join(
+// A home with a speech model in its Hugging Face cache, and the plugin store
+// in it.
+async function homeWithModel(home: string) {
+  const snapshot = join(
     home,
-    'Library/Application Support/com.pais.handy/models',
+    '.cache/huggingface/hub/models--ggerganov--whisper.cpp/snapshots/a1',
   );
-  await mkdir(models, { recursive: true });
-  await writeFile(
-    join(models, 'cohere-transcribe-arabic-07-2026-Q8_0.gguf'),
-    '',
-  );
+  await mkdir(snapshot, { recursive: true });
+  await writeFile(join(snapshot, 'ggml-small.bin'), 'lmgg');
   return {
     store: join(home, 'Library/Application Support/Context Compiler/Imports'),
   };
@@ -110,18 +100,18 @@ async function pageTool(home: string, name: string, args: object) {
   }
 }
 
-test('a store moved to another Mac keeps its chosen model, found where Handy keeps it there', async () => {
+test('a store moved to another Mac keeps its chosen model, found where it is installed there', async () => {
   await using scratch = await mkdtempDisposable(
     join(tmpdir(), 'page-transcription-moved-'),
   );
-  const before = await homeWithCohere(join(scratch.path, 'before'));
-  const after = await homeWithCohere(join(scratch.path, 'after'));
+  const before = await homeWithModel(join(scratch.path, 'before'));
+  const after = await homeWithModel(join(scratch.path, 'after'));
   await pageTool(join(scratch.path, 'before'), 'transcription_update', {
-    model: 'cohere-transcribe-arabic-07-2026',
+    model: 'ggml-small.bin',
   });
 
   // Migration Assistant copies the store to a home with another name; the
-  // old Mac, and its Handy folder, are gone.
+  // old Mac, and its model, are gone.
   await cp(before.store, after.store, { recursive: true });
   await rm(join(scratch.path, 'before'), { recursive: true });
   const listed = await pageTool(
@@ -132,12 +122,7 @@ test('a store moved to another Mac keeps its chosen model, found where Handy kee
 
   assert.equal(listed.isError, undefined);
   assert.deepEqual(listed.structuredContent, {
-    selected: 'cohere-transcribe-arabic-07-2026',
-    models: [
-      {
-        id: 'cohere-transcribe-arabic-07-2026',
-        title: 'Cohere Transcribe Arabic',
-      },
-    ],
+    selected: 'ggml-small.bin',
+    models: [{ id: 'ggml-small.bin', title: 'ggml-small' }],
   });
 });

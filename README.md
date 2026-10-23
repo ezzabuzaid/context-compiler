@@ -70,16 +70,16 @@ Reminders reads through EventKit, so Reminders.app need not be open. Grant the t
 
 ### Audio transcription
 
-Audio transcription is off until you choose a model. On the Context Compiler page, open **Audio transcription**, enable it, choose Cohere Transcribe Arabic, installed in Handy, and save. It transcribes Arabic and English speech. Audio stays on this Mac; existing and new imported attachments become searchable through `attachment_text`. Turning it off keeps existing transcripts.
+Audio transcription is off until you choose a model. On the Context Compiler page, open **Audio transcription**, enable it, choose a speech model installed on this Mac, and save. The page lists every model it finds through Spotlight and in the Hugging Face cache, whichever app or tool installed it; Cohere Transcribe Arabic transcribes Arabic and English speech. Audio stays on this Mac; existing and new imported attachments become searchable through `attachment_text`. Turning it off keeps existing transcripts.
 
 The CLI saves the same choice in its `--directory` store:
 
 ```sh
-npx nx run cli:start -- --transcription-model cohere-transcribe-arabic-07-2026 sync --connector whatsapp
+npx nx run cli:start -- --transcription-model cohere-transcribe-arabic-07-2026-Q8_0.gguf sync --connector whatsapp
 npx nx run cli:start -- --transcription-model off status
 ```
 
-Use `--directory "$HOME/Library/Application Support/Context Compiler/Imports"` before the command to share the Context Compiler page's settings. Local transcription requires `ffmpeg` on PATH (`brew install ffmpeg`). Building the native worker requires Rust/Cargo; Nx builds it automatically. Handy's model downloads are reused in place and are never modified.
+Use `--directory "$HOME/Library/Application Support/Context Compiler/Imports"` before the command to share the Context Compiler page's settings. Local transcription decodes audio with macOS's `afconvert`, so it needs nothing installed. Building the native worker requires Rust/Cargo and CMake; Nx builds it automatically. Installed models are reused in place and are never modified.
 
 ## Permissions
 

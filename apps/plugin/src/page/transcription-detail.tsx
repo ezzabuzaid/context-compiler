@@ -99,8 +99,8 @@ function TranscriptionForm({ choices }: { choices: TranscriptionChoices }) {
       </label>
       {choices.models.length === 0 ? (
         <p className="text-muted">
-          No supported model is installed. Download Cohere Transcribe Arabic in
-          Handy, then reopen this page.
+          No speech model is installed on this Mac. Download one, such as Cohere
+          Transcribe Arabic, then reopen this page.
         </p>
       ) : (
         <div className="transcription-model">
@@ -131,9 +131,7 @@ function TranscriptionForm({ choices }: { choices: TranscriptionChoices }) {
                           <path d="m5 12 4 4L19 6" />
                         </svg>
                       </Select.ItemIndicator>
-                      <Select.ItemText>
-                        {title} · installed in Handy
-                      </Select.ItemText>
+                      <Select.ItemText>{title}</Select.ItemText>
                     </Select.Item>
                   ))}
                 </Select.Viewport>

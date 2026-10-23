@@ -102,7 +102,7 @@ export type ConnectorRow = z.infer<typeof row>;
 export type MonitorRow = z.infer<typeof monitorRow>;
 export type ConnectorChoices = z.infer<z.ZodObject<typeof choicesResult>>;
 
-// Models by the id Handy installs them under.
+// Speech models installed on this Mac, by file name.
 export const transcriptionResult = {
   selected: z.string().nullable(),
   models: z.array(z.strictObject({ id: z.string(), title: z.string() })),

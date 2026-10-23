@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
-import { mkdtempDisposable, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtempDisposable, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 
-import { HandyModels } from '@workspace/sdk-handy-models';
+import { SpeechModels } from '@workspace/sdk-macos-speech-models';
 import { Settings } from '@workspace/settings';
 
 import { AttachmentText } from './attachment-text.ts';
@@ -23,12 +23,18 @@ test('an existing attachment reader observes a model saved or disabled by anothe
     'CREATE TABLE files (attachmentRef TEXT); CREATE VIEW documents AS SELECT * FROM files',
   );
   data.prepare('INSERT INTO files VALUES (?)').run('voice.opus');
-  // Handy's folder holds no weights, so the decoder fails as the reader runs.
+  // A whisper.cpp model's magic is enough for discovery to list the model.
+  const snapshot = join(
+    directory.path,
+    'hub/models--ggerganov--whisper.cpp/snapshots/a1',
+  );
+  await mkdir(snapshot, { recursive: true });
+  await writeFile(join(snapshot, 'ggml-small.bin'), 'lmgg');
   await using host = new Transcription(
     directory.path,
-    new HandyModels({
+    new SpeechModels({
       hub: join(directory.path, 'hub'),
-      models: join(directory.path, 'handy'),
+      home: directory.path,
     }),
   );
   using other = new Settings(directory.path);
@@ -43,9 +49,10 @@ test('an existing attachment reader observes a model saved or disabled by anothe
     data.prepare('SELECT status FROM attachment_text').get()?.status,
     'no_text',
   );
-  other.setTranscription('cohere-transcribe-arabic-07-2026');
+  other.setTranscription('ggml-small.bin');
+  await host.refresh();
   const identity = await host.parser.identityFor(audio);
-  assert.ok(identity?.includes('cohere'));
+  assert.ok(identity?.includes('ggml-small.bin'));
   // The real decoder fails on these deliberately corrupt bytes. Its failure
   // proves that the already-constructed reader used the newly enabled model.
   await reader.update(new AbortController().signal);
@@ -53,10 +60,12 @@ test('an existing attachment reader observes a model saved or disabled by anothe
     data.prepare('SELECT status FROM attachment_text').get()?.status,
     'failed',
   );
-  // A model Handy does not know reads no audio.
+  // A model not installed on this Mac reads no audio.
   other.setTranscription('missing');
+  await host.refresh();
   assert.notEqual(await host.parser.identityFor(audio), identity);
   other.setTranscription(null);
+  await host.refresh();
   await reader.update(new AbortController().signal);
   assert.equal(
     data.prepare('SELECT status FROM attachment_text').get()?.status,

@@ -11,18 +11,14 @@ test('the CLI saves an installed model in its chosen directory, rejects unknown 
   await using scratch = await mkdtempDisposable(
     join(tmpdir(), 'cli-transcription-'),
   );
-  const models = join(
+  const snapshot = join(
     scratch.path,
-    'Library/Application Support/com.pais.handy/models',
+    '.cache/huggingface/hub/models--ggerganov--whisper.cpp/snapshots/a1',
   );
-  await mkdir(models, { recursive: true });
-  // Discovery looks for the download's file name in Handy's models folder,
-  // where Handy puts a model fetched from its mirror. No import is selected,
-  // so this settings test does not load model weights.
-  await writeFile(
-    join(models, 'cohere-transcribe-arabic-07-2026-Q8_0.gguf'),
-    '',
-  );
+  await mkdir(snapshot, { recursive: true });
+  // A whisper.cpp model's magic is enough for discovery to list the model.
+  // No import is selected, so this settings test loads no weights.
+  await writeFile(join(snapshot, 'ggml-small.bin'), 'lmgg');
   const directory = join(scratch.path, 'imports');
   const run = (id: string) =>
     spawnSync(
@@ -41,12 +37,12 @@ test('the CLI saves an installed model in its chosen directory, rejects unknown 
         timeout: 30_000,
       },
     );
-  const enabled = run('cohere-transcribe-arabic-07-2026');
+  const enabled = run('ggml-small.bin');
   assert.equal(enabled.status, 0, enabled.stderr);
   using settings = new Settings(directory);
-  assert.equal(settings.transcription(), 'cohere-transcribe-arabic-07-2026');
+  assert.equal(settings.transcription(), 'ggml-small.bin');
   assert.equal(run('missing').status, 1);
-  assert.equal(settings.transcription(), 'cohere-transcribe-arabic-07-2026');
+  assert.equal(settings.transcription(), 'ggml-small.bin');
   const disabled = run('off');
   assert.equal(disabled.status, 0, disabled.stderr);
   assert.equal(settings.transcription(), null);

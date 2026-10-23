@@ -11,7 +11,7 @@ import { Connectors } from '@workspace/connector-manifest/connectors';
 import { provideHostModules } from '@workspace/connector-manifest/host-modules';
 import { userConnectors } from '@workspace/connector-manifest/user-connectors';
 import { Transcription } from '@workspace/connector/transcription';
-import { HandyModels } from '@workspace/sdk-handy-models';
+import { SpeechModels } from '@workspace/sdk-macos-speech-models';
 
 import { chatContext } from './chat-status.ts';
 import {
@@ -58,7 +58,7 @@ const store = join(
 );
 const transcription = new Transcription(
   store,
-  new HandyModels(),
+  new SpeechModels(),
   fileURLToPath(new URL('transcribe-local', import.meta.url)),
 );
 const plugin = new Plugin(
@@ -300,7 +300,7 @@ mcpServer.registerTool(
     annotations: { readOnlyHint: true, openWorldHint: false },
     _meta: appOnly,
   },
-  async () => structured(transcription.choices()),
+  async () => structured(await transcription.choices()),
 );
 mcpServer.registerTool(
   'transcription_update',
@@ -326,7 +326,7 @@ mcpServer.registerTool(
           .connectors.filter(({ includeAttachments }) => includeAttachments),
         { afterCurrent: true },
       );
-    return structured(transcription.choices());
+    return structured(await transcription.choices());
   },
 );
 mcpServer.registerTool(
