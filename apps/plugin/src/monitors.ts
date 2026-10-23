@@ -59,6 +59,10 @@ const monitorTables = new Declaration(
 );
 
 const now = () => new Date().toISOString();
+// macOS caps a command's arguments and environment together at 1 MiB
+// (ARG_MAX), and codex queue takes its message only as an argument, so a
+// monitor's new keys go in messages of at most 256 KiB.
+const messageBytes = 256 * 1024;
 const messageOf = (error: unknown) =>
   error instanceof Error ? error.message : String(error);
 
@@ -129,8 +133,9 @@ export class Monitors {
   }
 
   // Evaluates every registered monitor that loads, from the keys it saved.
-  // Each monitor's new matches go to its chat as one message that names their
-  // keys, sent before the keys are saved, so a stop in between sends them
+  // Each monitor's new matches go to its chat in messages that name their
+  // keys, as many as fit one command, each sent before its keys are saved, so
+  // a stop in between sends them
   // again and never loses them. A send that fails, as to a deleted chat, fails
   // only its monitor, whose matches come again at the next check. What
   // it writes afterwards goes to the registration it read, so a monitor
@@ -184,17 +189,20 @@ export class Monitors {
       const keys = unsent.get(rule);
       if (keys === undefined) continue;
       try {
-        await promisify(execFile)(this.#codex, [
-          'queue',
-          '--thread',
-          registered.thread,
-          '--message',
-          [
-            `Monitor "${registered.monitor.title}" triggered: ${registered.monitor.instruction}`,
-            'New matches:',
-            ...keys.map((key) => `- ${key}`),
-          ].join('\n'),
-        ]);
+        let sent = 0;
+        for (const message of messages(registered.monitor, keys)) {
+          await promisify(execFile)(this.#codex, [
+            'queue',
+            '--thread',
+            registered.thread,
+            '--message',
+            message.text,
+          ]);
+          // A message's keys are saved once it went, so a send that fails
+          // later leaves only the keys of that message and those after it.
+          sent += message.keys.length;
+          unsent.set(rule, keys.slice(sent));
+        }
       } catch (error) {
         failed.add(registered.name);
         fail(
@@ -398,6 +406,33 @@ function fail(store: DatabaseSync, registered: Registered, failure: string) {
 
 // What codex said when it refused, rather than the command line Node puts
 // before it.
+// A monitor's new keys as the messages its chat reads in turn, each naming
+// the monitor and as many keys as fit in messageBytes.
+function messages(
+  monitor: Loaded,
+  keys: readonly string[],
+): { readonly text: string; readonly keys: readonly string[] }[] {
+  const head = `Monitor "${monitor.title}" triggered: ${monitor.instruction}\nNew matches:`;
+  const batches: string[][] = [];
+  let batch: string[] = [];
+  let size = Buffer.byteLength(head);
+  for (const key of keys) {
+    const line = Buffer.byteLength(`\n- ${key}`);
+    if (batch.length > 0 && size + line > messageBytes) {
+      batches.push(batch);
+      batch = [];
+      size = Buffer.byteLength(head);
+    }
+    batch.push(key);
+    size += line;
+  }
+  if (batch.length > 0) batches.push(batch);
+  return batches.map((keys) => ({
+    keys,
+    text: [head, ...keys.map((key) => `- ${key}`)].join('\n'),
+  }));
+}
+
 function reasonOf(error: unknown): string {
   const said =
     typeof error === 'object' && error !== null && 'stderr' in error

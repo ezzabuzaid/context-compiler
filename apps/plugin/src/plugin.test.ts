@@ -161,7 +161,8 @@ export default {
 // The desktop's codex cannot run in a test: a real \`codex queue\` writes into
 // the user's own ~/.codex. This executable records each call instead, and
 // while a flag file exists fails as codex 0.162 fails for a chat it lacks:
-// for every chat, or for the one chat a flag file names.
+// for every chat, for the one chat a flag file names, or from the call a
+// flag file numbers on.
 async function stubCodex(directory: string) {
   const calls = join(directory, 'codex-calls.jsonl');
   const failing = join(directory, 'codex-fails');
@@ -172,7 +173,9 @@ async function stubCodex(directory: string) {
       `#!${process.execPath}`,
       "const { appendFileSync, existsSync } = require('node:fs');",
       `appendFileSync(${JSON.stringify(calls)}, JSON.stringify(process.argv.slice(2)) + '\\n');`,
-      `if (existsSync(${JSON.stringify(failing)}) || existsSync(${JSON.stringify(failing)} + '-' + process.argv[4])) { process.stderr.write('Error: failed to queue session message: thread/queue/add failed: failed to read thread: invalid thread-store request: no rollout found for thread id ' + process.argv[4] + ' (code -32603)'); process.exit(1); }`,
+      `const from = ${JSON.stringify(failing)} + '-from';`,
+      `const call = require('node:fs').readFileSync(${JSON.stringify(calls)}, 'utf8').trim().split('\\n').length;`,
+      `if (existsSync(${JSON.stringify(failing)}) || existsSync(${JSON.stringify(failing)} + '-' + process.argv[4]) || (existsSync(from) && call >= Number(require('node:fs').readFileSync(from, 'utf8')))) { process.stderr.write('Error: failed to queue session message: thread/queue/add failed: failed to read thread: invalid thread-store request: no rollout found for thread id ' + process.argv[4] + ' (code -32603)'); process.exit(1); }`,
     ].join('\n'),
     { mode: 0o755 },
   );
@@ -180,6 +183,7 @@ async function stubCodex(directory: string) {
     path,
     failing,
     failingFor: (thread: string) => `${failing}-${thread}`,
+    failingFrom: `${failing}-from`,
     calls: () =>
       existsSync(calls)
         ? readFileSync(calls, 'utf8')
@@ -1168,6 +1172,84 @@ async function monitoredPhotos(scratch: string) {
     writeFile(photosJson, JSON.stringify(ids.map((id) => ({ id, title: id }))));
   return { home, codex, root, store, plugin, imports, photos };
 }
+
+test('a monitor whose new matches outgrow one command sends them in several messages, each match once and in order', async () => {
+  await using scratch = await mkdtempDisposable(join(tmpdir(), 'monitor-'));
+  const { home, codex, root, plugin, imports, photos } = await monitoredPhotos(
+    scratch.path,
+  );
+  await writeMonitor(root, 'new-photos', newPhotos);
+  // macOS caps a command's arguments and environment together at 1 MiB
+  // (getconf ARG_MAX), and codex queue takes its message only as an
+  // argument: 1,100 keys of 1,000 bytes do not fit in one.
+  const added = Array.from({ length: 1100 }, (_, index) =>
+    `p${String(index).padStart(4, '0')}`.padEnd(1000, 'x'),
+  );
+  const previous = process.env.HOME;
+  process.env.HOME = home;
+  try {
+    assert.ok(plugin.monitors !== null);
+    await plugin.import(imports);
+    await plugin.addMonitor('new-photos', 'chat-1');
+    await photos('p1', ...added);
+
+    await plugin.import(imports);
+
+    const [monitor] = await plugin.monitors.status();
+    assert.equal(monitor?.state === 'watching' && monitor.failure, null);
+    const sent = codex.calls();
+    assert.ok(sent.length > 1, `${sent.length} message`);
+    const header = queued('chat-1')[4]?.split('\n').slice(0, 2);
+    const keys = sent.flatMap(([, , thread, , message]) => {
+      assert.equal(thread, 'chat-1');
+      const lines = message?.split('\n') ?? [];
+      assert.deepEqual(lines.slice(0, 2), header);
+      return lines.slice(2).map((line) => line.slice('- '.length));
+    });
+    assert.deepEqual(keys, added);
+  } finally {
+    if (previous === undefined) delete process.env.HOME;
+    else process.env.HOME = previous;
+  }
+});
+
+test('a monitor whose messages fail partway sends only the matches of the messages that did not go at the next sync', async () => {
+  await using scratch = await mkdtempDisposable(join(tmpdir(), 'monitor-'));
+  const { home, codex, root, plugin, imports, photos } = await monitoredPhotos(
+    scratch.path,
+  );
+  await writeMonitor(root, 'new-photos', newPhotos);
+  // More keys than one message carries, as in the test above.
+  const added = Array.from({ length: 1100 }, (_, index) =>
+    `p${String(index).padStart(4, '0')}`.padEnd(1000, 'x'),
+  );
+  const previous = process.env.HOME;
+  process.env.HOME = home;
+  try {
+    await plugin.import(imports);
+    await plugin.addMonitor('new-photos', 'chat-1');
+    await photos('p1', ...added);
+    // The first message goes; codex refuses the second and every call after.
+    await writeFile(codex.failingFrom, '2');
+    await plugin.import(imports);
+    rmSync(codex.failingFrom);
+
+    await plugin.import(imports);
+
+    const [first, refused, ...retried] = codex.calls();
+    const keysOf = (calls: (string[] | undefined)[]) =>
+      calls.flatMap((call) =>
+        (call?.[4]?.split('\n') ?? [])
+          .slice(2)
+          .map((line) => line.slice('- '.length)),
+      );
+    assert.ok(refused !== undefined && retried.length > 0);
+    assert.deepEqual(keysOf([first, ...retried]), added);
+  } finally {
+    if (previous === undefined) delete process.env.HOME;
+    else process.env.HOME = previous;
+  }
+});
 
 test('adding a monitor again from another chat moves where it sends', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'monitor-'));
