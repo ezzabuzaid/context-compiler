@@ -131,8 +131,8 @@ export class Monitors {
   // Evaluates every registered monitor that loads, from the keys it saved.
   // Each monitor's new matches go to its chat as one message that names their
   // keys, sent before the keys are saved, so a stop in between sends them
-  // again and never loses them; a send that fails stops the check, and the
-  // matches of every monitor it did not send come again at the next one. What
+  // again and never loses them. A send that fails, as to a deleted chat, fails
+  // only its monitor, whose matches come again at the next check. What
   // it writes afterwards goes to the registration it read, so a monitor
   // removed or added again meanwhile keeps what that change wrote.
   async check(locate: () => Locate): Promise<void> {
@@ -202,7 +202,7 @@ export class Monitors {
           registered,
           `Could not send to its chat: ${reasonOf(error)}`,
         );
-        break;
+        continue;
       }
       unsent.delete(rule);
       store

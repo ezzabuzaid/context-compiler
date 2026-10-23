@@ -167,7 +167,8 @@ export default {
 
 // The desktop's codex cannot run in a test: a real \`codex queue\` writes into
 // the user's own ~/.codex. This executable records each call instead, and
-// while a flag file exists fails as codex 0.162 fails for a chat it lacks.
+// while a flag file exists fails as codex 0.162 fails for a chat it lacks:
+// for every chat, or for the one chat a flag file names.
 async function stubCodex(directory: string) {
   const calls = join(directory, 'codex-calls.jsonl');
   const failing = join(directory, 'codex-fails');
@@ -178,13 +179,14 @@ async function stubCodex(directory: string) {
       `#!${process.execPath}`,
       "const { appendFileSync, existsSync } = require('node:fs');",
       `appendFileSync(${JSON.stringify(calls)}, JSON.stringify(process.argv.slice(2)) + '\\n');`,
-      `if (existsSync(${JSON.stringify(failing)})) { process.stderr.write('Error: failed to queue session message: thread/queue/add failed: failed to read thread: invalid thread-store request: no rollout found for thread id ' + process.argv[4] + ' (code -32603)'); process.exit(1); }`,
+      `if (existsSync(${JSON.stringify(failing)}) || existsSync(${JSON.stringify(failing)} + '-' + process.argv[4])) { process.stderr.write('Error: failed to queue session message: thread/queue/add failed: failed to read thread: invalid thread-store request: no rollout found for thread id ' + process.argv[4] + ' (code -32603)'); process.exit(1); }`,
     ].join('\n'),
     { mode: 0o755 },
   );
   return {
     path,
     failing,
+    failingFor: (thread: string) => `${failing}-${thread}`,
     calls: () =>
       existsSync(calls)
         ? readFileSync(calls, 'utf8')
@@ -857,13 +859,12 @@ test('matches whose message could not be sent are all sent again at the next syn
   }
 });
 
-test('a monitor whose message a failed send kept from going sends its matches at the next sync', async () => {
+test('a monitor whose chat refuses its message fails alone: the monitors after it still send, and its matches go at the next sync', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'monitor-'));
   const { home, codex, root, plugin, imports, photos } = await monitoredPhotos(
     scratch.path,
   );
-  // Sorted first, so its failed send stops the check before the second
-  // monitor's message.
+  // Checked in name order, so the refused chat comes first.
   await writeMonitor(root, 'a-photos', newPhotos);
   await writeMonitor(root, 'b-photos', newPhotos);
   const previous = process.env.HOME;
@@ -873,16 +874,25 @@ test('a monitor whose message a failed send kept from going sends its matches at
     await plugin.addMonitor('a-photos', 'chat-1');
     await plugin.addMonitor('b-photos', 'chat-2');
     await photos('p1', 'p2');
-    await writeFile(codex.failing, '');
+    // A deleted chat: codex refuses this one thread only.
+    await writeFile(codex.failingFor('chat-1'), '');
     await plugin.import(imports);
-    rmSync(codex.failing);
+    const failures = Object.fromEntries(
+      (await plugin.monitors.status()).map((monitor) => [
+        monitor.name,
+        monitor.state === 'watching' ? monitor.failure : monitor.state,
+      ]),
+    );
+    rmSync(codex.failingFor('chat-1'));
 
     await plugin.import(imports);
 
+    assert.match(String(failures['a-photos']), /^Could not send to its chat: /);
+    assert.equal(failures['b-photos'], null);
     assert.deepEqual(codex.calls(), [
       queued('chat-1', 'p2'),
-      queued('chat-1', 'p2'),
       queued('chat-2', 'p2'),
+      queued('chat-1', 'p2'),
     ]);
   } finally {
     if (previous === undefined) delete process.env.HOME;
