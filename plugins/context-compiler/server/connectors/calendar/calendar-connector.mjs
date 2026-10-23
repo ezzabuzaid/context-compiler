@@ -3,7 +3,7 @@ import {
   CalendarStore,
   CalendarUnavailableError,
   IcsExportUnavailableError
-} from "../../chunks/chunk-F5XSV5KI.mjs";
+} from "../../chunks/chunk-T3T3ORC6.mjs";
 import {
   accounts,
   collections,
@@ -11,10 +11,10 @@ import {
 } from "../../chunks/chunk-KUQKM2Y4.mjs";
 import {
   eventKitFields
-} from "../../chunks/chunk-EP7JQK7X.mjs";
+} from "../../chunks/chunk-GIEVJ5T4.mjs";
 import {
-  AppleConnector
-} from "../../chunks/chunk-2LTQDBCX.mjs";
+  Connector
+} from "../../chunks/chunk-7ELPL3YG.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -24,13 +24,13 @@ import {
   fileExtension,
   isTimestamp,
   validateRecords
-} from "../../chunks/chunk-57KDDNKG.mjs";
+} from "../../chunks/chunk-UZWKSGGL.mjs";
 import {
   __callDispose,
   __using
 } from "../../chunks/chunk-ZGXE7NZW.mjs";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/google-auth/dist/scopes.js
+// ../elt/packages/google-auth/dist/scopes.js
 var GOOGLE_DRIVE_READONLY_SCOPE = "https://www.googleapis.com/auth/drive.readonly";
 var GMAIL_READONLY_SCOPE = "https://www.googleapis.com/auth/gmail.readonly";
 var GOOGLE_HEALTH_SCOPES = [
@@ -45,12 +45,12 @@ var GOOGLE_HEALTH_SCOPES = [
   "sleep"
 ].map((name2) => `https://www.googleapis.com/auth/googlehealth.${name2}.readonly`);
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/calendar/dist/apple-calendar-source.js
+// ../elt/packages/sources/apple/calendar/dist/apple-calendar-source.js
 import { mkdtempDisposable, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join as join2 } from "node:path";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/calendar/dist/icalendar.js
+// ../elt/packages/sources/apple/calendar/dist/icalendar.js
 var namePattern = /^[A-Za-z0-9-]+/;
 function parseICalendar(bytes) {
   let text11;
@@ -179,7 +179,7 @@ function freeze(component) {
   });
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/calendar/dist/calendar-scan.js
+// ../elt/packages/sources/apple/calendar/dist/calendar-scan.js
 function timestamp(ms) {
   return ms === void 0 ? null : new Date(ms).toISOString();
 }
@@ -294,7 +294,7 @@ function inContentOrder(component) {
   return { ...component, components };
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/calendar/dist/calendar-stream.js
+// ../elt/packages/sources/apple/calendar/dist/calendar-stream.js
 var { id, location: location2 } = eventKitFields;
 var calendarFields = {
   ...eventKitFields,
@@ -366,7 +366,7 @@ var CalendarStream = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/calendar/dist/streams/accounts-stream.js
+// ../elt/packages/sources/apple/calendar/dist/streams/accounts-stream.js
 var { id: id2, text, ordinal, boolean } = calendarFields;
 var properties = {
   id: {
@@ -405,7 +405,7 @@ var AccountsStream = class extends CalendarStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/calendar/dist/streams/alarms-stream.js
+// ../elt/packages/sources/apple/calendar/dist/streams/alarms-stream.js
 var { id: id3, eventId, ordinal: ordinal2, number, nullableTimestamp, nullableText } = calendarFields;
 var properties2 = {
   id: {
@@ -475,7 +475,7 @@ var AlarmsStream = class extends CalendarStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/calendar/dist/streams/attendees-stream.js
+// ../elt/packages/sources/apple/calendar/dist/streams/attendees-stream.js
 var { id: id4, eventId: eventId2, ordinal: ordinal3, text: text2, nullableText: nullableText2, boolean: boolean2 } = calendarFields;
 var properties3 = {
   id: {
@@ -559,7 +559,7 @@ var AttendeesStream = class extends CalendarStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/calendar/dist/streams/calendars-stream.js
+// ../elt/packages/sources/apple/calendar/dist/streams/calendars-stream.js
 var { id: id5, text: text3, ordinal: ordinal4, boolean: boolean3, color } = calendarFields;
 var properties4 = {
   id: {
@@ -645,7 +645,7 @@ var CalendarsStream = class extends CalendarStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/calendar/dist/streams/events-stream.js
+// ../elt/packages/sources/apple/calendar/dist/streams/events-stream.js
 var { id: id6, text: text4, nullableText: nullableText3, timestamp: timestampField, nullableTimestamp: nullableTimestamp2, nullableDate, boolean: boolean4, ordinal: ordinal5, integer } = calendarFields;
 var properties5 = {
   id: { ...id6, description: "Same value as eventId; the record key." },
@@ -791,7 +791,7 @@ var EventsStream = class extends CalendarStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/calendar/dist/streams/ics-attachments-stream.js
+// ../elt/packages/sources/apple/calendar/dist/streams/ics-attachments-stream.js
 import { randomUUID } from "node:crypto";
 import { lstat, writeFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -874,7 +874,7 @@ var IcsAttachmentsStream = class extends CalendarStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/calendar/dist/streams/ics-components-stream.js
+// ../elt/packages/sources/apple/calendar/dist/streams/ics-components-stream.js
 var { id: id8, icsItem: icsItem2, nullableText: nullableText5, ordinal: ordinal6, text: text6 } = calendarFields;
 var properties7 = {
   id: {
@@ -944,7 +944,7 @@ var IcsComponentsStream = class extends CalendarStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/calendar/dist/streams/ics-parameters-stream.js
+// ../elt/packages/sources/apple/calendar/dist/streams/ics-parameters-stream.js
 var { id: id9, icsItem: icsItem3, ordinal: ordinal7, text: text7 } = calendarFields;
 var properties8 = {
   id: {
@@ -1007,7 +1007,7 @@ var IcsParametersStream = class extends CalendarStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/calendar/dist/streams/ics-properties-stream.js
+// ../elt/packages/sources/apple/calendar/dist/streams/ics-properties-stream.js
 var { id: id10, icsItem: icsItem4, ordinal: ordinal8, text: text8 } = calendarFields;
 var properties9 = {
   id: {
@@ -1057,7 +1057,7 @@ var IcsPropertiesStream = class extends CalendarStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/calendar/dist/streams/recurrence-rule-values-stream.js
+// ../elt/packages/sources/apple/calendar/dist/streams/recurrence-rule-values-stream.js
 var { id: id11, eventId: eventId3, text: text9, ordinal: ordinal9, integer: integer2 } = calendarFields;
 var properties10 = {
   id: {
@@ -1134,7 +1134,7 @@ var RecurrenceRuleValuesStream = class extends CalendarStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/calendar/dist/streams/recurrence-rules-stream.js
+// ../elt/packages/sources/apple/calendar/dist/streams/recurrence-rules-stream.js
 var { id: id12, eventId: eventId4, ordinal: ordinal10, text: text10, integer: integer3, nullableTimestamp: nullableTimestamp3 } = calendarFields;
 var properties11 = {
   id: {
@@ -1200,7 +1200,7 @@ var RecurrenceRulesStream = class extends CalendarStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/calendar/dist/apple-calendar-source.js
+// ../elt/packages/sources/apple/calendar/dist/apple-calendar-source.js
 var CalendarIcsUnavailableError = class extends Error {
   name = "CalendarIcsUnavailableError";
   constructor(cause) {
@@ -1346,7 +1346,7 @@ var AppleCalendarSource = class extends Source {
 };
 
 // packages/connectors/calendar/dist/calendar-connector.js
-var CalendarConnector = class extends AppleConnector {
+var CalendarConnector = class extends Connector {
   datedBy = "event dates (events that overlap the range; with none, every event from 2000 until a year after each import)";
   fullDiskAccess = false;
   choices = [
@@ -1379,7 +1379,7 @@ var CalendarConnector = class extends AppleConnector {
       GOOGLE_DRIVE_READONLY_SCOPE,
       GMAIL_READONLY_SCOPE
     ]);
-    const { googleCalendarAttachments } = await import("../../chunks/google-calendar-attachments-UT4B37TN.mjs");
+    const { googleCalendarAttachments } = await import("../../chunks/google-calendar-attachments-C7YOQHVW.mjs");
     return this.#calendar(scope, googleCalendarAttachments(google));
   }
   #calendar(scope, attachments) {

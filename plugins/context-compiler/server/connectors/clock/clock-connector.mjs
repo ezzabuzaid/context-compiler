@@ -1,24 +1,24 @@
 import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);
 import {
   referenceDateInstant
-} from "../../chunks/chunk-NIS5HHJK.mjs";
+} from "../../chunks/chunk-SWUBRDTN.mjs";
 import {
   PlistDate,
   decodeArchive,
   isDictionary,
   parseBinaryPlist,
   plistJSON
-} from "../../chunks/chunk-SYAWWPYB.mjs";
+} from "../../chunks/chunk-6YWS5RU4.mjs";
 import {
   localAppleStoreCoverage
-} from "../../chunks/chunk-JAML3A7K.mjs";
+} from "../../chunks/chunk-2EITIVUZ.mjs";
 import {
   DataVersion,
   Snapshot
-} from "../../chunks/chunk-BPQGEW64.mjs";
+} from "../../chunks/chunk-KSEJSZJO.mjs";
 import {
-  AppleConnector
-} from "../../chunks/chunk-2LTQDBCX.mjs";
+  Connector
+} from "../../chunks/chunk-7ELPL3YG.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -26,21 +26,21 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-57KDDNKG.mjs";
+} from "../../chunks/chunk-UZWKSGGL.mjs";
 import {
   __callDispose,
   __using
 } from "../../chunks/chunk-ZGXE7NZW.mjs";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/clock/dist/apple-clock-source.js
+// ../elt/packages/sources/apple/clock/dist/apple-clock-source.js
 import { setInterval } from "node:timers/promises";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/clock/dist/clock-store.js
+// ../elt/packages/sdks/apple/clock/dist/clock-store.js
 import { stat } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/clock/dist/errors.js
+// ../elt/packages/sdks/apple/clock/dist/errors.js
 var ClockUnavailableError = class extends Error {
   name = "ClockUnavailableError";
   constructor(path, cause) {
@@ -54,7 +54,7 @@ var ClockSchemaError = class extends Error {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/clock/dist/values.js
+// ../elt/packages/sdks/apple/clock/dist/values.js
 function dictionary(value) {
   if (!isDictionary(value))
     throw new TypeError("Clock expected a property-list dictionary");
@@ -134,7 +134,7 @@ function timerTime(value) {
   };
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/clock/dist/clock-database.js
+// ../elt/packages/sdks/apple/clock/dist/clock-database.js
 var columns = {
   ZMTCDALARM: [
     "ZMTID",
@@ -303,7 +303,7 @@ var ClockDatabase = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/clock/dist/clock-preferences.js
+// ../elt/packages/sdks/apple/clock/dist/clock-preferences.js
 import { readFile } from "node:fs/promises";
 async function preferences(path) {
   let bytes2;
@@ -370,7 +370,7 @@ function date(value) {
   return instant(value.referenceSeconds);
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/clock/dist/clock-store.js
+// ../elt/packages/sdks/apple/clock/dist/clock-store.js
 var clockLocation = Object.freeze({
   database: join(homedir(), "Library/Group Containers/group.com.apple.mobiletimerd/local.sqlite"),
   cities: join(homedir(), "Library/Containers/com.apple.clock/Data/Library/Preferences/com.apple.mobiletimer.plist"),
@@ -468,7 +468,7 @@ var ClockVersion = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/clock/dist/clock-stream.js
+// ../elt/packages/sources/apple/clock/dist/clock-stream.js
 var fields = {
   id: { type: "string", minLength: 1 },
   text: { type: ["string", "null"] },
@@ -503,7 +503,7 @@ var ClockStream = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/clock/dist/streams/alarms-stream.js
+// ../elt/packages/sources/apple/clock/dist/streams/alarms-stream.js
 var properties = {
   id: {
     ...fields.id,
@@ -603,7 +603,7 @@ var AlarmsStream = class extends ClockStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/clock/dist/streams/calendar-releases-stream.js
+// ../elt/packages/sources/apple/clock/dist/streams/calendar-releases-stream.js
 var properties2 = {
   id: {
     ...fields.id,
@@ -634,7 +634,7 @@ var CalendarReleasesStream = class extends ClockStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/clock/dist/streams/makeup-days-stream.js
+// ../elt/packages/sources/apple/clock/dist/streams/makeup-days-stream.js
 var properties3 = {
   id: {
     ...fields.id,
@@ -664,7 +664,7 @@ var MakeupDaysStream = class extends ClockStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/clock/dist/streams/reports-stream.js
+// ../elt/packages/sources/apple/clock/dist/streams/reports-stream.js
 var properties4 = {
   id: {
     ...fields.id,
@@ -690,7 +690,7 @@ var ReportsStream = class extends ClockStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/clock/dist/streams/sounds-stream.js
+// ../elt/packages/sources/apple/clock/dist/streams/sounds-stream.js
 var properties5 = {
   id: {
     ...fields.id,
@@ -725,7 +725,7 @@ var SoundsStream = class extends ClockStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/clock/dist/streams/stopwatch-laps-stream.js
+// ../elt/packages/sources/apple/clock/dist/streams/stopwatch-laps-stream.js
 var properties6 = {
   stopwatchId: {
     ...fields.id,
@@ -755,7 +755,7 @@ var StopwatchLapsStream = class extends ClockStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/clock/dist/streams/stopwatches-stream.js
+// ../elt/packages/sources/apple/clock/dist/streams/stopwatches-stream.js
 var properties7 = {
   id: {
     ...fields.id,
@@ -797,7 +797,7 @@ var StopwatchesStream = class extends ClockStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/clock/dist/streams/timer-durations-stream.js
+// ../elt/packages/sources/apple/clock/dist/streams/timer-durations-stream.js
 var properties8 = {
   id: {
     ...fields.id,
@@ -843,7 +843,7 @@ var TimerDurationsStream = class extends ClockStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/clock/dist/streams/timers-stream.js
+// ../elt/packages/sources/apple/clock/dist/streams/timers-stream.js
 var properties9 = {
   id: {
     ...fields.id,
@@ -910,7 +910,7 @@ var TimersStream = class extends ClockStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/clock/dist/streams/world-clocks-stream.js
+// ../elt/packages/sources/apple/clock/dist/streams/world-clocks-stream.js
 var properties10 = {
   position: {
     ...fields.position,
@@ -973,7 +973,7 @@ var WorldClocksStream = class extends ClockStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/clock/dist/apple-clock-source.js
+// ../elt/packages/sources/apple/clock/dist/apple-clock-source.js
 var alarmsReader = new AlarmsStream();
 var timersReader = new TimersStream();
 var timerDurationsReader = new TimerDurationsStream();
@@ -1082,7 +1082,7 @@ var AppleClockSource = class extends Source {
 };
 
 // packages/connectors/clock/dist/clock-connector.js
-var ClockConnector = class extends AppleConnector {
+var ClockConnector = class extends Connector {
   datedBy = null;
   fullDiskAccess = true;
   choices = [];

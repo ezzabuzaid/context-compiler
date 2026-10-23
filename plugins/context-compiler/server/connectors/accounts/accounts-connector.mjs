@@ -3,20 +3,20 @@ import {
   AccountsStore,
   AccountsUnavailableError,
   accountsStorePath
-} from "../../chunks/chunk-RXOT6LMX.mjs";
+} from "../../chunks/chunk-2UK5YRTQ.mjs";
 import {
   eventKitFields
-} from "../../chunks/chunk-EP7JQK7X.mjs";
+} from "../../chunks/chunk-GIEVJ5T4.mjs";
 import {
   plistJSON
-} from "../../chunks/chunk-SYAWWPYB.mjs";
+} from "../../chunks/chunk-6YWS5RU4.mjs";
 import {
   localAppleStoreCoverage
-} from "../../chunks/chunk-JAML3A7K.mjs";
-import "../../chunks/chunk-BPQGEW64.mjs";
+} from "../../chunks/chunk-2EITIVUZ.mjs";
+import "../../chunks/chunk-KSEJSZJO.mjs";
 import {
-  AppleConnector
-} from "../../chunks/chunk-2LTQDBCX.mjs";
+  Connector
+} from "../../chunks/chunk-7ELPL3YG.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -24,16 +24,16 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-57KDDNKG.mjs";
+} from "../../chunks/chunk-UZWKSGGL.mjs";
 import {
   __callDispose,
   __using
 } from "../../chunks/chunk-ZGXE7NZW.mjs";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/accounts/dist/apple-accounts-source.js
+// ../elt/packages/sources/apple/accounts/dist/apple-accounts-source.js
 import { setInterval } from "node:timers/promises";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/accounts/dist/accounts-scan.js
+// ../elt/packages/sources/apple/accounts/dist/accounts-scan.js
 var AccountsScan = class {
   snapshot;
   #accounts;
@@ -49,7 +49,7 @@ var AccountsScan = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/accounts/dist/apple-accounts-stream.js
+// ../elt/packages/sources/apple/accounts/dist/apple-accounts-stream.js
 var accountsFields = {
   ...eventKitFields,
   nullableId: { type: ["string", "null"], minLength: 1 },
@@ -77,7 +77,7 @@ var AppleAccountsStream = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/accounts/dist/streams/access-option-keys-stream.js
+// ../elt/packages/sources/apple/accounts/dist/streams/access-option-keys-stream.js
 var { id, nullableInteger, strings } = accountsFields;
 var properties = {
   name: {
@@ -116,7 +116,7 @@ var AccessOptionKeysStream = class extends AppleAccountsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/accounts/dist/streams/account-dataclasses-stream.js
+// ../elt/packages/sources/apple/accounts/dist/streams/account-dataclasses-stream.js
 var { id: id2, boolean } = accountsFields;
 var properties2 = {
   accountId: {
@@ -163,7 +163,7 @@ var AccountDataclassesStream = class extends AppleAccountsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/accounts/dist/streams/account-properties-stream.js
+// ../elt/packages/sources/apple/accounts/dist/streams/account-properties-stream.js
 var { id: id3, text } = accountsFields;
 var properties3 = {
   accountId: {
@@ -200,7 +200,7 @@ var AccountPropertiesStream = class extends AppleAccountsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/accounts/dist/streams/account-types-stream.js
+// ../elt/packages/sources/apple/accounts/dist/streams/account-types-stream.js
 var { id: id4, nullableText, nullableBoolean, nullableInteger: nullableInteger2, strings: strings2 } = accountsFields;
 var stored = (what) => `${what} as the Accounts framework stores it; NULL when it holds none.`;
 var properties4 = {
@@ -280,7 +280,7 @@ var AccountTypesStream = class extends AppleAccountsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/accounts/dist/streams/accounts-stream.js
+// ../elt/packages/sources/apple/accounts/dist/streams/accounts-stream.js
 var { id: id5, nullableId, nullableText: nullableText2, text: text2, boolean: boolean2, nullableBoolean: nullableBoolean2, nullableTimestamp, strings: strings3 } = accountsFields;
 var stored2 = (what) => `${what} as the Accounts framework stores it; NULL when it holds none.`;
 var properties5 = {
@@ -402,7 +402,7 @@ var AccountsStream = class extends AppleAccountsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/accounts/dist/streams/authorizations-stream.js
+// ../elt/packages/sources/apple/accounts/dist/streams/authorizations-stream.js
 var { id: id6, nullableText: nullableText3 } = accountsFields;
 var properties6 = {
   accountType: {
@@ -446,7 +446,7 @@ var AuthorizationsStream = class extends AppleAccountsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/accounts/dist/streams/credential-items-stream.js
+// ../elt/packages/sources/apple/accounts/dist/streams/credential-items-stream.js
 var { id: id7, nullableBoolean: nullableBoolean3, nullableTimestamp: nullableTimestamp2 } = accountsFields;
 var properties7 = {
   accountId: {
@@ -490,7 +490,7 @@ var CredentialItemsStream = class extends AppleAccountsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/accounts/dist/streams/dataclasses-stream.js
+// ../elt/packages/sources/apple/accounts/dist/streams/dataclasses-stream.js
 var { id: id8, nullableInteger: nullableInteger3 } = accountsFields;
 var properties8 = {
   name: {
@@ -519,7 +519,7 @@ var DataclassesStream = class extends AppleAccountsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/accounts/dist/apple-accounts-source.js
+// ../elt/packages/sources/apple/accounts/dist/apple-accounts-source.js
 var readers = {
   accounts: new AccountsStream(),
   accountProperties: new AccountPropertiesStream(),
@@ -605,7 +605,7 @@ var AppleAccountsSource = class extends Source {
 };
 
 // packages/connectors/accounts/dist/accounts-connector.js
-var AccountsConnector = class extends AppleConnector {
+var AccountsConnector = class extends Connector {
   datedBy = null;
   fullDiskAccess = true;
   // One small store of every account on this Mac; everything is imported.

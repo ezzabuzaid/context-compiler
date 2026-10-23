@@ -4,9 +4,9 @@ import {
   __toESM
 } from "./chunk-ZGXE7NZW.mjs";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/snappyjs/snappy_decompressor.js
+// ../elt/node_modules/snappyjs/snappy_decompressor.js
 var require_snappy_decompressor = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/snappyjs/snappy_decompressor.js"(exports) {
+  "../elt/node_modules/snappyjs/snappy_decompressor.js"(exports) {
     "use strict";
     var WORD_MASK = [0, 255, 65535, 16777215, 4294967295];
     function copyBytes(fromArray, fromPos, toArray, toPos, length) {
@@ -110,9 +110,9 @@ var require_snappy_decompressor = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/snappyjs/snappy_compressor.js
+// ../elt/node_modules/snappyjs/snappy_compressor.js
 var require_snappy_compressor = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/snappyjs/snappy_compressor.js"(exports) {
+  "../elt/node_modules/snappyjs/snappy_compressor.js"(exports) {
     "use strict";
     var BLOCK_LOG = 16;
     var BLOCK_SIZE = 1 << BLOCK_LOG;
@@ -292,9 +292,9 @@ var require_snappy_compressor = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/snappyjs/index.js
+// ../elt/node_modules/snappyjs/index.js
 var require_snappyjs = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/snappyjs/index.js"(exports) {
+  "../elt/node_modules/snappyjs/index.js"(exports) {
     "use strict";
     function isNode() {
       if (typeof process === "object") {
@@ -405,7 +405,7 @@ var require_snappyjs = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/codecs/chromium-indexeddb/dist/errors.js
+// ../elt/packages/codecs/chromium-indexeddb/dist/errors.js
 var IndexedDBFormatError = class extends Error {
   name = "IndexedDBFormatError";
   constructor(path, problem, cause) {
@@ -415,7 +415,7 @@ var IndexedDBFormatError = class extends Error {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/codecs/leveldb/dist/crc32c.js
+// ../elt/packages/codecs/leveldb/dist/crc32c.js
 var table = Uint32Array.from({ length: 256 }, (_, index) => {
   let crc = index;
   for (let bit = 0; bit < 8; bit++)
@@ -431,7 +431,7 @@ function maskedCrc32c(...parts) {
   return (crc >>> 15 | crc << 17) + 2726488792 >>> 0;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/codecs/leveldb/dist/errors.js
+// ../elt/packages/codecs/leveldb/dist/errors.js
 var LevelDBFormatError = class extends Error {
   name = "LevelDBFormatError";
   constructor(path, problem) {
@@ -439,10 +439,10 @@ var LevelDBFormatError = class extends Error {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/codecs/leveldb/dist/leveldb.js
+// ../elt/packages/codecs/leveldb/dist/leveldb.js
 import { readFile as readFile2 } from "node:fs/promises";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/codecs/leveldb/dist/byte-reader.js
+// ../elt/packages/codecs/leveldb/dist/byte-reader.js
 var ByteReader = class {
   bytes;
   path;
@@ -494,7 +494,7 @@ var ByteReader = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/codecs/leveldb/dist/log.js
+// ../elt/packages/codecs/leveldb/dist/log.js
 var blockSize = 32768;
 var headerSize = 7;
 var full = 1;
@@ -554,7 +554,7 @@ function* logEntries(bytes, path) {
   }
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/codecs/leveldb/dist/manifest.js
+// ../elt/packages/codecs/leveldb/dist/manifest.js
 import { readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 var comparator = 1;
@@ -619,7 +619,7 @@ async function liveFiles(directory) {
   };
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/codecs/leveldb/dist/table.js
+// ../elt/packages/codecs/leveldb/dist/table.js
 var import_snappyjs = __toESM(require_snappyjs(), 1);
 var footerSize = 48;
 var magic = 0xdb4775248b80fb57n;
@@ -690,7 +690,7 @@ function internalEntry(key, value, path) {
   throw new LevelDBFormatError(path, `table entry type ${type}`);
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/codecs/leveldb/dist/leveldb.js
+// ../elt/packages/codecs/leveldb/dist/leveldb.js
 async function readLevelDB(directory) {
   const { tables, logs } = await liveFiles(directory);
   const newest = /* @__PURE__ */ new Map();
@@ -709,7 +709,7 @@ async function readLevelDB(directory) {
   return [...newest.values()].flatMap(({ key, value }) => value === null ? [] : [{ key, value }]);
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/codecs/v8-serialization/dist/v8-deserializer.js
+// ../elt/packages/codecs/v8-serialization/dist/v8-deserializer.js
 var oldestVersion = 13;
 var newestVersion = 16;
 var V8FormatError = class extends Error {
@@ -1054,7 +1054,7 @@ var V8Reader = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/codecs/chromium-indexeddb/dist/byte-reader.js
+// ../elt/packages/codecs/chromium-indexeddb/dist/byte-reader.js
 var ByteReader2 = class {
   bytes;
   path;
@@ -1118,7 +1118,7 @@ var ByteReader2 = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/codecs/chromium-indexeddb/dist/key-coding.js
+// ../elt/packages/codecs/chromium-indexeddb/dist/key-coding.js
 function readPrefix(reader) {
   const lengths = reader.byte();
   return {
@@ -1147,7 +1147,7 @@ function readKey(reader) {
   return reader.fail(`key type ${type}`);
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/codecs/chromium-indexeddb/dist/value-wrapping.js
+// ../elt/packages/codecs/chromium-indexeddb/dist/value-wrapping.js
 var import_snappyjs2 = __toESM(require_snappyjs(), 1);
 import { readFile as readFile3 } from "node:fs/promises";
 import { join as join2 } from "node:path";
@@ -1223,7 +1223,7 @@ function readExternalObjects(bytes, path) {
   return objects;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/codecs/chromium-indexeddb/dist/indexeddb.js
+// ../elt/packages/codecs/chromium-indexeddb/dist/indexeddb.js
 var databaseName = 201;
 var objectStoreMetadata = 50;
 var objectStoreName = 0;

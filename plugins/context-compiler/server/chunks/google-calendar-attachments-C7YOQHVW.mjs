@@ -4,9 +4,9 @@ import {
   __toESM
 } from "./chunk-ZGXE7NZW.mjs";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/extend/index.js
+// ../elt/node_modules/extend/index.js
 var require_extend = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/extend/index.js"(exports, module) {
+  "../elt/node_modules/extend/index.js"(exports, module) {
     "use strict";
     var hasOwn = Object.prototype.hasOwnProperty;
     var toStr = Object.prototype.toString;
@@ -95,9 +95,9 @@ var require_extend = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/gaxios/package.json
+// ../elt/node_modules/gaxios/package.json
 var require_package = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/gaxios/package.json"(exports, module) {
+  "../elt/node_modules/gaxios/package.json"(exports, module) {
     module.exports = {
       name: "gaxios",
       version: "7.3.1",
@@ -206,23 +206,23 @@ var require_package = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/gaxios/build/esm/src/util.cjs
+// ../elt/node_modules/gaxios/build/esm/src/util.cjs
 var require_util = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/gaxios/build/esm/src/util.cjs"(exports, module) {
+  "../elt/node_modules/gaxios/build/esm/src/util.cjs"(exports, module) {
     "use strict";
     var pkg2 = require_package();
     module.exports = { pkg: pkg2 };
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/calendar/dist/google-calendar-attachments.js
+// ../elt/packages/sources/apple/calendar/dist/google-calendar-attachments.js
 import { writeFile } from "node:fs/promises";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/gaxios/build/esm/src/gaxios.js
+// ../elt/node_modules/gaxios/build/esm/src/gaxios.js
 var import_extend2 = __toESM(require_extend(), 1);
 import { Agent as HTTPSAgent } from "https";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/gaxios/build/esm/src/common.js
+// ../elt/node_modules/gaxios/build/esm/src/common.js
 var import_extend = __toESM(require_extend(), 1);
 var import_util = __toESM(require_util(), 1);
 var pkg = import_util.default.pkg;
@@ -452,7 +452,7 @@ function defaultErrorRedactor(data) {
   return data;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/gaxios/build/esm/src/retry.js
+// ../elt/node_modules/gaxios/build/esm/src/retry.js
 async function getRetryConfig(err) {
   let config = getConfig(err);
   if (!err || !err.config || !config && !err.config.retry) {
@@ -550,14 +550,14 @@ function getNextRetryDelay(config) {
   return Math.min(calculatedDelay, maxAllowableDelay, config.maxRetryDelay);
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/gaxios/build/esm/src/gaxios.js
+// ../elt/node_modules/gaxios/build/esm/src/gaxios.js
 import { Readable } from "stream";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/gaxios/build/esm/src/interceptor.js
+// ../elt/node_modules/gaxios/build/esm/src/interceptor.js
 var GaxiosInterceptorManager = class extends Set {
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/gaxios/build/esm/src/gaxios.js
+// ../elt/node_modules/gaxios/build/esm/src/gaxios.js
 var _a;
 var randomUUID = async () => globalThis.crypto?.randomUUID() || (await import("crypto")).randomUUID();
 var HTTP_STATUS_NO_CONTENT = 204;
@@ -977,12 +977,12 @@ Content-Type: ${partContentType}\r
    * @returns A proxy agent
    */
   static async #getProxyAgent() {
-    this.#proxyAgent ||= (await import("./dist-BTJFMDCJ.mjs")).HttpsProxyAgent;
+    this.#proxyAgent ||= (await import("./dist-P5KGFBVW.mjs")).HttpsProxyAgent;
     return this.#proxyAgent;
   }
   static async #getFetch() {
     const hasWindow = typeof window !== "undefined" && !!window;
-    this.#fetch ||= hasWindow ? window.fetch : (await import("./src-FNYNEGFO.mjs")).default;
+    this.#fetch ||= hasWindow ? window.fetch : (await import("./src-HQUYE6LD.mjs")).default;
     return this.#fetch;
   }
   /**
@@ -1014,10 +1014,10 @@ Content-Type: ${partContentType}\r
 };
 _a = Gaxios;
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/gaxios/build/esm/src/index.js
+// ../elt/node_modules/gaxios/build/esm/src/index.js
 var instance = new Gaxios();
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/google-auth/dist/platform/google/google-errors.js
+// ../elt/packages/google-auth/dist/platform/google/google-errors.js
 function bodyOf(error) {
   if (!(error instanceof GaxiosError))
     return void 0;
@@ -1032,7 +1032,7 @@ function reasonsOf(error) {
   return [...body?.errors ?? [], ...body?.details ?? []].flatMap((entry) => entry.reason ?? []);
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/calendar/dist/google-calendar-attachments.js
+// ../elt/packages/sources/apple/calendar/dist/google-calendar-attachments.js
 var DRIVE = "https://www.googleapis.com/drive/v3/files";
 var GMAIL = "https://gmail.googleapis.com/gmail/v1/users/me";
 var NO_ACCESS = /* @__PURE__ */ new Set([

@@ -4,7 +4,7 @@ import {
   AccountsUnavailableError,
   accountsStorePath,
   mailDataclass
-} from "../../chunks/chunk-RXOT6LMX.mjs";
+} from "../../chunks/chunk-2UK5YRTQ.mjs";
 import {
   accounts,
   byId
@@ -12,26 +12,26 @@ import {
 import {
   selected,
   withinDates
-} from "../../chunks/chunk-JDWFBKNS.mjs";
+} from "../../chunks/chunk-XGE73YOJ.mjs";
 import {
   isBinaryPlist,
   isDictionary,
   parseBinaryPlist,
   plistJSON,
   readPlist
-} from "../../chunks/chunk-SYAWWPYB.mjs";
+} from "../../chunks/chunk-6YWS5RU4.mjs";
 import {
   localAppleStoreCoverage
-} from "../../chunks/chunk-JAML3A7K.mjs";
+} from "../../chunks/chunk-2EITIVUZ.mjs";
 import {
   DataVersion,
   Snapshot,
   lastWrite
-} from "../../chunks/chunk-BPQGEW64.mjs";
+} from "../../chunks/chunk-KSEJSZJO.mjs";
 import {
-  AppleConnector,
+  Connector,
   readSQLite
-} from "../../chunks/chunk-2LTQDBCX.mjs";
+} from "../../chunks/chunk-7ELPL3YG.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -41,7 +41,7 @@ import {
   diffSnapshot,
   fileExtension,
   validateRecords
-} from "../../chunks/chunk-57KDDNKG.mjs";
+} from "../../chunks/chunk-UZWKSGGL.mjs";
 import {
   __callDispose,
   __commonJS,
@@ -50,9 +50,9 @@ import {
   __using
 } from "../../chunks/chunk-ZGXE7NZW.mjs";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/safer-buffer/safer.js
+// ../elt/node_modules/safer-buffer/safer.js
 var require_safer = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/safer-buffer/safer.js"(exports, module) {
+  "../elt/node_modules/safer-buffer/safer.js"(exports, module) {
     "use strict";
     var buffer = __require("buffer");
     var Buffer2 = buffer.Buffer;
@@ -118,9 +118,9 @@ var require_safer = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/lib/bom-handling.js
+// ../elt/node_modules/iconv-lite/lib/bom-handling.js
 var require_bom_handling = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/lib/bom-handling.js"(exports) {
+  "../elt/node_modules/iconv-lite/lib/bom-handling.js"(exports) {
     "use strict";
     var BOMChar = "\uFEFF";
     exports.PrependBOM = PrependBOMWrapper;
@@ -164,9 +164,9 @@ var require_bom_handling = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/lib/helpers/merge-exports.js
+// ../elt/node_modules/iconv-lite/lib/helpers/merge-exports.js
 var require_merge_exports = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/lib/helpers/merge-exports.js"(exports, module) {
+  "../elt/node_modules/iconv-lite/lib/helpers/merge-exports.js"(exports, module) {
     "use strict";
     var hasOwn = typeof Object.hasOwn === "undefined" ? Function.call.bind(Object.prototype.hasOwnProperty) : Object.hasOwn;
     function mergeModules(target, module2) {
@@ -180,9 +180,9 @@ var require_merge_exports = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/internal.js
+// ../elt/node_modules/iconv-lite/encodings/internal.js
 var require_internal = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/internal.js"(exports, module) {
+  "../elt/node_modules/iconv-lite/encodings/internal.js"(exports, module) {
     "use strict";
     var Buffer2 = require_safer().Buffer;
     module.exports = {
@@ -361,9 +361,9 @@ var require_internal = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/utf32.js
+// ../elt/node_modules/iconv-lite/encodings/utf32.js
 var require_utf32 = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/utf32.js"(exports) {
+  "../elt/node_modules/iconv-lite/encodings/utf32.js"(exports) {
     "use strict";
     var Buffer2 = require_safer().Buffer;
     exports._utf32 = Utf32Codec;
@@ -596,9 +596,9 @@ var require_utf32 = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/utf16.js
+// ../elt/node_modules/iconv-lite/encodings/utf16.js
 var require_utf16 = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/utf16.js"(exports) {
+  "../elt/node_modules/iconv-lite/encodings/utf16.js"(exports) {
     "use strict";
     var Buffer2 = require_safer().Buffer;
     exports.utf16be = Utf16BECodec;
@@ -739,9 +739,9 @@ var require_utf16 = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/utf7.js
+// ../elt/node_modules/iconv-lite/encodings/utf7.js
 var require_utf7 = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/utf7.js"(exports) {
+  "../elt/node_modules/iconv-lite/encodings/utf7.js"(exports) {
     "use strict";
     var Buffer2 = require_safer().Buffer;
     exports.utf7 = Utf7Codec;
@@ -957,9 +957,9 @@ var require_utf7 = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/sbcs-codec.js
+// ../elt/node_modules/iconv-lite/encodings/sbcs-codec.js
 var require_sbcs_codec = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/sbcs-codec.js"(exports) {
+  "../elt/node_modules/iconv-lite/encodings/sbcs-codec.js"(exports) {
     "use strict";
     var Buffer2 = require_safer().Buffer;
     exports._sbcs = SBCSCodec;
@@ -1019,9 +1019,9 @@ var require_sbcs_codec = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/sbcs-data.js
+// ../elt/node_modules/iconv-lite/encodings/sbcs-data.js
 var require_sbcs_data = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/sbcs-data.js"(exports, module) {
+  "../elt/node_modules/iconv-lite/encodings/sbcs-data.js"(exports, module) {
     "use strict";
     module.exports = {
       // Not supported by iconv, not sure why.
@@ -1174,9 +1174,9 @@ var require_sbcs_data = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/sbcs-data-generated.js
+// ../elt/node_modules/iconv-lite/encodings/sbcs-data-generated.js
 var require_sbcs_data_generated = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/sbcs-data-generated.js"(exports, module) {
+  "../elt/node_modules/iconv-lite/encodings/sbcs-data-generated.js"(exports, module) {
     "use strict";
     module.exports = {
       "437": "cp437",
@@ -1629,9 +1629,9 @@ var require_sbcs_data_generated = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/dbcs-codec.js
+// ../elt/node_modules/iconv-lite/encodings/dbcs-codec.js
 var require_dbcs_codec = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/dbcs-codec.js"(exports) {
+  "../elt/node_modules/iconv-lite/encodings/dbcs-codec.js"(exports) {
     "use strict";
     var Buffer2 = require_safer().Buffer;
     exports._dbcs = DBCSCodec;
@@ -2089,9 +2089,9 @@ var require_dbcs_codec = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/tables/shiftjis.json
+// ../elt/node_modules/iconv-lite/encodings/tables/shiftjis.json
 var require_shiftjis = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/tables/shiftjis.json"(exports, module) {
+  "../elt/node_modules/iconv-lite/encodings/tables/shiftjis.json"(exports, module) {
     module.exports = [
       ["0", "\0", 128],
       ["a1", "\uFF61", 62],
@@ -2220,9 +2220,9 @@ var require_shiftjis = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/tables/eucjp.json
+// ../elt/node_modules/iconv-lite/encodings/tables/eucjp.json
 var require_eucjp = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/tables/eucjp.json"(exports, module) {
+  "../elt/node_modules/iconv-lite/encodings/tables/eucjp.json"(exports, module) {
     module.exports = [
       ["0", "\0", 127],
       ["8ea1", "\uFF61", 62],
@@ -2408,9 +2408,9 @@ var require_eucjp = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/tables/cp936.json
+// ../elt/node_modules/iconv-lite/encodings/tables/cp936.json
 var require_cp936 = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/tables/cp936.json"(exports, module) {
+  "../elt/node_modules/iconv-lite/encodings/tables/cp936.json"(exports, module) {
     module.exports = [
       ["0", "\0", 127, "\u20AC"],
       ["8140", "\u4E02\u4E04\u4E05\u4E06\u4E0F\u4E12\u4E17\u4E1F\u4E20\u4E21\u4E23\u4E26\u4E29\u4E2E\u4E2F\u4E31\u4E33\u4E35\u4E37\u4E3C\u4E40\u4E41\u4E42\u4E44\u4E46\u4E4A\u4E51\u4E55\u4E57\u4E5A\u4E5B\u4E62\u4E63\u4E64\u4E65\u4E67\u4E68\u4E6A", 5, "\u4E72\u4E74", 9, "\u4E7F", 6, "\u4E87\u4E8A"],
@@ -2678,9 +2678,9 @@ var require_cp936 = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/tables/gbk-added.json
+// ../elt/node_modules/iconv-lite/encodings/tables/gbk-added.json
 var require_gbk_added = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/tables/gbk-added.json"(exports, module) {
+  "../elt/node_modules/iconv-lite/encodings/tables/gbk-added.json"(exports, module) {
     module.exports = [
       ["a140", "\uE4C6", 62],
       ["a180", "\uE505", 32],
@@ -2740,16 +2740,16 @@ var require_gbk_added = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/tables/gb18030-ranges.json
+// ../elt/node_modules/iconv-lite/encodings/tables/gb18030-ranges.json
 var require_gb18030_ranges = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/tables/gb18030-ranges.json"(exports, module) {
+  "../elt/node_modules/iconv-lite/encodings/tables/gb18030-ranges.json"(exports, module) {
     module.exports = { uChars: [128, 165, 169, 178, 184, 216, 226, 235, 238, 244, 248, 251, 253, 258, 276, 284, 300, 325, 329, 334, 364, 463, 465, 467, 469, 471, 473, 475, 477, 506, 594, 610, 712, 716, 730, 930, 938, 962, 970, 1026, 1104, 1106, 8209, 8215, 8218, 8222, 8231, 8241, 8244, 8246, 8252, 8365, 8452, 8454, 8458, 8471, 8482, 8556, 8570, 8596, 8602, 8713, 8720, 8722, 8726, 8731, 8737, 8740, 8742, 8748, 8751, 8760, 8766, 8777, 8781, 8787, 8802, 8808, 8816, 8854, 8858, 8870, 8896, 8979, 9322, 9372, 9548, 9588, 9616, 9622, 9634, 9652, 9662, 9672, 9676, 9680, 9702, 9735, 9738, 9793, 9795, 11906, 11909, 11913, 11917, 11928, 11944, 11947, 11951, 11956, 11960, 11964, 11979, 12284, 12292, 12312, 12319, 12330, 12351, 12436, 12447, 12535, 12543, 12586, 12842, 12850, 12964, 13200, 13215, 13218, 13253, 13263, 13267, 13270, 13384, 13428, 13727, 13839, 13851, 14617, 14703, 14801, 14816, 14964, 15183, 15471, 15585, 16471, 16736, 17208, 17325, 17330, 17374, 17623, 17997, 18018, 18212, 18218, 18301, 18318, 18760, 18811, 18814, 18820, 18823, 18844, 18848, 18872, 19576, 19620, 19738, 19887, 40870, 59244, 59336, 59367, 59413, 59417, 59423, 59431, 59437, 59443, 59452, 59460, 59478, 59493, 63789, 63866, 63894, 63976, 63986, 64016, 64018, 64021, 64025, 64034, 64037, 64042, 65074, 65093, 65107, 65112, 65127, 65132, 65375, 65510, 65536], gbChars: [0, 36, 38, 45, 50, 81, 89, 95, 96, 100, 103, 104, 105, 109, 126, 133, 148, 172, 175, 179, 208, 306, 307, 308, 309, 310, 311, 312, 313, 341, 428, 443, 544, 545, 558, 741, 742, 749, 750, 805, 819, 820, 7922, 7924, 7925, 7927, 7934, 7943, 7944, 7945, 7950, 8062, 8148, 8149, 8152, 8164, 8174, 8236, 8240, 8262, 8264, 8374, 8380, 8381, 8384, 8388, 8390, 8392, 8393, 8394, 8396, 8401, 8406, 8416, 8419, 8424, 8437, 8439, 8445, 8482, 8485, 8496, 8521, 8603, 8936, 8946, 9046, 9050, 9063, 9066, 9076, 9092, 9100, 9108, 9111, 9113, 9131, 9162, 9164, 9218, 9219, 11329, 11331, 11334, 11336, 11346, 11361, 11363, 11366, 11370, 11372, 11375, 11389, 11682, 11686, 11687, 11692, 11694, 11714, 11716, 11723, 11725, 11730, 11736, 11982, 11989, 12102, 12336, 12348, 12350, 12384, 12393, 12395, 12397, 12510, 12553, 12851, 12962, 12973, 13738, 13823, 13919, 13933, 14080, 14298, 14585, 14698, 15583, 15847, 16318, 16434, 16438, 16481, 16729, 17102, 17122, 17315, 17320, 17402, 17418, 17859, 17909, 17911, 17915, 17916, 17936, 17939, 17961, 18664, 18703, 18814, 18962, 19043, 33469, 33470, 33471, 33484, 33485, 33490, 33497, 33501, 33505, 33513, 33520, 33536, 33550, 37845, 37921, 37948, 38029, 38038, 38064, 38065, 38066, 38069, 38075, 38076, 38078, 39108, 39109, 39113, 39114, 39115, 39116, 39265, 39394, 189e3] };
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/tables/cp949.json
+// ../elt/node_modules/iconv-lite/encodings/tables/cp949.json
 var require_cp949 = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/tables/cp949.json"(exports, module) {
+  "../elt/node_modules/iconv-lite/encodings/tables/cp949.json"(exports, module) {
     module.exports = [
       ["0", "\0", 127],
       ["8141", "\uAC02\uAC03\uAC05\uAC06\uAC0B", 4, "\uAC18\uAC1E\uAC1F\uAC21\uAC22\uAC23\uAC25", 6, "\uAC2E\uAC32\uAC33\uAC34"],
@@ -3026,9 +3026,9 @@ var require_cp949 = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/tables/cp950.json
+// ../elt/node_modules/iconv-lite/encodings/tables/cp950.json
 var require_cp950 = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/tables/cp950.json"(exports, module) {
+  "../elt/node_modules/iconv-lite/encodings/tables/cp950.json"(exports, module) {
     module.exports = [
       ["0", "\0", 127],
       ["a140", "\u3000\uFF0C\u3001\u3002\uFF0E\u2027\uFF1B\uFF1A\uFF1F\uFF01\uFE30\u2026\u2025\uFE50\uFE51\uFE52\xB7\uFE54\uFE55\uFE56\uFE57\uFF5C\u2013\uFE31\u2014\uFE33\u2574\uFE34\uFE4F\uFF08\uFF09\uFE35\uFE36\uFF5B\uFF5D\uFE37\uFE38\u3014\u3015\uFE39\uFE3A\u3010\u3011\uFE3B\uFE3C\u300A\u300B\uFE3D\uFE3E\u3008\u3009\uFE3F\uFE40\u300C\u300D\uFE41\uFE42\u300E\u300F\uFE43\uFE44\uFE59\uFE5A"],
@@ -3209,9 +3209,9 @@ var require_cp950 = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/tables/big5-added.json
+// ../elt/node_modules/iconv-lite/encodings/tables/big5-added.json
 var require_big5_added = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/tables/big5-added.json"(exports, module) {
+  "../elt/node_modules/iconv-lite/encodings/tables/big5-added.json"(exports, module) {
     module.exports = [
       ["8740", "\u43F0\u4C32\u4603\u45A6\u4578\u{27267}\u4D77\u45B3\u{27CB1}\u4CE2\u{27CC5}\u3B95\u4736\u4744\u4C47\u4C40\u{242BF}\u{23617}\u{27352}\u{26E8B}\u{270D2}\u4C57\u{2A351}\u474F\u45DA\u4C85\u{27C6C}\u4D07\u4AA4\u46A1\u{26B23}\u7225\u{25A54}\u{21A63}\u{23E06}\u{23F61}\u664D\u56FB"],
       ["8767", "\u7D95\u591D\u{28BB9}\u3DF4\u9734\u{27BEF}\u5BDB\u{21D5E}\u5AA4\u3625\u{29EB0}\u5AD1\u5BB7\u5CFC\u676E\u8593\u{29945}\u7461\u749D\u3875\u{21D53}\u{2369E}\u{26021}\u3EEC"],
@@ -3337,9 +3337,9 @@ var require_big5_added = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/dbcs-data.js
+// ../elt/node_modules/iconv-lite/encodings/dbcs-data.js
 var require_dbcs_data = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/dbcs-data.js"(exports, module) {
+  "../elt/node_modules/iconv-lite/encodings/dbcs-data.js"(exports, module) {
     "use strict";
     module.exports = {
       // == Japanese/ShiftJIS ====================================================
@@ -3584,9 +3584,9 @@ var require_dbcs_data = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/index.js
+// ../elt/node_modules/iconv-lite/encodings/index.js
 var require_encodings = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/encodings/index.js"(exports, module) {
+  "../elt/node_modules/iconv-lite/encodings/index.js"(exports, module) {
     "use strict";
     var mergeModules = require_merge_exports();
     var modules = [
@@ -3609,9 +3609,9 @@ var require_encodings = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/lib/streams.js
+// ../elt/node_modules/iconv-lite/lib/streams.js
 var require_streams = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/lib/streams.js"(exports, module) {
+  "../elt/node_modules/iconv-lite/lib/streams.js"(exports, module) {
     "use strict";
     var Buffer2 = require_safer().Buffer;
     module.exports = function(streamModule) {
@@ -3706,9 +3706,9 @@ var require_streams = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/lib/index.js
+// ../elt/node_modules/iconv-lite/lib/index.js
 var require_lib = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/iconv-lite/lib/index.js"(exports, module) {
+  "../elt/node_modules/iconv-lite/lib/index.js"(exports, module) {
     "use strict";
     var Buffer2 = require_safer().Buffer;
     var bomHandling = require_bom_handling();
@@ -3838,9 +3838,9 @@ var require_lib = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/util.js
+// ../elt/node_modules/encoding-japanese/src/util.js
 var require_util = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/util.js"(exports) {
+  "../elt/node_modules/encoding-japanese/src/util.js"(exports) {
     "use strict";
     var config = require_config();
     var fromCharCode = String.fromCharCode;
@@ -4294,9 +4294,9 @@ var require_util = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/utf8-to-jis-table.js
+// ../elt/node_modules/encoding-japanese/src/utf8-to-jis-table.js
 var require_utf8_to_jis_table = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/utf8-to-jis-table.js"(exports, module) {
+  "../elt/node_modules/encoding-japanese/src/utf8-to-jis-table.js"(exports, module) {
     "use strict";
     module.exports = {
       15711649: 33,
@@ -11698,9 +11698,9 @@ var require_utf8_to_jis_table = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/utf8-to-jis-alias-table.js
+// ../elt/node_modules/encoding-japanese/src/utf8-to-jis-alias-table.js
 var require_utf8_to_jis_alias_table = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/utf8-to-jis-alias-table.js"(exports, module) {
+  "../elt/node_modules/encoding-japanese/src/utf8-to-jis-alias-table.js"(exports, module) {
     "use strict";
     module.exports = {
       14846098: 8541,
@@ -11715,9 +11715,9 @@ var require_utf8_to_jis_alias_table = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/utf8-to-jisx0212-table.js
+// ../elt/node_modules/encoding-japanese/src/utf8-to-jisx0212-table.js
 var require_utf8_to_jisx0212_table = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/utf8-to-jisx0212-table.js"(exports, module) {
+  "../elt/node_modules/encoding-japanese/src/utf8-to-jisx0212-table.js"(exports, module) {
     "use strict";
     module.exports = {
       52120: 8751,
@@ -17791,27 +17791,27 @@ var require_utf8_to_jisx0212_table = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/jis-to-utf8-table.js
+// ../elt/node_modules/encoding-japanese/src/jis-to-utf8-table.js
 var require_jis_to_utf8_table = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/jis-to-utf8-table.js"(exports, module) {
+  "../elt/node_modules/encoding-japanese/src/jis-to-utf8-table.js"(exports, module) {
     "use strict";
     var JIS_TO_UTF8_TABLE = null;
     module.exports = JIS_TO_UTF8_TABLE;
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/jisx0212-to-utf8-table.js
+// ../elt/node_modules/encoding-japanese/src/jisx0212-to-utf8-table.js
 var require_jisx0212_to_utf8_table = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/jisx0212-to-utf8-table.js"(exports, module) {
+  "../elt/node_modules/encoding-japanese/src/jisx0212-to-utf8-table.js"(exports, module) {
     "use strict";
     var JISX0212_TO_UTF8_TABLE = null;
     module.exports = JISX0212_TO_UTF8_TABLE;
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/encoding-table.js
+// ../elt/node_modules/encoding-japanese/src/encoding-table.js
 var require_encoding_table = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/encoding-table.js"(exports) {
+  "../elt/node_modules/encoding-japanese/src/encoding-table.js"(exports) {
     "use strict";
     exports.UTF8_TO_JIS_TABLE = require_utf8_to_jis_table();
     exports.UTF8_TO_JIS_ALIAS_TABLE = require_utf8_to_jis_alias_table();
@@ -17821,9 +17821,9 @@ var require_encoding_table = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/config.js
+// ../elt/node_modules/encoding-japanese/src/config.js
 var require_config = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/config.js"(exports) {
+  "../elt/node_modules/encoding-japanese/src/config.js"(exports) {
     "use strict";
     var util = require_util();
     var EncodingTable = require_encoding_table();
@@ -17944,9 +17944,9 @@ var require_config = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/encoding-detect.js
+// ../elt/node_modules/encoding-japanese/src/encoding-detect.js
 var require_encoding_detect = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/encoding-detect.js"(exports) {
+  "../elt/node_modules/encoding-japanese/src/encoding-detect.js"(exports) {
     "use strict";
     function isBINARY(data) {
       var i = 0;
@@ -18314,9 +18314,9 @@ var require_encoding_detect = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/sjis-ext.js
+// ../elt/node_modules/encoding-japanese/src/sjis-ext.js
 var require_sjis_ext = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/sjis-ext.js"(exports) {
+  "../elt/node_modules/encoding-japanese/src/sjis-ext.js"(exports) {
     "use strict";
     var CP932_IBM_EXT_SYMBOL_MAP = [
       // 0xFA40 - 0xFA49 [ⅰ-ⅹ]
@@ -18417,9 +18417,9 @@ var require_sjis_ext = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/encoding-convert.js
+// ../elt/node_modules/encoding-japanese/src/encoding-convert.js
 var require_encoding_convert = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/encoding-convert.js"(exports) {
+  "../elt/node_modules/encoding-japanese/src/encoding-convert.js"(exports) {
     "use strict";
     var config = require_config();
     var util = require_util();
@@ -19703,9 +19703,9 @@ var require_encoding_convert = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/kana-case-table.js
+// ../elt/node_modules/encoding-japanese/src/kana-case-table.js
 var require_kana_case_table = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/kana-case-table.js"(exports) {
+  "../elt/node_modules/encoding-japanese/src/kana-case-table.js"(exports) {
     "use strict";
     exports.HANKANA_TABLE = {
       12289: 65380,
@@ -19846,9 +19846,9 @@ var require_kana_case_table = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/package.json
+// ../elt/node_modules/encoding-japanese/package.json
 var require_package = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/package.json"(exports, module) {
+  "../elt/node_modules/encoding-japanese/package.json"(exports, module) {
     module.exports = {
       name: "encoding-japanese",
       version: "2.4.0",
@@ -19928,9 +19928,9 @@ var require_package = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/index.js
+// ../elt/node_modules/encoding-japanese/src/index.js
 var require_src = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/encoding-japanese/src/index.js"(exports, module) {
+  "../elt/node_modules/encoding-japanese/src/index.js"(exports, module) {
     "use strict";
     var config = require_config();
     var util = require_util();
@@ -20445,9 +20445,9 @@ var require_src = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/libmime/lib/charsets.js
+// ../elt/node_modules/libmime/lib/charsets.js
 var require_charsets = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/libmime/lib/charsets.js"(exports, module) {
+  "../elt/node_modules/libmime/lib/charsets.js"(exports, module) {
     "use strict";
     module.exports = {
       "866": "IBM866",
@@ -20660,9 +20660,9 @@ var require_charsets = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/libmime/lib/charset.js
+// ../elt/node_modules/libmime/lib/charset.js
 var require_charset = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/libmime/lib/charset.js"(exports, module) {
+  "../elt/node_modules/libmime/lib/charset.js"(exports, module) {
     "use strict";
     var { Buffer: Buffer2 } = __require("node:buffer");
     var iconv = require_lib();
@@ -20757,9 +20757,9 @@ var require_charset = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/libbase64/lib/libbase64.js
+// ../elt/node_modules/libbase64/lib/libbase64.js
 var require_libbase64 = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/libbase64/lib/libbase64.js"(exports, module) {
+  "../elt/node_modules/libbase64/lib/libbase64.js"(exports, module) {
     "use strict";
     var { Buffer: Buffer2 } = __require("node:buffer");
     var stream = __require("node:stream");
@@ -20951,9 +20951,9 @@ var require_libbase64 = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/libqp/lib/libqp.js
+// ../elt/node_modules/libqp/lib/libqp.js
 var require_libqp = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/libqp/lib/libqp.js"(exports, module) {
+  "../elt/node_modules/libqp/lib/libqp.js"(exports, module) {
     "use strict";
     var { Buffer: Buffer2 } = __require("node:buffer");
     var stream = __require("node:stream");
@@ -21158,9 +21158,9 @@ var require_libqp = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/libmime/lib/mimetypes.js
+// ../elt/node_modules/libmime/lib/mimetypes.js
 var require_mimetypes = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/libmime/lib/mimetypes.js"(exports, module) {
+  "../elt/node_modules/libmime/lib/mimetypes.js"(exports, module) {
     "use strict";
     module.exports = {
       list: {
@@ -23209,9 +23209,9 @@ var require_mimetypes = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/libmime/lib/libmime.js
+// ../elt/node_modules/libmime/lib/libmime.js
 var require_libmime = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/libmime/lib/libmime.js"(exports, module) {
+  "../elt/node_modules/libmime/lib/libmime.js"(exports, module) {
     "use strict";
     var { Buffer: Buffer2 } = __require("node:buffer");
     var libcharset = require_charset();
@@ -23968,9 +23968,9 @@ var require_libmime = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zone-eu/mailsplit/lib/headers.js
+// ../elt/node_modules/@zone-eu/mailsplit/lib/headers.js
 var require_headers = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zone-eu/mailsplit/lib/headers.js"(exports, module) {
+  "../elt/node_modules/@zone-eu/mailsplit/lib/headers.js"(exports, module) {
     "use strict";
     var libmime2 = require_libmime();
     var Libmime = (
@@ -24324,9 +24324,9 @@ var require_headers = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zone-eu/mailsplit/lib/mime-node.js
+// ../elt/node_modules/@zone-eu/mailsplit/lib/mime-node.js
 var require_mime_node = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zone-eu/mailsplit/lib/mime-node.js"(exports, module) {
+  "../elt/node_modules/@zone-eu/mailsplit/lib/mime-node.js"(exports, module) {
     "use strict";
     var Headers = require_headers();
     var libmime2 = require_libmime();
@@ -24636,9 +24636,9 @@ var require_mime_node = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zone-eu/mailsplit/lib/message-splitter.js
+// ../elt/node_modules/@zone-eu/mailsplit/lib/message-splitter.js
 var require_message_splitter = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zone-eu/mailsplit/lib/message-splitter.js"(exports, module) {
+  "../elt/node_modules/@zone-eu/mailsplit/lib/message-splitter.js"(exports, module) {
     "use strict";
     var Transform = __require("stream").Transform;
     var MimeNode = require_mime_node();
@@ -25135,9 +25135,9 @@ var require_message_splitter = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zone-eu/mailsplit/lib/message-joiner.js
+// ../elt/node_modules/@zone-eu/mailsplit/lib/message-joiner.js
 var require_message_joiner = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zone-eu/mailsplit/lib/message-joiner.js"(exports, module) {
+  "../elt/node_modules/@zone-eu/mailsplit/lib/message-joiner.js"(exports, module) {
     "use strict";
     var Transform = __require("stream").Transform;
     var MessageJoiner = class extends Transform {
@@ -25179,9 +25179,9 @@ var require_message_joiner = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zone-eu/mailsplit/lib/flowed-decoder.js
+// ../elt/node_modules/@zone-eu/mailsplit/lib/flowed-decoder.js
 var require_flowed_decoder = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zone-eu/mailsplit/lib/flowed-decoder.js"(exports, module) {
+  "../elt/node_modules/@zone-eu/mailsplit/lib/flowed-decoder.js"(exports, module) {
     "use strict";
     var Transform = __require("stream").Transform;
     var libmime2 = require_libmime();
@@ -25234,9 +25234,9 @@ var require_flowed_decoder = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zone-eu/mailsplit/lib/node-rewriter.js
+// ../elt/node_modules/@zone-eu/mailsplit/lib/node-rewriter.js
 var require_node_rewriter = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zone-eu/mailsplit/lib/node-rewriter.js"(exports, module) {
+  "../elt/node_modules/@zone-eu/mailsplit/lib/node-rewriter.js"(exports, module) {
     "use strict";
     var Transform = __require("stream").Transform;
     var FlowedDecoder = require_flowed_decoder();
@@ -25421,9 +25421,9 @@ var require_node_rewriter = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zone-eu/mailsplit/lib/node-streamer.js
+// ../elt/node_modules/@zone-eu/mailsplit/lib/node-streamer.js
 var require_node_streamer = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zone-eu/mailsplit/lib/node-streamer.js"(exports, module) {
+  "../elt/node_modules/@zone-eu/mailsplit/lib/node-streamer.js"(exports, module) {
     "use strict";
     var Transform = __require("stream").Transform;
     var FlowedDecoder = require_flowed_decoder();
@@ -25557,9 +25557,9 @@ var require_node_streamer = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zone-eu/mailsplit/lib/chunked-passthrough.js
+// ../elt/node_modules/@zone-eu/mailsplit/lib/chunked-passthrough.js
 var require_chunked_passthrough = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zone-eu/mailsplit/lib/chunked-passthrough.js"(exports, module) {
+  "../elt/node_modules/@zone-eu/mailsplit/lib/chunked-passthrough.js"(exports, module) {
     "use strict";
     var { Transform } = __require("stream");
     var ChunkedPassthrough = class extends Transform {
@@ -25605,9 +25605,9 @@ var require_chunked_passthrough = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zone-eu/mailsplit/index.js
+// ../elt/node_modules/@zone-eu/mailsplit/index.js
 var require_mailsplit = __commonJS({
-  "../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zone-eu/mailsplit/index.js"(exports, module) {
+  "../elt/node_modules/@zone-eu/mailsplit/index.js"(exports, module) {
     "use strict";
     var MessageSplitter = require_message_splitter();
     var MessageJoiner = require_message_joiner();
@@ -25628,7 +25628,7 @@ var require_mailsplit = __commonJS({
   }
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/mail/dist/errors.js
+// ../elt/packages/sdks/apple/mail/dist/errors.js
 var MailUnavailableError = class extends Error {
   name = "MailUnavailableError";
   constructor(path, cause) {
@@ -25647,7 +25647,7 @@ var MailChangingError = class extends Error {
   name = "MailChangingError";
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/mail/dist/mail-tables.js
+// ../elt/packages/sdks/apple/mail/dist/mail-tables.js
 var messagesTable = {
   name: "messages",
   keys: ["ROWID"],
@@ -25968,7 +25968,7 @@ var envelopeTables = [
   eventsTable
 ];
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/mail/dist/envelope-index.js
+// ../elt/packages/sdks/apple/mail/dist/envelope-index.js
 var required = Object.fromEntries(envelopeTables.map((table) => [table.name, Object.keys(table.columns)]));
 function expression(column, kind) {
   if (kind === "id")
@@ -26036,13 +26036,13 @@ var EnvelopeIndex = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/mail/dist/mail-files.js
+// ../elt/packages/sdks/apple/mail/dist/mail-files.js
 import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
 import { copyFile, readFile, readdir, stat } from "node:fs/promises";
 import { basename, join, relative, sep } from "node:path";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/mail/dist/mail-plists.js
+// ../elt/packages/sdks/apple/mail/dist/mail-plists.js
 function plistObject(value) {
   if (!isDictionary(value))
     throw new MailSchemaError("Mail returned a non-dictionary property list");
@@ -26060,7 +26060,7 @@ function requiredString(object, key) {
   return value;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/mail/dist/mail-files.js
+// ../elt/packages/sdks/apple/mail/dist/mail-files.js
 var MailFile = class _MailFile {
   path;
   size;
@@ -26255,7 +26255,7 @@ var MailFiles = class _MailFiles {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/mail/dist/mail-location.js
+// ../elt/packages/sdks/apple/mail/dist/mail-location.js
 import { readFile as readFile2 } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join as join2 } from "node:path";
@@ -26276,7 +26276,7 @@ async function mailVersionDirectory(root) {
 }
 var envelopeIndexPath = (directory) => join2(directory, "MailData/Envelope Index");
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/mail/dist/mail-mime.js
+// ../elt/packages/sdks/apple/mail/dist/mail-mime.js
 var import_mailsplit = __toESM(require_mailsplit(), 1);
 var import_libmime = __toESM(require_libmime(), 1);
 import { createHash as createHash2 } from "node:crypto";
@@ -26455,7 +26455,7 @@ async function mailPartText(path, decoder) {
   return text2 + decoder.decode();
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/mail/dist/mail-version.js
+// ../elt/packages/sdks/apple/mail/dist/mail-version.js
 import { watch } from "node:fs";
 var MailVersion = class {
   #resources;
@@ -26491,7 +26491,7 @@ var MailVersion = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/mail/dist/mail-store.js
+// ../elt/packages/sdks/apple/mail/dist/mail-store.js
 var MailSnapshot = class {
   directory;
   index;
@@ -26544,16 +26544,16 @@ var MailStore = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/apple-mail-source.js
+// ../elt/packages/sources/apple/mail/dist/apple-mail-source.js
 import { setInterval } from "node:timers/promises";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/mail-scan.js
+// ../elt/packages/sources/apple/mail/dist/mail-scan.js
 import { createHash as createHash3 } from "node:crypto";
 import { mkdtempDisposable } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join as join4 } from "node:path";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/mail-accounts.js
+// ../elt/packages/sources/apple/mail/dist/mail-accounts.js
 import { join as join3 } from "node:path";
 var MailAccounts = class {
   #byIdentifier;
@@ -26626,7 +26626,7 @@ function unknownAccount(host, scheme, directory) {
   };
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/mail-selection.js
+// ../elt/packages/sources/apple/mail/dist/mail-selection.js
 var MailSelection = class {
   #scope;
   #mailboxes = /* @__PURE__ */ new Set();
@@ -26743,7 +26743,7 @@ var MailSelection = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/mail-scan.js
+// ../elt/packages/sources/apple/mail/dist/mail-scan.js
 var messageParserVersion = 1;
 function compareKeys(a, b) {
   if (a < b)
@@ -26854,7 +26854,7 @@ var MailScan = class _MailScan {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/apple-mail-stream.js
+// ../elt/packages/sources/apple/mail/dist/apple-mail-stream.js
 var mailSchema = (description, properties) => ({
   type: "object",
   description,
@@ -26901,7 +26901,7 @@ var AppleMailStream = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/mail-fields.js
+// ../elt/packages/sources/apple/mail/dist/mail-fields.js
 var kinds = {
   id: {
     scalar: "string",
@@ -27018,7 +27018,7 @@ var localMessageId = "Refers to messages.id within this source (the local id, no
 var partId2 = "Dotted MIME part number, such as 1 or 1.2. The root of a multipart message is TEXT; a single-part message is 1, as in the index. Equals indexedAttachments.attachmentId for attachments Mail indexes.";
 var sha256 = "SHA-256 of the bytes as lowercase hexadecimal";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/accounts-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/accounts-stream.js
 var AccountsStream = class extends AppleMailStream {
   name = "accounts";
   primaryKey = ["id"];
@@ -27035,7 +27035,7 @@ var AccountsStream = class extends AppleMailStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/mail-table-stream.js
+// ../elt/packages/sources/apple/mail/dist/mail-table-stream.js
 var MailTableStream = class extends AppleMailStream {
   table;
   jsonSchema;
@@ -27057,7 +27057,7 @@ var MailTableStream = class extends AppleMailStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/address-metadata-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/address-metadata-stream.js
 var AddressMetadataStream = class extends MailTableStream {
   name = "addressMetadata";
   constructor() {
@@ -27071,7 +27071,7 @@ var AddressMetadataStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/addresses-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/addresses-stream.js
 var AddressesStream = class extends MailTableStream {
   name = "addresses";
   constructor() {
@@ -27085,11 +27085,11 @@ var AddressesStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/attachments-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/attachments-stream.js
 import { rm as rm2 } from "node:fs/promises";
 import { join as join5 } from "node:path";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/mail-message-stream.js
+// ../elt/packages/sources/apple/mail/dist/mail-message-stream.js
 var MailMessageStream = class extends AppleMailStream {
   // One group per selected message, in index order. Selection runs on every
   // scan; only reading a message whose inputs are unchanged is skipped.
@@ -27155,7 +27155,7 @@ var indexedParts = (scan, id) => new Map((scan.messageInputs().indexed.get(id) ?
   row
 ]));
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/attachments-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/attachments-stream.js
 function extension(part) {
   if (part.filename !== null)
     return fileExtension(part.filename);
@@ -27258,7 +27258,7 @@ var AttachmentsStream = class extends MailMessageStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/brand-indicator-evidence-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/brand-indicator-evidence-stream.js
 var BrandIndicatorEvidenceStream = class extends MailTableStream {
   name = "brandIndicatorEvidence";
   constructor() {
@@ -27272,7 +27272,7 @@ var BrandIndicatorEvidenceStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/brand-indicators-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/brand-indicators-stream.js
 var BrandIndicatorsStream = class extends MailTableStream {
   name = "brandIndicators";
   constructor() {
@@ -27286,7 +27286,7 @@ var BrandIndicatorsStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/business-addresses-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/business-addresses-stream.js
 var BusinessAddressesStream = class extends MailTableStream {
   name = "businessAddresses";
   constructor() {
@@ -27301,7 +27301,7 @@ var BusinessAddressesStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/business-categories-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/business-categories-stream.js
 var BusinessCategoriesStream = class extends MailTableStream {
   name = "businessCategories";
   constructor() {
@@ -27315,7 +27315,7 @@ var BusinessCategoriesStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/businesses-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/businesses-stream.js
 var BusinessesStream = class extends MailTableStream {
   name = "businesses";
   constructor() {
@@ -27328,7 +27328,7 @@ var BusinessesStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/configuration-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/configuration-stream.js
 var ConfigurationStream = class extends AppleMailStream {
   name = "configuration";
   primaryKey = ["relativePath"];
@@ -27354,7 +27354,7 @@ var ConfigurationStream = class extends AppleMailStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/conversation-messages-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/conversation-messages-stream.js
 var ConversationMessagesStream = class extends MailTableStream {
   name = "conversationMessages";
   constructor() {
@@ -27368,7 +27368,7 @@ var ConversationMessagesStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/conversations-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/conversations-stream.js
 var ConversationsStream = class extends MailTableStream {
   name = "conversations";
   constructor() {
@@ -27381,7 +27381,7 @@ var ConversationsStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/data-detection-results-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/data-detection-results-stream.js
 var DataDetectionResultsStream = class extends MailTableStream {
   name = "dataDetectionResults";
   constructor() {
@@ -27397,7 +27397,7 @@ var DataDetectionResultsStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/events-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/events-stream.js
 var EventsStream = class extends MailTableStream {
   name = "events";
   constructor() {
@@ -27411,7 +27411,7 @@ var EventsStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/generated-summaries-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/generated-summaries-stream.js
 var GeneratedSummariesStream = class extends MailTableStream {
   name = "generatedSummaries";
   constructor() {
@@ -27425,7 +27425,7 @@ var GeneratedSummariesStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/indexed-attachments-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/indexed-attachments-stream.js
 var IndexedAttachmentsStream = class extends MailTableStream {
   name = "indexedAttachments";
   constructor() {
@@ -27441,7 +27441,7 @@ var IndexedAttachmentsStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/mailbox-properties-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/mailbox-properties-stream.js
 var MailboxPropertiesStream = class extends AppleMailStream {
   name = "mailboxProperties";
   primaryKey = ["relativePath"];
@@ -27467,7 +27467,7 @@ var MailboxPropertiesStream = class extends AppleMailStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/mailboxes-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/mailboxes-stream.js
 var MailboxesStream = class extends MailTableStream {
   name = "mailboxes";
   constructor() {
@@ -27481,7 +27481,7 @@ var MailboxesStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/message-files-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/message-files-stream.js
 var MessageFilesStream = class extends MailMessageStream {
   name = "messageFiles";
   primaryKey = ["messageId"];
@@ -27513,7 +27513,7 @@ var MessageFilesStream = class extends MailMessageStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/message-global-data-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/message-global-data-stream.js
 var MessageGlobalDataStream = class extends MailTableStream {
   name = "messageGlobalData";
   constructor() {
@@ -27528,7 +27528,7 @@ var MessageGlobalDataStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/message-headers-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/message-headers-stream.js
 var MessageHeadersStream = class extends MailMessageStream {
   name = "messageHeaders";
   primaryKey = ["messageId", "partId", "position"];
@@ -27566,7 +27566,7 @@ var MessageHeadersStream = class extends MailMessageStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/message-mailboxes-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/message-mailboxes-stream.js
 var MessageMailboxesStream = class extends MailTableStream {
   name = "messageMailboxes";
   constructor() {
@@ -27580,7 +27580,7 @@ var MessageMailboxesStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/message-metadata-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/message-metadata-stream.js
 var MessageMetadataStream = class extends MailTableStream {
   name = "messageMetadata";
   constructor() {
@@ -27596,7 +27596,7 @@ var MessageMetadataStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/message-parts-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/message-parts-stream.js
 var MessagePartsStream = class extends MailMessageStream {
   name = "messageParts";
   primaryKey = ["messageId", "partId"];
@@ -27644,7 +27644,7 @@ var MessagePartsStream = class extends MailMessageStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/message-references-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/message-references-stream.js
 var MessageReferencesStream = class extends MailTableStream {
   name = "messageReferences";
   constructor() {
@@ -27659,7 +27659,7 @@ var MessageReferencesStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/message-rich-links-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/message-rich-links-stream.js
 var MessageRichLinksStream = class extends MailTableStream {
   name = "messageRichLinks";
   constructor() {
@@ -27673,7 +27673,7 @@ var MessageRichLinksStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/messages-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/messages-stream.js
 var MessagesStream = class extends MailTableStream {
   name = "messages";
   constructor() {
@@ -27695,7 +27695,7 @@ var MessagesStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/protected-message-data-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/protected-message-data-stream.js
 var ProtectedMessageDataStream = class extends MailTableStream {
   name = "protectedMessageData";
   constructor() {
@@ -27711,7 +27711,7 @@ var ProtectedMessageDataStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/recipients-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/recipients-stream.js
 var RecipientsStream = class extends MailTableStream {
   name = "recipients";
   constructor() {
@@ -27726,7 +27726,7 @@ var RecipientsStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/rich-links-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/rich-links-stream.js
 var RichLinksStream = class extends MailTableStream {
   name = "richLinks";
   constructor() {
@@ -27740,7 +27740,7 @@ var RichLinksStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/rule-conditions-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/rule-conditions-stream.js
 var RuleConditionsStream = class extends AppleMailStream {
   name = "ruleConditions";
   primaryKey = ["scope", "ownerId", "position"];
@@ -27770,7 +27770,7 @@ var RuleConditionsStream = class extends AppleMailStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/rules-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/rules-stream.js
 var RulesStream = class extends AppleMailStream {
   name = "rules";
   primaryKey = ["scope", "id"];
@@ -27799,7 +27799,7 @@ var RulesStream = class extends AppleMailStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/sender-addresses-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/sender-addresses-stream.js
 var SenderAddressesStream = class extends MailTableStream {
   name = "senderAddresses";
   constructor() {
@@ -27813,7 +27813,7 @@ var SenderAddressesStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/senders-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/senders-stream.js
 var SendersStream = class extends MailTableStream {
   name = "senders";
   constructor() {
@@ -27827,7 +27827,7 @@ var SendersStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/server-message-mailboxes-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/server-message-mailboxes-stream.js
 var ServerMessageMailboxesStream = class extends MailTableStream {
   name = "serverMessageMailboxes";
   constructor() {
@@ -27841,7 +27841,7 @@ var ServerMessageMailboxesStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/server-messages-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/server-messages-stream.js
 var ServerMessagesStream = class extends MailTableStream {
   name = "serverMessages";
   constructor() {
@@ -27857,7 +27857,7 @@ var ServerMessagesStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/signatures-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/signatures-stream.js
 var SignaturesStream = class extends AppleMailStream {
   name = "signatures";
   primaryKey = ["id"];
@@ -27882,7 +27882,7 @@ var SignaturesStream = class extends AppleMailStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/smart-mailbox-conditions-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/smart-mailbox-conditions-stream.js
 var SmartMailboxConditionsStream = class extends AppleMailStream {
   name = "smartMailboxConditions";
   primaryKey = ["scope", "ownerId", "position"];
@@ -27912,7 +27912,7 @@ var SmartMailboxConditionsStream = class extends AppleMailStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/smart-mailboxes-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/smart-mailboxes-stream.js
 var SmartMailboxesStream = class extends AppleMailStream {
   name = "smartMailboxes";
   primaryKey = ["id"];
@@ -27939,7 +27939,7 @@ var SmartMailboxesStream = class extends AppleMailStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/smtp-servers-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/smtp-servers-stream.js
 var SmtpServersStream = class extends AppleMailStream {
   name = "smtpServers";
   primaryKey = ["id"];
@@ -27958,7 +27958,7 @@ var SmtpServersStream = class extends AppleMailStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/subjects-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/subjects-stream.js
 var SubjectsStream = class extends MailTableStream {
   name = "subjects";
   constructor() {
@@ -27972,7 +27972,7 @@ var SubjectsStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/streams/summaries-stream.js
+// ../elt/packages/sources/apple/mail/dist/streams/summaries-stream.js
 var SummariesStream = class extends MailTableStream {
   name = "summaries";
   constructor() {
@@ -27986,7 +27986,7 @@ var SummariesStream = class extends MailTableStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/mail/dist/apple-mail-source.js
+// ../elt/packages/sources/apple/mail/dist/apple-mail-source.js
 var readers = {
   accounts: new AccountsStream(),
   smtpServers: new SmtpServersStream(),
@@ -28217,7 +28217,7 @@ var mailContentStatus = {
 
 // packages/connectors/mail/dist/mail-connector.js
 var accountName = (row) => String(JSON.parse(String(row.properties)).name);
-var MailConnector = class extends AppleConnector {
+var MailConnector = class extends Connector {
   datedBy = "date received (date sent if missing)";
   fullDiskAccess = true;
   choices = [

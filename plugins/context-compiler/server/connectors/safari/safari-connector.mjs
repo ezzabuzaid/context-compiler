@@ -1,36 +1,36 @@
 import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);
 import {
   appRunning
-} from "../../chunks/chunk-S32CXWMA.mjs";
+} from "../../chunks/chunk-6K66XHNA.mjs";
 import {
   isWithinDistantDates,
   referenceDate
-} from "../../chunks/chunk-NIS5HHJK.mjs";
+} from "../../chunks/chunk-SWUBRDTN.mjs";
 import {
   byId
 } from "../../chunks/chunk-KUQKM2Y4.mjs";
 import {
   selected,
   withinDates
-} from "../../chunks/chunk-JDWFBKNS.mjs";
+} from "../../chunks/chunk-XGE73YOJ.mjs";
 import {
   decodeArchive,
   isBinaryPlist,
   isDictionary,
   parseBinaryPlist,
   readPlist
-} from "../../chunks/chunk-SYAWWPYB.mjs";
+} from "../../chunks/chunk-6YWS5RU4.mjs";
 import {
   localAppleStoreCoverage
-} from "../../chunks/chunk-JAML3A7K.mjs";
+} from "../../chunks/chunk-2EITIVUZ.mjs";
 import {
   DataVersion,
   Snapshot,
   lastWrite
-} from "../../chunks/chunk-BPQGEW64.mjs";
+} from "../../chunks/chunk-KSEJSZJO.mjs";
 import {
-  AppleConnector
-} from "../../chunks/chunk-2LTQDBCX.mjs";
+  Connector
+} from "../../chunks/chunk-7ELPL3YG.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -39,16 +39,16 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-57KDDNKG.mjs";
+} from "../../chunks/chunk-UZWKSGGL.mjs";
 import {
   __callDispose,
   __using
 } from "../../chunks/chunk-ZGXE7NZW.mjs";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/apple-safari-source.js
+// ../elt/packages/sources/apple/safari/dist/apple-safari-source.js
 import { setInterval } from "node:timers/promises";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/safari/dist/safari-values.js
+// ../elt/packages/sdks/apple/safari/dist/safari-values.js
 var appleTime = (value) => typeof value === "number" && isWithinDistantDates(value) ? referenceDate(value) : null;
 var plistTime = (value) => value instanceof Date && value.getUTCFullYear() > 1 && value.getUTCFullYear() < 4001 ? value : null;
 var text = (value) => typeof value === "string" && value !== "" ? value : null;
@@ -69,7 +69,7 @@ function counts(value) {
   return Array.from({ length: value.byteLength / 4 }, (_, index) => view.getInt32(index * 4, true));
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/safari/dist/bookmarks.js
+// ../elt/packages/sdks/apple/safari/dist/bookmarks.js
 var bookmarkKinds = ["folder", "bookmark", "proxy"];
 var kindsByType = /* @__PURE__ */ new Map([
   ["WebBookmarkTypeList", "folder"],
@@ -134,10 +134,10 @@ var Bookmarks = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/safari/dist/cloud-tabs.js
+// ../elt/packages/sdks/apple/safari/dist/cloud-tabs.js
 import { inflateSync } from "node:zlib";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/safari/dist/errors.js
+// ../elt/packages/sdks/apple/safari/dist/errors.js
 var SafariUnavailableError = class extends Error {
   name = "SafariUnavailableError";
   constructor(path, cause) {
@@ -151,7 +151,7 @@ var SafariSchemaError = class extends Error {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/safari/dist/cloud-tabs.js
+// ../elt/packages/sdks/apple/safari/dist/cloud-tabs.js
 var cloudTabsColumns = {
   cloud_tab_devices: [
     "device_uuid",
@@ -232,7 +232,7 @@ var CloudTabs = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/safari/dist/downloads.js
+// ../elt/packages/sdks/apple/safari/dist/downloads.js
 import { existsSync } from "node:fs";
 var download = (entry) => {
   const path = stored(entry.DownloadEntryPath);
@@ -262,7 +262,7 @@ var Downloads = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/safari/dist/window-state.js
+// ../elt/packages/sdks/apple/safari/dist/window-state.js
 var windowState = (state) => ({
   closedAt: plistTime(state.DateClosed),
   private: flag(state.IsPrivateWindow),
@@ -279,7 +279,7 @@ var windowState = (state) => ({
   addressFieldText: text(state.CustomUnifiedFieldText)
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/safari/dist/recently-closed.js
+// ../elt/packages/sdks/apple/safari/dist/recently-closed.js
 var windowType = 1;
 var closedWindow = ({ state, position }) => ({
   id: stored(state.WindowUUID),
@@ -354,7 +354,7 @@ function latest(entries, id, entry) {
     entries.set(id, entry);
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/safari/dist/safari-history.js
+// ../elt/packages/sdks/apple/safari/dist/safari-history.js
 var historyColumns = {
   history_items: [
     "id",
@@ -485,7 +485,7 @@ var ProfileHistory = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/safari/dist/safari-tabs.js
+// ../elt/packages/sdks/apple/safari/dist/safari-tabs.js
 var tabsColumns = {
   bookmarks: [
     "id",
@@ -834,11 +834,11 @@ function sessionHistory(local) {
   });
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/safari/dist/safari-version.js
+// ../elt/packages/sdks/apple/safari/dist/safari-version.js
 import { readdir, stat } from "node:fs/promises";
 import { join as join2 } from "node:path";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/safari/dist/safari-location.js
+// ../elt/packages/sdks/apple/safari/dist/safari-location.js
 import { homedir } from "node:os";
 import { join } from "node:path";
 var safariDirectory = join(homedir(), "Library/Safari");
@@ -853,7 +853,7 @@ var storeFiles = ({ directory, container }) => ({
 });
 var profileHistory = ({ directory, container }, serverId) => serverId === defaultProfile ? join(directory, "History.db") : join(container, "Profiles", serverId, "History.db");
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/safari/dist/safari-version.js
+// ../elt/packages/sdks/apple/safari/dist/safari-version.js
 async function fingerprint(path) {
   const stats = await stat(path, { throwIfNoEntry: false });
   if (stats === void 0)
@@ -911,12 +911,12 @@ var SafariVersion = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/safari/dist/safari-app.js
+// ../elt/packages/sdks/apple/safari/dist/safari-app.js
 function safariRunning() {
   return appRunning("com.apple.Safari");
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/safari/dist/safari.js
+// ../elt/packages/sdks/apple/safari/dist/safari.js
 import { readFile } from "node:fs/promises";
 import { dirname, join as join3 } from "node:path";
 var preferences = ({ container }) => join3(dirname(container), "Preferences/com.apple.Safari.plist");
@@ -1021,7 +1021,7 @@ var Safari = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/safari-stream.js
+// ../elt/packages/sources/apple/safari/dist/safari-stream.js
 var text2 = { type: "string" };
 var nullableText = { type: ["string", "null"] };
 var integer2 = { type: "integer" };
@@ -1074,7 +1074,7 @@ var SafariStream = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/safari-scan.js
+// ../elt/packages/sources/apple/safari/dist/safari-scan.js
 var dayMs = 864e5;
 var firstYear = Date.parse("0001-01-01T00:00:00.000Z");
 var marginMs = 36e5;
@@ -1242,7 +1242,7 @@ var SafariScan = class _SafariScan {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/streams/bookmarks-stream.js
+// ../elt/packages/sources/apple/safari/dist/streams/bookmarks-stream.js
 var { nullableText: nullableText2 } = safariFields;
 var properties = {
   id: {
@@ -1336,7 +1336,7 @@ var BookmarksStream = class extends SafariStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/streams/closed-tabs-stream.js
+// ../elt/packages/sources/apple/safari/dist/streams/closed-tabs-stream.js
 var { boolean, nullableText: nullableText3, nullableTimestamp } = safariFields;
 var properties2 = {
   id: { ...safariFields.id, description: "Closed tab UUID." },
@@ -1425,7 +1425,7 @@ var ClosedTabsStream = class extends SafariStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/streams/closed-window-active-tabs-stream.js
+// ../elt/packages/sources/apple/safari/dist/streams/closed-window-active-tabs-stream.js
 var properties3 = {
   windowId: {
     ...safariFields.id,
@@ -1462,7 +1462,7 @@ var ClosedWindowActiveTabsStream = class extends SafariStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/window-state.js
+// ../elt/packages/sources/apple/safari/dist/window-state.js
 var { boolean: boolean2, nullableText: nullableText4, nullableInteger: nullableInteger2 } = safariFields;
 var windowStateFields = {
   closedAt: {
@@ -1526,7 +1526,7 @@ var windowState2 = (state) => ({
   addressFieldText: state.addressFieldText
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/streams/closed-windows-stream.js
+// ../elt/packages/sources/apple/safari/dist/streams/closed-windows-stream.js
 var properties4 = {
   id: {
     ...safariFields.id,
@@ -1567,7 +1567,7 @@ var ClosedWindowsStream = class extends SafariStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/streams/cloud-tab-close-requests-stream.js
+// ../elt/packages/sources/apple/safari/dist/streams/cloud-tab-close-requests-stream.js
 var properties5 = {
   id: {
     ...safariFields.id,
@@ -1606,7 +1606,7 @@ var CloudTabCloseRequestsStream = class extends SafariStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/streams/cloud-tab-devices-stream.js
+// ../elt/packages/sources/apple/safari/dist/streams/cloud-tab-devices-stream.js
 var { boolean: boolean3, nullableText: nullableText5 } = safariFields;
 var properties6 = {
   id: {
@@ -1659,7 +1659,7 @@ var CloudTabDevicesStream = class extends SafariStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/streams/cloud-tab-positions-stream.js
+// ../elt/packages/sources/apple/safari/dist/streams/cloud-tab-positions-stream.js
 var properties7 = {
   tabId: {
     ...safariFields.id,
@@ -1706,7 +1706,7 @@ var CloudTabPositionsStream = class extends SafariStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/streams/cloud-tabs-stream.js
+// ../elt/packages/sources/apple/safari/dist/streams/cloud-tabs-stream.js
 var { boolean: boolean4, nullableText: nullableText6 } = safariFields;
 var properties8 = {
   id: {
@@ -1773,7 +1773,7 @@ var CloudTabsStream = class extends SafariStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/streams/downloads-stream.js
+// ../elt/packages/sources/apple/safari/dist/streams/downloads-stream.js
 var { boolean: boolean5, nullableText: nullableText7, nullableTimestamp: nullableTimestamp2, nullableInteger: nullableInteger3 } = safariFields;
 var properties9 = {
   id: { ...safariFields.id, description: "Download identifier." },
@@ -1851,7 +1851,7 @@ var DownloadsStream = class extends SafariStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/streams/history-item-tags-stream.js
+// ../elt/packages/sources/apple/safari/dist/streams/history-item-tags-stream.js
 var properties10 = {
   profileId: safariFields.profileId,
   itemId: {
@@ -1890,7 +1890,7 @@ var HistoryItemTagsStream = class extends SafariStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/streams/history-items-stream.js
+// ../elt/packages/sources/apple/safari/dist/streams/history-items-stream.js
 var { profileId, nullableText: nullableText8, ordinal, boolean: boolean6 } = safariFields;
 var countList = { type: "integer", minimum: 0 };
 var properties11 = {
@@ -1975,7 +1975,7 @@ var HistoryItemsStream = class extends SafariStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/streams/history-tags-stream.js
+// ../elt/packages/sources/apple/safari/dist/streams/history-tags-stream.js
 var { profileId: profileId2 } = safariFields;
 var properties12 = {
   profileId: profileId2,
@@ -2032,7 +2032,7 @@ var HistoryTagsStream = class extends SafariStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/streams/history-tombstones-stream.js
+// ../elt/packages/sources/apple/safari/dist/streams/history-tombstones-stream.js
 var { profileId: profileId3, nullableText: nullableText9, nullableTimestamp: nullableTimestamp3 } = safariFields;
 var properties13 = {
   profileId: profileId3,
@@ -2097,7 +2097,7 @@ var HistoryTombstonesStream = class extends SafariStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/streams/history-visits-stream.js
+// ../elt/packages/sources/apple/safari/dist/streams/history-visits-stream.js
 var { profileId: profileId4, boolean: boolean7, nullableText: nullableText10, nullableInteger: nullableInteger4 } = safariFields;
 var properties14 = {
   profileId: profileId4,
@@ -2191,7 +2191,7 @@ var HistoryVisitsStream = class extends SafariStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/streams/profile-start-page-sections-stream.js
+// ../elt/packages/sources/apple/safari/dist/streams/profile-start-page-sections-stream.js
 var properties15 = {
   profileId: safariFields.profileId,
   position: {
@@ -2230,7 +2230,7 @@ var ProfileStartPageSectionsStream = class extends SafariStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/streams/profiles-stream.js
+// ../elt/packages/sources/apple/safari/dist/streams/profiles-stream.js
 var { nullableText: nullableText11, nullableNumber } = safariFields;
 var component = { ...nullableNumber, minimum: 0, maximum: 1 };
 var properties16 = {
@@ -2314,7 +2314,7 @@ var ProfilesStream = class extends SafariStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/streams/reading-list-items-stream.js
+// ../elt/packages/sources/apple/safari/dist/streams/reading-list-items-stream.js
 var { nullableText: nullableText12, nullableTimestamp: nullableTimestamp4, nullableInteger: nullableInteger5 } = safariFields;
 var properties17 = {
   id: {
@@ -2409,7 +2409,7 @@ var ReadingListItemsStream = class extends SafariStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/streams/tab-groups-stream.js
+// ../elt/packages/sources/apple/safari/dist/streams/tab-groups-stream.js
 var { nullableId, nullableText: nullableText13 } = safariFields;
 var properties18 = {
   id: {
@@ -2498,7 +2498,7 @@ var TabGroupsStream = class extends SafariStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/streams/tab-history-entries-stream.js
+// ../elt/packages/sources/apple/safari/dist/streams/tab-history-entries-stream.js
 var { nullableText: nullableText14 } = safariFields;
 var properties19 = {
   tabId: { ...safariFields.id, description: "The tab; refers to tabs.id." },
@@ -2552,7 +2552,7 @@ var TabHistoryEntriesStream = class extends SafariStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/streams/tabs-stream.js
+// ../elt/packages/sources/apple/safari/dist/streams/tabs-stream.js
 var { boolean: boolean8, nullableId: nullableId2, nullableText: nullableText15, nullableTimestamp: nullableTimestamp5 } = safariFields;
 var properties20 = {
   id: {
@@ -2739,7 +2739,7 @@ var TabsStream = class extends SafariStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/streams/window-profiles-stream.js
+// ../elt/packages/sources/apple/safari/dist/streams/window-profiles-stream.js
 var properties21 = {
   windowId: {
     ...safariFields.id,
@@ -2776,7 +2776,7 @@ var WindowProfilesStream = class extends SafariStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/streams/window-tab-groups-stream.js
+// ../elt/packages/sources/apple/safari/dist/streams/window-tab-groups-stream.js
 var properties22 = {
   windowId: {
     ...safariFields.id,
@@ -2818,7 +2818,7 @@ var WindowTabGroupsStream = class extends SafariStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/streams/windows-stream.js
+// ../elt/packages/sources/apple/safari/dist/streams/windows-stream.js
 var { nullableId: nullableId3, nullableText: nullableText16 } = safariFields;
 var properties23 = {
   id: {
@@ -2879,7 +2879,7 @@ var WindowsStream = class extends SafariStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/safari/dist/apple-safari-source.js
+// ../elt/packages/sources/apple/safari/dist/apple-safari-source.js
 var readers = {
   historyItems: new HistoryItemsStream(),
   historyVisits: new HistoryVisitsStream(),
@@ -3026,7 +3026,7 @@ function policyFor(horizon) {
 }
 
 // packages/connectors/safari/dist/safari-connector.js
-var SafariConnector = class extends AppleConnector {
+var SafariConnector = class extends Connector {
   datedBy = "visit time";
   fullDiskAccess = true;
   note = "Profiles select history, windows, tab groups, tabs, recently closed tabs and downloads. Dates select history visits, and the pages and topics those visits reach.";

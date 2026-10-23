@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/codecs/plist/dist/plist.js
+// ../elt/packages/codecs/plist/dist/plist.js
 var PlistUid = class {
   value;
   constructor(value) {
@@ -214,7 +214,7 @@ function classNameOf(value) {
   return isDictionary(value) && typeof value.$classname === "string" ? value.$classname : void 0;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/codecs/plist/dist/plutil.js
+// ../elt/packages/codecs/plist/dist/plutil.js
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 var execute = promisify(execFile);

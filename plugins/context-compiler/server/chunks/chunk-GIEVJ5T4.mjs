@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/macos/dist/eventkit-fields.js
+// ../elt/packages/sources/apple/macos/dist/eventkit-fields.js
 var text = { type: "string" };
 var id = { ...text, minLength: 1 };
 var nullableText = { type: ["string", "null"] };

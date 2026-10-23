@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/macos/dist/import-scope.js
+// ../elt/packages/sources/apple/macos/dist/import-scope.js
 function selected(ids, id) {
   return ids === void 0 || typeof id === "string" && ids.includes(id);
 }

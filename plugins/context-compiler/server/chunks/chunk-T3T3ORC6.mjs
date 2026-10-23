@@ -4,7 +4,7 @@ import {
   __using
 } from "./chunk-ZGXE7NZW.mjs";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/eventkit/dist/errors.js
+// ../elt/packages/sdks/apple/eventkit/dist/errors.js
 var CalendarUnavailableError = class extends Error {
   name = "CalendarUnavailableError";
   constructor(cause) {
@@ -30,10 +30,10 @@ var EventKitChangingError = class extends Error {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/eventkit/dist/eventkit-store.js
+// ../elt/packages/sdks/apple/eventkit/dist/eventkit-store.js
 import { setInterval } from "node:timers/promises";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/eventkit/dist/native-process.js
+// ../elt/packages/sdks/apple/eventkit/dist/native-process.js
 import { spawn } from "node:child_process";
 import { addAbortListener } from "node:events";
 import { createInterface } from "node:readline";
@@ -84,7 +84,7 @@ var NativeProcess = class {
 };
 var native_process_default = new NativeProcess();
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/eventkit/dist/eventkit-store.js
+// ../elt/packages/sdks/apple/eventkit/dist/eventkit-store.js
 var checkMs = 1e3;
 var attempts = 5;
 var EventKitStore = class {
@@ -254,7 +254,7 @@ function compareKeys(a, b) {
   return 0;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/eventkit/dist/calendar-store.js
+// ../elt/packages/sdks/apple/eventkit/dist/calendar-store.js
 var CalendarStore = class extends EventKitStore {
   entity = "events";
   accessMarker = "CALENDAR_UNAVAILABLE";
@@ -289,7 +289,7 @@ var CalendarStore = class extends EventKitStore {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/eventkit/dist/reminders-store.js
+// ../elt/packages/sdks/apple/eventkit/dist/reminders-store.js
 var RemindersStore = class extends EventKitStore {
   entity = "reminders";
   accessMarker = "REMINDERS_UNAVAILABLE";

@@ -1,30 +1,30 @@
 import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);
 import {
   referenceDateInstant
-} from "../../chunks/chunk-NIS5HHJK.mjs";
+} from "../../chunks/chunk-SWUBRDTN.mjs";
 import {
   withinDates
-} from "../../chunks/chunk-JDWFBKNS.mjs";
+} from "../../chunks/chunk-XGE73YOJ.mjs";
 import {
   eventKitFields
-} from "../../chunks/chunk-EP7JQK7X.mjs";
+} from "../../chunks/chunk-GIEVJ5T4.mjs";
 import {
   decodeArchive,
   isBinaryPlist,
   isDictionary,
   parseBinaryPlist,
   plistJSON
-} from "../../chunks/chunk-SYAWWPYB.mjs";
+} from "../../chunks/chunk-6YWS5RU4.mjs";
 import {
   localAppleStoreCoverage
-} from "../../chunks/chunk-JAML3A7K.mjs";
+} from "../../chunks/chunk-2EITIVUZ.mjs";
 import {
   DataVersion,
   Snapshot
-} from "../../chunks/chunk-BPQGEW64.mjs";
+} from "../../chunks/chunk-KSEJSZJO.mjs";
 import {
-  AppleConnector
-} from "../../chunks/chunk-2LTQDBCX.mjs";
+  Connector
+} from "../../chunks/chunk-7ELPL3YG.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -32,16 +32,16 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-57KDDNKG.mjs";
+} from "../../chunks/chunk-UZWKSGGL.mjs";
 import {
   __callDispose,
   __using
 } from "../../chunks/chunk-ZGXE7NZW.mjs";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/notification-center/dist/apple-notification-center-source.js
+// ../elt/packages/sources/apple/notification-center/dist/apple-notification-center-source.js
 import { setInterval } from "node:timers/promises";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/notification-center/dist/errors.js
+// ../elt/packages/sdks/apple/notification-center/dist/errors.js
 var NotificationCenterUnavailableError = class extends Error {
   name = "NotificationCenterUnavailableError";
   constructor(path, cause) {
@@ -55,7 +55,7 @@ var NotificationCenterSchemaError = class extends Error {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/notification-center/dist/notification.js
+// ../elt/packages/sdks/apple/notification-center/dist/notification.js
 var interruptionLevels = [
   "passive",
   "active",
@@ -63,7 +63,7 @@ var interruptionLevels = [
   "critical"
 ];
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/notification-center/dist/notification-center-snapshot.js
+// ../elt/packages/sdks/apple/notification-center/dist/notification-center-snapshot.js
 var requiredColumns = {
   app: ["app_id", "identifier", "badge"],
   record: ["rec_id", "app_id", "uuid", "data", "delivered_date", "style"],
@@ -189,7 +189,7 @@ function integer(value) {
   return typeof value === "number" ? value : null;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/notification-center/dist/notification-center-store.js
+// ../elt/packages/sdks/apple/notification-center/dist/notification-center-store.js
 import { homedir } from "node:os";
 import { join } from "node:path";
 var notificationCenterStorePath = join(homedir(), "Library/Group Containers/group.com.apple.usernoted/db2/db");
@@ -209,7 +209,7 @@ var NotificationCenterStore = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/notification-center/dist/notification-center-scan.js
+// ../elt/packages/sources/apple/notification-center/dist/notification-center-scan.js
 var toMilliseconds = (instant2) => `${instant2.slice(0, 23)}Z`;
 var NotificationCenterScan = class {
   snapshot;
@@ -226,7 +226,7 @@ var NotificationCenterScan = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/notification-center/dist/apple-notification-center-stream.js
+// ../elt/packages/sources/apple/notification-center/dist/apple-notification-center-stream.js
 var notificationCenterFields = {
   ...eventKitFields,
   nullableInteger: { type: ["integer", "null"] },
@@ -257,7 +257,7 @@ var AppleNotificationCenterStream = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/notification-center/dist/streams/apps-stream.js
+// ../elt/packages/sources/apple/notification-center/dist/streams/apps-stream.js
 var { id, nullableInteger } = notificationCenterFields;
 var properties = {
   bundleId: {
@@ -287,7 +287,7 @@ var AppsStream = class extends AppleNotificationCenterStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/notification-center/dist/streams/categories-stream.js
+// ../elt/packages/sources/apple/notification-center/dist/streams/categories-stream.js
 var { id: id2, ordinal, nullableInteger: nullableInteger2, nullableText, nullableTextList } = notificationCenterFields;
 var properties2 = {
   bundleId: {
@@ -352,7 +352,7 @@ var CategoriesStream = class extends AppleNotificationCenterStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/notification-center/dist/streams/category-actions-stream.js
+// ../elt/packages/sources/apple/notification-center/dist/streams/category-actions-stream.js
 var { id: id3, ordinal: ordinal2, nullableInteger: nullableInteger3, nullableText: nullableText2 } = notificationCenterFields;
 var properties3 = {
   bundleId: {
@@ -423,7 +423,7 @@ var CategoryActionsStream = class extends AppleNotificationCenterStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/notification-center/dist/streams/notifications-stream.js
+// ../elt/packages/sources/apple/notification-center/dist/streams/notifications-stream.js
 var { id: id4, text: text2, nullableInteger: nullableInteger4, nullableText: nullableText3, instant, nullableInstant } = notificationCenterFields;
 var properties4 = {
   id: {
@@ -525,7 +525,7 @@ var NotificationsStream = class extends AppleNotificationCenterStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/notification-center/dist/apple-notification-center-source.js
+// ../elt/packages/sources/apple/notification-center/dist/apple-notification-center-source.js
 var readers = {
   notifications: new NotificationsStream(),
   apps: new AppsStream(),
@@ -605,7 +605,7 @@ var AppleNotificationCenterSource = class extends Source {
 };
 
 // packages/connectors/notification-center/dist/notification-center-connector.js
-var NotificationCenterConnector = class extends AppleConnector {
+var NotificationCenterConnector = class extends Connector {
   datedBy = "delivery date";
   fullDiskAccess = true;
   // One store of every app's notifications; a date range is the only

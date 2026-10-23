@@ -1,26 +1,26 @@
 import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);
 import {
   ProtobufMessage
-} from "../../chunks/chunk-YY6PPP7C.mjs";
+} from "../../chunks/chunk-RONL4BT5.mjs";
 import {
   isWithinDistantDates,
   referenceDate
-} from "../../chunks/chunk-NIS5HHJK.mjs";
+} from "../../chunks/chunk-SWUBRDTN.mjs";
 import {
   isBinaryPlist,
   isDictionary,
   parseBinaryPlist
-} from "../../chunks/chunk-SYAWWPYB.mjs";
+} from "../../chunks/chunk-6YWS5RU4.mjs";
 import {
   localAppleStoreCoverage
-} from "../../chunks/chunk-JAML3A7K.mjs";
+} from "../../chunks/chunk-2EITIVUZ.mjs";
 import {
   DataVersion,
   Snapshot
-} from "../../chunks/chunk-BPQGEW64.mjs";
+} from "../../chunks/chunk-KSEJSZJO.mjs";
 import {
-  AppleConnector
-} from "../../chunks/chunk-2LTQDBCX.mjs";
+  Connector
+} from "../../chunks/chunk-7ELPL3YG.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -28,19 +28,19 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-57KDDNKG.mjs";
+} from "../../chunks/chunk-UZWKSGGL.mjs";
 import {
   __callDispose,
   __using
 } from "../../chunks/chunk-ZGXE7NZW.mjs";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/books/dist/apple-books-source.js
+// ../elt/packages/sources/apple/books/dist/apple-books-source.js
 import { mkdtempDisposable, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join as join4 } from "node:path";
 import { setInterval } from "node:timers/promises";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/books/dist/books-values.js
+// ../elt/packages/sdks/apple/books/dist/books-values.js
 var coreDataTime = (value) => typeof value === "number" && isWithinDistantDates(value) ? referenceDate(value) : null;
 var plistTime = (value) => value instanceof Date && value.getUTCFullYear() > 1 && value.getUTCFullYear() < 4001 ? value : null;
 var text = (value) => typeof value === "string" && value !== "" ? value : null;
@@ -52,7 +52,7 @@ var nullableFlag = (value) => value === null || value === void 0 ? null : value 
 var bytes = (value) => value instanceof Uint8Array && value.length > 0 ? value : null;
 var dictionary = (value) => isDictionary(value) ? value : {};
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/books/dist/errors.js
+// ../elt/packages/sdks/apple/books/dist/errors.js
 var BooksUnavailableError = class extends Error {
   name = "BooksUnavailableError";
   constructor(path, cause) {
@@ -66,7 +66,7 @@ var BooksSchemaError = class extends Error {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/books/dist/book-asset-data.js
+// ../elt/packages/sdks/apple/books/dist/book-asset-data.js
 var assetDataColumns = {
   ZBCASSETDETAIL: [
     "ZASSETID",
@@ -157,11 +157,11 @@ var BookAssetData = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/books/dist/epub-package.js
+// ../elt/packages/sdks/apple/books/dist/epub-package.js
 import { open } from "node:fs/promises";
 import { crc32 } from "node:zlib";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/books/dist/icloud-files.js
+// ../elt/packages/sdks/apple/books/dist/icloud-files.js
 import { execFile } from "node:child_process";
 import { lstat, readdir } from "node:fs/promises";
 import { join } from "node:path";
@@ -241,7 +241,7 @@ async function localFiles(item) {
   return files.sort(compareByName);
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/books/dist/epub-package.js
+// ../elt/packages/sdks/apple/books/dist/epub-package.js
 var chunkSize = 4 * 1024 * 1024;
 var dosTime = 0;
 var dosDate = 0 << 9 | 1 << 5 | 1;
@@ -365,7 +365,7 @@ async function writeEpub(files, target) {
   }
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/books/dist/book-files.js
+// ../elt/packages/sdks/apple/books/dist/book-files.js
 var bookFileFormats = ["epub-package", "file"];
 var single = (files) => files.length === 1 && files[0]?.name === "";
 function exportable(path, files) {
@@ -400,7 +400,7 @@ async function exportBookFile(path, epubTarget) {
   return epubTarget;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/books/dist/books-annotations.js
+// ../elt/packages/sdks/apple/books/dist/books-annotations.js
 var annotationsColumns = {
   ZAEANNOTATION: [
     "ZANNOTATIONUUID",
@@ -467,7 +467,7 @@ var BooksAnnotations = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/books/dist/books-library.js
+// ../elt/packages/sdks/apple/books/dist/books-library.js
 var libraryColumns = {
   ZBKLIBRARYASSET: [
     "Z_PK",
@@ -727,7 +727,7 @@ var BooksLibrary = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/books/dist/books-location.js
+// ../elt/packages/sdks/apple/books/dist/books-location.js
 import { homedir } from "node:os";
 import { join as join2 } from "node:path";
 var booksContainer = join2(homedir(), "Library/Containers/com.apple.iBooksX/Data");
@@ -744,7 +744,7 @@ var storeFiles = ({ container, groupContainer }) => ({
 });
 var sharedPreferences = ({ groupContainer }) => join2(groupContainer, "Library/Preferences/group.com.apple.iBooks.plist");
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/books/dist/books-purchases.js
+// ../elt/packages/sdks/apple/books/dist/books-purchases.js
 var purchasesColumns = {
   ZBLJALISCOSERVERITEM: [
     "ZSTOREID",
@@ -805,7 +805,7 @@ var BooksPurchases = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/books/dist/books-themes.js
+// ../elt/packages/sdks/apple/books/dist/books-themes.js
 var themesColumns = {
   ZBOOKTHEME: [
     "ZIDENTIFIER",
@@ -844,7 +844,7 @@ var BooksThemes = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/books/dist/books-version.js
+// ../elt/packages/sdks/apple/books/dist/books-version.js
 import { stat } from "node:fs/promises";
 async function fingerprint(path) {
   const stats = await stat(path, { throwIfNoEntry: false });
@@ -869,7 +869,7 @@ var BooksVersion = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/books/dist/reading-goal.js
+// ../elt/packages/sdks/apple/books/dist/reading-goal.js
 import { readFile } from "node:fs/promises";
 async function readBooksPlist(path) {
   let bytes2;
@@ -896,7 +896,7 @@ async function readingGoal(appPath, sharedPath) {
   };
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/books/dist/reading-history.js
+// ../elt/packages/sdks/apple/books/dist/reading-history.js
 var magic = "crdt";
 var supportedVersion = 4;
 var Layout = class {
@@ -1033,7 +1033,7 @@ function readingHistory(path) {
   }
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/books/dist/books.js
+// ../elt/packages/sdks/apple/books/dist/books.js
 var Books = class {
   location;
   constructor(location) {
@@ -1066,7 +1066,7 @@ var Books = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/books/dist/books-scan.js
+// ../elt/packages/sources/apple/books/dist/books-scan.js
 var BooksScan = class _BooksScan {
   #resources;
   #stores;
@@ -1139,7 +1139,7 @@ var BooksScan = class _BooksScan {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/books/dist/books-stream.js
+// ../elt/packages/sources/apple/books/dist/books-stream.js
 var text2 = { type: "string" };
 var nullableText = { type: ["string", "null"] };
 var integer3 = { type: "integer" };
@@ -1189,7 +1189,7 @@ var BooksStream = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/books/dist/streams/annotations-stream.js
+// ../elt/packages/sources/apple/books/dist/streams/annotations-stream.js
 var { boolean, nullableInteger: nullableInteger2, nullableText: nullableText2, nullableTimestamp } = booksFields;
 var properties = {
   id: { ...booksFields.id, description: "Annotation UUID." },
@@ -1299,7 +1299,7 @@ var AnnotationsStream = class extends BooksStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/books/dist/streams/asset-details-stream.js
+// ../elt/packages/sources/apple/books/dist/streams/asset-details-stream.js
 var { boolean: boolean2, nullableBoolean, nullableInteger: nullableInteger3, nullableNumber, nullableText: nullableText3, nullableTimestamp: nullableTimestamp2 } = booksFields;
 var properties2 = {
   assetId: {
@@ -1442,7 +1442,7 @@ var AssetDetailsStream = class extends BooksStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/books/dist/streams/book-files-stream.js
+// ../elt/packages/sources/apple/books/dist/streams/book-files-stream.js
 import { join as join3 } from "node:path";
 var { boolean: boolean3, nullableInteger: nullableInteger4, nullableTimestamp: nullableTimestamp3 } = booksFields;
 var properties3 = {
@@ -1507,7 +1507,7 @@ var BookFilesStream = class extends BooksStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/books/dist/streams/collection-members-stream.js
+// ../elt/packages/sources/apple/books/dist/streams/collection-members-stream.js
 var properties4 = {
   collectionId: {
     ...booksFields.id,
@@ -1549,7 +1549,7 @@ var CollectionMembersStream = class extends BooksStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/books/dist/streams/collections-stream.js
+// ../elt/packages/sources/apple/books/dist/streams/collections-stream.js
 var { boolean: boolean4, nullableInteger: nullableInteger5, nullableText: nullableText4, nullableTimestamp: nullableTimestamp4 } = booksFields;
 var properties5 = {
   collectionId: {
@@ -1615,7 +1615,7 @@ var CollectionsStream = class extends BooksStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/books/dist/streams/library-assets-stream.js
+// ../elt/packages/sources/apple/books/dist/streams/library-assets-stream.js
 var { boolean: boolean5, nullableBoolean: nullableBoolean2, nullableInteger: nullableInteger6, nullableNumber: nullableNumber2, nullableText: nullableText5, nullableTimestamp: nullableTimestamp5 } = booksFields;
 var properties6 = {
   assetId: booksFields.assetId,
@@ -1972,7 +1972,7 @@ var LibraryAssetsStream = class extends BooksStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/books/dist/streams/purchases-stream.js
+// ../elt/packages/sources/apple/books/dist/streams/purchases-stream.js
 var { nullableBoolean: nullableBoolean3, nullableInteger: nullableInteger7, nullableText: nullableText6, nullableTimestamp: nullableTimestamp6 } = booksFields;
 var properties7 = {
   storeId: {
@@ -2062,7 +2062,7 @@ var PurchasesStream = class extends BooksStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/books/dist/streams/reading-goal-stream.js
+// ../elt/packages/sources/apple/books/dist/streams/reading-goal-stream.js
 var { nullableBoolean: nullableBoolean4, nullableInteger: nullableInteger8, nullableTimestamp: nullableTimestamp7 } = booksFields;
 var properties8 = {
   id: {
@@ -2113,7 +2113,7 @@ var ReadingGoalStream = class extends BooksStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/books/dist/streams/reading-history-streams.js
+// ../elt/packages/sources/apple/books/dist/streams/reading-history-streams.js
 var { nullableInteger: nullableInteger9 } = booksFields;
 var pad = (value) => String(value).padStart(2, "0");
 var monthProperties = {
@@ -2230,7 +2230,7 @@ var StreakRecordsStream = class extends BooksStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/books/dist/streams/reviews-stream.js
+// ../elt/packages/sources/apple/books/dist/streams/reviews-stream.js
 var { nullableInteger: nullableInteger10, nullableText: nullableText7, nullableTimestamp: nullableTimestamp8 } = booksFields;
 var properties9 = {
   id: { ...booksFields.id, description: "Review identifier." },
@@ -2276,7 +2276,7 @@ var ReviewsStream = class extends BooksStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/books/dist/streams/themes-stream.js
+// ../elt/packages/sources/apple/books/dist/streams/themes-stream.js
 var { nullableBoolean: nullableBoolean5, nullableNumber: nullableNumber3 } = booksFields;
 var properties10 = {
   id: { ...booksFields.id, description: "Theme identifier." },
@@ -2326,7 +2326,7 @@ var ThemesStream = class extends BooksStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/books/dist/apple-books-source.js
+// ../elt/packages/sources/apple/books/dist/apple-books-source.js
 var readers = {
   libraryAssets: new LibraryAssetsStream(),
   collections: new CollectionsStream(),
@@ -2460,7 +2460,7 @@ var AppleBooksSource = class extends Source {
 };
 
 // packages/connectors/books/dist/books-connector.js
-var BooksConnector = class extends AppleConnector {
+var BooksConnector = class extends Connector {
   datedBy = null;
   fullDiskAccess = true;
   // Books' collections are built-in lists; everything is imported.

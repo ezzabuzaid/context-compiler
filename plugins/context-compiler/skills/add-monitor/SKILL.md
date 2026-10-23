@@ -1,6 +1,6 @@
 ---
 name: add-monitor
-description: Adds a monitor that watches the imports and, after each sync, sends this chat an instruction when something new matches, such as "when I order food on Careem, log my calories". Use when the user asks to be told, or to have something done, when new data arrives in their Apple apps, or to fix a monitor the Context Compiler page reports as failing.
+description: Adds a monitor that watches the imports and, after each sync, sends this chat an instruction when something new matches, such as "when I order food on Careem, log my calories". Use when the user asks to be told, or to have something done, when new data arrives in their Mac apps, or to fix a monitor the Context Compiler page reports as failing.
 ---
 
 # Add a monitor

@@ -2,7 +2,7 @@ import { createRequire } from 'node:module'; const require = createRequire(impor
 import {
   IndexedDBFormatError,
   readIndexedDB
-} from "../../chunks/chunk-KWNCLFKR.mjs";
+} from "../../chunks/chunk-K5AFS2D2.mjs";
 import {
   accounts,
   byId
@@ -10,10 +10,10 @@ import {
 import {
   selected,
   withinDates
-} from "../../chunks/chunk-JDWFBKNS.mjs";
+} from "../../chunks/chunk-XGE73YOJ.mjs";
 import {
-  AppleConnector
-} from "../../chunks/chunk-2LTQDBCX.mjs";
+  Connector
+} from "../../chunks/chunk-7ELPL3YG.mjs";
 import {
   Catalog,
   Coverage,
@@ -21,13 +21,13 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-57KDDNKG.mjs";
+} from "../../chunks/chunk-UZWKSGGL.mjs";
 import "../../chunks/chunk-ZGXE7NZW.mjs";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/teams-source.js
+// ../elt/packages/sources/microsoft/teams/dist/teams-source.js
 import { setInterval } from "node:timers/promises";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/microsoft/teams/dist/errors.js
+// ../elt/packages/sdks/microsoft/teams/dist/errors.js
 var TeamsUnavailableError = class extends Error {
   name = "TeamsUnavailableError";
   constructor(path, cause) {
@@ -41,12 +41,12 @@ var TeamsFormatError = class extends Error {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/microsoft/teams/dist/teams-store.js
+// ../elt/packages/sdks/microsoft/teams/dist/teams-store.js
 import { readdirSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/microsoft/teams/dist/fields.js
+// ../elt/packages/sdks/microsoft/teams/dist/fields.js
 var Fields = class _Fields {
   #value;
   #record;
@@ -224,7 +224,7 @@ function isObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/microsoft/teams/dist/conversations.js
+// ../elt/packages/sdks/microsoft/teams/dist/conversations.js
 var inTeam = /* @__PURE__ */ new Set(["Space", "Topic"]);
 function readConversation(conversation2) {
   const id23 = conversation2.requiredString("id");
@@ -283,7 +283,7 @@ function members(conversation2) {
   return [...byId2.values()];
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/microsoft/teams/dist/feeds.js
+// ../elt/packages/sdks/microsoft/teams/dist/feeds.js
 function readCallLog(message) {
   const log = message.object("properties")?.parsedObject("call-log");
   if (log === null || log === void 0)
@@ -361,7 +361,7 @@ function readSaved(message, feed) {
   };
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/microsoft/teams/dist/folders.js
+// ../elt/packages/sdks/microsoft/teams/dist/folders.js
 function readFolder(folder) {
   return {
     id: folder.requiredString("id"),
@@ -379,7 +379,7 @@ function readFolder(folder) {
   };
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/microsoft/teams/dist/installed-apps.js
+// ../elt/packages/sdks/microsoft/teams/dist/installed-apps.js
 var scopes = /* @__PURE__ */ new Map([
   ["Personal", "user"],
   ["GroupChat", "chat"],
@@ -407,7 +407,7 @@ function readInstalledApps(entitlements, { scope, scopeId }, names) {
   });
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/microsoft/teams/dist/meetings.js
+// ../elt/packages/sdks/microsoft/teams/dist/meetings.js
 function readMeeting(event) {
   return {
     id: event.requiredString("objectId"),
@@ -440,7 +440,7 @@ function readMeeting(event) {
   };
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/microsoft/teams/dist/messages.js
+// ../elt/packages/sdks/microsoft/teams/dist/messages.js
 function readMessage(message) {
   return {
     conversationId: message.requiredString("conversationId"),
@@ -539,7 +539,7 @@ function quote(quote2) {
   };
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/microsoft/teams/dist/people.js
+// ../elt/packages/sdks/microsoft/teams/dist/people.js
 function readPerson(profile2) {
   return {
     mri: profile2.requiredString("mri"),
@@ -560,7 +560,7 @@ function readPerson(profile2) {
   };
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/microsoft/teams/dist/sync-windows.js
+// ../elt/packages/sdks/microsoft/teams/dist/sync-windows.js
 var SyncWindows = class {
   #windows;
   constructor(states) {
@@ -591,7 +591,7 @@ var SyncWindows = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/microsoft/teams/dist/teams-client-reader.js
+// ../elt/packages/sdks/microsoft/teams/dist/teams-client-reader.js
 var feeds = /* @__PURE__ */ new Set([
   "48:calllogs",
   "48:notifications",
@@ -707,7 +707,7 @@ function key({ conversationId: conversationId6, id: id23 }) {
 ${id23}`;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/microsoft/teams/dist/teams-store.js
+// ../elt/packages/sdks/microsoft/teams/dist/teams-store.js
 var profile = "Library/Containers/com.microsoft.teams2/Data/Library/Application Support/Microsoft/MSTeams/EBWebView/WV2Profile_tfw";
 var indexedDB = "IndexedDB/https_teams.microsoft.com_0.indexeddb.leveldb";
 var databaseName = /^Teams:([^:]+):react-web-client:(.+):([^:]+)$/;
@@ -825,7 +825,7 @@ function errorCode(error) {
   return error instanceof Error && "code" in error ? error.code : void 0;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/teams-stream.js
+// ../elt/packages/sources/microsoft/teams/dist/teams-stream.js
 var teamsFields = {
   id: { type: "string", minLength: 1 },
   position: { type: "integer", minimum: 0 },
@@ -877,7 +877,7 @@ var TeamsStream = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/streams/accounts-stream.js
+// ../elt/packages/sources/microsoft/teams/dist/streams/accounts-stream.js
 var { id, textList } = teamsFields;
 var properties = {
   id: {
@@ -924,7 +924,7 @@ var AccountsStream = class extends TeamsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/streams/activities-stream.js
+// ../elt/packages/sources/microsoft/teams/dist/streams/activities-stream.js
 var { id: id2, accountId, instant, nullableText, nullableBoolean } = teamsFields;
 var properties2 = {
   accountId,
@@ -996,7 +996,7 @@ var ActivitiesStream = class extends TeamsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/streams/call-logs-stream.js
+// ../elt/packages/sources/microsoft/teams/dist/streams/call-logs-stream.js
 var { id: id3, accountId: accountId2, nullableText: nullableText2, nullablePreciseInstant } = teamsFields;
 var properties3 = {
   accountId: accountId2,
@@ -1063,7 +1063,7 @@ var CallLogsStream = class extends TeamsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/streams/call-participants-stream.js
+// ../elt/packages/sources/microsoft/teams/dist/streams/call-participants-stream.js
 var { id: id4, accountId: accountId3, nullableText: nullableText3 } = teamsFields;
 var properties4 = {
   accountId: accountId3,
@@ -1103,7 +1103,7 @@ var CallParticipantsStream = class extends TeamsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/streams/conversation-members-stream.js
+// ../elt/packages/sources/microsoft/teams/dist/streams/conversation-members-stream.js
 var { id: id5, accountId: accountId4, conversationId, nullableText: nullableText4, nullableBoolean: nullableBoolean2, nullableInstant } = teamsFields;
 var properties5 = {
   accountId: accountId4,
@@ -1147,7 +1147,7 @@ var ConversationMembersStream = class extends TeamsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/streams/conversations-stream.js
+// ../elt/packages/sources/microsoft/teams/dist/streams/conversations-stream.js
 var { id: id6, accountId: accountId5, nullableText: nullableText5, nullableBoolean: nullableBoolean3, nullableInteger, nullableInstant: nullableInstant2 } = teamsFields;
 var properties6 = {
   accountId: accountId5,
@@ -1236,7 +1236,7 @@ var ConversationsStream = class extends TeamsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/streams/folder-conversations-stream.js
+// ../elt/packages/sources/microsoft/teams/dist/streams/folder-conversations-stream.js
 var { id: id7, accountId: accountId6, conversationId: conversationId2, nullableInstant: nullableInstant3 } = teamsFields;
 var properties7 = {
   accountId: accountId6,
@@ -1268,7 +1268,7 @@ var FolderConversationsStream = class extends TeamsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/streams/folders-stream.js
+// ../elt/packages/sources/microsoft/teams/dist/streams/folders-stream.js
 var { id: id8, accountId: accountId7, nullableText: nullableText6, nullableBoolean: nullableBoolean4, nullableInstant: nullableInstant4 } = teamsFields;
 var properties8 = {
   accountId: accountId7,
@@ -1304,7 +1304,7 @@ var FoldersStream = class extends TeamsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/streams/installed-apps-stream.js
+// ../elt/packages/sources/microsoft/teams/dist/streams/installed-apps-stream.js
 var { id: id9, accountId: accountId8, nullableText: nullableText7 } = teamsFields;
 var properties9 = {
   accountId: accountId8,
@@ -1349,7 +1349,7 @@ var InstalledAppsStream = class extends TeamsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/streams/meeting-attendees-stream.js
+// ../elt/packages/sources/microsoft/teams/dist/streams/meeting-attendees-stream.js
 var { id: id10, accountId: accountId9, nullableText: nullableText8 } = teamsFields;
 var properties10 = {
   accountId: accountId9,
@@ -1390,7 +1390,7 @@ var MeetingAttendeesStream = class extends TeamsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/streams/meetings-stream.js
+// ../elt/packages/sources/microsoft/teams/dist/streams/meetings-stream.js
 var { id: id11, accountId: accountId10, instant: instant2, nullableText: nullableText9, nullableBoolean: nullableBoolean5, nullablePreciseInstant: nullablePreciseInstant2 } = teamsFields;
 var properties11 = {
   accountId: accountId10,
@@ -1471,7 +1471,7 @@ var MeetingsStream = class extends TeamsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/streams/message-child-stream.js
+// ../elt/packages/sources/microsoft/teams/dist/streams/message-child-stream.js
 var { id: id12, accountId: accountId11, conversationId: conversationId3 } = teamsFields;
 var messageKey = {
   accountId: accountId11,
@@ -1496,7 +1496,7 @@ var MessageChildStream = class extends TeamsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/streams/message-files-stream.js
+// ../elt/packages/sources/microsoft/teams/dist/streams/message-files-stream.js
 var { id: id13, nullableText: nullableText10 } = teamsFields;
 var properties12 = {
   ...messageKey,
@@ -1541,7 +1541,7 @@ var MessageFilesStream = class extends MessageChildStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/streams/message-links-stream.js
+// ../elt/packages/sources/microsoft/teams/dist/streams/message-links-stream.js
 var { id: id14, position, nullableText: nullableText11 } = teamsFields;
 var properties13 = {
   ...messageKey,
@@ -1583,7 +1583,7 @@ var MessageLinksStream = class extends MessageChildStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/streams/message-mentions-stream.js
+// ../elt/packages/sources/microsoft/teams/dist/streams/message-mentions-stream.js
 var { id: id15, position: position2, nullableText: nullableText12 } = teamsFields;
 var properties14 = {
   ...messageKey,
@@ -1627,7 +1627,7 @@ var MessageMentionsStream = class extends MessageChildStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/streams/message-quotes-stream.js
+// ../elt/packages/sources/microsoft/teams/dist/streams/message-quotes-stream.js
 var { id: id16, position: position3, nullableText: nullableText13, nullableInstant: nullableInstant5 } = teamsFields;
 var properties15 = {
   ...messageKey,
@@ -1684,7 +1684,7 @@ var MessageQuotesStream = class extends MessageChildStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/streams/message-reactions-stream.js
+// ../elt/packages/sources/microsoft/teams/dist/streams/message-reactions-stream.js
 var { id: id17, nullableInstant: nullableInstant6 } = teamsFields;
 var properties16 = {
   ...messageKey,
@@ -1719,7 +1719,7 @@ var MessageReactionsStream = class extends MessageChildStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/streams/messages-stream.js
+// ../elt/packages/sources/microsoft/teams/dist/streams/messages-stream.js
 var { id: id18, accountId: accountId12, conversationId: conversationId4, instant: instant3, nullableInstant: nullableInstant7, nullableText: nullableText14, nullableBoolean: nullableBoolean6 } = teamsFields;
 var properties17 = {
   accountId: accountId12,
@@ -1800,7 +1800,7 @@ var MessagesStream = class extends TeamsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/streams/people-stream.js
+// ../elt/packages/sources/microsoft/teams/dist/streams/people-stream.js
 var { id: id19, accountId: accountId13, nullableText: nullableText15 } = teamsFields;
 var properties18 = {
   accountId: accountId13,
@@ -1858,7 +1858,7 @@ var PeopleStream = class extends TeamsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/streams/pins-stream.js
+// ../elt/packages/sources/microsoft/teams/dist/streams/pins-stream.js
 var { id: id20, position: position4, accountId: accountId14, conversationId: conversationId5 } = teamsFields;
 var properties19 = {
   accountId: accountId14,
@@ -1894,7 +1894,7 @@ var PinsStream = class extends TeamsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/streams/saved-messages-stream.js
+// ../elt/packages/sources/microsoft/teams/dist/streams/saved-messages-stream.js
 var { id: id21, accountId: accountId15, instant: instant4, nullableText: nullableText16 } = teamsFields;
 var properties20 = {
   accountId: accountId15,
@@ -1940,7 +1940,7 @@ var SavedMessagesStream = class extends TeamsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/streams/searches-stream.js
+// ../elt/packages/sources/microsoft/teams/dist/streams/searches-stream.js
 var { id: id22, accountId: accountId16, nullableInstant: nullableInstant8 } = teamsFields;
 var properties21 = {
   accountId: accountId16,
@@ -1971,7 +1971,7 @@ var SearchesStream = class extends TeamsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/teams-scan.js
+// ../elt/packages/sources/microsoft/teams/dist/teams-scan.js
 var TeamsScan = class {
   #clients;
   #scope;
@@ -2019,7 +2019,7 @@ var TeamsScan = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/microsoft/teams/dist/teams-source.js
+// ../elt/packages/sources/microsoft/teams/dist/teams-source.js
 var readers = {
   accounts: new AccountsStream(),
   conversations: new ConversationsStream(),
@@ -2149,7 +2149,7 @@ var conversation = (row, rows) => {
     return "Notes";
   return String(row.topic ?? row.title ?? `${String(row.type)} ${byId(row)}`);
 };
-var TeamsConnector = class extends AppleConnector {
+var TeamsConnector = class extends Connector {
   datedBy = "date sent";
   fullDiskAccess = true;
   note = "Teams keeps only the messages it has loaded on this Mac, so older history is imported only once Teams loads it.";

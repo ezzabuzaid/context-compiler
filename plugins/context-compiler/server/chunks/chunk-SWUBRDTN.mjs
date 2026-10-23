@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/codecs/apple-reference-date/dist/reference-date.js
+// ../elt/packages/codecs/apple-reference-date/dist/reference-date.js
 var referenceDateSeconds = 978307200;
 var distantPast = -63114076800;
 var distantFuture = 63113904e3;

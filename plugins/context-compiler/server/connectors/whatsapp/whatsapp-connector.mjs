@@ -1,30 +1,30 @@
 import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);
 import {
   appRunning
-} from "../../chunks/chunk-S32CXWMA.mjs";
+} from "../../chunks/chunk-6K66XHNA.mjs";
 import {
   ProtobufMessage
-} from "../../chunks/chunk-YY6PPP7C.mjs";
+} from "../../chunks/chunk-RONL4BT5.mjs";
 import {
   referenceDate,
   referenceDateInstant
-} from "../../chunks/chunk-NIS5HHJK.mjs";
+} from "../../chunks/chunk-SWUBRDTN.mjs";
 import {
   selected,
   withinDates
-} from "../../chunks/chunk-JDWFBKNS.mjs";
+} from "../../chunks/chunk-XGE73YOJ.mjs";
 import {
   decodeArchive,
   isDictionary
-} from "../../chunks/chunk-SYAWWPYB.mjs";
+} from "../../chunks/chunk-6YWS5RU4.mjs";
 import {
   DataVersion,
   Snapshot,
   lastWrite
-} from "../../chunks/chunk-BPQGEW64.mjs";
+} from "../../chunks/chunk-KSEJSZJO.mjs";
 import {
-  AppleConnector
-} from "../../chunks/chunk-2LTQDBCX.mjs";
+  Connector
+} from "../../chunks/chunk-7ELPL3YG.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -33,16 +33,16 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-57KDDNKG.mjs";
+} from "../../chunks/chunk-UZWKSGGL.mjs";
 import {
   __callDispose,
   __using
 } from "../../chunks/chunk-ZGXE7NZW.mjs";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/whatsapp-desktop-source.js
+// ../elt/packages/sources/whatsapp/desktop/dist/whatsapp-desktop-source.js
 import { setInterval } from "node:timers/promises";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/whatsapp/desktop/dist/errors.js
+// ../elt/packages/sdks/whatsapp/desktop/dist/errors.js
 var WhatsAppUnavailableError = class extends Error {
   name = "WhatsAppUnavailableError";
   constructor(path, cause) {
@@ -56,7 +56,7 @@ var WhatsAppSchemaError = class extends Error {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/whatsapp/desktop/dist/values.js
+// ../elt/packages/sdks/whatsapp/desktop/dist/values.js
 import { existsSync } from "node:fs";
 function text(value) {
   return typeof value === "string" ? value : null;
@@ -100,7 +100,7 @@ function onDisk(path) {
   return existsSync(path) ? path : null;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/whatsapp/desktop/dist/businesses.js
+// ../elt/packages/sdks/whatsapp/desktop/dist/businesses.js
 var requiredColumns = {
   ZWABIZPROFILEDATA: [
     "Z_PK",
@@ -354,7 +354,7 @@ function positions() {
   };
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/whatsapp/desktop/dist/calls.js
+// ../elt/packages/sdks/whatsapp/desktop/dist/calls.js
 var requiredColumns2 = {
   ZWACDCALLEVENT: [
     "Z_PK",
@@ -467,10 +467,10 @@ var CallsSnapshot = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/whatsapp/desktop/dist/chat-storage.js
+// ../elt/packages/sdks/whatsapp/desktop/dist/chat-storage.js
 import { join } from "node:path";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/whatsapp/desktop/dist/message-metadata.js
+// ../elt/packages/sdks/whatsapp/desktop/dist/message-metadata.js
 function quotedMessage(metadata) {
   const message = new ProtobufMessage(metadata);
   const stanzaId = message.string(5);
@@ -479,7 +479,7 @@ function quotedMessage(metadata) {
   return { stanzaId, senderJid: message.string(6) ?? null };
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/whatsapp/desktop/dist/chat-storage.js
+// ../elt/packages/sdks/whatsapp/desktop/dist/chat-storage.js
 var requiredColumns3 = {
   ZWACHATSESSION: [
     "Z_PK",
@@ -885,7 +885,7 @@ function key(row) {
   };
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/whatsapp/desktop/dist/contacts.js
+// ../elt/packages/sdks/whatsapp/desktop/dist/contacts.js
 var requiredColumns4 = {
   ZWAADDRESSBOOKCONTACT: [
     "Z_PK",
@@ -972,7 +972,7 @@ var ContactsSnapshot = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/whatsapp/desktop/dist/key-values.js
+// ../elt/packages/sdks/whatsapp/desktop/dist/key-values.js
 var requiredColumns5 = {
   ZWAKEYVALUEELEMENT: ["Z_PK", "ZNAMESPACE", "ZKEY", "ZVALUE", "ZDATE"]
 };
@@ -1070,7 +1070,7 @@ var BackedUpKeyValueSnapshot = class extends KeyValueSnapshot {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/whatsapp/desktop/dist/message-associations.js
+// ../elt/packages/sdks/whatsapp/desktop/dist/message-associations.js
 var requiredColumns6 = {
   message_parent_association: [
     "stanza_id",
@@ -1102,7 +1102,7 @@ var MessageAssociationsSnapshot = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/whatsapp/desktop/dist/receipt-info.js
+// ../elt/packages/sdks/whatsapp/desktop/dist/receipt-info.js
 var packedServers = /* @__PURE__ */ new Map([
   [129, "s.whatsapp.net"],
   [140, "lid"],
@@ -1166,7 +1166,7 @@ var ReceiptInfo = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/whatsapp/desktop/dist/statuses.js
+// ../elt/packages/sdks/whatsapp/desktop/dist/statuses.js
 var statusLifetimeMs = 24 * 36e5;
 var requiredColumns7 = {
   status: [
@@ -1282,7 +1282,7 @@ var StatusesSnapshot = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/whatsapp/desktop/dist/stickers.js
+// ../elt/packages/sdks/whatsapp/desktop/dist/stickers.js
 import { join as join2 } from "node:path";
 var requiredColumns8 = {
   ZWACDABSTRACTSTICKERPACK: [
@@ -1425,7 +1425,7 @@ function previewImageIds(value) {
   return ids;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/whatsapp/desktop/dist/users.js
+// ../elt/packages/sdks/whatsapp/desktop/dist/users.js
 var requiredColumns9 = {
   ZWAZACCOUNT: [
     "Z_PK",
@@ -1474,12 +1474,12 @@ var UsersSnapshot = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/whatsapp/desktop/dist/whatsapp-app.js
+// ../elt/packages/sdks/whatsapp/desktop/dist/whatsapp-app.js
 function whatsappRunning() {
   return appRunning("net.whatsapp.WhatsApp");
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/whatsapp/desktop/dist/whatsapp.js
+// ../elt/packages/sdks/whatsapp/desktop/dist/whatsapp.js
 import { homedir } from "node:os";
 import { join as join3 } from "node:path";
 var whatsappContainer = join3(homedir(), "Library/Group Containers/group.net.whatsapp.WhatsApp.shared");
@@ -1565,7 +1565,7 @@ var WhatsAppVersion = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/whatsapp-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/whatsapp-stream.js
 var text2 = { type: "string" };
 var nullableText = { type: ["string", "null"] };
 var whatsappFields = {
@@ -1613,7 +1613,7 @@ var WhatsAppStream = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/blocked-contacts-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/blocked-contacts-stream.js
 var properties = {
   jid: {
     ...whatsappFields.jid,
@@ -1638,7 +1638,7 @@ var BlockedContactsStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/business-bot-prompts-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/business-bot-prompts-stream.js
 var { jid, text: text3, integer, nullableText: nullableText2 } = whatsappFields;
 var properties2 = {
   jid: { ...jid, description: "The business; refers to businessProfiles.jid." },
@@ -1672,7 +1672,7 @@ var BusinessBotPromptsStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/business-categories-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/business-categories-stream.js
 var { jid: jid2, text: text4, integer: integer2, nullableText: nullableText3 } = whatsappFields;
 var properties3 = {
   jid: { ...jid2, description: "The business; refers to businessProfiles.jid." },
@@ -1706,7 +1706,7 @@ var BusinessCategoriesStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/chat-storage-records.js
+// ../elt/packages/sources/whatsapp/desktop/dist/chat-storage-records.js
 var messageId = ({ chatJid, isFromMe, stanzaId }) => JSON.stringify([chatJid, isFromMe, stanzaId]);
 function* unique(rows, key2) {
   const seen = /* @__PURE__ */ new Set();
@@ -1803,7 +1803,7 @@ var ChatStorageRecords = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/business-hours-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/business-hours-stream.js
 var { jid: jid3, integer: integer3 } = whatsappFields;
 var minutes = { ...integer3, minimum: 0, maximum: 1440 };
 var properties4 = {
@@ -1845,7 +1845,7 @@ var BusinessHoursStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/business-profiles-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/business-profiles-stream.js
 var { jid: jid4, text: text5, nullableText: nullableText4, nullableInteger, nullableNumber, nullableBoolean, nullableInstant } = whatsappFields;
 var profile = (what, column5) => `${what} (ZWABIZPROFILEDATA.${column5}).`;
 var properties5 = {
@@ -1975,7 +1975,7 @@ var BusinessProfilesStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/business-service-areas-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/business-service-areas-stream.js
 var { jid: jid5, integer: integer4, nullableNumber: nullableNumber2, nullableText: nullableText5 } = whatsappFields;
 var properties6 = {
   jid: { ...jid5, description: "The business; refers to businessProfiles.jid." },
@@ -2020,7 +2020,7 @@ var BusinessServiceAreasStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/business-verified-names-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/business-verified-names-stream.js
 var { jid: jid6, nullableJid, nullableText: nullableText6, nullableInteger: nullableInteger2, nullableInstant: nullableInstant2 } = whatsappFields;
 var second = { ...nullableText6, format: "date-time", precision: 0 };
 var properties7 = {
@@ -2088,7 +2088,7 @@ var BusinessVerifiedNamesStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/call-participants-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/call-participants-stream.js
 var { text: text6, jid: jid7, nullableInteger: nullableInteger3 } = whatsappFields;
 var properties8 = {
   callId: {
@@ -2123,7 +2123,7 @@ var CallParticipantsStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/calls-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/calls-stream.js
 var { text: text7, nullableJid: nullableJid2, nullableText: nullableText7, nullableInteger: nullableInteger4, nullableNumber: nullableNumber3, nullableBoolean: nullableBoolean2, nullableInstant: nullableInstant3 } = whatsappFields;
 var call = (what, name) => `${what} (ZWACDCALLEVENT.${name}).`;
 var log = (what, name) => `${what}, from the call-log entry holding the call (ZWAAGGREGATECALLEVENT.${name}).`;
@@ -2221,7 +2221,7 @@ var CallsStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/changed-numbers-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/changed-numbers-stream.js
 var { jid: jid8, nullableInstant: nullableInstant4 } = whatsappFields;
 var properties10 = {
   oldJid: {
@@ -2252,7 +2252,7 @@ var ChangedNumbersStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/chat-push-configs-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/chat-push-configs-stream.js
 var { jid: jid9, nullableInteger: nullableInteger5, nullableText: nullableText8, nullableInstant: nullableInstant5 } = whatsappFields;
 var properties11 = {
   jid: {
@@ -2294,7 +2294,7 @@ var ChatPushConfigsStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/chats-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/chats-stream.js
 var { jid: jid10, nullableJid: nullableJid3, integer: integer5, nullableInteger: nullableInteger6, nullableText: nullableText9, nullableBoolean: nullableBoolean3, nullableInstant: nullableInstant6 } = whatsappFields;
 var groupOnly = "NULL for a chat that is not a group.";
 var properties12 = {
@@ -2432,7 +2432,7 @@ var ChatsStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/contacts-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/contacts-stream.js
 var { text: text8, nullableJid: nullableJid4, nullableText: nullableText10, nullableInteger: nullableInteger7, nullableInstant: nullableInstant7 } = whatsappFields;
 var column = (what, name) => `${what} (${name}).`;
 var properties13 = {
@@ -2553,7 +2553,7 @@ var ContactsStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/disappearing-modes-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/disappearing-modes-stream.js
 var { jid: jid11, integer: integer6, nullableText: nullableText11 } = whatsappFields;
 var properties14 = {
   lid: {
@@ -2590,7 +2590,7 @@ var DisappearingModesStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/favorite-stickers-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/favorite-stickers-stream.js
 var { text: text9, nullableInstant: nullableInstant8 } = whatsappFields;
 var properties15 = {
   fileHash: {
@@ -2621,7 +2621,7 @@ var FavoriteStickersStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/group-members-changes-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/group-members-changes-stream.js
 var { jid: jid12, text: text10, integer: integer7, instant: instant3 } = whatsappFields;
 var properties16 = {
   groupJid: {
@@ -2660,7 +2660,7 @@ var GroupMembersChangesStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/group-members-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/group-members-stream.js
 var { jid: jid13, nullableText: nullableText12, nullableInteger: nullableInteger8, nullableBoolean: nullableBoolean4 } = whatsappFields;
 var properties17 = {
   groupJid: {
@@ -2714,7 +2714,7 @@ var GroupMembersStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/linked-profiles-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/linked-profiles-stream.js
 var { jid: jid14, text: text11, nullableText: nullableText13 } = whatsappFields;
 var properties18 = {
   lid: { ...jid14, description: "The person, by LID; refers to users.lid." },
@@ -2744,7 +2744,7 @@ var LinkedProfilesStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/message-associations-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/message-associations-stream.js
 var { jid: jid15, text: text12, integer: integer8 } = whatsappFields;
 var properties19 = {
   chatJid: {
@@ -2788,7 +2788,7 @@ var MessageAssociationsStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/message-key-fields.js
+// ../elt/packages/sources/whatsapp/desktop/dist/message-key-fields.js
 var { jid: jid16, boolean, text: text13 } = whatsappFields;
 var messageKeyFields = {
   chatJid: {
@@ -2814,7 +2814,7 @@ function messageKeyRecord({ chatJid, isFromMe, stanzaId }) {
   return { chatJid, messageIsFromMe: isFromMe, messageStanzaId: stanzaId };
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/message-data-items-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/message-data-items-stream.js
 var { integer: integer9, nullableInteger: nullableInteger9, nullableText: nullableText14, nullableJid: nullableJid5, nullableBoolean: nullableBoolean5, nullableInstant: nullableInstant9 } = whatsappFields;
 var column2 = (what, name) => `${what} (ZWAMESSAGEDATAITEM.${name}).`;
 var properties20 = {
@@ -2884,7 +2884,7 @@ var MessageDataItemsStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/message-reaction-counts-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/message-reaction-counts-stream.js
 var { text: text14, integer: integer10 } = whatsappFields;
 var properties21 = {
   ...messageKeyFields,
@@ -2913,7 +2913,7 @@ var MessageReactionCountsStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/message-reactions-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/message-reactions-stream.js
 var { text: text15, boolean: boolean2, nullableJid: nullableJid6, nullableText: nullableText15 } = whatsappFields;
 var properties22 = {
   ...messageKeyFields,
@@ -2962,7 +2962,7 @@ var MessageReactionsStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/message-receipts-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/message-receipts-stream.js
 var { jid: jid17, text: text16 } = whatsappFields;
 var second2 = { ...text16, format: "date-time", precision: 0 };
 var nullableSecond = { ...second2, type: ["string", "null"] };
@@ -3003,7 +3003,7 @@ var MessageReceiptsStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/messages-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/messages-stream.js
 var { jid: jid18, nullableJid: nullableJid7, text: text17, boolean: boolean3, integer: integer11, nullableInteger: nullableInteger10, nullableNumber: nullableNumber4, nullableText: nullableText16, nullableBoolean: nullableBoolean6, nullableInstant: nullableInstant10, nullableBase64 } = whatsappFields;
 var media = (what, column5) => `${what} (ZWAMEDIAITEM.${column5}); NULL when not stored.`;
 var properties24 = {
@@ -3241,7 +3241,7 @@ var MessagesStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/privacy-settings-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/privacy-settings-stream.js
 var { text: text18 } = whatsappFields;
 var properties25 = {
   category: {
@@ -3272,7 +3272,7 @@ var PrivacySettingsStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/profile-pictures-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/profile-pictures-stream.js
 var { jid: jid19, boolean: boolean4, nullableText: nullableText17, nullableInstant: nullableInstant11 } = whatsappFields;
 var properties26 = {
   jid: {
@@ -3318,7 +3318,7 @@ var ProfilePicturesStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/push-names-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/push-names-stream.js
 var { jid: jid20, nullableText: nullableText18 } = whatsappFields;
 var properties27 = {
   jid: { ...jid20, description: "The person (ZJID); the primary key." },
@@ -3345,7 +3345,7 @@ var PushNamesStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/recent-stickers-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/recent-stickers-stream.js
 var { text: text19, integer: integer12, nullableInteger: nullableInteger11, nullableNumber: nullableNumber5 } = whatsappFields;
 var properties28 = {
   fileHash: {
@@ -3385,7 +3385,7 @@ var RecentStickersStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/statuses-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/statuses-stream.js
 var { jid: jid21, text: text20, integer: integer13, boolean: boolean5, nullableInteger: nullableInteger12, nullableText: nullableText19, nullableBoolean: nullableBoolean7 } = whatsappFields;
 var instant4 = { ...text20, format: "date-time" };
 var nullableInstant12 = { ...nullableText19, format: "date-time" };
@@ -3536,7 +3536,7 @@ var StatusesStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/sticker-packs-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/sticker-packs-stream.js
 var { text: text21, boolean: boolean6, nullableText: nullableText20, nullableInteger: nullableInteger13 } = whatsappFields;
 var pack = (what, column5) => `${what} (ZWACDABSTRACTSTICKERPACK.${column5}).`;
 var properties30 = {
@@ -3614,7 +3614,7 @@ var StickerPacksStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/stickers-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/stickers-stream.js
 var { text: text22, boolean: boolean7, nullableText: nullableText21, nullableInteger: nullableInteger14 } = whatsappFields;
 var sticker = (what, column5) => `${what} (ZWACDSTICKER.${column5}).`;
 var properties31 = {
@@ -3694,7 +3694,7 @@ var StickersStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/streams/users-stream.js
+// ../elt/packages/sources/whatsapp/desktop/dist/streams/users-stream.js
 var { jid: jid22, nullableText: nullableText22, nullableInteger: nullableInteger15, nullableInstant: nullableInstant13, nullableBase64: nullableBase642 } = whatsappFields;
 var column4 = (what, name) => `${what} (ZWAZACCOUNT.${name}).`;
 var properties32 = {
@@ -3761,7 +3761,7 @@ var UsersStream = class extends WhatsAppStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/whatsapp-scan.js
+// ../elt/packages/sources/whatsapp/desktop/dist/whatsapp-scan.js
 var WhatsAppScan = class _WhatsAppScan {
   container;
   // When the run opened the stores, which expiring streams count from.
@@ -3858,7 +3858,7 @@ var WhatsAppScan = class _WhatsAppScan {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/whatsapp/desktop/dist/whatsapp-desktop-source.js
+// ../elt/packages/sources/whatsapp/desktop/dist/whatsapp-desktop-source.js
 var readers = {
   chats: new ChatsStream(),
   messages: new MessagesStream(),
@@ -4019,7 +4019,7 @@ function policyFor(horizon) {
 }
 
 // packages/connectors/whatsapp/dist/whatsapp-connector.js
-var WhatsAppConnector = class extends AppleConnector {
+var WhatsAppConnector = class extends Connector {
   datedBy = "date sent";
   fullDiskAccess = true;
   note = "WhatsApp saves messages to this Mac only while it runs, so messages sent while it is closed are imported once it has run again.";

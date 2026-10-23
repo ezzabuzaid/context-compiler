@@ -1,21 +1,21 @@
 import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);
 import {
   ProtobufMessage
-} from "../../chunks/chunk-YY6PPP7C.mjs";
+} from "../../chunks/chunk-RONL4BT5.mjs";
 import {
   referenceDate
-} from "../../chunks/chunk-NIS5HHJK.mjs";
+} from "../../chunks/chunk-SWUBRDTN.mjs";
 import {
   decodeArchive,
   plistJSON
-} from "../../chunks/chunk-SYAWWPYB.mjs";
+} from "../../chunks/chunk-6YWS5RU4.mjs";
 import {
   DataVersion,
   Snapshot
-} from "../../chunks/chunk-BPQGEW64.mjs";
+} from "../../chunks/chunk-KSEJSZJO.mjs";
 import {
-  AppleConnector
-} from "../../chunks/chunk-2LTQDBCX.mjs";
+  Connector
+} from "../../chunks/chunk-7ELPL3YG.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -25,25 +25,25 @@ import {
   diffGroupedSnapshot,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-57KDDNKG.mjs";
+} from "../../chunks/chunk-UZWKSGGL.mjs";
 import {
   __callDispose,
   __using
 } from "../../chunks/chunk-ZGXE7NZW.mjs";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/activity/dist/apple-activity-source.js
+// ../elt/packages/sources/apple/activity/dist/apple-activity-source.js
 import { setInterval } from "node:timers/promises";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/biome/dist/biome-store.js
+// ../elt/packages/sdks/apple/biome/dist/biome-store.js
 import { readdir as readdir2 } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join as join2 } from "node:path";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/biome/dist/biome-segment.js
+// ../elt/packages/sdks/apple/biome/dist/biome-segment.js
 import { readdir } from "node:fs/promises";
 import { join } from "node:path";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/codecs/segb/dist/segb.js
+// ../elt/packages/codecs/segb/dist/segb.js
 import { createHash } from "node:crypto";
 import { open, readFile } from "node:fs/promises";
 import { crc32 } from "node:zlib";
@@ -115,7 +115,7 @@ function slotCount(path, header, size) {
   return count;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/biome/dist/errors.js
+// ../elt/packages/sdks/apple/biome/dist/errors.js
 var BiomeUnavailableError = class extends Error {
   name = "BiomeUnavailableError";
   constructor(path, cause) {
@@ -129,7 +129,7 @@ var BiomeSchemaError = class extends Error {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/biome/dist/biome-segment.js
+// ../elt/packages/sdks/apple/biome/dist/biome-segment.js
 var decodingVersion = 1;
 var BiomeSegment = class {
   origin;
@@ -184,7 +184,7 @@ async function entries(directory) {
   }
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/biome/dist/biome-sync.js
+// ../elt/packages/sdks/apple/biome/dist/biome-sync.js
 var columns = {
   DevicePeer: [
     "device_identifier",
@@ -218,7 +218,7 @@ var BiomeSync = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/biome/dist/biome-store.js
+// ../elt/packages/sdks/apple/biome/dist/biome-store.js
 var biomeDirectory = join2(homedir(), "Library/Biome");
 var BiomeStreams = class {
   #path;
@@ -261,11 +261,11 @@ var BiomeStore = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/biome/dist/biome-stream.js
+// ../elt/packages/sdks/apple/biome/dist/biome-stream.js
 var BiomeStream = class {
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/biome/dist/streams/app-document-interaction.js
+// ../elt/packages/sdks/apple/biome/dist/streams/app-document-interaction.js
 var AppDocumentInteraction = class extends BiomeStream {
   name = "App.DocumentInteraction";
   maximumAgeDays = 28;
@@ -282,7 +282,7 @@ var AppDocumentInteraction = class extends BiomeStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/biome/dist/biome-values.js
+// ../elt/packages/sdks/apple/biome/dist/biome-values.js
 var finite = (value) => value !== void 0 && Number.isFinite(value);
 var appleDate = (seconds) => finite(seconds) ? referenceDate(seconds) : void 0;
 var unixDate = (seconds) => finite(seconds) ? new Date(Math.round(seconds * 1e3)) : void 0;
@@ -290,7 +290,7 @@ var optionalText = (value) => value === "" ? void 0 : value;
 var flag = (value) => value === void 0 ? void 0 : value !== 0;
 var archive = (bytes) => bytes !== void 0 && bytes.length > 0 ? decodeArchive(bytes) : void 0;
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/biome/dist/streams/app-in-focus.js
+// ../elt/packages/sdks/apple/biome/dist/streams/app-in-focus.js
 var AppInFocus = class extends BiomeStream {
   name = "App.InFocus";
   maximumAgeDays = 28;
@@ -310,7 +310,7 @@ var AppInFocus = class extends BiomeStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/biome/dist/streams/app-intent.js
+// ../elt/packages/sdks/apple/biome/dist/streams/app-intent.js
 var AppIntent = class extends BiomeStream {
   name = "App.Intent";
   maximumAgeDays = 28;
@@ -332,7 +332,7 @@ var AppIntent = class extends BiomeStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/biome/dist/streams/app-media-usage.js
+// ../elt/packages/sdks/apple/biome/dist/streams/app-media-usage.js
 var AppMediaUsage = class extends BiomeStream {
   name = "App.MediaUsage";
   maximumAgeDays = 28;
@@ -347,7 +347,7 @@ var AppMediaUsage = class extends BiomeStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/biome/dist/streams/app-menu-item.js
+// ../elt/packages/sdks/apple/biome/dist/streams/app-menu-item.js
 var AppMenuItem = class extends BiomeStream {
   name = "App.MenuItem";
   maximumAgeDays = 28;
@@ -356,7 +356,7 @@ var AppMenuItem = class extends BiomeStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/biome/dist/streams/app-web-usage.js
+// ../elt/packages/sdks/apple/biome/dist/streams/app-web-usage.js
 var AppWebUsage = class extends BiomeStream {
   name = "App.WebUsage";
   maximumAgeDays = 28;
@@ -374,7 +374,7 @@ var AppWebUsage = class extends BiomeStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/biome/dist/streams/device-wireless-bluetooth.js
+// ../elt/packages/sdks/apple/biome/dist/streams/device-wireless-bluetooth.js
 var DeviceWirelessBluetooth = class extends BiomeStream {
   name = "Device.Wireless.Bluetooth";
   maximumAgeDays = 28;
@@ -395,7 +395,7 @@ var DeviceWirelessBluetooth = class extends BiomeStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/biome/dist/streams/media-now-playing.js
+// ../elt/packages/sdks/apple/biome/dist/streams/media-now-playing.js
 var unknownDuration = 4294967295;
 var MediaNowPlaying = class extends BiomeStream {
   name = "Media.NowPlaying";
@@ -417,7 +417,7 @@ var MediaNowPlaying = class extends BiomeStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/biome/dist/streams/notification-delivery.js
+// ../elt/packages/sdks/apple/biome/dist/streams/notification-delivery.js
 var NotificationDelivery = class extends BiomeStream {
   name = "Notification.Delivery";
   maximumAgeDays = 3;
@@ -430,7 +430,7 @@ var NotificationDelivery = class extends BiomeStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/biome/dist/streams/notification-usage.js
+// ../elt/packages/sdks/apple/biome/dist/streams/notification-usage.js
 var NotificationUsage = class extends BiomeStream {
   name = "Notification.Usage";
   maximumAgeDays = 28;
@@ -444,7 +444,7 @@ var NotificationUsage = class extends BiomeStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/biome/dist/streams/safari-navigations.js
+// ../elt/packages/sdks/apple/biome/dist/streams/safari-navigations.js
 var SafariNavigations = class extends BiomeStream {
   name = "Safari.Navigations";
   maximumAgeDays = 28;
@@ -458,7 +458,7 @@ var SafariNavigations = class extends BiomeStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/biome/dist/streams/screen-time-app-usage.js
+// ../elt/packages/sdks/apple/biome/dist/streams/screen-time-app-usage.js
 var ScreenTimeAppUsage = class extends BiomeStream {
   name = "ScreenTime.AppUsage";
   maximumAgeDays = 28;
@@ -472,7 +472,7 @@ var ScreenTimeAppUsage = class extends BiomeStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/biome/dist/streams/screenshots-screenshot.js
+// ../elt/packages/sdks/apple/biome/dist/streams/screenshots-screenshot.js
 var ScreenshotsScreenshot = class extends BiomeStream {
   name = "Screenshots.Screenshot";
   maximumAgeDays = 1;
@@ -487,7 +487,7 @@ var ScreenshotsScreenshot = class extends BiomeStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/biome/dist/streams/user-focus-computed-mode.js
+// ../elt/packages/sdks/apple/biome/dist/streams/user-focus-computed-mode.js
 var UserFocusComputedMode = class extends BiomeStream {
   name = "UserFocus.ComputedMode";
   maximumAgeDays = 28;
@@ -503,7 +503,7 @@ var UserFocusComputedMode = class extends BiomeStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/biome/dist/streams/user-focus-inferred-mode.js
+// ../elt/packages/sdks/apple/biome/dist/streams/user-focus-inferred-mode.js
 var UserFocusInferredMode = class extends BiomeStream {
   name = "UserFocus.InferredMode";
   maximumAgeDays = 28;
@@ -525,7 +525,7 @@ var UserFocusInferredMode = class extends BiomeStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/knowledge/dist/errors.js
+// ../elt/packages/sdks/apple/knowledge/dist/errors.js
 var KnowledgeUnavailableError = class extends Error {
   name = "KnowledgeUnavailableError";
   constructor(path, cause) {
@@ -539,11 +539,11 @@ var KnowledgeSchemaError = class extends Error {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/knowledge/dist/knowledge-store.js
+// ../elt/packages/sdks/apple/knowledge/dist/knowledge-store.js
 import { homedir as homedir2 } from "node:os";
 import { join as join3 } from "node:path";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/knowledge/dist/knowledge-values.js
+// ../elt/packages/sdks/apple/knowledge/dist/knowledge-values.js
 var text2 = (value) => typeof value === "string" ? value : void 0;
 var optionalText2 = (value) => typeof value === "string" && value !== "" ? value : void 0;
 var integer = (value) => typeof value === "number" && Number.isSafeInteger(value) ? value : void 0;
@@ -551,7 +551,7 @@ var flag2 = (value) => typeof value === "number" ? value !== 0 : void 0;
 var appleDate2 = (value) => typeof value === "number" && Number.isFinite(value) ? referenceDate(value) : void 0;
 var archive2 = (value) => value instanceof Uint8Array && value.length > 0 ? decodeArchive(value) : void 0;
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/knowledge/dist/knowledge-store.js
+// ../elt/packages/sdks/apple/knowledge/dist/knowledge-store.js
 var knowledgeStorePath = join3(homedir2(), "Library/Application Support/Knowledge/knowledgeC.db");
 var tables = [
   { name: "ZOBJECT", alias: "o" },
@@ -620,11 +620,11 @@ var KnowledgeStore = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/knowledge/dist/knowledge-stream.js
+// ../elt/packages/sdks/apple/knowledge/dist/knowledge-stream.js
 var KnowledgeStream = class {
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/knowledge/dist/streams/app-intents.js
+// ../elt/packages/sdks/apple/knowledge/dist/streams/app-intents.js
 var AppIntents = class extends KnowledgeStream {
   name = "/app/intents";
   maximumAgeDays = 28;
@@ -665,7 +665,7 @@ var AppIntents = class extends KnowledgeStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/knowledge/dist/streams/discoverability-signals.js
+// ../elt/packages/sdks/apple/knowledge/dist/streams/discoverability-signals.js
 var DiscoverabilitySignals = class extends KnowledgeStream {
   name = "/discoverability/signals";
   maximumAgeDays = 730;
@@ -687,7 +687,7 @@ var DiscoverabilitySignals = class extends KnowledgeStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/knowledge/dist/streams/display-is-backlit.js
+// ../elt/packages/sdks/apple/knowledge/dist/streams/display-is-backlit.js
 var DisplayIsBacklit = class extends KnowledgeStream {
   name = "/display/isBacklit";
   maximumAgeDays = 28;
@@ -697,7 +697,7 @@ var DisplayIsBacklit = class extends KnowledgeStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/activity/dist/activity-scan.js
+// ../elt/packages/sources/apple/activity/dist/activity-scan.js
 var ActivityScan = class _ActivityScan {
   startedAt;
   #resources;
@@ -757,7 +757,7 @@ var ActivityScan = class _ActivityScan {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/activity/dist/activity-values.js
+// ../elt/packages/sources/apple/activity/dist/activity-values.js
 var text3 = { type: "string" };
 var nullableText = { type: ["string", "null"] };
 var activityFields = {
@@ -782,7 +782,7 @@ var dayMs = 864e5;
 var marginMs = 36e5;
 var retainedSince = (startedAt, retentionDays) => new Date(startedAt.getTime() - retentionDays * dayMs + marginMs).toISOString();
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/activity/dist/biome-activity-stream.js
+// ../elt/packages/sources/apple/activity/dist/biome-activity-stream.js
 var parserVersion = 1;
 var biomeAddress = {
   origin: {
@@ -858,7 +858,7 @@ var BiomeActivityStream = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/activity/dist/streams/app-focus-stream.js
+// ../elt/packages/sources/apple/activity/dist/streams/app-focus-stream.js
 var { nullableText: nullableText2, nullableInteger, nullableBoolean } = activityFields;
 var properties = {
   ...biomeAddress,
@@ -926,7 +926,7 @@ var AppFocusStream = class extends BiomeActivityStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/activity/dist/streams/app-intents-stream.js
+// ../elt/packages/sources/apple/activity/dist/streams/app-intents-stream.js
 var { text: text4, integer: integerField, nullableText: nullableText3 } = activityFields;
 var properties2 = {
   ...biomeAddress,
@@ -1001,7 +1001,7 @@ var AppIntentsStream = class extends BiomeActivityStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/activity/dist/streams/app-menu-items-stream.js
+// ../elt/packages/sources/apple/activity/dist/streams/app-menu-items-stream.js
 var properties3 = {
   ...biomeAddress,
   bundleId: {
@@ -1026,7 +1026,7 @@ var AppMenuItemsStream = class extends BiomeActivityStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/activity/dist/streams/bluetooth-connections-stream.js
+// ../elt/packages/sources/apple/activity/dist/streams/bluetooth-connections-stream.js
 var { integer: integerField2 } = activityFields;
 var battery = (part) => ({
   ...integerField2,
@@ -1096,7 +1096,7 @@ var BluetoothConnectionsStream = class extends BiomeActivityStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/activity/dist/streams/devices-stream.js
+// ../elt/packages/sources/apple/activity/dist/streams/devices-stream.js
 var { nullableText: nullableText4, nullableInteger: nullableInteger2 } = activityFields;
 var properties5 = {
   deviceId: {
@@ -1170,7 +1170,7 @@ var DevicesStream = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/activity/dist/knowledge-activity-stream.js
+// ../elt/packages/sources/apple/activity/dist/knowledge-activity-stream.js
 var knowledgeEvent = {
   id: {
     ...activityFields.text,
@@ -1233,7 +1233,7 @@ var KnowledgeActivityStream = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/activity/dist/streams/discoverability-signals-stream.js
+// ../elt/packages/sources/apple/activity/dist/streams/discoverability-signals-stream.js
 var { nullableText: nullableText5 } = activityFields;
 var properties6 = {
   ...knowledgeEvent,
@@ -1274,7 +1274,7 @@ var DiscoverabilitySignalsStream = class extends KnowledgeActivityStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/activity/dist/streams/display-backlight-stream.js
+// ../elt/packages/sources/apple/activity/dist/streams/display-backlight-stream.js
 var properties7 = {
   ...knowledgeEvent,
   backlit: {
@@ -1299,7 +1299,7 @@ var DisplayBacklightStream = class extends KnowledgeActivityStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/activity/dist/streams/document-interactions-stream.js
+// ../elt/packages/sources/apple/activity/dist/streams/document-interactions-stream.js
 var { text: text5 } = activityFields;
 var properties8 = {
   ...biomeAddress,
@@ -1339,7 +1339,7 @@ var DocumentInteractionsStream = class extends BiomeActivityStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/activity/dist/streams/focus-modes-stream.js
+// ../elt/packages/sources/apple/activity/dist/streams/focus-modes-stream.js
 var { text: text6, integer: integerField3 } = activityFields;
 var properties9 = {
   ...biomeAddress,
@@ -1390,7 +1390,7 @@ var FocusModesStream = class extends BiomeActivityStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/activity/dist/streams/focus-suggestions-stream.js
+// ../elt/packages/sources/apple/activity/dist/streams/focus-suggestions-stream.js
 var { text: text7, nullableText: nullableText6, integer: integerField4 } = activityFields;
 var properties10 = {
   ...biomeAddress,
@@ -1468,7 +1468,7 @@ var FocusSuggestionsStream = class extends BiomeActivityStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/activity/dist/streams/knowledge-intents-stream.js
+// ../elt/packages/sources/apple/activity/dist/streams/knowledge-intents-stream.js
 var { text: text8, nullableText: nullableText7, integer: integerField5 } = activityFields;
 var properties11 = {
   ...knowledgeEvent,
@@ -1561,7 +1561,7 @@ var KnowledgeIntentsStream = class extends KnowledgeActivityStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/activity/dist/streams/media-usage-stream.js
+// ../elt/packages/sources/apple/activity/dist/streams/media-usage-stream.js
 var properties12 = {
   ...biomeAddress,
   usageId: {
@@ -1606,7 +1606,7 @@ var MediaUsageStream = class extends BiomeActivityStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/activity/dist/streams/notification-deliveries-stream.js
+// ../elt/packages/sources/apple/activity/dist/streams/notification-deliveries-stream.js
 var properties13 = {
   ...biomeAddress,
   requestId: {
@@ -1641,7 +1641,7 @@ var NotificationDeliveriesStream = class extends BiomeActivityStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/activity/dist/streams/notification-usage-stream.js
+// ../elt/packages/sources/apple/activity/dist/streams/notification-usage-stream.js
 var properties14 = {
   ...biomeAddress,
   notificationId: {
@@ -1681,7 +1681,7 @@ var NotificationUsageStream = class extends BiomeActivityStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/activity/dist/streams/now-playing-stream.js
+// ../elt/packages/sources/apple/activity/dist/streams/now-playing-stream.js
 var { nullableText: nullableText8, nullableInteger: nullableInteger3 } = activityFields;
 var properties15 = {
   ...biomeAddress,
@@ -1744,7 +1744,7 @@ var NowPlayingStream = class extends BiomeActivityStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/activity/dist/streams/safari-navigations-stream.js
+// ../elt/packages/sources/apple/activity/dist/streams/safari-navigations-stream.js
 var { text: text9 } = activityFields;
 var properties16 = {
   ...biomeAddress,
@@ -1779,7 +1779,7 @@ var SafariNavigationsStream = class extends BiomeActivityStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/activity/dist/streams/screen-time-app-usage-stream.js
+// ../elt/packages/sources/apple/activity/dist/streams/screen-time-app-usage-stream.js
 var properties17 = {
   ...biomeAddress,
   started: {
@@ -1816,7 +1816,7 @@ var ScreenTimeAppUsageStream = class extends BiomeActivityStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/activity/dist/streams/screenshots-stream.js
+// ../elt/packages/sources/apple/activity/dist/streams/screenshots-stream.js
 var { integer: integerField6 } = activityFields;
 var properties18 = {
   ...biomeAddress,
@@ -1857,7 +1857,7 @@ var ScreenshotsStream = class extends BiomeActivityStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/activity/dist/streams/web-usage-stream.js
+// ../elt/packages/sources/apple/activity/dist/streams/web-usage-stream.js
 var { text: text10 } = activityFields;
 var properties19 = {
   ...biomeAddress,
@@ -1912,7 +1912,7 @@ var WebUsageStream = class extends BiomeActivityStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/activity/dist/apple-activity-source.js
+// ../elt/packages/sources/apple/activity/dist/apple-activity-source.js
 var readers = {
   appFocus: new AppFocusStream(),
   screenTimeAppUsage: new ScreenTimeAppUsageStream(),
@@ -2054,7 +2054,7 @@ var AppleActivitySource = class extends Source {
 };
 
 // packages/connectors/activity/dist/activity-connector.js
-var ActivityConnector = class extends AppleConnector {
+var ActivityConnector = class extends Connector {
   datedBy = null;
   fullDiskAccess = true;
   // macOS keeps a few weeks of activity; everything it keeps is imported.

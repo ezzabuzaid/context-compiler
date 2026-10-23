@@ -29,13 +29,13 @@ import {
   recordedFailure,
   reloadMode,
   syncHistoryRelations
-} from "./chunk-57KDDNKG.mjs";
+} from "./chunk-UZWKSGGL.mjs";
 import {
   __callDispose,
   __using
 } from "./chunk-ZGXE7NZW.mjs";
 
-// packages/connectors/connector/dist/apple-connector.js
+// packages/connectors/connector/dist/connector.js
 import { existsSync as existsSync3, mkdirSync as mkdirSync2, readdirSync as readdirSync2 } from "node:fs";
 import { join as join6 } from "node:path";
 import { DatabaseSync as DatabaseSync12 } from "node:sqlite";
@@ -280,10 +280,10 @@ async function pRetry(input, options = {}) {
   throw new Error("Retry attempts exhausted without throwing an error.");
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/destinations/sqlite/dist/sqlite-catalog.js
+// ../elt/packages/destinations/sqlite/dist/sqlite-catalog.js
 import { DatabaseSync as DatabaseSync2 } from "node:sqlite";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/sqlite-transaction/dist/transaction.js
+// ../elt/node_modules/@zukhruf/sqlite-transaction/dist/transaction.js
 var SAVEPOINT = "zukhruf_transaction";
 function transaction(database, work, options) {
   const owns = !database.isTransaction;
@@ -304,11 +304,11 @@ function thenable(value) {
   return typeof value === "object" && value !== null && "then" in value && typeof value.then === "function";
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/sqlite-drift/dist/declaration.js
+// ../elt/node_modules/@zukhruf/sqlite-drift/dist/declaration.js
 import { randomUUID } from "node:crypto";
 import { DatabaseSync } from "node:sqlite";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/sqlite-drift/node_modules/@zukhruf/sqlite-transaction/dist/transaction.js
+// ../elt/node_modules/@zukhruf/sqlite-drift/node_modules/@zukhruf/sqlite-transaction/dist/transaction.js
 var SAVEPOINT2 = "zukhruf_transaction";
 function transaction2(database, work, options) {
   const owns = !database.isTransaction;
@@ -329,7 +329,7 @@ function thenable2(value) {
   return typeof value === "object" && value !== null && "then" in value && typeof value.then === "function";
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/sqlite-drift/dist/declaration.js
+// ../elt/node_modules/@zukhruf/sqlite-drift/dist/declaration.js
 var Declaration = class {
   #objects;
   #rows;
@@ -500,7 +500,7 @@ function referenced(database, table) {
   return database.prepare(`SELECT 1 FROM sqlite_schema AS "s", pragma_foreign_key_list("s"."name") AS "f" WHERE "s"."type" = 'table' AND lower("f"."table") = lower(?)`).get(table) !== void 0;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/destinations/sqlite/dist/sqlite-identifiers.js
+// ../elt/packages/destinations/sqlite/dist/sqlite-identifiers.js
 var SQLiteIdentifiers = class extends Identifiers {
   maxBytes = Infinity;
   ownColumns = ["loaded_at"];
@@ -510,7 +510,7 @@ var SQLiteIdentifiers = class extends Identifiers {
 };
 var identifiers = Object.freeze(new SQLiteIdentifiers());
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/destinations/sqlite/dist/sqlite-descriptions.js
+// ../elt/packages/destinations/sqlite/dist/sqlite-descriptions.js
 var descriptions = '"_elt_descriptions"';
 var descriptionsTable = new Declaration([
   `CREATE TABLE ${descriptions} ("relation" TEXT NOT NULL COLLATE NOCASE, "column" TEXT NOT NULL COLLATE NOCASE, "data_type" TEXT, "description" TEXT NOT NULL, PRIMARY KEY ("relation", "column")) STRICT`
@@ -533,7 +533,7 @@ function describe(database, relation, description, columns2) {
       insert.run(relation, column, dataType ?? declared.get(identifiers.key(column)) ?? null, description2);
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/destinations/sqlite/dist/sqlite-views.js
+// ../elt/packages/destinations/sqlite/dist/sqlite-views.js
 var quote2 = (name) => `"${name.replaceAll('"', '""')}"`;
 function viewDefinition(view) {
   return `CREATE VIEW ${quote2(view.name)} AS ${view.query}`;
@@ -576,7 +576,7 @@ function publishSQLiteViews(database, { views }) {
   }, { mode: "deferred" });
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/destinations/sqlite/dist/sqlite-catalog.js
+// ../elt/packages/destinations/sqlite/dist/sqlite-catalog.js
 function installSQLiteCatalog({ path }) {
   var _stack = [];
   try {
@@ -609,12 +609,12 @@ function installSQLiteCatalog({ path }) {
   }
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/destinations/sqlite/dist/sqlite-checkpoint-store.js
+// ../elt/packages/destinations/sqlite/dist/sqlite-checkpoint-store.js
 import { chmodSync } from "node:fs";
 import { resolve as resolve2 } from "node:path";
 import { DatabaseSync as DatabaseSync4 } from "node:sqlite";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/async/dist/latch.js
+// ../elt/node_modules/@zukhruf/async/dist/latch.js
 var Latch = class {
   /** Holds the value in a box, so it never adopts a promise and never rejects, whatever `T` is. */
   // eslint-disable-next-line zukhruf/no-promise-field -- A latch never rejects and is never replaced, so no hazard of the rule applies; it is the primitive the rule recommends.
@@ -631,7 +631,7 @@ var Latch = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/async/dist/until-aborted.js
+// ../elt/node_modules/@zukhruf/async/dist/until-aborted.js
 import { addAbortListener } from "node:events";
 function untilAborted(promise, signal) {
   if (!signal)
@@ -648,7 +648,7 @@ function untilAborted(promise, signal) {
   });
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/lease/dist/lease-lost-error.js
+// ../elt/node_modules/@zukhruf/lease/dist/lease-lost-error.js
 var LeaseLostError = class extends Error {
   subject;
   constructor(subject, options) {
@@ -658,7 +658,7 @@ var LeaseLostError = class extends Error {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/lease/dist/lease-controller.js
+// ../elt/node_modules/@zukhruf/lease/dist/lease-controller.js
 var LeaseController = class {
   #subject;
   #lost = new AbortController();
@@ -688,7 +688,7 @@ var LeaseController = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/mutex/dist/mutex/acquire-modes/wait-mode.js
+// ../elt/node_modules/@zukhruf/mutex/dist/mutex/acquire-modes/wait-mode.js
 var WaitMode = class {
   outcome = "always";
   acquire(store, key, options) {
@@ -696,7 +696,7 @@ var WaitMode = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/mutex/dist/mutex/key.js
+// ../elt/node_modules/@zukhruf/mutex/dist/mutex/key.js
 var Key = class {
   name;
   #mutex;
@@ -715,7 +715,7 @@ var Key = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/mutex/dist/mutex/mutex.js
+// ../elt/node_modules/@zukhruf/mutex/dist/mutex/mutex.js
 var wait = new WaitMode();
 var ran = (value) => ({
   always: value,
@@ -791,7 +791,7 @@ async function giveBack(acquiring) {
   }
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/mutex/dist/mutex/lease.js
+// ../elt/node_modules/@zukhruf/mutex/dist/mutex/lease.js
 async function leaseFor(key, held2, tokens) {
   var _stack = [];
   try {
@@ -819,7 +819,7 @@ async function leaseFor(key, held2, tokens) {
   }
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/mutex/dist/mutex/acquire-modes/skip-if-busy-mode.js
+// ../elt/node_modules/@zukhruf/mutex/dist/mutex/acquire-modes/skip-if-busy-mode.js
 var SkipIfBusyMode = class {
   outcome = "maybe";
   #waitAtMost;
@@ -846,7 +846,7 @@ var SkipIfBusyMode = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/mutex/dist/mutex/acquire-modes/modes.js
+// ../elt/node_modules/@zukhruf/mutex/dist/mutex/acquire-modes/modes.js
 var Modes = {
   /** Wait until the key is granted. The task always runs. */
   wait: () => new WaitMode(),
@@ -854,7 +854,7 @@ var Modes = {
   skipIfBusy: (options) => new SkipIfBusyMode(options)
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/fencing/dist/fencing-token.js
+// ../elt/node_modules/@zukhruf/fencing/dist/fencing-token.js
 var FencingToken = class _FencingToken {
   value;
   constructor(value) {
@@ -876,7 +876,7 @@ var FencingToken = class _FencingToken {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/fencing/dist/counter-token-source.js
+// ../elt/node_modules/@zukhruf/fencing/dist/counter-token-source.js
 var CounterTokenSource = class {
   #last = 0n;
   async next(_key) {
@@ -885,35 +885,35 @@ var CounterTokenSource = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/fencing/dist/epoch-token-source.js
+// ../elt/node_modules/@zukhruf/fencing/dist/epoch-token-source.js
 var SEQUENCE_BITS = 32n;
 var EPOCH_LIMIT = 1n << 31n;
 var SEQUENCE_LIMIT = 1n << SEQUENCE_BITS;
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/fencing/dist/file-token-source.js
+// ../elt/node_modules/@zukhruf/fencing/dist/file-token-source.js
 import { mkdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/fs/dist/atomic-write.js
+// ../elt/node_modules/@zukhruf/fs/dist/atomic-write.js
 import { rm, writeFile } from "node:fs/promises";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/fs/dist/draft.js
+// ../elt/node_modules/@zukhruf/fs/dist/draft.js
 import { randomUUID as randomUUID2 } from "node:crypto";
 var draftOf = (path) => `${path}.${randomUUID2()}.tmp`;
 var draftSuffixLength = draftOf("").length;
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/fs/dist/replace-file.js
+// ../elt/node_modules/@zukhruf/fs/dist/replace-file.js
 import { rename } from "node:fs/promises";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/fs/dist/patiently.js
+// ../elt/node_modules/@zukhruf/fs/dist/patiently.js
 import { setTimeout as delay } from "node:timers/promises";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/fs/dist/errno.js
+// ../elt/node_modules/@zukhruf/fs/dist/errno.js
 function isErrno(error, code) {
   return error instanceof Error && "code" in error && error.code === code;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/fs/dist/patiently.js
+// ../elt/node_modules/@zukhruf/fs/dist/patiently.js
 var WINDOWS_PATIENCE = 1e3;
 function isRefusedForNow(error) {
   return process.platform === "win32" && ["EPERM", "EACCES", "EBUSY"].some((code) => isErrno(error, code));
@@ -931,12 +931,12 @@ async function patiently(operation) {
   }
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/fs/dist/replace-file.js
+// ../elt/node_modules/@zukhruf/fs/dist/replace-file.js
 function replaceFile(draft, path) {
   return patiently(() => rename(draft, path));
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/fs/dist/atomic-write.js
+// ../elt/node_modules/@zukhruf/fs/dist/atomic-write.js
 async function atomicWrite(path, content) {
   const draft = draftOf(path);
   try {
@@ -948,7 +948,7 @@ async function atomicWrite(path, content) {
   }
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/fs/dist/durable-write.js
+// ../elt/node_modules/@zukhruf/fs/dist/durable-write.js
 import { open, rm as rm2 } from "node:fs/promises";
 import { dirname } from "node:path";
 async function durableWrite(path, content) {
@@ -995,7 +995,7 @@ async function syncDirectory(directory) {
   }
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/fs/dist/file-lock.js
+// ../elt/node_modules/@zukhruf/fs/dist/file-lock.js
 import { existsSync } from "node:fs";
 import { DatabaseSync as DatabaseSync3 } from "node:sqlite";
 var SQLITE_BUSY = 5;
@@ -1073,11 +1073,11 @@ function hasResultCode(error, code) {
   return error instanceof Error && "errcode" in error && typeof error.errcode === "number" && (error.errcode & 255) === code;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/fs/dist/local-directory.js
+// ../elt/node_modules/@zukhruf/fs/dist/local-directory.js
 import { statfs } from "node:fs/promises";
 import { dirname as dirname2, resolve } from "node:path";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/fs/dist/network-directory-error.js
+// ../elt/node_modules/@zukhruf/fs/dist/network-directory-error.js
 var NetworkDirectoryError = class extends Error {
   directory;
   /** The network file system the directory is on, for example `NFS`. */
@@ -1090,7 +1090,7 @@ var NetworkDirectoryError = class extends Error {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/fs/dist/local-directory.js
+// ../elt/node_modules/@zukhruf/fs/dist/local-directory.js
 var linuxNetworkFileSystems = /* @__PURE__ */ new Map([
   [0x6969n, "NFS"],
   [0x517bn, "SMB"],
@@ -1143,7 +1143,7 @@ function isUncPath(path) {
   return path.startsWith("\\\\");
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/fs/dist/safe-file-name.js
+// ../elt/node_modules/@zukhruf/fs/dist/safe-file-name.js
 import { createHash } from "node:crypto";
 var longestFileName = 255;
 var visibleStart = 32;
@@ -1161,7 +1161,7 @@ function encode(key) {
   return encodeURIComponent(key).replaceAll(".", "%2E");
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/fencing/dist/file-token-source.js
+// ../elt/node_modules/@zukhruf/fencing/dist/file-token-source.js
 var FileTokenSource = class {
   #directory;
   constructor(directory) {
@@ -1191,7 +1191,7 @@ async function readCounter(path) {
   return counter.value;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/mutex/dist/lock-stores/memory/memory-store.js
+// ../elt/node_modules/@zukhruf/mutex/dist/lock-stores/memory/memory-store.js
 var MemoryStore = class {
   /** For each key, the latch that the last caller in line opens when it releases. */
   #lines = /* @__PURE__ */ new Map();
@@ -1229,10 +1229,10 @@ var MemoryStore = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/mutex/dist/shared/is-record.js
+// ../elt/node_modules/@zukhruf/mutex/dist/shared/is-record.js
 var isRecord = (value) => typeof value === "object" && value !== null;
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/mutex/dist/lock-stores/file-system/file-lock-store.js
+// ../elt/node_modules/@zukhruf/mutex/dist/lock-stores/file-system/file-lock-store.js
 import { mkdir as mkdir2 } from "node:fs/promises";
 import { join as join2 } from "node:path";
 import { setTimeout as delay2 } from "node:timers/promises";
@@ -1314,7 +1314,7 @@ function isNotADatabase(error) {
   return error instanceof Error && "errcode" in error && typeof error.errcode === "number" && (error.errcode & 255) === SQLITE_NOTADB;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/mutex/dist/lock-stores/file-system/caller.js
+// ../elt/node_modules/@zukhruf/mutex/dist/lock-stores/file-system/caller.js
 import { randomUUID as randomUUID3 } from "node:crypto";
 import { hostname } from "node:os";
 var Caller = class _Caller {
@@ -1341,7 +1341,7 @@ var Caller = class _Caller {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/mutex/dist/lock-stores/file-system/presence.js
+// ../elt/node_modules/@zukhruf/mutex/dist/lock-stores/file-system/presence.js
 import { unlink } from "node:fs/promises";
 var Presence = class _Presence {
   #path;
@@ -1441,7 +1441,7 @@ var Presence = class _Presence {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/mutex/dist/lock-stores/file-system/record-file.js
+// ../elt/node_modules/@zukhruf/mutex/dist/lock-stores/file-system/record-file.js
 import { readFileSync } from "node:fs";
 async function readRecord(path) {
   try {
@@ -1453,7 +1453,7 @@ async function readRecord(path) {
   }
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/mutex/dist/lock-stores/sqlite/holder-record.js
+// ../elt/node_modules/@zukhruf/mutex/dist/lock-stores/sqlite/holder-record.js
 import { mkdir as mkdir3, readdir, unlink as unlink2 } from "node:fs/promises";
 import { basename, join as join3 } from "node:path";
 var HolderRecord = class {
@@ -1519,7 +1519,7 @@ var HolderRecord = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/mutex/dist/lock-stores/sqlite/sqlite-store.js
+// ../elt/node_modules/@zukhruf/mutex/dist/lock-stores/sqlite/sqlite-store.js
 var SqliteStore = class extends FileLockStore {
   /**
    * Published versions keep the rollback journal of a key's database at
@@ -1604,7 +1604,7 @@ function withTurn(handle, turn) {
   };
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/destinations/sqlite/dist/sqlite-checkpoint-store.js
+// ../elt/packages/destinations/sqlite/dist/sqlite-checkpoint-store.js
 var checkpoints = new Declaration([
   "CREATE TABLE checkpoints (id TEXT PRIMARY KEY NOT NULL, binding TEXT NOT NULL, reloading INTEGER NOT NULL CHECK (reloading IN (0, 1)), state TEXT NOT NULL) STRICT"
 ], { rows: "replace" });
@@ -1671,7 +1671,7 @@ var SQLiteCheckpointStore = class extends CheckpointStore {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/destinations/sqlite/dist/sqlite-column.js
+// ../elt/packages/destinations/sqlite/dist/sqlite-column.js
 var storageTypes = {
   text: "TEXT",
   integer: "INTEGER",
@@ -1937,7 +1937,7 @@ var SQLiteColumn = class _SQLiteColumn {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/destinations/sqlite/dist/sqlite-columns.js
+// ../elt/packages/destinations/sqlite/dist/sqlite-columns.js
 function scalarKind(name, type, format) {
   switch (type) {
     case "string":
@@ -2035,15 +2035,15 @@ var SQLiteColumns = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/destinations/sqlite/dist/sqlite-destination.js
+// ../elt/packages/destinations/sqlite/dist/sqlite-destination.js
 import { resolve as resolve3 } from "node:path";
 import { DatabaseSync as DatabaseSync6 } from "node:sqlite";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/destinations/sqlite/dist/sqlite-writer.js
+// ../elt/packages/destinations/sqlite/dist/sqlite-writer.js
 import { createHash as createHash3 } from "node:crypto";
 import { DatabaseSync as DatabaseSync5 } from "node:sqlite";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/destinations/sqlite/dist/sqlite-file-store.js
+// ../elt/packages/destinations/sqlite/dist/sqlite-file-store.js
 import { createHash as createHash2 } from "node:crypto";
 var quote3 = (name) => `"${name.replaceAll('"', '""')}"`;
 var tablePrefix = "_elt_files_";
@@ -2114,7 +2114,7 @@ var SQLiteFileStore = class _SQLiteFileStore {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/destinations/sqlite/dist/sqlite-writer.js
+// ../elt/packages/destinations/sqlite/dist/sqlite-writer.js
 var quote4 = (name) => `"${name.replaceAll('"', '""')}"`;
 var writersTable = new Declaration([
   'CREATE TABLE "_elt_writers" ("target" TEXT PRIMARY KEY, "writer" TEXT NOT NULL) STRICT'
@@ -2535,7 +2535,7 @@ var SQLiteWriter = class extends Writer {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/destinations/sqlite/dist/sqlite-append-writer.js
+// ../elt/packages/destinations/sqlite/dist/sqlite-append-writer.js
 var SQLiteAppendWriter = class extends SQLiteWriter {
   constructor(configuration, path, table) {
     super(configuration, path, table);
@@ -2546,7 +2546,7 @@ var SQLiteAppendWriter = class extends SQLiteWriter {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/destinations/sqlite/dist/sqlite-deduplicating-writer.js
+// ../elt/packages/destinations/sqlite/dist/sqlite-deduplicating-writer.js
 import { createHash as createHash4 } from "node:crypto";
 var SQLiteDeduplicatingWriter = class extends SQLiteWriter {
   deduplication;
@@ -2651,7 +2651,7 @@ var SQLiteDeduplicatingWriter = class extends SQLiteWriter {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/destinations/sqlite/dist/sqlite-overwrite-writer.js
+// ../elt/packages/destinations/sqlite/dist/sqlite-overwrite-writer.js
 var SQLiteOverwriteWriter = class extends SQLiteWriter {
   constructor(configuration, path, table) {
     super(configuration, path, table);
@@ -2665,7 +2665,7 @@ var SQLiteOverwriteWriter = class extends SQLiteWriter {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/destinations/sqlite/dist/sqlite-table.js
+// ../elt/packages/destinations/sqlite/dist/sqlite-table.js
 var SQLiteTable = class _SQLiteTable extends Target {
   name;
   columns;
@@ -2733,7 +2733,7 @@ var SQLiteTable = class _SQLiteTable extends Target {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/destinations/sqlite/dist/sqlite-destination.js
+// ../elt/packages/destinations/sqlite/dist/sqlite-destination.js
 var SQLiteDestination = class extends Destination {
   supportedDestinationSyncModes = Object.freeze([
     "overwrite",
@@ -2793,11 +2793,11 @@ var SQLiteDestination = class extends Destination {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/destinations/sqlite/dist/sqlite-passes.js
+// ../elt/packages/destinations/sqlite/dist/sqlite-passes.js
 import { existsSync as existsSync2 } from "node:fs";
 import { DatabaseSync as DatabaseSync7 } from "node:sqlite";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/destinations/sqlite/dist/sqlite-sync-history-schema.js
+// ../elt/packages/destinations/sqlite/dist/sqlite-sync-history-schema.js
 var attempts = '"_elt_sync_attempts"';
 var coverage = '"_elt_extraction_coverage"';
 var checks = '"_elt_stream_checks"';
@@ -2881,7 +2881,7 @@ var queries = {
 var syncHistoryViews = Object.values(syncHistoryRelations).map((relation) => ({ ...relation, query: queries[relation.name] }));
 var syncHistory = new Declaration([...tables, ...syncHistoryViews.map(viewDefinition)], { rows: "replace" });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/destinations/sqlite/dist/sqlite-passes.js
+// ../elt/packages/destinations/sqlite/dist/sqlite-passes.js
 var busyTimeout = 3e4;
 function readSQLite(path) {
   if (existsSync2(path)) {
@@ -2989,7 +2989,7 @@ function text2(value) {
   return value === null ? null : String(value);
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/destinations/sqlite/dist/sqlite-sync-history.js
+// ../elt/packages/destinations/sqlite/dist/sqlite-sync-history.js
 import { DatabaseSync as DatabaseSync8 } from "node:sqlite";
 var busyTimeout2 = 3e4;
 var SQLiteSyncHistory = class extends SyncHistory {
@@ -3647,8 +3647,8 @@ async function removed(path) {
   });
 }
 
-// packages/connectors/connector/dist/apple-connector.js
-var AppleConnector = class {
+// packages/connectors/connector/dist/connector.js
+var Connector = class {
   name;
   title;
   // Where the connector keeps its presets, beside its manifest; it may not
@@ -3771,7 +3771,7 @@ var AppleConnector = class {
       if (!("type" in message2) && message2.stream !== this.probe)
         rows.set(message2.stream, [
           ...rows.get(message2.stream) ?? [],
-          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- every Apple source validates its records against the stream's object schema
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- every source validates its records against the stream's object schema
           message2.data
         ]);
     }
@@ -3980,10 +3980,10 @@ function localDay(epochMilliseconds) {
 }
 
 export {
-  Declaration2 as Declaration,
-  transaction4 as transaction,
   readSQLite,
   readPassStatus,
+  Declaration2 as Declaration,
+  transaction4 as transaction,
   Settings,
-  AppleConnector
+  Connector
 };

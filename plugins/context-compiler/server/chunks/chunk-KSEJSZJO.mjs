@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/sqlite-data-version/dist/data-version.js
+// ../elt/node_modules/@zukhruf/sqlite-data-version/dist/data-version.js
 import { DatabaseSync } from "node:sqlite";
 function open(path, unavailable) {
   try {
@@ -30,7 +30,7 @@ var DataVersion = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/sqlite-data-version/dist/last-write.js
+// ../elt/node_modules/@zukhruf/sqlite-data-version/dist/last-write.js
 import { statSync } from "node:fs";
 var unreadable = /* @__PURE__ */ new Set(["ENOENT", "EACCES"]);
 function lastWrite(path, unavailable) {
@@ -45,7 +45,7 @@ function lastWrite(path, unavailable) {
   }
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/sqlite-snapshot/dist/snapshot.js
+// ../elt/node_modules/@zukhruf/sqlite-snapshot/dist/snapshot.js
 import { DatabaseSync as DatabaseSync2 } from "node:sqlite";
 function open2(path, unavailable) {
   try {

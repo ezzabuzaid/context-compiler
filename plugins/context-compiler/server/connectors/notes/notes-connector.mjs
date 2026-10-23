@@ -1,13 +1,13 @@
 import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);
 import {
   appRunning
-} from "../../chunks/chunk-S32CXWMA.mjs";
+} from "../../chunks/chunk-6K66XHNA.mjs";
 import {
   ProtobufMessage
-} from "../../chunks/chunk-YY6PPP7C.mjs";
+} from "../../chunks/chunk-RONL4BT5.mjs";
 import {
   referenceDate
-} from "../../chunks/chunk-NIS5HHJK.mjs";
+} from "../../chunks/chunk-SWUBRDTN.mjs";
 import {
   accounts,
   collections,
@@ -16,21 +16,21 @@ import {
 import {
   selected,
   withinDates
-} from "../../chunks/chunk-JDWFBKNS.mjs";
+} from "../../chunks/chunk-XGE73YOJ.mjs";
 import {
   eventKitFields
-} from "../../chunks/chunk-EP7JQK7X.mjs";
+} from "../../chunks/chunk-GIEVJ5T4.mjs";
 import {
   localAppleStoreCoverage
-} from "../../chunks/chunk-JAML3A7K.mjs";
+} from "../../chunks/chunk-2EITIVUZ.mjs";
 import {
   DataVersion,
   Snapshot,
   lastWrite
-} from "../../chunks/chunk-BPQGEW64.mjs";
+} from "../../chunks/chunk-KSEJSZJO.mjs";
 import {
-  AppleConnector
-} from "../../chunks/chunk-2LTQDBCX.mjs";
+  Connector
+} from "../../chunks/chunk-7ELPL3YG.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -38,16 +38,16 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-57KDDNKG.mjs";
+} from "../../chunks/chunk-UZWKSGGL.mjs";
 import {
   __callDispose,
   __using
 } from "../../chunks/chunk-ZGXE7NZW.mjs";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/notes/dist/apple-notes-source.js
+// ../elt/packages/sources/apple/notes/dist/apple-notes-source.js
 import { setInterval } from "node:timers/promises";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/notes/dist/errors.js
+// ../elt/packages/sdks/apple/notes/dist/errors.js
 var NotesUnavailableError = class extends Error {
   name = "NotesUnavailableError";
   constructor(path, cause) {
@@ -61,7 +61,7 @@ var NotesSchemaError = class extends Error {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/notes/dist/note-document.js
+// ../elt/packages/sdks/apple/notes/dist/note-document.js
 import { gunzipSync, inflateSync } from "node:zlib";
 var decompress = (bytes) => bytes[0] === 31 && bytes[1] === 139 ? gunzipSync(bytes) : inflateSync(bytes);
 var versionData = (bytes) => {
@@ -223,11 +223,11 @@ function decodeTable(bytes) {
   return direction === "CRTableColumnDirectionRightToLeft" ? grid.map((row) => row.toReversed()) : grid;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/notes/dist/note-store.js
+// ../elt/packages/sdks/apple/notes/dist/note-store.js
 import { homedir } from "node:os";
 import { join as join2 } from "node:path";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/notes/dist/note-store-snapshot.js
+// ../elt/packages/sdks/apple/notes/dist/note-store-snapshot.js
 import { access } from "node:fs/promises";
 import { dirname, join } from "node:path";
 var requiredColumns = {
@@ -429,7 +429,7 @@ var NoteStoreSnapshot = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/notes/dist/note-store.js
+// ../elt/packages/sdks/apple/notes/dist/note-store.js
 var noteStorePath = join2(homedir(), "Library/Group Containers/group.com.apple.notes/NoteStore.sqlite");
 var NotesStore = class {
   #path;
@@ -453,7 +453,7 @@ var NotesStore = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/notes/dist/notes-app.js
+// ../elt/packages/sdks/apple/notes/dist/notes-app.js
 import { execFile as execFileCallback } from "node:child_process";
 import { promisify } from "node:util";
 var execFile = promisify(execFileCallback);
@@ -468,7 +468,7 @@ function notesRunning() {
   return appRunning(bundle);
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/notes/dist/apple-notes-stream.js
+// ../elt/packages/sources/apple/notes/dist/apple-notes-stream.js
 var notesFields = {
   ...eventKitFields,
   nullableId: { type: ["string", "null"], minLength: 1 },
@@ -498,7 +498,7 @@ var AppleNotesStream = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/notes/dist/accounts-stream.js
+// ../elt/packages/sources/apple/notes/dist/accounts-stream.js
 var { id, text: text2, ordinal } = notesFields;
 var properties = {
   id: {
@@ -527,7 +527,7 @@ var AccountsStream = class extends AppleNotesStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/notes/dist/note-markdown.js
+// ../elt/packages/sources/apple/notes/dist/note-markdown.js
 function plainText(document, attachment) {
   return document.paragraphs.map((paragraph) => paragraph.runs.map(({ text: text6, attachment: reference }) => reference === null ? text6 : text6.replaceAll(attachmentCharacter, () => attachment(reference))).join("")).join("\n");
 }
@@ -632,7 +632,7 @@ function markdownTable(grid) {
   ].join("\n");
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/notes/dist/notes-scan.js
+// ../elt/packages/sources/apple/notes/dist/notes-scan.js
 var noteLinkType = "com.apple.notes.inlinetextattachment.link";
 var string = (value) => value !== null && value.trim() !== "" ? value : null;
 var NotesScan = class {
@@ -711,7 +711,7 @@ ${markdownTable(grid)}
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/notes/dist/attachments-stream.js
+// ../elt/packages/sources/apple/notes/dist/attachments-stream.js
 var { id: id2, nullableId, text: text3, nullableText, ordinal: ordinal2, nullableNumber, nullableTimestamp, boolean } = notesFields;
 var properties2 = {
   id: {
@@ -848,7 +848,7 @@ var AttachmentsStream = class extends AppleNotesStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/notes/dist/folders-stream.js
+// ../elt/packages/sources/apple/notes/dist/folders-stream.js
 var { id: id3, nullableId: nullableId2, text: text4, ordinal: ordinal3, nullableText: nullableText2, boolean: boolean2 } = notesFields;
 var properties3 = {
   id: {
@@ -901,7 +901,7 @@ var FoldersStream = class extends AppleNotesStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/notes/dist/inline-attachments-stream.js
+// ../elt/packages/sources/apple/notes/dist/inline-attachments-stream.js
 var { id: id4, text: text5, nullableText: nullableText3, nullableTimestamp: nullableTimestamp2 } = notesFields;
 var properties4 = {
   id: { ...id4, description: "Notes identifier of this inline attachment." },
@@ -949,7 +949,7 @@ var InlineAttachmentsStream = class extends AppleNotesStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/notes/dist/notes-stream.js
+// ../elt/packages/sources/apple/notes/dist/notes-stream.js
 var { id: id5, nullableText: nullableText4, nullableTimestamp: nullableTimestamp3, boolean: boolean3 } = notesFields;
 var properties5 = {
   id: {
@@ -1037,7 +1037,7 @@ var NotesStream = class extends AppleNotesStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/notes/dist/apple-notes-source.js
+// ../elt/packages/sources/apple/notes/dist/apple-notes-source.js
 var readers = {
   accounts: new AccountsStream(),
   folders: new FoldersStream(),
@@ -1137,7 +1137,7 @@ var AppleNotesSource = class extends Source {
 };
 
 // packages/connectors/notes/dist/notes-connector.js
-var NotesConnector = class extends AppleConnector {
+var NotesConnector = class extends Connector {
   datedBy = "date last edited";
   fullDiskAccess = true;
   note = "Exact containing folders; select descendants separately. Smart folders are saved searches and cannot be selected as containing folders.";

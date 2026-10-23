@@ -2,17 +2,17 @@ import { createRequire } from 'node:module'; const require = createRequire(impor
 import {
   decodeArchive,
   isDictionary
-} from "./chunk-SYAWWPYB.mjs";
+} from "./chunk-6YWS5RU4.mjs";
 import {
   DataVersion,
   Snapshot
-} from "./chunk-BPQGEW64.mjs";
+} from "./chunk-KSEJSZJO.mjs";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/accounts/dist/accounts-store.js
+// ../elt/packages/sdks/apple/accounts/dist/accounts-store.js
 import { homedir } from "node:os";
 import { join } from "node:path";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/accounts/dist/account.js
+// ../elt/packages/sdks/apple/accounts/dist/account.js
 var mailDataclass = "com.apple.Dataclass.Mail";
 var authenticationProperties = /* @__PURE__ */ new Set([
   "lastAuthenticationServerResponse",
@@ -178,7 +178,7 @@ function flag(value) {
   return typeof value === "boolean" ? value : null;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/accounts/dist/errors.js
+// ../elt/packages/sdks/apple/accounts/dist/errors.js
 var AccountsUnavailableError = class extends Error {
   name = "AccountsUnavailableError";
   constructor(path, cause) {
@@ -192,7 +192,7 @@ var AccountsSchemaError = class extends Error {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/accounts/dist/accounts-snapshot.js
+// ../elt/packages/sdks/apple/accounts/dist/accounts-snapshot.js
 var accountColumns = {
   ZACCOUNT: [
     "Z_PK",
@@ -478,7 +478,7 @@ function date(value) {
   return typeof value === "string" ? new Date(value) : null;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/accounts/dist/accounts-store.js
+// ../elt/packages/sdks/apple/accounts/dist/accounts-store.js
 var accountsStorePath = join(homedir(), "Library/Accounts/Accounts4.sqlite");
 var AccountsStore = class {
   #path;

@@ -2,26 +2,26 @@ import { createRequire } from 'node:module'; const require = createRequire(impor
 import {
   selected,
   withinDates
-} from "../../chunks/chunk-JDWFBKNS.mjs";
+} from "../../chunks/chunk-XGE73YOJ.mjs";
 import {
   eventKitFields
-} from "../../chunks/chunk-EP7JQK7X.mjs";
+} from "../../chunks/chunk-GIEVJ5T4.mjs";
 import {
   decodeArchive,
   isBinaryPlist,
   isDictionary,
   plistJSON
-} from "../../chunks/chunk-SYAWWPYB.mjs";
+} from "../../chunks/chunk-6YWS5RU4.mjs";
 import {
   localAppleStoreCoverage
-} from "../../chunks/chunk-JAML3A7K.mjs";
+} from "../../chunks/chunk-2EITIVUZ.mjs";
 import {
   DataVersion,
   Snapshot
-} from "../../chunks/chunk-BPQGEW64.mjs";
+} from "../../chunks/chunk-KSEJSZJO.mjs";
 import {
-  AppleConnector
-} from "../../chunks/chunk-2LTQDBCX.mjs";
+  Connector
+} from "../../chunks/chunk-7ELPL3YG.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -29,20 +29,20 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-57KDDNKG.mjs";
+} from "../../chunks/chunk-UZWKSGGL.mjs";
 import {
   __callDispose,
   __using
 } from "../../chunks/chunk-ZGXE7NZW.mjs";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/messages/dist/apple-messages-source.js
+// ../elt/packages/sources/apple/messages/dist/apple-messages-source.js
 import { setInterval } from "node:timers/promises";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/messages/dist/chat-database.js
+// ../elt/packages/sdks/apple/messages/dist/chat-database.js
 import { homedir as homedir2 } from "node:os";
 import { join as join2 } from "node:path";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/messages/dist/chat-tables.js
+// ../elt/packages/sdks/apple/messages/dist/chat-tables.js
 var order = [
   "text",
   "nullableText",
@@ -113,12 +113,12 @@ var chatTables = [
   messageAttachmentTable
 ];
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/messages/dist/chat-values.js
+// ../elt/packages/sdks/apple/messages/dist/chat-values.js
 import { access } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/messages/dist/typedstream.js
+// ../elt/packages/sdks/apple/messages/dist/typedstream.js
 var decoder = new TextDecoder("utf-8", { fatal: true });
 var stringClass = new TextEncoder().encode("NSString");
 var cString = 43;
@@ -156,7 +156,7 @@ function indexOf(haystack, needle) {
   return -1;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/messages/dist/chat-values.js
+// ../elt/packages/sdks/apple/messages/dist/chat-values.js
 var appleEpoch = Date.UTC(2001, 0, 1);
 var ChatData = class {
   bytes;
@@ -272,7 +272,7 @@ var MessageSummary = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/messages/dist/chat-database.js
+// ../elt/packages/sdks/apple/messages/dist/chat-database.js
 var chatDatabasePath = join2(homedir2(), "Library/Messages/chat.db");
 var MessagesUnavailableError = class extends Error {
   name = "MessagesUnavailableError";
@@ -419,7 +419,7 @@ var MessagesStore = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/messages/dist/messages-scan.js
+// ../elt/packages/sources/apple/messages/dist/messages-scan.js
 var MessageSelection = class {
   #chats;
   #messages;
@@ -490,7 +490,7 @@ var MessagesScan = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/messages/dist/apple-messages-stream.js
+// ../elt/packages/sources/apple/messages/dist/apple-messages-stream.js
 var AppleMessagesStream = class {
   supportedSyncModes = Object.freeze([
     "full_refresh",
@@ -519,7 +519,7 @@ var AppleMessagesStream = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/messages/dist/messages-fields.js
+// ../elt/packages/sources/apple/messages/dist/messages-fields.js
 var { text, id, nullableText, boolean, nullableTimestamp } = eventKitFields;
 var nullableInteger = { type: ["integer", "null"] };
 var kinds = {
@@ -594,7 +594,7 @@ function tableRecord(table2, values2) {
   ]));
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/messages/dist/streams/attachments-stream.js
+// ../elt/packages/sources/apple/messages/dist/streams/attachments-stream.js
 var properties = {
   guid: {
     ...eventKitFields.id,
@@ -642,7 +642,7 @@ var AttachmentsStream = class extends AppleMessagesStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/messages/dist/streams/chat-handles-stream.js
+// ../elt/packages/sources/apple/messages/dist/streams/chat-handles-stream.js
 var properties2 = {
   chatGuid,
   handleId: {
@@ -680,7 +680,7 @@ var ChatHandlesStream = class extends AppleMessagesStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/messages/dist/streams/chat-lookups-stream.js
+// ../elt/packages/sources/apple/messages/dist/streams/chat-lookups-stream.js
 var properties3 = {
   identifier: columnField(chatLookupTable, "identifier"),
   domain: columnField(chatLookupTable, "domain"),
@@ -714,7 +714,7 @@ var ChatLookupsStream = class extends AppleMessagesStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/messages/dist/streams/chat-messages-stream.js
+// ../elt/packages/sources/apple/messages/dist/streams/chat-messages-stream.js
 var properties4 = {
   chatGuid,
   messageGuid,
@@ -752,7 +752,7 @@ var ChatMessagesStream = class extends AppleMessagesStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/messages/dist/streams/chat-services-stream.js
+// ../elt/packages/sources/apple/messages/dist/streams/chat-services-stream.js
 var properties5 = {
   chatGuid,
   service: columnField(chatServiceTable, "service")
@@ -779,7 +779,7 @@ var ChatServicesStream = class extends AppleMessagesStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/messages/dist/streams/chats-stream.js
+// ../elt/packages/sources/apple/messages/dist/streams/chats-stream.js
 var properties6 = {
   guid: {
     ...eventKitFields.id,
@@ -809,7 +809,7 @@ var ChatsStream = class extends AppleMessagesStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/messages/dist/streams/handles-stream.js
+// ../elt/packages/sources/apple/messages/dist/streams/handles-stream.js
 var properties7 = tableFields(handleTable, {
   id: `${provenance(handleTable, "id")} Unique only together with service: the same id can recur under another service. messages.handle, messages.otherHandle and chatHandles.handleId refer to it within this source, each together with its service field. ${unverified}`,
   service: `${provenance(handleTable, "service")} The second half of this stream's composite key (id, service). messages.handleService, messages.otherHandleService and chatHandles.handleService refer to it within this source. ${unverified}`
@@ -834,7 +834,7 @@ var HandlesStream = class extends AppleMessagesStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/messages/dist/streams/link-previews-stream.js
+// ../elt/packages/sources/apple/messages/dist/streams/link-previews-stream.js
 var { text: text2, nullableText: nullableText2 } = eventKitFields;
 var properties8 = {
   messageGuid,
@@ -906,7 +906,7 @@ var LinkPreviewsStream = class extends AppleMessagesStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/messages/dist/streams/message-attachments-stream.js
+// ../elt/packages/sources/apple/messages/dist/streams/message-attachments-stream.js
 var properties9 = {
   messageGuid,
   attachmentGuid: {
@@ -936,7 +936,7 @@ var MessageAttachmentsStream = class extends AppleMessagesStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/messages/dist/streams/message-edits-stream.js
+// ../elt/packages/sources/apple/messages/dist/streams/message-edits-stream.js
 var { integer, nullableTimestamp: nullableTimestamp2, nullableText: nullableText3, text: text3 } = eventKitFields;
 var properties10 = {
   messageGuid,
@@ -988,7 +988,7 @@ var MessageEditsStream = class extends AppleMessagesStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/messages/dist/streams/messages-stream.js
+// ../elt/packages/sources/apple/messages/dist/streams/messages-stream.js
 var { id: id2, nullableText: nullableText4 } = eventKitFields;
 var properties11 = {
   guid: {
@@ -1052,7 +1052,7 @@ var MessagesStream = class extends AppleMessagesStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/messages/dist/streams/recoverable-message-parts-stream.js
+// ../elt/packages/sources/apple/messages/dist/streams/recoverable-message-parts-stream.js
 var properties12 = {
   chatGuid,
   messageGuid,
@@ -1093,7 +1093,7 @@ var RecoverableMessagePartsStream = class extends AppleMessagesStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/messages/dist/streams/recoverable-messages-stream.js
+// ../elt/packages/sources/apple/messages/dist/streams/recoverable-messages-stream.js
 var properties13 = {
   chatGuid,
   messageGuid,
@@ -1127,7 +1127,7 @@ var RecoverableMessagesStream = class extends AppleMessagesStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/messages/dist/apple-messages-source.js
+// ../elt/packages/sources/apple/messages/dist/apple-messages-source.js
 var readers = {
   chats: new ChatsStream(),
   handles: new HandlesStream(),
@@ -1231,7 +1231,7 @@ var AppleMessagesSource = class extends Source {
 };
 
 // packages/connectors/messages/dist/messages-connector.js
-var MessagesConnector = class extends AppleConnector {
+var MessagesConnector = class extends Connector {
   datedBy = "message date";
   fullDiskAccess = true;
   choices = [

@@ -2,24 +2,24 @@ import { createRequire } from 'node:module'; const require = createRequire(impor
 import {
   referenceDate,
   referenceDateInstant
-} from "../../chunks/chunk-NIS5HHJK.mjs";
+} from "../../chunks/chunk-SWUBRDTN.mjs";
 import {
   eventKitFields
-} from "../../chunks/chunk-EP7JQK7X.mjs";
+} from "../../chunks/chunk-GIEVJ5T4.mjs";
 import {
   isDictionary,
   readPlist
-} from "../../chunks/chunk-SYAWWPYB.mjs";
+} from "../../chunks/chunk-6YWS5RU4.mjs";
 import {
   localAppleStoreCoverage
-} from "../../chunks/chunk-JAML3A7K.mjs";
+} from "../../chunks/chunk-2EITIVUZ.mjs";
 import {
   DataVersion,
   Snapshot
-} from "../../chunks/chunk-BPQGEW64.mjs";
+} from "../../chunks/chunk-KSEJSZJO.mjs";
 import {
-  AppleConnector
-} from "../../chunks/chunk-2LTQDBCX.mjs";
+  Connector
+} from "../../chunks/chunk-7ELPL3YG.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -27,16 +27,16 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-57KDDNKG.mjs";
+} from "../../chunks/chunk-UZWKSGGL.mjs";
 import {
   __callDispose,
   __using
 } from "../../chunks/chunk-ZGXE7NZW.mjs";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/wallet/dist/apple-wallet-source.js
+// ../elt/packages/sources/apple/wallet/dist/apple-wallet-source.js
 import { setInterval } from "node:timers/promises";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/wallet/dist/errors.js
+// ../elt/packages/sdks/apple/wallet/dist/errors.js
 var WalletUnavailableError = class extends Error {
   name = "WalletUnavailableError";
   constructor(path, cause) {
@@ -56,7 +56,7 @@ var PassBundleError = class extends Error {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/wallet/dist/pass-json.js
+// ../elt/packages/sdks/apple/wallet/dist/pass-json.js
 var PassNumber = class {
   text;
   constructor(text7) {
@@ -91,15 +91,15 @@ function passJson(value) {
   throw new TypeError(`JSON parsing returned a ${typeof value}`);
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/wallet/dist/wallet-store.js
+// ../elt/packages/sdks/apple/wallet/dist/wallet-store.js
 import { homedir } from "node:os";
 import { join as join2 } from "node:path";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/wallet/dist/pass-bundle.js
+// ../elt/packages/sdks/apple/wallet/dist/pass-bundle.js
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/wallet/dist/pass.js
+// ../elt/packages/sdks/apple/wallet/dist/pass.js
 var passStyles = [
   "boardingPass",
   "coupon",
@@ -108,7 +108,7 @@ var passStyles = [
   "storeCard"
 ];
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/wallet/dist/pass-content.js
+// ../elt/packages/sdks/apple/wallet/dist/pass-content.js
 var w3cDate = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?(?:Z|([+-])(\d{2}):?(\d{2}))$/;
 var PassReader = class _PassReader {
   #object;
@@ -344,7 +344,7 @@ function relevantDate(relevant, position) {
   };
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/wallet/dist/pass-bundle.js
+// ../elt/packages/sdks/apple/wallet/dist/pass-bundle.js
 var stringsPath = /^(?<language>[^/]+)\.lproj\/pass\.strings$/;
 var imagePath = /^(?:(?<language>[^/]+)\.lproj\/)?(?<name>.+?)(?:@(?<scale>\d+)x)?\.png$/i;
 async function readPassBundle(id9, directory) {
@@ -395,7 +395,7 @@ async function passStrings(file, language) {
   });
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/wallet/dist/passes-fetch.js
+// ../elt/packages/sdks/apple/wallet/dist/passes-fetch.js
 var requiredColumns = {
   cloud_store_zone: ["zone_name", "fetch_timestamp"]
 };
@@ -413,7 +413,7 @@ function lastPassesFetch(path) {
   }
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/wallet/dist/wallet-records.js
+// ../elt/packages/sdks/apple/wallet/dist/wallet-records.js
 var requiredColumns2 = {
   pass: ["pid", "unique_id", "ingested_date", "modified_date", "signing_date"],
   pass_annotations: ["pass_pid", "sorting_state", "archived_timestamp"]
@@ -453,7 +453,7 @@ function instant(value) {
   return value === null ? null : referenceDateInstant(Number(value));
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/wallet/dist/wallet-store.js
+// ../elt/packages/sdks/apple/wallet/dist/wallet-store.js
 var walletStorePath = join2(homedir(), "Library/Passes");
 var WalletStore = class {
   #directory;
@@ -488,7 +488,7 @@ var WalletStore = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/wallet/dist/apple-wallet-stream.js
+// ../elt/packages/sources/apple/wallet/dist/apple-wallet-stream.js
 var walletFields = {
   ...eventKitFields,
   nullableInteger: { type: ["integer", "null"] },
@@ -527,7 +527,7 @@ var AppleWalletStream = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/wallet/dist/streams/pass-barcodes-stream.js
+// ../elt/packages/sources/apple/wallet/dist/streams/pass-barcodes-stream.js
 var { id, text, nullableText, ordinal } = walletFields;
 var properties = {
   passId: { ...id, description: "The pass it is on; refers to passes.id." },
@@ -566,7 +566,7 @@ var PassBarcodesStream = class extends AppleWalletStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/wallet/dist/streams/pass-beacons-stream.js
+// ../elt/packages/sources/apple/wallet/dist/streams/pass-beacons-stream.js
 var { id: id2, text: text2, nullableText: nullableText2, ordinal: ordinal2 } = walletFields;
 var uint16 = {
   type: ["integer", "null"],
@@ -610,7 +610,7 @@ var PassBeaconsStream = class extends AppleWalletStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/wallet/dist/streams/pass-fields-stream.js
+// ../elt/packages/sources/apple/wallet/dist/streams/pass-fields-stream.js
 var { id: id3, text: text3, nullableText: nullableText3, ordinal: ordinal3, boolean, nullableInteger, nullableTextList } = walletFields;
 var properties3 = {
   passId: { ...id3, description: "The pass it is on; refers to passes.id." },
@@ -716,7 +716,7 @@ var PassFieldsStream = class extends AppleWalletStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/wallet/dist/streams/pass-images-stream.js
+// ../elt/packages/sources/apple/wallet/dist/streams/pass-images-stream.js
 var { id: id4, text: text4, nullableText: nullableText4 } = walletFields;
 var properties4 = {
   passId: { ...id4, description: "The pass it is in; refers to passes.id." },
@@ -766,7 +766,7 @@ var PassImagesStream = class extends AppleWalletStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/wallet/dist/streams/pass-localizations-stream.js
+// ../elt/packages/sources/apple/wallet/dist/streams/pass-localizations-stream.js
 var { id: id5, text: text5 } = walletFields;
 var properties5 = {
   passId: { ...id5, description: "The pass it is in; refers to passes.id." },
@@ -797,7 +797,7 @@ var PassLocalizationsStream = class extends AppleWalletStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/wallet/dist/streams/pass-locations-stream.js
+// ../elt/packages/sources/apple/wallet/dist/streams/pass-locations-stream.js
 var { id: id6, nullableText: nullableText5, ordinal: ordinal4, nullableNumber } = walletFields;
 var properties6 = {
   passId: { ...id6, description: "The pass it is for; refers to passes.id." },
@@ -843,7 +843,7 @@ var PassLocationsStream = class extends AppleWalletStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/wallet/dist/streams/pass-relevant-dates-stream.js
+// ../elt/packages/sources/apple/wallet/dist/streams/pass-relevant-dates-stream.js
 var { id: id7, ordinal: ordinal5, passInstant, offset } = walletFields;
 var properties7 = {
   passId: { ...id7, description: "The pass it is for; refers to passes.id." },
@@ -899,7 +899,7 @@ var PassRelevantDatesStream = class extends AppleWalletStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/wallet/dist/streams/passes-stream.js
+// ../elt/packages/sources/apple/wallet/dist/streams/passes-stream.js
 var { id: id8, text: text6, nullableText: nullableText6, integer, boolean: boolean2, nullableInteger: nullableInteger2, nullableNumber: nullableNumber2, walletInstant, passInstant: passInstant2, offset: offset2 } = walletFields;
 var properties8 = {
   id: {
@@ -1087,7 +1087,7 @@ var PassesStream = class extends AppleWalletStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/wallet/dist/wallet-scan.js
+// ../elt/packages/sources/apple/wallet/dist/wallet-scan.js
 var WalletScan = class {
   passes;
   constructor(passes) {
@@ -1097,7 +1097,7 @@ var WalletScan = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/wallet/dist/apple-wallet-source.js
+// ../elt/packages/sources/apple/wallet/dist/apple-wallet-source.js
 var readers = {
   passes: new PassesStream(),
   passFields: new PassFieldsStream(),
@@ -1194,7 +1194,7 @@ var AppleWalletSource = class extends Source {
 };
 
 // packages/connectors/wallet/dist/wallet-connector.js
-var WalletConnector = class extends AppleConnector {
+var WalletConnector = class extends Connector {
   // Wallet has no accounts or collections, and a pass's dates say when it is
   // relevant or expires, not which passes an import should keep.
   datedBy = null;

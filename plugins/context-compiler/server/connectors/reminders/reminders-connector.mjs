@@ -2,7 +2,7 @@ import { createRequire } from 'node:module'; const require = createRequire(impor
 import {
   RemindersStore,
   RemindersUnavailableError
-} from "../../chunks/chunk-F5XSV5KI.mjs";
+} from "../../chunks/chunk-T3T3ORC6.mjs";
 import {
   accounts,
   collections,
@@ -10,13 +10,13 @@ import {
 } from "../../chunks/chunk-KUQKM2Y4.mjs";
 import {
   eventKitFields
-} from "../../chunks/chunk-EP7JQK7X.mjs";
+} from "../../chunks/chunk-GIEVJ5T4.mjs";
 import {
   localAppleStoreCoverage
-} from "../../chunks/chunk-JAML3A7K.mjs";
+} from "../../chunks/chunk-2EITIVUZ.mjs";
 import {
-  AppleConnector
-} from "../../chunks/chunk-2LTQDBCX.mjs";
+  Connector
+} from "../../chunks/chunk-7ELPL3YG.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -24,10 +24,10 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-57KDDNKG.mjs";
+} from "../../chunks/chunk-UZWKSGGL.mjs";
 import "../../chunks/chunk-ZGXE7NZW.mjs";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/reminders/dist/reminders-scan.js
+// ../elt/packages/sources/apple/reminders/dist/reminders-scan.js
 var timestamp = (ms) => ms === void 0 ? null : new Date(ms).toISOString();
 var RemindersScan = class {
   accounts;
@@ -55,7 +55,7 @@ var RemindersScan = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/reminders/dist/apple-reminders-stream.js
+// ../elt/packages/sources/apple/reminders/dist/apple-reminders-stream.js
 var remindersFields = {
   ...eventKitFields,
   reminderId: {
@@ -85,7 +85,7 @@ var AppleRemindersStream = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/reminders/dist/streams/accounts-stream.js
+// ../elt/packages/sources/apple/reminders/dist/streams/accounts-stream.js
 var { id, text, ordinal, boolean } = remindersFields;
 var properties = {
   id: {
@@ -124,7 +124,7 @@ var AccountsStream = class extends AppleRemindersStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/reminders/dist/streams/alarms-stream.js
+// ../elt/packages/sources/apple/reminders/dist/streams/alarms-stream.js
 var { id: id2, nullableText, ordinal: ordinal2, number, nullableTimestamp, location, reminderId } = remindersFields;
 function locationFields(property) {
   return {
@@ -221,7 +221,7 @@ var AlarmsStream = class extends AppleRemindersStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/reminders/dist/streams/attendees-stream.js
+// ../elt/packages/sources/apple/reminders/dist/streams/attendees-stream.js
 var { id: id3, text: text2, ordinal: ordinal3, nullableText: nullableText2, boolean: boolean2, reminderId: reminderId2 } = remindersFields;
 var properties3 = {
   id: {
@@ -293,7 +293,7 @@ var AttendeesStream = class extends AppleRemindersStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/reminders/dist/streams/date-components-stream.js
+// ../elt/packages/sources/apple/reminders/dist/streams/date-components-stream.js
 var { id: id4, text: text3, nullableText: nullableText3, boolean: boolean3, reminderId: reminderId3 } = remindersFields;
 var dateComponentNames = [
   "era",
@@ -377,7 +377,7 @@ var DateComponentsStream = class extends AppleRemindersStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/reminders/dist/streams/lists-stream.js
+// ../elt/packages/sources/apple/reminders/dist/streams/lists-stream.js
 var { id: id5, text: text4, ordinal: ordinal4, boolean: boolean4 } = remindersFields;
 var color = { type: ["number", "null"], minimum: 0, maximum: 1 };
 var properties5 = {
@@ -459,7 +459,7 @@ var ListsStream = class extends AppleRemindersStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/reminders/dist/streams/recurrence-rule-values-stream.js
+// ../elt/packages/sources/apple/reminders/dist/streams/recurrence-rule-values-stream.js
 var { id: id6, text: text5, ordinal: ordinal5, integer, reminderId: reminderId4 } = remindersFields;
 var numberLists = [
   "daysOfTheMonth",
@@ -536,7 +536,7 @@ var RecurrenceRuleValuesStream = class extends AppleRemindersStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/reminders/dist/streams/recurrence-rules-stream.js
+// ../elt/packages/sources/apple/reminders/dist/streams/recurrence-rules-stream.js
 var { id: id7, text: text6, ordinal: ordinal6, integer: integer2, nullableTimestamp: nullableTimestamp2, reminderId: reminderId5 } = remindersFields;
 var properties7 = {
   id: {
@@ -602,7 +602,7 @@ var RecurrenceRulesStream = class extends AppleRemindersStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/reminders/dist/streams/reminders-stream.js
+// ../elt/packages/sources/apple/reminders/dist/streams/reminders-stream.js
 var { id: id8, text: text7, nullableText: nullableText4, nullableTimestamp: nullableTimestamp3, integer: integer3, boolean: boolean5 } = remindersFields;
 var properties8 = {
   id: {
@@ -687,7 +687,7 @@ var RemindersStream = class extends AppleRemindersStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/reminders/dist/apple-reminders-source.js
+// ../elt/packages/sources/apple/reminders/dist/apple-reminders-source.js
 var readers = {
   accounts: new AccountsStream(),
   lists: new ListsStream(),
@@ -760,7 +760,7 @@ var AppleRemindersSource = class extends Source {
 };
 
 // packages/connectors/reminders/dist/reminders-connector.js
-var RemindersConnector = class extends AppleConnector {
+var RemindersConnector = class extends Connector {
   datedBy = null;
   fullDiskAccess = false;
   choices = [

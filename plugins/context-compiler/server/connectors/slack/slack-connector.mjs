@@ -2,7 +2,7 @@ import { createRequire } from 'node:module'; const require = createRequire(impor
 import {
   IndexedDBFormatError,
   readIndexedDB
-} from "../../chunks/chunk-KWNCLFKR.mjs";
+} from "../../chunks/chunk-K5AFS2D2.mjs";
 import {
   byId,
   name
@@ -10,10 +10,10 @@ import {
 import {
   selected,
   withinDates
-} from "../../chunks/chunk-JDWFBKNS.mjs";
+} from "../../chunks/chunk-XGE73YOJ.mjs";
 import {
-  AppleConnector
-} from "../../chunks/chunk-2LTQDBCX.mjs";
+  Connector
+} from "../../chunks/chunk-7ELPL3YG.mjs";
 import {
   Catalog,
   Coverage,
@@ -21,13 +21,13 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-57KDDNKG.mjs";
+} from "../../chunks/chunk-UZWKSGGL.mjs";
 import "../../chunks/chunk-ZGXE7NZW.mjs";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/slack-desktop-source.js
+// ../elt/packages/sources/slack/desktop/dist/slack-desktop-source.js
 import { setInterval } from "node:timers/promises";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/slack/desktop/dist/errors.js
+// ../elt/packages/sdks/slack/desktop/dist/errors.js
 var SlackDesktopUnavailableError = class extends Error {
   name = "SlackDesktopUnavailableError";
   constructor(path, cause) {
@@ -41,13 +41,13 @@ var SlackDesktopFormatError = class extends Error {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/slack/desktop/dist/slack-desktop-store.js
+// ../elt/packages/sdks/slack/desktop/dist/slack-desktop-store.js
 import { readdirSync, statSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/slack/desktop/dist/fields.js
+// ../elt/packages/sdks/slack/desktop/dist/fields.js
 var Fields = class _Fields {
   #value;
   #record;
@@ -147,7 +147,7 @@ function isObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/slack/desktop/dist/instants.js
+// ../elt/packages/sdks/slack/desktop/dist/instants.js
 function seconds(value) {
   return value === null || value === 0 ? null : new Date(value * 1e3).toISOString();
 }
@@ -155,7 +155,7 @@ function milliseconds(value) {
   return value === null || value === 0 ? null : new Date(value).toISOString();
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/slack/desktop/dist/slack-client-record.js
+// ../elt/packages/sdks/slack/desktop/dist/slack-client-record.js
 function readSlackClient(state, record) {
   const root = new Fields(state, record, "state");
   const workspaceId = root.object("selfTeamIds")?.requiredString("teamId") ?? fail(record, "state.selfTeamIds is missing");
@@ -526,7 +526,7 @@ function preferences(root, workspaceId) {
   ];
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/slack/desktop/dist/slack-downloads.js
+// ../elt/packages/sdks/slack/desktop/dist/slack-downloads.js
 function readSlackDownloads(state, record) {
   const root = new Fields(state, record, "state");
   const byWorkspace = root.object("downloads");
@@ -544,7 +544,7 @@ function readSlackDownloads(state, record) {
   })));
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/slack/desktop/dist/slack-desktop-store.js
+// ../elt/packages/sdks/slack/desktop/dist/slack-desktop-store.js
 var indexedDB = "IndexedDB/https_app.slack.com_0.indexeddb.leveldb";
 var reduxDatabase = "reduxPersistence";
 var reduxStore = "reduxPersistenceStore";
@@ -672,7 +672,7 @@ function errorCode(error) {
   return error instanceof Error && "code" in error ? error.code : void 0;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/slack-desktop-scan.js
+// ../elt/packages/sources/slack/desktop/dist/slack-desktop-scan.js
 var toMilliseconds = (instant3) => `${instant3.slice(0, 23)}Z`;
 var SlackDesktopScan = class {
   #clients;
@@ -732,7 +732,7 @@ function settled(read) {
   return read.value;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/slack-desktop-stream.js
+// ../elt/packages/sources/slack/desktop/dist/slack-desktop-stream.js
 var slackFields = {
   id: { type: "string", minLength: 1 },
   ordinal: { type: "integer", minimum: 0 },
@@ -777,7 +777,7 @@ var SlackDesktopStream = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/streams/apps-stream.js
+// ../elt/packages/sources/slack/desktop/dist/streams/apps-stream.js
 var { id, nullableText, nullableBoolean } = slackFields;
 var properties = {
   workspaceId: { ...id, description: "The workspace (workspaces.id)." },
@@ -817,7 +817,7 @@ var AppsStream = class extends SlackDesktopStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/streams/bots-stream.js
+// ../elt/packages/sources/slack/desktop/dist/streams/bots-stream.js
 var { id: id2, nullableText: nullableText2, nullableBoolean: nullableBoolean2, nullableTimestamp } = slackFields;
 var properties2 = {
   workspaceId: { ...id2, description: "The workspace (workspaces.id)." },
@@ -847,7 +847,7 @@ var BotsStream = class extends SlackDesktopStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/streams/channel-members-stream.js
+// ../elt/packages/sources/slack/desktop/dist/streams/channel-members-stream.js
 var { id: id3 } = slackFields;
 var properties3 = {
   workspaceId: { ...id3, description: "The workspace (workspaces.id)." },
@@ -875,7 +875,7 @@ var ChannelMembersStream = class extends SlackDesktopStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/streams/channel-section-channels-stream.js
+// ../elt/packages/sources/slack/desktop/dist/streams/channel-section-channels-stream.js
 var { id: id4, ordinal } = slackFields;
 var properties4 = {
   workspaceId: { ...id4, description: "The workspace (workspaces.id)." },
@@ -905,7 +905,7 @@ var ChannelSectionChannelsStream = class extends SlackDesktopStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/streams/channel-sections-stream.js
+// ../elt/packages/sources/slack/desktop/dist/streams/channel-sections-stream.js
 var { id: id5, ordinal: ordinal2, nullableText: nullableText3 } = slackFields;
 var properties5 = {
   workspaceId: { ...id5, description: "The workspace (workspaces.id)." },
@@ -953,7 +953,7 @@ var ChannelSectionsStream = class extends SlackDesktopStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/streams/channels-stream.js
+// ../elt/packages/sources/slack/desktop/dist/streams/channels-stream.js
 var { id: id6, nullableText: nullableText4, nullableBoolean: nullableBoolean3, nullableTimestamp: nullableTimestamp2, textList, nullableTs } = slackFields;
 var properties6 = {
   workspaceId: { ...id6, description: "The workspace (workspaces.id)." },
@@ -1070,7 +1070,7 @@ var ChannelsStream = class extends SlackDesktopStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/streams/downloads-stream.js
+// ../elt/packages/sources/slack/desktop/dist/streams/downloads-stream.js
 import { statSync as statSync2 } from "node:fs";
 var { id: id7, nullableText: nullableText5, nullableNumber, nullableTimestamp: nullableTimestamp3 } = slackFields;
 var properties7 = {
@@ -1137,7 +1137,7 @@ var DownloadsStream = class extends SlackDesktopStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/streams/file-shares-stream.js
+// ../elt/packages/sources/slack/desktop/dist/streams/file-shares-stream.js
 var { id: id8, ts: ts2, nullableText: nullableText6 } = slackFields;
 var properties8 = {
   workspaceId: { ...id8, description: "The workspace (workspaces.id)." },
@@ -1174,7 +1174,7 @@ var FileSharesStream = class extends SlackDesktopStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/streams/files-stream.js
+// ../elt/packages/sources/slack/desktop/dist/streams/files-stream.js
 var { id: id9, nullableText: nullableText7, nullableBoolean: nullableBoolean4, nullableInteger, nullableTimestamp: nullableTimestamp4 } = slackFields;
 var properties9 = {
   workspaceId: { ...id9, description: "The workspace (workspaces.id)." },
@@ -1291,7 +1291,7 @@ var FilesStream = class extends SlackDesktopStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/streams/list-records-stream.js
+// ../elt/packages/sources/slack/desktop/dist/streams/list-records-stream.js
 var { id: id10, nullableText: nullableText8, nullableBoolean: nullableBoolean5, nullableTimestamp: nullableTimestamp5, nullableTs: nullableTs2 } = slackFields;
 var properties10 = {
   workspaceId: { ...id10, description: "The workspace (workspaces.id)." },
@@ -1358,7 +1358,7 @@ var ListRecordsStream = class extends SlackDesktopStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/streams/members-stream.js
+// ../elt/packages/sources/slack/desktop/dist/streams/members-stream.js
 var { id: id11, nullableText: nullableText9, nullableBoolean: nullableBoolean6, nullableTimestamp: nullableTimestamp6 } = slackFields;
 var properties11 = {
   workspaceId: { ...id11, description: "The workspace (workspaces.id)." },
@@ -1454,7 +1454,7 @@ var MembersStream = class extends SlackDesktopStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/streams/message-attachments-stream.js
+// ../elt/packages/sources/slack/desktop/dist/streams/message-attachments-stream.js
 var { id: id12, ts: ts3, ordinal: ordinal3, nullableText: nullableText10, nullableBoolean: nullableBoolean7 } = slackFields;
 var properties12 = {
   workspaceId: { ...id12, description: "The workspace (workspaces.id)." },
@@ -1558,7 +1558,7 @@ var MessageAttachmentsStream = class extends SlackDesktopStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/streams/message-files-stream.js
+// ../elt/packages/sources/slack/desktop/dist/streams/message-files-stream.js
 var { id: id13, ts: ts4, ordinal: ordinal4 } = slackFields;
 var properties13 = {
   workspaceId: { ...id13, description: "The workspace (workspaces.id)." },
@@ -1593,7 +1593,7 @@ var MessageFilesStream = class extends SlackDesktopStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/streams/message-reactions-stream.js
+// ../elt/packages/sources/slack/desktop/dist/streams/message-reactions-stream.js
 var { id: id14, ts: ts5, nullableText: nullableText11, textList: textList2 } = slackFields;
 var properties14 = {
   workspaceId: { ...id14, description: "The workspace (workspaces.id)." },
@@ -1642,7 +1642,7 @@ var MessageReactionsStream = class extends SlackDesktopStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/streams/message-fields.js
+// ../elt/packages/sources/slack/desktop/dist/streams/message-fields.js
 var { id: id15, ts: ts6, instant: instant2, nullableText: nullableText12, nullableBoolean: nullableBoolean8, nullableInteger: nullableInteger2, nullableTs: nullableTs3, textList: textList3 } = slackFields;
 var messageProperties = {
   workspaceId: { ...id15, description: "The workspace (workspaces.id)." },
@@ -1743,7 +1743,7 @@ function messageRecord(workspaceId, message2) {
   };
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/streams/messages-stream.js
+// ../elt/packages/sources/slack/desktop/dist/streams/messages-stream.js
 var MessagesStream = class extends SlackDesktopStream {
   name = "messages";
   primaryKey = ["workspaceId", "channelId", "ts"];
@@ -1764,7 +1764,7 @@ var MessagesStream = class extends SlackDesktopStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/streams/pins-stream.js
+// ../elt/packages/sources/slack/desktop/dist/streams/pins-stream.js
 var { id: id16, ts: ts7, nullableText: nullableText13, nullableTimestamp: nullableTimestamp7 } = slackFields;
 var properties15 = {
   workspaceId: { ...id16, description: "The workspace (workspaces.id)." },
@@ -1806,7 +1806,7 @@ var PinsStream = class extends SlackDesktopStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/streams/preferences-stream.js
+// ../elt/packages/sources/slack/desktop/dist/streams/preferences-stream.js
 var { id: id17 } = slackFields;
 var properties16 = {
   workspaceId: { ...id17, description: "The workspace (workspaces.id)." },
@@ -1851,7 +1851,7 @@ var PreferencesStream = class extends SlackDesktopStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/streams/thread-replies-stream.js
+// ../elt/packages/sources/slack/desktop/dist/streams/thread-replies-stream.js
 var ThreadRepliesStream = class extends SlackDesktopStream {
   name = "threadReplies";
   primaryKey = ["workspaceId", "channelId", "ts"];
@@ -1870,7 +1870,7 @@ var ThreadRepliesStream = class extends SlackDesktopStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/streams/thread-subscriptions-stream.js
+// ../elt/packages/sources/slack/desktop/dist/streams/thread-subscriptions-stream.js
 var { id: id18, ts: ts8, nullableBoolean: nullableBoolean9, nullableTs: nullableTs4 } = slackFields;
 var properties17 = {
   workspaceId: { ...id18, description: "The workspace (workspaces.id)." },
@@ -1902,7 +1902,7 @@ var ThreadSubscriptionsStream = class extends SlackDesktopStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/streams/user-group-memberships-stream.js
+// ../elt/packages/sources/slack/desktop/dist/streams/user-group-memberships-stream.js
 var { id: id19, nullableBoolean: nullableBoolean10 } = slackFields;
 var properties18 = {
   workspaceId: { ...id19, description: "The workspace (workspaces.id)." },
@@ -1936,7 +1936,7 @@ var UserGroupMembershipsStream = class extends SlackDesktopStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/streams/workspaces-stream.js
+// ../elt/packages/sources/slack/desktop/dist/streams/workspaces-stream.js
 var { id: id20, nullableText: nullableText14, nullableTimestamp: nullableTimestamp8 } = slackFields;
 var properties19 = {
   id: { ...id20, description: "Slack\u2019s workspace (team) ID, such as T0123ABCD." },
@@ -1984,7 +1984,7 @@ var WorkspacesStream = class extends SlackDesktopStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/slack/desktop/dist/slack-desktop-source.js
+// ../elt/packages/sources/slack/desktop/dist/slack-desktop-source.js
 var readers = {
   workspaces: new WorkspacesStream(),
   channels: new ChannelsStream(),
@@ -2119,7 +2119,7 @@ function conversationLabel(row) {
     return name(row);
   return `#${name(row)}`;
 }
-var SlackConnector = class extends AppleConnector {
+var SlackConnector = class extends Connector {
   datedBy = "date sent";
   fullDiskAccess = true;
   note = "Slack keeps only the messages it has loaded on this Mac, so older history is imported only once Slack loads it.";

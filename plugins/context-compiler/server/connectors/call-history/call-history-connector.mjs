@@ -1,23 +1,23 @@
 import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);
 import {
   referenceDateInstant
-} from "../../chunks/chunk-NIS5HHJK.mjs";
+} from "../../chunks/chunk-SWUBRDTN.mjs";
 import {
   withinDates
-} from "../../chunks/chunk-JDWFBKNS.mjs";
+} from "../../chunks/chunk-XGE73YOJ.mjs";
 import {
   eventKitFields
-} from "../../chunks/chunk-EP7JQK7X.mjs";
+} from "../../chunks/chunk-GIEVJ5T4.mjs";
 import {
   localAppleStoreCoverage
-} from "../../chunks/chunk-JAML3A7K.mjs";
+} from "../../chunks/chunk-2EITIVUZ.mjs";
 import {
   DataVersion,
   Snapshot
-} from "../../chunks/chunk-BPQGEW64.mjs";
+} from "../../chunks/chunk-KSEJSZJO.mjs";
 import {
-  AppleConnector
-} from "../../chunks/chunk-2LTQDBCX.mjs";
+  Connector
+} from "../../chunks/chunk-7ELPL3YG.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -25,16 +25,16 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-57KDDNKG.mjs";
+} from "../../chunks/chunk-UZWKSGGL.mjs";
 import {
   __callDispose,
   __using
 } from "../../chunks/chunk-ZGXE7NZW.mjs";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/call-history/dist/apple-call-history-source.js
+// ../elt/packages/sources/apple/call-history/dist/apple-call-history-source.js
 import { setInterval } from "node:timers/promises";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/call-history/dist/call.js
+// ../elt/packages/sdks/apple/call-history/dist/call.js
 var kinds = /* @__PURE__ */ new Map([
   [1, "phone"],
   [8, "faceTimeVideo"],
@@ -51,7 +51,7 @@ function callCategory(code2) {
   return code2 === null ? null : categories.get(code2) ?? null;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/call-history/dist/errors.js
+// ../elt/packages/sdks/apple/call-history/dist/errors.js
 var CallHistoryUnavailableError = class extends Error {
   name = "CallHistoryUnavailableError";
   constructor(path, cause) {
@@ -65,7 +65,7 @@ var CallHistorySchemaError = class extends Error {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/call-history/dist/call-history-snapshot.js
+// ../elt/packages/sdks/apple/call-history/dist/call-history-snapshot.js
 var requiredColumns = {
   ZCALLRECORD: [
     "Z_PK",
@@ -340,7 +340,7 @@ function flag(value) {
   return value === null ? null : Number(value) === 1;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/apple/call-history/dist/call-history-store.js
+// ../elt/packages/sdks/apple/call-history/dist/call-history-store.js
 import { homedir } from "node:os";
 import { join } from "node:path";
 var callHistoryStorePath = join(homedir(), "Library/Application Support/CallHistoryDB/CallHistory.storedata");
@@ -360,7 +360,7 @@ var CallHistoryStore = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/call-history/dist/call-history-scan.js
+// ../elt/packages/sources/apple/call-history/dist/call-history-scan.js
 var toMilliseconds = (instant) => `${instant.slice(0, 23)}Z`;
 var CallHistoryScan = class {
   #snapshot;
@@ -409,7 +409,7 @@ var CallHistoryScan = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/call-history/dist/apple-call-history-stream.js
+// ../elt/packages/sources/apple/call-history/dist/apple-call-history-stream.js
 var callHistoryFields = {
   ...eventKitFields,
   nullableId: { type: ["string", "null"], minLength: 1 },
@@ -442,7 +442,7 @@ var AppleCallHistoryStream = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/call-history/dist/streams/call-participants-stream.js
+// ../elt/packages/sources/apple/call-history/dist/streams/call-participants-stream.js
 var { id, text, integer, nullableText } = callHistoryFields;
 var properties = {
   callId: {
@@ -486,7 +486,7 @@ var CallParticipantsStream = class extends AppleCallHistoryStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/call-history/dist/streams/call-timers-stream.js
+// ../elt/packages/sources/apple/call-history/dist/streams/call-timers-stream.js
 var { integer: integer2, nullableSeconds } = callHistoryFields;
 var timer = (what, column) => `${what}, in seconds (ZCALLDBPROPERTIES.${column}); NULL when not stored.`;
 var properties2 = {
@@ -532,7 +532,7 @@ var CallTimersStream = class extends AppleCallHistoryStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/call-history/dist/streams/calls-stream.js
+// ../elt/packages/sources/apple/call-history/dist/streams/calls-stream.js
 var { id: id2, nullableText: nullableText2, nullableBoolean, nullableInteger, nullableSeconds: nullableSeconds2, nullableInstant } = callHistoryFields;
 var stored = (what, column) => `${what} (ZCALLRECORD.${column}); NULL when callhistoryd stores none.`;
 var code = (what, column) => `${what}: CallHistory's own code (ZCALLRECORD.${column}), whose values Apple does not document; NULL when none is stored.`;
@@ -801,7 +801,7 @@ var CallsStream = class extends AppleCallHistoryStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/call-history/dist/streams/emergency-media-items-stream.js
+// ../elt/packages/sources/apple/call-history/dist/streams/emergency-media-items-stream.js
 var { integer: integer3, nullableId, nullableInteger: nullableInteger2, nullableText: nullableText3 } = callHistoryFields;
 var properties4 = {
   id: {
@@ -838,7 +838,7 @@ var EmergencyMediaItemsStream = class extends AppleCallHistoryStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/call-history/dist/streams/saint-davids-counts-stream.js
+// ../elt/packages/sources/apple/call-history/dist/streams/saint-davids-counts-stream.js
 var { integer: integer4, nullableId: nullableId2, nullableInteger: nullableInteger3 } = callHistoryFields;
 var properties5 = {
   id: {
@@ -875,7 +875,7 @@ var SaintDavidsCountsStream = class extends AppleCallHistoryStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/apple/call-history/dist/apple-call-history-source.js
+// ../elt/packages/sources/apple/call-history/dist/apple-call-history-source.js
 var readers = {
   calls: new CallsStream(),
   callParticipants: new CallParticipantsStream(),
@@ -957,7 +957,7 @@ var AppleCallHistorySource = class extends Source {
 };
 
 // packages/connectors/call-history/dist/call-history-connector.js
-var CallHistoryConnector = class extends AppleConnector {
+var CallHistoryConnector = class extends Connector {
   datedBy = "call date";
   fullDiskAccess = true;
   // One small store of every call on this Mac; a date range is the only

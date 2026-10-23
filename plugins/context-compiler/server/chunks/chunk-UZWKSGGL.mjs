@@ -4,7 +4,7 @@ import {
   __using
 } from "./chunk-ZGXE7NZW.mjs";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/formats/field-format.js
+// ../elt/packages/elt/dist/core/formats/field-format.js
 var FieldFormat = class {
   // False when byte order is not the values' order, so the field cannot be a
   // cursor.
@@ -13,7 +13,7 @@ var FieldFormat = class {
   ordering = "by byte order";
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/formats/base64-format.js
+// ../elt/packages/elt/dist/core/formats/base64-format.js
 var Base64Format = class extends FieldFormat {
   name = "base64";
   orderable = false;
@@ -22,7 +22,7 @@ var Base64Format = class extends FieldFormat {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/formats/temporal-format.js
+// ../elt/packages/elt/dist/core/formats/temporal-format.js
 var TemporalFormat = class extends FieldFormat {
   precision;
   constructor(precision = 3) {
@@ -43,7 +43,7 @@ var TemporalFormat = class extends FieldFormat {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/formats/timestamp-format.js
+// ../elt/packages/elt/dist/core/formats/timestamp-format.js
 var TimestampFormat = class extends TemporalFormat {
   name = "date-time";
   #pattern = new RegExp(`^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}${this.fraction}Z$`);
@@ -56,7 +56,7 @@ function isTimestamp(value) {
   return typeof value === "string" && milliseconds.accepts(value);
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/formats/calendar-date-format.js
+// ../elt/packages/elt/dist/core/formats/calendar-date-format.js
 var CalendarDateFormat = class extends FieldFormat {
   name = "date";
   accepts(value) {
@@ -68,7 +68,7 @@ function isCalendarDate(value) {
   return typeof value === "string" && day.accepts(value);
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/formats/decimal-format.js
+// ../elt/packages/elt/dist/core/formats/decimal-format.js
 var DecimalFormat = class extends FieldFormat {
   name = "decimal";
   orderable = false;
@@ -97,7 +97,7 @@ var DecimalFormat = class extends FieldFormat {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/formats/int64-format.js
+// ../elt/packages/elt/dist/core/formats/int64-format.js
 var min = -(2n ** 63n);
 var max = 2n ** 63n - 1n;
 var Int64Format = class extends FieldFormat {
@@ -111,7 +111,7 @@ var Int64Format = class extends FieldFormat {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/formats/local-time-format.js
+// ../elt/packages/elt/dist/core/formats/local-time-format.js
 var LocalTimeFormat = class extends TemporalFormat {
   name = "time-local";
   #pattern = new RegExp(`^\\d{2}:\\d{2}:\\d{2}${this.fraction}$`);
@@ -120,7 +120,7 @@ var LocalTimeFormat = class extends TemporalFormat {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/formats/local-timestamp-format.js
+// ../elt/packages/elt/dist/core/formats/local-timestamp-format.js
 var LocalTimestampFormat = class extends TemporalFormat {
   name = "date-time-local";
   #pattern = new RegExp(`^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}${this.fraction}$`);
@@ -129,7 +129,7 @@ var LocalTimestampFormat = class extends TemporalFormat {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/formats/declared-format.js
+// ../elt/packages/elt/dist/core/formats/declared-format.js
 function declaredFormat(schema) {
   const { format, precision, scale, contentEncoding } = schema;
   if (format === void 0 && contentEncoding === void 0) {
@@ -167,7 +167,7 @@ function declaredFormat(schema) {
   }
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/deduplication.js
+// ../elt/packages/elt/dist/core/deduplication.js
 var Deduplication = class {
   stream;
   primaryKey;
@@ -238,7 +238,7 @@ var Deduplication = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/document-parser.js
+// ../elt/packages/elt/dist/core/document-parser.js
 var DocumentParser = class {
   identity;
   constructor(identity) {
@@ -254,11 +254,11 @@ var DocumentParser = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/file-storage.js
+// ../elt/packages/elt/dist/core/file-storage.js
 var FileStorage = class {
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/file-read.js
+// ../elt/packages/elt/dist/core/file-read.js
 var FileReference = class _FileReference {
   stream;
   storage;
@@ -323,7 +323,7 @@ var FileRead = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/stream.js
+// ../elt/packages/elt/dist/core/stream.js
 var Stream = class {
   name;
   jsonSchema;
@@ -396,7 +396,7 @@ var Stream = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/catalog.js
+// ../elt/packages/elt/dist/core/catalog.js
 var Catalog = class _Catalog {
   streams;
   constructor(streams) {
@@ -418,7 +418,7 @@ var Catalog = class _Catalog {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/copy-configuration.js
+// ../elt/packages/elt/dist/core/copy-configuration.js
 var CopyConfiguration = class {
   stream;
   fileReads;
@@ -504,7 +504,7 @@ var CopyConfiguration = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/file-content.js
+// ../elt/packages/elt/dist/core/file-content.js
 import { open } from "node:fs/promises";
 var FileContent = class {
   path;
@@ -536,7 +536,7 @@ var FileContent = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/file-transfer.js
+// ../elt/packages/elt/dist/core/file-transfer.js
 var FileTransfer = class {
   reads;
   location;
@@ -589,7 +589,7 @@ var FileTransfer = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/target.js
+// ../elt/packages/elt/dist/core/target.js
 var Target = class {
   fileReads;
   constructor(fileReads = []) {
@@ -602,7 +602,7 @@ var Target = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/copy.js
+// ../elt/packages/elt/dist/core/copy.js
 function describeFailures({ copy, failures }) {
   return failures.map(({ partition, error }) => `${copy.id ?? copy.from.name}${partition === null ? "" : ` ${JSON.stringify(partition)}`}: ${error instanceof Error ? error.message : String(error)}`).join("; ");
 }
@@ -650,7 +650,7 @@ var Copy = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/connection.js
+// ../elt/packages/elt/dist/core/connection.js
 var Connection = class {
   name;
   source;
@@ -678,7 +678,7 @@ var Connection = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/destination.js
+// ../elt/packages/elt/dist/core/destination.js
 import { isDeepStrictEqual } from "node:util";
 var Destination = class {
   // Validate declarations without storage I/O; destinations check their own targets.
@@ -697,14 +697,14 @@ var Destination = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/file-extension.js
+// ../elt/packages/elt/dist/core/file-extension.js
 import { extname } from "node:path";
 function fileExtension(name) {
   const extension = extname(name);
   return /^\.[a-zA-Z0-9]{1,16}$/.test(extension) ? extension : "";
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/identifiers.js
+// ../elt/packages/elt/dist/core/identifiers.js
 import { createHash } from "node:crypto";
 function hash(name) {
   return createHash("sha256").update(name).digest("hex").slice(0, 8);
@@ -744,10 +744,10 @@ var Identifiers = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/pipeline.js
+// ../elt/packages/elt/dist/core/pipeline.js
 import { setTimeout as sleep } from "node:timers/promises";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/interleave.js
+// ../elt/packages/elt/dist/core/interleave.js
 async function* interleave(generators, concurrency) {
   const waiting = [...generators];
   const reading = /* @__PURE__ */ new Map();
@@ -781,7 +781,7 @@ async function* interleave(generators, concurrency) {
   }
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/partition.js
+// ../elt/packages/elt/dist/core/partition.js
 function partitionIdentity(stream) {
   if (stream.partitionKey === void 0)
     throw new TypeError(`Stream ${stream.name} is not partitioned`);
@@ -826,7 +826,7 @@ function readPartitionStates(stream, state) {
   ]));
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/source.js
+// ../elt/packages/elt/dist/core/source.js
 var StreamStatus = class {
   stream;
   status;
@@ -1012,7 +1012,7 @@ var Source = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/replication.js
+// ../elt/packages/elt/dist/core/replication.js
 var Replicated = class {
   stage;
   emitted = { count: 0, deleted: 0 };
@@ -1412,7 +1412,7 @@ function deletionKey(stream, key) {
   return Object.freeze(snapshot);
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/pipeline.js
+// ../elt/packages/elt/dist/core/pipeline.js
 var stopGraceMs = 1e3;
 var retryLimit = 5;
 var retryDelayMs = (failures) => Math.min(1e4 * 3 ** (failures - 1), 30 * 6e4);
@@ -1710,7 +1710,7 @@ function advise(call) {
   }
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/reader-relation.js
+// ../elt/packages/elt/dist/core/reader-relation.js
 var readerCatalog = Object.freeze({
   name: "catalog",
   description: "One row per readable view, table and column, explaining meaning and use. Discover sync_status and extraction_coverage before judging freshness or completeness. Raw tables are not listed.",
@@ -1722,7 +1722,7 @@ var readerCatalog = Object.freeze({
   })
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/reload-mode.js
+// ../elt/packages/elt/dist/core/reload-mode.js
 function reloadMode({ reloading, destinationSyncMode, target, hidden }) {
   if (reloading)
     return hidden === "fits" ? "continue" : "reload";
@@ -1735,7 +1735,7 @@ function reloadMode({ reloading, destinationSyncMode, target, hidden }) {
   return "load";
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/stream-change.js
+// ../elt/packages/elt/dist/core/stream-change.js
 import { isDeepStrictEqual as isDeepStrictEqual2 } from "node:util";
 var declarations = [
   "name",
@@ -1757,7 +1757,7 @@ function changedDeclarations(saved, current) {
   return declarations.filter((declaration) => !isDeepStrictEqual2(Reflect.get(Object(saved), declaration), Reflect.get(Object(current), declaration)));
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/record-validation.js
+// ../elt/packages/elt/dist/core/record-validation.js
 var itemTypes = /* @__PURE__ */ new Set(["string", "integer", "number", "boolean"]);
 var scalarTypes = /* @__PURE__ */ new Set([...itemTypes, "null"]);
 var typesOf = (field) => typeof field.type === "string" ? [field.type] : field.type;
@@ -1815,21 +1815,21 @@ function assertRecord(record, fields, stream, source) {
   }
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/snapshot.js
+// ../elt/packages/elt/dist/core/snapshot.js
 import { scheduler } from "node:timers/promises";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/snapshot-differential/dist/deletion-policy.js
+// ../elt/node_modules/@zukhruf/snapshot-differential/dist/deletion-policy.js
 var DeletionPolicy = class {
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/snapshot-differential/dist/closed-world.js
+// ../elt/node_modules/@zukhruf/snapshot-differential/dist/closed-world.js
 var ClosedWorld = class extends DeletionPolicy {
   vanished() {
     return "deleted";
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/snapshot-differential/dist/coverage.js
+// ../elt/node_modules/@zukhruf/snapshot-differential/dist/coverage.js
 var Coverage = class extends DeletionPolicy {
   #covers;
   constructor(covers) {
@@ -1841,12 +1841,12 @@ var Coverage = class extends DeletionPolicy {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/snapshot-differential/dist/timestamp.js
+// ../elt/node_modules/@zukhruf/snapshot-differential/dist/timestamp.js
 function isTimestamp2(value) {
   return typeof value === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value) && new Date(value).toISOString() === value;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/snapshot-differential/dist/retention.js
+// ../elt/node_modules/@zukhruf/snapshot-differential/dist/retention.js
 var Retention = class extends DeletionPolicy {
   horizon;
   constructor(horizon) {
@@ -1860,7 +1860,7 @@ var Retention = class extends DeletionPolicy {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/snapshot-differential/dist/fingerprint.js
+// ../elt/node_modules/@zukhruf/snapshot-differential/dist/fingerprint.js
 import { createHash as createHash2 } from "node:crypto";
 import { isDeepStrictEqual as isDeepStrictEqual3 } from "node:util";
 function fingerprintOf(name, record) {
@@ -1880,7 +1880,7 @@ function isPlainObject(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value) && Object.getPrototypeOf(value) === Object.prototype;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/snapshot-differential/dist/snapshot-state.js
+// ../elt/node_modules/@zukhruf/snapshot-differential/dist/snapshot-state.js
 function readSnapshot(name, state) {
   if (state === null)
     return { snapshot: /* @__PURE__ */ new Map(), listed: /* @__PURE__ */ new Set() };
@@ -1952,7 +1952,7 @@ function invalid(name) {
   return new TypeError(`Snapshot ${name} state is not a saved snapshot`);
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/snapshot-differential/dist/snapshot-differential.js
+// ../elt/node_modules/@zukhruf/snapshot-differential/dist/snapshot-differential.js
 var SnapshotDifferential = class {
   name;
   primaryKey;
@@ -2118,7 +2118,7 @@ var SnapshotDifferential = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/snapshot.js
+// ../elt/packages/elt/dist/core/snapshot.js
 async function* diffSnapshot({ stream, syncMode }, records, state, options) {
   const differential = differentialOf(stream, options);
   if (syncMode !== "incremental") {
@@ -2187,7 +2187,7 @@ function messageOf(stream, change) {
   return { type: "STATE", stream: stream.name, state: change.state };
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/target-description.js
+// ../elt/packages/elt/dist/core/target-description.js
 function annotation(value) {
   if (value === void 0)
     return null;
@@ -2248,7 +2248,7 @@ function describeTarget(configuration, columns, storedFile) {
   });
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/writer.js
+// ../elt/packages/elt/dist/core/writer.js
 var TargetOwnedError = class extends TypeError {
   name = "TargetOwnedError";
   constructor(target, owner, writer) {
@@ -2262,7 +2262,7 @@ var Writer = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/state/checkpoint-store.js
+// ../elt/packages/elt/dist/state/checkpoint-store.js
 import { isDeepStrictEqual as isDeepStrictEqual4 } from "node:util";
 var CheckpointStore = class {
   // Holds every replication's lock for the whole run.
@@ -2339,7 +2339,7 @@ var CheckpointStore = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/state/sync-history.js
+// ../elt/packages/elt/dist/state/sync-history.js
 import { inspect } from "node:util";
 var checkRecordMs = 6e4;
 var SyncHistory = class {
@@ -2397,7 +2397,7 @@ function passError(outcomes) {
   return `The following copies did not load completely: ${incomplete.map(describeFailures).join("; ")}`;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/state/sync-history-relations.js
+// ../elt/packages/elt/dist/state/sync-history-relations.js
 var attempt = {
   attempt_id: "Pass identifier. Join to extraction_coverage.attempt_id for the exact declarations and copy outcomes of this pass.",
   connector: "Connection name declared by the application. Each attempt is one pass: one read of the streams the connection selected.",
@@ -2472,7 +2472,7 @@ var syncHistoryRelations = {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/storage/local-files.js
+// ../elt/packages/elt/dist/storage/local-files.js
 import { createHash as createHash3, randomUUID } from "node:crypto";
 import { link, lstat, mkdir, open as open2, readdir, rm } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";

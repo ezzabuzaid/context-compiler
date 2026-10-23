@@ -1,13 +1,13 @@
 import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);
 import {
   external_exports
-} from "../../chunks/chunk-GQVWDH3D.mjs";
+} from "../../chunks/chunk-A7PMGKHK.mjs";
 import {
   byId
 } from "../../chunks/chunk-KUQKM2Y4.mjs";
 import {
-  AppleConnector
-} from "../../chunks/chunk-2LTQDBCX.mjs";
+  Connector
+} from "../../chunks/chunk-7ELPL3YG.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -18,16 +18,16 @@ import {
   diffSnapshot,
   isTimestamp,
   validateRecords
-} from "../../chunks/chunk-57KDDNKG.mjs";
+} from "../../chunks/chunk-UZWKSGGL.mjs";
 import {
   __callDispose,
   __using
 } from "../../chunks/chunk-ZGXE7NZW.mjs";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/instagram-web-source.js
+// ../elt/packages/sources/instagram/web/dist/instagram-web-source.js
 import { setInterval } from "node:timers/promises";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/chromium/cookies/dist/chromium-browser.js
+// ../elt/packages/sdks/chromium/cookies/dist/chromium-browser.js
 import { existsSync, readdirSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
@@ -61,11 +61,11 @@ var chromiumBrowsers = [
   new ChromiumBrowser("Brave", "BraveSoftware/Brave-Browser", "Brave Safe Storage", "Brave")
 ];
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/chromium/cookies/dist/cookie-store.js
+// ../elt/packages/sdks/chromium/cookies/dist/cookie-store.js
 import { createDecipheriv, createHash } from "node:crypto";
 import { DatabaseSync } from "node:sqlite";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/chromium/cookies/dist/errors.js
+// ../elt/packages/sdks/chromium/cookies/dist/errors.js
 var SafeStorageUnavailableError = class extends Error {
   browser;
   constructor(browser, service, options2) {
@@ -87,7 +87,7 @@ var BrowserSessionNotFoundError = class extends Error {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/chromium/cookies/dist/cookie-store.js
+// ../elt/packages/sdks/chromium/cookies/dist/cookie-store.js
 var epochOffset = 11644473600000000n;
 var CookieStore = class {
   #database;
@@ -161,7 +161,7 @@ function decrypt(encrypted, key, cookie) {
   return value.subarray(32).toString("utf8");
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/chromium/cookies/dist/safe-storage.js
+// ../elt/packages/sdks/chromium/cookies/dist/safe-storage.js
 import { execFile } from "node:child_process";
 import { pbkdf2Sync } from "node:crypto";
 import { homedir as homedir2 } from "node:os";
@@ -190,7 +190,7 @@ async function safeStorageKey(browser) {
   return pbkdf2Sync(password, "saltysalt", 1003, 16, "sha1");
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/chromium/cookies/dist/browser-session.js
+// ../elt/packages/sdks/chromium/cookies/dist/browser-session.js
 var BrowserSession = class _BrowserSession {
   browser;
   profile;
@@ -235,7 +235,7 @@ var BrowserSession = class _BrowserSession {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/instagram/web/dist/errors.js
+// ../elt/packages/sdks/instagram/web/dist/errors.js
 var InstagramLoginError = class extends Error {
   constructor(what, options2) {
     super(`Instagram did not answer ${what} for a signed-in session: sign in to Instagram again in your browser, then sync again.`, options2);
@@ -255,11 +255,11 @@ var InstagramQueryError = class extends Error {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/instagram/web/dist/instagram-web.js
+// ../elt/packages/sdks/instagram/web/dist/instagram-web.js
 import { createWriteStream } from "node:fs";
 import { pipeline } from "node:stream/promises";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/instagram/web/dist/queries.js
+// ../elt/packages/sdks/instagram/web/dist/queries.js
 var shortDrama = { PolarisShortDramaEnabled: true };
 var storiesLabel = { PolarisCommunityNoteStoriesLabelEnabled: true };
 var profileQuery = {
@@ -328,7 +328,7 @@ function variablesOf(query, variables) {
   };
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/instagram/web/dist/schemas.js
+// ../elt/packages/sdks/instagram/web/dist/schemas.js
 var image = external_exports.object({
   url: external_exports.string(),
   width: external_exports.number(),
@@ -533,7 +533,7 @@ var repliesResponse = external_exports.object({
   next_max_child_cursor: external_exports.string().optional()
 });
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sdks/instagram/web/dist/instagram-web.js
+// ../elt/packages/sdks/instagram/web/dist/instagram-web.js
 var origin = "https://www.instagram.com";
 var webAppId = "936619743392459";
 var userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36";
@@ -807,12 +807,12 @@ function parsed(what, schema, body) {
   throw new InstagramQueryError(what, issue === void 0 ? result.error.message : `${issue.path.join(".")}: ${issue.message}`, { cause: result.error });
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/instagram-run.js
+// ../elt/packages/sources/instagram/web/dist/instagram-run.js
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join as join3 } from "node:path";
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/lane.js
+// ../elt/packages/sources/instagram/web/dist/lane.js
 var Lane = class {
   // Whether the profile pinned the item above its newer ones.
   pinned(_item, _profile) {
@@ -820,7 +820,7 @@ var Lane = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/lanes/posts-lane.js
+// ../elt/packages/sources/instagram/web/dist/lanes/posts-lane.js
 var PostsLane = class extends Lane {
   name = "posts";
   fetch(web, profile, cursor, signal) {
@@ -834,7 +834,7 @@ var PostsLane = class extends Lane {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/lanes/reels-lane.js
+// ../elt/packages/sources/instagram/web/dist/lanes/reels-lane.js
 var ReelsLane = class extends Lane {
   name = "reels";
   fetch(web, profile, cursor, signal) {
@@ -850,7 +850,7 @@ var ReelsLane = class extends Lane {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/lanes/reposts-lane.js
+// ../elt/packages/sources/instagram/web/dist/lanes/reposts-lane.js
 var RepostsLane = class extends Lane {
   name = "reposts";
   fetch(web, profile, cursor, signal) {
@@ -861,7 +861,7 @@ var RepostsLane = class extends Lane {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/lanes/tagged-lane.js
+// ../elt/packages/sources/instagram/web/dist/lanes/tagged-lane.js
 var TaggedLane = class extends Lane {
   name = "tagged";
   fetch(web, profile, cursor, signal) {
@@ -872,7 +872,7 @@ var TaggedLane = class extends Lane {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/instagram-run.js
+// ../elt/packages/sources/instagram/web/dist/instagram-run.js
 var pagesPerRun = 10;
 var LaneReader = class {
   lane;
@@ -956,7 +956,7 @@ function extension(url) {
   return match === null ? "" : `.${match[1]?.toLowerCase()}`;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/fields.js
+// ../elt/packages/sources/instagram/web/dist/fields.js
 var fields = {
   profileId: {
     type: "string",
@@ -1002,7 +1002,7 @@ function reelUrl(code) {
   return `https://www.instagram.com/reel/${code}/`;
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/instagram-stream.js
+// ../elt/packages/sources/instagram/web/dist/instagram-stream.js
 import { rm as rm2 } from "node:fs/promises";
 function within({ startAt, endAt }, instant2) {
   return (startAt === void 0 || instant2 >= startAt) && (endAt === void 0 || instant2 < endAt);
@@ -1049,7 +1049,7 @@ var InstagramStream = class {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/list-walk.js
+// ../elt/packages/sources/instagram/web/dist/list-walk.js
 var freshLane = { after: null, head: null, ended: false };
 async function* walk(reader, profile, state, signal, olderThan) {
   const { lane } = reader;
@@ -1114,7 +1114,7 @@ async function* walk(reader, profile, state, signal, olderThan) {
   }
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/state.js
+// ../elt/packages/sources/instagram/web/dist/state.js
 function isPlainObject(value) {
   return typeof value === "object" && value !== null && Object.getPrototypeOf(value) === Object.prototype;
 }
@@ -1137,7 +1137,7 @@ function readScan(stream, state) {
   return { lanes, diff, extra };
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/streams/comments-stream.js
+// ../elt/packages/sources/instagram/web/dist/streams/comments-stream.js
 var { profileId, id, text, nullableText, count, instant: at } = fields;
 var properties = {
   profileId,
@@ -1257,7 +1257,7 @@ var CommentsStream = class extends InstagramStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/snapshot-stream.js
+// ../elt/packages/sources/instagram/web/dist/snapshot-stream.js
 var SnapshotStream = class extends InstagramStream {
   policy() {
     return new ClosedWorld();
@@ -1272,7 +1272,7 @@ var SnapshotStream = class extends InstagramStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/streams/following-stream.js
+// ../elt/packages/sources/instagram/web/dist/streams/following-stream.js
 var { id: id2, text: text2, flag } = fields;
 var properties2 = {
   id: { ...id2, description: "The account\u2019s Instagram user id." },
@@ -1326,7 +1326,7 @@ var FollowingStream = class extends SnapshotStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/streams/highlights-stream.js
+// ../elt/packages/sources/instagram/web/dist/streams/highlights-stream.js
 var { profileId: profileId2, id: id3, text: text3 } = fields;
 var properties3 = {
   profileId: profileId2,
@@ -1361,7 +1361,7 @@ function highlightId(trayId) {
   return trayId.replace(/^highlight:/, "");
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/streams/highlight-items-stream.js
+// ../elt/packages/sources/instagram/web/dist/streams/highlight-items-stream.js
 var { profileId: profileId3, id: id4, nullableText: nullableText2, instant: at2 } = fields;
 var properties4 = {
   profileId: profileId3,
@@ -1436,7 +1436,7 @@ var HighlightItemsStream = class extends InstagramStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/streams/media-stream.js
+// ../elt/packages/sources/instagram/web/dist/streams/media-stream.js
 var { profileId: profileId4, id: id5, count: count2, nullableText: nullableText3 } = fields;
 var properties5 = {
   profileId: profileId4,
@@ -1570,7 +1570,7 @@ function listSlides(item) {
   }));
 }
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/list-stream.js
+// ../elt/packages/sources/instagram/web/dist/list-stream.js
 var ListStream = class extends InstagramStream {
   // Ends the list at the first unpinned item older than the range's start,
   // for a list whose items say when they were posted.
@@ -1608,7 +1608,7 @@ var ListStream = class extends InstagramStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/streams/posts-stream.js
+// ../elt/packages/sources/instagram/web/dist/streams/posts-stream.js
 var { profileId: profileId5, id: id6, text: text4, nullableText: nullableText4, count: count3, flag: flag2, instant: at3, kind, textList } = fields;
 var properties6 = {
   profileId: profileId5,
@@ -1730,7 +1730,7 @@ var PostsStream = class extends ListStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/streams/profiles-stream.js
+// ../elt/packages/sources/instagram/web/dist/streams/profiles-stream.js
 var { profileId: profileId6, text: text5, nullableText: nullableText5, count: count4, flag: flag3, textList: textList2 } = fields;
 var properties7 = {
   profileId: profileId6,
@@ -1815,7 +1815,7 @@ var ProfilesStream = class extends SnapshotStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/streams/reels-stream.js
+// ../elt/packages/sources/instagram/web/dist/streams/reels-stream.js
 var { profileId: profileId7, id: id7, text: text6, count: count5 } = fields;
 var properties8 = {
   profileId: profileId7,
@@ -1872,7 +1872,7 @@ var ReelsStream = class extends ListStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/others-posts-stream.js
+// ../elt/packages/sources/instagram/web/dist/others-posts-stream.js
 var { profileId: profileId8, id: id8, text: text7, nullableText: nullableText6, count: count6, kind: kind2 } = fields;
 var othersPostProperties = {
   profileId: profileId8,
@@ -1933,7 +1933,7 @@ var OthersPostsStream = class extends ListStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/streams/reposts-stream.js
+// ../elt/packages/sources/instagram/web/dist/streams/reposts-stream.js
 var RepostsStream = class extends OthersPostsStream {
   name = "reposts";
   jsonSchema = {
@@ -1947,7 +1947,7 @@ var RepostsStream = class extends OthersPostsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/streams/stories-stream.js
+// ../elt/packages/sources/instagram/web/dist/streams/stories-stream.js
 var { profileId: profileId9, id: id9, text: text8, nullableText: nullableText7, instant: at4 } = fields;
 var properties9 = {
   profileId: profileId9,
@@ -2006,7 +2006,7 @@ var StoriesStream = class extends SnapshotStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/streams/tagged-posts-stream.js
+// ../elt/packages/sources/instagram/web/dist/streams/tagged-posts-stream.js
 var TaggedPostsStream = class extends OthersPostsStream {
   name = "tagged_posts";
   jsonSchema = {
@@ -2020,7 +2020,7 @@ var TaggedPostsStream = class extends OthersPostsStream {
   }
 };
 
-// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/sources/instagram/web/dist/instagram-web-source.js
+// ../elt/packages/sources/instagram/web/dist/instagram-web-source.js
 var readers = {
   following: new FollowingStream(),
   profiles: new ProfilesStream(),
@@ -2152,7 +2152,7 @@ function options({ collectionIds, startAt, endAt }) {
     ...endAt === void 0 ? {} : { endAt }
   };
 }
-var InstagramConnector = class extends AppleConnector {
+var InstagramConnector = class extends Connector {
   datedBy = "date posted";
   fullDiskAccess = false;
   note = "Instagram has no Mac app, so the import reads instagram.com with the session of the browser you signed in to Instagram with. Pick the profiles among the accounts you follow; follow a profile on Instagram to add it. A long profile is complete after several hourly syncs.";
