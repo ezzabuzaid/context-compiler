@@ -631,6 +631,9 @@ var Latch = class {
   }
 };
 
+// ../elt/node_modules/@zukhruf/async/dist/poll.js
+import { setTimeout as delay } from "node:timers/promises";
+
 // ../elt/node_modules/@zukhruf/async/dist/until-aborted.js
 import { addAbortListener } from "node:events";
 function untilAborted(promise, signal) {
@@ -646,6 +649,19 @@ function untilAborted(promise, signal) {
       reject(error);
     });
   });
+}
+
+// ../elt/node_modules/@zukhruf/async/dist/poll.js
+async function poll(attempt, { interval, signal, deadline, ref }) {
+  for (; ; ) {
+    const value = await attempt();
+    if (value !== void 0)
+      return value;
+    if (deadline !== void 0 && performance.now() >= deadline) {
+      return void 0;
+    }
+    await untilAborted(delay(interval, void 0, { signal, ref }), signal);
+  }
 }
 
 // ../elt/node_modules/@zukhruf/lease/dist/lease-lost-error.js
@@ -854,46 +870,6 @@ var Modes = {
   skipIfBusy: (options) => new SkipIfBusyMode(options)
 };
 
-// ../elt/node_modules/@zukhruf/fencing/dist/fencing-token.js
-var FencingToken = class _FencingToken {
-  value;
-  constructor(value) {
-    this.value = value;
-  }
-  /**
-   * Reads decimal digits, the text that `toString` writes, or returns null for
-   * any other text. `BigInt` alone would also accept `''`, `' 1'` and `'0x10'`,
-   * and a token is never negative.
-   */
-  static parse(text3) {
-    return /^\d+$/.test(text3) ? new _FencingToken(BigInt(text3)) : null;
-  }
-  isNewerThan(other) {
-    return this.value > other.value;
-  }
-  toString() {
-    return this.value.toString();
-  }
-};
-
-// ../elt/node_modules/@zukhruf/fencing/dist/counter-token-source.js
-var CounterTokenSource = class {
-  #last = 0n;
-  async next(_key) {
-    this.#last++;
-    return new FencingToken(this.#last);
-  }
-};
-
-// ../elt/node_modules/@zukhruf/fencing/dist/epoch-token-source.js
-var SEQUENCE_BITS = 32n;
-var EPOCH_LIMIT = 1n << 31n;
-var SEQUENCE_LIMIT = 1n << SEQUENCE_BITS;
-
-// ../elt/node_modules/@zukhruf/fencing/dist/file-token-source.js
-import { mkdir, readFile } from "node:fs/promises";
-import { join } from "node:path";
-
 // ../elt/node_modules/@zukhruf/fs/dist/atomic-write.js
 import { rm, writeFile } from "node:fs/promises";
 
@@ -906,7 +882,7 @@ var draftSuffixLength = draftOf("").length;
 import { rename } from "node:fs/promises";
 
 // ../elt/node_modules/@zukhruf/fs/dist/patiently.js
-import { setTimeout as delay } from "node:timers/promises";
+import { setTimeout as delay2 } from "node:timers/promises";
 
 // ../elt/node_modules/@zukhruf/fs/dist/errno.js
 function isErrno(error, code) {
@@ -926,7 +902,7 @@ async function patiently(operation) {
     } catch (error) {
       if (!isRefusedForNow(error) || performance.now() - started > WINDOWS_PATIENCE)
         throw error;
-      await delay(Math.min(5 * 2 ** attempt, 100));
+      await delay2(Math.min(5 * 2 ** attempt, 100));
     }
   }
 }
@@ -1146,6 +1122,7 @@ function isUncPath(path) {
 // ../elt/node_modules/@zukhruf/fs/dist/safe-file-name.js
 import { createHash } from "node:crypto";
 var longestFileName = 255;
+var windowsDevice = /^(?:con|prn|aux|nul|com[0-9]|lpt[0-9])$/;
 var visibleStart = 32;
 function safeFileName(key, longestSuffix) {
   if (key.isWellFormed()) {
@@ -1158,10 +1135,56 @@ function safeFileName(key, longestSuffix) {
   return `${start}%%${digest}`;
 }
 function encode(key) {
-  return encodeURIComponent(key).replaceAll(".", "%2E");
+  const encoded = encodeURIComponent(key).replaceAll(/%[0-9A-F]{2}|[.*A-Z]/g, (match) => match.length === 1 ? percentEncode(match) : match);
+  return windowsDevice.test(encoded) ? percentEncode(encoded[0]) + encoded.slice(1) : encoded;
+}
+function percentEncode(character) {
+  return `%${character.charCodeAt(0).toString(16).toUpperCase()}`;
 }
 
+// ../elt/node_modules/@zukhruf/mutex/dist/lock-stores/file-system/file-lock-store.js
+import { mkdir as mkdir2 } from "node:fs/promises";
+import { join as join2 } from "node:path";
+
+// ../elt/node_modules/@zukhruf/fencing/dist/fencing-token.js
+var FencingToken = class _FencingToken {
+  value;
+  constructor(value) {
+    this.value = value;
+  }
+  /**
+   * Reads decimal digits, the text that `toString` writes, or returns null for
+   * any other text. `BigInt` alone would also accept `''`, `' 1'` and `'0x10'`,
+   * and a token is never negative.
+   */
+  static parse(text3) {
+    return /^\d+$/.test(text3) ? new _FencingToken(BigInt(text3)) : null;
+  }
+  isNewerThan(other) {
+    return this.value > other.value;
+  }
+  toString() {
+    return this.value.toString();
+  }
+};
+
+// ../elt/node_modules/@zukhruf/fencing/dist/counter-token-source.js
+var CounterTokenSource = class {
+  #last = 0n;
+  async next(_key) {
+    this.#last++;
+    return new FencingToken(this.#last);
+  }
+};
+
+// ../elt/node_modules/@zukhruf/fencing/dist/epoch-token-source.js
+var SEQUENCE_BITS = 32n;
+var EPOCH_LIMIT = 1n << 31n;
+var SEQUENCE_LIMIT = 1n << SEQUENCE_BITS;
+
 // ../elt/node_modules/@zukhruf/fencing/dist/file-token-source.js
+import { mkdir, readFile } from "node:fs/promises";
+import { join } from "node:path";
 var FileTokenSource = class {
   #directory;
   constructor(directory) {
@@ -1191,51 +1214,7 @@ async function readCounter(path) {
   return counter.value;
 }
 
-// ../elt/node_modules/@zukhruf/mutex/dist/lock-stores/memory/memory-store.js
-var MemoryStore = class {
-  /** For each key, the latch that the last caller in line opens when it releases. */
-  #lines = /* @__PURE__ */ new Map();
-  #tokens;
-  constructor({ tokens = new CounterTokenSource() } = {}) {
-    this.#tokens = tokens;
-  }
-  async acquire(key, { signal } = {}) {
-    signal?.throwIfAborted();
-    const previous = this.#lines.get(key);
-    const released = new Latch();
-    this.#lines.set(key, released);
-    const release = async () => {
-      released.open();
-      if (this.#lines.get(key) === released)
-        this.#lines.delete(key);
-    };
-    const turn = previous?.wait() ?? Promise.resolve();
-    try {
-      await untilAborted(turn, signal);
-    } catch (error) {
-      void turn.then(release);
-      throw error;
-    }
-    return leaseFor(key, { [Symbol.asyncDispose]: release }, this.#tokens);
-  }
-  async tryAcquire(key) {
-    if (this.#lines.has(key))
-      return void 0;
-    return this.acquire(key);
-  }
-  /** The first caller in a key's line holds it, so a key with a line is held. */
-  async isHeld(key) {
-    return this.#lines.has(key);
-  }
-};
-
-// ../elt/node_modules/@zukhruf/mutex/dist/shared/is-record.js
-var isRecord = (value) => typeof value === "object" && value !== null;
-
 // ../elt/node_modules/@zukhruf/mutex/dist/lock-stores/file-system/file-lock-store.js
-import { mkdir as mkdir2 } from "node:fs/promises";
-import { join as join2 } from "node:path";
-import { setTimeout as delay2 } from "node:timers/promises";
 var FileLockStore = class {
   #directory;
   #pollInterval;
@@ -1260,13 +1239,8 @@ var FileLockStore = class {
     return this.isHeldAt(this.#pathFor(key));
   }
   /** Stops between attempts once `signal` aborts, and then rejects with `signal.reason`. */
-  async poll(attempt, signal) {
-    for (; ; ) {
-      const result = await attempt();
-      if (result !== void 0)
-        return result;
-      await untilAborted(delay2(this.#pollInterval, void 0, { signal }), signal);
-    }
+  poll(attempt, signal) {
+    return poll(attempt, { interval: this.#pollInterval, signal });
   }
   /**
    * Serializes evicting a dead holder. Without it, two waiters that saw the
@@ -1314,9 +1288,60 @@ function isNotADatabase(error) {
   return error instanceof Error && "errcode" in error && typeof error.errcode === "number" && (error.errcode & 255) === SQLITE_NOTADB;
 }
 
+// ../elt/node_modules/@zukhruf/mutex/dist/lock-stores/memory/memory-store.js
+var MemoryStore = class {
+  /** For each key, the latch that the last caller in line opens when it releases. */
+  #lines = /* @__PURE__ */ new Map();
+  #tokens;
+  constructor({ tokens = new CounterTokenSource() } = {}) {
+    this.#tokens = tokens;
+  }
+  async acquire(key, { signal } = {}) {
+    signal?.throwIfAborted();
+    const previous = this.#lines.get(key);
+    const released = new Latch();
+    this.#lines.set(key, released);
+    const release = async () => {
+      released.open();
+      if (this.#lines.get(key) === released)
+        this.#lines.delete(key);
+    };
+    const turn = previous?.wait() ?? Promise.resolve();
+    try {
+      await untilAborted(turn, signal);
+    } catch (error) {
+      void turn.then(release);
+      throw error;
+    }
+    return leaseFor(key, { [Symbol.asyncDispose]: release }, this.#tokens);
+  }
+  async tryAcquire(key) {
+    if (this.#lines.has(key))
+      return void 0;
+    return this.acquire(key);
+  }
+  /** The first caller in a key's line holds it, so a key with a line is held. */
+  async isHeld(key) {
+    return this.#lines.has(key);
+  }
+  /** True while a caller holds a key. A caller waits only behind a holder, so `false` also means that nobody waits. */
+  get holdsAnyKey() {
+    return this.#lines.size > 0;
+  }
+};
+
+// ../elt/node_modules/@zukhruf/mutex/dist/lock-stores/sqlite/holder-record.js
+import { mkdir as mkdir3, readdir, unlink as unlink2 } from "node:fs/promises";
+import { basename, join as join3 } from "node:path";
+
 // ../elt/node_modules/@zukhruf/mutex/dist/lock-stores/file-system/caller.js
 import { randomUUID as randomUUID3 } from "node:crypto";
 import { hostname } from "node:os";
+
+// ../elt/node_modules/@zukhruf/mutex/dist/shared/is-record.js
+var isRecord = (value) => typeof value === "object" && value !== null;
+
+// ../elt/node_modules/@zukhruf/mutex/dist/lock-stores/file-system/caller.js
 var Caller = class _Caller {
   pid;
   host;
@@ -1454,8 +1479,6 @@ async function readRecord(path) {
 }
 
 // ../elt/node_modules/@zukhruf/mutex/dist/lock-stores/sqlite/holder-record.js
-import { mkdir as mkdir3, readdir, unlink as unlink2 } from "node:fs/promises";
-import { basename, join as join3 } from "node:path";
 var HolderRecord = class {
   #folder;
   #path;

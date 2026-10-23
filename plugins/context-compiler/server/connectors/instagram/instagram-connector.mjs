@@ -7,7 +7,7 @@ import {
 } from "../../chunks/chunk-KUQKM2Y4.mjs";
 import {
   Connector
-} from "../../chunks/chunk-RK3MSXC5.mjs";
+} from "../../chunks/chunk-6S6N4RVU.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -921,7 +921,7 @@ var InstagramRun = class _InstagramRun {
   static async open(signal) {
     const session = await BrowserSession.newest("https://www.instagram.com/", "sessionid");
     const web = await InstagramWeb.open(session, signal);
-    const staging = await mkdtemp(join3(tmpdir(), "context-compiler-instagram-"));
+    const staging = await mkdtemp(join3(tmpdir(), "elt-instagram-"));
     return new _InstagramRun(web, staging);
   }
   profile(id10, signal) {

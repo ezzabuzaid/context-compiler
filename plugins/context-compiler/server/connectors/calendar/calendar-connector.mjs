@@ -14,7 +14,7 @@ import {
 } from "../../chunks/chunk-GIEVJ5T4.mjs";
 import {
   Connector
-} from "../../chunks/chunk-RK3MSXC5.mjs";
+} from "../../chunks/chunk-6S6N4RVU.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -1325,7 +1325,7 @@ var AppleCalendarSource = class extends Source {
         yield* messages;
         return;
       }
-      const staging = __using(_stack, await mkdtempDisposable(join2(tmpdir(), "context-compiler-calendar-attachment-")), true);
+      const staging = __using(_stack, await mkdtempDisposable(join2(tmpdir(), "elt-calendar-attachment-")), true);
       for await (const message of messages) {
         if ("type" in message) {
           yield message;

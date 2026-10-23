@@ -37,7 +37,7 @@ import {
   Settings,
   readPassStatus,
   transaction
-} from "./chunks/chunk-RK3MSXC5.mjs";
+} from "./chunks/chunk-6S6N4RVU.mjs";
 import {
   DocumentParser
 } from "./chunks/chunk-UZWKSGGL.mjs";
@@ -54878,7 +54878,8 @@ var AudioFormat = class extends DocumentFormat {
     "flac",
     "aiff",
     "aif",
-    "caf"
+    "caf",
+    "amr"
   ];
   constructor(model) {
     super();
@@ -74178,7 +74179,7 @@ var Plugin = class {
   // stops, since its outcome reaches no other server; its checkpoints resume
   // the next pass. Settles whatever the passes do: each pass records how it
   // ended in its import's sync history.
-  async import(selections, options) {
+  async import(selections) {
     await Promise.allSettled(
       selections.map(async (selection2) => {
         var _stack = [];
@@ -74186,40 +74187,29 @@ var Plugin = class {
           const settings = __using(_stack, this.#open());
           const flights = __using(_stack, this.flights(), true);
           const directory = settings.directory(selection2);
-          let joined = false;
-          const run = () => flights.run(
-            directory,
-            async ({ signal }) => {
-              var _stack2 = [];
+          await flights.run(directory, async ({ signal }) => {
+            var _stack2 = [];
+            try {
+              const owner = __using(_stack2, await owners(settings, directory).campaign(), true);
+              if (owner === void 0) return;
               try {
-                const owner = __using(_stack2, await owners(settings, directory).campaign(), true);
-                if (owner === void 0) return;
-                try {
-                  await this.connector(selection2.connector).import(
-                    settings,
-                    selection2,
-                    void 0,
-                    signal
-                  );
-                } finally {
-                  if (settings.staleImports().includes(directory))
-                    rmSync(directory, { recursive: true, force: true });
-                }
-              } catch (_2) {
-                var _error2 = _2, _hasError2 = true;
+                await this.connector(selection2.connector).import(
+                  settings,
+                  selection2,
+                  void 0,
+                  signal
+                );
               } finally {
-                var _promise3 = __callDispose(_stack2, _error2, _hasError2);
-                _promise3 && await _promise3;
+                if (settings.staleImports().includes(directory))
+                  rmSync(directory, { recursive: true, force: true });
               }
-            },
-            {
-              onJoin: () => {
-                joined = true;
-              }
+            } catch (_2) {
+              var _error2 = _2, _hasError2 = true;
+            } finally {
+              var _promise3 = __callDispose(_stack2, _error2, _hasError2);
+              _promise3 && await _promise3;
             }
-          );
-          await run();
-          if (options?.afterCurrent === true && joined) await run();
+          });
         } catch (_) {
           var _error = _, _hasError = true;
         } finally {
@@ -75452,8 +75442,7 @@ mcpServer.registerTool(
     await refresh();
     if (model !== null)
       void plugin.import(
-        plugin.status().connectors.filter(({ includeAttachments }) => includeAttachments),
-        { afterCurrent: true }
+        plugin.status().connectors.filter(({ includeAttachments }) => includeAttachments)
       );
     return structured(await transcription.choices());
   }
