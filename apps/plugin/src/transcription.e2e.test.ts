@@ -13,19 +13,16 @@ test('the bundled page tools discover models, save the selection and reject an u
   await using scratch = await mkdtempDisposable(
     join(tmpdir(), 'page-transcription-'),
   );
-  const model = join(
+  const models = join(
     scratch.path,
-    'Library/Application Support/com.pais.handy/models/cohere-int8',
+    'Library/Application Support/com.pais.handy/models',
   );
-  await mkdir(model, { recursive: true });
+  await mkdir(models, { recursive: true });
   // Only discovery runs: no connector is selected and no weights are loaded.
-  for (const name of [
-    'cohere-encoder.int8.onnx',
-    'cohere-encoder.int8.onnx.data',
-    'cohere-decoder.int8.onnx',
-    'tokens.txt',
-  ])
-    await writeFile(join(model, name), '');
+  await writeFile(
+    join(models, 'cohere-transcribe-arabic-07-2026-Q8_0.gguf'),
+    '',
+  );
   const client = new Client({ name: 'transcription-test', version: '1.0.0' });
   const transport = new StdioClientTransport({
     command: process.execPath,
@@ -42,23 +39,28 @@ test('the bundled page tools discover models, save the selection and reject an u
     assert.equal(listed.isError, undefined);
     assert.deepEqual(listed.structuredContent, {
       selected: null,
-      models: [{ id: 'cohere-int8', title: 'Cohere' }],
+      models: [
+        {
+          id: 'cohere-transcribe-arabic-07-2026',
+          title: 'Cohere Transcribe Arabic',
+        },
+      ],
     });
     const enabled = await client.callTool({
       name: 'transcription_update',
-      arguments: { model: 'cohere-int8' },
+      arguments: { model: 'cohere-transcribe-arabic-07-2026' },
     });
     assert.equal(enabled.isError, undefined);
     using settings = new Settings(
       join(scratch.path, 'Library/Application Support/Context Compiler/Apple'),
     );
-    assert.equal(settings.transcription(), 'cohere-int8');
+    assert.equal(settings.transcription(), 'cohere-transcribe-arabic-07-2026');
     const unavailable = await client.callTool({
       name: 'transcription_update',
       arguments: { model: 'missing' },
     });
     assert.equal(unavailable.isError, true);
-    assert.equal(settings.transcription(), 'cohere-int8');
+    assert.equal(settings.transcription(), 'cohere-transcribe-arabic-07-2026');
     const disabled = await client.callTool({
       name: 'transcription_update',
       arguments: { model: null },
@@ -73,20 +75,16 @@ test('the bundled page tools discover models, save the selection and reject an u
 
 // A home where Handy installed the Cohere model, and the plugin store in it.
 async function homeWithCohere(home: string) {
-  const model = join(
+  const models = join(
     home,
-    'Library/Application Support/com.pais.handy/models/cohere-int8',
+    'Library/Application Support/com.pais.handy/models',
   );
-  await mkdir(model, { recursive: true });
-  for (const name of [
-    'cohere-encoder.int8.onnx',
-    'cohere-encoder.int8.onnx.data',
-    'cohere-decoder.int8.onnx',
-    'tokens.txt',
-  ])
-    await writeFile(join(model, name), '');
+  await mkdir(models, { recursive: true });
+  await writeFile(
+    join(models, 'cohere-transcribe-arabic-07-2026-Q8_0.gguf'),
+    '',
+  );
   return {
-    model,
     store: join(home, 'Library/Application Support/Context Compiler/Apple'),
   };
 }
@@ -116,7 +114,7 @@ test('a store moved to another Mac keeps its chosen model, found where Handy kee
   const before = await homeWithCohere(join(scratch.path, 'before'));
   const after = await homeWithCohere(join(scratch.path, 'after'));
   await pageTool(join(scratch.path, 'before'), 'transcription_update', {
-    model: 'cohere-int8',
+    model: 'cohere-transcribe-arabic-07-2026',
   });
 
   // Migration Assistant copies the store to a home with another name; the
@@ -131,7 +129,12 @@ test('a store moved to another Mac keeps its chosen model, found where Handy kee
 
   assert.equal(listed.isError, undefined);
   assert.deepEqual(listed.structuredContent, {
-    selected: 'cohere-int8',
-    models: [{ id: 'cohere-int8', title: 'Cohere' }],
+    selected: 'cohere-transcribe-arabic-07-2026',
+    models: [
+      {
+        id: 'cohere-transcribe-arabic-07-2026',
+        title: 'Cohere Transcribe Arabic',
+      },
+    ],
   });
 });

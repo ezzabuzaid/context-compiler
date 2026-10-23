@@ -32,7 +32,7 @@ const program = new Program('context-compiler')
   )
   .option(
     '--transcription-model <id>',
-    'local audio model installed in Handy: cohere-int8, canary-180m-flash, or off',
+    'local audio model installed in Handy: cohere-transcribe-arabic-07-2026, or off',
   )
   .showHelpAfterError()
   // Each command reads its own options, so sync watch --connector reaches

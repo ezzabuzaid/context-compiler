@@ -99,8 +99,8 @@ function TranscriptionForm({ choices }: { choices: TranscriptionChoices }) {
       </label>
       {choices.models.length === 0 ? (
         <p className="text-muted">
-          No supported model is installed. Download Cohere or Canary in Handy,
-          then reopen this page.
+          No supported model is installed. Download Cohere Transcribe Arabic in
+          Handy, then reopen this page.
         </p>
       ) : (
         <div className="transcription-model">

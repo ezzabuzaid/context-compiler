@@ -26,7 +26,10 @@ test('an existing attachment reader observes a model saved or disabled by anothe
   // Handy's folder holds no weights, so the decoder fails as the reader runs.
   await using host = new AppleTranscription(
     directory.path,
-    new HandyModels(join(directory.path, 'handy')),
+    new HandyModels({
+      hub: join(directory.path, 'hub'),
+      models: join(directory.path, 'handy'),
+    }),
   );
   using other = new Settings(directory.path);
   const reader = new AttachmentText(
@@ -40,7 +43,7 @@ test('an existing attachment reader observes a model saved or disabled by anothe
     data.prepare('SELECT status FROM attachment_text').get()?.status,
     'no_text',
   );
-  other.setTranscription('cohere-int8');
+  other.setTranscription('cohere-transcribe-arabic-07-2026');
   const identity = await host.parser.identityFor(audio);
   assert.ok(identity?.includes('cohere'));
   // The real decoder fails on these deliberately corrupt bytes. Its failure
@@ -50,7 +53,8 @@ test('an existing attachment reader observes a model saved or disabled by anothe
     data.prepare('SELECT status FROM attachment_text').get()?.status,
     'failed',
   );
-  other.setTranscription('canary-180m-flash');
+  // A model Handy does not know reads no audio.
+  other.setTranscription('missing');
   assert.notEqual(await host.parser.identityFor(audio), identity);
   other.setTranscription(null);
   await reader.update(new AbortController().signal);

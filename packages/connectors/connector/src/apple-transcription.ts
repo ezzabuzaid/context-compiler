@@ -62,7 +62,7 @@ export class AppleTranscription implements AsyncDisposable {
   // Saves the model Handy installed under id, or null to stop transcribing.
   async configure(id: string | null): Promise<void> {
     if (id !== null) {
-      const installed = await this.#models.list();
+      const installed = this.#models.list();
       const model = installed.find((candidate) => candidate.id === id);
       if (model === undefined)
         throw new Error(
@@ -78,10 +78,10 @@ export class AppleTranscription implements AsyncDisposable {
     await this.refresh();
   }
 
-  async choices() {
+  choices() {
     return {
       selected: this.#settings.transcription(),
-      models: (await this.#models.list()).map(({ id, title }) => ({
+      models: this.#models.list().map(({ id, title }) => ({
         id,
         title,
       })),

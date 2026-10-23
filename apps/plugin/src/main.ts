@@ -300,7 +300,7 @@ mcpServer.registerTool(
     annotations: { readOnlyHint: true, openWorldHint: false },
     _meta: appOnly,
   },
-  async () => structured(await transcription.choices()),
+  async () => structured(transcription.choices()),
 );
 mcpServer.registerTool(
   'transcription_update',
@@ -326,7 +326,7 @@ mcpServer.registerTool(
           .connectors.filter(({ includeAttachments }) => includeAttachments),
         { afterCurrent: true },
       );
-    return structured(await transcription.choices());
+    return structured(transcription.choices());
   },
 );
 mcpServer.registerTool(

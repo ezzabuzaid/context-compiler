@@ -70,12 +70,12 @@ Reminders reads through EventKit, so Reminders.app need not be open. Grant the t
 
 ### Audio transcription
 
-Audio transcription is off until you choose a model. On the Context Compiler page, open **Audio transcription**, enable it, choose a supported model installed in Handy (Cohere or Canary), and save. Audio stays on this Mac; existing and new imported attachments become searchable through `attachment_text`. Turning it off keeps existing transcripts.
+Audio transcription is off until you choose a model. On the Context Compiler page, open **Audio transcription**, enable it, choose Cohere Transcribe Arabic, installed in Handy, and save. It transcribes Arabic and English speech. Audio stays on this Mac; existing and new imported attachments become searchable through `attachment_text`. Turning it off keeps existing transcripts.
 
 The CLI saves the same choice in its `--directory` store:
 
 ```sh
-npx nx run cli:start -- --transcription-model cohere-int8 sync --connector whatsapp
+npx nx run cli:start -- --transcription-model cohere-transcribe-arabic-07-2026 sync --connector whatsapp
 npx nx run cli:start -- --transcription-model off status
 ```
 

@@ -11,20 +11,18 @@ test('the CLI saves an installed model in its chosen directory, rejects unknown 
   await using scratch = await mkdtempDisposable(
     join(tmpdir(), 'cli-transcription-'),
   );
-  const model = join(
+  const models = join(
     scratch.path,
-    'Library/Application Support/com.pais.handy/models/cohere-int8',
+    'Library/Application Support/com.pais.handy/models',
   );
-  await mkdir(model, { recursive: true });
-  // Discovery reads the download's file names. No import is selected, so this
-  // settings test does not load model weights.
-  for (const name of [
-    'cohere-encoder.int8.onnx',
-    'cohere-encoder.int8.onnx.data',
-    'cohere-decoder.int8.onnx',
-    'tokens.txt',
-  ])
-    await writeFile(join(model, name), '');
+  await mkdir(models, { recursive: true });
+  // Discovery looks for the download's file name in Handy's models folder,
+  // where Handy puts a model fetched from its mirror. No import is selected,
+  // so this settings test does not load model weights.
+  await writeFile(
+    join(models, 'cohere-transcribe-arabic-07-2026-Q8_0.gguf'),
+    '',
+  );
   const directory = join(scratch.path, 'imports');
   const run = (id: string) =>
     spawnSync(
@@ -43,12 +41,12 @@ test('the CLI saves an installed model in its chosen directory, rejects unknown 
         timeout: 30_000,
       },
     );
-  const enabled = run('cohere-int8');
+  const enabled = run('cohere-transcribe-arabic-07-2026');
   assert.equal(enabled.status, 0, enabled.stderr);
   using settings = new Settings(directory);
-  assert.equal(settings.transcription(), 'cohere-int8');
+  assert.equal(settings.transcription(), 'cohere-transcribe-arabic-07-2026');
   assert.equal(run('missing').status, 1);
-  assert.equal(settings.transcription(), 'cohere-int8');
+  assert.equal(settings.transcription(), 'cohere-transcribe-arabic-07-2026');
   const disabled = run('off');
   assert.equal(disabled.status, 0, disabled.stderr);
   assert.equal(settings.transcription(), null);
