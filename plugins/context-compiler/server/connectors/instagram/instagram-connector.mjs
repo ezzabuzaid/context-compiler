@@ -7,7 +7,7 @@ import {
 } from "../../chunks/chunk-KUQKM2Y4.mjs";
 import {
   Connector
-} from "../../chunks/chunk-6S6N4RVU.mjs";
+} from "../../chunks/chunk-IARFH5EI.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -364,8 +364,9 @@ var timelineMedia = timelineSlide.extend({
   location: external_exports.object({
     pk: external_exports.int(),
     name: external_exports.string(),
-    lat: external_exports.number(),
-    lng: external_exports.number()
+    // null for a place Instagram knows no coordinates of.
+    lat: external_exports.number().nullable(),
+    lng: external_exports.number().nullable()
   }).transform(({ pk, ...place }) => ({ ...place, pk: String(pk) })).nullable(),
   carousel_media: external_exports.array(timelineSlide).nullable()
 });
@@ -453,7 +454,8 @@ var profileResponse = external_exports.object({
       follower_count: external_exports.number(),
       following_count: external_exports.number(),
       media_count: external_exports.number(),
-      total_clips_count: external_exports.number(),
+      // null for some profiles, as for five followed ones on 2026-10-17.
+      total_clips_count: external_exports.number().nullable(),
       city_name: external_exports.string().nullable(),
       address_street: external_exports.string().nullable(),
       hd_profile_pic_url_info: external_exports.object({ url: external_exports.string() })
@@ -1765,8 +1767,9 @@ var properties7 = {
     description: "How many posts Instagram counts on the profile, when read."
   },
   reels: {
-    ...count4,
-    description: "How many reels Instagram counts on the profile, when read."
+    type: ["integer", "null"],
+    minimum: 0,
+    description: "How many reels Instagram counts on the profile, when read; NULL when Instagram leaves the count out."
   },
   city: {
     ...nullableText5,
@@ -2175,7 +2178,7 @@ var InstagramConnector = class extends Connector {
   }
   // An import that selects no profile reads every account the signed-in
   // account follows.
-  importSource(scope) {
+  importSource({ scope }) {
     return InstagramWebSource.connect(options(scope));
   }
 };

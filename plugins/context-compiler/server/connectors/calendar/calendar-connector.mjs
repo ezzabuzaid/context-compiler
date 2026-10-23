@@ -14,7 +14,7 @@ import {
 } from "../../chunks/chunk-GIEVJ5T4.mjs";
 import {
   Connector
-} from "../../chunks/chunk-6S6N4RVU.mjs";
+} from "../../chunks/chunk-IARFH5EI.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -1369,11 +1369,12 @@ var CalendarConnector = class extends Connector {
   source(scope) {
     return this.#calendar(scope, async () => false);
   }
-  // An import downloads attachments stored in Google Drive and Gmail when
-  // the host offers a Google session. The Google client loads only then, so
-  // a host without one never runs it.
-  async importSource(scope) {
-    if (this.host.google === void 0)
+  // An import that stores attachments downloads those kept in Google Drive
+  // and Gmail when the host offers a Google session; one that stores none
+  // needs no session. The Google client loads only then, so a host without
+  // one never runs it.
+  async importSource({ scope, includeAttachments }) {
+    if (!includeAttachments || this.host.google === void 0)
       return this.source(scope);
     const google = await this.host.google([
       GOOGLE_DRIVE_READONLY_SCOPE,

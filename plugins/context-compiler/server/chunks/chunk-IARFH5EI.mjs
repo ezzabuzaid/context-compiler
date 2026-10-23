@@ -3717,7 +3717,7 @@ var Connector = class {
     }));
   }
   // The source an import loads from; listing choices reads source(scope).
-  importSource(scope) {
+  importSource({ scope }) {
     return this.source(scope);
   }
   // The scope an import uses for what its selection leaves out.
@@ -3940,7 +3940,7 @@ var Connector = class {
   // import stores files, text reads their text into attachment_text.
   async connection(directory, selection) {
     const { scope, includeAttachments } = selection;
-    const source = await this.importSource(scope);
+    const source = await this.importSource(selection);
     const narrowed = Object.keys(scope).length > 0;
     const { streams } = await source.discover();
     const withFiles = (stream) => includeAttachments && stream.supportsFileTransfer === true && !this.storeCopies.includes(stream.name);
