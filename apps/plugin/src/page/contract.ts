@@ -21,7 +21,6 @@ const row = z.strictObject({
   title: z.string(),
   loaded: z.boolean(),
   selection: selection.nullable(),
-  // The user keeps it current: it loads each change while ChatGPT is open.
   watched: z.boolean(),
   status: z.strictObject({
     state: z.enum([
@@ -35,7 +34,7 @@ const row = z.strictObject({
     ]),
     text: z.string(),
     details: z.array(z.string()).readonly(),
-    // Granting ChatGPT Full Disk Access is the fix for this failure.
+    // Granting the host Full Disk Access is the fix for this failure.
     fullDiskAccess: z.boolean(),
   }),
   narrowsBy: z.strictObject({
@@ -61,7 +60,9 @@ const monitorRow = z.strictObject({
   }),
 });
 
-export const monitorsResult = { monitors: z.array(monitorRow).readonly() };
+export const monitorsResult = {
+  monitors: z.array(monitorRow).readonly().nullable(),
+};
 
 export const choicesResult = {
   choices: z
@@ -81,15 +82,8 @@ export const choicesResult = {
   note: z.string().optional(),
 };
 
-// The Context Compiler page's deep link, and the path in it that opens one connector's
-// page. The bare plugin name resolves to the one Context Compiler plugin installed.
-export const pageLink = 'codex://plugins/context-compiler/app/page';
-
-const connectorPath = (connector: string) =>
+export const connectorPath = (connector: string) =>
   `/connectors/${encodeURIComponent(connector)}`;
-
-export const connectorLink = (connector: string) =>
-  `${pageLink}?path=${encodeURIComponent(connectorPath(connector))}`;
 
 // The connector a deep link's path opens, if it names one.
 export function connectorIn(path: string): string | undefined {

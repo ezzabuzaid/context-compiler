@@ -37,7 +37,9 @@ import { connectorsResult } from './page/contract.ts';
 import { Plugin } from './plugin.ts';
 
 // The committed plugin, as Codex installs it.
-const install = resolve('plugins/context-compiler');
+const versionFile = resolve('plugins/context-compiler/server/version.json');
+const pageUri = 'codex://plugins/context-compiler/app/page';
+const chatUri = 'codex://threads/';
 
 // The host the plugin's server passes its connectors, with the helper this
 // workspace compiled instead of the bundled copy.
@@ -49,27 +51,18 @@ const host = {
   ),
 };
 
-// Monitors from a folder that does not exist, for a plugin whose test has
-// none: its store sits beside the settings, and its codex is never run.
-const noMonitors = (directory: string) =>
-  new Monitors({
-    root: join(directory, 'Monitors'),
-    store: join(directory, 'monitors.sqlite'),
-    codex: 'codex',
-  });
-
 // The plugin as its server creates it, over the built-in connectors.
 async function createPlugin(
-  install: string,
+  versionFile: string,
   directory: string,
   pluginHost = host,
 ) {
   const plugin = new Plugin(
     new Connectors([builtInConnectors]),
     pluginHost,
-    install,
+    versionFile,
     directory,
-    noMonitors(directory),
+    null,
   );
   await plugin.refresh();
   return plugin;
@@ -118,7 +111,7 @@ async function oneCalendar() {
 // whose pass reads $HOME/Pictures/photos.json.
 async function photosPlugin(
   directory: string,
-  monitors = noMonitors(directory),
+  monitors: Monitors | null = null,
 ) {
   const plugin = new Plugin(
     new Connectors([
@@ -126,7 +119,7 @@ async function photosPlugin(
       resolve('packages/connectors/manifest/dist/fixtures'),
     ]),
     host,
-    install,
+    versionFile,
     directory,
     monitors,
   );
@@ -251,7 +244,7 @@ async function passes(plugin: Plugin, item: Selection) {
 
 test('Setup rejects invalid choices and keeps a Calendar scope as given, so each import reads the default window when it runs', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
-  const plugin = await createPlugin(install, scratch.path);
+  const plugin = await createPlugin(versionFile, scratch.path);
   assert.deepEqual(plugin.status().connectors, []);
   for (const [selection, message] of [
     [
@@ -334,7 +327,7 @@ test('Setup rejects invalid choices and keeps a Calendar scope as given, so each
 
 test('agents read the selected connectors, where each import lives and what macOS access it needs from the settings file with the sqlite3 shell', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
-  const plugin = await createPlugin(install, scratch.path);
+  const plugin = await createPlugin(versionFile, scratch.path);
   const notes = {
     connector: 'notes' as const,
     scope: { collectionIds: ['folder-1'] },
@@ -392,7 +385,7 @@ test('agents read the selected connectors, where each import lives and what macO
 
 test('Setup imports only what a change adds or changes, keeps an unchanged import and removes a changed or disconnected one', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
-  const plugin = await createPlugin(install, scratch.path);
+  const plugin = await createPlugin(versionFile, scratch.path);
   const notes = {
     connector: 'notes' as const,
     scope: { collectionIds: ['folder-1'] },
@@ -402,7 +395,7 @@ test('Setup imports only what a change adds or changes, keeps an unchanged impor
   assert.equal(plugin.status().connectors[0]?.database, null);
   const database = imported(scratch.path, notes);
   assert.equal(
-    (await createPlugin(install, scratch.path)).status().connectors[0]
+    (await createPlugin(versionFile, scratch.path)).status().connectors[0]
       ?.database,
     database,
   );
@@ -427,7 +420,7 @@ test('Setup imports only what a change adds or changes, keeps an unchanged impor
 
 test('saving Calendar again without dates keeps its import', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
-  const plugin = await createPlugin(install, scratch.path);
+  const plugin = await createPlugin(versionFile, scratch.path);
   const calendar = {
     connector: 'calendar' as const,
     scope: {},
@@ -446,7 +439,7 @@ test('saving Calendar again without dates keeps its import', async () => {
 test('Calendar options give an agent no dates to copy, and name the default window', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
   await using calendars = await oneCalendar();
-  const plugin = await createPlugin(install, scratch.path, {
+  const plugin = await createPlugin(versionFile, scratch.path, {
     ...host,
     eventKitHelper: calendars.path,
   });
@@ -461,7 +454,7 @@ test('Calendar options give an agent no dates to copy, and name the default wind
 test('connecting Calendar on the page saves a scope without dates, so saving it again keeps its import', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
   await using calendars = await oneCalendar();
-  const plugin = await createPlugin(install, scratch.path, {
+  const plugin = await createPlugin(versionFile, scratch.path, {
     ...host,
     eventKitHelper: calendars.path,
   });
@@ -494,7 +487,7 @@ test('importing settles when the settings cannot be read, so the server keeps se
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
   // A directory where the settings file belongs fails every read of them.
   mkdirSync(join(scratch.path, 'settings.sqlite'));
-  const plugin = await createPlugin(install, scratch.path);
+  const plugin = await createPlugin(versionFile, scratch.path);
 
   await assert.doesNotReject(
     plugin.import([
@@ -525,7 +518,7 @@ test('an import that fails before its pass begins shows the failure on the page 
     'Last sync failed: attempt to write a readonly database',
   );
   assert.match(
-    chatStatus(plugin).text,
+    chatStatus(plugin, pageUri).text,
     /^- Photos: last sync failed at .*: attempt to write a readonly database/m,
   );
 });
@@ -600,7 +593,7 @@ test('once an import that failed before its pass can write again, its next pass 
     assert.equal(failed?.state, 'failed');
     assert.equal(row?.status.state, 'succeeded');
     assert.match(String(row?.status.text), /^Synced just now/);
-    assert.doesNotMatch(chatStatus(plugin).text, /last sync failed/);
+    assert.doesNotMatch(chatStatus(plugin, pageUri).text, /last sync failed/);
   } finally {
     if (previous === undefined) delete process.env.HOME;
     else process.env.HOME = previous;
@@ -818,6 +811,7 @@ test('matches whose message could not be sent are all sent again at the next syn
   const previous = process.env.HOME;
   process.env.HOME = home;
   try {
+    assert.ok(plugin.monitors !== null);
     await plugin.import(imports);
     await plugin.addMonitor('new-photos', 'chat-1');
     await writeFile(
@@ -831,7 +825,7 @@ test('matches whose message could not be sent are all sent again at the next syn
     await writeFile(codex.failing, '');
     await plugin.import(imports);
     const [failed] = await plugin.monitors.status();
-    const [failedRow] = await monitorRows(plugin);
+    const [failedRow] = (await monitorRows(plugin, chatUri)) ?? [];
     rmSync(codex.failing);
 
     await plugin.import(imports);
@@ -852,7 +846,10 @@ test('matches whose message could not be sent are all sent again at the next syn
     ]);
     const [sent] = await plugin.monitors.status();
     assert.equal(sent?.state === 'watching' && sent.failure, null);
-    assert.equal((await monitorRows(plugin))[0]?.status.state, 'watching');
+    assert.equal(
+      (await monitorRows(plugin, chatUri))?.[0]?.status.state,
+      'watching',
+    );
   } finally {
     if (previous === undefined) delete process.env.HOME;
     else process.env.HOME = previous;
@@ -870,6 +867,7 @@ test('a monitor whose chat refuses its message fails alone: the monitors after i
   const previous = process.env.HOME;
   process.env.HOME = home;
   try {
+    assert.ok(plugin.monitors !== null);
     await plugin.import(imports);
     await plugin.addMonitor('a-photos', 'chat-1');
     await plugin.addMonitor('b-photos', 'chat-2');
@@ -936,6 +934,7 @@ export default {
   const previous = process.env.HOME;
   process.env.HOME = home;
   try {
+    assert.ok(plugin.monitors !== null);
     await plugin.import(imports);
     await plugin.addMonitor('a-broken-condition', 'chat-1');
     await plugin.addMonitor('new-photos', 'chat-2');
@@ -954,7 +953,7 @@ export default {
       broken?.state === 'watching' && broken.failure,
       'Last check failed: no such column: albums',
     );
-    assert.deepEqual((await monitorRows(plugin))[0]?.status, {
+    assert.deepEqual((await monitorRows(plugin, chatUri))?.[0]?.status, {
       state: 'failed',
       text: 'Last check failed: no such column: albums',
     });
@@ -989,6 +988,7 @@ test('a monitor no chat added is listed as not active and sends nothing, and one
   const previous = process.env.HOME;
   process.env.HOME = home;
   try {
+    assert.ok(plugin.monitors !== null);
     await plugin.import(imports);
     await writeFile(
       photosJson,
@@ -1016,7 +1016,7 @@ test('a monitor no chat added is listed as not active and sends nothing, and one
       'Could not be loaded: Its entry does not export an object with evaluate(sql) by default.',
     );
     assert.deepEqual(
-      (await monitorRows(plugin)).map(({ status }) => status),
+      (await monitorRows(plugin, chatUri))?.map(({ status }) => status),
       [
         { state: 'inactive', text: 'Not active: set it up from a chat.' },
         {
@@ -1105,9 +1105,9 @@ test('the page lists each monitor with its status line: not active until a chat 
   process.env.HOME = home;
   try {
     await plugin.import(imports);
-    const [inactive] = await monitorRows(plugin);
+    const [inactive] = (await monitorRows(plugin, chatUri)) ?? [];
     await plugin.addMonitor('new-photos', 'chat 1');
-    const [watching] = await monitorRows(plugin);
+    const [watching] = (await monitorRows(plugin, chatUri)) ?? [];
     await writeFile(
       photosJson,
       JSON.stringify([
@@ -1118,7 +1118,7 @@ test('the page lists each monitor with its status line: not active until a chat 
 
     await plugin.import(imports);
 
-    const [ran] = await monitorRows(plugin);
+    const [ran] = (await monitorRows(plugin, chatUri)) ?? [];
     assert.deepEqual(inactive, {
       name: 'new-photos',
       title: 'New photos',
@@ -1209,7 +1209,7 @@ test('a monitor whose entry is edited checks with the new code at the next sync,
       `export default { async evaluate() { throw new Error('edited'); } };`,
     );
     await plugin.import(imports);
-    const [edited] = await monitorRows(plugin);
+    const [edited] = (await monitorRows(plugin, chatUri)) ?? [];
     await writeFile(entry, newPhotos);
 
     await photos('p1', 'p2');
@@ -1217,7 +1217,10 @@ test('a monitor whose entry is edited checks with the new code at the next sync,
 
     assert.equal(edited?.status.text, 'Last check failed: edited');
     assert.deepEqual(codex.calls(), [queued('chat-1', 'p2')]);
-    assert.equal((await monitorRows(plugin))[0]?.status.state, 'watching');
+    assert.equal(
+      (await monitorRows(plugin, chatUri))?.[0]?.status.state,
+      'watching',
+    );
   } finally {
     if (previous === undefined) delete process.env.HOME;
     else process.env.HOME = previous;
@@ -1241,7 +1244,7 @@ test('a monitor whose package.json cannot be read is listed with why, and cannot
     }),
   );
 
-  const [row] = await monitorRows(plugin);
+  const [row] = (await monitorRows(plugin, chatUri)) ?? [];
 
   assert.equal(row?.name, 'no-instruction');
   assert.equal(row?.status.state, 'failed');
@@ -1266,7 +1269,7 @@ test('a monitor whose folder was deleted after a chat added it says its folder i
 
     rmSync(join(root, 'new-photos'), { recursive: true });
 
-    assert.deepEqual((await monitorRows(plugin))[0]?.status, {
+    assert.deepEqual((await monitorRows(plugin, chatUri))?.[0]?.status, {
       state: 'failed',
       text: 'Its folder is gone.',
     });
@@ -1306,6 +1309,7 @@ export default {
   const previous = process.env.HOME;
   process.env.HOME = home;
   try {
+    assert.ok(plugin.monitors !== null);
     await plugin.import(imports);
     await plugin.addMonitor('a-slow', 'chat-1');
     await plugin.addMonitor('new-photos', 'chat-2');
@@ -1342,7 +1346,7 @@ test('a check that cannot find the imports, as with settings it cannot read, say
 
     await plugin.import(imports);
 
-    const [row] = await monitorRows(plugin);
+    const [row] = (await monitorRows(plugin, chatUri)) ?? [];
     assert.equal(row?.status.state, 'failed');
     assert.match(String(row?.status.text), /^Last check failed: /);
   } finally {
@@ -1374,6 +1378,7 @@ test('removing a monitor forgets it and deletes its folder, so it sends nothing 
   const previous = process.env.HOME;
   process.env.HOME = home;
   try {
+    assert.ok(plugin.monitors !== null);
     await plugin.import(imports);
     await plugin.addMonitor('new-photos', 'chat-1');
 
@@ -1483,41 +1488,41 @@ test('a connector switched off while its pass runs loses its import once the pas
 
 test('a chat hears of a pass only when it changes what a reader can do with the connector', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
-  const plugin = await createPlugin(install, scratch.path);
+  const plugin = await createPlugin(versionFile, scratch.path);
   const notes = {
     connector: 'notes' as const,
     scope: {},
     includeAttachments: true,
   };
   await plugin.configure({ connectors: [notes] });
-  const waiting = chatStatus(plugin);
+  const waiting = chatStatus(plugin, pageUri);
   assert.match(
     waiting.text,
     /^- Notes: waiting for its first import\. No database yet\.$/m,
   );
   const begin = await passes(plugin, notes);
   await begin();
-  const importing = chatStatus(plugin);
+  const importing = chatStatus(plugin, pageUri);
   assert.match(
     importing.text,
     /^- Notes: importing since .*; not every stream has loaded completely yet; stream_status has each stream's current_as_of\. Database: notes\//m,
   );
   assert.notEqual(importing.state, waiting.state);
   await (await begin()).finish();
-  const synced = chatStatus(plugin);
+  const synced = chatStatus(plugin, pageUri);
   assert.match(synced.text, /^- Notes: synced at /m);
   assert.notEqual(synced.state, importing.state);
 
   // Passes over data already imported change its times, not the state.
   const again = await begin();
-  assert.equal(chatStatus(plugin).state, synced.state);
+  assert.equal(chatStatus(plugin, pageUri).state, synced.state);
   await again.finish();
-  assert.equal(chatStatus(plugin).state, synced.state);
+  assert.equal(chatStatus(plugin, pageUri).state, synced.state);
 
   await (await begin()).fail(new Error('Notes could not be opened.'), 'config');
-  const failed = chatStatus(plugin);
+  const failed = chatStatus(plugin, pageUri);
   await (await begin()).fail(new Error('Notes crashed.'), 'system');
-  const crashed = chatStatus(plugin);
+  const crashed = chatStatus(plugin, pageUri);
   assert.ok(
     failed.text.includes(
       `: Notes could not be opened. ${plugin.connector('notes').guidance()}; data as of `,
@@ -1547,14 +1552,14 @@ test('a chat never calls an import empty while it holds rows that a pass loaded 
   process.env.HOME = home;
   try {
     await plugin.import(imports);
-    const partial = chatStatus(plugin).text;
+    const partial = chatStatus(plugin, pageUri).text;
     const begin = await passes(plugin, photos);
     await begin();
-    const running = chatStatus(plugin).text;
+    const running = chatStatus(plugin, pageUri).text;
     await (await begin()).fail(new Error('Photos crashed.'), 'system');
-    const failed = chatStatus(plugin).text;
+    const failed = chatStatus(plugin, pageUri).text;
     await (await begin()).cancel();
-    const cancelled = chatStatus(plugin).text;
+    const cancelled = chatStatus(plugin, pageUri).text;
 
     using data = new DatabaseSync(
       join(importDirectory(plugin.directory, photos), 'data.sqlite'),
@@ -1601,12 +1606,12 @@ test('a chat never calls an import empty while it holds rows that a pass loaded 
 
 test('the Context Compiler page and chat report Mail local freshness and content gaps, including a newly downloaded body', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'mail-status-'));
-  const plugin = await createPlugin(install, scratch.path);
+  const plugin = await createPlugin(versionFile, scratch.path);
   const mail = { connector: 'mail', scope: {}, includeAttachments: false };
   await plugin.configure({ connectors: [mail] });
   const begin = await passes(plugin, mail);
   await (await begin()).finish();
-  const beforeContent = chatStatus(plugin);
+  const beforeContent = chatStatus(plugin, pageUri);
   assert.match(beforeContent.text, /Content availability is not known/);
   // The Mail connector's own import test checks this view against the real
   // Mail source. Here the reader boundary lets the page see a newly arriving
@@ -1637,14 +1642,14 @@ test('the Context Compiler page and chat report Mail local freshness and content
   );
   assert.match(String(details), /3 attachments: 1 unavailable/);
   assert.match(String(details), /Cloud inbox freshness is unknown/);
-  const missing = chatStatus(plugin);
+  const missing = chatStatus(plugin, pageUri);
   assert.notEqual(missing.state, beforeContent.state);
   assert.match(missing.text, /Newest locally received message: 2026-10-12/);
   assert.match(missing.text, /without readable body text/);
   database.exec(
     "UPDATE counts SET latest_received_at = '2026-10-13T14:50:33.000Z', missing_message_files = 0, missing_text_bodies = 1",
   );
-  const downloaded = chatStatus(plugin);
+  const downloaded = chatStatus(plugin, pageUri);
   assert.notEqual(downloaded.state, missing.state);
   assert.match(downloaded.text, /Newest locally received message: 2026-10-13/);
   assert.match(
@@ -1652,7 +1657,7 @@ test('the Context Compiler page and chat report Mail local freshness and content
     /0 without a downloaded message file; 1 without readable body text/,
   );
   await (await begin()).fail(new Error('Mail kept changing.'), 'system');
-  const partial = chatStatus(plugin);
+  const partial = chatStatus(plugin, pageUri);
   assert.match(partial.text, /Mail kept changing.*data as of/);
   assert.match(partial.text, /Newest locally received message/);
 });
@@ -1662,10 +1667,10 @@ test('a selected connector that is no longer loaded is reported, keeps its impor
   const withPhotos = await photosPlugin(scratch.path);
   const photos = { connector: 'photos', scope: {}, includeAttachments: true };
   await withPhotos.configure({ connectors: [photos] });
-  const plugin = await createPlugin(install, scratch.path);
+  const plugin = await createPlugin(versionFile, scratch.path);
 
   const [reported] = plugin.status().connectors;
-  const context = chatStatus(plugin).text;
+  const context = chatStatus(plugin, pageUri).text;
   const imports = await plugin.configure({
     connectors: [
       photos,
@@ -1722,7 +1727,7 @@ test('a selected connector that is no longer loaded is reported, keeps its impor
 
 test('the sidebar page describes each connector’s import and switches one connector without touching the others or moving its row', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
-  const plugin = await createPlugin(install, scratch.path);
+  const plugin = await createPlugin(versionFile, scratch.path);
   const statusOf = (name: string) =>
     connectorRows(plugin).find((row) => row.name === name)?.status;
   const described = (name: string) => statusOf(name)?.text;
@@ -1833,7 +1838,7 @@ test('the sidebar page describes each connector’s import and switches one conn
 
 test('the sidebar page narrows a connector by date, says which connectors it can date, and widens a narrowed one back to everything', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
-  const plugin = await createPlugin(install, scratch.path);
+  const plugin = await createPlugin(versionFile, scratch.path);
   const dates = {
     startAt: '2026-01-01T00:00:00.000Z',
     endAt: '2026-02-01T00:00:00.000Z',
@@ -1879,17 +1884,17 @@ test('once another plugin version replaces this one, its server refuses to chang
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
   // Installing another version deletes this version's folder.
   const replaced = join(scratch.path, 'install');
-  cpSync(join(install, '.codex-plugin'), join(replaced, '.codex-plugin'), {
-    recursive: true,
-  });
+  mkdirSync(replaced);
+  const sentinel = join(replaced, 'version.json');
+  cpSync(versionFile, sentinel);
   const store = join(scratch.path, 'store');
-  const plugin = await createPlugin(replaced, store);
+  const plugin = await createPlugin(sentinel, store);
   const notes = { connector: 'notes', scope: {}, includeAttachments: true };
   await plugin.configure({ connectors: [notes] });
   // An import the newer version's selection no longer names.
   const unselected = imported(store, { ...notes, includeAttachments: false });
   assert.equal(plugin.updated(), false);
-  rmSync(replaced, { recursive: true });
+  rmSync(sentinel);
   assert.equal(plugin.updated(), true);
   await assert.rejects(
     () =>
@@ -1898,12 +1903,12 @@ test('once another plugin version replaces this one, its server refuses to chang
           { connector: 'mail', scope: {}, includeAttachments: true },
         ],
       }),
-    /open a new chat/,
+    /open a new chat/i,
   );
   await assert.rejects(
     () =>
       updateConnector(plugin, 'mail', { scope: {}, includeAttachments: true }),
-    /open a new chat/,
+    /open a new chat/i,
   );
 
   await plugin.import([notes]);

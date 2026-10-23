@@ -1,6 +1,11 @@
 #!/bin/sh
 set -eu
 
+export CONTEXT_COMPILER_GRANTEE='ChatGPT'
+export CONTEXT_COMPILER_PAGE_URI='codex://plugins/context-compiler/app/page'
+export CONTEXT_COMPILER_CHAT_URI='codex://threads/'
+export CODEX_CLI_PATH="${CODEX_CLI_PATH:-codex}"
+
 if [ "$#" -lt 1 ]; then
   printf '%s\n' 'Context Compiler could not start: missing Node entrypoint.' >&2
   exit 64

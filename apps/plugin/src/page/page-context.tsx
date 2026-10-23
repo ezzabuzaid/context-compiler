@@ -19,13 +19,13 @@ import {
   monitorsResult,
 } from './contract.ts';
 
-// What every part of the Context Compiler page shares: its connection to ChatGPT, the
+// What every part of the Context Compiler page shares: its connection to the host, the
 // connector and monitor rows it keeps current, the changes it makes, and
 // which connector's or monitor's page is open.
 type Page = {
   readonly app: App | null;
   readonly rows: readonly ConnectorRow[] | null;
-  readonly monitors: readonly MonitorRow[] | null;
+  readonly monitors: readonly MonitorRow[] | null | undefined;
   readonly removeMonitor: (name: string) => Promise<void>;
   readonly failure: string | null;
   // What a selection leaves out takes the defaults setup uses.
@@ -33,7 +33,7 @@ type Page = {
     connector: string,
     selection: Partial<ConnectorSelection> | null,
   ) => Promise<void>;
-  // Keeps a connected connector current while ChatGPT is open, or not.
+  // Keeps a connected connector current while the host is open, or not.
   readonly watch: (connector: string, watched: boolean) => Promise<void>;
   // Imports every connected connector again, or only the one named, and
   // settles once its passes have ended; a failure becomes the page's failure.
@@ -59,7 +59,7 @@ export function usePage(): Page {
 
 // The server cannot tell the page that an import moved on, so the page asks
 // again: soon while a sync or an import runs, rarely once all are settled,
-// and not at all while ChatGPT hides the page.
+// and not at all while the host hides the page.
 const busyDelay = 2_000;
 const settledDelay = 15_000;
 // A sync lasts as long as its slowest import; the server allows a tool call
@@ -74,7 +74,7 @@ export function PageProvider({
   children: ReactNode;
 }) {
   const [rows, setRows] = useState<readonly ConnectorRow[] | null>(null);
-  const [monitors, setMonitors] = useState<readonly MonitorRow[] | null>(null);
+  const [monitors, setMonitors] = useState<readonly MonitorRow[] | null>();
   const [openedMonitor, setOpenedMonitor] = useState<string | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
   const [reads, setReads] = useState(0);

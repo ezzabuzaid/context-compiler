@@ -12,7 +12,7 @@ import {
 } from './full-disk-access.ts';
 import { type Plugin, connectorSchema } from './plugin.ts';
 
-export type Ask = (form: ElicitRequestFormParams) => Promise<ElicitResult>;
+type Ask = (form: ElicitRequestFormParams) => Promise<ElicitResult>;
 
 // Setup asks in one form which connectors. Each chosen connector is imported
 // from all its accounts and collections with attachments (Calendar within its
@@ -22,7 +22,11 @@ export type Ask = (form: ElicitRequestFormParams) => Promise<ElicitResult>;
 // reported without opening them and a second form offers to open its Settings
 // list. Cancelling leaves setup unchanged. It returns once the answers are
 // saved, with the imports they create for the server to run.
-export async function setUpWithForms(plugin: Plugin, ask: Ask) {
+export async function setUpWithForms(
+  plugin: Plugin,
+  ask: Ask,
+  grantee: string,
+) {
   const previous = new Map(
     plugin
       .status()
@@ -33,8 +37,7 @@ export async function setUpWithForms(plugin: Plugin, ask: Ask) {
   );
   const picked = await ask({
     mode: 'form',
-    message:
-      'Choose the connectors Codex can read on this Mac. Each connector is imported in full; macOS may ask for access to each one.',
+    message: `Choose the connectors ${grantee} can read on this Mac. Each connector is imported in full; macOS may ask for access to each one.`,
     requestedSchema: {
       type: 'object',
       properties: {
@@ -82,7 +85,7 @@ export async function setUpWithForms(plugin: Plugin, ask: Ask) {
     const loaded = plugin.connector(connector);
     try {
       if (blocked.includes(connector))
-        throw new Error('ChatGPT does not have Full Disk Access.');
+        throw new Error(`${grantee} does not have Full Disk Access.`);
       await plugin.options(connector);
       configuration.push(
         previous.get(connector) ?? {
@@ -112,17 +115,22 @@ export async function setUpWithForms(plugin: Plugin, ask: Ask) {
     openedFullDiskAccess: await offerFullDiskAccess(
       ask,
       blocked.map((name) => plugin.connector(name).title),
+      grantee,
     ),
   };
 }
 
-async function offerFullDiskAccess(ask: Ask, titles: readonly string[]) {
+async function offerFullDiskAccess(
+  ask: Ask,
+  titles: readonly string[],
+  grantee: string,
+) {
   const listed = new Intl.ListFormat('en', { type: 'conjunction' }).format(
     titles,
   );
   const answer = await ask({
     mode: 'form',
-    message: `${listed} ${titles.length === 1 ? 'needs' : 'need'} Full Disk Access, which macOS never asks for. Turn on ChatGPT in the list that opens, then quit and reopen ChatGPT and run Set up Context Compiler again.`,
+    message: `${listed} ${titles.length === 1 ? 'needs' : 'need'} Full Disk Access, which macOS never asks for. Turn on ${grantee} in the list that opens, then quit and reopen ${grantee} and run Set up Context Compiler again.`,
     requestedSchema: {
       type: 'object',
       properties: {

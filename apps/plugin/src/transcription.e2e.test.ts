@@ -24,7 +24,11 @@ test('the bundled page tools discover models, save the selection and reject an u
   const transport = new StdioClientTransport({
     command: process.execPath,
     args: [resolve('plugins/context-compiler/server/main.mjs')],
-    env: { HOME: scratch.path, PATH: process.env.PATH ?? '' },
+    env: {
+      HOME: scratch.path,
+      PATH: process.env.PATH ?? '',
+      CONTEXT_COMPILER_GRANTEE: 'Context Compiler',
+    },
     stderr: 'pipe',
   });
   try {
@@ -82,13 +86,17 @@ async function homeWithModel(home: string) {
   };
 }
 
-// One server in a home, as a chat in Codex starts it.
+// A launcher with no chat delivery.
 async function pageTool(home: string, name: string, args: object) {
   const client = new Client({ name: 'transcription-test', version: '1.0.0' });
   const transport = new StdioClientTransport({
     command: process.execPath,
     args: [resolve('plugins/context-compiler/server/main.mjs')],
-    env: { HOME: home, PATH: process.env.PATH ?? '' },
+    env: {
+      HOME: home,
+      PATH: process.env.PATH ?? '',
+      CONTEXT_COMPILER_GRANTEE: 'Context Compiler',
+    },
     stderr: 'pipe',
   });
   try {

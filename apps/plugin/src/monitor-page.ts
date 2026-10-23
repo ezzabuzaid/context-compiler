@@ -5,7 +5,11 @@ import type { Plugin } from './plugin.ts';
 
 // Each monitor's row, by name, with the status line its page shows: whether
 // it watches and when it last sent, why it failed, or why it waits.
-export async function monitorRows(plugin: Plugin): Promise<MonitorRow[]> {
+export async function monitorRows(
+  plugin: Plugin,
+  chatUri: string | null,
+): Promise<MonitorRow[] | null> {
+  if (plugin.monitors === null) return null;
   const now = new Date();
   return (await plugin.monitors.status()).map((monitor) => ({
     name: monitor.name,
@@ -13,8 +17,8 @@ export async function monitorRows(plugin: Plugin): Promise<MonitorRow[]> {
     description: monitor.description,
     instruction: monitor.instruction,
     chat:
-      monitor.state === 'watching'
-        ? `codex://threads/${encodeURIComponent(monitor.thread)}`
+      monitor.state === 'watching' && chatUri !== null
+        ? `${chatUri}${encodeURIComponent(monitor.thread)}`
         : null,
     status: status(monitor, now),
   }));

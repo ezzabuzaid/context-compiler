@@ -1,8 +1,8 @@
 # Code copied from the CLI
 
-The Context Compiler plugin and the CLI both let one process at a time load an import, and both remove an import the selection no longer names. The plugin keeps its own copy of that code, and does not share it with `apps/apple/cli` yet.
+The Context Compiler server and the CLI both let one process at a time load an import, and both remove an import the selection no longer names. The server keeps its own copy of that code, separate from `apps/cli`.
 
-The reason is the Rule of Three. It counts places, not packages. Code that a second place needs is copied, and it is extracted only when a third place needs it. The boundary of the shared code then comes from three working copies, not from a guess. The next host that loads these imports is the third place. When it comes, the shared parts move to one home (backlog #2555). Until then, a fix in one copy is made in the other copy too, and the commit names both files.
+The Rule of Three counts implementations, not launchers. Codex starts the MCP server in `apps/plugin/src/main.ts`. Any other launcher of this server adds no third copy, so backlog #2555 stays at strike 2. Shared code is extracted when a third implementation needs it. Until then, a fix in one copy is made in the other copy too, and the commit names both files.
 
 Paths on the left are in `apps/cli/src`. Paths on the right are in `apps/plugin/src`.
 

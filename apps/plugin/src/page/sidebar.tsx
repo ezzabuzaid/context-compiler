@@ -48,16 +48,18 @@ export function Sidebar() {
           {failure}
         </p>
       )}
-      <Section title="Monitors">
-        {monitors?.length === 0 && (
-          <li className="empty text-small text-muted">
-            None yet. In a chat, ask: When …, then …
-          </li>
-        )}
-        {monitors?.map((monitor) => (
-          <MonitorLink key={monitor.name} monitor={monitor} />
-        ))}
-      </Section>
+      {monitors !== null && (
+        <Section title="Monitors">
+          {monitors?.length === 0 && (
+            <li className="empty text-small text-muted">
+              None yet. In a chat, ask: When …, then …
+            </li>
+          )}
+          {monitors?.map((monitor) => (
+            <MonitorLink key={monitor.name} monitor={monitor} />
+          ))}
+        </Section>
+      )}
       <Section title="Connectors">
         {rows?.map((row) => (
           <ConnectorLink key={row.name} row={row} />

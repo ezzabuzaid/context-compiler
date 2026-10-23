@@ -64,6 +64,15 @@ await build({
   },
 });
 
+const { version } = JSON.parse(
+  readFileSync('plugins/context-compiler/.codex-plugin/plugin.json', 'utf8'),
+);
+writeFileSync(join(outdir, 'version.json'), `${JSON.stringify({ version })}\n`);
+copyFileSync(
+  'plugins/context-compiler/assets/composer-icon.png',
+  join(outdir, 'composer-icon.png'),
+);
+
 for (const { manifest, out } of builtIns) {
   const folder = join(outdir, 'connectors', manifest.name);
   writeFileSync(

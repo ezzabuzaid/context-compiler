@@ -38,15 +38,23 @@ import {
 import { setUpWithForms } from './setup-forms.ts';
 
 if (process.platform !== 'darwin')
-  throw new Error('Context Compiler requires Codex on a Mac.');
+  throw new Error('Context Compiler requires macOS.');
 
-// This bundle sits in the server folder of the installed plugin, beside the
-// folders of the built-in connectors.
-const install = fileURLToPath(new URL('..', import.meta.url));
+const grantee = process.env.CONTEXT_COMPILER_GRANTEE?.trim();
+if (!grantee)
+  throw new Error(
+    'Context Compiler requires CONTEXT_COMPILER_GRANTEE: set it to the name of the app receiving macOS permissions.',
+  );
+const pageUri = process.env.CONTEXT_COMPILER_PAGE_URI?.trim() || null;
+const chatUri = process.env.CONTEXT_COMPILER_CHAT_URI?.trim() || null;
+const codex = process.env.CODEX_CLI_PATH?.trim();
+const versionFile = fileURLToPath(new URL('version.json', import.meta.url));
+const { version } = z
+  .object({ version: z.string().min(1) })
+  .parse(JSON.parse(readFileSync(versionFile, 'utf8')));
 // The user's own connectors load from their folder on the server's elt and
-// Connector, through the host modules beside this bundle. macOS grants
-// access to ChatGPT, which runs Codex. Calendar's remote attachments stay
-// links, so users never sign in to Google.
+// Connector, through the host modules beside this bundle.
+// Calendar's remote attachments stay links, so users never sign in to Google.
 provideHostModules(
   ({ file }) => new URL(`modules/${file}.mjs`, import.meta.url).href,
 );
@@ -67,24 +75,24 @@ const plugin = new Plugin(
     userConnectors,
   ]),
   {
-    grantee: 'ChatGPT',
+    grantee,
     get documentParser() {
       return transcription.parser;
     },
     eventKitHelper: fileURLToPath(new URL('eventkit-helper', import.meta.url)),
   },
-  install,
+  versionFile,
   store,
-  new Monitors({
-    root: join(
-      homedir(),
-      'Library/Application Support/Context Compiler/Monitors',
-    ),
-    store: join(store, 'monitors.sqlite'),
-    // The desktop's own codex, which .mcp.json forwards: a monitor's match is
-    // queued into its chat through it, so the running app does the work.
-    codex: process.env.CODEX_CLI_PATH ?? 'codex',
-  }),
+  codex && chatUri !== null
+    ? new Monitors({
+        root: join(
+          homedir(),
+          'Library/Application Support/Context Compiler/Monitors',
+        ),
+        store: join(store, 'monitors.sqlite'),
+        codex,
+      })
+    : null,
 );
 // Settings may have been changed by another chat or by the CLI.
 async function refresh(): Promise<void> {
@@ -95,28 +103,20 @@ async function refresh(): Promise<void> {
 // user adds or edits is used without restarting this server; a chat's tool
 // list stays as it began, so tools name connectors as strings, not an enum.
 await refresh();
-const { version } = z
-  .object({ version: z.string() })
-  .parse(
-    JSON.parse(
-      readFileSync(join(install, '.codex-plugin/plugin.json'), 'utf8'),
-    ),
-  );
 const mcpServer = new McpServer(
   {
     name: 'context-compiler',
     version,
-    // ChatGPT shows the server's icon beside the sidebar page.
     icons: [
       {
-        src: `data:image/png;base64,${readFileSync(join(install, 'assets/composer-icon.png')).toString('base64')}`,
+        src: `data:image/png;base64,${readFileSync(new URL('composer-icon.png', import.meta.url), 'base64')}`,
         mimeType: 'image/png',
         sizes: ['any'],
       },
     ],
   },
   {
-    instructions: `Context Compiler imports the ${new Intl.ListFormat('en', { type: 'conjunction' }).format(plugin.connectors.map(({ title }) => title))} content the user chose into private SQLite files on this Mac when the user connects a connector or changes what it imports, and again when the user presses Sync on the Context Compiler page. A connector the user keeps current on its page also loads each change while ChatGPT is open. These tools only choose what is imported: set up with $setup, and answer questions about the content with $query, which reads those files with sqlite3.`,
+    instructions: `Context Compiler imports the ${new Intl.ListFormat('en', { type: 'conjunction' }).format(plugin.connectors.map(({ title }) => title))} content the user chose into private SQLite files on this Mac when the user connects a connector or changes what it imports, and again when the user presses Sync on the Context Compiler page. A connector the user keeps current on its page also loads each change while ${grantee} is open. These tools only choose what is imported: set up with $setup, and answer questions about the content with $query, which reads those files with sqlite3.`,
   },
 );
 // McpServer turns a thrown error into an isError result the model can act on.
@@ -147,8 +147,10 @@ mcpServer.registerTool(
       );
     // A person answers each form: wait for them, not the SDK's 60 seconds.
     // Codex pauses the tool call's timeout while a form is open.
-    const { newImports, ...saved } = await setUpWithForms(plugin, (form) =>
-      mcpServer.server.elicitInput(form, { timeout: 1_800_000 }),
+    const { newImports, ...saved } = await setUpWithForms(
+      plugin,
+      (form) => mcpServer.server.elicitInput(form, { timeout: 1_800_000 }),
+      grantee,
     );
     void plugin.import(newImports);
     return structured(saved);
@@ -217,7 +219,7 @@ mcpServer.registerTool(
         'This host did not say which chat called, so the monitor has no chat to send to.',
       );
     await plugin.addMonitor(name, thread.data);
-    return structured({ monitors: await monitorRows(plugin) });
+    return structured({ monitors: await monitorRows(plugin, chatUri) });
   },
 );
 // Tools only the hooks and the Context Compiler page call; Codex keeps them from the
@@ -339,7 +341,7 @@ mcpServer.registerTool(
     annotations: { readOnlyHint: true, openWorldHint: false },
     _meta: appOnly,
   },
-  async () => structured({ monitors: await monitorRows(plugin) }),
+  async () => structured({ monitors: await monitorRows(plugin, chatUri) }),
 );
 mcpServer.registerTool(
   'monitor_remove',
@@ -358,8 +360,12 @@ mcpServer.registerTool(
     _meta: appOnly,
   },
   async ({ name }) => {
+    if (plugin.monitors === null)
+      throw new Error(
+        'This launcher does not provide chat delivery for monitors.',
+      );
     await plugin.monitors.remove(name);
-    return structured({ monitors: await monitorRows(plugin) });
+    return structured({ monitors: await monitorRows(plugin, chatUri) });
   },
 );
 mcpServer.registerTool(
@@ -412,8 +418,7 @@ mcpServer.registerTool(
   'connector_watch',
   {
     title: 'Keep one connector current',
-    description:
-      'Switch one connected connector, from its page, to load each change while ChatGPT is open, or back to loading only at Sync.',
+    description: `Switch one connected connector, from its page, to load each change while ${grantee} is open, or back to loading only at Sync.`,
     inputSchema: { connector: connectorSchema, watched: z.boolean() },
     outputSchema: connectorsResult,
     annotations: {
@@ -463,8 +468,7 @@ mcpServer.registerTool(
   'open_full_disk_access',
   {
     title: 'Open Full Disk Access',
-    description:
-      'Open the Full Disk Access list in System Settings, where the user allows ChatGPT.',
+    description: `Open the Full Disk Access list in System Settings, where the user allows ${grantee}.`,
     inputSchema: {},
     annotations: { readOnlyHint: true, openWorldHint: false },
     _meta: appOnly,
@@ -475,7 +479,7 @@ mcpServer.registerTool(
   },
 );
 // Codex runs one server per chat, so this server's context is this chat's.
-const contextFor = chatContext(plugin);
+const contextFor = pageUri === null ? null : chatContext(plugin, pageUri);
 mcpServer.registerTool(
   'context',
   {
@@ -491,6 +495,10 @@ mcpServer.registerTool(
       return {
         content: [{ type: 'text', text: new PluginUpdatedError().message }],
       };
+    if (contextFor === null)
+      throw new Error(
+        'This launcher does not provide a page URI for chat context.',
+      );
     await refresh();
     const text = contextFor(event);
     return { content: text === null ? [] : [{ type: 'text', text }] };

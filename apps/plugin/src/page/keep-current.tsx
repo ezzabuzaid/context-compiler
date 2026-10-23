@@ -4,8 +4,6 @@ import { messageOf } from './call-tool.ts';
 import type { ConnectorRow } from './contract.ts';
 import { usePage } from './page-context.tsx';
 
-// A connected connector's Keep current switch: on, it loads each change while
-// ChatGPT is open; off, it loads only when the user presses Sync.
 export function KeepCurrent({ row }: { row: ConnectorRow }) {
   const { watch } = usePage();
   const [busy, setBusy] = useState(false);
@@ -36,9 +34,6 @@ export function KeepCurrent({ row }: { row: ConnectorRow }) {
           onChange={(event) => void change(event.target.checked)}
         />
       </label>
-      <p className="text-small text-muted">
-        Loads each change while ChatGPT is open, without pressing Sync.
-      </p>
       {failure !== null && (
         <p role="alert" className="text-small text-destructive">
           {failure}

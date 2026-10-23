@@ -1,5 +1,5 @@
 import { existsSync, rmSync } from 'node:fs';
-import { join, relative, sep } from 'node:path';
+import { relative, sep } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 
 import { SqliteElection } from '@zukhruf/election';
@@ -87,34 +87,33 @@ export const configurationSchema = z.strictObject({
 export class PluginUpdatedError extends Error {
   constructor() {
     super(
-      'Context Compiler was updated after this chat started. This chat runs the old version, so its Context Compiler tools and status are out of date: open a new chat to use Context Compiler.',
+      'Context Compiler was updated after this started. Open a new chat, or reopen Context Compiler.app, to use the new version.',
     );
   }
 }
 
-// Setup, imports and status for the Codex plugin. Each import writes its
+// Setup, imports and status for Context Compiler. Each import writes its
 // connector's data.sqlite; agents read those files directly.
 export class Plugin {
-  // The installed plugin's folder. Installing another version deletes it.
-  readonly install: string;
+  readonly #versionFile: string;
   readonly directory: string;
   readonly #discovery: Connectors;
   readonly #host: ConnectorHost;
   // The monitors each import is checked against.
-  readonly monitors: Monitors;
+  readonly monitors: Monitors | null;
   #connectors: readonly Connector[] = [];
   #broken: readonly BrokenConnector[] = [];
 
   constructor(
     discovery: Connectors,
     host: ConnectorHost,
-    install: string,
+    versionFile: string,
     directory: string,
-    monitors: Monitors,
+    monitors: Monitors | null,
   ) {
     this.#discovery = discovery;
     this.#host = host;
-    this.install = install;
+    this.#versionFile = versionFile;
     this.directory = directory;
     this.monitors = monitors;
   }
@@ -161,7 +160,7 @@ export class Plugin {
   // Whether another plugin version replaced this one, which deletes this
   // version's folder.
   get #replaced(): boolean {
-    return !existsSync(join(this.install, '.codex-plugin/plugin.json'));
+    return !existsSync(this.#versionFile);
   }
 
   // The store, refused once another plugin version replaced this one.
@@ -319,10 +318,10 @@ export class Plugin {
   // checks joins that check, so both read the keys it saved and a match is
   // sent once. What its own import brought is checked at the next import.
   async #check(): Promise<void> {
+    const monitors = this.monitors;
+    if (monitors === null) return;
     await using flights = this.flights();
-    await flights.run('monitors', () =>
-      this.monitors.check(() => this.#locate()),
-    );
+    await flights.run('monitors', () => monitors.check(() => this.#locate()));
   }
 
   // Switches a connector to be kept current, or back to Sync only; every
@@ -411,6 +410,10 @@ export class Plugin {
 
   // Registers a monitor for the chat that asked; see Monitors.add.
   async addMonitor(name: string, thread: string): Promise<void> {
+    if (this.monitors === null)
+      throw new Error(
+        'This launcher does not provide chat delivery for monitors.',
+      );
     await this.monitors.add(name, thread, this.#locate());
   }
 

@@ -864,9 +864,9 @@ test(
 
       // Installing another version deletes this one's folder. The chat still
       // runs the old server, which sends the user to a new chat.
-      rmSync(join(plugin, '.codex-plugin'), { recursive: true });
+      rmSync(join(plugin, 'server/version.json'));
       for (const event of ['UserPromptSubmit', 'UserPromptSubmit'] as const)
-        assert.match(await context(other, event), /open a new chat/);
+        assert.match(await context(other, event), /open a new chat/i);
       for (const [name, args] of [
         ['connectors', {}],
         [
@@ -879,7 +879,7 @@ test(
       ] as const) {
         const refused = await call(other, name, args);
         assert.equal(refused.isError, true, name);
-        assert.match(JSON.stringify(refused.content), /open a new chat/);
+        assert.match(JSON.stringify(refused.content), /open a new chat/i);
       }
     } finally {
       await client.close();
@@ -1229,6 +1229,189 @@ test(
     }
   },
 );
+
+test(
+  'the server rejects a missing or blank permission grantee before opening the store',
+  { timeout: 20_000 },
+  async () => {
+    const scratch = await mkdtempDisposable(join(homes, 'plugin-host-'));
+    try {
+      for (const grantee of [undefined, '   ']) {
+        const result = spawnSync(
+          process.execPath,
+          [join(root, 'plugins/context-compiler/server/main.mjs')],
+          {
+            env: {
+              HOME: scratch.path,
+              PATH: '',
+              ...(grantee === undefined
+                ? {}
+                : { CONTEXT_COMPILER_GRANTEE: grantee }),
+            },
+            encoding: 'utf8',
+            timeout: 5_000,
+            killSignal: 'SIGKILL',
+          },
+        );
+        assert.equal(result.error, undefined);
+        assert.equal(result.status, 1);
+        assert.match(
+          result.stderr,
+          /Context Compiler requires CONTEXT_COMPILER_GRANTEE: set it to the name of the app receiving macOS permissions\./,
+        );
+        assert.equal(result.stdout, '');
+        assert.equal(
+          existsSync(
+            join(
+              scratch.path,
+              'Library/Application Support/Context Compiler/Imports',
+            ),
+          ),
+          false,
+        );
+      }
+    } finally {
+      await scratch.remove();
+    }
+  },
+);
+
+for (const codex of [undefined, '/missing/codex'])
+  test(
+    `the standalone server imports and syncs without chat delivery (${codex === undefined ? 'no executable' : 'executable without chat context'})`,
+    { timeout: 120_000 },
+    async (t) => {
+      const scratch = await mkdtempDisposable(join(homes, 'plugin-host-'));
+      const client = new Client({ name: 'standalone-host', version: '1.0.0' });
+      const bundle = join(scratch.path, 'server');
+      const transport = new StdioClientTransport({
+        command: process.execPath,
+        args: [join(bundle, 'main.mjs')],
+        env: {
+          HOME: scratch.path,
+          PATH: '',
+          CONTEXT_COMPILER_GRANTEE: 'Context Compiler',
+          ...(codex === undefined ? {} : { CODEX_CLI_PATH: codex }),
+        },
+        stderr: 'pipe',
+      });
+      let diagnostics = '';
+      transport.stderr?.on('data', (data) => {
+        diagnostics += String(data);
+      });
+      try {
+        cpSync(join(root, 'plugins/context-compiler/server'), bundle, {
+          recursive: true,
+        });
+        await withConnectors(scratch.path);
+        const monitor = join(
+          scratch.path,
+          'Library/Application Support/Context Compiler/Monitors/probe',
+        );
+        const evaluated = join(scratch.path, 'monitor-loaded');
+        mkdirSync(monitor, { recursive: true });
+        writeFileSync(
+          join(monitor, 'package.json'),
+          JSON.stringify({
+            type: 'module',
+            exports: './probe.ts',
+            contextCompiler: {
+              name: 'probe',
+              title: 'Probe',
+              description: 'A photo arrives',
+              instruction: 'Describe the photo.',
+            },
+          }),
+        );
+        writeFileSync(
+          join(monitor, 'probe.ts'),
+          `import { writeFileSync } from 'node:fs';
+writeFileSync(${JSON.stringify(evaluated)}, 'loaded');
+export default { async evaluate() { return []; } };`,
+        );
+        await client.connect(transport, { signal: t.signal, timeout: 10_000 });
+        const call = (name: string, args: Record<string, unknown> = {}) =>
+          client.callTool({ name, arguments: args }, undefined, {
+            signal: t.signal,
+          });
+        assert.equal(
+          client.getServerVersion()?.version,
+          JSON.parse(readFileSync(join(bundle, 'version.json'), 'utf8'))
+            .version,
+        );
+        assert.match(
+          client.getServerVersion()?.icons?.[0]?.src ?? '',
+          /^data:image\/png;base64,/,
+        );
+        assert.match(
+          client.getInstructions() ?? '',
+          /while Context Compiler is open/,
+        );
+        assert.doesNotMatch(client.getInstructions() ?? '', /ChatGPT|Codex/);
+        const { contents } = await client.readResource({
+          uri: 'ui://context-compiler/page.html',
+        });
+        const [pageResource] = contents;
+        assert.ok(pageResource && 'text' in pageResource);
+        assert.match(String(pageResource.text), /^<!doctype html>/);
+        const listed = await call('monitors');
+        assert.notEqual(listed.isError, true);
+        assert.deepEqual(listed.structuredContent, { monitors: null });
+        for (const name of ['monitor_add', 'monitor_remove']) {
+          const refused = await client.callTool({
+            name,
+            arguments: { name: 'probe' },
+            _meta: { threadId: 'unused-chat' },
+          });
+          assert.equal(refused.isError, true);
+          assert.match(
+            JSON.stringify(refused.content),
+            /does not provide chat delivery for monitors/,
+          );
+        }
+        const configured = await call('configure', {
+          connectors: [{ connector: 'photos' }],
+        });
+        assert.notEqual(
+          configured.isError,
+          true,
+          JSON.stringify(configured.content),
+        );
+        await eventually(
+          () => passes(scratch.path, 'photos').join() === 'succeeded',
+          'the standalone server did not import Photos',
+          () => diagnostics,
+        );
+        assert.deepEqual(photoIds(scratch.path), ['p1', 'p2']);
+        photograph(scratch.path, [beach, snow, dunes]);
+
+        const synced = await call('sync', { connector: 'photos' });
+
+        assert.notEqual(synced.isError, true, JSON.stringify(synced.content));
+        assert.equal(photosRow(synced)?.state, 'succeeded');
+        assert.deepEqual(photoIds(scratch.path), ['p1', 'p2', 'p3']);
+        assert.deepEqual(passes(scratch.path, 'photos'), [
+          'succeeded',
+          'succeeded',
+        ]);
+        assert.equal(existsSync(evaluated), false);
+        assert.equal(existsSync(join(monitor, 'probe.ts')), true);
+        assert.equal(
+          existsSync(
+            join(
+              scratch.path,
+              'Library/Application Support/Context Compiler/Imports/monitors.sqlite',
+            ),
+          ),
+          false,
+        );
+      } finally {
+        await client.close();
+        await transport.close();
+        await scratch.remove();
+      }
+    },
+  );
 
 test(
   'a chat adds the monitor it wrote, and the next sync queues the monitor’s instruction into that chat through the codex the server was given',
@@ -2108,13 +2291,25 @@ test(
       () => stale.diagnostics,
     );
 
-    // Installing another version deletes this version's folder.
-    rmSync(old, { recursive: true, force: true });
+    // Removing only the sentinel proves the loaded server stops itself.
+    rmSync(join(old, 'server/version.json'));
     await sleep(2_000);
     photograph(scratch.path, [beach, snow, dunes]);
     await sleep(3_000);
     const beforeNewChat = photoIds(scratch.path);
     const passesBeforeNewChat = passes(scratch.path, 'photos');
+    for (const refused of [
+      await stale.connectors(),
+      await stale.sync('photos'),
+      await stale.configure(['photos']),
+      await stale.watch('photos', false),
+    ]) {
+      assert.equal(refused.isError, true);
+      assert.match(
+        JSON.stringify(refused.content),
+        /reopen Context Compiler\.app/,
+      );
+    }
     await using fresh = await chat(t.signal, current, scratch.path);
     await eventually(
       () => photoIds(scratch.path).includes('p3'),

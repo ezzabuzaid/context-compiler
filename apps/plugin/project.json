@@ -8,7 +8,12 @@
       "command": "node apps/plugin/build.mjs",
       "dependsOn": ["^build"],
       "cache": true,
-      "inputs": ["default", "^default"],
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/plugins/context-compiler/.codex-plugin/plugin.json",
+        "{workspaceRoot}/plugins/context-compiler/assets/composer-icon.png"
+      ],
       "outputs": ["{workspaceRoot}/plugins/context-compiler/server"]
     },
     "marketplace": {
