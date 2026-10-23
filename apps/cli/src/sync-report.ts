@@ -1,6 +1,6 @@
 import { type SpinnerResult, intro, log, outro, spinner } from '@clack/prompts';
 
-import type { AppleConnector } from '@workspace/connector-apple-connector/apple-connector';
+import type { Connector } from '@workspace/connector/connector';
 import type { CopyProgress } from '@workspace/elt';
 import type { SQLiteTable } from '@workspace/elt-sqlite';
 
@@ -37,7 +37,7 @@ export class SyncReport implements SyncObserver {
   }
 
   progress(
-    connector: AppleConnector,
+    connector: Connector,
     { copy, status, emitted }: CopyProgress<SQLiteTable>,
   ) {
     if (!this.interactive) return;
@@ -51,7 +51,7 @@ export class SyncReport implements SyncObserver {
     if (performance.now() - this.#shownAt > 100) this.#show();
   }
 
-  passed({ title }: AppleConnector, summary: PassSummary): void {
+  passed({ title }: Connector, summary: PassSummary): void {
     // A cancelled pass is a removed connector; skipped reports it.
     if (summary.status === 'cancelled') return;
     if (summary.status !== 'succeeded') this.#incomplete = true;
@@ -68,7 +68,7 @@ export class SyncReport implements SyncObserver {
 
   // The spinner comes back after the line, so a sync that only waits still
   // shows it runs, and Ctrl-C stops it the same way.
-  joined({ title }: AppleConnector): void {
+  joined({ title }: Connector): void {
     if (!this.interactive) return;
     this.#spinner?.clear();
     log.info(`${title.padEnd(10)} a sync is importing it · waiting…`);
@@ -76,7 +76,7 @@ export class SyncReport implements SyncObserver {
   }
 
   skipped(
-    { name, title }: AppleConnector,
+    { name, title }: Connector,
     why: 'removed' | 'interrupted' | 'watched',
   ): void {
     if (why === 'interrupted') this.#incomplete = true;

@@ -9,11 +9,8 @@ import {
 } from '@zukhruf/single-flight';
 import type { Locate } from '@zukhruf/sqlite-federation';
 
-import type {
-  AppleConnector,
-  ChoiceOptions,
-} from '@workspace/connector-apple-connector/apple-connector';
-import { userConnectors } from '@workspace/connector-apple-manifest/user-connectors';
+import { userConnectors } from '@workspace/connector-manifest/user-connectors';
+import type { ChoiceOptions, Connector } from '@workspace/connector/connector';
 import {
   type PassState,
   readPassStatus,
@@ -36,9 +33,9 @@ import {
 // watched, a sync watch keeps it current.
 export type SyncObserver = PassReport & {
   start(): void;
-  joined(connector: AppleConnector): void;
+  joined(connector: Connector): void;
   skipped(
-    connector: AppleConnector,
+    connector: Connector,
     why: 'removed' | 'interrupted' | 'watched',
   ): void;
   finish(): void;
@@ -48,8 +45,8 @@ export type SyncObserver = PassReport & {
 // Shows a watch as a sync, and also each import it waits to own while another
 // process does, and each import whose watch stopped on its own.
 export type WatchObserver = SyncObserver & {
-  waiting(connector: AppleConnector): void;
-  stopped(connector: AppleConnector): void;
+  waiting(connector: Connector): void;
+  stopped(connector: Connector): void;
 };
 
 // One selected connector's import, as a sync or a watch runs it, and where it
@@ -57,7 +54,7 @@ export type WatchObserver = SyncObserver & {
 type ImportRun = {
   readonly settings: Settings;
   readonly flights: SingleFlight<readonly SyncLine[]>;
-  readonly connector: AppleConnector;
+  readonly connector: Connector;
   readonly selection: Selection;
   show(line: SyncLine): void;
 };
@@ -93,9 +90,9 @@ export type ConnectorStatus = {
 // again.
 export class Imports {
   readonly root: string;
-  readonly connectors: readonly AppleConnector[];
+  readonly connectors: readonly Connector[];
 
-  constructor(connectors: readonly AppleConnector[], directory: string) {
+  constructor(connectors: readonly Connector[], directory: string) {
     this.connectors = connectors;
     this.root = resolve(directory);
   }
@@ -104,13 +101,13 @@ export class Imports {
     return this.connectors.map(({ name }) => name);
   }
 
-  connector(name: string): AppleConnector {
+  connector(name: string): Connector {
     const connector = this.#loaded(name);
     if (connector === undefined) throw new Error(`Unknown connector ${name}`);
     return connector;
   }
 
-  #loaded(name: string): AppleConnector | undefined {
+  #loaded(name: string): Connector | undefined {
     return this.connectors.find((candidate) => candidate.name === name);
   }
 
@@ -311,7 +308,7 @@ export class Imports {
     };
     process.on('exit', cancelled);
     const passes: PassSummary[] = [];
-    const show = (connector: AppleConnector) => (line: SyncLine) => {
+    const show = (connector: Connector) => (line: SyncLine) => {
       if (
         line.status === 'removed' ||
         line.status === 'interrupted' ||
@@ -444,7 +441,7 @@ function unloaded(name: string): string {
 // sync watch until it stops. The claim sits at the store's root, beside the
 // settings, so the removal of an import's folder never deletes a claim a
 // waiting watch holds open. The Context Compiler plugin has a copy in
-// apps/plugin/src/apple-plugin.ts: change both.
+// apps/plugin/src/plugin.ts: change both.
 function owners(settings: Settings, directory: string): SqliteElection {
   const name = relative(settings.root, directory).replaceAll(sep, '.');
   return new SqliteElection({

@@ -13,7 +13,7 @@ import { KeepCurrent } from './keep-current.tsx';
 import { usePage } from './page-context.tsx';
 
 // One connector: its status and what it imports; its switch is on its
-// sidebar row. Its choices are read from its Apple app only when this page
+// sidebar row. Its choices are read from its app only when this page
 // opens, since reading them may make macOS ask for access.
 export function ConnectorDetail({ row }: { row: ConnectorRow }) {
   const { app } = usePage();

@@ -1,5 +1,5 @@
 {
-  "name": "connector-apple-slack",
+  "name": "connector-slack-desktop",
   "sourceRoot": "packages/connectors/slack/src",
   "projectType": "library",
   "targets": {

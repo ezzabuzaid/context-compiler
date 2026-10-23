@@ -1,9 +1,9 @@
-import { AppleConnector } from '@workspace/connector-apple-connector/apple-connector';
-import type { Choice } from '@workspace/connector-apple-connector/choice';
+import type { Choice } from '@workspace/connector/choice';
+import { Connector } from '@workspace/connector/connector';
 import type { Source } from '@workspace/elt';
 
 // A second connector named notes.
-export default class NotesAgainConnector extends AppleConnector {
+export default class NotesAgainConnector extends Connector {
   readonly datedBy = 'date taken';
   readonly fullDiskAccess = true;
   protected readonly choices: readonly Choice[] = [];

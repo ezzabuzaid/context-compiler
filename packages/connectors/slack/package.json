@@ -1,5 +1,5 @@
 {
-  "name": "@workspace/connector-apple-slack",
+  "name": "@workspace/connector-slack-desktop",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -9,7 +9,7 @@
     "title": "Slack"
   },
   "dependencies": {
-    "@workspace/connector-apple-connector": "0.0.1",
+    "@workspace/connector": "0.0.1",
     "@workspace/source-apple-macos": "0.0.1",
     "@workspace/source-slack-desktop": "0.0.1"
   },

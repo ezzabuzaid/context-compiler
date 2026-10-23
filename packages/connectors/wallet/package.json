@@ -9,7 +9,7 @@
     "title": "Wallet"
   },
   "dependencies": {
-    "@workspace/connector-apple-connector": "0.0.1",
+    "@workspace/connector": "0.0.1",
     "@workspace/source-apple-wallet": "0.0.1"
   }
 }

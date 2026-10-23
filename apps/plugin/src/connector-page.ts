@@ -1,13 +1,13 @@
 import type { PassStatus } from '@workspace/elt-sqlite';
 import type { Selection } from '@workspace/settings';
 
-import { type ApplePlugin, configurationSchema } from './apple-plugin.ts';
 import type {
   ConnectorChoices,
   ConnectorRow,
   ConnectorSelection,
 } from './page/contract.ts';
 import { passFailure } from './pass-failure.ts';
+import { type Plugin, configurationSchema } from './plugin.ts';
 
 // What the Context Compiler page shows and changes: one row per connector, described by
 // its import's status, and one connector's selection at a time.
@@ -59,12 +59,10 @@ function describe(
   }
 }
 
-type SelectedConnector = ReturnType<
-  ApplePlugin['status']
->['connectors'][number];
+type SelectedConnector = ReturnType<Plugin['status']>['connectors'][number];
 
 function loadedStatus(
-  connector: ApplePlugin['connectors'][number],
+  connector: Plugin['connectors'][number],
   item: SelectedConnector | undefined,
   now: Date,
 ): ConnectorRow['status'] {
@@ -104,7 +102,7 @@ function loadedStatus(
 // Every loaded connector, then each selected connector that is not loaded,
 // so it can still be switched off. Rows keep their title order whatever their
 // state, so switching a connector never moves its row.
-export function connectorRows(plugin: ApplePlugin): ConnectorRow[] {
+export function connectorRows(plugin: Plugin): ConnectorRow[] {
   const now = new Date();
   const selected = plugin.status().connectors;
   const loaded = plugin.connectors.map((connector): ConnectorRow => {
@@ -163,7 +161,7 @@ export function connectorRows(plugin: ApplePlugin): ConnectorRow[] {
 // selection, so a page that read the selection before another chat changed it
 // does not undo that change.
 export async function updateConnector(
-  plugin: ApplePlugin,
+  plugin: Plugin,
   connector: string,
   selection: ConnectorSelection | null,
 ): Promise<{ connectors: ConnectorRow[]; newImports: Selection[] }> {
@@ -192,7 +190,7 @@ export async function updateConnector(
 // What a connector can be narrowed to, read from its app, which may make
 // macOS ask for access.
 export async function connectorChoices(
-  plugin: ApplePlugin,
+  plugin: Plugin,
   name: string,
 ): Promise<ConnectorChoices> {
   const connector = plugin.connector(name);

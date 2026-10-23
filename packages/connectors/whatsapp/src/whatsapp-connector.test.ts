@@ -7,7 +7,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import type { AppleConnector } from '@workspace/connector-apple-connector/apple-connector';
+import type { Connector } from '@workspace/connector/connector';
 import { Pipeline, PipelineError } from '@workspace/elt';
 import { SQLiteSyncHistory } from '@workspace/elt-sqlite';
 import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
@@ -19,7 +19,7 @@ const folder = fileURLToPath(new URL('..', import.meta.url));
 // The SDK finds WhatsApp's container under HOME when its module loads, so the
 // connector is imported only after HOME points at the test's folder. node
 // --test runs this file in its own process, so the module loads once.
-async function connectorUnder(home: string): Promise<AppleConnector> {
+async function connectorUnder(home: string): Promise<Connector> {
   const previous = process.env.HOME;
   process.env.HOME = home;
   try {
@@ -97,7 +97,7 @@ function whatsappContainer(home: string): void {
 // One pass of the import the hosts make for a selection, and the loaded
 // streams a reader finds in its data.sqlite, by row count.
 async function importWhatsApp(
-  connector: AppleConnector,
+  connector: Connector,
   directory: string,
   scope: ImportScope,
 ) {

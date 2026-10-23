@@ -18,14 +18,13 @@ import { fileURLToPath } from 'node:url';
 
 import { z } from 'zod';
 
-import { builtInConnectors } from '@workspace/connector-apple-manifest/built-in-connectors';
-import { Connectors } from '@workspace/connector-apple-manifest/connectors';
+import { builtInConnectors } from '@workspace/connector-manifest/built-in-connectors';
+import { Connectors } from '@workspace/connector-manifest/connectors';
 import { SQLiteSyncHistory } from '@workspace/elt-sqlite';
 import { StubEventKitHelper } from '@workspace/sdk-apple-eventkit/test';
 import { type Selection, importDirectory } from '@workspace/settings';
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
 
-import { ApplePlugin } from './apple-plugin.ts';
 import { chatStatus } from './chat-status.ts';
 import {
   connectorChoices,
@@ -35,6 +34,7 @@ import {
 import { monitorRows } from './monitor-page.ts';
 import { Monitors } from './monitors.ts';
 import { connectorsResult } from './page/contract.ts';
+import { Plugin } from './plugin.ts';
 
 // The committed plugin, as Codex installs it.
 const install = resolve('plugins/context-compiler');
@@ -59,12 +59,12 @@ const noMonitors = (directory: string) =>
   });
 
 // The plugin as its server creates it, over the built-in connectors.
-async function applePlugin(
+async function createPlugin(
   install: string,
   directory: string,
   pluginHost = host,
 ) {
-  const plugin = new ApplePlugin(
+  const plugin = new Plugin(
     new Connectors([builtInConnectors]),
     pluginHost,
     install,
@@ -120,7 +120,7 @@ async function photosPlugin(
   directory: string,
   monitors = noMonitors(directory),
 ) {
-  const plugin = new ApplePlugin(
+  const plugin = new Plugin(
     new Connectors([
       builtInConnectors,
       resolve('packages/connectors/manifest/dist/fixtures'),
@@ -215,7 +215,7 @@ function imported(directory: string, item: Selection) {
 // Begins passes of one connector selection's import, recorded in its
 // data.sqlite as a server's history records them: each pass declares every
 // copy of the connection, and one that finishes loads them all.
-async function passes(plugin: ApplePlugin, item: Selection) {
+async function passes(plugin: Plugin, item: Selection) {
   const { connection, destination } = await plugin
     .connector(item.connector)
     .connection(importDirectory(plugin.directory, item), item);
@@ -249,7 +249,7 @@ async function passes(plugin: ApplePlugin, item: Selection) {
 
 test('Setup rejects invalid choices and keeps a Calendar scope as given, so each import reads the default window when it runs', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
-  const plugin = await applePlugin(install, scratch.path);
+  const plugin = await createPlugin(install, scratch.path);
   assert.deepEqual(plugin.status().connectors, []);
   for (const [selection, message] of [
     [
@@ -332,7 +332,7 @@ test('Setup rejects invalid choices and keeps a Calendar scope as given, so each
 
 test('agents read the selected connectors, where each import lives and what macOS access it needs from the settings file with the sqlite3 shell', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
-  const plugin = await applePlugin(install, scratch.path);
+  const plugin = await createPlugin(install, scratch.path);
   const notes = {
     connector: 'notes' as const,
     scope: { collectionIds: ['folder-1'] },
@@ -390,7 +390,7 @@ test('agents read the selected connectors, where each import lives and what macO
 
 test('Setup imports only what a change adds or changes, keeps an unchanged import and removes a changed or disconnected one', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
-  const plugin = await applePlugin(install, scratch.path);
+  const plugin = await createPlugin(install, scratch.path);
   const notes = {
     connector: 'notes' as const,
     scope: { collectionIds: ['folder-1'] },
@@ -400,7 +400,8 @@ test('Setup imports only what a change adds or changes, keeps an unchanged impor
   assert.equal(plugin.status().connectors[0]?.database, null);
   const database = imported(scratch.path, notes);
   assert.equal(
-    (await applePlugin(install, scratch.path)).status().connectors[0]?.database,
+    (await createPlugin(install, scratch.path)).status().connectors[0]
+      ?.database,
     database,
   );
   const books = { connector: 'books', scope: {}, includeAttachments: true };
@@ -424,7 +425,7 @@ test('Setup imports only what a change adds or changes, keeps an unchanged impor
 
 test('saving Calendar again without dates keeps its import', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
-  const plugin = await applePlugin(install, scratch.path);
+  const plugin = await createPlugin(install, scratch.path);
   const calendar = {
     connector: 'calendar' as const,
     scope: {},
@@ -443,7 +444,7 @@ test('saving Calendar again without dates keeps its import', async () => {
 test('Calendar options give an agent no dates to copy, and name the default window', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
   await using calendars = await oneCalendar();
-  const plugin = await applePlugin(install, scratch.path, {
+  const plugin = await createPlugin(install, scratch.path, {
     ...host,
     eventKitHelper: calendars.path,
   });
@@ -458,7 +459,7 @@ test('Calendar options give an agent no dates to copy, and name the default wind
 test('connecting Calendar on the page saves a scope without dates, so saving it again keeps its import', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
   await using calendars = await oneCalendar();
-  const plugin = await applePlugin(install, scratch.path, {
+  const plugin = await createPlugin(install, scratch.path, {
     ...host,
     eventKitHelper: calendars.path,
   });
@@ -491,7 +492,7 @@ test('importing settles when the settings cannot be read, so the server keeps se
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
   // A directory where the settings file belongs fails every read of them.
   mkdirSync(join(scratch.path, 'settings.sqlite'));
-  const plugin = await applePlugin(install, scratch.path);
+  const plugin = await createPlugin(install, scratch.path);
 
   await assert.doesNotReject(
     plugin.import([
@@ -1472,7 +1473,7 @@ test('a connector switched off while its pass runs loses its import once the pas
 
 test('a chat hears of a pass only when it changes what a reader can do with the connector', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
-  const plugin = await applePlugin(install, scratch.path);
+  const plugin = await createPlugin(install, scratch.path);
   const notes = {
     connector: 'notes' as const,
     scope: {},
@@ -1590,7 +1591,7 @@ test('a chat never calls an import empty while it holds rows that a pass loaded 
 
 test('the Context Compiler page and chat report Mail local freshness and content gaps, including a newly downloaded body', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'mail-status-'));
-  const plugin = await applePlugin(install, scratch.path);
+  const plugin = await createPlugin(install, scratch.path);
   const mail = { connector: 'mail', scope: {}, includeAttachments: false };
   await plugin.configure({ connectors: [mail] });
   const begin = await passes(plugin, mail);
@@ -1651,7 +1652,7 @@ test('a selected connector that is no longer loaded is reported, keeps its impor
   const withPhotos = await photosPlugin(scratch.path);
   const photos = { connector: 'photos', scope: {}, includeAttachments: true };
   await withPhotos.configure({ connectors: [photos] });
-  const plugin = await applePlugin(install, scratch.path);
+  const plugin = await createPlugin(install, scratch.path);
 
   const [reported] = plugin.status().connectors;
   const context = chatStatus(plugin).text;
@@ -1711,7 +1712,7 @@ test('a selected connector that is no longer loaded is reported, keeps its impor
 
 test('the sidebar page describes each connector’s import and switches one connector without touching the others or moving its row', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
-  const plugin = await applePlugin(install, scratch.path);
+  const plugin = await createPlugin(install, scratch.path);
   const statusOf = (name: string) =>
     connectorRows(plugin).find((row) => row.name === name)?.status;
   const described = (name: string) => statusOf(name)?.text;
@@ -1822,7 +1823,7 @@ test('the sidebar page describes each connector’s import and switches one conn
 
 test('the sidebar page narrows a connector by date, says which connectors it can date, and widens a narrowed one back to everything', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
-  const plugin = await applePlugin(install, scratch.path);
+  const plugin = await createPlugin(install, scratch.path);
   const dates = {
     startAt: '2026-01-01T00:00:00.000Z',
     endAt: '2026-02-01T00:00:00.000Z',
@@ -1872,7 +1873,7 @@ test('once another plugin version replaces this one, its server refuses to chang
     recursive: true,
   });
   const store = join(scratch.path, 'store');
-  const plugin = await applePlugin(replaced, store);
+  const plugin = await createPlugin(replaced, store);
   const notes = { connector: 'notes', scope: {}, includeAttachments: true };
   await plugin.configure({ connectors: [notes] });
   // An import the newer version's selection no longer names.

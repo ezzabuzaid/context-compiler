@@ -1,8 +1,8 @@
-import { AppleConnector } from '@workspace/connector-apple-connector/apple-connector';
-import type { Choice } from '@workspace/connector-apple-connector/choice';
+import type { Choice } from '@workspace/connector/choice';
+import { Connector } from '@workspace/connector/connector';
 import { AppleAccountsSource } from '@workspace/source-apple-accounts/apple-accounts-source';
 
-export default class AccountsConnector extends AppleConnector {
+export default class AccountsConnector extends Connector {
   readonly datedBy = null;
   readonly fullDiskAccess = true;
   // One small store of every account on this Mac; everything is imported.

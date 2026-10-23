@@ -18,7 +18,7 @@ import {
 import { Settings } from '@workspace/settings';
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
 
-import { AppleConnector } from './apple-connector.ts';
+import { Connector } from './connector.ts';
 
 // A source whose upstream is current whenever it is read.
 abstract class LiveSource<
@@ -136,7 +136,7 @@ class OneFileSource extends LiveSource {
   }
 }
 
-class OneSourceConnector extends AppleConnector {
+class OneSourceConnector extends Connector {
   readonly datedBy = null;
   readonly fullDiskAccess = false;
   protected readonly choices = [];
@@ -179,7 +179,7 @@ test(
         return resume.promise;
       }),
     );
-    using settings = new Settings(join(scratch.path, 'Apple'));
+    using settings = new Settings(join(scratch.path, 'Imports'));
     const selection = {
       connector: connector.name,
       scope: {},
@@ -230,7 +230,7 @@ test(
   { timeout: 30_000 },
   async () => {
     await using scratch = await mkdtempDisposable(join(tmpdir(), 'import-'));
-    using settings = new Settings(join(scratch.path, 'Apple'));
+    using settings = new Settings(join(scratch.path, 'Imports'));
     const reads: unknown[] = [];
     const connector = new OneSourceConnector(
       new TwoNotesSource(reads, async () => {}),
@@ -251,7 +251,7 @@ test(
       const { Catalog, Source, Stream } = await import('@workspace/elt');
       const { Settings } = await import('@workspace/settings');
       const { MacOSDocumentParser } = await import('@workspace/source-apple-macos/macos-document-parser');
-      const { AppleConnector } = await import(process.env.CONNECTOR);
+      const { Connector } = await import(process.env.CONNECTOR);
       class TwoNotesSource extends Source {
         identity = 'two-notes';
         catalog = new Catalog([new Stream({
@@ -277,7 +277,7 @@ test(
           await new Promise(() => setInterval(() => {}, 1 << 30));
         }
       }
-      class OneSourceConnector extends AppleConnector {
+      class OneSourceConnector extends Connector {
         datedBy = null;
         fullDiskAccess = false;
         choices = [];
@@ -289,7 +289,7 @@ test(
         access() { return 'Nothing to grant.'; }
         source() { return new TwoNotesSource(); }
       }
-      await new OneSourceConnector().import(new Settings(process.env.APPLE), JSON.parse(process.env.SELECTION));
+      await new OneSourceConnector().import(new Settings(process.env.STORE), JSON.parse(process.env.SELECTION));
     `;
     const killed = spawn(
       process.execPath,
@@ -298,10 +298,9 @@ test(
         cwd: join(import.meta.dirname, '..'),
         env: {
           ...process.env,
-          CONNECTOR: pathToFileURL(
-            join(import.meta.dirname, 'apple-connector.js'),
-          ).href,
-          APPLE: join(scratch.path, 'Apple'),
+          CONNECTOR: pathToFileURL(join(import.meta.dirname, 'connector.js'))
+            .href,
+          STORE: join(scratch.path, 'Imports'),
           SELECTION: JSON.stringify(selection),
         },
         stdio: ['ignore', 'pipe', 'inherit'],
@@ -358,7 +357,7 @@ test(
     await mkdir(join(scratch.path, 'Store'));
     await writeFile(file, 'Careem invoice 4471');
     const connector = new OneSourceConnector(new OneFileSource(file));
-    using settings = new Settings(join(scratch.path, 'Apple'));
+    using settings = new Settings(join(scratch.path, 'Imports'));
     const selection = {
       connector: connector.name,
       scope: {},

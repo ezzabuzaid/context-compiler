@@ -20,7 +20,7 @@ Setup asks in one form which connectors to import, each in full; a connector nar
 
 `plugins/context-compiler` is the installable package; [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json) lists it. Codex copies the folder from a git ref and runs it as is, without installing or building anything, so its server is bundled into `plugins/context-compiler/server` from `apps/plugin` by `npx nx run plugin:bundle` (`apps/plugin/build.mjs`): `main.mjs`, one folder per built-in connector, the chunks they share, and the EventKit helper. That folder is build output, ignored on main. `npx nx run plugin:marketplace` assembles the installable marketplace, `marketplace.json` and the built `plugins/context-compiler`, in `dist/plugin-marketplace`, which `codex plugin marketplace add` accepts as a local path. `npx nx run plugin:release` publishes that result to the `release` branch (see [Release](#release)).
 
-The MCP tools only set up; the settings file's `selected_connectors` view lists each selected connector and where its import lives, relative to that folder. Each selection imports into `~/Library/Application Support/Context Compiler/Apple/<connector>/<selection>`: `data.sqlite`, where each stream loads into a `raw_<stream>` table read through a described view, beside the `catalog`, `sync_status`, `stream_status` and `extraction_coverage` views elt-sqlite publishes, plus checkpoints and managed attachment copies. The query skill reads each `data.sqlite` directly with `sqlite3 -readonly`; the Codex sandbox also denies writes there.
+The MCP tools only set up; the settings file's `selected_connectors` view lists each selected connector and where its import lives, relative to that folder. Each selection imports into `~/Library/Application Support/Context Compiler/Imports/<connector>/<selection>`: `data.sqlite`, where each stream loads into a `raw_<stream>` table read through a described view, beside the `catalog`, `sync_status`, `stream_status` and `extraction_coverage` views elt-sqlite publishes, plus checkpoints and managed attachment copies. The query skill reads each `data.sqlite` directly with `sqlite3 -readonly`; the Codex sandbox also denies writes there.
 
 A plugin server imports a connector when the user connects it or changes what it imports, every connected connector again when the user presses Sync on the Context Compiler page, and one connector when the user picks Sync in its row's right-click menu. A connector the user keeps current, with the Keep current switch on its detail page (`connector_watch`), also loads each change while a chat or the Context Compiler page is open: every server stands by for its import, and the one that owns it watches it, so Sync of it runs no pass of its own. Nothing else refreshes or retries an import on its own, so an import no pass loaded completely, such as one Codex closed during or one a full disk cut short, waits for Sync. Setup returns once the answers are saved; a connector that has not finished its first import is reported as importing. Every pass is recorded in the connector's own file, so a reader judges freshness from the file it queries. A changed scope is a new import; the previous copy is removed.
 
@@ -33,7 +33,7 @@ The setup skill can be run again to change or disconnect connectors. It accesses
 [`apps/cli`](apps/cli/src/main.ts) reads the same connectors from a terminal. Use **Node.js 26** and npm on macOS; Calendar and Reminders require **macOS 27**, the release the EventKit helper is built for. The CLI runs from a checkout (see [Development](#development)). Its store defaults to `outputs/cli` relative to the working directory. Pass `--directory <path>` before the command to choose where settings, imports, checkpoints and attachment files live. For example, read the plugin's store with:
 
 ```sh
-npx nx run cli:start -- --directory "$HOME/Library/Application Support/Context Compiler/Apple" status
+npx nx run cli:start -- --directory "$HOME/Library/Application Support/Context Compiler/Imports" status
 ```
 
 Commands run with `npx nx run cli:start -- [--directory <path>] <command>`:
@@ -79,7 +79,7 @@ npx nx run cli:start -- --transcription-model cohere-transcribe-arabic-07-2026 s
 npx nx run cli:start -- --transcription-model off status
 ```
 
-Use `--directory "$HOME/Library/Application Support/Context Compiler/Apple"` before the command to share the Context Compiler page's settings. Local transcription requires `ffmpeg` on PATH (`brew install ffmpeg`). Building the native worker requires Rust/Cargo; Nx builds it automatically. Handy's model downloads are reused in place and are never modified.
+Use `--directory "$HOME/Library/Application Support/Context Compiler/Imports"` before the command to share the Context Compiler page's settings. Local transcription requires `ffmpeg` on PATH (`brew install ffmpeg`). Building the native worker requires Rust/Cargo; Nx builds it automatically. Handy's model downloads are reused in place and are never modified.
 
 ## Permissions
 
@@ -103,9 +103,9 @@ Manage permissions in **System Settings → Privacy & Security**. Calendar and R
 ## Development
 
 ```text
-packages/connectors/   One package per connector (connector-apple-<name>), with
-                       AppleConnector (connector-apple-connector) and discovery
-                       (connector-apple-manifest)
+packages/connectors/   One package per connector (connector-<source>), with
+                       Connector (connector) and discovery
+                       (connector-manifest)
 packages/settings/     The selection and settings both hosts keep in settings.sqlite
 apps/plugin/           Codex plugin server, bundled into plugins/context-compiler/server (plugin)
 apps/cli/              Terminal CLI: setup, sync, status, query (cli)

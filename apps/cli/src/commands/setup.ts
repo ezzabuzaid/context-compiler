@@ -15,10 +15,7 @@ import {
   Option,
 } from 'commander';
 
-import type {
-  AppleConnector,
-  ChoiceOptions,
-} from '@workspace/connector-apple-connector/apple-connector';
+import type { ChoiceOptions, Connector } from '@workspace/connector/connector';
 import { selectionProblems } from '@workspace/settings';
 import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 
@@ -27,7 +24,7 @@ import { SyncReport } from '../sync-report.ts';
 import { Command, type Output } from './command.ts';
 
 type Narrowed = {
-  connector: AppleConnector;
+  connector: Connector;
   scope: { -readonly [K in keyof ImportScope]: ImportScope[K] };
   includeAttachments: boolean;
 };
@@ -163,7 +160,7 @@ export class SetupCommand extends Command {
         .map((selection) => [selection.connector, selection]),
     );
     intro('Context Compiler setup');
-    const chosen = await multiselect<AppleConnector>({
+    const chosen = await multiselect<Connector>({
       message: 'Which connectors should be imported?',
       options: this.imports.connectors.map((connector) => ({
         value: connector,
@@ -178,7 +175,7 @@ export class SetupCommand extends Command {
 
     const checking = spinner();
     checking.start('Checking access');
-    const choices = new Map<AppleConnector, ChoiceOptions[]>();
+    const choices = new Map<Connector, ChoiceOptions[]>();
     const denied: string[] = [];
     for (const connector of chosen)
       try {
@@ -199,7 +196,7 @@ export class SetupCommand extends Command {
     const narrowing =
       narrowable.length === 0
         ? []
-        : await multiselect<AppleConnector>({
+        : await multiselect<Connector>({
             message: 'Narrow any connector? (leave empty to import everything)',
             options: narrowable.map((connector) => ({
               value: connector,
@@ -243,7 +240,7 @@ export class SetupCommand extends Command {
   }
 
   async #narrow(
-    connector: AppleConnector,
+    connector: Connector,
     choices: readonly ChoiceOptions[],
     previous: ImportScope,
   ): Promise<ImportScope | null> {

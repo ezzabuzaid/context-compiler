@@ -6,11 +6,11 @@ import { z } from 'zod';
 
 import type { Selection } from '@workspace/settings';
 
-import { type ApplePlugin, connectorSchema } from './apple-plugin.ts';
 import {
   hasFullDiskAccess,
   openFullDiskAccessSettings,
 } from './full-disk-access.ts';
+import { type Plugin, connectorSchema } from './plugin.ts';
 
 export type Ask = (form: ElicitRequestFormParams) => Promise<ElicitResult>;
 
@@ -22,7 +22,7 @@ export type Ask = (form: ElicitRequestFormParams) => Promise<ElicitResult>;
 // reported without opening them and a second form offers to open its Settings
 // list. Cancelling leaves setup unchanged. It returns once the answers are
 // saved, with the imports they create for the server to run.
-export async function setUpWithForms(plugin: ApplePlugin, ask: Ask) {
+export async function setUpWithForms(plugin: Plugin, ask: Ask) {
   const previous = new Map(
     plugin
       .status()

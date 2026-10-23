@@ -5,10 +5,10 @@ import { pathToFileURL } from 'node:url';
 import { z } from 'zod';
 
 import {
-  AppleConnector,
-  type AppleHost,
+  Connector,
+  type ConnectorHost,
   type ConnectorIdentity,
-} from '@workspace/connector-apple-connector/apple-connector';
+} from '@workspace/connector/connector';
 
 // A connector package's package.json: an ES module package whose exports
 // names the entry point, relative to the folder, and whose contextCompiler
@@ -22,10 +22,10 @@ const manifestSchema = z.object({
   }),
 });
 
-type AppleConnectorClass = new (
-  host: AppleHost,
+type ConnectorClass = new (
+  host: ConnectorHost,
   identity: ConnectorIdentity,
-) => AppleConnector;
+) => Connector;
 
 // What a connector package says it is, read without running its code.
 export class ConnectorManifest {
@@ -60,17 +60,17 @@ export class ConnectorManifest {
   // titled by this manifest. Node keeps a module it loaded, so the entry's URL
   // carries its modification time: an edited entry loads again. Files it
   // imports load once.
-  async load(host: AppleHost): Promise<AppleConnector> {
+  async load(host: ConnectorHost): Promise<Connector> {
     const entry = pathToFileURL(this.entry);
     entry.searchParams.set('modified', String(statSync(this.entry).mtimeMs));
-    const { default: Connector }: { default?: unknown } = await import(
+    const { default: Exported }: { default?: unknown } = await import(
       entry.href
     );
-    if (!isAppleConnectorClass(Connector))
+    if (!isConnectorClass(Exported))
       throw new TypeError(
-        `${this.entry} does not export an AppleConnector class by default.`,
+        `${this.entry} does not export a Connector class by default.`,
       );
-    return new Connector(host, {
+    return new Exported(host, {
       name: this.name,
       title: this.title,
       folder: this.folder,
@@ -78,8 +78,6 @@ export class ConnectorManifest {
   }
 }
 
-function isAppleConnectorClass(value: unknown): value is AppleConnectorClass {
-  return (
-    typeof value === 'function' && value.prototype instanceof AppleConnector
-  );
+function isConnectorClass(value: unknown): value is ConnectorClass {
+  return typeof value === 'function' && value.prototype instanceof Connector;
 }

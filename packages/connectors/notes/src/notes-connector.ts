@@ -1,14 +1,14 @@
-import { AppleConnector } from '@workspace/connector-apple-connector/apple-connector';
 import {
   type Choice,
   accounts,
   collections,
   name,
-} from '@workspace/connector-apple-connector/choice';
+} from '@workspace/connector/choice';
+import { Connector } from '@workspace/connector/connector';
 import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 import { AppleNotesSource } from '@workspace/source-apple-notes/apple-notes-source';
 
-export default class NotesConnector extends AppleConnector {
+export default class NotesConnector extends Connector {
   readonly datedBy = 'date last edited';
   readonly fullDiskAccess = true;
   override readonly note =

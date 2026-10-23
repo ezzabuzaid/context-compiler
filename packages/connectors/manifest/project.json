@@ -1,5 +1,5 @@
 {
-  "name": "connector-apple-manifest",
+  "name": "connector-manifest",
   "sourceRoot": "packages/connectors/manifest/src",
   "projectType": "library",
   "targets": {

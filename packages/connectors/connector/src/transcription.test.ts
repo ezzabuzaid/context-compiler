@@ -8,8 +8,8 @@ import { test } from 'node:test';
 import { HandyModels } from '@workspace/sdk-handy-models';
 import { Settings } from '@workspace/settings';
 
-import { AppleTranscription } from './apple-transcription.ts';
 import { AttachmentText } from './attachment-text.ts';
+import { Transcription } from './transcription.ts';
 
 test('an existing attachment reader observes a model saved or disabled by another host', async () => {
   await using directory = await mkdtempDisposable(
@@ -24,7 +24,7 @@ test('an existing attachment reader observes a model saved or disabled by anothe
   );
   data.prepare('INSERT INTO files VALUES (?)').run('voice.opus');
   // Handy's folder holds no weights, so the decoder fails as the reader runs.
-  await using host = new AppleTranscription(
+  await using host = new Transcription(
     directory.path,
     new HandyModels({
       hub: join(directory.path, 'hub'),

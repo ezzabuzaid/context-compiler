@@ -1,11 +1,11 @@
-import type { ApplePlugin } from './apple-plugin.ts';
 import { when } from './connector-page.ts';
 import type { MonitorStatus } from './monitors.ts';
 import type { MonitorRow } from './page/contract.ts';
+import type { Plugin } from './plugin.ts';
 
 // Each monitor's row, by name, with the status line its page shows: whether
 // it watches and when it last sent, why it failed, or why it waits.
-export async function monitorRows(plugin: ApplePlugin): Promise<MonitorRow[]> {
+export async function monitorRows(plugin: Plugin): Promise<MonitorRow[]> {
   const now = new Date();
   return (await plugin.monitors.status()).map((monitor) => ({
     name: monitor.name,

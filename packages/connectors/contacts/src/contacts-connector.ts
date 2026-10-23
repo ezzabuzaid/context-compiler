@@ -1,13 +1,9 @@
-import { AppleConnector } from '@workspace/connector-apple-connector/apple-connector';
-import {
-  type Choice,
-  byId,
-  name,
-} from '@workspace/connector-apple-connector/choice';
+import { type Choice, byId, name } from '@workspace/connector/choice';
+import { Connector } from '@workspace/connector/connector';
 import { AppleContactsSource } from '@workspace/source-apple-contacts/apple-contacts-source';
 import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 
-export default class ContactsConnector extends AppleConnector {
+export default class ContactsConnector extends Connector {
   readonly datedBy = null;
   readonly fullDiskAccess = false;
   protected readonly choices: readonly Choice[] = [

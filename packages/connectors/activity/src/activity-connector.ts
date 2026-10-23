@@ -1,8 +1,8 @@
-import { AppleConnector } from '@workspace/connector-apple-connector/apple-connector';
-import type { Choice } from '@workspace/connector-apple-connector/choice';
+import type { Choice } from '@workspace/connector/choice';
+import { Connector } from '@workspace/connector/connector';
 import { AppleActivitySource } from '@workspace/source-apple-activity/apple-activity-source';
 
-export default class ActivityConnector extends AppleConnector {
+export default class ActivityConnector extends Connector {
   readonly datedBy = null;
   readonly fullDiskAccess = true;
   // macOS keeps a few weeks of activity; everything it keeps is imported.

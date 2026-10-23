@@ -1,8 +1,8 @@
-import { AppleConnector } from '@workspace/connector-apple-connector/apple-connector';
-import type { Choice } from '@workspace/connector-apple-connector/choice';
+import type { Choice } from '@workspace/connector/choice';
+import { Connector } from '@workspace/connector/connector';
 import { AppleBooksSource } from '@workspace/source-apple-books/apple-books-source';
 
-export default class BooksConnector extends AppleConnector {
+export default class BooksConnector extends Connector {
   readonly datedBy = null;
   readonly fullDiskAccess = true;
   // Books' collections are built-in lists; everything is imported.

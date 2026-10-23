@@ -52,7 +52,10 @@ test('the bundled page tools discover models, save the selection and reject an u
     });
     assert.equal(enabled.isError, undefined);
     using settings = new Settings(
-      join(scratch.path, 'Library/Application Support/Context Compiler/Apple'),
+      join(
+        scratch.path,
+        'Library/Application Support/Context Compiler/Imports',
+      ),
     );
     assert.equal(settings.transcription(), 'cohere-transcribe-arabic-07-2026');
     const unavailable = await client.callTool({
@@ -85,7 +88,7 @@ async function homeWithCohere(home: string) {
     '',
   );
   return {
-    store: join(home, 'Library/Application Support/Context Compiler/Apple'),
+    store: join(home, 'Library/Application Support/Context Compiler/Imports'),
   };
 }
 

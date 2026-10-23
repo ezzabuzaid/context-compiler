@@ -1,10 +1,10 @@
-import { AppleConnector } from '@workspace/connector-apple-connector/apple-connector';
 import {
   type Choice,
   type Row,
   accounts,
   byId,
-} from '@workspace/connector-apple-connector/choice';
+} from '@workspace/connector/choice';
+import { Connector } from '@workspace/connector/connector';
 import { readSQLite } from '@workspace/elt-sqlite';
 import {
   AccountsStore,
@@ -22,7 +22,7 @@ import { mailContentStatus } from './mail-content-status.ts';
 const accountName = (row: Row) =>
   String(JSON.parse(String(row.properties)).name);
 
-export default class MailConnector extends AppleConnector {
+export default class MailConnector extends Connector {
   readonly datedBy = 'date received (date sent if missing)';
   readonly fullDiskAccess = true;
   protected readonly choices: readonly Choice[] = [

@@ -283,7 +283,7 @@ test(
     timeout: 180_000,
   },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'apple-e2e-'));
+    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
     const marketplace = JSON.parse(
       readFileSync(join(root, '.agents/plugins/marketplace.json'), 'utf8'),
     );
@@ -387,7 +387,7 @@ test(
     // The skill's entry point: the selection, with no tool call.
     const settingsFile = join(
       scratch.path,
-      'Library/Application Support/Context Compiler/Apple/settings.sqlite',
+      'Library/Application Support/Context Compiler/Imports/settings.sqlite',
     );
     const selected = (): SelectedConnector[] =>
       read(
@@ -437,7 +437,7 @@ test(
     };
 
     const client = new Client(
-      { name: 'apple-e2e', version: '1.0.0' },
+      { name: 'plugin-e2e', version: '1.0.0' },
       { capabilities: { elicitation: { form: {} } } },
     );
     const forms: string[] = [];
@@ -598,7 +598,7 @@ test(
         status.includes(
           join(
             scratch.path,
-            'Library/Application Support/Context Compiler/Apple',
+            'Library/Application Support/Context Compiler/Imports',
           ),
         ),
       );
@@ -897,7 +897,7 @@ test(
     timeout: 120_000,
   },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'apple-forms-'));
+    await using scratch = await mkdtempDisposable(join(homes, 'plugin-forms-'));
     // The installed plugin, run as Codex runs it.
     const plugin = join(scratch.path, 'plugin');
     const [entry] = JSON.parse(
@@ -926,7 +926,7 @@ test(
     await writeFile(join(messages, 'chat.db'), '');
     chmodSync(join(messages, 'chat.db'), 0o000);
     const client = new Client(
-      { name: 'apple-forms', version: '1.0.0' },
+      { name: 'plugin-forms', version: '1.0.0' },
       { capabilities: { elicitation: { form: {} } } },
     );
     // The fields each form asks for, and the user's answers, one per form.
@@ -1004,7 +1004,7 @@ test(
       // Notes is read for real: its background import loads the store's notes.
       const settings = join(
         scratch.path,
-        'Library/Application Support/Context Compiler/Apple/settings.sqlite',
+        'Library/Application Support/Context Compiler/Imports/settings.sqlite',
       );
       let loaded = false;
       for (let attempt = 0; attempt < 60 && !loaded; attempt++) {
@@ -1110,10 +1110,10 @@ async function withConnectors(home: string) {
 }
 
 test(
-  'a connector the user adds while the server runs imports through it on its own elt and AppleConnector, an edit to it and a preset added to it reach the same chat, and a chat hears of one that does not load',
+  'a connector the user adds while the server runs imports through it on its own elt and Connector, an edit to it and a preset added to it reach the same chat, and a chat hears of one that does not load',
   { timeout: 120_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'apple-e2e-'));
+    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
     const plugin = join(scratch.path, 'plugin');
     cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
     const runtime =
@@ -1132,7 +1132,7 @@ test(
       env: { HOME: scratch.path, CODEX_MCP_NODE_PATH: runtime, PATH: '' },
       stderr: 'pipe',
     });
-    const client = new Client({ name: 'apple-e2e', version: '1.0.0' });
+    const client = new Client({ name: 'plugin-e2e', version: '1.0.0' });
     await client.connect(transport, { signal: t.signal, timeout: 10_000 });
     const call = async (name: string, args: Record<string, unknown>) => {
       const result = await client.callTool({ name, arguments: args });
@@ -1147,7 +1147,7 @@ test(
       await call('configure', { connectors: [{ connector: 'photos' }] });
       const settings = join(
         scratch.path,
-        'Library/Application Support/Context Compiler/Apple/settings.sqlite',
+        'Library/Application Support/Context Compiler/Imports/settings.sqlite',
       );
       let photos: unknown[] = [];
       for (let attempt = 0; attempt < 60 && photos.length === 0; attempt++) {
@@ -1234,7 +1234,7 @@ test(
   'a chat adds the monitor it wrote, and the next sync queues the monitor’s instruction into that chat through the codex the server was given',
   { timeout: 120_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'apple-e2e-'));
+    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
     const plugin = join(scratch.path, 'plugin');
     cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
     const runtime =
@@ -1296,7 +1296,7 @@ export default {
       },
       stderr: 'pipe',
     });
-    const client = new Client({ name: 'apple-e2e', version: '1.0.0' });
+    const client = new Client({ name: 'plugin-e2e', version: '1.0.0' });
     await client.connect(transport, { signal: t.signal, timeout: 10_000 });
     try {
       await client.callTool({
@@ -1429,7 +1429,7 @@ async function chat(
   transport.stderr?.on('data', (data) => {
     diagnostics += String(data);
   });
-  const client = new Client({ name: 'apple-e2e', version: '1.0.0' });
+  const client = new Client({ name: 'plugin-e2e', version: '1.0.0' });
   let ended = false;
   const closed = new Promise<void>((resolve) => {
     client.onclose = () => {
@@ -1517,7 +1517,7 @@ async function chat(
 function importOf(home: string, connector: string): string | undefined {
   const store = join(
     home,
-    'Library/Application Support/Context Compiler/Apple',
+    'Library/Application Support/Context Compiler/Imports',
   );
   const [selected] = read(
     join(store, 'settings.sqlite'),
@@ -1725,7 +1725,7 @@ test(
   'a sync of an import a frozen server is importing, after the server that coordinated the imports died, waits for that pass and returns its outcome without a pass of its own',
   { ...onUnix, timeout: 180_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'apple-e2e-'));
+    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
     await using scene = await frozenLeader(t.signal, scratch.path);
     const replacement = await scene.start();
 
@@ -1770,7 +1770,7 @@ test(
   'a sync of an import a frozen server is importing, after the server that coordinated the imports died, runs its own pass once the frozen server is killed',
   { ...onUnix, timeout: 180_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'apple-e2e-'));
+    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
     await using scene = await frozenLeader(t.signal, scratch.path);
     const replacement = await scene.start();
     const replaced = replacement.sync('photos');
@@ -1864,7 +1864,7 @@ test(
   'a chat that closes while its server keeps Photos current exits at once, and another chat’s server, open before Photos was switched on, takes the watch and loads the next change with no Sync',
   { ...onUnix, timeout: 180_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'apple-e2e-'));
+    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
     await using scene = await ownedWatch(t.signal, scratch.path);
 
     const exitedIn = await scene.owner.hangUp();
@@ -1891,7 +1891,7 @@ test(
   'a server Codex stops with SIGTERM while it keeps Photos current exits, and another chat’s server takes the watch',
   { ...onUnix, timeout: 180_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'apple-e2e-'));
+    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
     await using scene = await ownedWatch(t.signal, scratch.path);
 
     scene.owner.send('SIGTERM');
@@ -1915,7 +1915,7 @@ test(
   'switching Keep current off in a chat whose server does not own the watch stops it, and a change then waits for Sync',
   { ...onUnix, timeout: 180_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'apple-e2e-'));
+    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
     await using scene = await ownedWatch(t.signal, scratch.path);
 
     const switched = await scene.other.watch('photos', false);
@@ -1942,7 +1942,7 @@ test(
   'a Sync of Photos from another chat while a watch keeps it current runs no pass of its own',
   { ...onUnix, timeout: 180_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'apple-e2e-'));
+    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
     await using scene = await ownedWatch(t.signal, scratch.path);
 
     const synced = await scene.other.sync('photos');
@@ -1959,7 +1959,7 @@ test(
   'with two chats open, each change to Photos is loaded by one pass, not one per server',
   { timeout: 180_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'apple-e2e-'));
+    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
     const plugin = join(scratch.path, 'plugin');
     cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
     await withWatchedPhotos(scratch.path);
@@ -2001,7 +2001,7 @@ test(
   'only the connectors switched on are kept current: Photos loads a change with no Sync, while Albums, connected but never switched on, waits for Sync',
   { timeout: 180_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'apple-e2e-'));
+    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
     const plugin = join(scratch.path, 'plugin');
     cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
     await withWatchedPhotos(scratch.path);
@@ -2088,7 +2088,7 @@ test(
   'a server whose plugin was updated gives up the watch while its chat stays open, and a chat on the new version takes it and loads the next change',
   { timeout: 180_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'apple-e2e-'));
+    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
     const old = join(scratch.path, 'plugin-old');
     const current = join(scratch.path, 'plugin-new');
     cpSync(join(root, 'plugins/context-compiler'), old, { recursive: true });
@@ -2137,7 +2137,7 @@ test(
   'disconnecting Photos while its watched pass reads keeps the import until the pass ends, then the watch stops and removes it for good',
   { ...onUnix, timeout: 180_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'apple-e2e-'));
+    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
     const plugin = join(scratch.path, 'plugin');
     cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
     await withWatchedPhotos(scratch.path);
@@ -2196,7 +2196,7 @@ test(
   'a monitor’s match that a watched pass loaded is queued into its chat with no Sync',
   { timeout: 180_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'apple-e2e-'));
+    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
     const plugin = join(scratch.path, 'plugin');
     cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
     // A real `codex queue` writes into the user's own ~/.codex, so the server
@@ -2282,7 +2282,7 @@ test(
   'a watched connector whose source fails is shown failed and stops alone, while another watched connector keeps loading each change',
   { timeout: 180_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'apple-e2e-'));
+    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
     const plugin = join(scratch.path, 'plugin');
     cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
     await withWatchedPhotos(scratch.path);

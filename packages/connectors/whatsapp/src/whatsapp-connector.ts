@@ -1,9 +1,9 @@
-import { AppleConnector } from '@workspace/connector-apple-connector/apple-connector';
-import type { Choice } from '@workspace/connector-apple-connector/choice';
+import type { Choice } from '@workspace/connector/choice';
+import { Connector } from '@workspace/connector/connector';
 import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 import { WhatsAppDesktopSource } from '@workspace/source-whatsapp-desktop/whatsapp-desktop-source';
 
-export default class WhatsAppConnector extends AppleConnector {
+export default class WhatsAppConnector extends Connector {
   readonly datedBy = 'date sent';
   readonly fullDiskAccess = true;
   override readonly note =

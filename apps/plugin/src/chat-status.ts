@@ -2,9 +2,9 @@ import { relative } from 'node:path';
 
 import type { PassStatus } from '@workspace/elt-sqlite';
 
-import type { ApplePlugin } from './apple-plugin.ts';
 import { connectorLink, pageLink } from './page/contract.ts';
 import { passFailure } from './pass-failure.ts';
+import type { Plugin } from './plugin.ts';
 
 // What a chat's hooks add to the model's context: each selected connector,
 // where its import lives, how its last pass went and the presets a reader can
@@ -50,7 +50,7 @@ const readiness = (sync: PassStatus | null) => {
 
 // state changes only when the selection, an import's file, what a reader
 // can do with it, its presets, or the connectors that could not load change.
-export function chatStatus(plugin: ApplePlugin): {
+export function chatStatus(plugin: Plugin): {
   state: string;
   text: string;
 } {
@@ -126,7 +126,7 @@ export function chatStatus(plugin: ApplePlugin): {
 // The status to add to one chat's context: always when the chat starts or
 // compacts, and before a prompt only once the status changed since it was
 // last sent.
-export function chatContext(plugin: ApplePlugin) {
+export function chatContext(plugin: Plugin) {
   let sent: string | undefined;
   return (event: 'SessionStart' | 'UserPromptSubmit'): string | null => {
     const status = chatStatus(plugin);

@@ -1,5 +1,5 @@
 {
-  "name": "connector-apple-instagram",
+  "name": "connector-instagram-web",
   "sourceRoot": "packages/connectors/instagram/src",
   "projectType": "library",
   "targets": {

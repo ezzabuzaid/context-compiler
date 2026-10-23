@@ -41,7 +41,7 @@ import { AttachmentText } from './attachment-text.ts';
 import type { Choice, Row, Rows } from './choice.ts';
 
 // What the host running a connector offers it.
-export type AppleHost = {
+export type ConnectorHost = {
   readonly documentParser: DocumentParser;
   // The app macOS grants access to: ChatGPT for the plugin, the terminal
   // that launched the CLI.
@@ -49,7 +49,7 @@ export type AppleHost = {
   // The compiled EventKit helper Calendar and Reminders read through: beside
   // the plugin's bundled server, or in @workspace/sdk-apple-eventkit's dist.
   readonly eventKitHelper: string;
-  // A Google session for content an Apple app keeps in Google, such as
+  // A Google session for content an app keeps in Google, such as
   // Calendar attachments in Drive and Gmail. Without one, it stays a link.
   google?(scopes: readonly string[]): Promise<GoogleRequester>;
 };
@@ -82,10 +82,10 @@ export type ImportOutcome =
   // No connection could be built; the settings keep why, for status.
   | { readonly status: 'unconnected'; readonly error: unknown };
 
-// The connector for one Apple app. A subclass declares the app's facts and its
+// The connector for one Mac app. A subclass declares the app's facts and its
 // source; this class lists what it can be narrowed by, builds its load and
 // words its selection and failures the same way for every connector and host.
-export abstract class AppleConnector {
+export abstract class Connector {
   readonly name: string;
   readonly title: string;
   // Where the connector keeps its presets, beside its manifest; it may not
@@ -130,9 +130,9 @@ export abstract class AppleConnector {
     return false;
   }
 
-  protected readonly host: AppleHost;
+  protected readonly host: ConnectorHost;
 
-  constructor(host: AppleHost, identity: ConnectorIdentity) {
+  constructor(host: ConnectorHost, identity: ConnectorIdentity) {
     this.host = host;
     this.name = identity.name;
     this.title = identity.title;
@@ -260,7 +260,7 @@ export abstract class AppleConnector {
       if (!('type' in message) && message.stream !== this.probe)
         rows.set(message.stream, [
           ...(rows.get(message.stream) ?? []),
-          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- every Apple source validates its records against the stream's object schema
+          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- every source validates its records against the stream's object schema
           message.data as Row,
         ]);
     }

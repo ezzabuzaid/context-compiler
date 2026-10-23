@@ -34,7 +34,7 @@ const columns = {
 };
 
 // The text of the files an import stored, so readers can search them with
-// SQL. It is auxiliary to the import, not part of it: AppleConnector updates
+// SQL. It is auxiliary to the import, not part of it: Connector updates
 // it after each pass the import commits, and no host shows that as a pass.
 // The files the import's rows reference are its work queue: each update
 // reads the ones this parser has not read or failed to read, several at once,

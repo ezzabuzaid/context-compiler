@@ -1,9 +1,9 @@
-import { AppleConnector } from '@workspace/connector-apple-connector/apple-connector';
-import type { Choice } from '@workspace/connector-apple-connector/choice';
+import type { Choice } from '@workspace/connector/choice';
+import { Connector } from '@workspace/connector/connector';
 import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 import { AppleNotificationCenterSource } from '@workspace/source-apple-notification-center/apple-notification-center-source';
 
-export default class NotificationCenterConnector extends AppleConnector {
+export default class NotificationCenterConnector extends Connector {
   readonly datedBy = 'delivery date';
   readonly fullDiskAccess = true;
   // One store of every app's notifications; a date range is the only

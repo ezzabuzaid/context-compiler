@@ -1,5 +1,5 @@
 {
-  "name": "@workspace/connector-apple-instagram",
+  "name": "@workspace/connector-instagram-web",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -9,7 +9,7 @@
     "title": "Instagram"
   },
   "dependencies": {
-    "@workspace/connector-apple-connector": "0.0.1",
+    "@workspace/connector": "0.0.1",
     "@workspace/source-apple-macos": "0.0.1",
     "@workspace/source-instagram-web": "0.0.1"
   },

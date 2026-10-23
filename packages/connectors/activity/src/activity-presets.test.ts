@@ -9,10 +9,7 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { crc32 } from 'node:zlib';
 
-import type {
-  AppleConnector,
-  Preset,
-} from '@workspace/connector-apple-connector/apple-connector';
+import type { Connector, Preset } from '@workspace/connector/connector';
 import { Pipeline } from '@workspace/elt';
 import { SQLiteSyncHistory, installSQLiteCatalog } from '@workspace/elt-sqlite';
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
@@ -23,7 +20,7 @@ const folder = fileURLToPath(new URL('..', import.meta.url));
 // Activity finds Biome and knowledgeC under HOME when its module loads, so the
 // connector is imported only after HOME points at the test's folder. node
 // --test runs this file in its own process, so the module loads once.
-async function connectorUnder(home: string): Promise<AppleConnector> {
+async function connectorUnder(home: string): Promise<Connector> {
   const previous = process.env.HOME;
   process.env.HOME = home;
   try {
@@ -50,7 +47,7 @@ async function connectorUnder(home: string): Promise<AppleConnector> {
 // The import the plugin makes: one pass into data.sqlite with sync history
 // and catalog.
 async function importActivity(
-  connector: AppleConnector,
+  connector: Connector,
   directory: string,
 ): Promise<string> {
   const { connection, destination } = await connector.connection(directory, {

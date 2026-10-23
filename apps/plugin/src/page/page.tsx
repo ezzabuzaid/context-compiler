@@ -10,7 +10,7 @@ import { TranscriptionDetail } from './transcription-detail.tsx';
 // page of the connector or monitor it opened.
 export function Page() {
   const { app, error } = useApp({
-    appInfo: { name: 'apple-page', version: '1.0.0' },
+    appInfo: { name: 'context-compiler-page', version: '1.0.0' },
     capabilities: {},
   });
   useHostStyles(app, app?.getHostContext());

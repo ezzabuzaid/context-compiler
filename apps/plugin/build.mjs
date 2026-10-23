@@ -2,7 +2,7 @@
 // main.mjs, one folder per built-in connector (its package.json manifest beside
 // its entry point and its presets), the host modules a user's connector
 // imports, and the chunks they all share, so every connector runs on the same
-// elt and AppleConnector as the server.
+// elt and Connector as the server.
 // It also builds the sidebar page into one self-contained page.html, since the
 // page's sandbox loads nothing from the network.
 // @nx/esbuild cannot name each entry's output, so this calls esbuild's API.
@@ -20,9 +20,9 @@ import { fileURLToPath } from 'node:url';
 
 import { build } from 'esbuild';
 
-import { builtInConnectors } from '@workspace/connector-apple-manifest/built-in-connectors';
-import { ConnectorManifest } from '@workspace/connector-apple-manifest/connector-manifest';
-import { hostModules } from '@workspace/connector-apple-manifest/host-modules';
+import { builtInConnectors } from '@workspace/connector-manifest/built-in-connectors';
+import { ConnectorManifest } from '@workspace/connector-manifest/connector-manifest';
+import { hostModules } from '@workspace/connector-manifest/host-modules';
 
 const outdir = 'plugins/context-compiler/server';
 

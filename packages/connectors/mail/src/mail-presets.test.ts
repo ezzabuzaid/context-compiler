@@ -8,10 +8,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import type {
-  AppleConnector,
-  Preset,
-} from '@workspace/connector-apple-connector/apple-connector';
+import type { Connector, Preset } from '@workspace/connector/connector';
 import { Pipeline } from '@workspace/elt';
 import { SQLiteSyncHistory, installSQLiteCatalog } from '@workspace/elt-sqlite';
 import { Settings } from '@workspace/settings';
@@ -23,7 +20,7 @@ const folder = fileURLToPath(new URL('..', import.meta.url));
 // Mail reads its store under HOME when its module loads, so the connector is
 // imported only after HOME points at the test's folder. node --test runs this
 // file in its own process, so the module loads once, under that HOME.
-async function connectorUnder(home: string): Promise<AppleConnector> {
+async function connectorUnder(home: string): Promise<Connector> {
   const previous = process.env.HOME;
   process.env.HOME = home;
   try {
@@ -49,7 +46,7 @@ async function connectorUnder(home: string): Promise<AppleConnector> {
 // The import the plugin makes: one pass into data.sqlite with sync history and
 // catalog, metadata only, so the attachments view has no attachmentRef.
 async function importMail(
-  connector: AppleConnector,
+  connector: Connector,
   directory: string,
 ): Promise<string> {
   const { connection, destination } = await connector.connection(directory, {

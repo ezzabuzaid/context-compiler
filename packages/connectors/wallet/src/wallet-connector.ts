@@ -1,8 +1,8 @@
-import { AppleConnector } from '@workspace/connector-apple-connector/apple-connector';
-import type { Choice } from '@workspace/connector-apple-connector/choice';
+import type { Choice } from '@workspace/connector/choice';
+import { Connector } from '@workspace/connector/connector';
 import { AppleWalletSource } from '@workspace/source-apple-wallet/apple-wallet-source';
 
-export default class WalletConnector extends AppleConnector {
+export default class WalletConnector extends Connector {
   // Wallet has no accounts or collections, and a pass's dates say when it is
   // relevant or expires, not which passes an import should keep.
   readonly datedBy = null;

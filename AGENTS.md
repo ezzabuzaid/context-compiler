@@ -13,7 +13,7 @@ Sources, SDKs, codecs, destinations and elt itself live in [ezzabuzaid/elt](http
 - Connectors exist to find elt gaps. When a connector needs a capability that elt does not have, fix the gap in elt. Do not work around it in the connector or the host.
 - A change that spans both repositories is two commits. Commit elt first, then this repository.
 - Build elt again after you change it (`npx nx run-many -t build` in `../elt`).
-- Connector packages in `packages/connectors` are not islands. They describe and import the user's Mac apps, and `AppleConnector` writes to the import store.
+- Connector packages in `packages/connectors` are not islands. They describe and import the user's Mac apps, and `Connector` writes to the import store.
 - In this repository, "app" means only the real macOS application. The things that users set up, select and import through are connectors. Tool arguments, CLI flags and stored names say connector.
 
 ## Stored data is disposable
@@ -73,7 +73,7 @@ When asked for a platform's latest format or practice, read what the vendor's ne
 
 Before writing argv routing, help text, usage errors, prompts or terminal rendering, search the installed package and its authors' siblings for it. In `apps/cli`, commander routes and validates, and clack prompts and renders. When a package takes over a job, such as clack exiting on Ctrl-C while its spinner runs, adapt to how it behaves rather than working around it.
 
-Model a set of things that share an algorithm as a template class: an abstract base owns the fixed steps, and each variant is its own small class in its own file (`apps/cli/src/commands/`, the connectors in `packages/connectors/` over `AppleConnector`). Do not use a definitions table imported everywhere and indexed by name. Callers ask an object; they do not reach into a registry.
+Model a set of things that share an algorithm as a template class: an abstract base owns the fixed steps, and each variant is its own small class in its own file (`apps/cli/src/commands/`, the connectors in `packages/connectors/` over `Connector`). Do not use a definitions table imported everywhere and indexed by name. Callers ask an object; they do not reach into a registry.
 
 ## Fake only what cannot run for real
 

@@ -18,7 +18,7 @@ import type { SQLiteView } from '@workspace/elt-sqlite';
 import { Settings } from '@workspace/settings';
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
 
-import { AppleConnector } from './apple-connector.ts';
+import { Connector } from './connector.ts';
 
 // A source whose upstream is current whenever it is read.
 abstract class LiveSource<
@@ -78,7 +78,7 @@ class TwoStoreSource extends LiveSource {
 }
 
 // A connector with views over its stores' views.
-class TwoStoreConnector extends AppleConnector {
+class TwoStoreConnector extends Connector {
   readonly datedBy = null;
   readonly fullDiskAccess = false;
   protected readonly choices = [];
@@ -130,7 +130,7 @@ const both: SQLiteView = {
 async function imports(directory: string, views: readonly SQLiteView[]) {
   const broken = join(directory, 'broken');
   const connector = new TwoStoreConnector(broken, views);
-  const settings = new Settings(join(directory, 'Apple'));
+  const settings = new Settings(join(directory, 'Imports'));
   const selection = {
     connector: connector.name,
     scope: {},

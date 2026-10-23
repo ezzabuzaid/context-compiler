@@ -1,9 +1,5 @@
-import { AppleConnector } from '@workspace/connector-apple-connector/apple-connector';
-import {
-  type Choice,
-  accounts,
-  byId,
-} from '@workspace/connector-apple-connector/choice';
+import { type Choice, accounts, byId } from '@workspace/connector/choice';
+import { Connector } from '@workspace/connector/connector';
 import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 import { TeamsSource } from '@workspace/source-microsoft-teams/teams-source';
 
@@ -29,7 +25,7 @@ const conversation: Choice['label'] = (row, rows) => {
   return String(row.topic ?? row.title ?? `${String(row.type)} ${byId(row)}`);
 };
 
-export default class TeamsConnector extends AppleConnector {
+export default class TeamsConnector extends Connector {
   readonly datedBy = 'date sent';
   readonly fullDiskAccess = true;
   override readonly note =

@@ -3,14 +3,14 @@ import { homedir } from 'node:os';
 import { basename, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import type { AppleHost } from '@workspace/connector-apple-connector/apple-connector';
+import type { ConnectorHost } from '@workspace/connector/connector';
 import type { DocumentParser } from '@workspace/elt';
 import { type GoogleRequester, googleSession } from '@workspace/google-auth';
 
 // The CLI as the host of the connectors: macOS grants access to the
 // terminal that launched it, and Google content is read with the user's own
 // OAuth client.
-export class TerminalHost implements AppleHost {
+export class TerminalHost implements ConnectorHost {
   readonly #parser: () => DocumentParser;
 
   constructor(parser: () => DocumentParser) {

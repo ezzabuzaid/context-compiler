@@ -1,6 +1,6 @@
 import { log } from '@clack/prompts';
 
-import type { AppleConnector } from '@workspace/connector-apple-connector/apple-connector';
+import type { Connector } from '@workspace/connector/connector';
 
 import type { WatchObserver } from './imports.ts';
 import { SyncReport } from './sync-report.ts';
@@ -14,13 +14,13 @@ export class WatchReport extends SyncReport implements WatchObserver {
   protected override readonly spinsWhenIdle = true;
   protected override readonly interruption = 'Stopped watching';
 
-  waiting({ name, title }: AppleConnector): void {
+  waiting({ name, title }: Connector): void {
     this.line({ connector: name, status: 'waiting' }, () =>
       log.info(`${title.padEnd(10)} another sync owns it · waiting to watch…`),
     );
   }
 
-  stopped({ name, title }: AppleConnector): void {
+  stopped({ name, title }: Connector): void {
     this.line({ connector: name, status: 'stopped' }, () =>
       log.info(`${title.padEnd(10)} stopped watching`),
     );

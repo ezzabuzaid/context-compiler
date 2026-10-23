@@ -1,8 +1,8 @@
-import { AppleConnector } from '@workspace/connector-apple-connector/apple-connector';
-import type { Choice } from '@workspace/connector-apple-connector/choice';
+import type { Choice } from '@workspace/connector/choice';
+import { Connector } from '@workspace/connector/connector';
 import { AppleClockSource } from '@workspace/source-apple-clock/apple-clock-source';
 
-export default class ClockConnector extends AppleConnector {
+export default class ClockConnector extends Connector {
   readonly datedBy = null;
   readonly fullDiskAccess = true;
   protected readonly choices: readonly Choice[] = [];

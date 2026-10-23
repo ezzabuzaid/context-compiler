@@ -1,10 +1,10 @@
 import { Command as Program } from 'commander';
 
-import { AppleTranscription } from '@workspace/connector-apple-connector/apple-transcription';
-import { builtInConnectors } from '@workspace/connector-apple-manifest/built-in-connectors';
-import { Connectors } from '@workspace/connector-apple-manifest/connectors';
-import { provideHostModules } from '@workspace/connector-apple-manifest/host-modules';
-import { userConnectors } from '@workspace/connector-apple-manifest/user-connectors';
+import { builtInConnectors } from '@workspace/connector-manifest/built-in-connectors';
+import { Connectors } from '@workspace/connector-manifest/connectors';
+import { provideHostModules } from '@workspace/connector-manifest/host-modules';
+import { userConnectors } from '@workspace/connector-manifest/user-connectors';
+import { Transcription } from '@workspace/connector/transcription';
 import { HandyModels } from '@workspace/sdk-handy-models';
 
 import { OptionsCommand } from './commands/options.ts';
@@ -18,12 +18,12 @@ import { TerminalHost } from './terminal-host.ts';
 if (process.platform !== 'darwin')
   throw new Error('The connectors read apps on a Mac.');
 
-// The user's own connectors import elt and AppleConnector from this CLI's copies.
+// The user's own connectors import elt and Connector from this CLI's copies.
 provideHostModules(({ specifier }) => import.meta.resolve(specifier));
 
 const program = new Program('context-compiler')
   .description(
-    'Import Apple apps on this Mac, keep them current, and query them.',
+    'Import the apps on this Mac, keep them current, and query them.',
   )
   .option(
     '--directory <path>',
@@ -47,10 +47,7 @@ const { directory, transcriptionModel } = program.opts<{
   directory: string;
   transcriptionModel?: string;
 }>();
-await using transcription = new AppleTranscription(
-  directory,
-  new HandyModels(),
-);
+await using transcription = new Transcription(directory, new HandyModels());
 if (transcriptionModel === undefined) await transcription.refresh();
 else
   await transcription

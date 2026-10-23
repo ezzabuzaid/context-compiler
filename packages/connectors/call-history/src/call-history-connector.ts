@@ -1,9 +1,9 @@
-import { AppleConnector } from '@workspace/connector-apple-connector/apple-connector';
-import type { Choice } from '@workspace/connector-apple-connector/choice';
+import type { Choice } from '@workspace/connector/choice';
+import { Connector } from '@workspace/connector/connector';
 import { AppleCallHistorySource } from '@workspace/source-apple-call-history/apple-call-history-source';
 import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 
-export default class CallHistoryConnector extends AppleConnector {
+export default class CallHistoryConnector extends Connector {
   readonly datedBy = 'call date';
   readonly fullDiskAccess = true;
   // One small store of every call on this Mac; a date range is the only

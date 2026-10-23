@@ -9,7 +9,7 @@ import { LocalTranscriptionModel } from '@workspace/transcription-local';
 // under, whose files each host finds in its own Mac's Handy folder. Each host
 // owns its model process; refresh notices choices another CLI or plugin
 // process saved in the same store.
-export class AppleTranscription implements AsyncDisposable {
+export class Transcription implements AsyncDisposable {
   readonly #settings: Settings;
   readonly #models: HandyModels;
   #closing = Promise.resolve();

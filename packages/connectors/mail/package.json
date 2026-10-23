@@ -9,7 +9,7 @@
     "title": "Mail"
   },
   "dependencies": {
-    "@workspace/connector-apple-connector": "0.0.1",
+    "@workspace/connector": "0.0.1",
     "@workspace/elt-sqlite": "0.0.1",
     "@workspace/sdk-apple-accounts": "0.0.1",
     "@workspace/sdk-apple-mail": "0.0.1",

@@ -8,14 +8,11 @@ import type { Locate } from '@zukhruf/sqlite-federation';
 import { z } from 'zod';
 
 import type {
-  AppleConnector,
-  AppleHost,
-} from '@workspace/connector-apple-connector/apple-connector';
-import type {
   BrokenConnector,
   Connectors,
-} from '@workspace/connector-apple-manifest/connectors';
-import { userConnectors } from '@workspace/connector-apple-manifest/user-connectors';
+} from '@workspace/connector-manifest/connectors';
+import { userConnectors } from '@workspace/connector-manifest/user-connectors';
+import type { Connector, ConnectorHost } from '@workspace/connector/connector';
 import { type PassStatus, readPassStatus } from '@workspace/elt-sqlite';
 import {
   type ConnectorFacts,
@@ -97,20 +94,20 @@ export class PluginUpdatedError extends Error {
 
 // Setup, imports and status for the Codex plugin. Each import writes its
 // connector's data.sqlite; agents read those files directly.
-export class ApplePlugin {
+export class Plugin {
   // The installed plugin's folder. Installing another version deletes it.
   readonly install: string;
   readonly directory: string;
   readonly #discovery: Connectors;
-  readonly #host: AppleHost;
+  readonly #host: ConnectorHost;
   // The monitors each import is checked against.
   readonly monitors: Monitors;
-  #connectors: readonly AppleConnector[] = [];
+  #connectors: readonly Connector[] = [];
   #broken: readonly BrokenConnector[] = [];
 
   constructor(
     discovery: Connectors,
-    host: AppleHost,
+    host: ConnectorHost,
     install: string,
     directory: string,
     monitors: Monitors,
@@ -122,7 +119,7 @@ export class ApplePlugin {
     this.monitors = monitors;
   }
 
-  get connectors(): readonly AppleConnector[] {
+  get connectors(): readonly Connector[] {
     return this.#connectors;
   }
 
@@ -139,7 +136,7 @@ export class ApplePlugin {
     this.#broken = broken;
   }
 
-  connector(name: string): AppleConnector {
+  connector(name: string): Connector {
     const connector = this.#loaded(name);
     if (connector === undefined)
       throw new TypeError(
@@ -148,7 +145,7 @@ export class ApplePlugin {
     return connector;
   }
 
-  #loaded(name: string): AppleConnector | undefined {
+  #loaded(name: string): Connector | undefined {
     return this.#connectors.find((candidate) => candidate.name === name);
   }
 

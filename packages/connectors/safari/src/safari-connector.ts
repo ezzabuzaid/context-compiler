@@ -1,9 +1,9 @@
-import { AppleConnector } from '@workspace/connector-apple-connector/apple-connector';
-import { type Choice, byId } from '@workspace/connector-apple-connector/choice';
+import { type Choice, byId } from '@workspace/connector/choice';
+import { Connector } from '@workspace/connector/connector';
 import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 import { AppleSafariSource } from '@workspace/source-apple-safari/apple-safari-source';
 
-export default class SafariConnector extends AppleConnector {
+export default class SafariConnector extends Connector {
   readonly datedBy = 'visit time';
   readonly fullDiskAccess = true;
   override readonly note =

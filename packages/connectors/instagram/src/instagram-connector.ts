@@ -1,5 +1,5 @@
-import { AppleConnector } from '@workspace/connector-apple-connector/apple-connector';
-import { type Choice, byId } from '@workspace/connector-apple-connector/choice';
+import { type Choice, byId } from '@workspace/connector/choice';
+import { Connector } from '@workspace/connector/connector';
 import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 import {
   type InstagramWebOptions,
@@ -25,7 +25,7 @@ function options({
   };
 }
 
-export default class InstagramConnector extends AppleConnector {
+export default class InstagramConnector extends Connector {
   readonly datedBy = 'date posted';
   readonly fullDiskAccess = false;
   override readonly note =

@@ -51,7 +51,7 @@ abstract class LiveSource<
 }
 
 // The import whose stored files the text reads: one record per file in a
-// folder, its copy stored through LocalFiles as AppleConnector stores
+// folder, its copy stored through LocalFiles as Connector stores
 // attachments, and deleted once its file is.
 const documents = new Stream({
   name: 'documents',
@@ -112,7 +112,7 @@ class FolderSource extends LiveSource {
   }
 }
 
-// One import as AppleConnector keeps it: its tables, views and stored copies
+// One import as Connector keeps it: its tables, views and stored copies
 // beside one data.sqlite, and the attachment text read from them.
 async function importStore(directory: string) {
   const upstream = join(directory, 'upstream');

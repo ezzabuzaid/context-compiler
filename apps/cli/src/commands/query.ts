@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { Federation } from '@zukhruf/sqlite-federation';
 import { Argument, type Command as Declaration } from 'commander';
 
-import type { AppleConnector } from '@workspace/connector-apple-connector/apple-connector';
+import type { Connector } from '@workspace/connector/connector';
 
 import { counted, table } from '../table.ts';
 import { Command, type Output } from './command.ts';
@@ -17,7 +17,7 @@ type ViewSummary = {
 
 // What a connector's file holds for readers: each stream's view, how many
 // rows it has, and what the latest pass declared it covers.
-function views(database: Federation, connector: AppleConnector): ViewSummary[] {
+function views(database: Federation, connector: Connector): ViewSummary[] {
   const streams = database.sql
     .all`SELECT s.stream, c.description FROM stream_status s
        JOIN extraction_coverage c ON c.attempt_id = s.latest_attempt_id AND c.stream = s.stream
@@ -49,7 +49,7 @@ function views(database: Federation, connector: AppleConnector): ViewSummary[] {
 
 // The connector's presets, created as temporary views on this connection only,
 // so a statement reads them like any view and the import stays unchanged.
-function loadPresets(database: Federation, connector: AppleConnector): void {
+function loadPresets(database: Federation, connector: Connector): void {
   for (const { file } of connector.presets())
     try {
       database.exec(readFileSync(file, 'utf8'));

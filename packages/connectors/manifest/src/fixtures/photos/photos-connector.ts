@@ -2,8 +2,8 @@ import { readFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 
-import { AppleConnector } from '@workspace/connector-apple-connector/apple-connector';
-import type { Choice } from '@workspace/connector-apple-connector/choice';
+import type { Choice } from '@workspace/connector/choice';
+import { Connector } from '@workspace/connector/connector';
 import {
   Catalog,
   type ExtractionCoverage,
@@ -13,7 +13,7 @@ import {
 } from '@workspace/elt';
 
 // A connector outside the library, as an agent writes one: TypeScript that
-// Node runs as written, on the host's elt and AppleConnector. It reads
+// Node runs as written, on the host's elt and Connector. It reads
 // ~/Pictures/photos.json, a list of { id, title }, and checkpoints after each
 // photo, so an entry that is not a photo fails the stream after the photos
 // before it loaded.
@@ -67,7 +67,7 @@ class PhotosSource extends Source {
   }
 }
 
-export default class PhotosConnector extends AppleConnector {
+export default class PhotosConnector extends Connector {
   readonly datedBy = null;
   readonly fullDiskAccess = true;
   protected readonly choices: readonly Choice[] = [];

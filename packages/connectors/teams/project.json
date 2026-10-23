@@ -1,5 +1,5 @@
 {
-  "name": "connector-apple-teams",
+  "name": "connector-microsoft-teams",
   "sourceRoot": "packages/connectors/teams/src",
   "projectType": "library",
   "targets": {

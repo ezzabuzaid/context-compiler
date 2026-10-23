@@ -1,10 +1,7 @@
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-import type {
-  AppleConnector,
-  AppleHost,
-} from '@workspace/connector-apple-connector/apple-connector';
+import type { Connector, ConnectorHost } from '@workspace/connector/connector';
 
 import { ConnectorManifest } from './connector-manifest.ts';
 
@@ -26,9 +23,9 @@ export class Connectors {
   }
 
   async load(
-    host: AppleHost,
-  ): Promise<{ connectors: AppleConnector[]; broken: BrokenConnector[] }> {
-    const connectors: AppleConnector[] = [];
+    host: ConnectorHost,
+  ): Promise<{ connectors: Connector[]; broken: BrokenConnector[] }> {
+    const connectors: Connector[] = [];
     const broken: BrokenConnector[] = [];
     for (const folder of this.#folders()) {
       const failed = (title: string, error: unknown) =>

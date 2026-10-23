@@ -1,4 +1,4 @@
-import type { AppleConnector } from '@workspace/connector-apple-connector/apple-connector';
+import type { Connector } from '@workspace/connector/connector';
 import {
   type CopyOutcome,
   type CopyProgress,
@@ -38,20 +38,17 @@ export type SyncLine =
 
 // What a sync shows of each pass while it runs and once it ends.
 export type PassReport = {
-  progress(
-    connector: AppleConnector,
-    progress: CopyProgress<SQLiteTable>,
-  ): void;
-  passed(connector: AppleConnector, summary: PassSummary): void;
+  progress(connector: Connector, progress: CopyProgress<SQLiteTable>): void;
+  passed(connector: Connector, summary: PassSummary): void;
 };
 
 // Shows the report each pass of one connector: each copy's progress while it
 // runs, and how the pass ended once the import's sync history recorded it.
 export class ObservedPasses implements PassObserver<SQLiteTable> {
-  readonly #connector: AppleConnector;
+  readonly #connector: Connector;
   readonly #report: PassReport;
 
-  constructor(connector: AppleConnector, report: PassReport) {
+  constructor(connector: Connector, report: PassReport) {
     this.#connector = connector;
     this.#report = report;
   }
@@ -77,7 +74,7 @@ export class ObservedPasses implements PassObserver<SQLiteTable> {
 }
 
 function summarize(
-  connector: AppleConnector,
+  connector: Connector,
   outcomes: readonly CopyOutcome<SQLiteTable>[],
   seconds: number,
 ): PassSummary {
@@ -100,7 +97,7 @@ function summarize(
 }
 
 export function failed(
-  connector: AppleConnector,
+  connector: Connector,
   error: unknown,
   seconds: number,
   failureType: FailureType = connector.failureType(error),

@@ -9,7 +9,7 @@
     "title": "Notification Center"
   },
   "dependencies": {
-    "@workspace/connector-apple-connector": "0.0.1",
+    "@workspace/connector": "0.0.1",
     "@workspace/source-apple-macos": "0.0.1",
     "@workspace/source-apple-notification-center": "0.0.1"
   }

@@ -5,7 +5,7 @@ description: Connect or reconfigure Apple Mail, Notes, Messages, Contacts, Calen
 
 # Set up Context Compiler
 
-The Context Compiler plugin imports what the user chooses, by connector, account, collection and date, into a private local copy. Users only need Codex and macOS permissions; never ask them to install developer tools, clone a repo, start Docker or run terminal commands. The original Apple apps stay intact.
+The Context Compiler plugin imports what the user chooses, by connector, account, collection and date, into a private local copy. Users only need Codex and macOS permissions; never ask them to install developer tools, clone a repo, start Docker or run terminal commands. The original apps stay intact.
 
 To import a Mac app this list does not include, use `$add-connector`.
 

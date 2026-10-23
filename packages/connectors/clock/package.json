@@ -5,7 +5,7 @@
   "type": "module",
   "exports": "./dist/clock-connector.js",
   "dependencies": {
-    "@workspace/connector-apple-connector": "0.0.1",
+    "@workspace/connector": "0.0.1",
     "@workspace/source-apple-clock": "0.0.1"
   },
   "contextCompiler": {

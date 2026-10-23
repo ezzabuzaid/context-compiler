@@ -1,9 +1,5 @@
-import { AppleConnector } from '@workspace/connector-apple-connector/apple-connector';
-import {
-  type Choice,
-  byId,
-  name,
-} from '@workspace/connector-apple-connector/choice';
+import { type Choice, byId, name } from '@workspace/connector/choice';
+import { Connector } from '@workspace/connector/connector';
 import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 import { SlackDesktopSource } from '@workspace/source-slack-desktop/slack-desktop-source';
 
@@ -23,7 +19,7 @@ function conversationLabel(row: Parameters<typeof name>[0]): string {
   return `#${name(row)}`;
 }
 
-export default class SlackConnector extends AppleConnector {
+export default class SlackConnector extends Connector {
   readonly datedBy = 'date sent';
   readonly fullDiskAccess = true;
   override readonly note =
