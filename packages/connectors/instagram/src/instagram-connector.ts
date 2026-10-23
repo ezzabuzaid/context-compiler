@@ -1,5 +1,5 @@
 import { type Choice, byId } from '@workspace/connector/choice';
-import { Connector } from '@workspace/connector/connector';
+import { Connector, type Selection } from '@workspace/connector/connector';
 import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 import {
   type InstagramWebOptions,
@@ -52,9 +52,9 @@ export default class InstagramConnector extends Connector {
 
   // An import that selects no profile reads every account the signed-in
   // account follows.
-  protected override importSource(
-    scope: ImportScope,
-  ): Promise<InstagramWebSource> {
+  protected override importSource({
+    scope,
+  }: Selection): Promise<InstagramWebSource> {
     return InstagramWebSource.connect(options(scope));
   }
 }

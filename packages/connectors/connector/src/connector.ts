@@ -40,6 +40,8 @@ import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 import { AttachmentText } from './attachment-text.ts';
 import type { Choice, Row, Rows } from './choice.ts';
 
+export type { Selection } from '@workspace/settings';
+
 // What the host running a connector offers it.
 export type ConnectorHost = {
   readonly documentParser: DocumentParser;
@@ -158,7 +160,7 @@ export abstract class Connector {
   protected abstract source(scope: ImportScope): Source;
 
   // The source an import loads from; listing choices reads source(scope).
-  protected importSource(scope: ImportScope): Source | Promise<Source> {
+  protected importSource({ scope }: Selection): Source | Promise<Source> {
     return this.source(scope);
   }
 
@@ -490,7 +492,7 @@ export abstract class Connector {
     destination: SQLiteDestination;
   }> {
     const { scope, includeAttachments } = selection;
-    const source = await this.importSource(scope);
+    const source = await this.importSource(selection);
     const narrowed = Object.keys(scope).length > 0;
     const { streams } = await source.discover();
     const withFiles = (stream: Stream) =>

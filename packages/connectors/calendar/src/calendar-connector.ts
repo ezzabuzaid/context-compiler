@@ -4,7 +4,7 @@ import {
   collections,
   name,
 } from '@workspace/connector/choice';
-import { Connector } from '@workspace/connector/connector';
+import { Connector, type Selection } from '@workspace/connector/connector';
 import {
   GMAIL_READONLY_SCOPE,
   GOOGLE_DRIVE_READONLY_SCOPE,
@@ -44,11 +44,16 @@ export default class CalendarConnector extends Connector {
     return this.#calendar(scope, async () => false);
   }
 
-  // An import downloads attachments stored in Google Drive and Gmail when
-  // the host offers a Google session. The Google client loads only then, so
-  // a host without one never runs it.
-  protected override async importSource(scope: ImportScope) {
-    if (this.host.google === undefined) return this.source(scope);
+  // An import that stores attachments downloads those kept in Google Drive
+  // and Gmail when the host offers a Google session; one that stores none
+  // needs no session. The Google client loads only then, so a host without
+  // one never runs it.
+  protected override async importSource({
+    scope,
+    includeAttachments,
+  }: Selection) {
+    if (!includeAttachments || this.host.google === undefined)
+      return this.source(scope);
     const google = await this.host.google([
       GOOGLE_DRIVE_READONLY_SCOPE,
       GMAIL_READONLY_SCOPE,
