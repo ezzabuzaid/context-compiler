@@ -1,0 +1,30 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "mcp_tool",
+            "server": "context-compiler",
+            "tool": "context",
+            "input": { "event": "${hook_event_name}" },
+            "statusMessage": "Reading Context Compiler status"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "mcp_tool",
+            "server": "context-compiler",
+            "tool": "context",
+            "input": { "event": "${hook_event_name}" },
+            "statusMessage": "Reading Context Compiler status"
+          }
+        ]
+      }
+    ]
+  }
+}

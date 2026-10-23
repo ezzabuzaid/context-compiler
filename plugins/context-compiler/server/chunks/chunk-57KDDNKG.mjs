@@ -1,0 +1,2640 @@
+import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);
+import {
+  __callDispose,
+  __using
+} from "./chunk-ZGXE7NZW.mjs";
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/formats/field-format.js
+var FieldFormat = class {
+  // False when byte order is not the values' order, so the field cannot be a
+  // cursor.
+  orderable = true;
+  // How cursors of this format compare, as target descriptions state it.
+  ordering = "by byte order";
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/formats/base64-format.js
+var Base64Format = class extends FieldFormat {
+  name = "base64";
+  orderable = false;
+  accepts(value) {
+    return /^[A-Za-z0-9+/]*={0,2}$/.test(value) && value.length % 4 === 0 && Buffer.from(value, "base64").toString("base64") === value;
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/formats/temporal-format.js
+var TemporalFormat = class extends FieldFormat {
+  precision;
+  constructor(precision = 3) {
+    super();
+    if (!Number.isInteger(precision) || precision < 0 || precision > 9)
+      throw new TypeError("Temporal precision must be an integer from 0 to 9 fraction digits");
+    this.precision = precision;
+  }
+  // The pattern of the seconds' fraction this precision requires.
+  get fraction() {
+    return this.precision === 0 ? "" : `\\.\\d{${this.precision}}`;
+  }
+  // Whether a `YYYY-MM-DDTHH:MM:SS` names a real second of the calendar.
+  real(second) {
+    const instant = `${second}.000Z`;
+    const time = Date.parse(instant);
+    return Number.isFinite(time) && new Date(time).toISOString() === instant;
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/formats/timestamp-format.js
+var TimestampFormat = class extends TemporalFormat {
+  name = "date-time";
+  #pattern = new RegExp(`^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}${this.fraction}Z$`);
+  accepts(value) {
+    return this.#pattern.test(value) && this.real(value.slice(0, 19));
+  }
+};
+var milliseconds = new TimestampFormat();
+function isTimestamp(value) {
+  return typeof value === "string" && milliseconds.accepts(value);
+}
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/formats/calendar-date-format.js
+var CalendarDateFormat = class extends FieldFormat {
+  name = "date";
+  accepts(value) {
+    return /^\d{4}-\d{2}-\d{2}$/.test(value) && isTimestamp(`${value}T00:00:00.000Z`);
+  }
+};
+var day = new CalendarDateFormat();
+function isCalendarDate(value) {
+  return typeof value === "string" && day.accepts(value);
+}
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/formats/decimal-format.js
+var DecimalFormat = class extends FieldFormat {
+  name = "decimal";
+  orderable = false;
+  // Most significant digits a value has, before and after the point.
+  precision;
+  scale;
+  constructor(precision, scale) {
+    super();
+    if (precision !== void 0 && (!Number.isSafeInteger(precision) || precision < 1))
+      throw new TypeError("Decimal precision must be a positive integer");
+    if (scale !== void 0 && (precision === void 0 || !Number.isSafeInteger(scale) || scale < 0 || scale > precision))
+      throw new TypeError("Decimal scale must be an integer from 0 to its precision");
+    this.precision = precision;
+    this.scale = scale;
+  }
+  accepts(value) {
+    const match = /^-?(0|[1-9]\d*)(?:\.(\d+))?$/.exec(value);
+    if (match === null)
+      return false;
+    const [, integer = "", fraction = ""] = match;
+    if (value.startsWith("-") && /^0+$/.test(integer + fraction))
+      return false;
+    if (this.scale === void 0 ? fraction.endsWith("0") : fraction.length !== this.scale)
+      return false;
+    return this.precision === void 0 || (integer === "0" ? 0 : integer.length) + fraction.length <= this.precision;
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/formats/int64-format.js
+var min = -(2n ** 63n);
+var max = 2n ** 63n - 1n;
+var Int64Format = class extends FieldFormat {
+  name = "int64";
+  ordering = "as 64-bit integers";
+  accepts(value) {
+    if (!/^-?(0|[1-9]\d*)$/.test(value) || value === "-0")
+      return false;
+    const integer = BigInt(value);
+    return integer >= min && integer <= max;
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/formats/local-time-format.js
+var LocalTimeFormat = class extends TemporalFormat {
+  name = "time-local";
+  #pattern = new RegExp(`^\\d{2}:\\d{2}:\\d{2}${this.fraction}$`);
+  accepts(value) {
+    return this.#pattern.test(value) && this.real(`1970-01-01T${value.slice(0, 8)}`);
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/formats/local-timestamp-format.js
+var LocalTimestampFormat = class extends TemporalFormat {
+  name = "date-time-local";
+  #pattern = new RegExp(`^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}${this.fraction}$`);
+  accepts(value) {
+    return this.#pattern.test(value) && this.real(value.slice(0, 19));
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/formats/declared-format.js
+function declaredFormat(schema) {
+  const { format, precision, scale, contentEncoding } = schema;
+  if (format === void 0 && contentEncoding === void 0) {
+    if (precision !== void 0 || scale !== void 0)
+      throw new TypeError("precision and scale refine a format");
+    return null;
+  }
+  const types = typeof schema.type === "string" ? [schema.type] : schema.type;
+  if (types.filter((type) => type !== "null").join() !== "string")
+    throw new TypeError(`${format ?? `contentEncoding ${contentEncoding}`} spells a string`);
+  if (contentEncoding !== void 0) {
+    if (contentEncoding !== "base64" || format !== void 0 || precision !== void 0 || scale !== void 0)
+      throw new TypeError("contentEncoding is base64 alone");
+    return new Base64Format();
+  }
+  if (scale !== void 0 && format !== "decimal")
+    throw new TypeError("scale refines a decimal");
+  if (precision !== void 0 && (format === "date" || format === "int64"))
+    throw new TypeError(`format ${format} has no precision`);
+  switch (format) {
+    case "date-time":
+      return new TimestampFormat(precision);
+    case "date-time-local":
+      return new LocalTimestampFormat(precision);
+    case "time-local":
+      return new LocalTimeFormat(precision);
+    case "date":
+      return new CalendarDateFormat();
+    case "int64":
+      return new Int64Format();
+    case "decimal":
+      return new DecimalFormat(precision, scale);
+    default:
+      throw new TypeError(`Unsupported format ${String(format)}`);
+  }
+}
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/deduplication.js
+var Deduplication = class {
+  stream;
+  primaryKey;
+  // Absent when the newest extraction always wins (dedupPolicy replace).
+  cursorField;
+  #formats = /* @__PURE__ */ new Map();
+  constructor(stream, primaryKey, cursorField) {
+    this.stream = stream;
+    this.cursorField = cursorField;
+    if (!Array.isArray(primaryKey) || primaryKey.length === 0 || new Set(primaryKey).size !== primaryKey.length)
+      throw new TypeError("Deduplication requires distinct primaryKey fields");
+    this.primaryKey = Object.freeze([...primaryKey]);
+    for (const field of this.primaryKey)
+      this.#declare(field);
+    if (cursorField !== void 0) {
+      if (!["string", "number", "integer"].includes(this.type(cursorField)))
+        throw new TypeError("Deduplication cursor must be text or numeric");
+      const format = this.#declare(cursorField);
+      if (format?.orderable === false)
+        throw new TypeError(`Deduplication cursor ${cursorField} cannot order ${format.name} values`);
+    }
+    Object.freeze(this);
+  }
+  #declare(field) {
+    this.type(field);
+    const schema = this.stream.jsonSchema.properties?.[field];
+    const format = schema === void 0 ? null : declaredFormat(schema);
+    this.#formats.set(field, format);
+    return format;
+  }
+  // The format of a key or cursor field, null when it declares none.
+  format(field) {
+    const format = this.#formats.get(field);
+    if (format === void 0)
+      throw new TypeError(`${field} is not a key or cursor field`);
+    return format;
+  }
+  type(field) {
+    const properties = this.stream.jsonSchema.properties;
+    if (typeof field !== "string" || !field || properties === null || typeof properties !== "object" || !Object.hasOwn(properties, field))
+      throw new TypeError(`Schema must describe key/cursor field ${field}`);
+    const schema = Reflect.get(properties, field);
+    const type = schema !== null && typeof schema === "object" ? Reflect.get(schema, "type") : void 0;
+    if (type !== "string" && type !== "number" && type !== "integer" && type !== "boolean")
+      throw new TypeError(`Key/cursor field ${field} requires one non-null scalar schema type`);
+    return type;
+  }
+  value(record, field) {
+    if (record === null || typeof record !== "object" || !Object.hasOwn(record, field))
+      throw new TypeError(`Record is missing key/cursor field ${field}`);
+    const value = Reflect.get(record, field);
+    const type = this.type(field);
+    const format = this.format(field);
+    if (type === "string" && typeof value === "string" && value.isWellFormed() && (format === null || format.accepts(value)) || type === "boolean" && typeof value === "boolean" || type === "number" && typeof value === "number" && Number.isFinite(value) || type === "integer" && typeof value === "number" && Number.isSafeInteger(value))
+      return value;
+    throw new TypeError(format === null ? `Key/cursor field ${field} requires non-null ${type}` : `Key/cursor field ${field} requires a canonical ${format.name} value`);
+  }
+  key(record) {
+    return JSON.stringify(this.primaryKey.map((field) => this.value(record, field)));
+  }
+  cursor(record) {
+    if (this.cursorField === void 0)
+      throw new TypeError("Deduplication has no cursor field");
+    const value = this.value(record, this.cursorField);
+    if (typeof value === "boolean")
+      throw new TypeError("Cursor cannot be boolean");
+    return value;
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/document-parser.js
+var DocumentParser = class {
+  identity;
+  constructor(identity) {
+    this.identity = identity;
+    if (!identity || identity.includes("\0"))
+      throw new TypeError("A parser requires a stable identity");
+  }
+  // A composite parser can identify the selected format independently, so
+  // changing an audio model does not invalidate unrelated document text.
+  // null means this parser does not handle the file; existing text can stay.
+  identityFor(_path) {
+    return Promise.resolve(this.identity);
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/file-storage.js
+var FileStorage = class {
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/file-read.js
+var FileReference = class _FileReference {
+  stream;
+  storage;
+  constructor(stream, storage) {
+    this.stream = stream;
+    this.storage = storage;
+    if (storage !== void 0 && (!(storage instanceof FileStorage) || typeof storage.identity !== "string" || storage.identity.length === 0 || !storage.identity.isWellFormed() || storage.identity.includes("\0")))
+      throw new TypeError("File storage requires a stable text identity");
+    Object.freeze(this);
+  }
+  store(storage) {
+    return new _FileReference(this.stream, storage);
+  }
+};
+var FileRead = class {
+  name;
+  file;
+  parser;
+  parserIdentity;
+  storageIdentity;
+  constructor(name, file, parser) {
+    this.name = name;
+    this.file = file;
+    this.parser = parser;
+    if (!name || name.includes("\0"))
+      throw new TypeError("Invalid file field name");
+    if (!(file instanceof FileReference))
+      throw new TypeError("File extraction requires a source file reference");
+    if (parser !== void 0 && !(parser instanceof DocumentParser))
+      throw new TypeError("parser must be a DocumentParser");
+    if (parser !== void 0 && file.storage !== void 0)
+      throw new TypeError("Select parsing and storage as separate file fields");
+    this.parserIdentity = parser?.identity;
+    this.storageIdentity = file.storage?.identity;
+    Object.freeze(this);
+  }
+  validate(stream) {
+    if (this.file.stream.name !== stream.name)
+      throw new TypeError("File reference belongs to another stream");
+    if (this.file.stream.supportsFileTransfer !== true || stream.supportsFileTransfer !== true)
+      throw new TypeError(`Stream ${stream.name} does not support file extraction`);
+    if (this.parser?.identity !== this.parserIdentity)
+      throw new TypeError("Parser identity changed after configuration");
+    if (this.file.storage?.identity !== this.storageIdentity)
+      throw new TypeError("File storage identity changed after configuration");
+    const { properties } = stream.jsonSchema;
+    if (stream.jsonSchema.type !== "object" || properties === null || typeof properties !== "object" || Array.isArray(properties))
+      throw new TypeError("File extraction requires an object metadata schema");
+    if (Object.keys(properties).some((name) => name.toLowerCase() === this.name.toLowerCase()))
+      throw new TypeError("File field collides with source metadata");
+  }
+  toJSON() {
+    return {
+      name: this.name,
+      stream: this.file.stream.name,
+      parser: this.parserIdentity,
+      storage: this.storageIdentity
+    };
+  }
+  get outputType() {
+    return this.parser !== void 0 || this.file.storage !== void 0 ? "text" : "bytes";
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/stream.js
+var Stream = class {
+  name;
+  jsonSchema;
+  primaryKey;
+  supportedSyncModes;
+  supportsFileTransfer;
+  // Incremental progress is opaque source state, so copies select no cursorField.
+  sourceDefinedCursor;
+  // Incremental reads may emit DELETE messages keyed by primaryKey.
+  emitsDeletes;
+  // The source reads the stream once per value of these primaryKey fields and
+  // keeps each partition's state apart; every record carries its partition.
+  partitionKey;
+  // The upstream drops records once this timestamp field passes its retention,
+  // without a deletion: a record that vanished before the read's horizon
+  // expired, and its row stays loaded.
+  expiresBy;
+  constructor({ name, jsonSchema, primaryKey = [], supportedSyncModes, supportsFileTransfer, sourceDefinedCursor, emitsDeletes, partitionKey, expiresBy }) {
+    if (!name || name.includes("\0"))
+      throw new TypeError("Invalid stream name");
+    if (!Array.isArray(supportedSyncModes) || supportedSyncModes.length === 0 || !supportedSyncModes.every((mode) => mode === "full_refresh" || mode === "incremental") || new Set(supportedSyncModes).size !== supportedSyncModes.length)
+      throw new TypeError("A stream requires distinct supported sync modes");
+    this.name = name;
+    if (supportsFileTransfer !== void 0 && supportsFileTransfer !== true)
+      throw new TypeError("supportsFileTransfer must be true when declared");
+    this.supportsFileTransfer = supportsFileTransfer;
+    if (sourceDefinedCursor !== void 0 && sourceDefinedCursor !== true)
+      throw new TypeError("sourceDefinedCursor must be true when declared");
+    if (emitsDeletes !== void 0 && emitsDeletes !== true)
+      throw new TypeError("emitsDeletes must be true when declared");
+    if ((sourceDefinedCursor || emitsDeletes) && !supportedSyncModes.includes("incremental"))
+      throw new TypeError("A source-defined cursor or deletions require incremental support");
+    if (emitsDeletes && primaryKey.length === 0)
+      throw new TypeError("A stream that emits deletions requires a primaryKey");
+    this.sourceDefinedCursor = sourceDefinedCursor;
+    this.emitsDeletes = emitsDeletes;
+    this.jsonSchema = structuredClone(jsonSchema);
+    const seen = /* @__PURE__ */ new WeakSet();
+    const freeze = (value) => {
+      if (value === null || typeof value !== "object" || seen.has(value))
+        return;
+      seen.add(value);
+      for (const child of Object.values(value))
+        freeze(child);
+      Object.freeze(value);
+    };
+    freeze(this.jsonSchema);
+    this.primaryKey = Object.freeze([...primaryKey]);
+    this.supportedSyncModes = Object.freeze([...supportedSyncModes]);
+    if (partitionKey !== void 0) {
+      if (!Array.isArray(partitionKey) || partitionKey.length === 0 || new Set(partitionKey).size !== partitionKey.length || !partitionKey.every((field) => primaryKey.includes(field)))
+        throw new TypeError("partitionKey fields must be distinct members of primaryKey");
+      this.partitionKey = Object.freeze([...partitionKey]);
+      new Deduplication(this, this.partitionKey);
+    }
+    if (expiresBy !== void 0) {
+      const field = jsonSchema.properties?.[expiresBy];
+      if (!emitsDeletes || field === void 0 || field.type !== "string" || field.format !== "date-time")
+        throw new TypeError("expiresBy must name a non-null date-time property of a stream that emits deletions");
+      if (field.precision !== void 0 && field.precision !== 3)
+        throw new TypeError(`expiresBy ${expiresBy} must keep milliseconds; it declares precision ${field.precision}`);
+      this.expiresBy = expiresBy;
+    }
+    Object.freeze(this);
+  }
+  get file() {
+    if (this.supportsFileTransfer !== true)
+      throw new TypeError(`Stream ${this.name} does not support file extraction`);
+    return new FileReference(this);
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/catalog.js
+var Catalog = class _Catalog {
+  streams;
+  constructor(streams) {
+    this.streams = Object.freeze(Array.from(streams));
+    if (!this.streams.every((stream) => stream instanceof Stream))
+      throw new TypeError("A catalog requires stream descriptions");
+    if (new Set(this.streams.map((stream) => stream.name)).size !== this.streams.length)
+      throw new TypeError("A catalog cannot contain duplicate stream names");
+    Object.freeze(this);
+  }
+  get(name) {
+    const stream = this.streams.find((stream2) => stream2.name === name);
+    if (!stream)
+      throw new TypeError(`Unknown stream: ${name}`);
+    return stream;
+  }
+  select(streams) {
+    return new _Catalog(Array.from(streams, (stream) => this.get(stream.name)));
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/copy-configuration.js
+var CopyConfiguration = class {
+  stream;
+  fileReads;
+  syncMode;
+  destinationSyncMode;
+  cursorField;
+  primaryKey;
+  // Set only for deduplicating loads; cursor_newer unless the copy selects replace.
+  dedupPolicy;
+  constructor(from, { syncMode, destinationSyncMode, cursorField, primaryKey, dedupPolicy }, fileReads = []) {
+    if (!(from instanceof Stream))
+      throw new TypeError("Copy requires a stream description");
+    if (!Array.isArray(fileReads) || !fileReads.every((read) => read instanceof FileRead))
+      throw new TypeError("Copy requires FileRead declarations");
+    if (new Set(fileReads.map((read) => read.name.toLowerCase())).size !== fileReads.length)
+      throw new TypeError("Duplicate file field names");
+    if (typeof syncMode !== "string" || typeof destinationSyncMode !== "string")
+      throw new TypeError("Both syncMode and destinationSyncMode are required");
+    if (primaryKey !== void 0 && !Array.isArray(primaryKey))
+      throw new TypeError("primaryKey must be an array of field names");
+    if (primaryKey !== void 0 && from.primaryKey.length > 0)
+      throw new TypeError(`Stream ${from.name} defines its own primary key; omit primaryKey`);
+    const deduplicating = destinationSyncMode === "append_dedup" || destinationSyncMode === "overwrite_dedup";
+    this.stream = from;
+    this.fileReads = Object.freeze([...fileReads]);
+    this.syncMode = syncMode;
+    this.destinationSyncMode = destinationSyncMode;
+    this.cursorField = cursorField;
+    const key = deduplicating && from.primaryKey.length > 0 ? from.primaryKey : primaryKey;
+    this.primaryKey = key === void 0 ? void 0 : Object.freeze([...key]);
+    this.dedupPolicy = deduplicating ? dedupPolicy ?? (from.sourceDefinedCursor ? "replace" : "cursor_newer") : dedupPolicy;
+    Object.freeze(this);
+  }
+  validate(stream) {
+    if (!this.stream.supportedSyncModes.includes(this.syncMode) || !stream.supportedSyncModes.includes(this.syncMode))
+      throw new TypeError(`Stream ${stream.name} does not support ${this.syncMode}`);
+    this.validateSelection();
+    for (const read of this.fileReads)
+      read.validate(stream);
+  }
+  validateSelection() {
+    for (const read of this.fileReads)
+      read.validate(this.stream);
+    const { syncMode, destinationSyncMode, cursorField, primaryKey, dedupPolicy } = this;
+    if (syncMode !== "full_refresh" && syncMode !== "incremental")
+      throw new TypeError(`Unsupported syncMode: ${syncMode}`);
+    if (syncMode === "incremental" && (destinationSyncMode === "overwrite" || destinationSyncMode === "overwrite_dedup"))
+      throw new TypeError("Incremental extraction cannot use overwrite loading");
+    if (syncMode === "full_refresh" && destinationSyncMode === "append_dedup")
+      throw new TypeError("Full refresh deduplication requires overwrite_dedup");
+    const { sourceDefinedCursor, emitsDeletes } = this.stream;
+    if (sourceDefinedCursor && cursorField !== void 0)
+      throw new TypeError(`Stream ${this.stream.name} defines its own cursor; omit cursorField`);
+    if (cursorField !== void 0 && !Object.hasOwn(this.stream.jsonSchema.properties ?? {}, cursorField))
+      throw new TypeError(`Stream ${this.stream.name} does not describe cursor field ${cursorField}`);
+    if (syncMode === "incremental" && !sourceDefinedCursor && (typeof cursorField !== "string" || !cursorField))
+      throw new TypeError("Incremental extraction requires cursorField");
+    if (emitsDeletes && syncMode === "incremental" && destinationSyncMode !== "append_dedup")
+      throw new TypeError(`Stream ${this.stream.name} emits deletions; incremental copies require append_dedup`);
+    if (dedupPolicy !== void 0 && dedupPolicy !== "cursor_newer" && dedupPolicy !== "replace")
+      throw new TypeError(`Unsupported dedupPolicy: ${dedupPolicy}`);
+    if (destinationSyncMode === "append_dedup" || destinationSyncMode === "overwrite_dedup") {
+      if (primaryKey === void 0)
+        throw new TypeError(`Stream ${this.stream.name} declares no primary key; select primaryKey`);
+      if (dedupPolicy === "cursor_newer" && cursorField === void 0)
+        throw new TypeError(sourceDefinedCursor ? `Stream ${this.stream.name} has no cursor field to compare; deduplicate with dedupPolicy 'replace'` : "cursor_newer deduplication requires cursorField");
+      new Deduplication(this.stream, primaryKey, cursorField);
+      if (dedupPolicy === "cursor_newer" && cursorField !== void 0 && primaryKey.includes(cursorField))
+        throw new TypeError(`Cursor field ${cursorField} is part of the primary key, so cursor_newer can never update a conflicting row; select dedupPolicy 'replace' to let the newest extraction win`);
+    } else {
+      if (primaryKey !== void 0)
+        throw new TypeError("Select primaryKey only for deduplication loading");
+      if (dedupPolicy !== void 0)
+        throw new TypeError("Select dedupPolicy only for deduplication loading");
+    }
+    if (syncMode === "full_refresh" && destinationSyncMode !== "overwrite_dedup" && cursorField !== void 0)
+      throw new TypeError("Full refresh append/overwrite does not use cursorField");
+  }
+  deduplication() {
+    if (this.primaryKey === void 0)
+      throw new TypeError("Deduplication requires a primaryKey");
+    return new Deduplication(this.stream, this.primaryKey, this.cursorField);
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/file-content.js
+import { open } from "node:fs/promises";
+var FileContent = class {
+  path;
+  constructor(path) {
+    this.path = path;
+    Object.freeze(this);
+  }
+  async *chunks(size) {
+    var _stack = [];
+    try {
+      if (!Number.isSafeInteger(size) || size <= 0)
+        throw new TypeError("Chunk size must be a positive integer");
+      const file = __using(_stack, await open(this.path), true);
+      let remaining = (await file.stat()).size;
+      while (remaining > 0) {
+        const chunk = new Uint8Array(Math.min(size, remaining));
+        const { bytesRead } = await file.read(chunk, 0, chunk.length, null);
+        if (bytesRead === 0)
+          throw new Error(`File ${this.path} shrank while it was read`);
+        remaining -= bytesRead;
+        yield chunk.subarray(0, bytesRead);
+      }
+    } catch (_) {
+      var _error = _, _hasError = true;
+    } finally {
+      var _promise = __callDispose(_stack, _error, _hasError);
+      _promise && await _promise;
+    }
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/file-transfer.js
+var FileTransfer = class {
+  reads;
+  location;
+  writer;
+  constructor(reads, location, writer) {
+    this.reads = reads;
+    this.location = location;
+    this.writer = writer;
+  }
+  scope(read) {
+    return JSON.stringify({
+      location: this.location,
+      writer: this.writer,
+      field: read.name
+    });
+  }
+  async record(record) {
+    let data = record;
+    for (const read of this.reads) {
+      const storage = read.file.storage;
+      if (storage === void 0)
+        continue;
+      const content = Reflect.get(Object(data), read.name);
+      if (content === null)
+        continue;
+      if (!(content instanceof FileContent))
+        throw new TypeError("Stored files require source file content");
+      const reference = await storage.save(this.scope(read), content);
+      if (typeof reference !== "string" || !reference || reference.includes("\0") || !reference.isWellFormed())
+        throw new TypeError("File storage must return a nonempty text reference");
+      data = { ...Object(data), [read.name]: reference };
+    }
+    return data;
+  }
+  async reconcile(values) {
+    for (const read of this.reads) {
+      const storage = read.file.storage;
+      if (storage === void 0)
+        continue;
+      const references = /* @__PURE__ */ new Set();
+      for await (const value of values(read.name)) {
+        if (value === null)
+          continue;
+        if (typeof value !== "string")
+          throw new TypeError("Stored file references must be text or null");
+        references.add(value);
+      }
+      await storage.retain(this.scope(read), references);
+    }
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/target.js
+var Target = class {
+  fileReads;
+  constructor(fileReads = []) {
+    if (!Array.isArray(fileReads) || !fileReads.every((read) => read instanceof FileRead))
+      throw new TypeError("Targets require FileRead declarations");
+    const names = fileReads.map((read) => read.name.toLowerCase());
+    if (new Set(names).size !== names.length)
+      throw new TypeError("Duplicate file field names");
+    this.fileReads = Object.freeze([...fileReads]);
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/copy.js
+function describeFailures({ copy, failures }) {
+  return failures.map(({ partition, error }) => `${copy.id ?? copy.from.name}${partition === null ? "" : ` ${JSON.stringify(partition)}`}: ${error instanceof Error ? error.message : String(error)}`).join("; ");
+}
+var Copy = class {
+  configuration;
+  to;
+  id;
+  constructor(from, to, modes = {
+    syncMode: "full_refresh",
+    destinationSyncMode: "overwrite"
+  }) {
+    if (!(to instanceof Target))
+      throw new TypeError("Copy requires a destination target");
+    this.configuration = new CopyConfiguration(from, modes, to.fileReads);
+    this.to = to;
+    if (modes.id !== void 0 && (!modes.id || modes.id.includes("\0")))
+      throw new TypeError("Copy id must be nonempty text");
+    this.id = modes.id;
+    Object.freeze(this);
+  }
+  get from() {
+    return this.configuration.stream;
+  }
+  // The target's writer: the declared id names the replication; without one,
+  // the source and stream do.
+  writer(source) {
+    return JSON.stringify(this.id !== void 0 ? { copy: this.id } : { source: source.identity, stream: this.from.name });
+  }
+  validate(source, destination, checkpoints) {
+    source.validate(this.configuration);
+    destination.validate(this.configuration, this.to);
+    if (this.configuration.syncMode === "incremental" && (this.id === void 0 || checkpoints === void 0))
+      throw new TypeError("Incremental copies require a stable id and checkpoint store");
+  }
+  // Empties the target and removes this copy's checkpoint together, so the
+  // next run reloads from scratch.
+  async clear(source, destination, checkpoints) {
+    this.validate(source, destination, checkpoints);
+    const files = new FileTransfer(this.configuration.fileReads, destination.location(this.to), this.writer(source));
+    const drop = () => destination.clear(this.configuration, this.to, this.writer(source), (values) => files.reconcile(values));
+    if (this.id !== void 0 && checkpoints !== void 0)
+      await checkpoints.clear(this.id, drop);
+    else
+      await drop();
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/connection.js
+var Connection = class {
+  name;
+  source;
+  destination;
+  checkpoints;
+  steps;
+  constructor({ name, source, destination, steps, checkpoints }) {
+    if (!name.trim() || name.includes("\0"))
+      throw new TypeError("A connection requires a name");
+    if (!steps.every((step) => step instanceof Copy))
+      throw new TypeError("Connection steps must be Copy declarations");
+    this.name = name;
+    this.source = source;
+    this.destination = destination;
+    this.checkpoints = checkpoints;
+    this.steps = Object.freeze([...steps]);
+    Object.freeze(this);
+  }
+  validate() {
+    const streams = this.steps.map((copy) => copy.from.name);
+    if (new Set(streams).size !== streams.length)
+      throw new TypeError(`Connection ${this.name} copies each stream once`);
+    for (const copy of this.steps)
+      copy.validate(this.source, this.destination, this.checkpoints);
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/destination.js
+import { isDeepStrictEqual } from "node:util";
+var Destination = class {
+  // Validate declarations without storage I/O; destinations check their own targets.
+  validate(configuration, target) {
+    this.createWriter(configuration, target);
+  }
+  validateConfiguration(configuration, target) {
+    configuration.validateSelection();
+    if (!isDeepStrictEqual(configuration.fileReads, target.fileReads))
+      throw new TypeError("Copy file reads must match the destination target");
+    if (!this.supportedDestinationSyncModes.includes(configuration.destinationSyncMode))
+      throw new TypeError(`Destination does not support ${configuration.destinationSyncMode}`);
+  }
+  async clear(configuration, target, writer, committed) {
+    await this.createWriter(configuration, target).clear(writer, committed);
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/file-extension.js
+import { extname } from "node:path";
+function fileExtension(name) {
+  const extension = extname(name);
+  return /^\.[a-zA-Z0-9]{1,16}$/.test(extension) ? extension : "";
+}
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/identifiers.js
+import { createHash } from "node:crypto";
+function hash(name) {
+  return createHash("sha256").update(name).digest("hex").slice(0, 8);
+}
+function sanitize(name) {
+  const clean = name.normalize("NFKD").replace(new RegExp("\\p{M}", "gu"), "").replace(/\s+/gu, "_").replace(/[^A-Za-z0-9_]/gu, "_").replace(/^_(?=elt_)/i, "");
+  if (clean === "")
+    return "_";
+  return /^[0-9]/.test(clean) ? `_${clean}` : clean;
+}
+var Identifiers = class {
+  // Each column with its name, in field order: a sanitized name another
+  // field already took is tried again with `_1`, `_2` and so on after the
+  // field.
+  columns(columns) {
+    const taken = new Set(this.ownColumns.map((name) => this.key(name)));
+    return columns.map((column) => {
+      const { field } = column;
+      let name = this.#fit(sanitize(field), field);
+      for (let suffix = 1; taken.has(this.key(name)); suffix += 1)
+        name = this.#fit(sanitize(`${field}_${suffix}`), `${field}_${suffix}`);
+      taken.add(this.key(name));
+      return [column, name];
+    });
+  }
+  // A table or view sees no other name to collide with, so one that
+  // sanitizing changed keeps a hash of what it was asked for.
+  relation(name) {
+    const clean = sanitize(name);
+    return clean === name ? this.#fit(name, name) : this.#fit(`${clean}_${hash(name)}`, name);
+  }
+  // A sanitized name is ASCII, so cutting it by bytes keeps whole characters.
+  #fit(name, original) {
+    if (Buffer.byteLength(name) <= this.maxBytes)
+      return name;
+    return `${name.slice(0, this.maxBytes - 9)}_${hash(original)}`;
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/pipeline.js
+import { setTimeout as sleep } from "node:timers/promises";
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/interleave.js
+async function* interleave(generators, concurrency) {
+  const waiting = [...generators];
+  const reading = /* @__PURE__ */ new Map();
+  const next = (generator) => reading.set(generator, generator.next().then((result) => ({ generator, result })));
+  const start = () => {
+    const generator = waiting.shift();
+    if (generator !== void 0)
+      next(generator);
+  };
+  try {
+    while (reading.size < concurrency && waiting.length > 0)
+      start();
+    while (reading.size > 0) {
+      const { generator, result } = await Promise.race(reading.values());
+      if (result.done) {
+        reading.delete(generator);
+        start();
+        continue;
+      }
+      yield result.value;
+      reading.delete(generator);
+      next(generator);
+    }
+  } finally {
+    for (const [generator, pending] of reading) {
+      await pending.catch(() => void 0);
+      await generator.return(void 0);
+    }
+    for (const generator of waiting)
+      await generator.return(void 0);
+  }
+}
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/partition.js
+function partitionIdentity(stream) {
+  if (stream.partitionKey === void 0)
+    throw new TypeError(`Stream ${stream.name} is not partitioned`);
+  return new Deduplication(stream, stream.partitionKey);
+}
+function assertPartitions(stream, partitions) {
+  const identity = partitionIdentity(stream);
+  if (!Array.isArray(partitions) || partitions.length === 0)
+    throw new TypeError(`Stream ${stream.name} requires at least one partition`);
+  const keys = /* @__PURE__ */ new Set();
+  for (const partition of partitions) {
+    const { key } = readPartition(identity, partition);
+    if (keys.has(key))
+      throw new TypeError(`Stream ${stream.name} lists partition ${key} twice`);
+    keys.add(key);
+  }
+}
+function readPartition(identity, value) {
+  if (value === null || typeof value !== "object" || Object.keys(value).length !== identity.primaryKey.length)
+    throw new TypeError(`Stream ${identity.stream.name} partitions carry exactly ${JSON.stringify(identity.primaryKey)}`);
+  return {
+    key: identity.key(value),
+    partition: Object.freeze(Object.fromEntries(identity.primaryKey.map((field) => [
+      field,
+      identity.value(value, field)
+    ])))
+  };
+}
+function assertInPartition(stream, partition, value) {
+  for (const [field, expected] of Object.entries(partition)) {
+    const actual = value !== null && typeof value === "object" ? Reflect.get(value, field) : void 0;
+    if (actual !== expected)
+      throw new TypeError(`Stream ${stream.name} record for partition ${JSON.stringify(partition)} carries ${field} ${JSON.stringify(actual)}`);
+  }
+}
+function readPartitionStates(stream, state) {
+  const identity = partitionIdentity(stream);
+  const envelope = state;
+  return new Map((envelope?.partitions ?? []).map((entry) => [
+    identity.key(entry.partition),
+    entry
+  ]));
+}
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/source.js
+var StreamStatus = class {
+  stream;
+  status;
+  partition;
+  error;
+  constructor(stream, status, partition = null, error = void 0) {
+    this.stream = stream;
+    this.status = status;
+    this.partition = partition;
+    this.error = error;
+    Object.freeze(this);
+  }
+};
+var Source = class {
+  // How many streams one read reads at once; their messages interleave. A
+  // source raising it reads its context from several extracts together.
+  concurrency = 1;
+  async discover() {
+    return this.catalog;
+  }
+  // Check source-owned metadata without extraction or rediscovery.
+  validate(configuration) {
+    const stream = this.member(configuration.stream);
+    configuration.validate(stream);
+    this.validateExtraction(configuration);
+    if (stream.partitionKey !== void 0)
+      assertPartitions(stream, this.partitions(stream));
+  }
+  async *watch(options) {
+    for (const stream of options.streams)
+      this.member(stream);
+    yield* this.observe(options);
+  }
+  // Source-specific selection rules, checked without I/O.
+  validateExtraction(_configuration) {
+  }
+  // The partitions a partitioned stream is read as, derived from configuration
+  // without I/O. The list is not part of the identity: adding or removing a
+  // partition keeps every other partition's checkpoint.
+  partitions(stream) {
+    throw new TypeError(`Source must declare partitions for stream ${stream.name}`);
+  }
+  // What kind of failure an error from this source is. Only the source knows
+  // which of its upstream's errors mean the user must act; any other error,
+  // a destination's included, is system.
+  failureType(_error) {
+    return "system";
+  }
+  member(stream) {
+    if (this.catalog.get(stream.name) !== stream)
+      throw new TypeError(`Stream ${stream.name} is not from this source's discovered catalog`);
+    return stream;
+  }
+  // Must be lazy: the destination prepares its targets before pulling records.
+  // Each checkpoint is a commit point. A full refresh carries none, so it
+  // loads all or nothing; an incremental read that fails keeps what earlier
+  // checkpoints committed. states holds each incremental stream's saved state,
+  // or a promise of it, by stream name; a read asks for a stream's state when
+  // it starts that stream, so a state that grows with its upstream, such as a
+  // snapshot, is held only while its own stream reads. signal is the run's:
+  // each extract receives it, so one waiting on its upstream can stop once
+  // the run is cancelled.
+  async *read(catalog, states, signal) {
+    var _stack = [];
+    try {
+      for (const configuration of catalog)
+        this.validate(configuration);
+      if (new Set(catalog.map(({ stream }) => stream.name)).size !== catalog.length)
+        throw new TypeError("A read selects each stream once");
+      const context = __using(_stack, await this.open(catalog.map(({ stream }) => stream), signal), true);
+      if (!Number.isSafeInteger(this.concurrency) || this.concurrency < 1)
+        throw new TypeError("Source concurrency must be a positive integer");
+      yield* interleave(catalog.map((configuration) => this.#stream(configuration, states, context, signal)), this.concurrency);
+    } catch (_) {
+      var _error = _, _hasError = true;
+    } finally {
+      var _promise = __callDispose(_stack, _error, _hasError);
+      _promise && await _promise;
+    }
+  }
+  async *#stream(configuration, states, context, signal) {
+    const { name } = configuration.stream;
+    yield new StreamStatus(name, "STARTED");
+    const state = await states.get(name) ?? null;
+    if (configuration.stream.partitionKey !== void 0)
+      yield* this.partitioned(configuration, state, context, signal);
+    else {
+      const incremental = configuration.syncMode === "incremental";
+      try {
+        for await (const message2 of this.resolved(configuration, this.extract(configuration, state, null, context, signal), signal))
+          if (!("type" in message2) || message2.type === "DELETE")
+            yield message2;
+          else if (incremental)
+            yield message2.type === "RESET" ? { ...message2, partition: null } : message2;
+      } catch (error) {
+        yield new StreamStatus(name, "FAILED", null, error);
+      }
+    }
+    yield new StreamStatus(name, "ENDED");
+  }
+  // Keeps each message to the stream whose extract emitted it, and replaces
+  // each record's file path with the file reads it asked for.
+  async *resolved(configuration, messages, signal) {
+    for await (const message2 of messages) {
+      if (message2 instanceof StreamStatus)
+        throw new TypeError("Only Source.read reports stream status; extract signals failure by throwing");
+      if (message2.stream !== configuration.stream.name)
+        throw new TypeError(`Extract for ${configuration.stream.name} emitted ${message2.stream}`);
+      if ("type" in message2 && message2.type === "RESET" && Object.hasOwn(message2, "partition"))
+        throw new TypeError("Only Source.read scopes a reset to its partition");
+      if ("type" in message2 || configuration.fileReads.length === 0) {
+        yield message2;
+        continue;
+      }
+      if (message2.file !== null && typeof message2.file !== "string")
+        throw new TypeError("File extraction must supply a file path or explicit null");
+      const data = message2.data;
+      if (data === null || typeof data !== "object" || Array.isArray(data))
+        throw new TypeError("File metadata must be an object");
+      const output = { ...data };
+      const values = /* @__PURE__ */ new Map();
+      for (const read of configuration.fileReads) {
+        if (Object.keys(data).some((name) => name.toLowerCase() === read.name.toLowerCase()))
+          throw new TypeError("File field collides with source metadata");
+        let value = null;
+        if (message2.file !== null) {
+          let pending = values.get(read.parser);
+          if (pending === void 0) {
+            pending = read.parser === void 0 ? new FileContent(message2.file) : read.parser.parse(message2.file, signal);
+            values.set(read.parser, pending);
+          }
+          value = await pending;
+          if (read.parser !== void 0 && value !== null && typeof value !== "string")
+            throw new TypeError("Document parser must return text or null");
+        }
+        Object.defineProperty(output, read.name, { value, enumerable: true });
+      }
+      yield { stream: message2.stream, data: output };
+    }
+  }
+  // Reads each partition with its own saved state: null for a partition not
+  // seen before, so it starts from the source's normal beginning. Every
+  // checkpoint carries all listed partitions' latest states, so a partition
+  // not yet read, or one that failed, keeps what it had. Partitions no longer
+  // listed drop out of the next checkpoint; their rows stay loaded.
+  async *partitioned(configuration, state, context, signal) {
+    const { stream } = configuration;
+    const incremental = configuration.syncMode === "incremental";
+    const saved = incremental ? readPartitionStates(stream, state) : /* @__PURE__ */ new Map();
+    const identity = partitionIdentity(stream);
+    const listed = this.partitions(stream).map((entry) => readPartition(identity, entry));
+    const latest = new Map(saved);
+    for (const { key, partition } of listed) {
+      try {
+        for await (const message2 of this.resolved(configuration, this.extract(configuration, saved.get(key)?.state ?? null, partition, context, signal), signal)) {
+          if ("type" in message2 && message2.type === "STATE") {
+            if (!incremental)
+              continue;
+            latest.set(key, { partition, state: message2.state });
+            yield {
+              type: "STATE",
+              stream: stream.name,
+              state: {
+                partitions: listed.flatMap((entry) => latest.get(entry.key) ?? [])
+              }
+            };
+            continue;
+          }
+          if ("type" in message2 && message2.type === "RESET") {
+            if (incremental)
+              yield { ...message2, partition };
+            continue;
+          }
+          assertInPartition(stream, partition, "type" in message2 ? message2.key : message2.data);
+          yield message2;
+        }
+      } catch (error) {
+        yield new StreamStatus(stream.name, "FAILED", partition, error);
+        if (!incremental)
+          return;
+      }
+    }
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/replication.js
+var Replicated = class {
+  stage;
+  emitted = { count: 0, deleted: 0 };
+  committed = { count: 0, deleted: 0 };
+  pending = { count: 0, deleted: 0 };
+  failures = [];
+  // Nothing commits after a failed read until the next checkpoint: a full
+  // refresh has none, so any failure keeps the previous target.
+  failed = false;
+  // Nothing was applied since the last commit.
+  clean = false;
+  // The stage failed; the stream's remaining messages are ignored.
+  broken = false;
+  started = false;
+  ended = false;
+  // The copy's last run left a reload open.
+  reloading = false;
+  // The run's signal stopped the copy before it ended.
+  cancelled = false;
+  // Whether the saved checkpoint describes the copy's stage: not once the
+  // stage is a target this load creates or reloads, until the copy saves.
+  resumes = true;
+  settled = false;
+  copy;
+  observe;
+  files;
+  #source;
+  constructor(copy, source, destination, observe) {
+    this.copy = copy;
+    this.observe = observe;
+    this.#source = source;
+    this.files = new FileTransfer(copy.configuration.fileReads, destination.location(copy.to), copy.writer(source));
+  }
+  get stream() {
+    return this.copy.from;
+  }
+  // What did not load, of the kind the source says the error is.
+  recordFailure(partition, error) {
+    this.failures.push({
+      partition,
+      error,
+      failureType: this.#source.failureType(error)
+    });
+  }
+  outcome() {
+    return {
+      copy: this.copy,
+      ...this.committed,
+      failures: this.failures,
+      cancelled: this.cancelled
+    };
+  }
+  report() {
+    if (!this.settled)
+      this.#notify("running");
+  }
+  settle() {
+    if (this.settled)
+      return;
+    this.settled = true;
+    this.#notify(this.failures.length === 0 ? "complete" : "incomplete");
+  }
+  #notify(status) {
+    this.observe?.({
+      copy: this.copy,
+      status,
+      emitted: { ...this.emitted },
+      committed: { ...this.committed }
+    });
+  }
+};
+async function replicate(source, destination, checkpoints, copies, observe, signal) {
+  const replications = copies.map((copy) => new Replicated(copy, source, destination, observe));
+  const bindings = /* @__PURE__ */ new Map();
+  for (const { copy } of replications)
+    if (copy.configuration.syncMode === "incremental" && copy.id !== void 0)
+      bindings.set(copy.id, {
+        copy: {
+          source: source.identity,
+          target: destination.location(copy.to),
+          selection: selection(copy.configuration)
+        },
+        shape: shape(copy.from)
+      });
+  try {
+    if (checkpoints === void 0 || bindings.size === 0)
+      await transfer(source, destination, null, replications, signal);
+    else
+      await checkpoints.run(bindings, (run) => transfer(source, destination, run, replications, signal));
+  } catch (error) {
+    for (const replication of replications)
+      if (!replication.ended) {
+        replication.cancelled = cancelledBy(signal, error);
+        fail(replication, error);
+      }
+  }
+  for (const replication of replications)
+    replication.settle();
+  return replications.map((replication) => replication.outcome());
+}
+async function transfer(source, destination, run, replications, signal) {
+  var _stack = [];
+  try {
+    const byStream = new Map(replications.map((replication) => [replication.stream.name, replication]));
+    const incremental = (replication) => replication.copy.configuration.syncMode === "incremental";
+    const checkpoint = (replication) => {
+      if (run === null || replication.copy.id === void 0)
+        throw new TypeError("Incremental copies require a stable id and checkpoint store");
+      return { run, id: replication.copy.id };
+    };
+    const states = {
+      get: async (name) => {
+        const replication = byStream.get(name);
+        if (replication === void 0 || !incremental(replication) || !replication.resumes)
+          return null;
+        const { run: run2, id } = checkpoint(replication);
+        return run2.state(id);
+      }
+    };
+    const reading = [];
+    for (const replication of replications) {
+      if (!incremental(replication)) {
+        reading.push(replication);
+        continue;
+      }
+      try {
+        const { run: run2, id } = checkpoint(replication);
+        replication.reloading = run2.reloading(id);
+        reading.push(replication);
+      } catch (error) {
+        fail(replication, error);
+      }
+    }
+    if (reading.length === 0)
+      return;
+    signal?.throwIfAborted();
+    const load = __using(_stack, await destination.load(), true);
+    const prepared = [];
+    for (const replication of reading)
+      try {
+        replication.stage = await load.prepare(replication.copy.configuration, replication.copy.to, {
+          writer: replication.copy.writer(source),
+          reloading: replication.reloading
+        });
+        if (replication.stage.fresh)
+          replication.resumes = false;
+        await replication.files.reconcile(replication.stage.values);
+        prepared.push(replication);
+      } catch (error) {
+        if (replication.stage !== void 0)
+          await breakStage(replication, error);
+        else
+          fail(replication, error);
+      }
+    if (prepared.length === 0)
+      return;
+    try {
+      for await (const message2 of source.read(prepared.map(({ copy }) => copy.configuration), states, signal)) {
+        signal?.throwIfAborted();
+        const replication = byStream.get(validStream(message2));
+        if (replication === void 0 || !prepared.includes(replication))
+          throw new TypeError(`Source emitted an unselected stream: ${message2.stream}`);
+        if (replication.ended)
+          throw new TypeError(`Source emitted ${message2.stream} after it ended`);
+        try {
+          if (message2 instanceof StreamStatus) {
+            if (message2.status === "STARTED") {
+              if (replication.started)
+                throw new TypeError(`Source started ${message2.stream} twice`);
+              replication.started = true;
+              replication.report();
+            } else if (message2.status === "FAILED") {
+              if (replication.broken)
+                continue;
+              await started(replication).discard();
+              replication.pending.count = 0;
+              replication.pending.deleted = 0;
+              replication.failed = true;
+              replication.recordFailure(message2.partition, message2.error);
+              await replication.files.reconcile(started(replication).values);
+              replication.report();
+            } else {
+              replication.ended = true;
+              if (replication.broken) {
+                replication.settle();
+                continue;
+              }
+              const stage = started(replication);
+              if (!replication.failed && !replication.clean)
+                await commit(replication);
+              if (replication.failures.length === 0 && stage.reloading) {
+                await stage.complete();
+                if (incremental(replication)) {
+                  const { run: run2, id } = checkpoint(replication);
+                  if (replication.resumes)
+                    await run2.reloaded(id);
+                  else
+                    await run2.save(id, "null", false);
+                }
+              }
+              replication.stage = void 0;
+              await stage[Symbol.asyncDispose]();
+              replication.settle();
+            }
+            continue;
+          }
+          if (replication.broken)
+            continue;
+          const operation = validOperation(replication.stream, message2);
+          if (operation.type === "STATE") {
+            if (!incremental(replication))
+              throw new TypeError(`Full refresh stream ${message2.stream} emitted a checkpoint`);
+            await commit(replication);
+            const { run: run2, id } = checkpoint(replication);
+            await run2.save(id, operation.state, started(replication).reloading);
+            replication.resumes = true;
+          } else {
+            await started(replication).apply(operation.type === "RECORD" ? {
+              ...operation,
+              data: await replication.files.record(operation.data)
+            } : operation);
+            replication.clean = false;
+            if (operation.type === "RECORD") {
+              replication.pending.count++;
+              replication.emitted.count++;
+            } else if (operation.type === "DELETE") {
+              replication.pending.deleted++;
+              replication.emitted.deleted++;
+            }
+            replication.report();
+          }
+        } catch (error) {
+          await breakStage(replication, error);
+        }
+      }
+      for (const replication of prepared)
+        if (!replication.ended && !replication.broken)
+          await breakStage(replication, new TypeError(`Source did not end stream ${replication.stream.name}`));
+    } catch (error) {
+      for (const replication of prepared)
+        if (!replication.ended && !replication.broken) {
+          replication.cancelled = cancelledBy(signal, error);
+          await breakStage(replication, error);
+        }
+    }
+  } catch (_) {
+    var _error = _, _hasError = true;
+  } finally {
+    var _promise = __callDispose(_stack, _error, _hasError);
+    _promise && await _promise;
+  }
+}
+function cancelledBy(signal, error) {
+  return signal?.aborted === true && error === signal.reason;
+}
+function selection(configuration) {
+  const { stream, fileReads, syncMode, destinationSyncMode, cursorField, primaryKey, dedupPolicy } = configuration;
+  return {
+    fileReads,
+    syncMode,
+    destinationSyncMode,
+    cursorField,
+    dedupPolicy,
+    primaryKey: stream.primaryKey.length > 0 ? void 0 : primaryKey
+  };
+}
+function shape(stream) {
+  const { description: _, properties, ...schema } = stream.jsonSchema;
+  const undescribed = ({ description: __, ...rest }) => rest;
+  return {
+    ...stream,
+    jsonSchema: {
+      ...schema,
+      properties: properties && Object.fromEntries(Object.entries(properties).map(([name, { items, ...field }]) => [
+        name,
+        { ...undescribed(field), items: items && undescribed(items) }
+      ]))
+    }
+  };
+}
+function started(replication) {
+  if (!replication.started || replication.stage === void 0)
+    throw new TypeError(`Source sent ${replication.stream.name} a message before starting it`);
+  return replication.stage;
+}
+async function commit(replication) {
+  await started(replication).commit();
+  replication.clean = true;
+  replication.failed = false;
+  replication.committed.count += replication.pending.count;
+  replication.committed.deleted += replication.pending.deleted;
+  replication.pending.count = 0;
+  replication.pending.deleted = 0;
+  await replication.files.reconcile(started(replication).values);
+  replication.report();
+}
+function fail(replication, error) {
+  replication.recordFailure(null, error);
+  replication.broken = true;
+  replication.ended = true;
+  replication.settle();
+}
+async function breakStage(replication, error) {
+  replication.recordFailure(null, error);
+  replication.broken = true;
+  const { stage } = replication;
+  replication.stage = void 0;
+  try {
+    await stage?.[Symbol.asyncDispose]();
+  } catch (cause) {
+    replication.recordFailure(null, cause);
+  }
+}
+function validStream(message2) {
+  if (message2 === null || typeof message2 !== "object" || typeof message2.stream !== "string")
+    throw new TypeError("Source must emit records with stream and data, DELETE, RESET or STATE messages");
+  return message2.stream;
+}
+function validOperation(stream, message2) {
+  if ("type" in message2 && message2.type === "STATE" && Object.hasOwn(message2, "state") && !Object.hasOwn(message2, "data")) {
+    if (!lossless(message2.state))
+      throw new TypeError("Checkpoint state must be losslessly JSON serializable");
+    wellFormed(message2.state, "Checkpoint state");
+    return { type: "STATE", state: JSON.stringify(message2.state) };
+  }
+  if ("type" in message2 && message2.type === "DELETE" && Object.hasOwn(message2, "key") && !Object.hasOwn(message2, "data"))
+    return { type: "DELETE", key: deletionKey(stream, message2.key) };
+  if ("type" in message2 && message2.type === "RESET" && Object.hasOwn(message2, "partition") && !Object.hasOwn(message2, "data")) {
+    if (!stream.emitsDeletes)
+      throw new TypeError(`Stream ${stream.name} does not emit deletions, so it cannot reset`);
+    if (message2.partition === null !== (stream.partitionKey === void 0))
+      throw new TypeError(`A reset of ${stream.name} is scoped to a partition exactly when the stream is partitioned`);
+    return { type: "RESET", partition: message2.partition };
+  }
+  if (!("type" in message2) && "data" in message2 && Object.hasOwn(message2, "data")) {
+    if (Object.hasOwn(message2, "file"))
+      throw new TypeError("Destinations cannot receive source file paths");
+    wellFormed(message2.data, "Record");
+    return { type: "RECORD", data: message2.data };
+  }
+  throw new TypeError("Source must emit records with stream and data, DELETE, RESET or STATE messages");
+}
+function lossless(value) {
+  switch (typeof value) {
+    case "boolean":
+    case "string":
+      return true;
+    case "number":
+      return Number.isFinite(value) && !Object.is(value, -0);
+    case "object": {
+      if (value === null)
+        return true;
+      if (Object.getOwnPropertySymbols(value).some((key) => Object.prototype.propertyIsEnumerable.call(value, key)))
+        return false;
+      const fields = Object.keys(value);
+      if (Array.isArray(value)) {
+        if (Object.getPrototypeOf(value) !== Array.prototype || fields.length !== value.length)
+          return false;
+        for (let index = 0; index < value.length; index++)
+          if (!Object.hasOwn(value, index) || !lossless(value[index]))
+            return false;
+        return true;
+      }
+      return Object.getPrototypeOf(value) === Object.prototype && fields.every((field) => lossless(Reflect.get(value, field)));
+    }
+    default:
+      return false;
+  }
+}
+function wellFormed(value, path) {
+  if (typeof value === "string") {
+    if (!value.isWellFormed())
+      throw new TypeError(`${path} has a lone surrogate`);
+  } else if (Array.isArray(value))
+    for (const [index, item] of value.entries())
+      wellFormed(item, `${path}[${index}]`);
+  else if (value !== null && typeof value === "object" && (Object.getPrototypeOf(value) === Object.prototype || Object.getPrototypeOf(value) === null))
+    for (const [name, item] of Object.entries(value)) {
+      if (!name.isWellFormed())
+        throw new TypeError(`${path} has a field name with a lone surrogate`);
+      wellFormed(item, `${path} field ${name}`);
+    }
+}
+function deletionKey(stream, key) {
+  const { name, primaryKey, emitsDeletes } = stream;
+  if (!emitsDeletes)
+    throw new TypeError(`Stream ${name} does not emit deletions`);
+  if (key === null || typeof key !== "object" || Array.isArray(key) || Object.getPrototypeOf(key) !== Object.prototype || Object.keys(key).length !== primaryKey.length || !primaryKey.every((field) => Object.hasOwn(key, field)))
+    throw new TypeError(`DELETE for ${name} must carry exactly its primary key ${JSON.stringify(primaryKey)}`);
+  const snapshot = {};
+  for (const field of primaryKey) {
+    const value = Reflect.get(key, field);
+    if (!(typeof value === "string" && value.isWellFormed()) && !(typeof value === "number" && Number.isFinite(value)) && typeof value !== "boolean")
+      throw new TypeError(`DELETE for ${name} has an invalid ${field}`);
+    snapshot[field] = value;
+  }
+  return Object.freeze(snapshot);
+}
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/pipeline.js
+var stopGraceMs = 1e3;
+var retryLimit = 5;
+var retryDelayMs = (failures) => Math.min(1e4 * 3 ** (failures - 1), 30 * 6e4);
+var PipelineError = class extends AggregateError {
+  name = "PipelineError";
+  results;
+  constructor(results) {
+    const incomplete = results.filter(({ failures }) => failures.length > 0);
+    const errors = incomplete.flatMap(({ failures }) => failures.map(({ error }) => error));
+    super(errors, `The following copies did not load completely: ${incomplete.map(describeFailures).join("; ")}`, { cause: errors[0] });
+    this.results = Object.freeze([...results]);
+  }
+};
+var WatchError = class extends AggregateError {
+  name = "WatchError";
+};
+var Pipeline = class {
+  connections;
+  history;
+  observer;
+  constructor({ connections, history, observer }) {
+    if (!connections.every((connection) => connection instanceof Connection))
+      throw new TypeError("Pipeline connections must be Connection declarations");
+    this.connections = Object.freeze([...connections]);
+    this.history = history;
+    this.observer = observer;
+    Object.freeze(this);
+  }
+  // Airbyte's Clear for these copies: empties each target and removes its checkpoint.
+  async clear(steps = this.connections.flatMap((connection) => connection.steps)) {
+    this.#assertDistinct();
+    for (const connection of this.connections)
+      connection.validate();
+    for (const copy of steps) {
+      const connection = this.connections.find(({ steps: steps2 }) => steps2.includes(copy));
+      if (connection === void 0)
+        throw new TypeError("Only this pipeline's copies can be cleared");
+      await copy.clear(connection.source, connection.destination, connection.checkpoints);
+    }
+  }
+  // Once signal aborts, each pass stops at its next message and is recorded as
+  // cancelled, and the run rejects with the signal's reason, as fetch does.
+  async run(options) {
+    const signal = options?.signal;
+    await this.#declare();
+    const passes = await Promise.allSettled(this.connections.map((connection) => this.#pass(connection, connection.steps, signal)));
+    const unrecorded = passes.find((pass) => pass.status === "rejected");
+    if (unrecorded !== void 0)
+      throw unrecorded.reason;
+    const results = passes.flatMap((pass) => pass.status === "fulfilled" ? pass.value.outcomes : []);
+    if (results.some(({ cancelled }) => cancelled))
+      throw signal?.reason;
+    if (results.some(({ failures }) => failures.length > 0))
+      throw new PipelineError(results);
+    return results.map(({ failures: _, cancelled: __, ...result }) => result);
+  }
+  // Each connection watches its own source and runs a pass for what changed.
+  // A connection whose watcher fails stops alone, and its failure is recorded;
+  // the rest keep watching. Once every connection stopped, or signal aborts,
+  // the recorded failures are thrown together as a WatchError. An error the
+  // sync history could not record stops every connection and rejects as
+  // itself.
+  async *watch({ signal }) {
+    await this.#declare();
+    if (signal.aborted)
+      return;
+    const controller = new AbortController();
+    const watching = AbortSignal.any([signal, controller.signal]);
+    const stopped = [];
+    const passes = interleave(this.connections.filter(({ steps }) => steps.length > 0).map((connection) => this.#watch(connection, watching, controller, stopped)), Number.POSITIVE_INFINITY);
+    try {
+      for (let next = await passes.next(); !next.done; next = await passes.next())
+        yield next.value;
+    } finally {
+      controller.abort();
+      await passes.return(void 0);
+    }
+    if (stopped.length > 0)
+      throw new WatchError(stopped, stopped.map(message).join("; "));
+  }
+  async *#watch(connection, signal, everyone, stopped) {
+    const controller = new AbortController();
+    const watching = AbortSignal.any([signal, controller.signal]);
+    const streams = new Map(connection.steps.map((copy) => [copy.from.name, copy.from]));
+    const pending = /* @__PURE__ */ new Set();
+    const loading2 = /* @__PURE__ */ new Set();
+    const loaded = /* @__PURE__ */ new Set();
+    const retries = /* @__PURE__ */ new Map();
+    let wake = Promise.withResolvers();
+    watching.addEventListener("abort", () => wake.resolve(), { once: true });
+    let finished = false;
+    let failure;
+    let unrecorded;
+    const receive = (async () => {
+      let initial = true;
+      try {
+        for await (const changed of connection.source.watch({
+          streams: [...streams.values()],
+          signal: watching
+        })) {
+          for (const stream of changed) {
+            if (!streams.has(stream.name))
+              throw new TypeError(`Watcher emitted an unselected stream: ${stream.name}`);
+            pending.add(stream.name);
+          }
+          if (initial && pending.size !== streams.size)
+            throw new TypeError("Watcher must initially invalidate every selected stream");
+          initial = false;
+          if (pending.size > 0)
+            wake.resolve();
+          const current = [...streams.values()].filter(({ name }) => loaded.has(name) && !pending.has(name) && !loading2.has(name));
+          if (current.length > 0)
+            try {
+              await this.history.checked(connection, /* @__PURE__ */ new Date(), (at) => checked(connection.source, current, at));
+            } catch (error) {
+              unrecorded = { error };
+              return;
+            }
+        }
+        if (initial && !watching.aborted)
+          throw new TypeError("Watcher ended before its initial invalidation");
+      } catch (error) {
+        if (!(watching.aborted && error instanceof Error && error.name === "AbortError"))
+          failure = { error };
+      } finally {
+        finished = true;
+        wake.resolve();
+      }
+    })();
+    try {
+      while (!watching.aborted && failure === void 0 && unrecorded === void 0) {
+        if (!finished) {
+          for (const [name, { at }] of retries)
+            if (at <= Date.now())
+              pending.add(name);
+        }
+        if (pending.size === 0) {
+          if (finished)
+            break;
+          const woken = wake;
+          const due = Math.min(...[...retries.values()].map(({ at }) => at));
+          const retrying = Number.isFinite(due) ? setTimeout(() => woken.resolve(), due - Date.now()) : void 0;
+          await woken.promise;
+          clearTimeout(retrying);
+          continue;
+        }
+        const steps = connection.steps.filter((copy) => pending.has(copy.from.name));
+        pending.clear();
+        for (const copy of steps)
+          loading2.add(copy.from.name);
+        wake = Promise.withResolvers();
+        const pass = await this.#pass(connection, steps, signal);
+        for (const { copy, failures } of pass.outcomes) {
+          const { name } = copy.from;
+          loading2.delete(name);
+          if (failures.length === 0)
+            loaded.add(name);
+          else
+            loaded.delete(name);
+          const inARow = (retries.get(name)?.failures ?? 0) + 1;
+          if (failures.some(({ failureType }) => failureType === "system") && inARow < retryLimit)
+            retries.set(name, {
+              failures: inARow,
+              at: Date.now() + retryDelayMs(inARow)
+            });
+          else
+            retries.delete(name);
+        }
+        yield pass;
+      }
+      if (unrecorded !== void 0)
+        throw unrecorded.error;
+      if (failure !== void 0) {
+        await this.#recordFailure(connection, failure.error);
+        stopped.push(connectionError(connection, failure.error));
+      }
+    } catch (error) {
+      everyone.abort();
+      throw error;
+    } finally {
+      controller.abort();
+      const graced = new AbortController();
+      await Promise.race([
+        receive,
+        sleep(stopGraceMs, void 0, {
+          ref: false,
+          signal: graced.signal
+        }).catch(() => void 0)
+      ]);
+      graced.abort();
+    }
+  }
+  // One read per pass, never held between watch passes: a long read can
+  // block the upstream's own maintenance, such as SQLite WAL checkpoints.
+  async #pass(connection, steps, signal) {
+    const { source } = connection;
+    const asked = await Promise.all(steps.map(async (copy) => {
+      try {
+        return { copy, upstream: await source.currentAsOf(copy.from) };
+      } catch (error) {
+        return { copy, unknown: { error } };
+      }
+    }));
+    const record = await this.history.begin(connection, steps.map((copy) => ({ copy, coverage: source.coverage(copy.from) })));
+    const observed = advise(() => this.observer?.begin(connection));
+    const read = await replicate(source, connection.destination, connection.checkpoints, asked.flatMap((answer) => "upstream" in answer ? [answer.copy] : []), observed && ((progress) => advise(() => observed.progress(progress))), signal);
+    const outcomes = [
+      ...read,
+      ...asked.flatMap((answer) => "unknown" in answer ? [
+        {
+          copy: answer.copy,
+          count: 0,
+          deleted: 0,
+          failures: [
+            {
+              partition: null,
+              error: answer.unknown.error,
+              failureType: source.failureType(answer.unknown.error)
+            }
+          ],
+          cancelled: false
+        }
+      ] : [])
+    ];
+    await record.finish(outcomes, new Map(asked.flatMap((answer) => "upstream" in answer && answer.upstream !== null ? [[answer.copy.from.name, answer.upstream]] : [])));
+    advise(() => observed?.finish(outcomes));
+    return Object.freeze({ connection, outcomes: Object.freeze(outcomes) });
+  }
+  // Records why a connection stopped. When the history cannot, the
+  // SuppressedError holds both errors, as a failed dispose does.
+  async #recordFailure(connection, failure) {
+    const failureType = connection.source.failureType(failure);
+    try {
+      const record = await this.history.begin(connection, connection.steps.map((copy) => ({
+        copy,
+        coverage: connection.source.coverage(copy.from)
+      })));
+      await record.fail(failure, failureType);
+    } catch (error) {
+      throw new SuppressedError(error, failure, `Connection ${connection.name} stopped (${message(failure)}), and its sync history could not record why: ${message(error)}`);
+    }
+    advise(() => this.observer?.begin(connection).fail(failure, failureType));
+  }
+  // Every declaration is checked before any connection reads, so a wiring
+  // mistake stops the whole pipeline; the connection it belongs to records it.
+  async #declare() {
+    this.#assertDistinct();
+    for (const connection of this.connections)
+      this.history.validate(connection);
+    for (const connection of this.connections)
+      try {
+        connection.validate();
+      } catch (error) {
+        await this.#recordFailure(connection, error);
+        throw error;
+      }
+  }
+  #assertDistinct() {
+    const names = this.connections.map(({ name }) => name);
+    if (new Set(names).size !== names.length)
+      throw new TypeError("Pipeline connection names must be distinct");
+    const ids = this.connections.flatMap(({ steps }) => steps.map(({ id }) => id)).filter((id) => id !== void 0);
+    if (new Set(ids).size !== ids.length)
+      throw new TypeError("Pipeline copy IDs must be distinct");
+  }
+};
+function connectionError(connection, cause) {
+  return new Error(`Connection ${connection.name}: ${message(cause)}`, {
+    cause
+  });
+}
+async function checked(source, streams, at) {
+  const answers = await Promise.allSettled(streams.map((stream) => source.currentAsOf(stream)));
+  return streams.flatMap((stream, index) => {
+    const answer = answers[index];
+    if (answer?.status !== "fulfilled")
+      return [];
+    const upstream = answer.value;
+    return [
+      {
+        stream: stream.name,
+        at: upstream !== null && upstream < at ? upstream : at
+      }
+    ];
+  });
+}
+function message(error) {
+  return error instanceof Error ? error.message : String(error);
+}
+function advise(call) {
+  try {
+    return call();
+  } catch {
+    return void 0;
+  }
+}
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/reader-relation.js
+var readerCatalog = Object.freeze({
+  name: "catalog",
+  description: "One row per readable view, table and column, explaining meaning and use. Discover sync_status and extraction_coverage before judging freshness or completeness. Raw tables are not listed.",
+  columns: Object.freeze({
+    kind: "view, table or column.",
+    name: "Relation name, or relation.column.",
+    data_type: "Column type; NULL for relations.",
+    description: "Meaning, limitations and usage guidance; does not authorize refresh or other writes."
+  })
+});
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/reload-mode.js
+function reloadMode({ reloading, destinationSyncMode, target, hidden }) {
+  if (reloading)
+    return hidden === "fits" ? "continue" : "reload";
+  if (target === "missing")
+    return "create";
+  if (target === "stale") {
+    const overwrites = destinationSyncMode === "overwrite" || destinationSyncMode === "overwrite_dedup";
+    return overwrites ? "reload" : "evolve";
+  }
+  return "load";
+}
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/stream-change.js
+import { isDeepStrictEqual as isDeepStrictEqual2 } from "node:util";
+var declarations = [
+  "name",
+  "primaryKey",
+  "partitionKey",
+  "supportedSyncModes",
+  "supportsFileTransfer",
+  "sourceDefinedCursor",
+  "emitsDeletes",
+  "expiresBy"
+];
+var StreamChangeError = class extends TypeError {
+  name = "StreamChangeError";
+  constructor(id, changed) {
+    super(`Stream of copy ${id} changed its ${changed.join(", ")}; reset the copy to keep its rows, or clear it to drop them`);
+  }
+};
+function changedDeclarations(saved, current) {
+  return declarations.filter((declaration) => !isDeepStrictEqual2(Reflect.get(Object(saved), declaration), Reflect.get(Object(current), declaration)));
+}
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/record-validation.js
+var itemTypes = /* @__PURE__ */ new Set(["string", "integer", "number", "boolean"]);
+var scalarTypes = /* @__PURE__ */ new Set([...itemTypes, "null"]);
+var typesOf = (field) => typeof field.type === "string" ? [field.type] : field.type;
+var isArrayField = (field) => typesOf(field).includes("array");
+function supported(field) {
+  const types = typesOf(field);
+  if (!isArrayField(field))
+    return field.items === void 0 && types.every((type) => scalarTypes.has(type));
+  const { items } = field;
+  return types.every((type) => type === "array" || type === "null") && // Constraints on an array field belong on its items.
+  field.enum === void 0 && field.format === void 0 && field.precision === void 0 && field.scale === void 0 && field.contentEncoding === void 0 && field.minimum === void 0 && field.maximum === void 0 && field.minLength === void 0 && items !== null && typeof items === "object" && itemTypes.has(items.type);
+}
+function scalarValid(field, types, format, value) {
+  const typed = types.some((type) => type === "integer" ? Number.isSafeInteger(value) : type === "number" ? typeof value === "number" && Number.isFinite(value) : (type === "string" || type === "boolean") && typeof value === type);
+  return typed && (field.enum === void 0 || field.enum.some((member) => member === value)) && !(typeof value === "number" && (field.minimum !== void 0 && value < field.minimum || field.maximum !== void 0 && value > field.maximum)) && !(typeof value === "string" && field.minLength !== void 0 && value.length < field.minLength) && (format === null || typeof value === "string" && format.accepts(value));
+}
+function validateRecords(stream, records, source) {
+  if (!Array.isArray(records))
+    throw new TypeError(`${source} returned invalid ${stream.name} records`);
+  const { properties } = stream.jsonSchema;
+  if (properties === void 0)
+    throw new TypeError(`Stream ${stream.name} declares no properties to validate`);
+  const fields = Object.entries(properties).map(([name, schema]) => {
+    const unsupported = (cause) => new TypeError(`Stream ${stream.name}.${name} declares an unsupported type`, { cause });
+    if (!supported(schema))
+      throw unsupported();
+    try {
+      return {
+        name,
+        schema,
+        format: declaredFormat(isArrayField(schema) ? schema.items : schema)
+      };
+    } catch (error) {
+      throw unsupported(error);
+    }
+  });
+  const valid = [];
+  for (const record of records) {
+    assertRecord(record, fields, stream.name, source);
+    valid.push(record);
+  }
+  return valid;
+}
+function assertRecord(record, fields, stream, source) {
+  if (record === null || typeof record !== "object" || Array.isArray(record) || Object.keys(record).length !== fields.length)
+    throw new TypeError(`${source} returned an invalid ${stream} record`);
+  for (const { name, schema, format } of fields) {
+    const value = Reflect.get(record, name);
+    const types = typesOf(schema);
+    if (value === null && types.includes("null"))
+      continue;
+    const valid = isArrayField(schema) ? Array.isArray(value) && value.every((item) => scalarValid(schema.items, [schema.items.type], format, item)) : scalarValid(schema, types, format, value);
+    if (!valid)
+      throw new TypeError(`${source} returned invalid ${stream}.${name}`);
+  }
+}
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/snapshot.js
+import { scheduler } from "node:timers/promises";
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/snapshot-differential/dist/deletion-policy.js
+var DeletionPolicy = class {
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/snapshot-differential/dist/closed-world.js
+var ClosedWorld = class extends DeletionPolicy {
+  vanished() {
+    return "deleted";
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/snapshot-differential/dist/coverage.js
+var Coverage = class extends DeletionPolicy {
+  #covers;
+  constructor(covers) {
+    super();
+    this.#covers = covers;
+  }
+  vanished(record) {
+    return this.#covers(record) ? "deleted" : "unknown";
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/snapshot-differential/dist/timestamp.js
+function isTimestamp2(value) {
+  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value) && new Date(value).toISOString() === value;
+}
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/snapshot-differential/dist/retention.js
+var Retention = class extends DeletionPolicy {
+  horizon;
+  constructor(horizon) {
+    super();
+    if (!isTimestamp2(horizon))
+      throw new TypeError(`Retention horizon ${horizon} is not a timestamp`);
+    this.horizon = horizon;
+  }
+  vanished({ expiresBy }) {
+    return expiresBy === void 0 || expiresBy >= this.horizon ? "deleted" : "expired";
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/snapshot-differential/dist/fingerprint.js
+import { createHash as createHash2 } from "node:crypto";
+import { isDeepStrictEqual as isDeepStrictEqual3 } from "node:util";
+function fingerprintOf(name, record) {
+  const serialized = JSON.parse(JSON.stringify(record));
+  if (!isDeepStrictEqual3(serialized, record))
+    throw new TypeError(`Snapshot ${name} records must be losslessly JSON serializable to diff snapshots`);
+  return createHash2("sha256").update(canonical(serialized)).digest("base64url");
+}
+function canonical(value) {
+  if (Array.isArray(value))
+    return `[${value.map(canonical).join(",")}]`;
+  if (isPlainObject(value))
+    return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonical(value[key])}`).join(",")}}`;
+  return JSON.stringify(value);
+}
+function isPlainObject(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value) && Object.getPrototypeOf(value) === Object.prototype;
+}
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/snapshot-differential/dist/snapshot-state.js
+function readSnapshot(name, state) {
+  if (state === null)
+    return { snapshot: /* @__PURE__ */ new Map(), listed: /* @__PURE__ */ new Set() };
+  if (!isPlainObject(state))
+    throw invalid(name);
+  return {
+    snapshot: entries(name, state.snapshot),
+    listed: listedKeys(name, state.listed)
+  };
+}
+function readGroups(name, state) {
+  if (state === null)
+    return { groups: /* @__PURE__ */ new Map(), unknown: /* @__PURE__ */ new Map(), listed: /* @__PURE__ */ new Set() };
+  if (!isPlainObject(state) || !isPlainObject(state.groups))
+    throw invalid(name);
+  const groups = /* @__PURE__ */ new Map();
+  for (const [key, group] of Object.entries(state.groups)) {
+    if (!isPlainObject(group) || group.fingerprint !== null && typeof group.fingerprint !== "string" || !isSnapshot(group.snapshot))
+      throw invalid(name);
+    groups.set(key, {
+      fingerprint: group.fingerprint,
+      snapshot: group.snapshot
+    });
+  }
+  return {
+    groups,
+    unknown: state.unknown === void 0 ? /* @__PURE__ */ new Map() : entries(name, state.unknown),
+    listed: listedKeys(name, state.listed)
+  };
+}
+function sorted(values) {
+  return Object.fromEntries([...values].sort(([a], [b]) => compareKeys(a, b)));
+}
+function compareKeys(a, b) {
+  if (a < b)
+    return -1;
+  if (a > b)
+    return 1;
+  return 0;
+}
+function fingerprintIn(entry) {
+  return typeof entry === "string" ? entry : entry?.[0];
+}
+function entries(name, snapshot) {
+  if (!isPlainObject(snapshot))
+    throw invalid(name);
+  const saved = /* @__PURE__ */ new Map();
+  for (const [key, entry] of Object.entries(snapshot)) {
+    if (!isSavedEntry(entry))
+      throw invalid(name);
+    saved.set(key, entry);
+  }
+  return saved;
+}
+function isSnapshot(value) {
+  return isPlainObject(value) && Object.values(value).every(isSavedEntry);
+}
+function listedKeys(name, listed) {
+  if (listed === void 0)
+    return /* @__PURE__ */ new Set();
+  if (!Array.isArray(listed) || !listed.every((key) => typeof key === "string"))
+    throw invalid(name);
+  return new Set(listed);
+}
+function isSavedEntry(value) {
+  return typeof value === "string" || Array.isArray(value) && value.length === 2 && typeof value[0] === "string" && typeof value[1] === "string";
+}
+function invalid(name) {
+  return new TypeError(`Snapshot ${name} state is not a saved snapshot`);
+}
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/node_modules/@zukhruf/snapshot-differential/dist/snapshot-differential.js
+var SnapshotDifferential = class {
+  name;
+  primaryKey;
+  expiresBy;
+  policy;
+  #key;
+  constructor({ name, primaryKey, key, expiresBy, policy }) {
+    this.name = name;
+    this.primaryKey = primaryKey;
+    this.#key = key;
+    this.expiresBy = expiresBy;
+    this.policy = policy;
+  }
+  // rereads names the lookback window: a scan the next one repeats only in
+  // part, such as days an upstream may still restate. Only records the next
+  // scan reads again stay in the snapshot; one left out is never deleted.
+  // continues makes this call one part of a scan that later calls go on
+  // with, for an upstream that cannot list everything at once: the part
+  // judges no vanished key and saves the keys it listed, and the part that
+  // ends the scan judges every saved key that no part listed.
+  async *diff(records, state, { rereads, continues = false } = {}) {
+    const { snapshot: previous, listed } = readSnapshot(this.name, state);
+    const seen = /* @__PURE__ */ new Set();
+    const current = /* @__PURE__ */ new Map();
+    for await (const record of records) {
+      const key = this.#claim(seen, record);
+      const fingerprint = fingerprintOf(this.name, record);
+      if (rereads?.(record) ?? true)
+        current.set(key, this.#entry(record, fingerprint));
+      if (fingerprintIn(previous.get(key)) !== fingerprint)
+        yield { type: "upsert", record };
+    }
+    const listedSoFar = /* @__PURE__ */ new Set([...listed, ...seen]);
+    for (const [key, entry] of previous)
+      if (!seen.has(key) && (continues || listed.has(key)))
+        current.set(key, entry);
+    if (continues) {
+      yield {
+        type: "state",
+        state: {
+          snapshot: sorted(current),
+          listed: [...listedSoFar].sort()
+        }
+      };
+      return;
+    }
+    yield* this.#judge(previous, listedSoFar, current);
+    yield { type: "state", state: { snapshot: sorted(current) } };
+  }
+  // diff for a scan whose records come from inputs the source fingerprints
+  // cheaply. A group whose fingerprint matches the last committed scan keeps
+  // its records without reading them; every other group is read and diffed
+  // record by record. Vanished keys are judged over the complete scan.
+  // continues makes this call one part of a scan in parts, as for diff.
+  async *diffGroups(groups, state, { continues = false } = {}) {
+    const previous = readGroups(this.name, state);
+    const saved = /* @__PURE__ */ new Map();
+    for (const { snapshot } of previous.groups.values())
+      for (const [key, entry] of Object.entries(snapshot))
+        saved.set(key, entry);
+    for (const [key, entry] of previous.unknown)
+      saved.set(key, entry);
+    const seen = /* @__PURE__ */ new Set();
+    const current = /* @__PURE__ */ new Map();
+    for await (const group of groups) {
+      if (current.has(group.key))
+        throw new TypeError(`Snapshot ${this.name} returned group ${group.key} twice in one scan`);
+      const before = previous.groups.get(group.key);
+      if (group.fingerprint !== null && before?.fingerprint === group.fingerprint) {
+        for (const key of Object.keys(before.snapshot))
+          this.#claimKey(seen, key);
+        current.set(group.key, before);
+        continue;
+      }
+      const snapshot = /* @__PURE__ */ new Map();
+      for await (const record of group.records()) {
+        const key = this.#claim(seen, record);
+        const fingerprint = fingerprintOf(this.name, record);
+        snapshot.set(key, this.#entry(record, fingerprint));
+        if (fingerprintIn(saved.get(key)) !== fingerprint)
+          yield { type: "upsert", record };
+      }
+      current.set(group.key, {
+        fingerprint: group.fingerprint,
+        snapshot: sorted(snapshot)
+      });
+    }
+    const listedSoFar = /* @__PURE__ */ new Set([...previous.listed, ...current.keys()]);
+    for (const [key, before] of previous.groups) {
+      if (current.has(key) || !(continues || previous.listed.has(key)))
+        continue;
+      const snapshot = Object.entries(before.snapshot).filter(([recordKey]) => !seen.has(recordKey));
+      for (const [recordKey] of snapshot)
+        seen.add(recordKey);
+      current.set(key, {
+        fingerprint: before.fingerprint,
+        snapshot: Object.fromEntries(snapshot)
+      });
+    }
+    const unknown = /* @__PURE__ */ new Map();
+    if (continues) {
+      const grouped = new Set([...current.values()].flatMap(({ snapshot }) => Object.keys(snapshot)));
+      for (const [key, entry] of saved)
+        if (!seen.has(key) && !grouped.has(key))
+          unknown.set(key, entry);
+    } else {
+      yield* this.#judge(saved, seen, unknown);
+    }
+    yield {
+      type: "state",
+      state: {
+        groups: sorted(current),
+        ...unknown.size === 0 ? {} : { unknown: sorted(unknown) },
+        ...continues ? { listed: [...listedSoFar].sort() } : {}
+      }
+    };
+  }
+  // Asks the policy about every saved key the scan did not list. A deleted
+  // one yields a delete, an unknown one stays in kept, an expired one leaves.
+  *#judge(saved, seen, kept) {
+    for (const [key, entry] of saved) {
+      if (seen.has(key))
+        continue;
+      const record = typeof entry === "string" ? { key: this.#keyObject(key) } : { key: this.#keyObject(key), expiresBy: entry[1] };
+      const verdict = this.policy.vanished(record);
+      if (verdict === "deleted")
+        yield { type: "delete", key: record.key };
+      else if (verdict === "unknown")
+        kept.set(key, entry);
+    }
+  }
+  #claim(seen, record) {
+    const key = this.#key(record);
+    this.#claimKey(seen, key);
+    return key;
+  }
+  #claimKey(seen, key) {
+    if (seen.has(key))
+      throw new TypeError(`Snapshot ${this.name} returned ${this.#keyText(key)} twice in one scan`);
+    seen.add(key);
+  }
+  #entry(record, fingerprint) {
+    if (this.expiresBy === void 0)
+      return fingerprint;
+    const expiresBy = record[this.expiresBy];
+    if (!isTimestamp2(expiresBy))
+      throw new TypeError(`Snapshot ${this.name} records must carry ${this.expiresBy} as a timestamp to expire`);
+    return [fingerprint, expiresBy];
+  }
+  // A key as its primary key fields, from the JSON of its values.
+  #keyObject(key) {
+    const values = JSON.parse(key);
+    return Object.fromEntries(this.primaryKey.map((field, index) => {
+      const value = values[index];
+      if (value === void 0)
+        throw new TypeError(`Snapshot key ${key} does not match ${this.name}'s primary key`);
+      return [field, value];
+    }));
+  }
+  // A key as people read it: each field with its value, a string as it is.
+  #keyText(key) {
+    return Object.entries(this.#keyObject(key)).map(([field, value]) => `${field} ${typeof value === "string" ? value : JSON.stringify(value)}`).join(", ");
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/snapshot.js
+async function* diffSnapshot({ stream, syncMode }, records, state, options) {
+  const differential = differentialOf(stream, options);
+  if (syncMode !== "incremental") {
+    for await (const data of records)
+      yield { stream: stream.name, data };
+    return;
+  }
+  for await (const change of differential.diff(untilStopped(records, options.signal), state, options))
+    yield messageOf(stream, change);
+}
+async function* diffGroupedSnapshot({ stream, syncMode }, groups, state, options) {
+  const differential = differentialOf(stream, options);
+  if (syncMode !== "incremental") {
+    for await (const group of groups)
+      for await (const data of group.records())
+        yield { stream: stream.name, data };
+    return;
+  }
+  for await (const change of differential.diffGroups(untilStopped(groups, options.signal), state, options))
+    yield messageOf(stream, change);
+}
+async function* untilStopped(items, signal) {
+  let turn = performance.now();
+  for await (const item of items) {
+    if (performance.now() - turn > turnMs) {
+      await scheduler.yield();
+      turn = performance.now();
+    }
+    signal?.throwIfAborted();
+    yield item;
+  }
+}
+var turnMs = 10;
+var Forgetting = class extends DeletionPolicy {
+  vanished() {
+    return "expired";
+  }
+};
+function differentialOf(stream, { policy }) {
+  if (!stream.sourceDefinedCursor)
+    throw new TypeError(`Stream ${stream.name} must declare sourceDefinedCursor to diff snapshots`);
+  const deduplication = new Deduplication(stream, stream.primaryKey);
+  return new SnapshotDifferential({
+    name: stream.name,
+    primaryKey: stream.primaryKey,
+    key: (record) => deduplication.key(record),
+    expiresBy: stream.expiresBy,
+    policy: policyOf(stream, policy)
+  });
+}
+function policyOf(stream, policy) {
+  if (!stream.emitsDeletes) {
+    if (policy !== void 0)
+      throw new TypeError(`Stream ${stream.name} emits no deletions, so its snapshot diff takes no policy`);
+    return new Forgetting();
+  }
+  if (policy === void 0)
+    throw new TypeError(stream.expiresBy === void 0 ? `Stream ${stream.name} emits deletions, so its snapshot diff needs a policy, such as ClosedWorld` : `Stream ${stream.name} expires by ${stream.expiresBy}, so its snapshot diff needs a policy, such as Retention(horizon)`);
+  return policy;
+}
+function messageOf(stream, change) {
+  if (change.type === "upsert")
+    return { stream: stream.name, data: change.record };
+  if (change.type === "delete")
+    return { type: "DELETE", stream: stream.name, key: change.key };
+  return { type: "STATE", stream: stream.name, state: change.state };
+}
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/target-description.js
+function annotation(value) {
+  if (value === void 0)
+    return null;
+  if (typeof value !== "string" || value.includes("\0") || !value.isWellFormed())
+    throw new TypeError("JSON Schema description must be well-formed text without NUL");
+  return value;
+}
+var loading = {
+  append: "Every accepted observation is appended; source keys may repeat.",
+  overwrite: "Each full refresh replaces the table with its accepted records.",
+  append_dedup: "Accepted observations reconcile rows by the copy key.",
+  overwrite_dedup: "Each full refresh replaces the table with deduplicated records."
+};
+function describeTarget(configuration, columns, storedFile) {
+  const { stream } = configuration;
+  const meaning = annotation(stream.jsonSchema.description);
+  const lines = [`Source stream: ${stream.name}.`];
+  if (meaning !== null)
+    lines.push(`Source record meaning: ${meaning}`);
+  lines.push(`Extraction: ${configuration.syncMode}. Loading: ${configuration.destinationSyncMode}. ${loading[configuration.destinationSyncMode]}`);
+  const named = (field) => columns.find((column) => column.field === field)?.name ?? field;
+  if (configuration.dedupPolicy !== void 0) {
+    const deduplication = configuration.deduplication();
+    const { primaryKey, cursorField } = deduplication;
+    lines.push(`Copy key: ${primaryKey.map(named).join(", ")}.`);
+    lines.push(configuration.dedupPolicy === "replace" || cursorField === void 0 ? "For a repeated key, the newest extracted record wins." : `For a repeated key, the greatest ${named(cursorField)} wins; equal cursors retain the first accepted record. Text cursors compare ${deduplication.format(cursorField)?.ordering ?? "by byte order"}.`);
+  }
+  const { properties } = stream.jsonSchema;
+  const missing = meaning === null ? ["the stream"] : [];
+  const describe = (column) => {
+    if (column.storesFile)
+      return storedFile(column);
+    if (column.fileRead?.parser !== void 0)
+      return `Text extracted from the source file by parser ${column.fileRead.parser.identity}. NULL when the source file is unavailable or the parser returns no text.`;
+    if (column.fileRead?.file.storage !== void 0)
+      return `${column.fileRead.file.storage.reference} NULL when the source file is unavailable.`;
+    const description = annotation(properties?.[column.field]?.description);
+    if (description === null)
+      missing.push(column.field);
+    return description;
+  };
+  const described = Object.fromEntries(columns.map((column) => {
+    const description = describe(column);
+    if (column.name === column.field)
+      return [column.name, description];
+    const source = `Source field: ${JSON.stringify(column.field)}.`;
+    return [
+      column.name,
+      description === null ? source : `${description} ${source}`
+    ];
+  }));
+  described.loaded_at = "Start time of the load that last wrote this row, not the source modification time or the most recent successful sync.";
+  return Object.freeze({
+    meaning,
+    table: lines.join("\n"),
+    columns: Object.freeze(described),
+    missing: Object.freeze(missing)
+  });
+}
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/core/writer.js
+var TargetOwnedError = class extends TypeError {
+  name = "TargetOwnedError";
+  constructor(target, owner, writer) {
+    super(`Target ${target} is written by ${owner}; ${writer} cannot write it. A target has one writer; clear the owning copy, or drop the target, to reassign it.`);
+  }
+};
+var Writer = class {
+  stream;
+  constructor(stream) {
+    this.stream = stream;
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/state/checkpoint-store.js
+import { isDeepStrictEqual as isDeepStrictEqual4 } from "node:util";
+var CheckpointStore = class {
+  // Holds every replication's lock for the whole run.
+  async run(bindings, work) {
+    const ids = [...bindings.keys()].sort();
+    return this.session(ids, async (session) => {
+      const checkpoints = /* @__PURE__ */ new Map();
+      for (const [id, { copy, shape: shape2 }] of bindings) {
+        const binding = JSON.stringify([copy, shape2]);
+        const saved = await session.read(id);
+        const [savedCopy, savedShape] = saved === void 0 ? [] : JSON.parse(saved.binding);
+        const [currentCopy, currentShape] = JSON.parse(binding);
+        let refused;
+        if (saved !== void 0) {
+          const declarations2 = changedDeclarations(savedShape, currentShape);
+          if (!isDeepStrictEqual4(savedCopy, currentCopy))
+            refused = new TypeError(`Checkpoint binding changed for ${id}; reset it or use a new copy ID`);
+          else if (declarations2.length > 0)
+            refused = new StreamChangeError(id, declarations2);
+        }
+        checkpoints.set(id, {
+          binding,
+          reloading: saved?.reloading ?? false,
+          refused
+        });
+      }
+      const checkpoint = (id) => {
+        const found = checkpoints.get(id);
+        if (found === void 0)
+          throw new TypeError(`Checkpoint ${id} is not part of this run`);
+        if (found.refused !== void 0)
+          throw found.refused;
+        return found;
+      };
+      const durably = async (id, save) => {
+        try {
+          await save();
+        } catch (cause) {
+          throw new Error(`Checkpoint ${id} was not saved after the destination committed; the next run replays from the last saved checkpoint`, { cause });
+        }
+      };
+      return work({
+        state: async (id) => {
+          checkpoint(id);
+          const state = await session.state(id);
+          return state === void 0 ? null : JSON.parse(state);
+        },
+        reloading: (id) => checkpoint(id).reloading,
+        save: (id, state, reloading) => {
+          const { binding } = checkpoint(id);
+          return durably(id, () => session.save(id, { binding, reloading, state }));
+        },
+        reloaded: (id) => {
+          checkpoint(id);
+          return durably(id, () => session.reloaded(id));
+        }
+      });
+    });
+  }
+  // Forgets progress but keeps the loaded rows: the next run reloads
+  // everything, as Airbyte's refresh that keeps records. It also accepts a
+  // stream whose declarations changed, keeping its rows under them.
+  async reset(id) {
+    await this.session([id], (session) => session.remove(id));
+  }
+  // Airbyte's Clear: removes the data, then the checkpoint, under the
+  // replication's lock. A crash between the two leaves a checkpoint beside an
+  // emptied target, and clear can simply run again.
+  async clear(id, drop) {
+    await this.session([id], async (session) => {
+      await drop();
+      await session.remove(id);
+    });
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/state/sync-history.js
+import { inspect } from "node:util";
+var checkRecordMs = 6e4;
+var SyncHistory = class {
+  // When each connection's checks were last recorded.
+  #checkedAt = /* @__PURE__ */ new Map();
+  // Refuses, without I/O, a connection this history cannot record.
+  validate(_connection) {
+  }
+  // At that moment a watch's source checked its streams and found them
+  // unchanged since their last copy loaded, so readers see them current as of
+  // then though no pass read them, as a Debezium heartbeat moves a connector's
+  // position with no change to carry. A connection's first check is recorded
+  // at once, and the next at most once a minute; current gives the streams
+  // to record only then, since asking a source can cost a process call.
+  async checked(connection, at, current) {
+    const last = this.#checkedAt.get(connection.name);
+    if (last !== void 0 && at.getTime() - last < checkRecordMs)
+      return;
+    this.#checkedAt.set(connection.name, at.getTime());
+    await this.recordChecks(connection, await current(at));
+  }
+};
+function recordedFailure({ partition, error, failureType }) {
+  return {
+    partition,
+    error: error instanceof Error ? error.message : String(error),
+    failure_type: failureType,
+    stacktrace: inspect(error)
+  };
+}
+function copyStatus({ count, deleted, failures, cancelled }) {
+  if (cancelled)
+    return "cancelled";
+  if (failures.length === 0)
+    return "succeeded";
+  return count + deleted > 0 ? "partial" : "failed";
+}
+function passStatus(outcomes) {
+  if (outcomes.some(({ cancelled }) => cancelled))
+    return "cancelled";
+  if (outcomes.every(({ failures }) => failures.length === 0))
+    return "succeeded";
+  return outcomes.some((outcome) => copyStatus(outcome) !== "failed") ? "partial" : "failed";
+}
+function passFailureType(outcomes) {
+  const status = passStatus(outcomes);
+  if (status === "succeeded" || status === "cancelled")
+    return null;
+  return outcomes.some(({ failures }) => failures.some(({ failureType }) => failureType === "config")) ? "config" : "system";
+}
+function passError(outcomes) {
+  const incomplete = outcomes.filter(({ failures }) => failures.length > 0);
+  if (incomplete.length === 0)
+    return null;
+  return `The following copies did not load completely: ${incomplete.map(describeFailures).join("; ")}`;
+}
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/state/sync-history-relations.js
+var attempt = {
+  attempt_id: "Pass identifier. Join to extraction_coverage.attempt_id for the exact declarations and copy outcomes of this pass.",
+  connector: "Connection name declared by the application. Each attempt is one pass: one read of the streams the connection selected.",
+  source: "Source identity, not credentials or a record identifier.",
+  started_at: "Database time when the attempt and its declared coverage were recorded, before the pass read anything. Not a source record modification or row load time.",
+  completed_at: "Database time when the pass outcomes were recorded. NULL means no completion was recorded; this is not evidence that a process is alive.",
+  status: "running: no completion recorded; succeeded: all selected copies completed, including empty or unchanged reads; partial: failures with some successful copies or committed writes/deletes; failed: failures without that progress; cancelled: the run was stopped on request, and error says why; what it committed before stays. No watcher health is implied.",
+  error: "Pipeline error message, or NULL after success or before completion. Per-copy failures and partitions are in extraction_coverage.",
+  failure_type: "Whose the failure is to fix, as the source classified it: config when at least one failure needs the user to change what they set up or granted, such as macOS access to the app's store; system for every other failure, which the user cannot fix by granting or configuring. NULL after success, before completion, or when cancelled."
+};
+var syncHistoryRelations = {
+  sync_attempts: {
+    name: "sync_attempts",
+    description: "One row per pass of a connection. A run passes every stream the connection selected; a watch pass reads only the streams its source reported changed, so an attempt vouches only for its own extraction_coverage rows. History is retained, including failures and unfinished attempts. A successful pass may write zero rows. A connection whose watcher stopped records a failed attempt without outcomes. Setup/authentication before the pipeline is constructed is not observed. This records extraction/load outcomes, not subsequent mart publication.",
+    columns: attempt
+  },
+  extraction_coverage: {
+    name: "extraction_coverage",
+    description: "One row per selected stream per attempt, declared before extraction even when there are no records. Description and selection describe the requested export scope, not observed record dates or proof of upstream completeness. Only succeeded confirms that this copy completed that declared pass; partial/failed/running never establish complete coverage. Earlier successful declarations remain available. Raw target names identify storage, not reader grants; discover readable content in catalog.",
+    columns: {
+      attempt_id: attempt.attempt_id,
+      connector: attempt.connector,
+      source: attempt.source,
+      started_at: attempt.started_at,
+      completed_at: "Time the whole attempt was recorded as complete; NULL while unfinished. The copy may have finished earlier. Not record modification time or loaded_at.",
+      stream: "Source stream name, unique within one attempt.",
+      target_schema: "Schema of the raw destination table (main in SQLite); this metadata does not grant access to it.",
+      target_table: "Raw destination table name within target_schema.",
+      target_exists: "Whether the raw relation exists now, independent of this historical attempt. Existence does not prove successful extraction, current contents, or reader access.",
+      sync_mode: "Requested source mode: incremental or full_refresh. Incremental copies can resume saved state; the selection describes their configured scope, not every request made on this pass.",
+      destination_sync_mode: "Requested load mode, such as append_dedup. Partial passes can leave previously committed changes in the destination.",
+      description: "Connector-owned explanation of the scope, date boundaries, selection keys and source limitations for this stream.",
+      selection: "Structured configured selection, interpreted using description. Not computed from rows. Empty object means no additional configured selection, not unlimited upstream history.",
+      status: "running: no outcome recorded; succeeded: copy completed with no failures, even with zero changes; partial: failures after committed writes/deletes; failed: failures without committed row changes, or an error without outcomes; cancelled: the run was stopped on request before this copy ended, keeping what it committed. Consult failures for affected partitions.",
+      written_count: "Accepted record operations committed by this copy during this pass, including deduplication no-ops. Not changed-row or total-record counts. Zero is valid after success. NULL means no counts were reported.",
+      deleted_count: "Accepted deletion operations committed by this copy during this pass, including already-absent keys. Not a count of rows actually removed. NULL means no counts were reported.",
+      failures: 'Array of {partition, error, failure_type, stacktrace} from pass outcomes. A null partition denotes a whole-stream or non-partition-specific failure; failure_type is config or system, as in sync_attempts. error is the message; stacktrace is the error with its stack and every cause it chains, such as the code of a refused connection behind "fetch failed". Empty array means none recorded; check status before assuming success.'
+    }
+  },
+  sync_status: {
+    name: "sync_status",
+    description: "One row per connector with its latest started attempt, independently its most recently completed successful pass, and how current its data is. A watch pass covers only the streams that changed; see stream_status for each stream. A later failed, partial or unfinished pass does not erase prior success. Join extraction_coverage using the appropriate attempt ID: requested scope can change. NULL success means none recorded. Judge freshness by current_as_of: last_successful_sync_at measures sync completion, not service liveness or source completeness.",
+    columns: {
+      connector: attempt.connector,
+      latest_attempt_id: "Most recently started attempt for this connector; join sync_attempts or extraction_coverage by attempt_id.",
+      started_at: attempt.started_at,
+      completed_at: attempt.completed_at,
+      status: attempt.status,
+      error: attempt.error,
+      failure_type: attempt.failure_type,
+      last_successful_attempt_id: "Most recently completed all-copies-successful attempt; NULL if none. Its coverage may differ from the latest attempt.",
+      last_successful_sync_at: "Completion time of that successful pass, advanced even if no rows changed. NULL if no successful pass was recorded. Never inferred from loaded_at or record modification dates.",
+      current_as_of: "The oldest current_as_of among the connector's streams in stream_status: everything it loaded matched its upstream at least as of this time. NULL until every stream has loaded once. An old value means its data is that old: no pass or watch has refreshed it since, a change failed to load, or the app that writes its upstream has not written it since, as WhatsApp while it is closed."
+    }
+  },
+  stream_status: {
+    name: "stream_status",
+    description: "One row per connector and stream: the latest attempt that declared the stream, independently the last attempt in which its copy succeeded, and how current the stream is. A watch pass reads only the streams its source reported changed, so a connector can succeed in sync_status while one of its streams last failed, and an unchanged stream keeps an old last_successful_sync_at while its watch keeps it current, up to when its source says its upstream was last current; judge a stream here, by current_as_of. NULL success means that stream never completed.",
+    columns: {
+      connector: attempt.connector,
+      stream: "Source stream name.",
+      target_schema: "Schema of the raw destination table in the latest declaration (main in SQLite); this metadata does not grant access to it.",
+      target_table: "Raw destination table name within target_schema.",
+      latest_attempt_id: "Most recently started attempt that declared this stream; join extraction_coverage by attempt_id and stream.",
+      started_at: attempt.started_at,
+      completed_at: attempt.completed_at,
+      status: "This stream's copy status in the latest attempt: running, succeeded, partial, failed or cancelled. Other streams of the same attempt may differ.",
+      last_successful_attempt_id: "Most recent completed attempt in which this stream's copy succeeded; NULL if none.",
+      last_successful_sync_at: "Completion time of that attempt, advanced even if no rows changed. NULL if this stream never succeeded. Never inferred from loaded_at or record modification dates.",
+      current_as_of: "When the stream last matched its upstream: when its last successful pass began reading, or a later check by a watch that found the stream unchanged since, whichever is later, and never later than when its source says the upstream itself was last current, as an app writes its store only while it runs. A watch records its checks about once a minute. NULL if the stream never succeeded. A stream whose latest change failed to load keeps the time before that change, so its age is how stale it is; compare it with the current time to judge freshness."
+    }
+  }
+};
+
+// ../../../../../../../../Users/ezzabuzaid/Desktop/experiments/context-compiler/packages/elt/dist/storage/local-files.js
+import { createHash as createHash3, randomUUID } from "node:crypto";
+import { link, lstat, mkdir, open as open2, readdir, rm } from "node:fs/promises";
+import { dirname, join, resolve } from "node:path";
+async function syncDirectory(path) {
+  var _stack = [];
+  try {
+    const directory = __using(_stack, await open2(path, "r"), true);
+    await directory.sync();
+  } catch (_) {
+    var _error = _, _hasError = true;
+  } finally {
+    var _promise = __callDispose(_stack, _error, _hasError);
+    _promise && await _promise;
+  }
+}
+var LocalFiles = class extends FileStorage {
+  directory;
+  identity;
+  reference = "Path of a copy of the source file bytes, relative to the folder the load stores files in. Named by content hash, keeping a short source extension, and kept only while a row references it. Not the source file name, a URL or extracted text.";
+  constructor({ directory }) {
+    super();
+    if (typeof directory !== "string" || directory.length === 0 || directory.includes("\0") || !directory.isWellFormed())
+      throw new TypeError("LocalFiles requires a directory");
+    this.directory = resolve(directory);
+    this.identity = JSON.stringify({ type: "local-files" });
+    Object.freeze(this);
+  }
+  // The scope's folder, relative to the storage folder.
+  scopeFolder(scope) {
+    return join(".elt-files", createHash3("sha256").update(scope).digest("hex"));
+  }
+  async inspect(path) {
+    const info = await lstat(path).catch((error) => {
+      if (error.code !== "ENOENT")
+        throw error;
+      return void 0;
+    });
+    if (info === void 0)
+      return false;
+    if (!info.isDirectory())
+      throw new TypeError(`Managed attachment directories must be real directories: ${path}`);
+    return true;
+  }
+  async save(scope, content) {
+    const folder = this.scopeFolder(scope);
+    const directory = join(this.directory, folder);
+    const created = await mkdir(directory, { recursive: true });
+    for (const path of [this.directory, dirname(directory), directory])
+      await this.inspect(path);
+    if (created !== void 0) {
+      let path = directory;
+      while (path !== dirname(created)) {
+        await syncDirectory(path);
+        path = dirname(path);
+      }
+      await syncDirectory(path);
+    }
+    const temporary = join(directory, `.pending-${randomUUID()}`);
+    try {
+      const hash2 = createHash3("sha256");
+      {
+        var _stack = [];
+        try {
+          const file = __using(_stack, await open2(temporary, "wx", 384), true);
+          for await (const chunk of content.chunks(4 * 1024 * 1024)) {
+            hash2.update(chunk);
+            await file.writeFile(chunk);
+          }
+          await file.sync();
+        } catch (_) {
+          var _error = _, _hasError = true;
+        } finally {
+          var _promise = __callDispose(_stack, _error, _hasError);
+          _promise && await _promise;
+        }
+      }
+      const name = hash2.digest("hex") + fileExtension(content.path);
+      const path = join(directory, name);
+      await link(temporary, path).catch(async (error) => {
+        if (error.code !== "EEXIST")
+          throw error;
+        if (!(await lstat(path)).isFile())
+          throw new TypeError(`Attachment reference is not a regular file: ${path}`);
+      });
+      await syncDirectory(directory);
+      return join(folder, name);
+    } finally {
+      await rm(temporary, { force: true });
+    }
+  }
+  async retain(scope, references) {
+    const folder = this.scopeFolder(scope);
+    const directory = join(this.directory, folder);
+    for (const path of [this.directory, dirname(directory), directory]) {
+      if (await this.inspect(path))
+        continue;
+      if (references.size > 0)
+        throw new Error(`Stored attachment directory is missing: ${directory}`);
+      return;
+    }
+    const missing = new Set(references);
+    const obsolete = [];
+    for (const entry of await readdir(directory, { withFileTypes: true })) {
+      const path = join(directory, entry.name);
+      if (!entry.isFile())
+        throw new TypeError(`Managed attachment is not a regular file: ${path}`);
+      const reference = join(folder, entry.name);
+      if (references.has(reference))
+        missing.delete(reference);
+      else
+        obsolete.push(path);
+    }
+    if (missing.size > 0)
+      throw new Error(`Stored attachment is missing or outside its scope: ${[...missing][0]}`);
+    for (const path of obsolete)
+      await rm(path);
+    await syncDirectory(directory);
+  }
+};
+
+export {
+  isTimestamp,
+  isCalendarDate,
+  declaredFormat,
+  DocumentParser,
+  FileStorage,
+  FileReference,
+  FileRead,
+  Stream,
+  Catalog,
+  CopyConfiguration,
+  FileContent,
+  Target,
+  Copy,
+  Connection,
+  Destination,
+  fileExtension,
+  Identifiers,
+  StreamStatus,
+  Source,
+  PipelineError,
+  WatchError,
+  Pipeline,
+  readerCatalog,
+  reloadMode,
+  StreamChangeError,
+  validateRecords,
+  ClosedWorld,
+  Coverage,
+  Retention,
+  diffSnapshot,
+  diffGroupedSnapshot,
+  describeTarget,
+  TargetOwnedError,
+  Writer,
+  CheckpointStore,
+  SyncHistory,
+  recordedFailure,
+  copyStatus,
+  passStatus,
+  passFailureType,
+  passError,
+  syncHistoryRelations,
+  LocalFiles
+};
