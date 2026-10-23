@@ -1,12 +1,12 @@
 {
   "name": "connector-apple-activity",
-  "sourceRoot": "packages/connectors/apple/activity/src",
+  "sourceRoot": "packages/connectors/activity/src",
   "projectType": "library",
   "targets": {
     "format": {},
     "test": {
       "dependsOn": ["build"],
-      "command": "node --test {args} \"packages/connectors/apple/activity/dist/*.test.js\""
+      "command": "node --test {args} \"packages/connectors/activity/dist/*.test.js\""
     }
   }
 }

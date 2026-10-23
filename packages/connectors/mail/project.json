@@ -1,6 +1,6 @@
 {
   "name": "connector-apple-mail",
-  "sourceRoot": "packages/connectors/apple/mail/src",
+  "sourceRoot": "packages/connectors/mail/src",
   "projectType": "library",
   "targets": {
     "format": {},
@@ -9,10 +9,10 @@
       "inputs": [
         "default",
         "^default",
-        "{workspaceRoot}/packages/connectors/apple/messages/presets/*.sql",
-        "{workspaceRoot}/packages/connectors/apple/notes/presets/*.sql"
+        "{workspaceRoot}/packages/connectors/messages/presets/*.sql",
+        "{workspaceRoot}/packages/connectors/notes/presets/*.sql"
       ],
-      "command": "node --test {args} \"packages/connectors/apple/mail/dist/*.test.js\""
+      "command": "node --test {args} \"packages/connectors/mail/dist/*.test.js\""
     }
   }
 }

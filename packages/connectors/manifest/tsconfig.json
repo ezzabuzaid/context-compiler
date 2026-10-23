@@ -1,5 +1,5 @@
 {
-  "extends": "../../../../tsconfig.base.json",
+  "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
@@ -9,16 +9,7 @@
   "include": ["src/**/*.ts", "src/fixtures/*/package.json"],
   "references": [
     {
-      "path": "../../../elt"
-    },
-    {
       "path": "../connector"
-    },
-    {
-      "path": "../../../sources/apple/macos"
-    },
-    {
-      "path": "../../../sdks/apple/eventkit"
     },
     {
       "path": "../whatsapp"

@@ -38,7 +38,7 @@ export const connectorSchema = z
   .string()
   .min(1)
   .describe(
-    'A connector the user chose, by the name the Apple status or apple_options uses.',
+    'A connector the user chose, by the name the Context Compiler status or options uses.',
   );
 
 // The shape of a selection as tools receive it; Settings.select checks it
@@ -52,18 +52,18 @@ export const configurationSchema = z.strictObject({
           .strictObject({
             accountIds: ids
               .describe(
-                'Account IDs from apple_options. Omit to import every account; never pass an empty list.',
+                'Account IDs from options. Omit to import every account; never pass an empty list.',
               )
               .optional(),
             collectionIds: ids
               .describe(
-                'Collection IDs (folders, calendars, lists, profiles) from apple_options. Omit to import every collection; never pass an empty list.',
+                'Collection IDs (folders, calendars, lists, profiles) from options. Omit to import every collection; never pass an empty list.',
               )
               .optional(),
             startAt: z.iso
               .datetime({ precision: 3 })
               .describe(
-                'Inclusive UTC start with milliseconds, such as 2026-01-01T00:00:00.000Z. Only for a connector whose apple_options datedBy is not null.',
+                'Inclusive UTC start with milliseconds, such as 2026-01-01T00:00:00.000Z. Only for a connector whose options datedBy is not null.',
               )
               .optional(),
             endAt: z.iso
@@ -90,7 +90,7 @@ export const configurationSchema = z.strictObject({
 export class PluginUpdatedError extends Error {
   constructor() {
     super(
-      'Apple was updated after this chat started. This chat runs the old version, so its Apple tools and status are out of date: open a new chat to use Apple.',
+      'Context Compiler was updated after this chat started. This chat runs the old version, so its Context Compiler tools and status are out of date: open a new chat to use Context Compiler.',
     );
   }
 }
@@ -354,7 +354,7 @@ export class ApplePlugin {
 
   // Keeps each import the user chose to keep current until signal aborts.
   // Every server stands by for each, and the one that owns an import watches
-  // it, so it stays current while any chat's server or the Apple page's
+  // it, so it stays current while any chat's server or the Context Compiler page's
   // runs. Each second it follows the settings: a connector switched off,
   // narrowed or disconnected stops its watch, and one switched on or
   // narrowed starts one. A server whose plugin was updated stops its
@@ -480,7 +480,7 @@ function keptCurrent(settings: Settings): Map<string, Selection> {
 // or for as long as it keeps the import current. The claim sits at the
 // store's root, beside the settings, so the removal of an import's folder
 // never deletes a claim a waiting server holds open. A copy of the CLI's
-// owners() in apps/apple/cli/src/imports.ts: change both.
+// owners() in apps/cli/src/imports.ts: change both.
 function owners(settings: Settings, directory: string): SqliteElection {
   const name = relative(settings.root, directory).replaceAll(sep, '.');
   return new SqliteElection({

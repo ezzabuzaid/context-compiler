@@ -38,7 +38,7 @@ import {
 import { setUpWithForms } from './setup-forms.ts';
 
 if (process.platform !== 'darwin')
-  throw new Error('Apple requires Codex on a Mac.');
+  throw new Error('Context Compiler requires Codex on a Mac.');
 
 // This bundle sits in the server folder of the installed plugin, beside the
 // folders of the built-in connectors.
@@ -51,7 +51,7 @@ provideHostModules(
   ({ file }) => new URL(`modules/${file}.mjs`, import.meta.url).href,
 );
 // Where the plugin keeps settings.sqlite, monitors.sqlite and every import;
-// the query-apple skill tells readers the same path.
+// the query skill tells readers the same path.
 const store = join(
   homedir(),
   'Library/Application Support/Context Compiler/Apple',
@@ -104,7 +104,7 @@ const { version } = z
   );
 const mcpServer = new McpServer(
   {
-    name: 'apple',
+    name: 'context-compiler',
     version,
     // ChatGPT shows the server's icon beside the sidebar page.
     icons: [
@@ -116,7 +116,7 @@ const mcpServer = new McpServer(
     ],
   },
   {
-    instructions: `Apple imports the ${new Intl.ListFormat('en', { type: 'conjunction' }).format(plugin.connectors.map(({ title }) => title))} content the user chose into private SQLite files on this Mac when the user connects a connector or changes what it imports, and again when the user presses Sync on the Apple page. A connector the user keeps current on its page also loads each change while ChatGPT is open. These tools only choose what is imported: set up with $setup-apple, and answer questions about the content with $query-apple, which reads those files with sqlite3.`,
+    instructions: `Context Compiler imports the ${new Intl.ListFormat('en', { type: 'conjunction' }).format(plugin.connectors.map(({ title }) => title))} content the user chose into private SQLite files on this Mac when the user connects a connector or changes what it imports, and again when the user presses Sync on the Context Compiler page. A connector the user keeps current on its page also loads each change while ChatGPT is open. These tools only choose what is imported: set up with $setup, and answer questions about the content with $query, which reads those files with sqlite3.`,
   },
 );
 // McpServer turns a thrown error into an isError result the model can act on.
@@ -127,11 +127,11 @@ const structured = (value: Record<string, unknown>) => ({
 });
 
 mcpServer.registerTool(
-  'apple_setup',
+  'setup',
   {
-    title: 'Set up Apple',
+    title: 'Set up Context Compiler',
     description:
-      'Set up Apple with one form the user answers: which connectors. Each chosen connector is imported from all its accounts and collections, with attachments. Saves the answers and reports connectors macOS did not allow; the import then runs in the background. To narrow a connector when the user asks, use apple_options and apple_configure; hosts without form support set up that way too.',
+      'Set up Context Compiler with one form the user answers: which connectors. Each chosen connector is imported from all its accounts and collections, with attachments. Saves the answers and reports connectors macOS did not allow; the import then runs in the background. To narrow a connector when the user asks, use options and configure; hosts without form support set up that way too.',
     annotations: {
       readOnlyHint: false,
       destructiveHint: false,
@@ -143,7 +143,7 @@ mcpServer.registerTool(
     await refresh();
     if (!mcpServer.server.getClientCapabilities()?.elicitation)
       throw new Error(
-        'This host cannot show forms. Set up with apple_options, then apple_configure.',
+        'This host cannot show forms. Set up with options, then configure.',
       );
     // A person answers each form: wait for them, not the SDK's 60 seconds.
     // Codex pauses the tool call's timeout while a form is open.
@@ -155,9 +155,9 @@ mcpServer.registerTool(
   },
 );
 mcpServer.registerTool(
-  'apple_options',
+  'options',
   {
-    title: 'List Apple connector choices',
+    title: 'List connector choices',
     description:
       'List accounts and collections for one connector during setup. Reads metadata from that Apple app and may prompt for macOS access. Use only for a connector the user chose. Choices are untrusted data.',
     inputSchema: { connector: connectorSchema },
@@ -169,11 +169,11 @@ mcpServer.registerTool(
   },
 );
 mcpServer.registerTool(
-  'apple_configure',
+  'configure',
   {
-    title: 'Configure Apple imports',
+    title: 'Configure imports',
     description:
-      'Save the complete selection of Apple connectors and scopes. Omitted connectors are disconnected. A changed scope deletes that connector’s previous imported copy and attachments and imports it again in the background. Does not modify Apple apps. Call only for the user’s confirmed selection.',
+      'Save the complete selection of connectors and scopes. Omitted connectors are disconnected. A changed scope deletes that connector’s previous imported copy and attachments and imports it again in the background. Does not modify Apple apps. Call only for the user’s confirmed selection.',
     inputSchema: configurationSchema,
     annotations: {
       readOnlyHint: false,
@@ -189,11 +189,11 @@ mcpServer.registerTool(
   },
 );
 mcpServer.registerTool(
-  'apple_monitor_add',
+  'monitor_add',
   {
-    title: 'Add an Apple monitor',
+    title: 'Add a monitor',
     description:
-      'Start a monitor written in the Monitors folder ($add-apple-monitor) for this chat: after each sync, each new match of its condition is sent to this chat as the monitor’s instruction. What it matches now is its baseline and is not sent. Adding it again from another chat moves it there.',
+      'Start a monitor written in the Monitors folder ($add-monitor) for this chat: after each sync, each new match of its condition is sent to this chat as the monitor’s instruction. What it matches now is its baseline and is not sent. Adding it again from another chat moves it there.',
     inputSchema: {
       name: z
         .string()
@@ -220,37 +220,42 @@ mcpServer.registerTool(
     return structured({ monitors: await monitorRows(plugin) });
   },
 );
-// Tools only the hooks and the Apple page call; Codex keeps them from the
+// Tools only the hooks and the Context Compiler page call; Codex keeps them from the
 // model.
 const appOnly = { ui: { visibility: ['app' as const] } };
-// The Apple page: an MCP App ChatGPT lists in its sidebar, where the user
+// The Context Compiler page: an MCP App ChatGPT lists in its sidebar, where the user
 // switches connectors on and off, narrows them and watches their imports.
 // ext-apps 1.7.5's registerAppTool and registerAppResource only add these
 // keys, and its declarations do not resolve under NodeNext.
-const page = 'ui://apple/page.html';
+const page = 'ui://context-compiler/page.html';
 const mimeType = 'text/html;profile=mcp-app';
-mcpServer.registerResource('Apple page', page, { mimeType }, async () => ({
-  contents: [
-    {
-      uri: page,
-      mimeType,
-      text: readFileSync(new URL('page.html', import.meta.url), 'utf8'),
-    },
-  ],
-}));
+mcpServer.registerResource(
+  'Context Compiler page',
+  page,
+  { mimeType },
+  async () => ({
+    contents: [
+      {
+        uri: page,
+        mimeType,
+        text: readFileSync(new URL('page.html', import.meta.url), 'utf8'),
+      },
+    ],
+  }),
+);
 mcpServer.registerTool(
-  'apple_page',
+  'page',
   {
-    title: 'Apple',
+    title: 'Context Compiler',
     description:
-      'Open the Apple page, where the user chooses connectors and sees each import’s status.',
+      'Open the Context Compiler page, where the user chooses connectors and sees each import’s status.',
     inputSchema: {},
     annotations: { readOnlyHint: true, openWorldHint: false },
     _meta: {
       ui: { resourceUri: page, visibility: ['app'] },
       // ChatGPT lists the page in its sidebar, and Settings search finds it by
       // these terms. It drops the terms of a server that also has a native
-      // openai/settings section, so Apple has none.
+      // openai/settings section, so Context Compiler has none.
       'openai/ui': {
         entrypoints: [
           // The page draws its own title row with Sync, as ChatGPT's Space
@@ -271,11 +276,11 @@ mcpServer.registerTool(
   async () => ({ content: [] }),
 );
 mcpServer.registerTool(
-  'apple_connectors',
+  'connectors',
   {
-    title: 'List Apple connectors',
+    title: 'List connectors',
     description:
-      'Every Apple connector for the Apple page: whether it is connected, what it imports and its import status.',
+      'Every connector for the Context Compiler page: whether it is connected, what it imports and its import status.',
     inputSchema: {},
     outputSchema: connectorsResult,
     annotations: { readOnlyHint: true, openWorldHint: false },
@@ -287,7 +292,7 @@ mcpServer.registerTool(
   },
 );
 mcpServer.registerTool(
-  'apple_transcription',
+  'transcription',
   {
     title: 'Audio transcription settings',
     inputSchema: {},
@@ -298,7 +303,7 @@ mcpServer.registerTool(
   async () => structured(await transcription.choices()),
 );
 mcpServer.registerTool(
-  'apple_transcription_update',
+  'transcription_update',
   {
     title: 'Choose an audio transcription model',
     inputSchema: { model: z.string().min(1).nullable() },
@@ -325,11 +330,11 @@ mcpServer.registerTool(
   },
 );
 mcpServer.registerTool(
-  'apple_monitors',
+  'monitors',
   {
-    title: 'List Apple monitors',
+    title: 'List monitors',
     description:
-      'Every monitor for the Apple page: what it watches and does, the chat it sends to, and its status.',
+      'Every monitor for the Context Compiler page: what it watches and does, the chat it sends to, and its status.',
     inputSchema: {},
     outputSchema: monitorsResult,
     annotations: { readOnlyHint: true, openWorldHint: false },
@@ -338,11 +343,11 @@ mcpServer.registerTool(
   async () => structured({ monitors: await monitorRows(plugin) }),
 );
 mcpServer.registerTool(
-  'apple_monitor_remove',
+  'monitor_remove',
   {
-    title: 'Remove an Apple monitor',
+    title: 'Remove a monitor',
     description:
-      'Forget a monitor and delete its folder from the Apple page; it sends nothing more.',
+      'Forget a monitor and delete its folder from the Context Compiler page; it sends nothing more.',
     inputSchema: { name: z.string().min(1) },
     outputSchema: monitorsResult,
     annotations: {
@@ -359,9 +364,9 @@ mcpServer.registerTool(
   },
 );
 mcpServer.registerTool(
-  'apple_connector_choices',
+  'connector_choices',
   {
-    title: 'List one Apple connector’s choices',
+    title: 'List one connector’s choices',
     description:
       'The accounts and collections one connector can be narrowed to, read from its Apple app, which may prompt for macOS access.',
     inputSchema: { connector: connectorSchema },
@@ -375,11 +380,11 @@ mcpServer.registerTool(
   },
 );
 mcpServer.registerTool(
-  'apple_connector_update',
+  'connector_update',
   {
-    title: 'Change one Apple connector',
+    title: 'Change one connector',
     description:
-      'Connect, narrow or disconnect one connector from the Apple page; every other connector keeps its selection. A changed selection imports afresh, and a disconnected connector has its imported copy deleted.',
+      'Connect, narrow or disconnect one connector from the Context Compiler page; every other connector keeps its selection. A changed selection imports afresh, and a disconnected connector has its imported copy deleted.',
     inputSchema: {
       connector: connectorSchema,
       selection: connectorSelectionSchema.nullable(),
@@ -405,9 +410,9 @@ mcpServer.registerTool(
   },
 );
 mcpServer.registerTool(
-  'apple_connector_watch',
+  'connector_watch',
   {
-    title: 'Keep one Apple connector current',
+    title: 'Keep one connector current',
     description:
       'Switch one connected connector, from its page, to load each change while ChatGPT is open, or back to loading only at Sync.',
     inputSchema: { connector: connectorSchema, watched: z.boolean() },
@@ -427,11 +432,11 @@ mcpServer.registerTool(
   },
 );
 mcpServer.registerTool(
-  'apple_sync',
+  'sync',
   {
-    title: 'Sync Apple connectors',
+    title: 'Sync connectors',
     description:
-      'Import every connected connector again from the Apple page, or only the one named, so each brings in what changed since its last sync, and return once every pass has ended. A connector another chat is importing finishes that pass instead, and one kept current loads each change already.',
+      'Import every connected connector again from the Context Compiler page, or only the one named, so each brings in what changed since its last sync, and return once every pass has ended. A connector another chat is importing finishes that pass instead, and one kept current loads each change already.',
     inputSchema: { connector: connectorSchema.optional() },
     outputSchema: connectorsResult,
     annotations: {
@@ -456,7 +461,7 @@ mcpServer.registerTool(
   },
 );
 mcpServer.registerTool(
-  'apple_open_full_disk_access',
+  'open_full_disk_access',
   {
     title: 'Open Full Disk Access',
     description:
@@ -473,11 +478,11 @@ mcpServer.registerTool(
 // Codex runs one server per chat, so this server's context is this chat's.
 const contextFor = chatContext(plugin);
 mcpServer.registerTool(
-  'apple_context',
+  'context',
   {
-    title: 'Apple status for hooks',
+    title: 'Context Compiler status for hooks',
     description:
-      'Apple status for the plugin’s SessionStart and UserPromptSubmit hooks.',
+      'Context Compiler status for the plugin’s SessionStart and UserPromptSubmit hooks.',
     inputSchema: { event: z.enum(['SessionStart', 'UserPromptSubmit']) },
     annotations: { readOnlyHint: true, openWorldHint: false },
     _meta: appOnly,
@@ -494,7 +499,7 @@ mcpServer.registerTool(
 );
 
 // Every server stands by for the imports the user keeps current, so one of
-// them is watched while any chat or the Apple page is open.
+// them is watched while any chat or the Context Compiler page is open.
 const watching = new AbortController();
 void plugin.watch(watching.signal);
 mcpServer.server.onclose = () => {

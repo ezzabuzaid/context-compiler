@@ -9,7 +9,7 @@ import type {
 } from './page/contract.ts';
 import { passFailure } from './pass-failure.ts';
 
-// What the Apple page shows and changes: one row per connector, described by
+// What the Context Compiler page shows and changes: one row per connector, described by
 // its import's status, and one connector's selection at a time.
 
 // One connector's selection as the page sends it; what it leaves out takes

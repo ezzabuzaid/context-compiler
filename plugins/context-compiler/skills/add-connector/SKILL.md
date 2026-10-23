@@ -1,9 +1,9 @@
 ---
-name: add-apple-connector
-description: Adds a connector for an Apple app the Apple plugin does not import yet, such as Photos, Music, Podcasts or Stickies, by writing it into the user's connectors folder. Use when the user asks to connect or import a Mac app the plugin does not list, or to fix a connector the Apple status reports as not loading.
+name: add-connector
+description: Adds a connector for a Mac app the Context Compiler plugin does not import yet, such as Photos, Music, Podcasts or Stickies, by writing it into the user's connectors folder. Use when the user asks to connect or import a Mac app the plugin does not list, or to fix a connector the Context Compiler status reports as not loading.
 ---
 
-# Add an Apple connector
+# Add a connector
 
 ## What you need to know
 
@@ -11,10 +11,10 @@ description: Adds a connector for an Apple app the Apple plugin does not import 
 - `package.json` is `{ "type": "module", "exports": "./<name>-connector.ts", "contextCompiler": { "name": "<name>", "title": "<Title>" } }`. `name` is lowercase letters, digits and dashes, and must not repeat a connector the plugin already has. `title` is what the user sees. The connector class takes both from here; it does not declare them.
 - The entry is TypeScript that Node runs as written, without a compiler. Its default export is a class that extends `AppleConnector`. Its `source()` returns an elt `Source` that reads the app's own data on this Mac.
 - The entry may import only Node built-ins (`node:fs`, `node:sqlite`, `node:child_process`, ...) and three modules the plugin provides: `@workspace/elt` (`Source`, `Stream`, `Catalog` and their types), `@workspace/connector-apple-connector/apple-connector` (`AppleConnector`) and `@workspace/connector-apple-connector/choice` (`accounts`, `collections`, `byId`, `name`, `Choice`). There is no `node_modules`, so no npm package resolves.
-- The plugin imports each stream into `raw_<stream>` in the connector's own `data.sqlite`, read through a view named after the stream in snake case (`photoAssets` reads as `photo_assets`). `$query-apple` reads it like any other connector.
+- The plugin imports each stream into `raw_<stream>` in the connector's own `data.sqlite`, read through a view named after the stream in snake case (`photoAssets` reads as `photo_assets`). `$query` reads it like any other connector.
 - The connector runs inside the plugin, with every macOS permission ChatGPT has, Full Disk Access included.
-- A connector that cannot load is listed in the Apple status of every chat as `- <Title> could not be loaded: <error>`.
-- A connector may also hold presets: SQL files in a `presets` folder beside `package.json`. Each `presets/<view>.sql` holds one `CREATE TEMP VIEW <view> AS …` over the connector's views, after comment lines `-- <view>: <what one row is>` and `-- <column>: <its meaning>` for every column, in order. A reader loads a preset for one query, so it changes nothing in the import, and the Apple status lists it as soon as the file exists.
+- A connector that cannot load is listed in the Context Compiler status of every chat as `- <Title> could not be loaded: <error>`.
+- A connector may also hold presets: SQL files in a `presets` folder beside `package.json`. Each `presets/<view>.sql` holds one `CREATE TEMP VIEW <view> AS …` over the connector's views, after comment lines `-- <view>: <what one row is>` and `-- <column>: <its meaning>` for every column, in order. A reader loads a preset for one query, so it changes nothing in the import, and the Context Compiler status lists it as soon as the file exists.
 
 ## Writing the connector
 
@@ -89,7 +89,7 @@ description: Adds a connector for an Apple app the Apple plugin does not import 
      // ~/Library/Containers, Group Containers, Mail, Messages and Safari.
      readonly fullDiskAccess = false;
      protected readonly choices: readonly Choice[] = [];
-     // With nothing to choose, the stream apple_options reads to show the
+     // With nothing to choose, the stream options reads to show the
      // store opens.
      protected override readonly probe = 'items';
      protected readonly unscoped = [];
@@ -111,9 +111,9 @@ description: Adds a connector for an Apple app the Apple plugin does not import 
 
 ## Setting it up
 
-1. Call `apple_options` with `connector` set to the connector's `name`. It loads the connector and opens the app's store. Read any `could not be loaded` line in the Apple status or the tool's error, fix the file, and call it again.
-2. Configure it with `apple_configure`, keeping every connector already selected, as `$setup-apple` describes. The import runs in the background.
-3. Read a few rows as `$query-apple` describes, through each preset too, and compare them with what the app shows.
+1. Call `options` with `connector` set to the connector's `name`. It loads the connector and opens the app's store. Read any `could not be loaded` line in the Context Compiler status or the tool's error, fix the file, and call it again.
+2. Configure it with `configure`, keeping every connector already selected, as `$setup` describes. The import runs in the background.
+3. Read a few rows as `$query` describes, through each preset too, and compare them with what the app shows.
 
 ## Gotchas
 
@@ -126,6 +126,6 @@ description: Adds a connector for an Apple app the Apple plugin does not import 
 
 ## Done when
 
-- `apple_options` with the connector's name succeeds, and the Apple status lists no `could not be loaded` line for it.
-- The connector is configured, its import has synced, and rows read through `$query-apple` match the app.
+- `options` with the connector's name succeeds, and the Context Compiler status lists no `could not be loaded` line for it.
+- The connector is configured, its import has synced, and rows read through `$query` match the app.
 - You told the user the connector's folder, what it imports and that it runs with ChatGPT's permissions on their Mac.

@@ -1,12 +1,12 @@
 {
   "name": "connector-apple-teams",
-  "sourceRoot": "packages/connectors/apple/teams/src",
+  "sourceRoot": "packages/connectors/teams/src",
   "projectType": "library",
   "targets": {
     "format": {},
     "test": {
       "dependsOn": ["build"],
-      "command": "node --test {args} \"packages/connectors/apple/teams/dist/*.test.js\""
+      "command": "node --test {args} \"packages/connectors/teams/dist/*.test.js\""
     }
   }
 }

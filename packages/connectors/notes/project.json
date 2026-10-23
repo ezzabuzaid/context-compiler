@@ -1,6 +1,6 @@
 {
   "name": "connector-apple-notes",
-  "sourceRoot": "packages/connectors/apple/notes/src",
+  "sourceRoot": "packages/connectors/notes/src",
   "projectType": "library",
   "targets": {
     "format": {}

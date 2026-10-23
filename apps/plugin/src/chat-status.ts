@@ -64,7 +64,7 @@ export function chatStatus(plugin: ApplePlugin): {
     return {
       state: state([]),
       text: [
-        `Apple: no connectors are set up. Use $setup-apple when the user asks about their Apple apps; the user can also choose connectors on the Apple page: ${pageLink}`,
+        `Context Compiler: no connectors are set up. Use $setup when the user asks about their Mac apps; the user can also choose connectors on the Context Compiler page: ${pageLink}`,
         ...broken,
       ].join('\n'),
     };
@@ -85,7 +85,7 @@ export function chatStatus(plugin: ApplePlugin): {
       ]),
     ),
     text: [
-      `Apple connectors the user set up, each imported into its own SQLite file under "${plugin.directory}". Read them as $query-apple describes. The user changes them on the Apple page: ${pageLink}`,
+      `Connectors the user set up, each imported into its own SQLite file under "${plugin.directory}". Read them as $query describes. The user changes them on the Context Compiler page: ${pageLink}`,
       ...rows.map(
         ({
           connector,
@@ -97,7 +97,7 @@ export function chatStatus(plugin: ApplePlugin): {
           presets,
           content,
         }) => {
-          const page = `Its Apple page: ${connectorLink(connector)}`;
+          const page = `Its Context Compiler page: ${connectorLink(connector)}`;
           // A selected connector that is not loaded does not import.
           if (loaded === undefined) return `- ${title}: ${permissions} ${page}`;
           const where =

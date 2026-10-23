@@ -1,5 +1,5 @@
 {
-  "name": "@workspace/apple-plugin",
+  "name": "@workspace/plugin",
   "private": true,
   "type": "module",
   "dependencies": {

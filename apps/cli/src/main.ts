@@ -16,12 +16,12 @@ import { Imports } from './imports.ts';
 import { TerminalHost } from './terminal-host.ts';
 
 if (process.platform !== 'darwin')
-  throw new Error('The Apple connectors read apps on a Mac.');
+  throw new Error('The connectors read apps on a Mac.');
 
 // The user's own connectors import elt and AppleConnector from this CLI's copies.
 provideHostModules(({ specifier }) => import.meta.resolve(specifier));
 
-const program = new Program('apple-cli')
+const program = new Program('context-compiler')
   .description(
     'Import Apple apps on this Mac, keep them current, and query them.',
   )

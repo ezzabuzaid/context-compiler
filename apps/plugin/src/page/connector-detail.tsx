@@ -25,7 +25,7 @@ export function ConnectorDetail({ row }: { row: ConnectorRow }) {
     const read = new AbortController();
     callTool(
       app,
-      'apple_connector_choices',
+      'connector_choices',
       { connector: row.name },
       choicesResult,
     ).then(

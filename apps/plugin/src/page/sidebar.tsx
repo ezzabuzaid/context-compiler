@@ -6,7 +6,7 @@ import type { ConnectorRow, MonitorRow } from './contract.ts';
 import { MonitorMenu } from './monitor-menu.tsx';
 import { usePage } from './page-context.tsx';
 
-// The Apple page's sidebar, drawn like the sidebar of ChatGPT's Space: its
+// The Context Compiler page's sidebar, drawn like the sidebar of ChatGPT's Space: its
 // title with Sync, which imports every connected connector again and turns
 // until the last pass ends, the page's failure to read or sync, then its
 // monitors and its connectors, each a section that folds away.
@@ -22,9 +22,9 @@ export function Sidebar() {
   } = usePage();
   const label = syncing ? 'Syncing connectors' : 'Sync connectors';
   return (
-    <nav className="sidebar" aria-label="Apple">
+    <nav className="sidebar" aria-label="Context Compiler">
       <header className="sidebar-title">
-        <h2>Apple</h2>
+        <h2>Context Compiler</h2>
         {/* Its icon is copied in connector-menu.tsx: change both. */}
         <button
           type="button"

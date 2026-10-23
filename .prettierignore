@@ -1,0 +1,9 @@
+# Add files here to ignore them from prettier formatting
+/coverage
+/.nx/cache
+/.nx/workspace-data
+**/dist
+*.tsbuildinfo
+package-lock.json
+# The CLI's default store, rebuilt by its own commands
+/outputs

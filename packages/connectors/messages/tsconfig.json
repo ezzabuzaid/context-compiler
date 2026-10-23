@@ -1,5 +1,5 @@
 {
-  "extends": "../../../../tsconfig.base.json",
+  "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
@@ -8,16 +8,10 @@
   "include": ["src/**/*.ts"],
   "references": [
     {
-      "path": "../../../sources/apple/messages"
-    },
-    {
-      "path": "../../../sources/apple/macos"
-    },
-    {
       "path": "../connector"
     },
     {
-      "path": "../../../settings"
+      "path": "../../settings"
     }
   ]
 }

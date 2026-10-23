@@ -1,12 +1,12 @@
 {
   "name": "connector-apple-calendar",
-  "sourceRoot": "packages/connectors/apple/calendar/src",
+  "sourceRoot": "packages/connectors/calendar/src",
   "projectType": "library",
   "targets": {
     "format": {},
     "test": {
       "dependsOn": ["build"],
-      "command": "node --test {args} \"packages/connectors/apple/calendar/dist/*.test.js\""
+      "command": "node --test {args} \"packages/connectors/calendar/dist/*.test.js\""
     }
   }
 }

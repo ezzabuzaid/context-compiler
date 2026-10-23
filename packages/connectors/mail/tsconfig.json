@@ -1,5 +1,5 @@
 {
-  "extends": "../../../../tsconfig.base.json",
+  "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
@@ -8,28 +8,10 @@
   "include": ["src/**/*.ts"],
   "references": [
     {
-      "path": "../../../destinations/sqlite"
-    },
-    {
-      "path": "../../../elt"
-    },
-    {
-      "path": "../../../sources/apple/mail"
-    },
-    {
-      "path": "../../../sources/apple/macos"
-    },
-    {
-      "path": "../../../sdks/apple/mail"
-    },
-    {
-      "path": "../../../sdks/apple/accounts"
-    },
-    {
       "path": "../connector"
     },
     {
-      "path": "../../../settings"
+      "path": "../../settings"
     }
   ]
 }

@@ -19,7 +19,7 @@ import {
   monitorsResult,
 } from './contract.ts';
 
-// What every part of the Apple page shares: its connection to ChatGPT, the
+// What every part of the Context Compiler page shares: its connection to ChatGPT, the
 // connector and monitor rows it keeps current, the changes it makes, and
 // which connector's or monitor's page is open.
 type Page = {
@@ -63,7 +63,7 @@ export function usePage(): Page {
 const busyDelay = 2_000;
 const settledDelay = 15_000;
 // A sync lasts as long as its slowest import; the server allows a tool call
-// as long (tool_timeout_sec in plugins/apple/.mcp.json).
+// as long (tool_timeout_sec in plugins/context-compiler/.mcp.json).
 const syncTimeout = 1_800_000;
 
 export function PageProvider({
@@ -89,8 +89,8 @@ export function PageProvider({
     if (app === null) return;
     try {
       const [{ connectors }, listed] = await Promise.all([
-        callTool(app, 'apple_connectors', {}, connectorsResult),
-        callTool(app, 'apple_monitors', {}, monitorsResult),
+        callTool(app, 'connectors', {}, connectorsResult),
+        callTool(app, 'monitors', {}, monitorsResult),
       ]);
       setRows(connectors);
       setMonitors(listed.monitors);
@@ -146,7 +146,7 @@ export function PageProvider({
       if (app === null) return;
       const { connectors } = await callTool(
         app,
-        'apple_connector_update',
+        'connector_update',
         { connector, selection },
         connectorsResult,
       );
@@ -161,7 +161,7 @@ export function PageProvider({
       if (app === null) return;
       const { connectors } = await callTool(
         app,
-        'apple_connector_watch',
+        'connector_watch',
         { connector, watched },
         connectorsResult,
       );
@@ -187,7 +187,7 @@ export function PageProvider({
       try {
         const { connectors } = await callTool(
           app,
-          'apple_sync',
+          'sync',
           connector === undefined ? {} : { connector },
           connectorsResult,
           { timeout: syncTimeout },
@@ -210,7 +210,7 @@ export function PageProvider({
       if (app === null) return;
       const listed = await callTool(
         app,
-        'apple_monitor_remove',
+        'monitor_remove',
         { name },
         monitorsResult,
       );

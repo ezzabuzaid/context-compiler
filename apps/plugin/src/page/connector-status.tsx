@@ -30,7 +30,7 @@ export function ConnectorStatus({ row }: { row: ConnectorRow }) {
           type="button"
           className="btn"
           onClick={() => {
-            callTool(app, 'apple_open_full_disk_access', {}, {}).then(
+            callTool(app, 'open_full_disk_access', {}, {}).then(
               () => setFailure(null),
               (error: unknown) => setFailure(messageOf(error)),
             );

@@ -1,5 +1,5 @@
 {
-  "extends": "../../../tsconfig.base.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
@@ -8,88 +8,67 @@
   "include": ["src/**/*.ts"],
   "references": [
     {
-      "path": "../../../packages/sources/apple/macos"
+      "path": "../../packages/settings"
     },
     {
-      "path": "../../../packages/sdks/handy/models"
+      "path": "../../packages/connectors/whatsapp"
     },
     {
-      "path": "../../../packages/settings"
+      "path": "../../packages/connectors/wallet"
     },
     {
-      "path": "../../../packages/sdks/apple/eventkit"
+      "path": "../../packages/connectors/teams"
     },
     {
-      "path": "../../../packages/google-auth"
+      "path": "../../packages/connectors/slack"
     },
     {
-      "path": "../../../packages/destinations/sqlite"
+      "path": "../../packages/connectors/safari"
     },
     {
-      "path": "../../../packages/elt"
+      "path": "../../packages/connectors/reminders"
     },
     {
-      "path": "../../../packages/connectors/apple/whatsapp"
+      "path": "../../packages/connectors/notification-center"
     },
     {
-      "path": "../../../packages/connectors/apple/wallet"
+      "path": "../../packages/connectors/notes"
     },
     {
-      "path": "../../../packages/connectors/apple/teams"
+      "path": "../../packages/connectors/messages"
     },
     {
-      "path": "../../../packages/connectors/apple/instagram"
+      "path": "../../packages/connectors/manifest"
     },
     {
-      "path": "../../../packages/connectors/apple/slack"
+      "path": "../../packages/connectors/mail"
     },
     {
-      "path": "../../../packages/connectors/apple/safari"
+      "path": "../../packages/connectors/instagram"
     },
     {
-      "path": "../../../packages/connectors/apple/reminders"
+      "path": "../../packages/connectors/contacts"
     },
     {
-      "path": "../../../packages/connectors/apple/notification-center"
+      "path": "../../packages/connectors/connector"
     },
     {
-      "path": "../../../packages/connectors/apple/notes"
+      "path": "../../packages/connectors/clock"
     },
     {
-      "path": "../../../packages/connectors/apple/messages"
+      "path": "../../packages/connectors/call-history"
     },
     {
-      "path": "../../../packages/connectors/apple/manifest"
+      "path": "../../packages/connectors/calendar"
     },
     {
-      "path": "../../../packages/connectors/apple/mail"
+      "path": "../../packages/connectors/books"
     },
     {
-      "path": "../../../packages/connectors/apple/contacts"
+      "path": "../../packages/connectors/activity"
     },
     {
-      "path": "../../../packages/connectors/apple/connector"
-    },
-    {
-      "path": "../../../packages/connectors/apple/clock"
-    },
-    {
-      "path": "../../../packages/connectors/apple/call-history"
-    },
-    {
-      "path": "../../../packages/connectors/apple/calendar"
-    },
-    {
-      "path": "../../../packages/connectors/apple/books"
-    },
-    {
-      "path": "../../../packages/connectors/apple/activity"
-    },
-    {
-      "path": "../../../packages/connectors/apple/accounts"
-    },
-    {
-      "path": "../../../packages/codecs/chromium-indexeddb"
+      "path": "../../packages/connectors/accounts"
     }
   ]
 }

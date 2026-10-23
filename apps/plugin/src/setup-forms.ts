@@ -34,7 +34,7 @@ export async function setUpWithForms(plugin: ApplePlugin, ask: Ask) {
   const picked = await ask({
     mode: 'form',
     message:
-      'Choose the Apple connectors Codex can read on this Mac. Each connector is imported in full; macOS may ask for access to each one.',
+      'Choose the connectors Codex can read on this Mac. Each connector is imported in full; macOS may ask for access to each one.',
     requestedSchema: {
       type: 'object',
       properties: {
@@ -122,7 +122,7 @@ async function offerFullDiskAccess(ask: Ask, titles: readonly string[]) {
   );
   const answer = await ask({
     mode: 'form',
-    message: `${listed} ${titles.length === 1 ? 'needs' : 'need'} Full Disk Access, which macOS never asks for. Turn on ChatGPT in the list that opens, then quit and reopen ChatGPT and run Set up Apple again.`,
+    message: `${listed} ${titles.length === 1 ? 'needs' : 'need'} Full Disk Access, which macOS never asks for. Turn on ChatGPT in the list that opens, then quit and reopen ChatGPT and run Set up Context Compiler again.`,
     requestedSchema: {
       type: 'object',
       properties: {

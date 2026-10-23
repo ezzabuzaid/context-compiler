@@ -1,8 +1,8 @@
-// Bundles the plugin's MCP server into plugins/apple/server: main.mjs, one
-// folder per built-in connector (its package.json manifest beside its entry
-// point and its presets), the host modules a user's connector imports, and
-// the chunks they all share, so every connector runs on the same elt and
-// AppleConnector as the server.
+// Bundles the plugin's MCP server into plugins/context-compiler/server:
+// main.mjs, one folder per built-in connector (its package.json manifest beside
+// its entry point and its presets), the host modules a user's connector
+// imports, and the chunks they all share, so every connector runs on the same
+// elt and AppleConnector as the server.
 // It also builds the sidebar page into one self-contained page.html, since the
 // page's sandbox loads nothing from the network.
 // @nx/esbuild cannot name each entry's output, so this calls esbuild's API.
@@ -24,7 +24,7 @@ import { builtInConnectors } from '@workspace/connector-apple-manifest/built-in-
 import { ConnectorManifest } from '@workspace/connector-apple-manifest/connector-manifest';
 import { hostModules } from '@workspace/connector-apple-manifest/host-modules';
 
-const outdir = 'plugins/apple/server';
+const outdir = 'plugins/context-compiler/server';
 
 const builtIns = readdirSync(builtInConnectors)
   .map((name) => ConnectorManifest.read(join(builtInConnectors, name)))
@@ -42,7 +42,7 @@ const builtIns = readdirSync(builtInConnectors)
 rmSync(outdir, { recursive: true, force: true });
 await build({
   entryPoints: [
-    { in: 'apps/apple/plugin/src/main.ts', out: 'main' },
+    { in: 'apps/plugin/src/main.ts', out: 'main' },
     ...builtIns.map(({ in: source, out }) => ({ in: source, out })),
     ...hostModules.map(({ specifier, file }) => ({
       in: fileURLToPath(import.meta.resolve(specifier)),
@@ -57,7 +57,7 @@ await build({
   target: 'node24.19',
   outExtension: { '.js': '.mjs' },
   chunkNames: 'chunks/[name]-[hash]',
-  tsconfig: 'apps/apple/plugin/tsconfig.json',
+  tsconfig: 'apps/plugin/tsconfig.json',
   logLevel: 'warning',
   banner: {
     js: "import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);",
@@ -97,21 +97,21 @@ copyFileSync(
 const {
   outputFiles: [script],
 } = await build({
-  entryPoints: ['apps/apple/plugin/src/page/main.tsx'],
+  entryPoints: ['apps/plugin/src/page/main.tsx'],
   bundle: true,
   write: false,
   format: 'esm',
   platform: 'browser',
   minify: true,
   jsx: 'automatic',
-  tsconfig: 'apps/apple/plugin/src/page/tsconfig.json',
+  tsconfig: 'apps/plugin/src/page/tsconfig.json',
   logLevel: 'warning',
 });
 // OpenAI's MCP App styles map ChatGPT's theme onto the page; page.css lays it
 // out.
 const styles = [
   fileURLToPath(import.meta.resolve('@openai/mcp-extensions/app/styles.css')),
-  'apps/apple/plugin/src/page/page.css',
+  'apps/plugin/src/page/page.css',
 ]
   .map((path) => readFileSync(path, 'utf8'))
   .join('\n');
@@ -122,7 +122,7 @@ writeFileSync(
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Apple</title>
+<title>Context Compiler</title>
 <style>${styles}</style>
 </head>
 <body>

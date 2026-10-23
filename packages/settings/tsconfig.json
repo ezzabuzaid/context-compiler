@@ -6,15 +6,5 @@
     "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
   },
   "include": ["src/**/*.ts"],
-  "references": [
-    {
-      "path": "../sources/apple/macos"
-    },
-    {
-      "path": "../destinations/sqlite"
-    },
-    {
-      "path": "../elt"
-    }
-  ]
+  "references": []
 }

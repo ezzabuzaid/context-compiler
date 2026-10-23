@@ -64,7 +64,7 @@ async function importMail(
   return join(directory, 'data.sqlite');
 }
 
-// Runs a query as query-apple tells the agent to: the macOS sqlite3 shell,
+// Runs a query as query tells the agent to: the macOS sqlite3 shell,
 // read-only, with the preset loaded through -cmd. A failing statement fails
 // the test rather than reading as no rows.
 function read(

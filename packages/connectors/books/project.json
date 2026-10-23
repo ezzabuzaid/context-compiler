@@ -1,6 +1,6 @@
 {
   "name": "connector-apple-books",
-  "sourceRoot": "packages/connectors/apple/books/src",
+  "sourceRoot": "packages/connectors/books/src",
   "projectType": "library",
   "targets": {
     "format": {}

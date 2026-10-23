@@ -6,7 +6,7 @@ import { PageProvider, usePage } from './page-context.tsx';
 import { Sidebar } from './sidebar.tsx';
 import { TranscriptionDetail } from './transcription-detail.tsx';
 
-// The Apple page ChatGPT lists in its sidebar: its own sidebar, beside the
+// The Context Compiler page ChatGPT lists in its sidebar: its own sidebar, beside the
 // page of the connector or monitor it opened.
 export function Page() {
   const { app, error } = useApp({

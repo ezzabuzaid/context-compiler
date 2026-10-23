@@ -5,10 +5,10 @@
         "hooks": [
           {
             "type": "mcp_tool",
-            "server": "apple",
-            "tool": "apple_context",
+            "server": "context-compiler",
+            "tool": "context",
             "input": { "event": "${hook_event_name}" },
-            "statusMessage": "Reading Apple status"
+            "statusMessage": "Reading Context Compiler status"
           }
         ]
       }
@@ -18,10 +18,10 @@
         "hooks": [
           {
             "type": "mcp_tool",
-            "server": "apple",
-            "tool": "apple_context",
+            "server": "context-compiler",
+            "tool": "context",
             "input": { "event": "${hook_event_name}" },
-            "statusMessage": "Reading Apple status"
+            "statusMessage": "Reading Context Compiler status"
           }
         ]
       }

@@ -29,14 +29,14 @@ test('the bundled page tools discover models, save the selection and reject an u
   const client = new Client({ name: 'transcription-test', version: '1.0.0' });
   const transport = new StdioClientTransport({
     command: process.execPath,
-    args: [resolve('plugins/apple/server/main.mjs')],
+    args: [resolve('plugins/context-compiler/server/main.mjs')],
     env: { HOME: scratch.path, PATH: process.env.PATH ?? '' },
     stderr: 'pipe',
   });
   try {
     await client.connect(transport);
     const listed = await client.callTool({
-      name: 'apple_transcription',
+      name: 'transcription',
       arguments: {},
     });
     assert.equal(listed.isError, undefined);
@@ -45,7 +45,7 @@ test('the bundled page tools discover models, save the selection and reject an u
       models: [{ id: 'cohere-int8', title: 'Cohere' }],
     });
     const enabled = await client.callTool({
-      name: 'apple_transcription_update',
+      name: 'transcription_update',
       arguments: { model: 'cohere-int8' },
     });
     assert.equal(enabled.isError, undefined);
@@ -54,13 +54,13 @@ test('the bundled page tools discover models, save the selection and reject an u
     );
     assert.equal(settings.transcription(), 'cohere-int8');
     const unavailable = await client.callTool({
-      name: 'apple_transcription_update',
+      name: 'transcription_update',
       arguments: { model: 'missing' },
     });
     assert.equal(unavailable.isError, true);
     assert.equal(settings.transcription(), 'cohere-int8');
     const disabled = await client.callTool({
-      name: 'apple_transcription_update',
+      name: 'transcription_update',
       arguments: { model: null },
     });
     assert.equal(disabled.isError, undefined);
@@ -71,7 +71,7 @@ test('the bundled page tools discover models, save the selection and reject an u
   }
 });
 
-// A home where Handy installed the Cohere model, and the Apple store in it.
+// A home where Handy installed the Cohere model, and the plugin store in it.
 async function homeWithCohere(home: string) {
   const model = join(
     home,
@@ -96,7 +96,7 @@ async function pageTool(home: string, name: string, args: object) {
   const client = new Client({ name: 'transcription-test', version: '1.0.0' });
   const transport = new StdioClientTransport({
     command: process.execPath,
-    args: [resolve('plugins/apple/server/main.mjs')],
+    args: [resolve('plugins/context-compiler/server/main.mjs')],
     env: { HOME: home, PATH: process.env.PATH ?? '' },
     stderr: 'pipe',
   });
@@ -115,7 +115,7 @@ test('a store moved to another Mac keeps its chosen model, found where Handy kee
   );
   const before = await homeWithCohere(join(scratch.path, 'before'));
   const after = await homeWithCohere(join(scratch.path, 'after'));
-  await pageTool(join(scratch.path, 'before'), 'apple_transcription_update', {
+  await pageTool(join(scratch.path, 'before'), 'transcription_update', {
     model: 'cohere-int8',
   });
 
@@ -125,7 +125,7 @@ test('a store moved to another Mac keeps its chosen model, found where Handy kee
   await rm(join(scratch.path, 'before'), { recursive: true });
   const listed = await pageTool(
     join(scratch.path, 'after'),
-    'apple_transcription',
+    'transcription',
     {},
   );
 

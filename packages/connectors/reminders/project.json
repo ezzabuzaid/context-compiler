@@ -1,6 +1,6 @@
 {
   "name": "connector-apple-reminders",
-  "sourceRoot": "packages/connectors/apple/reminders/src",
+  "sourceRoot": "packages/connectors/reminders/src",
   "projectType": "library",
   "targets": {
     "format": {}

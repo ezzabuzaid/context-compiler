@@ -1769,7 +1769,7 @@ test('the setup wizard saves what the person picks and syncs it when asked', asy
   );
 });
 
-// The user's own connectors, where both Apple hosts look for them under HOME:
+// The user's own connectors, where both hosts look for them under HOME:
 // the Photos connector an agent wrote, as its TypeScript source, and Drafts,
 // which does not parse.
 async function withConnectors(mac: string) {
@@ -1790,7 +1790,7 @@ async function withConnectors(mac: string) {
     join(connectors, 'photos/photos-connector.ts'),
     await readFile(
       resolve(
-        'packages/connectors/apple/manifest/src/fixtures/photos/photos-connector.ts',
+        'packages/connectors/manifest/src/fixtures/photos/photos-connector.ts',
       ),
     ),
   );
@@ -2091,7 +2091,7 @@ test('a sync of a connector a sync watch keeps current says so and exits 0, runn
         assert.equal(exited, 0, shown.screen);
         assert.match(
           shown.screen,
-          /Safari\s+kept current by apple-cli sync watch/,
+          /Safari\s+kept current by context-compiler sync watch/,
         );
         assert.equal(attempts(mac.path, 'safari'), before);
       } finally {

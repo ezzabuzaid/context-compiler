@@ -162,7 +162,7 @@ export class SetupCommand extends Command {
         .selections()
         .map((selection) => [selection.connector, selection]),
     );
-    intro('Apple setup');
+    intro('Context Compiler setup');
     const chosen = await multiselect<AppleConnector>({
       message: 'Which connectors should be imported?',
       options: this.imports.connectors.map((connector) => ({

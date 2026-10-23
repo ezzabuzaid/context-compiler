@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-// What the Apple page reads from the plugin's page tools. The server declares
+// What the Context Compiler page reads from the plugin's page tools. The server declares
 // these as the tools' output schemas, so the SDK checks every result against
 // what the page parses.
 
@@ -81,9 +81,9 @@ export const choicesResult = {
   note: z.string().optional(),
 };
 
-// The Apple page's deep link, and the path in it that opens one connector's
-// page. The bare plugin name resolves to the one Apple plugin installed.
-export const pageLink = 'codex://plugins/apple/app/apple_page';
+// The Context Compiler page's deep link, and the path in it that opens one connector's
+// page. The bare plugin name resolves to the one Context Compiler plugin installed.
+export const pageLink = 'codex://plugins/context-compiler/app/page';
 
 const connectorPath = (connector: string) =>
   `/connectors/${encodeURIComponent(connector)}`;

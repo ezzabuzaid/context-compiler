@@ -1,6 +1,6 @@
 {
   "name": "connector-apple-notification-center",
-  "sourceRoot": "packages/connectors/apple/notification-center/src",
+  "sourceRoot": "packages/connectors/notification-center/src",
   "projectType": "library",
   "targets": {
     "format": {}

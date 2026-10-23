@@ -12,7 +12,7 @@ export function TranscriptionDetail() {
   useEffect(() => {
     if (app === null) return;
     const read = new AbortController();
-    callTool(app, 'apple_transcription', {}, transcriptionResult).then(
+    callTool(app, 'transcription', {}, transcriptionResult).then(
       (result) => {
         if (!read.signal.aborted) setChoices(result);
       },
@@ -58,7 +58,7 @@ function TranscriptionForm({ choices }: { choices: TranscriptionChoices }) {
     try {
       const result = await callTool(
         app,
-        'apple_transcription_update',
+        'transcription_update',
         { model: enabled ? model : null },
         transcriptionResult,
       );

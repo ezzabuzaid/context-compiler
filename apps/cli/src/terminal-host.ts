@@ -7,7 +7,7 @@ import type { AppleHost } from '@workspace/connector-apple-connector/apple-conne
 import type { DocumentParser } from '@workspace/elt';
 import { type GoogleRequester, googleSession } from '@workspace/google-auth';
 
-// The CLI as the host of the Apple connectors: macOS grants access to the
+// The CLI as the host of the connectors: macOS grants access to the
 // terminal that launched it, and Google content is read with the user's own
 // OAuth client.
 export class TerminalHost implements AppleHost {

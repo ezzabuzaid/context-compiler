@@ -1,12 +1,12 @@
 {
   "name": "connector-apple-messages",
-  "sourceRoot": "packages/connectors/apple/messages/src",
+  "sourceRoot": "packages/connectors/messages/src",
   "projectType": "library",
   "targets": {
     "format": {},
     "test": {
       "dependsOn": ["build"],
-      "command": "node --test {args} \"packages/connectors/apple/messages/dist/*.test.js\""
+      "command": "node --test {args} \"packages/connectors/messages/dist/*.test.js\""
     }
   }
 }

@@ -233,7 +233,7 @@ const noteStoreFixture = async (directory: string) => {
   return path;
 };
 
-const root = resolve(import.meta.dirname, '../../../..');
+const root = resolve(import.meta.dirname, '../../..');
 
 // Where a server under test finds its HOME: as short as a real /Users/<name>,
 // since the plugin keeps its store under HOME and the socket its servers meet
@@ -241,7 +241,7 @@ const root = resolve(import.meta.dirname, '../../../..');
 const homes = '/tmp';
 
 // A selected_connectors row with its import's latest pass from sync_status, as
-// the query-apple skill reads them.
+// the query skill reads them.
 type SelectedConnector = {
   connector: string;
   scope: string;
@@ -258,7 +258,7 @@ type SelectedConnector = {
     | undefined;
 };
 
-// The query-apple skill's read command: everything as arguments, since the
+// The query skill's read command: everything as arguments, since the
 // read-only sandbox refuses the temporary file a heredoc needs.
 function read(database: string, sql: string, ...commands: string[]) {
   const { stdout, stderr, status } = spawnSync(
@@ -278,7 +278,7 @@ function read(database: string, sql: string, ...commands: string[]) {
 }
 
 test(
-  'the committed Apple plugin installs from the repo marketplace, sets up through Codex bundled Node, imports in the background and serves it to the skill read command',
+  'the committed Context Compiler plugin installs from the repo marketplace, sets up through Codex bundled Node, imports in the background and serves it to the skill read command',
   {
     timeout: 180_000,
   },
@@ -288,7 +288,7 @@ test(
       readFileSync(join(root, '.agents/plugins/marketplace.json'), 'utf8'),
     );
     const [entry] = marketplace.plugins;
-    assert.equal(entry.name, 'apple');
+    assert.equal(entry.name, 'context-compiler');
     // Codex copies the plugin directory into its cache and runs it from there.
     const plugin = join(scratch.path, 'plugin');
     cpSync(join(root, entry.source.path), plugin, { recursive: true });
@@ -305,13 +305,13 @@ test(
       manifest.extensions['com.openai'].onboardingSkill,
       manifest.interface.logo,
       manifest.interface.composerIcon,
-      './skills/query-apple/SKILL.md',
+      './skills/query/SKILL.md',
     ])
       assert.ok(existsSync(join(plugin, path)), path);
     const {
-      mcpServers: { apple },
+      mcpServers: { 'context-compiler': launcher },
     } = JSON.parse(readFileSync(join(plugin, manifest.mcpServers), 'utf8'));
-    accessSync(join(plugin, apple.command), constants.X_OK);
+    accessSync(join(plugin, launcher.command), constants.X_OK);
     const runtime =
       process.env.CODEX_MCP_NODE_PATH ??
       join(
@@ -337,9 +337,9 @@ test(
     let diagnostics = '';
     const launch = () => {
       const transport = new StdioClientTransport({
-        command: join(plugin, apple.command),
-        args: apple.args,
-        cwd: join(plugin, apple.cwd),
+        command: join(plugin, launcher.command),
+        args: launcher.args,
+        cwd: join(plugin, launcher.cwd),
         env: { HOME: scratch.path, CODEX_MCP_NODE_PATH: runtime, PATH: '' },
         stderr: 'pipe',
       });
@@ -379,7 +379,7 @@ test(
       client: Client,
       event: 'SessionStart' | 'UserPromptSubmit',
     ) => {
-      const result = await call(client, 'apple_context', { event });
+      const result = await call(client, 'context', { event });
       assert.notEqual(result.isError, true, JSON.stringify(result.content));
       assert.ok(Array.isArray(result.content));
       return result.content.map((block) => block.text).join('\n');
@@ -453,49 +453,49 @@ test(
     try {
       const { tools } = await client.listTools();
       assert.deepEqual(tools.map((tool) => tool.name).sort(), [
-        'apple_configure',
-        'apple_connector_choices',
-        'apple_connector_update',
-        'apple_connector_watch',
-        'apple_connectors',
-        'apple_context',
-        'apple_monitor_add',
-        'apple_monitor_remove',
-        'apple_monitors',
-        'apple_open_full_disk_access',
-        'apple_options',
-        'apple_page',
-        'apple_setup',
-        'apple_sync',
-        'apple_transcription',
-        'apple_transcription_update',
+        'configure',
+        'connector_choices',
+        'connector_update',
+        'connector_watch',
+        'connectors',
+        'context',
+        'monitor_add',
+        'monitor_remove',
+        'monitors',
+        'open_full_disk_access',
+        'options',
+        'page',
+        'setup',
+        'sync',
+        'transcription',
+        'transcription_update',
       ]);
       const metaOf = (name: string) =>
         tools.find((tool) => tool.name === name)?._meta;
-      // Only the hooks and the Apple page call these; Codex keeps them from
+      // Only the hooks and the Context Compiler page call these; Codex keeps them from
       // the model.
       for (const name of [
-        'apple_context',
-        'apple_connectors',
-        'apple_connector_choices',
-        'apple_connector_update',
-        'apple_connector_watch',
-        'apple_sync',
-        'apple_transcription',
-        'apple_transcription_update',
-        'apple_open_full_disk_access',
-        'apple_monitors',
-        'apple_monitor_remove',
+        'context',
+        'connectors',
+        'connector_choices',
+        'connector_update',
+        'connector_watch',
+        'sync',
+        'transcription',
+        'transcription_update',
+        'open_full_disk_access',
+        'monitors',
+        'monitor_remove',
       ])
         assert.deepEqual(metaOf(name), { ui: { visibility: ['app'] } }, name);
       // A chat's agent adds the monitor it wrote, so the model sees this one.
-      assert.equal(metaOf('apple_monitor_add'), undefined);
-      // ChatGPT lists the Apple page in its sidebar, finds it in Settings
+      assert.equal(metaOf('monitor_add'), undefined);
+      // ChatGPT lists the Context Compiler page in its sidebar, finds it in Settings
       // search by its connectors' names, and opens it from the page's own
       // resource.
-      const pageMeta = metaOf('apple_page');
+      const pageMeta = metaOf('page');
       assert.deepEqual(pageMeta?.ui, {
-        resourceUri: 'ui://apple/page.html',
+        resourceUri: 'ui://context-compiler/page.html',
         visibility: ['app'],
       });
       // ChatGPT leaves out its own title row above the page, which draws its
@@ -521,7 +521,7 @@ test(
       for (const term of ['connectors', 'Notes', 'Mail', 'Calendar'])
         assert.ok(settings.searchTerms.includes(term), term);
       const { contents: pages } = await client.readResource({
-        uri: 'ui://apple/page.html',
+        uri: 'ui://context-compiler/page.html',
       });
       assert.equal(pages.length, 1);
       const [pageResource] = pages;
@@ -531,16 +531,16 @@ test(
         /^<!doctype html>[\s\S]*<div id="root"><\/div>\s*<script type="module">[\s\S]{10000,}<\/script>\s*<\/body>/,
       );
       for (const name of [
-        'apple_connectors',
-        'apple_connector_choices',
-        'apple_connector_update',
-        'apple_connector_watch',
-        'apple_sync',
-        'apple_transcription',
-        'apple_transcription_update',
-        'apple_open_full_disk_access',
-        'apple_monitors',
-        'apple_monitor_remove',
+        'connectors',
+        'connector_choices',
+        'connector_update',
+        'connector_watch',
+        'sync',
+        'transcription',
+        'transcription_update',
+        'open_full_disk_access',
+        'monitors',
+        'monitor_remove',
       ])
         assert.ok(
           pageResource &&
@@ -549,37 +549,37 @@ test(
           name,
         );
       // Codex shows these instructions with the tools.
-      assert.match(String(client.getInstructions()), /\$query-apple/);
+      assert.match(String(client.getInstructions()), /\$query/);
       // The server names the installed version.
       assert.equal(client.getServerVersion()?.version, manifest.version);
       // ChatGPT drops a page's Settings search terms while the server also
-      // has a native Settings section, so Apple has none.
+      // has a native Settings section, so Context Compiler has none.
       assert.equal(
         client.getServerCapabilities()?.experimental?.['openai/settings'],
         undefined,
       );
       assert.deepEqual(selected(), []);
-      // The chat can send the user to the Apple page by its deep link.
+      // The chat can send the user to the Context Compiler page by its deep link.
       const started = await context(client, 'SessionStart');
-      assert.match(started, /no connectors are set up\. Use \$setup-apple/);
+      assert.match(started, /no connectors are set up\. Use \$setup/);
       assert.ok(
-        started.includes('codex://plugins/apple/app/apple_page'),
+        started.includes('codex://plugins/context-compiler/app/page'),
         started,
       );
       assert.equal(await context(client, 'UserPromptSubmit'), '');
-      assert.deepEqual((await call(other, 'apple_setup')).content, [
+      assert.deepEqual((await call(other, 'setup')).content, [
         {
           type: 'text',
-          text: 'This host cannot show forms. Set up with apple_options, then apple_configure.',
+          text: 'This host cannot show forms. Set up with options, then configure.',
         },
       ]);
 
       // Setup returns once the answers are saved; the import runs apart from it.
-      const setUp = await invoke(client, 'apple_setup');
+      const setUp = await invoke(client, 'setup');
       // One form: the connectors. Notes is imported in full without further
       // questions.
       assert.equal(forms.length, 1);
-      assert.match(forms[0] ?? '', /Choose the Apple connectors/);
+      assert.match(forms[0] ?? '', /Choose the connectors/);
       assert.deepEqual(setUp.unavailable, []);
       assert.deepEqual(
         setUp.connectors.map(
@@ -626,10 +626,10 @@ test(
         ).rows,
         [{ id: 'NOTE-RICH' }],
       );
-      // The Apple page lists Notes as imported and Mail as not connected,
+      // The Context Compiler page lists Notes as imported and Mail as not connected,
       // and offers Notes' accounts and folders to narrow it by.
       const rowOf = async (client: Client, name: string) =>
-        (await invoke(client, 'apple_connectors', {})).connectors.find(
+        (await invoke(client, 'connectors', {})).connectors.find(
           (row: { name: string }) => row.name === name,
         );
       const notesRow = await rowOf(client, 'notes');
@@ -651,7 +651,7 @@ test(
         details: [],
         fullDiskAccess: false,
       });
-      const notesChoices = await invoke(client, 'apple_connector_choices', {
+      const notesChoices = await invoke(client, 'connector_choices', {
         connector: 'notes',
       });
       assert.deepEqual(
@@ -713,10 +713,10 @@ test(
         'attached words',
       );
       // An imported connector stays as it is until the user syncs it: Sync on
-      // the Apple page imports it again into the same copy, edit included,
+      // the Context Compiler page imports it again into the same copy, edit included,
       // and returns once the pass has ended.
       retitle('Groceries (synced)');
-      await invoke(client, 'apple_sync', {});
+      await invoke(client, 'sync', {});
       assert.deepEqual(
         read(
           synced.database,
@@ -727,7 +727,7 @@ test(
       );
 
       // A connector macOS does not allow fails alone, and Notes keeps its import.
-      await invoke(client, 'apple_configure', {
+      await invoke(client, 'configure', {
         connectors: [
           {
             connector: 'notes',
@@ -746,7 +746,7 @@ test(
       assert.ok(kept && messages?.sync);
       assert.equal(kept.database, synced.database);
       assert.match(String(messages.sync.error), /Full Disk Access/);
-      // The Apple page offers to open Full Disk Access for it.
+      // The Context Compiler page offers to open Full Disk Access for it.
       const messagesRow = await rowOf(client, 'messages');
       assert.equal(messagesRow.status.state, 'failed');
       assert.match(messagesRow.status.text, /Full Disk Access/);
@@ -758,12 +758,12 @@ test(
       // A connector whose import failed links to its own page.
       assert.match(
         await context(client, 'SessionStart'),
-        /^- Messages: last sync failed .* codex:\/\/plugins\/apple\/app\/apple_page\?path=%2Fconnectors%2Fmessages$/m,
+        /^- Messages: last sync failed .* codex:\/\/plugins\/context-compiler\/app\/page\?path=%2Fconnectors%2Fmessages$/m,
       );
       // Sync from one connector's menu imports that connector alone: Notes
       // takes the edit, and Messages keeps the attempt it had.
       retitle('Groceries (Notes only)');
-      await invoke(client, 'apple_sync', { connector: 'notes' });
+      await invoke(client, 'sync', { connector: 'notes' });
       const [notesAlone, messagesUntouched] = selected();
       assert.deepEqual(
         read(
@@ -780,7 +780,7 @@ test(
 
       // An unknown connector fails in the tool, which names it, not in the
       // schema.
-      const unknownOptions = await call(client, 'apple_options', {
+      const unknownOptions = await call(client, 'options', {
         connector: 'invalid',
       });
       assert.equal(unknownOptions.isError, true);
@@ -788,7 +788,7 @@ test(
         JSON.stringify(unknownOptions.content),
         /No connector is named invalid\./,
       );
-      const unknownConfigure = await call(client, 'apple_configure', {
+      const unknownConfigure = await call(client, 'configure', {
         connectors: [{ connector: 'invalid' }],
       });
       assert.equal(unknownConfigure.isError, true);
@@ -802,10 +802,10 @@ test(
       await transport.close();
       retitle('Groceries (edited)');
 
-      // Switching Notes off on the Apple page, which names only Notes,
+      // Switching Notes off on the Context Compiler page, which names only Notes,
       // disconnects it and deletes its import; Messages, which a chat added
       // after setup, stays selected.
-      const switched = await invoke(other, 'apple_connector_update', {
+      const switched = await invoke(other, 'connector_update', {
         connector: 'notes',
         selection: null,
       });
@@ -827,7 +827,7 @@ test(
       );
       // An imported connector is not refreshed; switched on again, Notes
       // imports afresh, with the change made since.
-      await invoke(other, 'apple_connector_update', {
+      await invoke(other, 'connector_update', {
         connector: 'notes',
         selection: { scope: {}, includeAttachments: true },
       });
@@ -835,9 +835,9 @@ test(
         (await imported('Groceries (edited)')).database,
         synced.database,
       );
-      // Narrowing Notes to one folder on the Apple page imports it afresh
+      // Narrowing Notes to one folder on the Context Compiler page imports it afresh
       // into a new copy, removes the old one and keeps Messages.
-      await invoke(other, 'apple_connector_update', {
+      await invoke(other, 'connector_update', {
         connector: 'notes',
         selection: {
           scope: { collectionIds: ['FOLDER-NOTES'] },
@@ -868,9 +868,9 @@ test(
       for (const event of ['UserPromptSubmit', 'UserPromptSubmit'] as const)
         assert.match(await context(other, event), /open a new chat/);
       for (const [name, args] of [
-        ['apple_connectors', {}],
+        ['connectors', {}],
         [
-          'apple_connector_update',
+          'connector_update',
           {
             connector: 'mail',
             selection: { scope: {}, includeAttachments: true },
@@ -892,7 +892,7 @@ test(
 );
 
 test(
-  'Apple setup asks only which connectors, imports each in full or as narrowed before, reports a connector macOS denied, and changes nothing when cancelled',
+  'Setup asks only which connectors, imports each in full or as narrowed before, reports a connector macOS denied, and changes nothing when cancelled',
   {
     timeout: 120_000,
   },
@@ -908,7 +908,7 @@ test(
       readFileSync(join(plugin, '.codex-plugin/plugin.json'), 'utf8'),
     );
     const {
-      mcpServers: { apple },
+      mcpServers: { 'context-compiler': launcher },
     } = JSON.parse(readFileSync(join(plugin, manifest.mcpServers), 'utf8'));
     const runtime =
       process.env.CODEX_MCP_NODE_PATH ??
@@ -943,9 +943,9 @@ test(
       return answer;
     });
     const transport = new StdioClientTransport({
-      command: join(plugin, apple.command),
-      args: apple.args,
-      cwd: join(plugin, apple.cwd),
+      command: join(plugin, launcher.command),
+      args: launcher.args,
+      cwd: join(plugin, launcher.cwd),
       env: { HOME: scratch.path, CODEX_MCP_NODE_PATH: runtime, PATH: '' },
       stderr: 'pipe',
     });
@@ -968,7 +968,7 @@ test(
     const setUp = async (...given: ElicitResult[]) => {
       forms.length = 0;
       answers.push(...given);
-      const result = await invoke('apple_setup');
+      const result = await invoke('setup');
       assert.deepEqual(answers, []);
       return result;
     };
@@ -1024,7 +1024,7 @@ test(
 
       // A selection the user narrowed in chat survives setting up again.
       const narrowed = { collectionIds: ['FOLDER-NOTES'] };
-      await invoke('apple_configure', {
+      await invoke('configure', {
         connectors: [
           { connector: 'notes', scope: narrowed, includeAttachments: false },
         ],
@@ -1082,7 +1082,7 @@ async function withConnectors(home: string) {
     readFileSync(
       join(
         root,
-        'packages/connectors/apple/manifest/src/fixtures/photos/photos-connector.ts',
+        'packages/connectors/manifest/src/fixtures/photos/photos-connector.ts',
       ),
     ),
   );
@@ -1115,7 +1115,7 @@ test(
   async (t) => {
     await using scratch = await mkdtempDisposable(join(homes, 'apple-e2e-'));
     const plugin = join(scratch.path, 'plugin');
-    cpSync(join(root, 'plugins/apple'), plugin, { recursive: true });
+    cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
     const runtime =
       process.env.CODEX_MCP_NODE_PATH ??
       join(
@@ -1123,12 +1123,12 @@ test(
         '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node',
       );
     const {
-      mcpServers: { apple },
+      mcpServers: { 'context-compiler': launcher },
     } = JSON.parse(readFileSync(join(plugin, '.mcp.json'), 'utf8'));
     const transport = new StdioClientTransport({
-      command: join(plugin, apple.command),
-      args: apple.args,
-      cwd: join(plugin, apple.cwd),
+      command: join(plugin, launcher.command),
+      args: launcher.args,
+      cwd: join(plugin, launcher.cwd),
       env: { HOME: scratch.path, CODEX_MCP_NODE_PATH: runtime, PATH: '' },
       stderr: 'pipe',
     });
@@ -1143,8 +1143,8 @@ test(
     try {
       // The server started before the user's connectors existed.
       await withConnectors(scratch.path);
-      const context = await call('apple_context', { event: 'SessionStart' });
-      await call('apple_configure', { connectors: [{ connector: 'photos' }] });
+      const context = await call('context', { event: 'SessionStart' });
+      await call('configure', { connectors: [{ connector: 'photos' }] });
       const settings = join(
         scratch.path,
         'Library/Application Support/Context Compiler/Apple/settings.sqlite',
@@ -1177,7 +1177,7 @@ test(
           "'Open Pictures once.'",
         ),
       );
-      const edited = await call('apple_options', { connector: 'photos' });
+      const edited = await call('options', { connector: 'photos' });
       const presets = join(dirname(connector), 'presets');
       mkdirSync(presets);
       const preset = join(presets, 'titled_photos.sql');
@@ -1190,7 +1190,7 @@ test(
           'CREATE TEMP VIEW titled_photos AS SELECT id, upper(title) AS title FROM photos;',
         ].join('\n'),
       );
-      const withPreset = await call('apple_context', {
+      const withPreset = await call('context', {
         event: 'UserPromptSubmit',
       });
       const [selected] = read(
@@ -1236,7 +1236,7 @@ test(
   async (t) => {
     await using scratch = await mkdtempDisposable(join(homes, 'apple-e2e-'));
     const plugin = join(scratch.path, 'plugin');
-    cpSync(join(root, 'plugins/apple'), plugin, { recursive: true });
+    cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
     const runtime =
       process.env.CODEX_MCP_NODE_PATH ??
       join(
@@ -1282,12 +1282,12 @@ export default {
 };`,
     );
     const {
-      mcpServers: { apple },
+      mcpServers: { 'context-compiler': launcher },
     } = JSON.parse(readFileSync(join(plugin, '.mcp.json'), 'utf8'));
     const transport = new StdioClientTransport({
-      command: join(plugin, apple.command),
-      args: apple.args,
-      cwd: join(plugin, apple.cwd),
+      command: join(plugin, launcher.command),
+      args: launcher.args,
+      cwd: join(plugin, launcher.cwd),
       env: {
         HOME: scratch.path,
         CODEX_MCP_NODE_PATH: runtime,
@@ -1300,17 +1300,17 @@ export default {
     await client.connect(transport, { signal: t.signal, timeout: 10_000 });
     try {
       await client.callTool({
-        name: 'apple_configure',
+        name: 'configure',
         arguments: { connectors: [{ connector: 'photos' }] },
       });
-      await client.callTool({ name: 'apple_sync', arguments: {} });
+      await client.callTool({ name: 'sync', arguments: {} });
       // Codex names the calling chat in each tool call's _meta.
       const unnamed = await client.callTool({
-        name: 'apple_monitor_add',
+        name: 'monitor_add',
         arguments: { name: 'new-photos' },
       });
       const added = await client.callTool({
-        name: 'apple_monitor_add',
+        name: 'monitor_add',
         arguments: { name: 'new-photos' },
         _meta: { threadId: 'chat-e2e' },
       });
@@ -1323,7 +1323,7 @@ export default {
         ]),
       );
 
-      await client.callTool({ name: 'apple_sync', arguments: {} });
+      await client.callTool({ name: 'sync', arguments: {} });
 
       assert.equal(unnamed.isError, true);
       assert.notEqual(added.isError, true, JSON.stringify(added.content));
@@ -1343,7 +1343,7 @@ export default {
         ],
       );
       const { structuredContent } = await client.callTool({
-        name: 'apple_monitors',
+        name: 'monitors',
         arguments: {},
       });
       assert.deepEqual(
@@ -1395,7 +1395,7 @@ async function readerOf(pipe: string) {
   }
 }
 
-// A chat's Apple server on the installed plugin, started as Codex starts it.
+// A chat's Context Compiler server on the installed plugin, started as Codex starts it.
 // closed settles once its process ended; send signals it only until then,
 // so no other process that takes its ID gets the signal.
 async function chat(
@@ -1406,12 +1406,12 @@ async function chat(
   codex?: string,
 ) {
   const {
-    mcpServers: { apple },
+    mcpServers: { 'context-compiler': launcher },
   } = JSON.parse(readFileSync(join(plugin, '.mcp.json'), 'utf8'));
   const transport = new StdioClientTransport({
-    command: join(plugin, apple.command),
-    args: apple.args,
-    cwd: join(plugin, apple.cwd),
+    command: join(plugin, launcher.command),
+    args: launcher.args,
+    cwd: join(plugin, launcher.cwd),
     env: {
       HOME: home,
       CODEX_MCP_NODE_PATH:
@@ -1449,18 +1449,17 @@ async function chat(
     get diagnostics() {
       return diagnostics;
     },
-    // The Apple page's Sync of one connector: it returns once that
+    // The Context Compiler page's Sync of one connector: it returns once that
     // connector's pass ended, with the page's rows.
     sync: (connector: string) =>
-      client.callTool(
-        { name: 'apple_sync', arguments: { connector } },
-        undefined,
-        { signal, timeout: 120_000 },
-      ),
+      client.callTool({ name: 'sync', arguments: { connector } }, undefined, {
+        signal,
+        timeout: 120_000,
+      }),
     configure: (connectors: string[]) =>
       client.callTool(
         {
-          name: 'apple_configure',
+          name: 'configure',
           arguments: {
             connectors: connectors.map((connector) => ({ connector })),
           },
@@ -1471,19 +1470,19 @@ async function chat(
     // The Keep current switch on a connector's page.
     watch: (connector: string, watched: boolean) =>
       client.callTool(
-        { name: 'apple_connector_watch', arguments: { connector, watched } },
+        { name: 'connector_watch', arguments: { connector, watched } },
         undefined,
         { signal },
       ),
     connectors: () =>
-      client.callTool({ name: 'apple_connectors', arguments: {} }, undefined, {
+      client.callTool({ name: 'connectors', arguments: {} }, undefined, {
         signal,
       }),
     // A monitor the chat wrote, added for the chat Codex names in _meta.
     addMonitor: (name: string, thread: string) =>
       client.callTool(
         {
-          name: 'apple_monitor_add',
+          name: 'monitor_add',
           arguments: { name },
           _meta: { threadId: thread },
         },
@@ -1493,7 +1492,7 @@ async function chat(
     disconnect: (connector: string) =>
       client.callTool(
         {
-          name: 'apple_connector_update',
+          name: 'connector_update',
           arguments: { connector, selection: null },
         },
         undefined,
@@ -1540,7 +1539,7 @@ function passes(home: string, connector: string): string[] {
       ).rows.map(({ status }: { status: string }) => status);
 }
 
-// The Photos row of the Apple page that a sync returned.
+// The Photos row of the Context Compiler page that a sync returned.
 const photosRow = (result: unknown) =>
   z
     .object({
@@ -1630,7 +1629,7 @@ async function eventually(
   }
 }
 
-// Three chats' servers on one Apple store, as when a customer's import
+// Three chats' servers on one store, as when a customer's import
 // failed with "Checkpoint … is in use by another run". The first server
 // syncs Albums, so it coordinates the store's flights; the second syncs
 // Photos and is frozen while its pass reads; then the first dies. Each read
@@ -1639,7 +1638,7 @@ async function frozenLeader(signal: AbortSignal, home: string) {
   const owned = new AsyncDisposableStack();
   try {
     const plugin = join(home, 'plugin');
-    cpSync(join(root, 'plugins/apple'), plugin, { recursive: true });
+    cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
     await withConnectors(home);
     // Albums, another connector an agent wrote: Photos, read from albums.json.
     const albums = join(
@@ -1660,7 +1659,7 @@ async function frozenLeader(signal: AbortSignal, home: string) {
       readFileSync(
         join(
           root,
-          'packages/connectors/apple/manifest/src/fixtures/photos/photos-connector.ts',
+          'packages/connectors/manifest/src/fixtures/photos/photos-connector.ts',
         ),
         'utf8',
       ).replace("'Pictures/photos.json'", "'Pictures/albums.json'"),
@@ -1827,7 +1826,7 @@ async function ownedWatch(signal: AbortSignal, home: string) {
   const owned = new AsyncDisposableStack();
   try {
     const plugin = join(home, 'plugin');
-    cpSync(join(root, 'plugins/apple'), plugin, { recursive: true });
+    cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
     await withWatchedPhotos(home);
     const owner = owned.use(await chat(signal, plugin, home));
     const other = owned.use(await chat(signal, plugin, home));
@@ -1962,7 +1961,7 @@ test(
   async (t) => {
     await using scratch = await mkdtempDisposable(join(homes, 'apple-e2e-'));
     const plugin = join(scratch.path, 'plugin');
-    cpSync(join(root, 'plugins/apple'), plugin, { recursive: true });
+    cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
     await withWatchedPhotos(scratch.path);
     await using first = await chat(t.signal, plugin, scratch.path);
     await using second = await chat(t.signal, plugin, scratch.path);
@@ -2004,7 +2003,7 @@ test(
   async (t) => {
     await using scratch = await mkdtempDisposable(join(homes, 'apple-e2e-'));
     const plugin = join(scratch.path, 'plugin');
-    cpSync(join(root, 'plugins/apple'), plugin, { recursive: true });
+    cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
     await withWatchedPhotos(scratch.path);
     // Albums, another connector that watches its own library, albums.json.
     const connectors = join(
@@ -2092,7 +2091,7 @@ test(
     await using scratch = await mkdtempDisposable(join(homes, 'apple-e2e-'));
     const old = join(scratch.path, 'plugin-old');
     const current = join(scratch.path, 'plugin-new');
-    cpSync(join(root, 'plugins/apple'), old, { recursive: true });
+    cpSync(join(root, 'plugins/context-compiler'), old, { recursive: true });
     cpSync(old, current, { recursive: true });
     await withWatchedPhotos(scratch.path);
     await using stale = await chat(t.signal, old, scratch.path);
@@ -2140,7 +2139,7 @@ test(
   async (t) => {
     await using scratch = await mkdtempDisposable(join(homes, 'apple-e2e-'));
     const plugin = join(scratch.path, 'plugin');
-    cpSync(join(root, 'plugins/apple'), plugin, { recursive: true });
+    cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
     await withWatchedPhotos(scratch.path);
     await using user = await chat(t.signal, plugin, scratch.path);
     await user.configure(['photos']);
@@ -2199,7 +2198,7 @@ test(
   async (t) => {
     await using scratch = await mkdtempDisposable(join(homes, 'apple-e2e-'));
     const plugin = join(scratch.path, 'plugin');
-    cpSync(join(root, 'plugins/apple'), plugin, { recursive: true });
+    cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
     // A real `codex queue` writes into the user's own ~/.codex, so the server
     // gets an executable that records each call instead.
     const calls = join(scratch.path, 'codex-calls.jsonl');
@@ -2285,7 +2284,7 @@ test(
   async (t) => {
     await using scratch = await mkdtempDisposable(join(homes, 'apple-e2e-'));
     const plugin = join(scratch.path, 'plugin');
-    cpSync(join(root, 'plugins/apple'), plugin, { recursive: true });
+    cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
     await withWatchedPhotos(scratch.path);
     // Albums, another connector that watches its own library, albums.json;
     // its watch fails once that library is gone.

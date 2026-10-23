@@ -1,5 +1,5 @@
 {
-  "extends": "../../../../tsconfig.base.json",
+  "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
@@ -8,22 +8,7 @@
   "include": ["src/**/*.ts"],
   "references": [
     {
-      "path": "../../../sources/instagram/web"
-    },
-    {
-      "path": "../../../sources/apple/macos"
-    },
-    {
       "path": "../connector"
-    },
-    {
-      "path": "../../../elt"
-    },
-    {
-      "path": "../../../destinations/sqlite"
-    },
-    {
-      "path": "../../../sdks/chromium/cookies"
     }
   ]
 }

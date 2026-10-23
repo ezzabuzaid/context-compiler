@@ -1,5 +1,5 @@
 {
-  "name": "@workspace/apple-cli",
+  "name": "@workspace/cli",
   "private": true,
   "type": "module",
   "dependencies": {

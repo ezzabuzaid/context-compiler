@@ -1,6 +1,6 @@
 {
   "name": "connector-apple-accounts",
-  "sourceRoot": "packages/connectors/apple/accounts/src",
+  "sourceRoot": "packages/connectors/accounts/src",
   "projectType": "library",
   "targets": {
     "format": {}

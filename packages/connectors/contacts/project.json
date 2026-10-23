@@ -1,12 +1,12 @@
 {
   "name": "connector-apple-contacts",
-  "sourceRoot": "packages/connectors/apple/contacts/src",
+  "sourceRoot": "packages/connectors/contacts/src",
   "projectType": "library",
   "targets": {
     "format": {},
     "test": {
       "dependsOn": ["build"],
-      "command": "node --test {args} \"packages/connectors/apple/contacts/dist/*.test.js\""
+      "command": "node --test {args} \"packages/connectors/contacts/dist/*.test.js\""
     }
   }
 }

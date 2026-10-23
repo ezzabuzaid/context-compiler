@@ -1,12 +1,12 @@
 {
   "name": "connector-apple-call-history",
-  "sourceRoot": "packages/connectors/apple/call-history/src",
+  "sourceRoot": "packages/connectors/call-history/src",
   "projectType": "library",
   "targets": {
     "format": {},
     "test": {
       "dependsOn": ["build"],
-      "command": "node --test {args} \"packages/connectors/apple/call-history/dist/*.test.js\""
+      "command": "node --test {args} \"packages/connectors/call-history/dist/*.test.js\""
     }
   }
 }

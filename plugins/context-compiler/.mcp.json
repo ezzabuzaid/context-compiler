@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "apple": {
+    "context-compiler": {
       "command": "./launch_node",
       "args": ["./server/main.mjs"],
       "cwd": ".",

@@ -5,10 +5,10 @@
   },
   "plugins": [
     {
-      "name": "apple",
+      "name": "context-compiler",
       "source": {
         "source": "local",
-        "path": "./plugins/apple"
+        "path": "./plugins/context-compiler"
       },
       "policy": {
         "installation": "AVAILABLE",

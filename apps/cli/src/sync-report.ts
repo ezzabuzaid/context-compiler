@@ -32,7 +32,7 @@ export class SyncReport implements SyncObserver {
 
   start(): void {
     if (!this.interactive) return;
-    intro('Apple sync');
+    intro('Context Compiler sync');
     this.#spin();
   }
 
@@ -86,7 +86,9 @@ export class SyncReport implements SyncObserver {
           `${title.padEnd(10)} interrupted · the sync importing it stopped`,
         );
       else if (why === 'watched')
-        log.info(`${title.padEnd(10)} kept current by apple-cli sync watch`);
+        log.info(
+          `${title.padEnd(10)} kept current by context-compiler sync watch`,
+        );
       else
         log.info(
           `${title.padEnd(10)} stopped · removed from the selection by another setup`,

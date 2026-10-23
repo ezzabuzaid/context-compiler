@@ -1,0 +1,75 @@
+{
+  "extends": "./tsconfig.base.json",
+  "files": [],
+  "references": [
+    {
+      "path": "./apps/plugin"
+    },
+    {
+      "path": "./apps/cli"
+    },
+    {
+      "path": "./packages/settings"
+    },
+    {
+      "path": "./packages/connectors/accounts"
+    },
+    {
+      "path": "./packages/connectors/activity"
+    },
+    {
+      "path": "./packages/connectors/books"
+    },
+    {
+      "path": "./packages/connectors/calendar"
+    },
+    {
+      "path": "./packages/connectors/call-history"
+    },
+    {
+      "path": "./packages/connectors/clock"
+    },
+    {
+      "path": "./packages/connectors/connector"
+    },
+    {
+      "path": "./packages/connectors/contacts"
+    },
+    {
+      "path": "./packages/connectors/instagram"
+    },
+    {
+      "path": "./packages/connectors/mail"
+    },
+    {
+      "path": "./packages/connectors/manifest"
+    },
+    {
+      "path": "./packages/connectors/messages"
+    },
+    {
+      "path": "./packages/connectors/notes"
+    },
+    {
+      "path": "./packages/connectors/notification-center"
+    },
+    {
+      "path": "./packages/connectors/reminders"
+    },
+    {
+      "path": "./packages/connectors/safari"
+    },
+    {
+      "path": "./packages/connectors/slack"
+    },
+    {
+      "path": "./packages/connectors/teams"
+    },
+    {
+      "path": "./packages/connectors/wallet"
+    },
+    {
+      "path": "./packages/connectors/whatsapp"
+    }
+  ]
+}

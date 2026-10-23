@@ -1,5 +1,5 @@
 {
-  "extends": "../../../../tsconfig.base.json",
+  "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
@@ -8,19 +8,10 @@
   "include": ["src/**/*.ts"],
   "references": [
     {
-      "path": "../../../sources/microsoft/teams"
-    },
-    {
-      "path": "../../../sources/apple/macos"
-    },
-    {
       "path": "../connector"
     },
     {
-      "path": "../../../codecs/chromium-indexeddb"
-    },
-    {
-      "path": "../../../settings"
+      "path": "../../settings"
     }
   ]
 }
