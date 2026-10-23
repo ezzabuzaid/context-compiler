@@ -3415,8 +3415,8 @@ var Settings = class {
       includeAttachments: row.include_attachments === 1
     }));
   }
-  // The transcription model the user chose, by the id Handy installs it under:
-  // the hosts find its files on whichever Mac reads the store.
+  // The transcription model the user chose, by its file name: the hosts find
+  // the file on whichever Mac reads the store.
   transcription() {
     const row = this.settings.prepare("SELECT model FROM transcription WHERE id = 1").get();
     if (row === void 0)

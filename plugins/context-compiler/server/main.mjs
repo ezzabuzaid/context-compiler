@@ -37,7 +37,7 @@ import {
   Settings,
   readPassStatus,
   transaction
-} from "./chunks/chunk-7ELPL3YG.mjs";
+} from "./chunks/chunk-RK3MSXC5.mjs";
 import {
   DocumentParser
 } from "./chunks/chunk-UZWKSGGL.mjs";
@@ -1093,12 +1093,12 @@ var require_util = __commonJS({
     }
     exports.alwaysValidSchema = alwaysValidSchema;
     function checkUnknownRules(it, schema = it.schema) {
-      const { opts, self } = it;
+      const { opts, self: self2 } = it;
       if (!opts.strictSchema)
         return;
       if (typeof schema === "boolean")
         return;
-      const rules = self.RULES.keywords;
+      const rules = self2.RULES.keywords;
       for (const key in schema) {
         if (!rules[key])
           checkStrictMode(it, `unknown keyword: "${key}"`);
@@ -1484,8 +1484,8 @@ var require_applicability = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.shouldUseRule = exports.shouldUseGroup = exports.schemaHasRulesForType = void 0;
-    function schemaHasRulesForType({ schema, self }, type) {
-      const group = self.RULES.types[type];
+    function schemaHasRulesForType({ schema, self: self2 }, type) {
+      const group = self2.RULES.types[type];
       return group && group !== true && shouldUseGroup(schema, group);
     }
     exports.schemaHasRulesForType = schemaHasRulesForType;
@@ -1950,7 +1950,7 @@ var require_keyword = __commonJS({
       return !schemaType.length || schemaType.some((st) => st === "array" ? Array.isArray(schema) : st === "object" ? schema && typeof schema == "object" && !Array.isArray(schema) : typeof schema == st || allowUndefined && typeof schema == "undefined");
     }
     exports.validSchemaType = validSchemaType;
-    function validateKeywordUsage({ schema, opts, self, errSchemaPath }, def, keyword) {
+    function validateKeywordUsage({ schema, opts, self: self2, errSchemaPath }, def, keyword) {
       if (Array.isArray(def.keyword) ? !def.keyword.includes(keyword) : def.keyword !== keyword) {
         throw new Error("ajv implementation error");
       }
@@ -1961,9 +1961,9 @@ var require_keyword = __commonJS({
       if (def.validateSchema) {
         const valid = def.validateSchema(schema[keyword]);
         if (!valid) {
-          const msg = `keyword "${keyword}" value is invalid at path "${errSchemaPath}": ` + self.errorsText(def.validateSchema.errors);
+          const msg = `keyword "${keyword}" value is invalid at path "${errSchemaPath}": ` + self2.errorsText(def.validateSchema.errors);
           if (opts.validateSchema === "log")
-            self.logger.error(msg);
+            self2.logger.error(msg);
           else
             throw new Error(msg);
         }
@@ -2430,11 +2430,11 @@ var require_validate = __commonJS({
       }
       (0, boolSchema_1.boolOrEmptySchema)(it, valid);
     }
-    function schemaCxtHasRules({ schema, self }) {
+    function schemaCxtHasRules({ schema, self: self2 }) {
       if (typeof schema == "boolean")
         return !schema;
       for (const key in schema)
-        if (self.RULES.all[key])
+        if (self2.RULES.all[key])
           return true;
       return false;
     }
@@ -2463,9 +2463,9 @@ var require_validate = __commonJS({
       schemaKeywords(it, types, !checkedTypes, errsCount);
     }
     function checkRefsAndKeywords(it) {
-      const { schema, errSchemaPath, opts, self } = it;
-      if (schema.$ref && opts.ignoreKeywordsWithRef && (0, util_1.schemaHasRulesButRef)(schema, self.RULES)) {
-        self.logger.warn(`$ref: keywords ignored in schema at path "${errSchemaPath}"`);
+      const { schema, errSchemaPath, opts, self: self2 } = it;
+      if (schema.$ref && opts.ignoreKeywordsWithRef && (0, util_1.schemaHasRulesButRef)(schema, self2.RULES)) {
+        self2.logger.warn(`$ref: keywords ignored in schema at path "${errSchemaPath}"`);
       }
     }
     function checkNoDefault(it) {
@@ -2511,8 +2511,8 @@ var require_validate = __commonJS({
         gen.assign((0, codegen_1._)`${evaluated}.items`, items);
     }
     function schemaKeywords(it, types, typeErrors, errsCount) {
-      const { gen, schema, data, allErrors, opts, self } = it;
-      const { RULES } = self;
+      const { gen, schema, data, allErrors, opts, self: self2 } = it;
+      const { RULES } = self2;
       if (schema.$ref && (opts.ignoreKeywordsWithRef || !(0, util_1.schemaHasRulesButRef)(schema, RULES))) {
         gen.block(() => keywordCode(it, "$ref", RULES.all.$ref.definition));
         return;
@@ -2630,7 +2630,7 @@ var require_validate = __commonJS({
         this.it = it;
         this.def = def;
         if (this.$data) {
-          this.schemaCode = it.gen.const("vSchema", getData(this.$data, it));
+          this.schemaCode = it.gen.const("vSchema", getData2(this.$data, it));
         } else {
           this.schemaCode = this.schemaValue;
           if (!(0, keyword_1.validSchemaType)(this.schema, def.schemaType, def.allowUndefined)) {
@@ -2799,7 +2799,7 @@ var require_validate = __commonJS({
     }
     var JSON_POINTER = /^\/(?:[^~]|~0|~1)*$/;
     var RELATIVE_JSON_POINTER = /^([0-9]+)(#|\/(?:[^~]|~0|~1)*)?$/;
-    function getData($data, { dataLevel, dataNames, dataPathArr }) {
+    function getData2($data, { dataLevel, dataNames, dataPathArr }) {
       let jsonPointer;
       let data;
       if ($data === "")
@@ -2839,7 +2839,7 @@ var require_validate = __commonJS({
         return `Cannot access ${pointerType} ${up} levels up, current level is ${dataLevel}`;
       }
     }
-    exports.getData = getData;
+    exports.getData = getData2;
   }
 });
 
@@ -4948,11 +4948,11 @@ var require_ref = __commonJS({
       schemaType: "string",
       code(cxt) {
         const { gen, schema: $ref, it } = cxt;
-        const { baseId, schemaEnv: env, validateName, opts, self } = it;
+        const { baseId, schemaEnv: env, validateName, opts, self: self2 } = it;
         const { root } = env;
         if (($ref === "#" || $ref === "#/") && baseId === root.baseId)
           return callRootRef();
-        const schOrEnv = compile_1.resolveRef.call(self, root, baseId, $ref);
+        const schOrEnv = compile_1.resolveRef.call(self2, root, baseId, $ref);
         if (schOrEnv === void 0)
           throw new ref_error_1.default(it.opts.uriResolver, baseId, $ref);
         if (schOrEnv instanceof compile_1.SchemaEnv)
@@ -6480,7 +6480,7 @@ var require_format = __commonJS({
       error: error62,
       code(cxt, ruleType) {
         const { gen, data, $data, schema, schemaCode, it } = cxt;
-        const { opts, errSchemaPath, schemaEnv, self } = it;
+        const { opts, errSchemaPath, schemaEnv, self: self2 } = it;
         if (!opts.validateFormats)
           return;
         if ($data)
@@ -6489,7 +6489,7 @@ var require_format = __commonJS({
           validateFormat();
         function validate$DataFormat() {
           const fmts = gen.scopeValue("formats", {
-            ref: self.formats,
+            ref: self2.formats,
             code: opts.code.formats
           });
           const fDef = gen.const("fDef", (0, codegen_1._)`${fmts}[${schemaCode}]`);
@@ -6509,7 +6509,7 @@ var require_format = __commonJS({
           }
         }
         function validateFormat() {
-          const formatDef = self.formats[schema];
+          const formatDef = self2.formats[schema];
           if (!formatDef) {
             unknownFormat();
             return;
@@ -6521,7 +6521,7 @@ var require_format = __commonJS({
             cxt.pass(validCondition());
           function unknownFormat() {
             if (opts.strictSchema === false) {
-              self.logger.warn(unknownMsg());
+              self2.logger.warn(unknownMsg());
               return;
             }
             throw new Error(unknownMsg());
@@ -8201,12 +8201,12 @@ var require_util2 = __commonJS({
     }
     exports.alwaysValidSchema = alwaysValidSchema;
     function checkUnknownRules(it, schema = it.schema) {
-      const { opts, self } = it;
+      const { opts, self: self2 } = it;
       if (!opts.strictSchema)
         return;
       if (typeof schema === "boolean")
         return;
-      const rules = self.RULES.keywords;
+      const rules = self2.RULES.keywords;
       for (const key in schema) {
         if (!rules[key])
           checkStrictMode(it, `unknown keyword: "${key}"`);
@@ -8592,8 +8592,8 @@ var require_applicability2 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.shouldUseRule = exports.shouldUseGroup = exports.schemaHasRulesForType = void 0;
-    function schemaHasRulesForType({ schema, self }, type) {
-      const group = self.RULES.types[type];
+    function schemaHasRulesForType({ schema, self: self2 }, type) {
+      const group = self2.RULES.types[type];
       return group && group !== true && shouldUseGroup(schema, group);
     }
     exports.schemaHasRulesForType = schemaHasRulesForType;
@@ -9058,7 +9058,7 @@ var require_keyword2 = __commonJS({
       return !schemaType.length || schemaType.some((st) => st === "array" ? Array.isArray(schema) : st === "object" ? schema && typeof schema == "object" && !Array.isArray(schema) : typeof schema == st || allowUndefined && typeof schema == "undefined");
     }
     exports.validSchemaType = validSchemaType;
-    function validateKeywordUsage({ schema, opts, self, errSchemaPath }, def, keyword) {
+    function validateKeywordUsage({ schema, opts, self: self2, errSchemaPath }, def, keyword) {
       if (Array.isArray(def.keyword) ? !def.keyword.includes(keyword) : def.keyword !== keyword) {
         throw new Error("ajv implementation error");
       }
@@ -9069,9 +9069,9 @@ var require_keyword2 = __commonJS({
       if (def.validateSchema) {
         const valid = def.validateSchema(schema[keyword]);
         if (!valid) {
-          const msg = `keyword "${keyword}" value is invalid at path "${errSchemaPath}": ` + self.errorsText(def.validateSchema.errors);
+          const msg = `keyword "${keyword}" value is invalid at path "${errSchemaPath}": ` + self2.errorsText(def.validateSchema.errors);
           if (opts.validateSchema === "log")
-            self.logger.error(msg);
+            self2.logger.error(msg);
           else
             throw new Error(msg);
         }
@@ -9503,11 +9503,11 @@ var require_validate2 = __commonJS({
       }
       (0, boolSchema_1.boolOrEmptySchema)(it, valid);
     }
-    function schemaCxtHasRules({ schema, self }) {
+    function schemaCxtHasRules({ schema, self: self2 }) {
       if (typeof schema == "boolean")
         return !schema;
       for (const key in schema)
-        if (self.RULES.all[key])
+        if (self2.RULES.all[key])
           return true;
       return false;
     }
@@ -9536,9 +9536,9 @@ var require_validate2 = __commonJS({
       schemaKeywords(it, types, !checkedTypes, errsCount);
     }
     function checkRefsAndKeywords(it) {
-      const { schema, errSchemaPath, opts, self } = it;
-      if (schema.$ref && opts.ignoreKeywordsWithRef && (0, util_1.schemaHasRulesButRef)(schema, self.RULES)) {
-        self.logger.warn(`$ref: keywords ignored in schema at path "${errSchemaPath}"`);
+      const { schema, errSchemaPath, opts, self: self2 } = it;
+      if (schema.$ref && opts.ignoreKeywordsWithRef && (0, util_1.schemaHasRulesButRef)(schema, self2.RULES)) {
+        self2.logger.warn(`$ref: keywords ignored in schema at path "${errSchemaPath}"`);
       }
     }
     function checkNoDefault(it) {
@@ -9584,8 +9584,8 @@ var require_validate2 = __commonJS({
         gen.assign((0, codegen_1._)`${evaluated}.items`, items);
     }
     function schemaKeywords(it, types, typeErrors, errsCount) {
-      const { gen, schema, data, allErrors, opts, self } = it;
-      const { RULES } = self;
+      const { gen, schema, data, allErrors, opts, self: self2 } = it;
+      const { RULES } = self2;
       if (schema.$ref && (opts.ignoreKeywordsWithRef || !(0, util_1.schemaHasRulesButRef)(schema, RULES))) {
         gen.block(() => keywordCode(it, "$ref", RULES.all.$ref.definition));
         return;
@@ -9703,7 +9703,7 @@ var require_validate2 = __commonJS({
         this.it = it;
         this.def = def;
         if (this.$data) {
-          this.schemaCode = it.gen.const("vSchema", getData(this.$data, it));
+          this.schemaCode = it.gen.const("vSchema", getData2(this.$data, it));
         } else {
           this.schemaCode = this.schemaValue;
           if (!(0, keyword_1.validSchemaType)(this.schema, def.schemaType, def.allowUndefined)) {
@@ -9872,7 +9872,7 @@ var require_validate2 = __commonJS({
     }
     var JSON_POINTER = /^\/(?:[^~]|~0|~1)*$/;
     var RELATIVE_JSON_POINTER = /^([0-9]+)(#|\/(?:[^~]|~0|~1)*)?$/;
-    function getData($data, { dataLevel, dataNames, dataPathArr }) {
+    function getData2($data, { dataLevel, dataNames, dataPathArr }) {
       let jsonPointer;
       let data;
       if ($data === "")
@@ -9912,7 +9912,7 @@ var require_validate2 = __commonJS({
         return `Cannot access ${pointerType} ${up} levels up, current level is ${dataLevel}`;
       }
     }
-    exports.getData = getData;
+    exports.getData = getData2;
   }
 });
 
@@ -10846,11 +10846,11 @@ var require_ref2 = __commonJS({
       schemaType: "string",
       code(cxt) {
         const { gen, schema: $ref, it } = cxt;
-        const { baseId, schemaEnv: env, validateName, opts, self } = it;
+        const { baseId, schemaEnv: env, validateName, opts, self: self2 } = it;
         const { root } = env;
         if (($ref === "#" || $ref === "#/") && baseId === root.baseId)
           return callRootRef();
-        const schOrEnv = compile_1.resolveRef.call(self, root, baseId, $ref);
+        const schOrEnv = compile_1.resolveRef.call(self2, root, baseId, $ref);
         if (schOrEnv === void 0)
           throw new ref_error_1.default(it.opts.uriResolver, baseId, $ref);
         if (schOrEnv instanceof compile_1.SchemaEnv)
@@ -12378,7 +12378,7 @@ var require_format3 = __commonJS({
       error: error62,
       code(cxt, ruleType) {
         const { gen, data, $data, schema, schemaCode, it } = cxt;
-        const { opts, errSchemaPath, schemaEnv, self } = it;
+        const { opts, errSchemaPath, schemaEnv, self: self2 } = it;
         if (!opts.validateFormats)
           return;
         if ($data)
@@ -12387,7 +12387,7 @@ var require_format3 = __commonJS({
           validateFormat();
         function validate$DataFormat() {
           const fmts = gen.scopeValue("formats", {
-            ref: self.formats,
+            ref: self2.formats,
             code: opts.code.formats
           });
           const fDef = gen.const("fDef", (0, codegen_1._)`${fmts}[${schemaCode}]`);
@@ -12407,7 +12407,7 @@ var require_format3 = __commonJS({
           }
         }
         function validateFormat() {
-          const formatDef = self.formats[schema];
+          const formatDef = self2.formats[schema];
           if (!formatDef) {
             unknownFormat();
             return;
@@ -12419,7 +12419,7 @@ var require_format3 = __commonJS({
             cxt.pass(validCondition());
           function unknownFormat() {
             if (opts.strictSchema === false) {
-              self.logger.warn(unknownMsg());
+              self2.logger.warn(unknownMsg());
               return;
             }
             throw new Error(unknownMsg());
@@ -12879,17 +12879,17 @@ var require_limit = __commonJS({
       error: error62,
       code(cxt) {
         const { gen, data, schemaCode, keyword, it } = cxt;
-        const { opts, self } = it;
+        const { opts, self: self2 } = it;
         if (!opts.validateFormats)
           return;
-        const fCxt = new ajv_1.KeywordCxt(it, self.RULES.all.format.definition, "format");
+        const fCxt = new ajv_1.KeywordCxt(it, self2.RULES.all.format.definition, "format");
         if (fCxt.$data)
           validate$DataFormat();
         else
           validateFormat();
         function validate$DataFormat() {
           const fmts = gen.scopeValue("formats", {
-            ref: self.formats,
+            ref: self2.formats,
             code: opts.code.formats
           });
           const fmt = gen.const("fmt", (0, codegen_1._)`${fmts}[${fCxt.schemaCode}]`);
@@ -12897,7 +12897,7 @@ var require_limit = __commonJS({
         }
         function validateFormat() {
           const format = fCxt.schema;
-          const fmtDef = self.formats[format];
+          const fmtDef = self2.formats[format];
           if (!fmtDef || fmtDef === true)
             return;
           if (typeof fmtDef != "object" || fmtDef instanceof RegExp || typeof fmtDef.compare != "function") {
@@ -13197,7 +13197,7 @@ var require_ieee754 = __commonJS({
 // apps/plugin/src/main.ts
 import { readFileSync as readFileSync3 } from "node:fs";
 import { homedir as homedir3 } from "node:os";
-import { join as join12 } from "node:path";
+import { join as join11 } from "node:path";
 import { fileURLToPath as fileURLToPath2 } from "node:url";
 
 // node_modules/zod/v3/helpers/util.js
@@ -33807,7 +33807,7 @@ var ZodMiniType = /* @__PURE__ */ $constructor("ZodMiniType", (inst, def) => {
 var ZodMiniObject = /* @__PURE__ */ $constructor("ZodMiniObject", (inst, def) => {
   $ZodObject.init(inst, def);
   ZodMiniType.init(inst, def);
-  installLazyProp(inst, "shape", (self) => self._zod.def.shape, false);
+  installLazyProp(inst, "shape", (self2) => self2._zod.def.shape, false);
 });
 // @__NO_SIDE_EFFECTS__
 function object2(shape, params) {
@@ -34636,15 +34636,15 @@ var initializer2 = (inst, issues) => {
   if (_installedErrorProtos.has(proto))
     return;
   _installedErrorProtos.add(proto);
-  _lazyMethod(proto, "format", (self) => (mapper) => formatError(self, mapper));
-  _lazyMethod(proto, "flatten", (self) => (mapper) => flattenError(self, mapper));
-  _lazyMethod(proto, "addIssue", (self) => (issue2) => {
-    self.issues.push(issue2);
-    self.message = JSON.stringify(self.issues, jsonStringifyReplacer, 2);
+  _lazyMethod(proto, "format", (self2) => (mapper) => formatError(self2, mapper));
+  _lazyMethod(proto, "flatten", (self2) => (mapper) => flattenError(self2, mapper));
+  _lazyMethod(proto, "addIssue", (self2) => (issue2) => {
+    self2.issues.push(issue2);
+    self2.message = JSON.stringify(self2.issues, jsonStringifyReplacer, 2);
   });
-  _lazyMethod(proto, "addIssues", (self) => (issues2) => {
-    self.issues.push(...issues2);
-    self.message = JSON.stringify(self.issues, jsonStringifyReplacer, 2);
+  _lazyMethod(proto, "addIssues", (self2) => (issues2) => {
+    self2.issues.push(...issues2);
+    self2.message = JSON.stringify(self2.issues, jsonStringifyReplacer, 2);
   });
   Object.defineProperty(proto, "isEmpty", {
     configurable: true,
@@ -35490,7 +35490,7 @@ var ZodObject2 = /* @__PURE__ */ $constructor("ZodObject", (inst, def) => {
   $ZodObjectJIT.init(inst, def);
   ZodType2.init(inst, def);
   inst._zod.processJSONSchema = (ctx, json3, params) => objectProcessor(inst, ctx, json3, params);
-  util_exports.installLazyProp(inst, "shape", (self) => self._zod.def.shape, false);
+  util_exports.installLazyProp(inst, "shape", (self2) => self2._zod.def.shape, false);
 }, {
   keyof() {
     return _enum3(Object.keys(this._zod.def.shape));
@@ -49780,9 +49780,9 @@ function loadBuiltinModule2(id) {
     return;
   }
 }
-async function runWithTracingChannelSpan(message, execute4) {
+async function runWithTracingChannelSpan(message, execute5) {
   const tracingChannel = (await loadDiagnosticsChannel())?.tracingChannel?.(AI_SDK_TELEMETRY_TRACING_CHANNEL);
-  if (tracingChannel == null || tracingChannel.hasSubscribers === false) return await execute4();
+  if (tracingChannel == null || tracingChannel.hasSubscribers === false) return await execute5();
   let executePromise;
   let executionResult;
   let executionError;
@@ -49790,7 +49790,7 @@ async function runWithTracingChannelSpan(message, execute4) {
   let hasExecutionError = false;
   const tracedExecute = () => {
     try {
-      executePromise = Promise.resolve(execute4());
+      executePromise = Promise.resolve(execute5());
     } catch (error62) {
       executePromise = Promise.reject(error62);
     }
@@ -49811,7 +49811,7 @@ async function runWithTracingChannelSpan(message, execute4) {
     if (hasExecutionError) throw executionError;
     if (hasExecutionResult) return executionResult;
     if (executePromise != null) return await executePromise;
-    return await execute4();
+    return await execute5();
   }
 }
 function openTelemetryChannelSpanContext({ message, completion }) {
@@ -49854,7 +49854,7 @@ function openTelemetryChannelSpanContext({ message, completion }) {
   });
   safePublish(() => tracingChannel.end.publish(context));
   Promise.resolve(completion).then((result) => publishAsyncEnd({ result }), (error62) => publishAsyncEnd({ error: error62 }));
-  return { run: (execute4) => asyncResource == null ? execute4() : asyncResource.runInAsyncScope(execute4) };
+  return { run: (execute5) => asyncResource == null ? execute5() : asyncResource.runInAsyncScope(execute5) };
 }
 function getGlobalTelemetryIntegrations() {
   return globalThis.AI_SDK_TELEMETRY_INTEGRATIONS ?? [];
@@ -49909,10 +49909,10 @@ function createTelemetryDispatcher({ telemetry }) {
   const executeLanguageModelCallWrappers = integrations.map((integration) => integration.executeLanguageModelCall?.bind(integration)).filter(Boolean);
   const executeToolWrappers = integrations.map((integration) => integration.executeTool?.bind(integration)).filter(Boolean);
   return {
-    runInTracingChannelSpan: async ({ type, event, execute: execute4 }) => await runWithTracingChannelSpan({
+    runInTracingChannelSpan: async ({ type, event, execute: execute5 }) => await runWithTracingChannelSpan({
       type,
       event: augmentEvent(event, telemetryMetadata, true)
-    }, execute4),
+    }, execute5),
     startTracingChannelContext: ({ type, event, completion }) => openTelemetryChannelSpanContext({
       message: {
         type,
@@ -49946,9 +49946,9 @@ function createTelemetryDispatcher({ telemetry }) {
     * Runs provider calls inside integration-specific context so
     * auto-instrumented provider requests can be associated with model work.
     */
-    executeLanguageModelCall: async ({ execute: execute4, ...event }) => {
+    executeLanguageModelCall: async ({ execute: execute5, ...event }) => {
       const augmentedEvent = augmentEvent(event, telemetryMetadata);
-      let wrappedExecute = execute4;
+      let wrappedExecute = execute5;
       for (const executeWrapper of executeLanguageModelCallWrappers) {
         const innerExecute = wrappedExecute;
         wrappedExecute = () => executeWrapper({
@@ -49967,9 +49967,9 @@ function createTelemetryDispatcher({ telemetry }) {
     * the chain, so integrations can establish nested telemetry context before
     * delegating to the underlying tool.
     */
-    executeTool: async ({ execute: execute4, ...event }) => {
+    executeTool: async ({ execute: execute5, ...event }) => {
       const augmentedEvent = augmentEvent(event, telemetryMetadata);
-      let wrappedExecute = execute4;
+      let wrappedExecute = execute5;
       for (const executeWrapper of executeToolWrappers) {
         const innerExecute = wrappedExecute;
         wrappedExecute = () => executeWrapper({
@@ -50619,7 +50619,7 @@ async function transcribe({ model, audio, providerOptions = {}, maxRetries: maxR
   const headersWithUserAgent = withUserAgentSuffix(headers ?? {}, `ai/${VERSION3}`);
   const callId = generateCallId();
   const telemetryDispatcher = createTelemetryDispatcher({ telemetry });
-  const runInTracingChannelSpan = telemetryDispatcher.runInTracingChannelSpan ?? (async ({ execute: execute4 }) => await execute4());
+  const runInTracingChannelSpan = telemetryDispatcher.runInTracingChannelSpan ?? (async ({ execute: execute5 }) => await execute5());
   const createStartEvent = ({ byteLength, mediaType: mediaType2 }) => ({
     callId,
     operationId: "ai.transcribe",
@@ -50634,7 +50634,7 @@ async function transcribe({ model, audio, providerOptions = {}, maxRetries: maxR
     headers,
     providerOptions
   });
-  const executeWithStartEvent = async ({ startEvent: startEvent2, execute: execute4 }) => await runInTracingChannelSpan({
+  const executeWithStartEvent = async ({ startEvent: startEvent2, execute: execute5 }) => await runInTracingChannelSpan({
     type: "transcribe",
     event: startEvent2,
     execute: async () => {
@@ -50642,7 +50642,7 @@ async function transcribe({ model, audio, providerOptions = {}, maxRetries: maxR
         event: startEvent2,
         callbacks: [telemetryDispatcher.onStart]
       });
-      return await execute4();
+      return await execute5();
     }
   });
   let preparationError;
@@ -54866,6 +54866,8 @@ var DocumentFormat = class {
 var AudioFormat = class extends DocumentFormat {
   identity;
   #model;
+  // What macOS's own decoder reads, which LocalTranscriptionModel uses. It
+  // cannot open WebM, and other audio, such as MIDI, holds no speech.
   extensions = [
     "wav",
     "mp3",
@@ -54876,7 +54878,7 @@ var AudioFormat = class extends DocumentFormat {
     "flac",
     "aiff",
     "aif",
-    "webm"
+    "caf"
   ];
   constructor(model) {
     super();
@@ -54884,7 +54886,8 @@ var AudioFormat = class extends DocumentFormat {
     this.identity = JSON.stringify(["audio", model.provider, model.modelId]);
   }
   async hasSignature(head) {
-    return (await fileTypeFromBuffer(head.bytes))?.mime.startsWith("audio/") ?? false;
+    const type = await fileTypeFromBuffer(head.bytes);
+    return type !== void 0 && this.extensions.includes(type.ext);
   }
   async text(path, signal) {
     const result = await transcribe({
@@ -56163,7 +56166,11 @@ var TranscriptionWorker = class {
   #stderr = "";
   #dead = false;
   constructor(helper, { path, language }) {
-    this.#child = spawn(helper, ["--model", path, "--language", language]);
+    this.#child = spawn(helper, [
+      "--model",
+      path,
+      ...language === void 0 ? [] : ["--language", language]
+    ]);
     this.#lines = createInterface({ input: this.#child.stdout })[Symbol.asyncIterator]();
     this.#child.stderr.on("data", (chunk) => {
       this.#stderr = (this.#stderr + chunk.toString()).slice(-16384);
@@ -56213,7 +56220,7 @@ var execute3 = promisify3(execFile3);
 var configuration = external_exports.strictObject({
   name: external_exports.string().min(1),
   path: external_exports.string().min(1),
-  language: external_exports.string().min(1)
+  language: external_exports.string().min(1).optional()
 });
 var LocalTranscriptionModel = class _LocalTranscriptionModel {
   specificationVersion = "v4";
@@ -56242,9 +56249,6 @@ var LocalTranscriptionModel = class _LocalTranscriptionModel {
   // its weights just to open settings.
   async check() {
     await execute3(this.#helper, ["--help"]);
-    await execute3("ffmpeg", ["-version"]).catch((cause) => {
-      throw new Error("Local audio transcription requires ffmpeg on PATH. Install it with brew install ffmpeg.", { cause });
-    });
   }
   doGenerate(options) {
     const signal = options.abortSignal === void 0 ? this.#stopped.signal : AbortSignal.any([this.#stopped.signal, options.abortSignal]);
@@ -56255,22 +56259,11 @@ var LocalTranscriptionModel = class _LocalTranscriptionModel {
         const timestamp = /* @__PURE__ */ new Date();
         const temporary = __using(_stack, await mkdtempDisposable(join4(tmpdir(), "transcribe-local-")), true);
         const audio = join4(temporary.path, "input");
-        const pcm = join4(temporary.path, "audio.pcm");
+        const wav = join4(temporary.path, "audio.wav");
         await writeFile(audio, typeof options.audio === "string" ? Buffer.from(options.audio, "base64") : options.audio, { signal });
-        await execute3("ffmpeg", [
-          "-nostdin",
-          "-v",
-          "error",
-          "-i",
-          audio,
-          "-vn",
-          "-ar",
-          "16000",
-          "-ac",
-          "1",
-          "-f",
-          "f32le",
-          pcm
+        await execute3("/usr/bin/afconvert", [
+          ...["-f", "WAVE", "-d", "LEF32@16000", "-c", "1"],
+          ...["--src-complexity", "bats", audio, wav]
         ], { signal });
         signal.throwIfAborted();
         if (this.#worker?.dead) {
@@ -56283,7 +56276,7 @@ var LocalTranscriptionModel = class _LocalTranscriptionModel {
         signal.addEventListener("abort", abort, { once: true });
         try {
           signal.throwIfAborted();
-          const { text } = await worker.read(pcm);
+          const { text } = await worker.read(wav);
           signal.throwIfAborted();
           return {
             text,
@@ -56324,6 +56317,7 @@ var Transcription = class {
   #settings;
   #models;
   #closing = Promise.resolve();
+  #loading = Promise.resolve();
   #helper;
   #chosen = null;
   #model;
@@ -56339,36 +56333,49 @@ var Transcription = class {
   }
   async refresh() {
     this.#reload();
+    await this.#loading;
     await this.#closing;
   }
   // A long-running CLI watch must see choices saved by another host too.
-  // Each file takes one parser snapshot, so its identity and text agree even
-  // when the model changes while another file is being read. A model Handy
-  // does not know reads no audio, as when transcription is off.
+  // Finding the chosen model takes a search, so files keep the previous
+  // parser until it is found; each file takes one parser snapshot, so its
+  // identity and text agree. A model not installed on this Mac reads no
+  // audio, as when transcription is off.
   #reload() {
     const chosen = this.#settings.transcription();
     if (chosen === this.#chosen)
       return;
+    this.#chosen = chosen;
+    this.#loading = this.#load(chosen).catch((error62) => {
+      if (this.#chosen === chosen)
+        this.#chosen = void 0;
+      throw error62;
+    });
+    this.#loading.catch(() => void 0);
+  }
+  async #load(chosen) {
+    const configuration2 = chosen === null ? void 0 : (await this.#models.find(chosen))?.configuration;
+    if (chosen !== this.#chosen)
+      return;
     const previous = this.#model;
-    const configuration2 = chosen === null ? void 0 : this.#models.find(chosen)?.configuration;
     this.#model = configuration2 === void 0 ? void 0 : new LocalTranscriptionModel(configuration2, this.#helper);
     this.#parser = new MacOSDocumentParser(this.#model === void 0 ? [] : [new AudioFormat(this.#model)]);
-    this.#chosen = chosen;
     if (previous !== void 0)
       this.#closing = Promise.all([
         this.#closing,
         previous[Symbol.asyncDispose]()
       ]).then(() => void 0);
   }
-  // Saves the model Handy installed under id, or null to stop transcribing.
+  // Saves the installed model with this file name, or null to stop
+  // transcribing.
   async configure(id) {
     if (id !== null) {
       var _stack = [];
       try {
-        const installed = this.#models.list();
+        const installed = await this.#models.list();
         const model = installed.find((candidate2) => candidate2.id === id);
         if (model === void 0)
-          throw new Error(`No model ${id} is installed in Handy. Installed: ${installed.map((candidate2) => candidate2.id).join(", ") || "none"}.`);
+          throw new Error(`No speech model ${id} is installed on this Mac. Installed: ${installed.map((candidate2) => candidate2.id).join(", ") || "none"}.`);
         const candidate = __using(_stack, new LocalTranscriptionModel(model.configuration, this.#helper), true);
         await candidate.check();
       } catch (_) {
@@ -56381,10 +56388,10 @@ var Transcription = class {
     this.#settings.setTranscription(id);
     await this.refresh();
   }
-  choices() {
+  async choices() {
     return {
       selected: this.#settings.transcription(),
-      models: this.#models.list().map(({ id, title }) => ({
+      models: (await this.#models.list()).map(({ id, title }) => ({
         id,
         title
       }))
@@ -56399,13 +56406,16 @@ var Transcription = class {
   }
 };
 
-// ../elt/packages/sdks/handy/models/dist/handy-models.js
+// ../elt/packages/sdks/macos/speech-models/dist/speech-models.js
+import { execFile as execFile4 } from "node:child_process";
+import { glob } from "node:fs/promises";
 import { homedir as homedir2 } from "node:os";
-import { join as join6 } from "node:path";
-
-// ../elt/packages/sdks/handy/models/dist/handy-model.js
-import { existsSync as existsSync3, readdirSync as readdirSync2, statSync as statSync2 } from "node:fs";
 import { join as join5 } from "node:path";
+import { promisify as promisify4 } from "node:util";
+
+// ../elt/packages/sdks/macos/speech-models/dist/speech-model.js
+import { open as open3 } from "node:fs/promises";
+import { basename, extname as extname3 } from "node:path";
 
 // ../elt/node_modules/@handy-computer/models/catalog.json
 var catalog_default = {
@@ -61082,12 +61092,6 @@ function preferredLanguageMatchCount(model, preferredLanguages) {
 function rankCatalogModels(models, preferredLanguages = [], isDownloaded = () => false) {
   return [...models].sort((left, right) => preferredLanguageMatchCount(right, preferredLanguages) - preferredLanguageMatchCount(left, preferredLanguages) || Number(isDownloaded(right)) - Number(isDownloaded(left)) || left.name.localeCompare(right.name));
 }
-function modelFile(model) {
-  const file2 = model.files[model.quant];
-  if (!file2)
-    throw new Error(`${model.id} has no ${model.quant} file`);
-  return file2;
-}
 function compareEngineVersions(left, right) {
   const parse4 = (version3) => version3.trim().replace(/^v/, "").split(/[.+-]/, 3).map((part) => Number.parseInt(part, 10) || 0);
   const [a, b] = [parse4(left), parse4(right)];
@@ -61344,79 +61348,10315 @@ var COMFORTABLE_REAL_TIME_FACTOR = catalog.comfortableRealTimeFactor;
 var EXPERIMENTAL_MAX_ERROR_PERCENT = catalog.experimentalMaxErrorPercent;
 var { getModel, recommend, recommendModels: recommendModels2, benchmarkModels: benchmarkModels2, getPreferredRecommendationLanguages: getPreferredRecommendationLanguages2, languageAccuracyGrade: languageAccuracyGrade2, modelWaitSeconds: modelWaitSeconds2, detectorLanguageCode: detectorLanguageCode2, undetectablePreferences: undetectablePreferences2, autoLanguagePolicy: autoLanguagePolicy2 } = catalog;
 
-// ../elt/packages/sdks/handy/models/dist/handy-model.js
-var HandyModel = class {
-  #folders;
-  constructor(folders) {
-    this.#folders = folders;
+// ../elt/node_modules/@huggingface/tasks/dist/esm/library-to-tasks.js
+var LIBRARY_TASK_MAPPING = {
+  "adapter-transformers": ["question-answering", "text-classification", "token-classification"],
+  allennlp: ["question-answering"],
+  asteroid: [
+    // "audio-source-separation",
+    "audio-to-audio"
+  ],
+  bertopic: ["text-classification"],
+  diffusers: ["image-to-image", "text-to-image"],
+  doctr: ["object-detection"],
+  espnet: ["text-to-speech", "automatic-speech-recognition"],
+  fairseq: ["text-to-speech", "audio-to-audio"],
+  fastai: ["image-classification"],
+  fasttext: ["feature-extraction", "text-classification"],
+  flair: ["token-classification"],
+  k2: ["automatic-speech-recognition"],
+  keras: ["image-classification"],
+  nemo: ["automatic-speech-recognition"],
+  open_clip: ["zero-shot-classification", "zero-shot-image-classification"],
+  paddlenlp: ["fill-mask", "summarization", "zero-shot-classification"],
+  peft: ["text-generation"],
+  "pyannote-audio": ["automatic-speech-recognition"],
+  "sentence-transformers": ["feature-extraction", "sentence-similarity"],
+  setfit: ["text-classification"],
+  sklearn: ["tabular-classification", "tabular-regression", "text-classification"],
+  spacy: ["token-classification", "text-classification", "sentence-similarity"],
+  "span-marker": ["token-classification"],
+  speechbrain: ["audio-classification", "audio-to-audio", "automatic-speech-recognition", "text-to-speech"],
+  stanza: ["token-classification"],
+  timm: ["image-classification", "image-feature-extraction"],
+  transformers: [
+    "audio-classification",
+    "automatic-speech-recognition",
+    "depth-estimation",
+    "document-question-answering",
+    "feature-extraction",
+    "fill-mask",
+    "image-classification",
+    "image-feature-extraction",
+    "image-segmentation",
+    "image-to-image",
+    "image-to-text",
+    "image-text-to-text",
+    "mask-generation",
+    "object-detection",
+    "question-answering",
+    "summarization",
+    "table-question-answering",
+    "text-classification",
+    "text-generation",
+    "text-to-audio",
+    "text-to-speech",
+    "token-classification",
+    "translation",
+    "video-classification",
+    "visual-question-answering",
+    "zero-shot-classification",
+    "zero-shot-image-classification",
+    "zero-shot-object-detection"
+  ],
+  mindspore: ["image-classification"]
+};
+var REMOVED_IN_V5_TRANSFORMERS_PIPELINES = [
+  "image-to-image",
+  "image-to-text",
+  "question-answering",
+  "summarization",
+  "translation",
+  "visual-question-answering"
+];
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/default-widget-inputs.js
+var MAPPING_FA = /* @__PURE__ */ new Map([
+  [
+    "text-classification",
+    [`\u067E\u0631\u0648\u0698\u0647 \u0628\u0647 \u0645\u0648\u0642\u0639 \u062A\u062D\u0648\u06CC\u0644 \u0634\u062F \u0648 \u0647\u0645\u0647 \u0686\u06CC\u0632 \u062E\u0648\u0628 \u0628\u0648\u062F.`, `\u0633\u06CC\u0628\u200C\u0632\u0645\u06CC\u0646\u06CC \u0628\u06CC\u200C\u06A9\u06CC\u0641\u06CC\u062A \u0628\u0648\u062F.`, `\u0642\u06CC\u0645\u062A \u0648 \u06A9\u06CC\u0641\u06CC\u062A \u0639\u0627\u0644\u06CC`, `\u062E\u0648\u0628 \u0646\u0628\u0648\u062F \u0627\u0635\u0644\u0627`]
+  ],
+  [
+    "token-classification",
+    [
+      `\u0627\u06CC\u0646 \u0633\u0631\u06CC\u0627\u0644 \u0628\u0647 \u0635\u0648\u0631\u062A \u0631\u0633\u0645\u06CC \u062F\u0631 \u062A\u0627\u0631\u06CC\u062E \u062F\u0647\u0645 \u0645\u06CC \u06F2\u06F0\u06F1\u06F1 \u062A\u0648\u0633\u0637 \u0634\u0628\u06A9\u0647 \u0641\u0627\u06A9\u0633 \u0628\u0631\u0627\u06CC \u067E\u062E\u0634 \u0631\u0632\u0631\u0648 \u0634\u062F.`,
+      `\u062F\u0641\u062A\u0631 \u0645\u0631\u06A9\u0632\u06CC \u0634\u0631\u06A9\u062A \u067E\u0627\u0631\u0633\u200C\u0645\u06CC\u0646\u0648 \u062F\u0631 \u0634\u0647\u0631 \u0627\u0631\u0627\u06A9 \u062F\u0631 \u0627\u0633\u062A\u0627\u0646 \u0645\u0631\u06A9\u0632\u06CC \u0642\u0631\u0627\u0631 \u062F\u0627\u0631\u062F.`,
+      `\u0648\u06CC \u062F\u0631 \u0633\u0627\u0644 \u06F2\u06F0\u06F1\u06F3 \u062F\u0631\u06AF\u0630\u0634\u062A \u0648 \u0645\u0633\u0626\u0648\u0644 \u062E\u0627\u06A9\u0633\u067E\u0627\u0631\u06CC \u0648 \u0627\u0642\u0648\u0627\u0645\u0634 \u0628\u0631\u0627\u06CC \u0627\u0648 \u0645\u0631\u0627\u0633\u0645 \u06CC\u0627\u062F\u0628\u0648\u062F \u06AF\u0631\u0641\u062A\u0646\u062F.`
+    ]
+  ],
+  [
+    "question-answering",
+    [
+      {
+        text: `\u0645\u0646 \u06A9\u062C\u0627 \u0632\u0646\u062F\u06AF\u06CC \u0645\u06CC\u06A9\u0646\u0645\u061F`,
+        context: `\u0646\u0627\u0645 \u0645\u0646 \u067E\u0698\u0645\u0627\u0646 \u0627\u0633\u062A \u0648 \u062F\u0631 \u06AF\u0631\u06AF\u0627\u0646 \u0632\u0646\u062F\u06AF\u06CC \u0645\u06CC\u06A9\u0646\u0645.`
+      },
+      {
+        text: `\u0646\u0627\u0645\u0645 \u0686\u06CC\u0633\u062A \u0648 \u06A9\u062C\u0627 \u0632\u0646\u062F\u06AF\u06CC \u0645\u06CC\u200C\u06A9\u0646\u0645\u061F`,
+        context: `\u0627\u0633\u0645\u0645 \u0633\u0627\u0631\u0627 \u0627\u0633\u062A \u0648 \u062F\u0631 \u0622\u0641\u0631\u06CC\u0642\u0627\u06CC \u062C\u0646\u0648\u0628\u06CC \u0632\u0646\u062F\u06AF\u06CC \u0645\u06CC\u06A9\u0646\u0645.`
+      },
+      {
+        text: `\u0646\u0627\u0645 \u0645\u0646 \u0686\u06CC\u0633\u062A\u061F`,
+        context: `\u0645\u0646 \u0645\u0631\u06CC\u0645 \u0647\u0633\u062A\u0645 \u0648 \u062F\u0631 \u062A\u0628\u0631\u06CC\u0632 \u0632\u0646\u062F\u06AF\u06CC \u0645\u06CC\u200C\u06A9\u0646\u0645.`
+      },
+      {
+        text: `\u0628\u06CC\u0634\u062A\u0631\u06CC\u0646 \u0645\u0633\u0627\u062D\u062A \u062C\u0646\u06AF\u0644 \u0622\u0645\u0627\u0632\u0648\u0646 \u062F\u0631 \u06A9\u062F\u0627\u0645 \u06A9\u0634\u0648\u0631 \u0627\u0633\u062A\u061F`,
+        context: [
+          "\u0622\u0645\u0627\u0632\u0648\u0646 \u0646\u0627\u0645 \u0628\u0632\u0631\u06AF\u200C\u062A\u0631\u06CC\u0646 \u062C\u0646\u06AF\u0644 \u0628\u0627\u0631\u0627\u0646\u06CC \u062C\u0647\u0627\u0646 \u0627\u0633\u062A \u06A9\u0647 \u062F\u0631 \u0634\u0645\u0627\u0644 \u0622\u0645\u0631\u06CC\u06A9\u0627\u06CC \u062C\u0646\u0648\u0628\u06CC \u0642\u0631\u0627\u0631 \u06AF\u0631\u0641\u062A\u0647 \u0648 \u0628\u06CC\u0634\u062A\u0631 \u0622\u0646 \u062F\u0631 \u062E\u0627\u06A9 \u0628\u0631\u0632\u06CC\u0644 \u0648 \u067E\u0631\u0648",
+          "\u062C\u0627\u06CC \u062F\u0627\u0631\u062F. \u0628\u06CC\u0634 \u0627\u0632 \u0646\u06CC\u0645\u06CC \u0627\u0632 \u0647\u0645\u0647 \u062C\u0646\u06AF\u0644\u200C\u0647\u0627\u06CC \u0628\u0627\u0631\u0627\u0646\u06CC \u0628\u0627\u0642\u06CC\u200C\u0645\u0627\u0646\u062F\u0647 \u062F\u0631 \u062C\u0647\u0627\u0646 \u062F\u0631 \u0622\u0645\u0627\u0632\u0648\u0646 \u0642\u0631\u0627\u0631 \u062F\u0627\u0631\u062F.",
+          "\u0645\u0633\u0627\u062D\u062A \u062C\u0646\u06AF\u0644\u200C\u0647\u0627\u06CC \u0622\u0645\u0627\u0632\u0648\u0646 \u06F5\u066B\u06F5 \u0645\u06CC\u0644\u06CC\u0648\u0646 \u06A9\u06CC\u0644\u0648\u0645\u062A\u0631 \u0645\u0631\u0628\u0639 \u0627\u0633\u062A \u06A9\u0647 \u0628\u06CC\u0646 \u06F9 \u06A9\u0634\u0648\u0631 \u062A\u0642\u0633\u06CC\u0645 \u0634\u062F\u0647\u200C\u0627\u0633\u062A."
+        ].join("\n")
+      }
+    ]
+  ],
+  [
+    "translation",
+    [
+      "\u0628\u06CC\u0634\u062A\u0631 \u0645\u0633\u0627\u062D\u062A \u062C\u0646\u06AF\u0644\u200C\u0647\u0627\u06CC \u0622\u0645\u0627\u0632\u0648\u0646 \u062F\u0631 \u062D\u0648\u0636\u0647 \u0622\u0628\u0631\u06CC\u0632 \u0631\u0648\u062F \u0622\u0645\u0627\u0632\u0648\u0646 \u0648 \u06F1\u06F1\u06F0\u06F0 \u0634\u0627\u062E\u0647 \u0622\u0646 \u0648\u0627\u0642\u0639 \u0634\u062F\u0647\u200C\u0627\u0633\u062A.",
+      "\u0645\u0631\u062F\u0645\u0627\u0646 \u0646\u064E\u0628\u064E\u0637\u06CC \u0627\u0632 \u0647\u0632\u0627\u0631\u0647\u200C\u0647\u0627\u06CC \u06CC\u06A9\u0645 \u0648 \u062F\u0648\u0645 \u067E\u06CC\u0634 \u0627\u0632 \u0645\u06CC\u0644\u0627\u062F \u062F\u0631 \u0627\u06CC\u0646 \u0645\u0646\u0637\u0642\u0647 \u0632\u0646\u062F\u06AF\u06CC \u0645\u06CC\u200C\u06A9\u0631\u062F\u0646\u062F."
+    ]
+  ],
+  [
+    "summarization",
+    [
+      [
+        "\u0634\u0627\u0647\u0646\u0627\u0645\u0647 \u0627\u062B\u0631 \u062D\u06A9\u06CC\u0645 \u0627\u0628\u0648\u0627\u0644\u0642\u0627\u0633\u0645 \u0641\u0631\u062F\u0648\u0633\u06CC \u062A\u0648\u0633\u06CC\u060C \u062D\u0645\u0627\u0633\u0647\u200C\u0627\u06CC \u0645\u0646\u0638\u0648\u0645\u060C \u0628\u0631 \u062D\u0633\u0628 \u062F\u0633\u062A \u0646\u0648\u0634\u062A\u0647\u200C\u0647\u0627\u06CC ",
+        "\u0645\u0648\u062C\u0648\u062F \u062F\u0631\u0628\u0631\u06AF\u06CC\u0631\u0646\u062F\u0647 \u0646\u0632\u062F\u06CC\u06A9 \u0628\u0647 \u06F5\u06F0\u066C\u06F0\u06F0\u06F0 \u0628\u06CC\u062A \u062A\u0627 \u0646\u0632\u062F\u06CC\u06A9 \u0628\u0647 \u06F6\u06F1\u066C\u06F0\u06F0\u06F0 \u0628\u06CC\u062A \u0648 \u06CC\u06A9\u06CC \u0627\u0632 ",
+        "\u0628\u0632\u0631\u06AF\u200C\u062A\u0631\u06CC\u0646 \u0648 \u0628\u0631\u062C\u0633\u062A\u0647\u200C\u062A\u0631\u06CC\u0646 \u0633\u0631\u0648\u062F\u0647\u200C\u0647\u0627\u06CC \u062D\u0645\u0627\u0633\u06CC \u062C\u0647\u0627\u0646 \u0627\u0633\u062A \u06A9\u0647 \u0633\u0631\u0627\u06CC\u0634 \u0622\u0646 \u062F\u0633\u062A\u200C\u0622\u0648\u0631\u062F\u0650 ",
+        "\u062F\u0633\u062A\u200C\u06A9\u0645 \u0633\u06CC \u0633\u0627\u0644 \u06A9\u0627\u0631\u0650 \u067E\u06CC\u0648\u0633\u062A\u0647\u0654 \u0627\u06CC\u0646 \u0633\u062E\u0646\u200C\u0633\u0631\u0627\u06CC \u0646\u0627\u0645\u062F\u0627\u0631 \u0627\u06CC\u0631\u0627\u0646\u06CC \u0627\u0633\u062A. \u0645\u0648\u0636\u0648\u0639 \u0627\u06CC\u0646 \u0634\u0627\u0647\u06A9\u0627\u0631 \u0627\u062F\u0628\u06CC\u060C",
+        " \u0627\u0641\u0633\u0627\u0646\u0647\u200C\u0647\u0627 \u0648 \u062A\u0627\u0631\u06CC\u062E \u0627\u06CC\u0631\u0627\u0646 \u0627\u0632 \u0622\u063A\u0627\u0632 \u062A\u0627 \u062D\u0645\u0644\u0647\u0654 \u0639\u0631\u0628\u200C\u0647\u0627 \u0628\u0647 \u0627\u06CC\u0631\u0627\u0646 \u062F\u0631 \u0633\u062F\u0647\u0654 \u0647\u0641\u062A\u0645 \u0645\u06CC\u0644\u0627\u062F\u06CC \u0627\u0633\u062A",
+        "  (\u0634\u0627\u0647\u0646\u0627\u0645\u0647 \u0627\u0632 \u0633\u0647 \u0628\u062E\u0634 \u0627\u0633\u0637\u0648\u0631\u0647\u060C \u067E\u0647\u0644\u0648\u0627\u0646\u06CC \u0648 \u062A\u0627\u0631\u06CC\u062E\u06CC \u062A\u0634\u06A9\u06CC\u0644 \u0634\u062F\u0647\u200C\u0627\u0633\u062A) \u06A9\u0647 \u062F\u0631 \u0686\u0647\u0627\u0631",
+        "   \u062F\u0648\u062F\u0645\u0627\u0646 \u067E\u0627\u062F\u0634\u0627\u0647\u06CC\u0650 \u067E\u06CC\u0634\u062F\u0627\u062F\u06CC\u0627\u0646\u060C \u06A9\u06CC\u0627\u0646\u06CC\u0627\u0646\u060C \u0627\u0634\u06A9\u0627\u0646\u06CC\u0627\u0646 \u0648 \u0633\u0627\u0633\u0627\u0646\u06CC\u0627\u0646 \u06AF\u0646\u062C\u0627\u0646\u062F\u0647 \u0645\u06CC\u200C\u0634\u0648\u062F.",
+        "    \u0634\u0627\u0647\u0646\u0627\u0645\u0647 \u0628\u0631 \u0648\u0632\u0646 \xAB\u0641\u064E\u0639\u0648\u0644\u064F\u0646 \u0641\u0639\u0648\u0644\u0646 \u0641\u0639\u0648\u0644\u0646 \u0641\u064E\u0639\u064E\u0644\u0652\xBB\u060C \u062F\u0631 \u0628\u062D\u0631\u0650 \u0645\u064F\u062A\u064E\u0642\u0627\u0631\u0650\u0628\u0650 \u0645\u062B\u0645\u064E\u0651\u0646\u0650 \u0645\u062D\u0630\u0648\u0641 \u0646\u06AF\u0627\u0634\u062A\u0647 \u0634\u062F\u0647\u200C\u0627\u0633\u062A.",
+        "\u0647\u0646\u06AF\u0627\u0645\u06CC \u06A9\u0647 \u0632\u0628\u0627\u0646 \u062F\u0627\u0646\u0634 \u0648 \u0627\u062F\u0628\u06CC\u0627\u062A \u062F\u0631 \u0627\u06CC\u0631\u0627\u0646 \u0632\u0628\u0627\u0646 \u0639\u0631\u0628\u06CC \u0628\u0648\u062F\u060C \u0641\u0631\u062F\u0648\u0633\u06CC\u060C \u0628\u0627 \u0633\u0631\u0648\u062F\u0646 \u0634\u0627\u0647\u0646\u0627\u0645\u0647",
+        " \u0628\u0627 \u0648\u06CC\u0698\u06AF\u06CC\u200C\u0647\u0627\u06CC \u0647\u062F\u0641\u200C\u0645\u0646\u062F\u06CC \u06A9\u0647 \u062F\u0627\u0634\u062A\u060C \u0632\u0628\u0627\u0646 \u067E\u0627\u0631\u0633\u06CC \u0631\u0627 \u0632\u0646\u062F\u0647 \u0648 \u067E\u0627\u06CC\u062F\u0627\u0631 \u06A9\u0631\u062F. \u06CC\u06A9\u06CC \u0627\u0632 ",
+        " \u0628\u0646\u200C\u0645\u0627\u06CC\u0647\u200C\u0647\u0627\u06CC \u0645\u0647\u0645\u06CC \u06A9\u0647 \u0641\u0631\u062F\u0648\u0633\u06CC \u0628\u0631\u0627\u06CC \u0633\u0631\u0648\u062F\u0646 \u0634\u0627\u0647\u0646\u0627\u0645\u0647 \u0627\u0632 \u0622\u0646 \u0627\u0633\u062A\u0641\u0627\u062F\u0647 \u06A9\u0631\u062F\u060C",
+        "  \u0634\u0627\u0647\u0646\u0627\u0645\u0647\u0654 \u0627\u0628\u0648\u0645\u0646\u0635\u0648\u0631\u06CC \u0628\u0648\u062F. \u0634\u0627\u0647\u0646\u0627\u0645\u0647 \u0646\u0641\u0648\u0630 \u0628\u0633\u06CC\u0627\u0631\u06CC \u062F\u0631 \u062C\u0647\u062A\u200C\u06AF\u06CC\u0631\u06CC ",
+        "  \u0641\u0631\u0647\u0646\u06AF \u0641\u0627\u0631\u0633\u06CC \u0648 \u0646\u06CC\u0632 \u0628\u0627\u0632\u062A\u0627\u0628\u200C\u0647\u0627\u06CC \u0634\u06A9\u0648\u0647\u200C\u0645\u0646\u062F\u06CC \u062F\u0631 \u0627\u062F\u0628\u06CC\u0627\u062A \u062C\u0647\u0627\u0646 \u062F\u0627\u0634\u062A\u0647\u200C\u0627\u0633\u062A \u0648 \u0634\u0627\u0639\u0631\u0627\u0646 ",
+        "  \u0628\u0632\u0631\u06AF\u06CC \u0645\u0627\u0646\u0646\u062F \u06AF\u0648\u062A\u0647 \u0648 \u0648\u06CC\u06A9\u062A\u0648\u0631 \u0647\u0648\u06AF\u0648 \u0627\u0632 \u0622\u0646 \u0628\u0647 \u0646\u06CC\u06A9\u06CC \u06CC\u0627\u062F \u06A9\u0631\u062F\u0647\u200C\u0627\u0646\u062F."
+      ].join("\n")
+    ]
+  ],
+  ["text-generation", ["\u0627\u0633\u0645 \u0645\u0646 \u0646\u0627\u0632\u0646\u06CC\u0646 \u0627\u0633\u062A \u0648 \u0645\u0646", "\u0631\u0648\u0632\u06CC \u0631\u0648\u0632\u06AF\u0627\u0631\u06CC"]],
+  [
+    "fill-mask",
+    [
+      `\u0632\u0646\u062F\u06AF\u06CC \u06CC\u06A9 \u0633\u0648\u0627\u0644 \u0627\u0633\u062A \u0648 \u0627\u06CC\u0646 \u06A9\u0647 \u0686\u06AF\u0648\u0646\u0647 <mask> \u06A9\u0646\u06CC\u0645 \u067E\u0627\u0633\u062E \u0627\u06CC\u0646 \u0633\u0648\u0627\u0644!`,
+      `\u0632\u0646\u062F\u06AF\u06CC \u0627\u0632 \u0645\u0631\u06AF \u067E\u0631\u0633\u06CC\u062F: \u0686\u0631\u0627 \u0647\u0645\u0647 \u0645\u0646 \u0631\u0627 <mask> \u062F\u0627\u0631\u0646\u062F \u0627\u0645\u0627 \u0627\u0632 \u062A\u0648 \u0645\u062A\u0646\u0641\u0631\u0646\u062F\u061F`
+    ]
+  ]
+]);
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/pipelines.js
+var PIPELINE_DATA = {
+  "text-classification": {
+    name: "Text Classification",
+    subtasks: [
+      {
+        type: "acceptability-classification",
+        name: "Acceptability Classification"
+      },
+      {
+        type: "entity-linking-classification",
+        name: "Entity Linking Classification"
+      },
+      {
+        type: "fact-checking",
+        name: "Fact Checking"
+      },
+      {
+        type: "intent-classification",
+        name: "Intent Classification"
+      },
+      {
+        type: "language-identification",
+        name: "Language Identification"
+      },
+      {
+        type: "multi-class-classification",
+        name: "Multi Class Classification"
+      },
+      {
+        type: "multi-label-classification",
+        name: "Multi Label Classification"
+      },
+      {
+        type: "multi-input-text-classification",
+        name: "Multi-input Text Classification"
+      },
+      {
+        type: "natural-language-inference",
+        name: "Natural Language Inference"
+      },
+      {
+        type: "semantic-similarity-classification",
+        name: "Semantic Similarity Classification"
+      },
+      {
+        type: "sentiment-classification",
+        name: "Sentiment Classification"
+      },
+      {
+        type: "topic-classification",
+        name: "Topic Classification"
+      },
+      {
+        type: "semantic-similarity-scoring",
+        name: "Semantic Similarity Scoring"
+      },
+      {
+        type: "sentiment-scoring",
+        name: "Sentiment Scoring"
+      },
+      {
+        type: "sentiment-analysis",
+        name: "Sentiment Analysis"
+      },
+      {
+        type: "hate-speech-detection",
+        name: "Hate Speech Detection"
+      },
+      {
+        type: "text-scoring",
+        name: "Text Scoring"
+      }
+    ],
+    modality: "nlp"
+  },
+  "token-classification": {
+    name: "Token Classification",
+    subtasks: [
+      {
+        type: "named-entity-recognition",
+        name: "Named Entity Recognition"
+      },
+      {
+        type: "part-of-speech",
+        name: "Part of Speech"
+      },
+      {
+        type: "parsing",
+        name: "Parsing"
+      },
+      {
+        type: "lemmatization",
+        name: "Lemmatization"
+      },
+      {
+        type: "word-sense-disambiguation",
+        name: "Word Sense Disambiguation"
+      },
+      {
+        type: "coreference-resolution",
+        name: "Coreference-resolution"
+      }
+    ],
+    modality: "nlp"
+  },
+  "table-question-answering": {
+    name: "Table Question Answering",
+    modality: "nlp"
+  },
+  "question-answering": {
+    name: "Question Answering",
+    subtasks: [
+      {
+        type: "extractive-qa",
+        name: "Extractive QA"
+      },
+      {
+        type: "open-domain-qa",
+        name: "Open Domain QA"
+      },
+      {
+        type: "closed-domain-qa",
+        name: "Closed Domain QA"
+      }
+    ],
+    modality: "nlp"
+  },
+  "zero-shot-classification": {
+    name: "Zero-Shot Classification",
+    modality: "nlp"
+  },
+  translation: {
+    name: "Translation",
+    modality: "nlp"
+  },
+  summarization: {
+    name: "Summarization",
+    subtasks: [
+      {
+        type: "news-articles-summarization",
+        name: "News Articles Summarization"
+      },
+      {
+        type: "news-articles-headline-generation",
+        name: "News Articles Headline Generation"
+      }
+    ],
+    modality: "nlp"
+  },
+  "feature-extraction": {
+    name: "Feature Extraction",
+    modality: "nlp"
+  },
+  "text-generation": {
+    name: "Text Generation",
+    subtasks: [
+      {
+        type: "dialogue-modeling",
+        name: "Dialogue Modeling"
+      },
+      {
+        type: "dialogue-generation",
+        name: "Dialogue Generation"
+      },
+      {
+        type: "conversational",
+        name: "Conversational"
+      },
+      {
+        type: "language-modeling",
+        name: "Language Modeling"
+      },
+      {
+        type: "text-simplification",
+        name: "Text simplification"
+      },
+      {
+        type: "explanation-generation",
+        name: "Explanation Generation"
+      },
+      {
+        type: "abstractive-qa",
+        name: "Abstractive QA"
+      },
+      {
+        type: "open-domain-abstractive-qa",
+        name: "Open Domain Abstractive QA"
+      },
+      {
+        type: "closed-domain-qa",
+        name: "Closed Domain QA"
+      },
+      {
+        type: "open-book-qa",
+        name: "Open Book QA"
+      },
+      {
+        type: "closed-book-qa",
+        name: "Closed Book QA"
+      },
+      {
+        type: "text2text-generation",
+        name: "Text2Text Generation"
+      }
+    ],
+    modality: "nlp"
+  },
+  "fill-mask": {
+    name: "Fill-Mask",
+    subtasks: [
+      {
+        type: "slot-filling",
+        name: "Slot Filling"
+      },
+      {
+        type: "masked-language-modeling",
+        name: "Masked Language Modeling"
+      }
+    ],
+    modality: "nlp"
+  },
+  "sentence-similarity": {
+    name: "Sentence Similarity",
+    modality: "nlp"
+  },
+  "text-to-speech": {
+    name: "Text-to-Speech",
+    modality: "audio"
+  },
+  "text-to-audio": {
+    name: "Text-to-Audio",
+    modality: "audio"
+  },
+  "automatic-speech-recognition": {
+    name: "Automatic Speech Recognition",
+    modality: "audio"
+  },
+  "audio-to-audio": {
+    name: "Audio-to-Audio",
+    modality: "audio"
+  },
+  "audio-classification": {
+    name: "Audio Classification",
+    subtasks: [
+      {
+        type: "keyword-spotting",
+        name: "Keyword Spotting"
+      },
+      {
+        type: "speaker-identification",
+        name: "Speaker Identification"
+      },
+      {
+        type: "audio-intent-classification",
+        name: "Audio Intent Classification"
+      },
+      {
+        type: "audio-emotion-recognition",
+        name: "Audio Emotion Recognition"
+      },
+      {
+        type: "audio-language-identification",
+        name: "Audio Language Identification"
+      }
+    ],
+    modality: "audio"
+  },
+  "audio-text-to-text": {
+    name: "Audio-Text-to-Text",
+    modality: "multimodal",
+    hideInDatasets: true
+  },
+  "voice-activity-detection": {
+    name: "Voice Activity Detection",
+    modality: "audio"
+  },
+  "depth-estimation": {
+    name: "Depth Estimation",
+    modality: "cv"
+  },
+  "image-classification": {
+    name: "Image Classification",
+    subtasks: [
+      {
+        type: "multi-label-image-classification",
+        name: "Multi Label Image Classification"
+      },
+      {
+        type: "multi-class-image-classification",
+        name: "Multi Class Image Classification"
+      }
+    ],
+    modality: "cv"
+  },
+  "object-detection": {
+    name: "Object Detection",
+    subtasks: [
+      {
+        type: "face-detection",
+        name: "Face Detection"
+      },
+      {
+        type: "vehicle-detection",
+        name: "Vehicle Detection"
+      }
+    ],
+    modality: "cv"
+  },
+  "image-segmentation": {
+    name: "Image Segmentation",
+    subtasks: [
+      {
+        type: "instance-segmentation",
+        name: "Instance Segmentation"
+      },
+      {
+        type: "semantic-segmentation",
+        name: "Semantic Segmentation"
+      },
+      {
+        type: "panoptic-segmentation",
+        name: "Panoptic Segmentation"
+      }
+    ],
+    modality: "cv"
+  },
+  "text-to-image": {
+    name: "Text-to-Image",
+    modality: "cv"
+  },
+  "image-to-text": {
+    name: "Image-to-Text",
+    subtasks: [
+      {
+        type: "image-captioning",
+        name: "Image Captioning"
+      }
+    ],
+    modality: "cv"
+  },
+  "image-to-image": {
+    name: "Image-to-Image",
+    subtasks: [
+      {
+        type: "image-inpainting",
+        name: "Image Inpainting"
+      },
+      {
+        type: "image-colorization",
+        name: "Image Colorization"
+      },
+      {
+        type: "super-resolution",
+        name: "Super Resolution"
+      }
+    ],
+    modality: "cv"
+  },
+  "image-to-video": {
+    name: "Image-to-Video",
+    modality: "cv"
+  },
+  "unconditional-image-generation": {
+    name: "Unconditional Image Generation",
+    modality: "cv"
+  },
+  "video-classification": {
+    name: "Video Classification",
+    modality: "cv"
+  },
+  "reinforcement-learning": {
+    name: "Reinforcement Learning",
+    modality: "rl"
+  },
+  robotics: {
+    name: "Robotics",
+    modality: "rl",
+    subtasks: [
+      {
+        type: "grasping",
+        name: "Grasping"
+      },
+      {
+        type: "task-planning",
+        name: "Task Planning"
+      }
+    ]
+  },
+  "tabular-classification": {
+    name: "Tabular Classification",
+    modality: "tabular",
+    subtasks: [
+      {
+        type: "tabular-multi-class-classification",
+        name: "Tabular Multi Class Classification"
+      },
+      {
+        type: "tabular-multi-label-classification",
+        name: "Tabular Multi Label Classification"
+      }
+    ]
+  },
+  "tabular-regression": {
+    name: "Tabular Regression",
+    modality: "tabular",
+    subtasks: [
+      {
+        type: "tabular-single-column-regression",
+        name: "Tabular Single Column Regression"
+      }
+    ]
+  },
+  "tabular-to-text": {
+    name: "Tabular to Text",
+    modality: "tabular",
+    subtasks: [
+      {
+        type: "rdf-to-text",
+        name: "RDF to text"
+      }
+    ],
+    hideInModels: true
+  },
+  "table-to-text": {
+    name: "Table to Text",
+    modality: "nlp",
+    hideInModels: true
+  },
+  "multiple-choice": {
+    name: "Multiple Choice",
+    subtasks: [
+      {
+        type: "multiple-choice-qa",
+        name: "Multiple Choice QA"
+      },
+      {
+        type: "multiple-choice-coreference-resolution",
+        name: "Multiple Choice Coreference Resolution"
+      }
+    ],
+    modality: "nlp",
+    hideInModels: true
+  },
+  "text-ranking": {
+    name: "Text Ranking",
+    modality: "nlp"
+  },
+  "text-retrieval": {
+    name: "Text Retrieval",
+    subtasks: [
+      {
+        type: "document-retrieval",
+        name: "Document Retrieval"
+      },
+      {
+        type: "utterance-retrieval",
+        name: "Utterance Retrieval"
+      },
+      {
+        type: "entity-linking-retrieval",
+        name: "Entity Linking Retrieval"
+      },
+      {
+        type: "fact-checking-retrieval",
+        name: "Fact Checking Retrieval"
+      }
+    ],
+    modality: "nlp",
+    hideInModels: true
+  },
+  "time-series-forecasting": {
+    name: "Time Series Forecasting",
+    modality: "tabular",
+    subtasks: [
+      {
+        type: "univariate-time-series-forecasting",
+        name: "Univariate Time Series Forecasting"
+      },
+      {
+        type: "multivariate-time-series-forecasting",
+        name: "Multivariate Time Series Forecasting"
+      }
+    ]
+  },
+  "text-to-video": {
+    name: "Text-to-Video",
+    modality: "cv"
+  },
+  "image-text-to-text": {
+    name: "Image-Text-to-Text",
+    modality: "multimodal"
+  },
+  "image-text-to-image": {
+    name: "Image-Text-to-Image",
+    modality: "multimodal"
+  },
+  "image-text-to-video": {
+    name: "Image-Text-to-Video",
+    modality: "multimodal"
+  },
+  "visual-question-answering": {
+    name: "Visual Question Answering",
+    subtasks: [
+      {
+        type: "visual-question-answering",
+        name: "Visual Question Answering"
+      }
+    ],
+    modality: "multimodal"
+  },
+  "document-question-answering": {
+    name: "Document Question Answering",
+    subtasks: [
+      {
+        type: "document-question-answering",
+        name: "Document Question Answering"
+      }
+    ],
+    modality: "multimodal",
+    hideInDatasets: true
+  },
+  "zero-shot-image-classification": {
+    name: "Zero-Shot Image Classification",
+    modality: "cv"
+  },
+  "graph-ml": {
+    name: "Graph Machine Learning",
+    modality: "other"
+  },
+  "mask-generation": {
+    name: "Mask Generation",
+    modality: "cv"
+  },
+  "zero-shot-object-detection": {
+    name: "Zero-Shot Object Detection",
+    modality: "cv"
+  },
+  "text-to-3d": {
+    name: "Text-to-3D",
+    modality: "cv"
+  },
+  "image-to-3d": {
+    name: "Image-to-3D",
+    modality: "cv"
+  },
+  "image-feature-extraction": {
+    name: "Image Feature Extraction",
+    modality: "cv"
+  },
+  "video-text-to-text": {
+    name: "Video-Text-to-Text",
+    modality: "multimodal",
+    hideInDatasets: false
+  },
+  "keypoint-detection": {
+    name: "Keypoint Detection",
+    subtasks: [
+      {
+        type: "pose-estimation",
+        name: "Pose Estimation"
+      }
+    ],
+    modality: "cv",
+    hideInDatasets: true
+  },
+  "visual-document-retrieval": {
+    name: "Visual Document Retrieval",
+    modality: "multimodal"
+  },
+  "any-to-any": {
+    name: "Any-to-Any",
+    modality: "multimodal"
+  },
+  "video-to-video": {
+    name: "Video-to-Video",
+    modality: "cv",
+    hideInDatasets: true
+  },
+  other: {
+    name: "Other",
+    modality: "other",
+    hideInModels: true,
+    hideInDatasets: true
   }
-  get title() {
-    return this.#entry.name;
+};
+var PIPELINE_TYPES = Object.keys(PIPELINE_DATA);
+var SUBTASK_TYPES = Object.values(PIPELINE_DATA).flatMap((data) => "subtasks" in data ? data.subtasks : []).map((s) => s.type);
+var PIPELINE_TYPES_SET = new Set(PIPELINE_TYPES);
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/any-to-any/data.js
+var taskData = {
+  datasets: [
+    {
+      description: "A dataset with multiple modality input and output pairs.",
+      id: "PKU-Alignment/align-anything"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        filename: "any-to-any-input.jpg",
+        type: "img"
+      },
+      {
+        label: "Text Prompt",
+        content: "What is the significance of this place?",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        label: "Generated Text",
+        content: "The place in the picture is Osaka Castle, located in Osaka, Japan. Osaka Castle is a historic castle that was originally built in the 16th century by Toyotomi Hideyoshi, a powerful warlord of the time. It is one of the most famous landmarks in Osaka and is known for its distinctive white walls and black roof tiles. The castle has been rebuilt several times over the centuries and is now a popular tourist attraction, offering visitors a glimpse into Japan's rich history and culture.",
+        type: "text"
+      },
+      {
+        filename: "any-to-any-output.wav",
+        type: "audio"
+      }
+    ]
+  },
+  metrics: [],
+  models: [
+    {
+      description: "Strong model that can take in video, audio, image, text and output text and natural speech.",
+      id: "Qwen/Qwen2.5-Omni-7B"
+    },
+    {
+      description: "Robust model that can take in image and text and generate image and text.",
+      id: "OmniGen2/OmniGen2"
+    },
+    {
+      description: "Any-to-any model with speech, video, audio, image and text understanding capabilities.",
+      id: "openbmb/MiniCPM-o-2_6"
+    },
+    {
+      description: "A model that can understand image and text and generate image and text.",
+      id: "ByteDance-Seed/BAGEL-7B-MoT"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application to chat with an any-to-any (image & text) model.",
+      id: "OmniGen2/OmniGen2"
+    }
+  ],
+  summary: "Any-to-any models can understand two or more modalities and output two or more modalities.",
+  widgetModels: [],
+  youtubeId: ""
+};
+var data_default = taskData;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/audio-classification/data.js
+var taskData2 = {
+  datasets: [
+    {
+      description: "A benchmark of 10 different audio tasks.",
+      id: "s3prl/superb"
+    },
+    {
+      description: "A dataset of YouTube clips and their sound categories.",
+      id: "agkphysics/AudioSet"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        filename: "audio.wav",
+        type: "audio"
+      }
+    ],
+    outputs: [
+      {
+        data: [
+          {
+            label: "Up",
+            score: 0.2
+          },
+          {
+            label: "Down",
+            score: 0.8
+          }
+        ],
+        type: "chart"
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "",
+      id: "accuracy"
+    },
+    {
+      description: "",
+      id: "recall"
+    },
+    {
+      description: "",
+      id: "precision"
+    },
+    {
+      description: "",
+      id: "f1"
+    }
+  ],
+  models: [
+    {
+      description: "An easy-to-use model for command recognition.",
+      id: "speechbrain/google_speech_command_xvector"
+    },
+    {
+      description: "An emotion recognition model.",
+      id: "ehcalabres/wav2vec2-lg-xlsr-en-speech-emotion-recognition"
+    },
+    {
+      description: "A language identification model.",
+      id: "facebook/mms-lid-126"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application that can classify music into different genre.",
+      id: "kurianbenoy/audioclassification"
+    }
+  ],
+  summary: "Audio classification is the task of assigning a label or class to a given audio. It can be used for recognizing which command a user is giving or the emotion of a statement, as well as identifying a speaker.",
+  widgetModels: ["MIT/ast-finetuned-audioset-10-10-0.4593"],
+  youtubeId: "KWwzcmG98Ds"
+};
+var data_default2 = taskData2;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/audio-text-to-text/data.js
+var taskData3 = {
+  datasets: [
+    {
+      description: "A dataset containing audio conversations with question\u2013answer pairs.",
+      id: "nvidia/AF-Think"
+    },
+    {
+      description: "A more advanced and comprehensive dataset that contains characteristics of the audio as well",
+      id: "tsinghua-ee/QualiSpeech"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        filename: "audio.wav",
+        type: "audio"
+      },
+      {
+        label: "Text Prompt",
+        content: "What is the gender of the speaker?",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        label: "Generated Text",
+        content: "The gender of the speaker is female.",
+        type: "text"
+      }
+    ]
+  },
+  metrics: [],
+  models: [
+    {
+      description: "A lightweight model that has capabilities of taking both audio and text as inputs and generating responses.",
+      id: "fixie-ai/ultravox-v0_5-llama-3_2-1b"
+    },
+    {
+      description: "A multimodal model that supports voice chat and audio analysis.",
+      id: "Qwen/Qwen2-Audio-7B-Instruct"
+    },
+    {
+      description: "A model for audio understanding, speech translation, and transcription.",
+      id: "mistralai/Voxtral-Small-24B-2507"
+    },
+    {
+      description: "A new model capable of audio question answering and reasoning.",
+      id: "nvidia/audio-flamingo-3"
+    }
+  ],
+  spaces: [
+    {
+      description: "A space that takes input as both audio and text and generates answers.",
+      id: "iamomtiwari/ATTT"
+    },
+    {
+      description: "A web application that demonstrates chatting with the Qwen2Audio Model.",
+      id: "freddyaboulton/talk-to-qwen-webrtc"
+    }
+  ],
+  summary: "Audio-text-to-text models take both an audio clip and a text prompt as input, and generate natural language text as output. These models can answer questions about spoken content, summarize meetings, analyze music, or interpret speech beyond simple transcription. They are useful for applications that combine speech understanding with reasoning or conversation.",
+  widgetModels: [],
+  youtubeId: ""
+};
+var data_default3 = taskData3;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/audio-to-audio/data.js
+var taskData4 = {
+  datasets: [
+    {
+      description: "512-element X-vector embeddings of speakers from CMU ARCTIC dataset.",
+      id: "Matthijs/cmu-arctic-xvectors"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        filename: "input.wav",
+        type: "audio"
+      }
+    ],
+    outputs: [
+      {
+        filename: "label-0.wav",
+        type: "audio"
+      },
+      {
+        filename: "label-1.wav",
+        type: "audio"
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "The Signal-to-Noise ratio is the relationship between the target signal level and the background noise level. It is calculated as the logarithm of the target signal divided by the background noise, in decibels.",
+      id: "snri"
+    },
+    {
+      description: "The Signal-to-Distortion ratio is the relationship between the target signal and the sum of noise, interference, and artifact errors",
+      id: "sdri"
+    }
+  ],
+  models: [
+    {
+      description: "A speech enhancement model.",
+      id: "ResembleAI/resemble-enhance"
+    },
+    {
+      description: "A model that can change the voice in a speech recording.",
+      id: "microsoft/speecht5_vc"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application for speech separation.",
+      id: "younver/speechbrain-speech-separation"
+    },
+    {
+      description: "An application for audio style transfer.",
+      id: "nakas/audio-diffusion_style_transfer"
+    }
+  ],
+  summary: "Audio-to-Audio is a family of tasks in which the input is an audio and the output is one or multiple generated audios. Some example tasks are speech enhancement and source separation.",
+  widgetModels: ["speechbrain/sepformer-wham"],
+  youtubeId: "iohj7nCCYoM"
+};
+var data_default4 = taskData4;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/automatic-speech-recognition/data.js
+var taskData5 = {
+  datasets: [
+    {
+      description: "31,175 hours of multilingual audio-text dataset in 108 languages.",
+      id: "mozilla-foundation/common_voice_17_0"
+    },
+    {
+      description: "Multilingual and diverse audio dataset with 101k hours of audio.",
+      id: "amphion/Emilia-Dataset"
+    },
+    {
+      description: "A dataset with 44.6k hours of English speaker data and 6k hours of other language speakers.",
+      id: "parler-tts/mls_eng"
+    },
+    {
+      description: "A multilingual audio dataset with 370K hours of audio.",
+      id: "espnet/yodas"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        filename: "input.flac",
+        type: "audio"
+      }
+    ],
+    outputs: [
+      {
+        /// GOING ALONG SLUSHY COUNTRY ROADS AND SPEAKING TO DAMP AUDIENCES I
+        label: "Transcript",
+        content: "Going along slushy country roads and speaking to damp audiences in...",
+        type: "text"
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "",
+      id: "wer"
+    },
+    {
+      description: "",
+      id: "cer"
+    }
+  ],
+  models: [
+    {
+      description: "A powerful ASR model by OpenAI.",
+      id: "openai/whisper-large-v3"
+    },
+    {
+      description: "A good generic speech model by MetaAI for fine-tuning.",
+      id: "facebook/w2v-bert-2.0"
+    },
+    {
+      description: "An end-to-end model that performs ASR and Speech Translation by MetaAI.",
+      id: "facebook/seamless-m4t-v2-large"
+    },
+    {
+      description: "A powerful multilingual ASR and Speech Translation model by Nvidia.",
+      id: "nvidia/canary-1b"
+    },
+    {
+      description: "Powerful speaker diarization model.",
+      id: "pyannote/speaker-diarization-3.1"
+    }
+  ],
+  spaces: [
+    {
+      description: "A powerful general-purpose speech recognition application.",
+      id: "hf-audio/whisper-large-v3"
+    },
+    {
+      description: "Latest ASR model from Useful Sensors.",
+      id: "mrfakename/Moonshinex"
+    },
+    {
+      description: "A high quality speech and text translation model by Meta.",
+      id: "facebook/seamless_m4t"
+    },
+    {
+      description: "A powerful multilingual ASR and Speech Translation model by Nvidia",
+      id: "nvidia/canary-1b"
+    }
+  ],
+  summary: "Automatic Speech Recognition (ASR), also known as Speech to Text (STT), is the task of transcribing a given audio to text. It has many applications, such as voice user interfaces.",
+  widgetModels: ["openai/whisper-large-v3"],
+  youtubeId: "TksaY_FDgnk"
+};
+var data_default5 = taskData5;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/document-question-answering/data.js
+var taskData6 = {
+  datasets: [
+    {
+      description: "Largest document understanding dataset.",
+      id: "HuggingFaceM4/Docmatix"
+    },
+    {
+      description: "Dataset from the 2020 DocVQA challenge. The documents are taken from the UCSF Industry Documents Library.",
+      id: "eliolio/docvqa"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        label: "Question",
+        content: "What is the idea behind the consumer relations efficiency team?",
+        type: "text"
+      },
+      {
+        filename: "document-question-answering-input.png",
+        type: "img"
+      }
+    ],
+    outputs: [
+      {
+        label: "Answer",
+        content: "Balance cost efficiency with quality customer service",
+        type: "text"
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "The evaluation metric for the DocVQA challenge is the Average Normalized Levenshtein Similarity (ANLS). This metric is flexible to character regognition errors and compares the predicted answer with the ground truth answer.",
+      id: "anls"
+    },
+    {
+      description: "Exact Match is a metric based on the strict character match of the predicted answer and the right answer. For answers predicted correctly, the Exact Match will be 1. Even if only one character is different, Exact Match will be 0",
+      id: "exact-match"
+    }
+  ],
+  models: [
+    {
+      description: "A robust document question answering model.",
+      id: "impira/layoutlm-document-qa"
+    },
+    {
+      description: "A document question answering model specialized in invoices.",
+      id: "impira/layoutlm-invoices"
+    },
+    {
+      description: "A special model for OCR-free document question answering.",
+      id: "microsoft/udop-large"
+    },
+    {
+      description: "A powerful model for document question answering.",
+      id: "google/pix2struct-docvqa-large"
+    }
+  ],
+  spaces: [
+    {
+      description: "A robust document question answering application.",
+      id: "impira/docquery"
+    },
+    {
+      description: "An application that can answer questions from invoices.",
+      id: "impira/invoices"
+    },
+    {
+      description: "An application to compare different document question answering models.",
+      id: "merve/compare_docvqa_models"
+    }
+  ],
+  summary: "Document Question Answering (also known as Document Visual Question Answering) is the task of answering questions on document images. Document question answering models take a (document, question) pair as input and return an answer in natural language. Models usually rely on multi-modal features, combining text, position of words (bounding-boxes) and image.",
+  widgetModels: ["impira/layoutlm-invoices"],
+  youtubeId: ""
+};
+var data_default6 = taskData6;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/feature-extraction/data.js
+var taskData7 = {
+  datasets: [
+    {
+      description: "Wikipedia dataset containing cleaned articles of all languages. Can be used to train `feature-extraction` models.",
+      id: "wikipedia"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        label: "Input",
+        content: "India, officially the Republic of India, is a country in South Asia.",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        table: [
+          ["Dimension 1", "Dimension 2", "Dimension 3"],
+          ["2.583383083343506", "2.757075071334839", "0.9023529887199402"],
+          ["8.29393482208252", "1.1071064472198486", "2.03399395942688"],
+          ["-0.7754912972450256", "-1.647324562072754", "-0.6113331913948059"],
+          ["0.07087723910808563", "1.5942802429199219", "1.4610432386398315"]
+        ],
+        type: "tabular"
+      }
+    ]
+  },
+  metrics: [],
+  models: [
+    {
+      description: "A powerful feature extraction model for natural language processing tasks.",
+      id: "thenlper/gte-large"
+    },
+    {
+      description: "A strong feature extraction model for retrieval.",
+      id: "Alibaba-NLP/gte-Qwen1.5-7B-instruct"
+    }
+  ],
+  spaces: [
+    {
+      description: "A leaderboard to rank text feature extraction models based on a benchmark.",
+      id: "mteb/leaderboard"
+    },
+    {
+      description: "A leaderboard to rank best feature extraction models based on human feedback.",
+      id: "mteb/arena"
+    }
+  ],
+  summary: "Feature extraction is the task of extracting features learnt in a model.",
+  widgetModels: ["facebook/bart-base"]
+};
+var data_default7 = taskData7;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/fill-mask/data.js
+var taskData8 = {
+  datasets: [
+    {
+      description: "A common dataset that is used to train models for many languages.",
+      id: "wikipedia"
+    },
+    {
+      description: "A large English dataset with text crawled from the web.",
+      id: "c4"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        label: "Input",
+        content: "The <mask> barked at me",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        type: "chart",
+        data: [
+          {
+            label: "wolf",
+            score: 0.487
+          },
+          {
+            label: "dog",
+            score: 0.061
+          },
+          {
+            label: "cat",
+            score: 0.058
+          },
+          {
+            label: "fox",
+            score: 0.047
+          },
+          {
+            label: "squirrel",
+            score: 0.025
+          }
+        ]
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "Cross Entropy is a metric that calculates the difference between two probability distributions. Each probability distribution is the distribution of predicted words",
+      id: "cross_entropy"
+    },
+    {
+      description: "Perplexity is the exponential of the cross-entropy loss. It evaluates the probabilities assigned to the next word by the model. Lower perplexity indicates better performance",
+      id: "perplexity"
+    }
+  ],
+  models: [
+    {
+      description: "State-of-the-art masked language model.",
+      id: "answerdotai/ModernBERT-large"
+    },
+    {
+      description: "A multilingual model trained on 100 languages.",
+      id: "FacebookAI/xlm-roberta-base"
+    }
+  ],
+  spaces: [],
+  summary: "Masked language modeling is the task of masking some of the words in a sentence and predicting which words should replace those masks. These models are useful when we want to get a statistical understanding of the language in which the model is trained in.",
+  widgetModels: ["distilroberta-base"],
+  youtubeId: "mqElG5QJWUg"
+};
+var data_default8 = taskData8;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/image-classification/data.js
+var taskData9 = {
+  datasets: [
+    {
+      // TODO write proper description
+      description: "Benchmark dataset used for image classification with images that belong to 100 classes.",
+      id: "cifar100"
+    },
+    {
+      // TODO write proper description
+      description: "Dataset consisting of images of garments.",
+      id: "fashion_mnist"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        filename: "image-classification-input.jpeg",
+        type: "img"
+      }
+    ],
+    outputs: [
+      {
+        type: "chart",
+        data: [
+          {
+            label: "Egyptian cat",
+            score: 0.514
+          },
+          {
+            label: "Tabby cat",
+            score: 0.193
+          },
+          {
+            label: "Tiger cat",
+            score: 0.068
+          }
+        ]
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "",
+      id: "accuracy"
+    },
+    {
+      description: "",
+      id: "recall"
+    },
+    {
+      description: "",
+      id: "precision"
+    },
+    {
+      description: "",
+      id: "f1"
+    }
+  ],
+  models: [
+    {
+      description: "A strong image classification model.",
+      id: "google/vit-base-patch16-224"
+    },
+    {
+      description: "A robust image classification model.",
+      id: "facebook/deit-base-distilled-patch16-224"
+    },
+    {
+      description: "A strong image classification model.",
+      id: "facebook/convnext-large-224"
+    }
+  ],
+  spaces: [
+    {
+      description: "A leaderboard to evaluate different image classification models.",
+      id: "timm/leaderboard"
+    }
+  ],
+  summary: "Image classification is the task of assigning a label or class to an entire image. Images are expected to have only one class for each image. Image classification models take an image as input and return a prediction about which class the image belongs to.",
+  widgetModels: ["google/vit-base-patch16-224"],
+  youtubeId: "tjAIM7BOYhw"
+};
+var data_default9 = taskData9;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/image-feature-extraction/data.js
+var taskData10 = {
+  datasets: [
+    {
+      description: "ImageNet-1K is a image classification dataset in which images are used to train image-feature-extraction models.",
+      id: "imagenet-1k"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        filename: "mask-generation-input.png",
+        type: "img"
+      }
+    ],
+    outputs: [
+      {
+        table: [
+          ["Dimension 1", "Dimension 2", "Dimension 3"],
+          ["0.21236686408519745", "1.0919708013534546", "0.8512550592422485"],
+          ["0.809657871723175", "-0.18544459342956543", "-0.7851548194885254"],
+          ["1.3103108406066895", "-0.2479034662246704", "-0.9107287526130676"],
+          ["1.8536205291748047", "-0.36419737339019775", "0.09717650711536407"]
+        ],
+        type: "tabular"
+      }
+    ]
+  },
+  metrics: [],
+  models: [
+    {
+      description: "A powerful image feature extraction model.",
+      id: "timm/vit_large_patch14_dinov2.lvd142m"
+    },
+    {
+      description: "A strong image feature extraction model.",
+      id: "nvidia/MambaVision-T-1K"
+    },
+    {
+      description: "A robust image feature extraction model.",
+      id: "facebook/dino-vitb16"
+    },
+    {
+      description: "Cutting-edge image feature extraction model.",
+      id: "apple/aimv2-large-patch14-336-distilled"
+    },
+    {
+      description: "Strong image feature extraction model that can be used on images and documents.",
+      id: "OpenGVLab/InternViT-6B-448px-V1-2"
+    }
+  ],
+  spaces: [
+    {
+      description: "A leaderboard to evaluate different image-feature-extraction models on classification performances",
+      id: "timm/leaderboard"
+    }
+  ],
+  summary: "Image feature extraction is the task of extracting features learnt in a computer vision model.",
+  widgetModels: []
+};
+var data_default10 = taskData10;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/image-to-image/data.js
+var taskData11 = {
+  datasets: [
+    {
+      description: "Synthetic dataset, for image relighting",
+      id: "VIDIT"
+    },
+    {
+      description: "Multiple images of celebrities, used for facial expression translation",
+      id: "huggan/CelebA-faces"
+    },
+    {
+      description: "12M image-caption pairs.",
+      id: "Spawning/PD12M"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        filename: "image-to-image-input.jpeg",
+        type: "img"
+      }
+    ],
+    outputs: [
+      {
+        filename: "image-to-image-output.png",
+        type: "img"
+      }
+    ]
+  },
+  isPlaceholder: false,
+  metrics: [
+    {
+      description: "Peak Signal to Noise Ratio (PSNR) is an approximation of the human perception, considering the ratio of the absolute intensity with respect to the variations. Measured in dB, a high value indicates a high fidelity.",
+      id: "PSNR"
+    },
+    {
+      description: "Structural Similarity Index (SSIM) is a perceptual metric which compares the luminance, contrast and structure of two images. The values of SSIM range between -1 and 1, and higher values indicate closer resemblance to the original image.",
+      id: "SSIM"
+    },
+    {
+      description: "Inception Score (IS) is an analysis of the labels predicted by an image classification model when presented with a sample of the generated images.",
+      id: "IS"
+    }
+  ],
+  models: [
+    {
+      description: "An image-to-image model to improve image resolution.",
+      id: "fal/AuraSR-v2"
+    },
+    {
+      description: "Powerful image editing model.",
+      id: "black-forest-labs/FLUX.1-Kontext-dev"
+    },
+    {
+      description: "Virtual try-on model.",
+      id: "yisol/IDM-VTON"
+    },
+    {
+      description: "Image re-lighting model.",
+      id: "kontext-community/relighting-kontext-dev-lora-v3"
+    },
+    {
+      description: "Strong model for inpainting and outpainting.",
+      id: "black-forest-labs/FLUX.1-Fill-dev"
+    },
+    {
+      description: "Strong model for image editing using depth maps.",
+      id: "black-forest-labs/FLUX.1-Depth-dev-lora"
+    }
+  ],
+  spaces: [
+    {
+      description: "Image editing application.",
+      id: "black-forest-labs/FLUX.1-Kontext-Dev"
+    },
+    {
+      description: "Image relighting application.",
+      id: "lllyasviel/iclight-v2-vary"
+    },
+    {
+      description: "An application for image upscaling.",
+      id: "jasperai/Flux.1-dev-Controlnet-Upscaler"
+    }
+  ],
+  summary: "Image-to-image is the task of transforming an input image through a variety of possible manipulations and enhancements, such as super-resolution, image inpainting, colorization, and more.",
+  widgetModels: ["Qwen/Qwen-Image"],
+  youtubeId: ""
+};
+var data_default11 = taskData11;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/image-to-text/data.js
+var taskData12 = {
+  datasets: [
+    {
+      // TODO write proper description
+      description: "Dataset from 12M image-text of Reddit",
+      id: "red_caps"
+    },
+    {
+      // TODO write proper description
+      description: "Dataset from 3.3M images of Google",
+      id: "datasets/conceptual_captions"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        filename: "savanna.jpg",
+        type: "img"
+      }
+    ],
+    outputs: [
+      {
+        label: "Detailed description",
+        content: "a herd of giraffes and zebras grazing in a field",
+        type: "text"
+      }
+    ]
+  },
+  metrics: [],
+  models: [
+    {
+      description: "Strong OCR model.",
+      id: "allenai/olmOCR-7B-0725"
+    },
+    {
+      description: "Powerful image captioning model.",
+      id: "fancyfeast/llama-joycaption-beta-one-hf-llava"
+    }
+  ],
+  spaces: [
+    {
+      description: "SVG generator app from images.",
+      id: "multimodalart/OmniSVG-3B"
+    },
+    {
+      description: "An application that converts documents to markdown.",
+      id: "numind/NuMarkdown-8B-Thinking"
+    },
+    {
+      description: "An application that can caption images.",
+      id: "fancyfeast/joy-caption-beta-one"
+    }
+  ],
+  summary: "Image to text models output a text from a given image. Image captioning or optical character recognition can be considered as the most common applications of image to text.",
+  widgetModels: ["Salesforce/blip-image-captioning-large"],
+  youtubeId: ""
+};
+var data_default12 = taskData12;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/image-text-to-text/data.js
+var taskData13 = {
+  datasets: [
+    {
+      description: "Instructions composed of image and text.",
+      id: "liuhaotian/LLaVA-Instruct-150K"
+    },
+    {
+      description: "Collection of image-text pairs on scientific topics.",
+      id: "DAMO-NLP-SG/multimodal_textbook"
+    },
+    {
+      description: "A collection of datasets made for model fine-tuning.",
+      id: "HuggingFaceM4/the_cauldron"
+    },
+    {
+      description: "Screenshots of websites with their HTML/CSS codes.",
+      id: "HuggingFaceM4/WebSight"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        filename: "image-text-to-text-input.png",
+        type: "img"
+      },
+      {
+        label: "Text Prompt",
+        content: "Describe the position of the bee in detail.",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        label: "Answer",
+        content: "The bee is sitting on a pink flower, surrounded by other flowers. The bee is positioned in the center of the flower, with its head and front legs sticking out.",
+        type: "text"
+      }
+    ]
+  },
+  metrics: [],
+  models: [
+    {
+      description: "Small and efficient yet powerful vision language model.",
+      id: "HuggingFaceTB/SmolVLM-Instruct"
+    },
+    {
+      description: "Cutting-edge reasoning vision language model.",
+      id: "zai-org/GLM-4.5V"
+    },
+    {
+      description: "Cutting-edge small vision language model to convert documents to text.",
+      id: "rednote-hilab/dots.ocr"
+    },
+    {
+      description: "Small yet powerful model.",
+      id: "Qwen/Qwen2.5-VL-3B-Instruct"
+    },
+    {
+      description: "Image-text-to-text model with agentic capabilities.",
+      id: "microsoft/Magma-8B"
+    }
+  ],
+  spaces: [
+    {
+      description: "Leaderboard to evaluate vision language models.",
+      id: "opencompass/open_vlm_leaderboard"
+    },
+    {
+      description: "An application that compares object detection capabilities of different vision language models.",
+      id: "sergiopaniego/vlm_object_understanding"
+    },
+    {
+      description: "An application to compare different OCR models.",
+      id: "prithivMLmods/Multimodal-OCR"
+    }
+  ],
+  summary: "Image-text-to-text models take in an image and text prompt and output text. These models are also called vision-language models, or VLMs. The difference from image-to-text models is that these models take an additional text input, not restricting the model to certain use cases like image captioning, and may also be trained to accept a conversation as input.",
+  widgetModels: ["zai-org/GLM-4.5V"],
+  youtubeId: "IoGaGfU1CIg"
+};
+var data_default13 = taskData13;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/image-text-to-image/data.js
+var taskData14 = {
+  datasets: [],
+  demo: {
+    inputs: [
+      {
+        filename: "image-text-to-image-input.jpeg",
+        type: "img"
+      },
+      {
+        label: "Input",
+        content: "A city above clouds, pastel colors, Victorian style",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        filename: "image-text-to-image-output.png",
+        type: "img"
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "The Fr\xE9chet Inception Distance (FID) calculates the distance between distributions between synthetic and real samples. A lower FID score indicates better similarity between the distributions of real and generated images.",
+      id: "FID"
+    },
+    {
+      description: "CLIP Score measures the similarity between the generated image and the text prompt using CLIP embeddings. A higher score indicates better alignment with the text prompt.",
+      id: "CLIP"
+    }
+  ],
+  models: [
+    {
+      description: "A powerful model for image-text-to-image generation.",
+      id: "black-forest-labs/FLUX.2-dev"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application for image-text-to-image generation.",
+      id: "black-forest-labs/FLUX.2-dev"
+    }
+  ],
+  summary: "Image-text-to-image models take an image and a text prompt as input and generate a new image based on the reference image and text instructions. These models are useful for image editing, style transfer, image variations, and guided image generation tasks.",
+  widgetModels: ["black-forest-labs/FLUX.2-dev"],
+  youtubeId: void 0
+};
+var data_default14 = taskData14;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/image-text-to-video/data.js
+var taskData15 = {
+  datasets: [],
+  demo: {
+    inputs: [
+      {
+        filename: "image-text-to-video-input.jpg",
+        type: "img"
+      },
+      {
+        label: "Input",
+        content: "Darth Vader is surfing on the waves.",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        filename: "image-text-to-video-output.gif",
+        type: "img"
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "Frechet Video Distance uses a model that captures coherence for changes in frames and the quality of each frame. A smaller score indicates better video generation.",
+      id: "fvd"
+    },
+    {
+      description: "CLIPSIM measures similarity between video frames and text using an image-text similarity model. A higher score indicates better video generation.",
+      id: "clipsim"
+    }
+  ],
+  models: [
+    {
+      description: "A powerful model for image-text-to-video generation.",
+      id: "Lightricks/LTX-Video"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application for image-text-to-video generation.",
+      id: "Lightricks/ltx-video-distilled"
+    }
+  ],
+  summary: "Image-text-to-video models take an reference image and a text instructions as and generate a video based on them. These models are useful for animating still images, creating dynamic content from static references, and generating videos with specific motion or transformation guidance.",
+  widgetModels: ["Lightricks/LTX-Video"],
+  youtubeId: void 0
+};
+var data_default15 = taskData15;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/image-segmentation/data.js
+var taskData16 = {
+  datasets: [
+    {
+      description: "Scene segmentation dataset.",
+      id: "scene_parse_150"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        filename: "image-segmentation-input.jpeg",
+        type: "img"
+      }
+    ],
+    outputs: [
+      {
+        filename: "image-segmentation-output.png",
+        type: "img"
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "Average Precision (AP) is the Area Under the PR Curve (AUC-PR). It is calculated for each semantic class separately",
+      id: "Average Precision"
+    },
+    {
+      description: "Mean Average Precision (mAP) is the overall average of the AP values",
+      id: "Mean Average Precision"
+    },
+    {
+      description: "Intersection over Union (IoU) is the overlap of segmentation masks. Mean IoU is the average of the IoU of all semantic classes",
+      id: "Mean Intersection over Union"
+    },
+    {
+      description: "AP\u03B1 is the Average Precision at the IoU threshold of a \u03B1 value, for example, AP50 and AP75",
+      id: "AP\u03B1"
+    }
+  ],
+  models: [
+    {
+      // TO DO: write description
+      description: "Solid panoptic segmentation model trained on COCO.",
+      id: "tue-mps/coco_panoptic_eomt_large_640"
+    },
+    {
+      description: "Background removal model.",
+      id: "briaai/RMBG-1.4"
+    },
+    {
+      description: "A multipurpose image segmentation model for high resolution images.",
+      id: "ZhengPeng7/BiRefNet"
+    },
+    {
+      description: "Powerful human-centric image segmentation model.",
+      id: "facebook/sapiens-seg-1b"
+    },
+    {
+      description: "Panoptic segmentation model trained on the COCO (common objects) dataset.",
+      id: "facebook/mask2former-swin-large-coco-panoptic"
+    }
+  ],
+  spaces: [
+    {
+      description: "A semantic segmentation application that can predict unseen instances out of the box.",
+      id: "facebook/ov-seg"
+    },
+    {
+      description: "One of the strongest segmentation applications.",
+      id: "jbrinkma/segment-anything"
+    },
+    {
+      description: "A human-centric segmentation model.",
+      id: "facebook/sapiens-pose"
+    },
+    {
+      description: "An instance segmentation application to predict neuronal cell types from microscopy images.",
+      id: "rashmi/sartorius-cell-instance-segmentation"
+    },
+    {
+      description: "An application that segments videos.",
+      id: "ArtGAN/Segment-Anything-Video"
+    },
+    {
+      description: "An panoptic segmentation application built for outdoor environments.",
+      id: "segments/panoptic-segment-anything"
+    }
+  ],
+  summary: "Image Segmentation divides an image into segments where each pixel in the image is mapped to an object. This task has multiple variants such as instance segmentation, panoptic segmentation and semantic segmentation.",
+  widgetModels: ["nvidia/segformer-b0-finetuned-ade-512-512"],
+  youtubeId: "dKE8SIt9C-w"
+};
+var data_default16 = taskData16;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/image-to-video/data.js
+var taskData17 = {
+  datasets: [
+    {
+      description: "A benchmark dataset for reference image controlled video generation.",
+      id: "ali-vilab/VACE-Benchmark"
+    },
+    {
+      description: "A dataset of video generation style preferences.",
+      id: "Rapidata/sora-video-generation-style-likert-scoring"
+    },
+    {
+      description: "A dataset with videos and captions throughout the videos.",
+      id: "BestWishYsh/ChronoMagic"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        filename: "image-to-video-input.jpg",
+        type: "img"
+      },
+      {
+        label: "Optional Text Prompt",
+        content: "This penguin is dancing",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        filename: "image-to-video-output.gif",
+        type: "img"
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "Fr\xE9chet Video Distance (FVD) measures the perceptual similarity between the distributions of generated videos and a set of real videos, assessing overall visual quality and temporal coherence of the video generated from an input image.",
+      id: "fvd"
+    },
+    {
+      description: "CLIP Score measures the semantic similarity between a textual prompt (if provided alongside the input image) and the generated video frames. It evaluates how well the video's generated content and motion align with the textual description, conditioned on the initial image.",
+      id: "clip_score"
+    },
+    {
+      description: "First Frame Fidelity, often measured using LPIPS (Learned Perceptual Image Patch Similarity), PSNR, or SSIM, quantifies how closely the first frame of the generated video matches the input conditioning image.",
+      id: "lpips"
+    },
+    {
+      description: "Identity Preservation Score measures the consistency of identity (e.g., a person's face or a specific object's characteristics) between the input image and throughout the generated video frames, often calculated using features from specialized models like face recognition (e.g., ArcFace) or re-identification models.",
+      id: "identity_preservation"
+    },
+    {
+      description: "Motion Score evaluates the quality, realism, and temporal consistency of motion in the video generated from a static image. This can be based on optical flow analysis (e.g., smoothness, magnitude), consistency of object trajectories, or specific motion plausibility assessments.",
+      id: "motion_score"
+    }
+  ],
+  models: [
+    {
+      description: "LTX-Video, a 13B parameter model for high quality video generation",
+      id: "Lightricks/LTX-Video-0.9.7-dev"
+    },
+    {
+      description: "A 14B parameter model for reference image controlled video generation",
+      id: "Wan-AI/Wan2.1-VACE-14B"
+    },
+    {
+      description: "An image-to-video generation model using FramePack F1 methodology with Hunyuan-DiT architecture",
+      id: "lllyasviel/FramePack_F1_I2V_HY_20250503"
+    },
+    {
+      description: "A distilled version of the LTX-Video-0.9.7-dev model for faster inference",
+      id: "Lightricks/LTX-Video-0.9.7-distilled"
+    },
+    {
+      description: "An image-to-video generation model by Skywork AI, 14B parameters, producing 720p videos.",
+      id: "Skywork/SkyReels-V2-I2V-14B-720P"
+    },
+    {
+      description: "Image-to-video variant of Tencent's HunyuanVideo.",
+      id: "tencent/HunyuanVideo-I2V"
+    },
+    {
+      description: "A 14B parameter model for 720p image-to-video generation by Wan-AI.",
+      id: "Wan-AI/Wan2.1-I2V-14B-720P"
+    },
+    {
+      description: "A Diffusers version of the Wan2.1-I2V-14B-720P model for 720p image-to-video generation.",
+      id: "Wan-AI/Wan2.1-I2V-14B-720P-Diffusers"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application to generate videos fast.",
+      id: "Lightricks/ltx-video-distilled"
+    },
+    {
+      description: "Generate videos with the FramePack-F1",
+      id: "linoyts/FramePack-F1"
+    },
+    {
+      description: "Generate videos with the FramePack",
+      id: "lisonallen/framepack-i2v"
+    },
+    {
+      description: "Wan2.1 with CausVid LoRA",
+      id: "multimodalart/wan2-1-fast"
+    },
+    {
+      description: "A demo for Stable Video Diffusion",
+      id: "multimodalart/stable-video-diffusion"
+    }
+  ],
+  summary: "Image-to-video models take a still image as input and generate a video. These models can be guided by text prompts to influence the content and style of the output video.",
+  widgetModels: [],
+  youtubeId: void 0
+};
+var data_default17 = taskData17;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/mask-generation/data.js
+var taskData18 = {
+  datasets: [
+    {
+      description: "Widely used benchmark dataset for multiple Vision tasks.",
+      id: "merve/coco2017"
+    },
+    {
+      description: "Medical Imaging dataset of the Human Brain for segmentation and mask generating tasks",
+      id: "rocky93/BraTS_segmentation"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        filename: "mask-generation-input.png",
+        type: "img"
+      }
+    ],
+    outputs: [
+      {
+        filename: "mask-generation-output.png",
+        type: "img"
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "IoU is used to measure the overlap between predicted mask and the ground truth mask.",
+      id: "Intersection over Union (IoU)"
+    }
+  ],
+  models: [
+    {
+      description: "Small yet powerful mask generation model.",
+      id: "Zigeng/SlimSAM-uniform-50"
+    },
+    {
+      description: "Very strong mask generation model.",
+      id: "facebook/sam2-hiera-large"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application that combines a mask generation model with a zero-shot object detection model for text-guided image segmentation.",
+      id: "merve/OWLSAM2"
+    },
+    {
+      description: "An application that compares the performance of a large and a small mask generation model.",
+      id: "merve/slimsam"
+    },
+    {
+      description: "An application based on an improved mask generation model.",
+      id: "SkalskiP/segment-anything-model-2"
+    },
+    {
+      description: "An application to remove objects from videos using mask generation models.",
+      id: "SkalskiP/SAM_and_ProPainter"
+    }
+  ],
+  summary: "Mask generation is the task of generating masks that identify a specific object or region of interest in a given image. Masks are often used in segmentation tasks, where they provide a precise way to isolate the object of interest for further processing or analysis.",
+  widgetModels: [],
+  youtubeId: ""
+};
+var data_default18 = taskData18;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/object-detection/data.js
+var taskData19 = {
+  datasets: [
+    {
+      description: "Widely used benchmark dataset for multiple vision tasks.",
+      id: "merve/coco2017"
+    },
+    {
+      description: "Multi-task computer vision benchmark.",
+      id: "merve/pascal-voc"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        filename: "object-detection-input.jpg",
+        type: "img"
+      }
+    ],
+    outputs: [
+      {
+        filename: "object-detection-output.jpg",
+        type: "img"
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "The Average Precision (AP) metric is the Area Under the PR Curve (AUC-PR). It is calculated for each class separately",
+      id: "Average Precision"
+    },
+    {
+      description: "The Mean Average Precision (mAP) metric is the overall average of the AP values",
+      id: "Mean Average Precision"
+    },
+    {
+      description: "The AP\u03B1 metric is the Average Precision at the IoU threshold of a \u03B1 value, for example, AP50 and AP75",
+      id: "AP\u03B1"
+    }
+  ],
+  models: [
+    {
+      description: "Solid object detection model pre-trained on the COCO 2017 dataset.",
+      id: "facebook/detr-resnet-50"
+    },
+    {
+      description: "Accurate object detection model.",
+      id: "IDEA-Research/dab-detr-resnet-50"
+    },
+    {
+      description: "Fast and accurate object detection model.",
+      id: "PekingU/rtdetr_v2_r50vd"
+    },
+    {
+      description: "Object detection model for low-lying objects.",
+      id: "StephanST/WALDO30"
+    }
+  ],
+  spaces: [
+    {
+      description: "Real-time object detection demo.",
+      id: "Roboflow/RF-DETR"
+    },
+    {
+      description: "An application that contains various object detection models to try from.",
+      id: "Gradio-Blocks/Object-Detection-With-DETR-and-YOLOS"
+    },
+    {
+      description: "A cutting-edge object detection application.",
+      id: "sunsmarterjieleaf/yolov12"
+    },
+    {
+      description: "An object tracking, segmentation and inpainting application.",
+      id: "VIPLab/Track-Anything"
+    },
+    {
+      description: "Very fast object tracking application based on object detection.",
+      id: "merve/RT-DETR-tracking-coco"
+    }
+  ],
+  summary: "Object Detection models allow users to identify objects of certain defined classes. Object detection models receive an image as input and output the images with bounding boxes and labels on detected objects.",
+  widgetModels: ["facebook/detr-resnet-50"],
+  youtubeId: "WdAeKSOpxhw"
+};
+var data_default19 = taskData19;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/depth-estimation/data.js
+var taskData20 = {
+  datasets: [
+    {
+      description: "NYU Depth V2 Dataset: Video dataset containing both RGB and depth sensor data.",
+      id: "sayakpaul/nyu_depth_v2"
+    },
+    {
+      description: "Monocular depth estimation benchmark based without noise and errors.",
+      id: "depth-anything/DA-2K"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        filename: "depth-estimation-input.jpg",
+        type: "img"
+      }
+    ],
+    outputs: [
+      {
+        filename: "depth-estimation-output.png",
+        type: "img"
+      }
+    ]
+  },
+  metrics: [],
+  models: [
+    {
+      description: "Cutting-edge depth estimation model.",
+      id: "depth-anything/Depth-Anything-V2-Large"
+    },
+    {
+      description: "A strong monocular depth estimation model.",
+      id: "jingheya/lotus-depth-g-v1-0"
+    },
+    {
+      description: "A depth estimation model that predicts depth in videos.",
+      id: "tencent/DepthCrafter"
+    },
+    {
+      description: "A robust depth estimation model.",
+      id: "apple/DepthPro-hf"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application that predicts the depth of an image and then reconstruct the 3D model as voxels.",
+      id: "radames/dpt-depth-estimation-3d-voxels"
+    },
+    {
+      description: "An application for bleeding-edge depth estimation.",
+      id: "akhaliq/depth-pro"
+    },
+    {
+      description: "An application on cutting-edge depth estimation in videos.",
+      id: "tencent/DepthCrafter"
+    },
+    {
+      description: "A human-centric depth estimation application.",
+      id: "facebook/sapiens-depth"
+    }
+  ],
+  summary: "Depth estimation is the task of predicting depth of the objects present in an image.",
+  widgetModels: [""],
+  youtubeId: ""
+};
+var data_default20 = taskData20;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/placeholder/data.js
+var taskData21 = {
+  datasets: [],
+  demo: {
+    inputs: [],
+    outputs: []
+  },
+  isPlaceholder: true,
+  metrics: [],
+  models: [],
+  spaces: [],
+  summary: "",
+  widgetModels: [],
+  youtubeId: void 0,
+  /// If this is a subtask, link to the most general task ID
+  /// (eg, text-generation is the canonical ID of text-simplification)
+  canonicalId: void 0
+};
+var data_default21 = taskData21;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/reinforcement-learning/data.js
+var taskData22 = {
+  datasets: [
+    {
+      description: "A curation of widely used datasets for Data Driven Deep Reinforcement Learning (D4RL)",
+      id: "edbeeching/decision_transformer_gym_replay"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        label: "State",
+        content: "Red traffic light, pedestrians are about to pass.",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        label: "Action",
+        content: "Stop the car.",
+        type: "text"
+      },
+      {
+        label: "Next State",
+        content: "Yellow light, pedestrians have crossed.",
+        type: "text"
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "Accumulated reward across all time steps discounted by a factor that ranges between 0 and 1 and determines how much the agent optimizes for future relative to immediate rewards. Measures how good is the policy ultimately found by a given algorithm considering uncertainty over the future.",
+      id: "Discounted Total Reward"
+    },
+    {
+      description: "Average return obtained after running the policy for a certain number of evaluation episodes. As opposed to total reward, mean reward considers how much reward a given algorithm receives while learning.",
+      id: "Mean Reward"
+    },
+    {
+      description: "Measures how good a given algorithm is after a predefined time. Some algorithms may be guaranteed to converge to optimal behavior across many time steps. However, an agent that reaches an acceptable level of optimality after a given time horizon may be preferable to one that ultimately reaches optimality but takes a long time.",
+      id: "Level of Performance After Some Time"
+    }
+  ],
+  models: [
+    {
+      description: "A Reinforcement Learning model trained on expert data from the Gym Hopper environment",
+      id: "edbeeching/decision-transformer-gym-hopper-expert"
+    },
+    {
+      description: "A PPO agent playing seals/CartPole-v0 using the stable-baselines3 library and the RL Zoo.",
+      id: "HumanCompatibleAI/ppo-seals-CartPole-v0"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application for a cute puppy agent learning to catch a stick.",
+      id: "ThomasSimonini/Huggy"
+    },
+    {
+      description: "An application to play Snowball Fight with a reinforcement learning agent.",
+      id: "ThomasSimonini/SnowballFight"
+    }
+  ],
+  summary: "Reinforcement learning is the computational approach of learning from action by interacting with an environment through trial and error and receiving rewards (negative or positive) as feedback",
+  widgetModels: [],
+  youtubeId: "q0BiUn5LiBc"
+};
+var data_default22 = taskData22;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/question-answering/data.js
+var taskData23 = {
+  datasets: [
+    {
+      // TODO write proper description
+      description: "A famous question answering dataset based on English articles from Wikipedia.",
+      id: "squad_v2"
+    },
+    {
+      // TODO write proper description
+      description: "A dataset of aggregated anonymized actual queries issued to the Google search engine.",
+      id: "natural_questions"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        label: "Question",
+        content: "Which name is also used to describe the Amazon rainforest in English?",
+        type: "text"
+      },
+      {
+        label: "Context",
+        content: "The Amazon rainforest, also known in English as Amazonia or the Amazon Jungle",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        label: "Answer",
+        content: "Amazonia",
+        type: "text"
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "Exact Match is a metric based on the strict character match of the predicted answer and the right answer. For answers predicted correctly, the Exact Match will be 1. Even if only one character is different, Exact Match will be 0",
+      id: "exact-match"
+    },
+    {
+      description: " The F1-Score metric is useful if we value both false positives and false negatives equally. The F1-Score is calculated on each word in the predicted sequence against the correct answer",
+      id: "f1"
+    }
+  ],
+  models: [
+    {
+      description: "A robust baseline model for most question answering domains.",
+      id: "deepset/roberta-base-squad2"
+    },
+    {
+      description: "Small yet robust model that can answer questions.",
+      id: "distilbert/distilbert-base-cased-distilled-squad"
+    },
+    {
+      description: "A special model that can answer questions from tables.",
+      id: "google/tapas-base-finetuned-wtq"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application that can answer a long question from Wikipedia.",
+      id: "deepset/wikipedia-assistant"
+    }
+  ],
+  summary: "Question Answering models can retrieve the answer to a question from a given text, which is useful for searching for an answer in a document. Some question answering models can generate answers without context!",
+  widgetModels: ["deepset/roberta-base-squad2"],
+  youtubeId: "ajPx5LwJD-I"
+};
+var data_default23 = taskData23;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/sentence-similarity/data.js
+var taskData24 = {
+  datasets: [
+    {
+      description: "Bing queries with relevant passages from various web sources.",
+      id: "microsoft/ms_marco"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        label: "Source sentence",
+        content: "Machine learning is so easy.",
+        type: "text"
+      },
+      {
+        label: "Sentences to compare to",
+        content: "Deep learning is so straightforward.",
+        type: "text"
+      },
+      {
+        label: "",
+        content: "This is so difficult, like rocket science.",
+        type: "text"
+      },
+      {
+        label: "",
+        content: "I can't believe how much I struggled with this.",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        type: "chart",
+        data: [
+          {
+            label: "Deep learning is so straightforward.",
+            score: 0.623
+          },
+          {
+            label: "This is so difficult, like rocket science.",
+            score: 0.413
+          },
+          {
+            label: "I can't believe how much I struggled with this.",
+            score: 0.256
+          }
+        ]
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "Reciprocal Rank is a measure used to rank the relevancy of documents given a set of documents. Reciprocal Rank is the reciprocal of the rank of the document retrieved, meaning, if the rank is 3, the Reciprocal Rank is 0.33. If the rank is 1, the Reciprocal Rank is 1",
+      id: "Mean Reciprocal Rank"
+    },
+    {
+      description: "The similarity of the embeddings is evaluated mainly on cosine similarity. It is calculated as the cosine of the angle between two vectors. It is particularly useful when your texts are not the same length",
+      id: "Cosine Similarity"
+    }
+  ],
+  models: [
+    {
+      description: "This model works well for sentences and paragraphs and can be used for clustering/grouping and semantic searches.",
+      id: "sentence-transformers/all-mpnet-base-v2"
+    },
+    {
+      description: "A multilingual robust sentence similarity model.",
+      id: "BAAI/bge-m3"
+    },
+    {
+      description: "A robust sentence similarity model.",
+      id: "HIT-TMG/KaLM-embedding-multilingual-mini-instruct-v1.5"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application that leverages sentence similarity to answer questions from YouTube videos.",
+      id: "Gradio-Blocks/Ask_Questions_To_YouTube_Videos"
+    },
+    {
+      description: "An application that retrieves relevant PubMed abstracts for a given online article which can be used as further references.",
+      id: "Gradio-Blocks/pubmed-abstract-retriever"
+    },
+    {
+      description: "An application that leverages sentence similarity to summarize text.",
+      id: "nickmuchi/article-text-summarizer"
+    },
+    {
+      description: "A guide that explains how Sentence Transformers can be used for semantic search.",
+      id: "sentence-transformers/Sentence_Transformers_for_semantic_search"
+    }
+  ],
+  summary: "Sentence Similarity is the task of determining how similar two texts are. Sentence similarity models convert input texts into vectors (embeddings) that capture semantic information and calculate how close (similar) they are between them. This task is particularly useful for information retrieval and clustering/grouping.",
+  widgetModels: ["sentence-transformers/all-MiniLM-L6-v2"],
+  youtubeId: "VCZq5AkbNEU"
+};
+var data_default24 = taskData24;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/summarization/data.js
+var taskData25 = {
+  canonicalId: "text-generation",
+  datasets: [
+    {
+      description: "News articles in five different languages along with their summaries. Widely used for benchmarking multilingual summarization models.",
+      id: "mlsum"
+    },
+    {
+      description: "English conversations and their summaries. Useful for benchmarking conversational agents.",
+      id: "samsum"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        label: "Input",
+        content: "The tower is 324 metres (1,063 ft) tall, about the same height as an 81-storey building, and the tallest structure in Paris. Its base is square, measuring 125 metres (410 ft) on each side. It was the first structure to reach a height of 300 metres. Excluding transmitters, the Eiffel Tower is the second tallest free-standing structure in France after the Millau Viaduct.",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        label: "Output",
+        content: "The tower is 324 metres (1,063 ft) tall, about the same height as an 81-storey building. It was the first structure to reach a height of 300 metres.",
+        type: "text"
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "The generated sequence is compared against its summary, and the overlap of tokens are counted. ROUGE-N refers to overlap of N subsequent tokens, ROUGE-1 refers to overlap of single tokens and ROUGE-2 is the overlap of two subsequent tokens.",
+      id: "rouge"
+    }
+  ],
+  models: [
+    {
+      description: "A strong summarization model trained on English news articles. Excels at generating factual summaries.",
+      id: "facebook/bart-large-cnn"
+    },
+    {
+      description: "A summarization model trained on medical articles.",
+      id: "Falconsai/medical_summarization"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application that can summarize long paragraphs.",
+      id: "pszemraj/summarize-long-text"
+    },
+    {
+      description: "A much needed summarization application for terms and conditions.",
+      id: "ml6team/distilbart-tos-summarizer-tosdr"
+    },
+    {
+      description: "An application that summarizes long documents.",
+      id: "pszemraj/document-summarization"
+    },
+    {
+      description: "An application that can detect errors in abstractive summarization.",
+      id: "ml6team/post-processing-summarization"
+    }
+  ],
+  summary: "Summarization is the task of producing a shorter version of a document while preserving its important information. Some models can extract text from the original input, while other models can generate entirely new text.",
+  widgetModels: ["facebook/bart-large-cnn"],
+  youtubeId: "yHnr5Dk2zCI"
+};
+var data_default25 = taskData25;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/table-question-answering/data.js
+var taskData26 = {
+  datasets: [
+    {
+      description: "The WikiTableQuestions dataset is a large-scale dataset for the task of question answering on semi-structured tables.",
+      id: "wikitablequestions"
+    },
+    {
+      description: "WikiSQL is a dataset of 80654 hand-annotated examples of questions and SQL queries distributed across 24241 tables from Wikipedia.",
+      id: "wikisql"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        table: [
+          ["Rank", "Name", "No.of reigns", "Combined days"],
+          ["1", "lou Thesz", "3", "3749"],
+          ["2", "Ric Flair", "8", "3103"],
+          ["3", "Harley Race", "7", "1799"]
+        ],
+        type: "tabular"
+      },
+      { label: "Question", content: "What is the number of reigns for Harley Race?", type: "text" }
+    ],
+    outputs: [{ label: "Result", content: "7", type: "text" }]
+  },
+  metrics: [
+    {
+      description: "Checks whether the predicted answer(s) is the same as the ground-truth answer(s).",
+      id: "Denotation Accuracy"
+    }
+  ],
+  models: [
+    {
+      description: "A table question answering model that is capable of neural SQL execution, i.e., employ TAPEX to execute a SQL query on a given table.",
+      id: "microsoft/tapex-base"
+    },
+    {
+      description: "A robust table question answering model.",
+      id: "google/tapas-base-finetuned-wtq"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application that answers questions based on table CSV files.",
+      id: "katanaml/table-query"
+    }
+  ],
+  summary: "Table Question Answering (Table QA) is the answering a question about an information on a given table.",
+  widgetModels: ["google/tapas-base-finetuned-wtq"]
+};
+var data_default26 = taskData26;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/tabular-classification/data.js
+var taskData27 = {
+  datasets: [
+    {
+      description: "A comprehensive curation of datasets covering all benchmarks.",
+      id: "inria-soda/tabular-benchmark"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        table: [
+          ["Glucose", "Blood Pressure ", "Skin Thickness", "Insulin", "BMI"],
+          ["148", "72", "35", "0", "33.6"],
+          ["150", "50", "30", "0", "35.1"],
+          ["141", "60", "29", "1", "39.2"]
+        ],
+        type: "tabular"
+      }
+    ],
+    outputs: [
+      {
+        table: [["Diabetes"], ["1"], ["1"], ["0"]],
+        type: "tabular"
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "",
+      id: "accuracy"
+    },
+    {
+      description: "",
+      id: "recall"
+    },
+    {
+      description: "",
+      id: "precision"
+    },
+    {
+      description: "",
+      id: "f1"
+    }
+  ],
+  models: [
+    {
+      description: "Breast cancer prediction model based on decision trees.",
+      id: "scikit-learn/cancer-prediction-trees"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application that can predict defective products on a production line.",
+      id: "scikit-learn/tabular-playground"
+    },
+    {
+      description: "An application that compares various tabular classification techniques on different datasets.",
+      id: "scikit-learn/classification"
+    }
+  ],
+  summary: "Tabular classification is the task of classifying a target category (a group) based on set of attributes.",
+  widgetModels: ["scikit-learn/tabular-playground"],
+  youtubeId: ""
+};
+var data_default27 = taskData27;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/tabular-regression/data.js
+var taskData28 = {
+  datasets: [
+    {
+      description: "A comprehensive curation of datasets covering all benchmarks.",
+      id: "inria-soda/tabular-benchmark"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        table: [
+          ["Car Name", "Horsepower", "Weight"],
+          ["ford torino", "140", "3,449"],
+          ["amc hornet", "97", "2,774"],
+          ["toyota corolla", "65", "1,773"]
+        ],
+        type: "tabular"
+      }
+    ],
+    outputs: [
+      {
+        table: [["MPG (miles per gallon)"], ["17"], ["18"], ["31"]],
+        type: "tabular"
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "",
+      id: "mse"
+    },
+    {
+      description: "Coefficient of determination (or R-squared) is a measure of how well the model fits the data. Higher R-squared is considered a better fit.",
+      id: "r-squared"
+    }
+  ],
+  models: [
+    {
+      description: "Fish weight prediction based on length measurements and species.",
+      id: "scikit-learn/Fish-Weight"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application that can predict weight of a fish based on set of attributes.",
+      id: "scikit-learn/fish-weight-prediction"
+    }
+  ],
+  summary: "Tabular regression is the task of predicting a numerical value given a set of attributes.",
+  widgetModels: ["scikit-learn/Fish-Weight"],
+  youtubeId: ""
+};
+var data_default28 = taskData28;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/text-to-image/data.js
+var taskData29 = {
+  datasets: [
+    {
+      description: "RedCaps is a large-scale dataset of 12M image-text pairs collected from Reddit.",
+      id: "red_caps"
+    },
+    {
+      description: "Conceptual Captions is a dataset consisting of ~3.3M images annotated with captions.",
+      id: "conceptual_captions"
+    },
+    {
+      description: "12M image-caption pairs.",
+      id: "Spawning/PD12M"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        label: "Input",
+        content: "A city above clouds, pastel colors, Victorian style",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        filename: "image.jpeg",
+        type: "img"
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "The Inception Score (IS) measure assesses diversity and meaningfulness. It uses a generated image sample to predict its label. A higher score signifies more diverse and meaningful images.",
+      id: "IS"
+    },
+    {
+      description: "The Fr\xE9chet Inception Distance (FID) calculates the distance between distributions between synthetic and real samples. A lower FID score indicates better similarity between the distributions of real and generated images.",
+      id: "FID"
+    },
+    {
+      description: "R-precision assesses how the generated image aligns with the provided text description. It uses the generated images as queries to retrieve relevant text descriptions. The top 'r' relevant descriptions are selected and used to calculate R-precision as r/R, where 'R' is the number of ground truth descriptions associated with the generated images. A higher R-precision value indicates a better model.",
+      id: "R-Precision"
+    }
+  ],
+  models: [
+    {
+      description: "One of the most powerful image generation models that can generate realistic outputs.",
+      id: "black-forest-labs/FLUX.1-Krea-dev"
+    },
+    {
+      description: "A powerful image generation model.",
+      id: "Qwen/Qwen-Image"
+    },
+    {
+      description: "Powerful and fast image generation model.",
+      id: "ByteDance/SDXL-Lightning"
+    },
+    {
+      description: "A powerful text-to-image model.",
+      id: "ByteDance/Hyper-SD"
+    }
+  ],
+  spaces: [
+    {
+      description: "A powerful text-to-image application.",
+      id: "stabilityai/stable-diffusion-3-medium"
+    },
+    {
+      description: "A text-to-image application to generate comics.",
+      id: "jbilcke-hf/ai-comic-factory"
+    },
+    {
+      description: "An application to match multiple custom image generation models.",
+      id: "multimodalart/flux-lora-lab"
+    },
+    {
+      description: "A powerful yet very fast image generation application.",
+      id: "latent-consistency/lcm-lora-for-sdxl"
+    },
+    {
+      description: "A gallery to explore various text-to-image models.",
+      id: "multimodalart/LoraTheExplorer"
+    },
+    {
+      description: "An application for `text-to-image`, `image-to-image` and image inpainting.",
+      id: "ArtGAN/Stable-Diffusion-ControlNet-WebUI"
+    },
+    {
+      description: "An application to generate realistic images given photos of a person and a prompt.",
+      id: "InstantX/InstantID"
+    }
+  ],
+  summary: "Text-to-image is the task of generating images from input text. These pipelines can also be used to modify and edit images based on text prompts.",
+  widgetModels: ["black-forest-labs/FLUX.1-dev"],
+  youtubeId: ""
+};
+var data_default29 = taskData29;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/text-to-speech/data.js
+var taskData30 = {
+  canonicalId: "text-to-audio",
+  datasets: [
+    {
+      description: "10K hours of multi-speaker English dataset.",
+      id: "parler-tts/mls_eng_10k"
+    },
+    {
+      description: "Multi-speaker English dataset.",
+      id: "mythicinfinity/libritts_r"
+    },
+    {
+      description: "Multi-lingual dataset.",
+      id: "facebook/multilingual_librispeech"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        label: "Input",
+        content: "I love audio models on the Hub!",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        filename: "audio.wav",
+        type: "audio"
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "The Mel Cepstral Distortion (MCD) metric is used to calculate the quality of generated speech.",
+      id: "mel cepstral distortion"
+    }
+  ],
+  models: [
+    {
+      description: "Small yet powerful TTS model.",
+      id: "KittenML/kitten-tts-nano-0.1"
+    },
+    {
+      description: "Bleeding edge TTS model.",
+      id: "ResembleAI/chatterbox"
+    },
+    {
+      description: "A massively multi-lingual TTS model.",
+      id: "fishaudio/fish-speech-1.5"
+    },
+    {
+      description: "A text-to-dialogue model.",
+      id: "nari-labs/Dia-1.6B-0626"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application for generate high quality speech in different languages.",
+      id: "hexgrad/Kokoro-TTS"
+    },
+    {
+      description: "A multilingual text-to-speech application.",
+      id: "fishaudio/fish-speech-1"
+    },
+    {
+      description: "Performant TTS application.",
+      id: "ResembleAI/Chatterbox"
+    },
+    {
+      description: "An application to compare different TTS models.",
+      id: "TTS-AGI/TTS-Arena-V2"
+    },
+    {
+      description: "An application that generates podcast episodes.",
+      id: "ngxson/kokoro-podcast-generator"
+    }
+  ],
+  summary: "Text-to-Speech (TTS) is the task of generating natural sounding speech given text input. TTS models can be extended to have a single model that generates speech for multiple speakers and multiple languages.",
+  widgetModels: ["suno/bark"],
+  youtubeId: "NW62DpzJ274"
+};
+var data_default30 = taskData30;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/token-classification/data.js
+var taskData31 = {
+  datasets: [
+    {
+      description: "A widely used dataset useful to benchmark named entity recognition models.",
+      id: "eriktks/conll2003"
+    },
+    {
+      description: "A multilingual dataset of Wikipedia articles annotated for named entity recognition in over 150 different languages.",
+      id: "unimelb-nlp/wikiann"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        label: "Input",
+        content: "My name is Omar and I live in Z\xFCrich.",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        text: "My name is Omar and I live in Z\xFCrich.",
+        tokens: [
+          {
+            type: "PERSON",
+            start: 11,
+            end: 15
+          },
+          {
+            type: "GPE",
+            start: 30,
+            end: 36
+          }
+        ],
+        type: "text-with-tokens"
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "",
+      id: "accuracy"
+    },
+    {
+      description: "",
+      id: "recall"
+    },
+    {
+      description: "",
+      id: "precision"
+    },
+    {
+      description: "",
+      id: "f1"
+    }
+  ],
+  models: [
+    {
+      description: "A robust performance model to identify people, locations, organizations and names of miscellaneous entities.",
+      id: "dslim/bert-base-NER"
+    },
+    {
+      description: "A strong model to identify people, locations, organizations and names in multiple languages.",
+      id: "FacebookAI/xlm-roberta-large-finetuned-conll03-english"
+    },
+    {
+      description: "A token classification model specialized on medical entity recognition.",
+      id: "blaze999/Medical-NER"
+    },
+    {
+      description: "Flair models are typically the state of the art in named entity recognition tasks.",
+      id: "flair/ner-english"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application that can recognizes entities, extracts noun chunks and recognizes various linguistic features of each token.",
+      id: "spacy/gradio_pipeline_visualizer"
+    }
+  ],
+  summary: "Token classification is a natural language understanding task in which a label is assigned to some tokens in a text. Some popular token classification subtasks are Named Entity Recognition (NER) and Part-of-Speech (PoS) tagging. NER models could be trained to identify specific entities in a text, such as dates, individuals and places; and PoS tagging would identify, for example, which words in a text are verbs, nouns, and punctuation marks.",
+  widgetModels: ["FacebookAI/xlm-roberta-large-finetuned-conll03-english"],
+  youtubeId: "wVHdVlPScxA"
+};
+var data_default31 = taskData31;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/translation/data.js
+var taskData32 = {
+  canonicalId: "text-generation",
+  datasets: [
+    {
+      description: "A dataset of copyright-free books translated into 16 different languages.",
+      id: "Helsinki-NLP/opus_books"
+    },
+    {
+      description: "An example of translation between programming languages. This dataset consists of functions in Java and C#.",
+      id: "google/code_x_glue_cc_code_to_code_trans"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        label: "Input",
+        content: "My name is Omar and I live in Z\xFCrich.",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        label: "Output",
+        content: "Mein Name ist Omar und ich wohne in Z\xFCrich.",
+        type: "text"
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "BLEU score is calculated by counting the number of shared single or subsequent tokens between the generated sequence and the reference. Subsequent n tokens are called \u201Cn-grams\u201D. Unigram refers to a single token while bi-gram refers to token pairs and n-grams refer to n subsequent tokens. The score ranges from 0 to 1, where 1 means the translation perfectly matched and 0 did not match at all",
+      id: "bleu"
+    },
+    {
+      description: "",
+      id: "sacrebleu"
+    }
+  ],
+  models: [
+    {
+      description: "Very powerful model that can translate many languages between each other, especially low-resource languages.",
+      id: "facebook/nllb-200-1.3B"
+    },
+    {
+      description: "A general-purpose Transformer that can be used to translate from English to German, French, or Romanian.",
+      id: "google-t5/t5-base"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application that can translate between 100 languages.",
+      id: "Iker/Translate-100-languages"
+    },
+    {
+      description: "An application that can translate between many languages.",
+      id: "Geonmo/nllb-translation-demo"
+    }
+  ],
+  summary: "Translation is the task of converting text from one language to another.",
+  widgetModels: ["facebook/mbart-large-50-many-to-many-mmt"],
+  youtubeId: "1JvfrvZgi6c"
+};
+var data_default32 = taskData32;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/text-classification/data.js
+var taskData33 = {
+  datasets: [
+    {
+      description: "A widely used dataset used to benchmark multiple variants of text classification.",
+      id: "nyu-mll/glue"
+    },
+    {
+      description: "A text classification dataset used to benchmark natural language inference models",
+      id: "stanfordnlp/snli"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        label: "Input",
+        content: "I love Hugging Face!",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        type: "chart",
+        data: [
+          {
+            label: "POSITIVE",
+            score: 0.9
+          },
+          {
+            label: "NEUTRAL",
+            score: 0.1
+          },
+          {
+            label: "NEGATIVE",
+            score: 0
+          }
+        ]
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "",
+      id: "accuracy"
+    },
+    {
+      description: "",
+      id: "recall"
+    },
+    {
+      description: "",
+      id: "precision"
+    },
+    {
+      description: "The F1 metric is the harmonic mean of the precision and recall. It can be calculated as: F1 = 2 * (precision * recall) / (precision + recall)",
+      id: "f1"
+    }
+  ],
+  models: [
+    {
+      description: "A robust model trained for sentiment analysis.",
+      id: "distilbert/distilbert-base-uncased-finetuned-sst-2-english"
+    },
+    {
+      description: "A sentiment analysis model specialized in financial sentiment.",
+      id: "ProsusAI/finbert"
+    },
+    {
+      description: "A sentiment analysis model specialized in analyzing tweets.",
+      id: "cardiffnlp/twitter-roberta-base-sentiment-latest"
+    },
+    {
+      description: "A model that can classify languages.",
+      id: "papluca/xlm-roberta-base-language-detection"
+    },
+    {
+      description: "A model that can classify text generation attacks.",
+      id: "meta-llama/Prompt-Guard-86M"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application that can classify financial sentiment.",
+      id: "IoannisTr/Tech_Stocks_Trading_Assistant"
+    },
+    {
+      description: "A dashboard that contains various text classification tasks.",
+      id: "miesnerjacob/Multi-task-NLP"
+    },
+    {
+      description: "An application that analyzes user reviews in healthcare.",
+      id: "spacy/healthsea-demo"
+    }
+  ],
+  summary: "Text Classification is the task of assigning a label or class to a given text. Some use cases are sentiment analysis, natural language inference, and assessing grammatical correctness.",
+  widgetModels: ["distilbert/distilbert-base-uncased-finetuned-sst-2-english"],
+  youtubeId: "leNG9fN9FQU"
+};
+var data_default33 = taskData33;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/text-generation/data.js
+var taskData34 = {
+  datasets: [
+    {
+      description: "Multilingual dataset used to evaluate text generation models.",
+      id: "CohereForAI/Global-MMLU"
+    },
+    {
+      description: "High quality multilingual data used to train text-generation models.",
+      id: "HuggingFaceFW/fineweb-2"
+    },
+    {
+      description: "Truly open-source, curated and cleaned dialogue dataset.",
+      id: "HuggingFaceH4/ultrachat_200k"
+    },
+    {
+      description: "A reasoning dataset.",
+      id: "open-r1/OpenThoughts-114k-math"
+    },
+    {
+      description: "A multilingual instruction dataset with preference ratings on responses.",
+      id: "allenai/tulu-3-sft-mixture"
+    },
+    {
+      description: "A large synthetic dataset for alignment of text generation models.",
+      id: "HuggingFaceTB/smoltalk"
+    },
+    {
+      description: "A dataset made for training text generation models solving math questions.",
+      id: "HuggingFaceTB/finemath"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        label: "Input",
+        content: "Once upon a time,",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        label: "Output",
+        content: "Once upon a time, we knew that our ancestors were on the verge of extinction. The great explorers and poets of the Old World, from Alexander the Great to Chaucer, are dead and gone. A good many of our ancient explorers and poets have",
+        type: "text"
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "Cross Entropy is a metric that calculates the difference between two probability distributions. Each probability distribution is the distribution of predicted words",
+      id: "Cross Entropy"
+    },
+    {
+      description: "The Perplexity metric is the exponential of the cross-entropy loss. It evaluates the probabilities assigned to the next word by the model. Lower perplexity indicates better performance",
+      id: "Perplexity"
+    }
+  ],
+  models: [
+    { description: "A text-generation model trained to follow instructions.", id: "google/gemma-2-2b-it" },
+    {
+      description: "Powerful text generation model for coding.",
+      id: "Qwen/Qwen3-Coder-480B-A35B-Instruct"
+    },
+    {
+      description: "Great text generation model with top-notch tool calling capabilities.",
+      id: "openai/gpt-oss-120b"
+    },
+    {
+      description: "Powerful text generation model.",
+      id: "zai-org/GLM-4.5"
+    },
+    {
+      description: "A powerful small model with reasoning capabilities.",
+      id: "Qwen/Qwen3-4B-Thinking-2507"
+    },
+    {
+      description: "Strong conversational model that supports very long instructions.",
+      id: "Qwen/Qwen2.5-7B-Instruct-1M"
+    },
+    {
+      description: "Text generation model used to write code.",
+      id: "Qwen/Qwen2.5-Coder-32B-Instruct"
+    },
+    {
+      description: "Powerful reasoning based open large language model.",
+      id: "deepseek-ai/DeepSeek-R1"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application that writes and executes code from text instructions and supports many models.",
+      id: "akhaliq/anycoder"
+    },
+    {
+      description: "An application that builds websites from natural language prompts.",
+      id: "enzostvs/deepsite"
+    },
+    {
+      description: "A leaderboard for comparing chain-of-thought performance of models.",
+      id: "logikon/open_cot_leaderboard"
+    },
+    {
+      description: "An text generation based application based on a very powerful LLaMA2 model.",
+      id: "ysharma/Explore_llamav2_with_TGI"
+    },
+    {
+      description: "An text generation based application to converse with Zephyr model.",
+      id: "HuggingFaceH4/zephyr-chat"
+    },
+    {
+      description: "A leaderboard that ranks text generation models based on blind votes from people.",
+      id: "lmsys/chatbot-arena-leaderboard"
+    },
+    {
+      description: "An chatbot to converse with a very powerful text generation model.",
+      id: "mlabonne/phixtral-chat"
+    }
+  ],
+  summary: "Generating text is the task of generating new text given another text. These models can, for example, fill in incomplete text or paraphrase.",
+  widgetModels: ["mistralai/Mistral-Nemo-Instruct-2407"],
+  youtubeId: "e9gNEAlsOvU"
+};
+var data_default34 = taskData34;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/text-ranking/data.js
+var taskData35 = {
+  datasets: [
+    {
+      description: "Bing queries with relevant passages from various web sources.",
+      id: "microsoft/ms_marco"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        label: "Source sentence",
+        content: "Machine learning is so easy.",
+        type: "text"
+      },
+      {
+        label: "Sentences to compare to",
+        content: "Deep learning is so straightforward.",
+        type: "text"
+      },
+      {
+        label: "",
+        content: "This is so difficult, like rocket science.",
+        type: "text"
+      },
+      {
+        label: "",
+        content: "I can't believe how much I struggled with this.",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        type: "chart",
+        data: [
+          {
+            label: "Deep learning is so straightforward.",
+            score: 2.2006407
+          },
+          {
+            label: "This is so difficult, like rocket science.",
+            score: -6.2634873
+          },
+          {
+            label: "I can't believe how much I struggled with this.",
+            score: -10.251488
+          }
+        ]
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "Discounted Cumulative Gain (DCG) measures the gain, or usefulness, of search results discounted by their position. The normalization is done by dividing the DCG by the ideal DCG, which is the DCG of the perfect ranking.",
+      id: "Normalized Discounted Cumulative Gain"
+    },
+    {
+      description: "Reciprocal Rank is a measure used to rank the relevancy of documents given a set of documents. Reciprocal Rank is the reciprocal of the rank of the document retrieved, meaning, if the rank is 3, the Reciprocal Rank is 0.33. If the rank is 1, the Reciprocal Rank is 1",
+      id: "Mean Reciprocal Rank"
+    },
+    {
+      description: "Mean Average Precision (mAP) is the overall average of the Average Precision (AP) values, where AP is the Area Under the PR Curve (AUC-PR)",
+      id: "Mean Average Precision"
+    }
+  ],
+  models: [
+    {
+      description: "An extremely efficient text ranking model trained on a web search dataset.",
+      id: "cross-encoder/ms-marco-MiniLM-L6-v2"
+    },
+    {
+      description: "A strong multilingual text reranker model.",
+      id: "Alibaba-NLP/gte-multilingual-reranker-base"
+    },
+    {
+      description: "An efficient text ranking model that punches above its weight.",
+      id: "Alibaba-NLP/gte-reranker-modernbert-base"
+    }
+  ],
+  spaces: [],
+  summary: "Text Ranking is the task of ranking a set of texts based on their relevance to a query. Text ranking models are trained on large datasets of queries and relevant documents to learn how to rank documents based on their relevance to the query. This task is particularly useful for search engines and information retrieval systems.",
+  widgetModels: ["cross-encoder/ms-marco-MiniLM-L6-v2"],
+  youtubeId: ""
+};
+var data_default35 = taskData35;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/text-to-video/data.js
+var taskData36 = {
+  datasets: [
+    {
+      description: "Microsoft Research Video to Text is a large-scale dataset for open domain video captioning",
+      id: "iejMac/CLIP-MSR-VTT"
+    },
+    {
+      description: "UCF101 Human Actions dataset consists of 13,320 video clips from YouTube, with 101 classes.",
+      id: "quchenyuan/UCF101-ZIP"
+    },
+    {
+      description: "A high-quality dataset for human action recognition in YouTube videos.",
+      id: "nateraw/kinetics"
+    },
+    {
+      description: "A dataset of video clips of humans performing pre-defined basic actions with everyday objects.",
+      id: "HuggingFaceM4/something_something_v2"
+    },
+    {
+      description: "This dataset consists of text-video pairs and contains noisy samples with irrelevant video descriptions",
+      id: "HuggingFaceM4/webvid"
+    },
+    {
+      description: "A dataset of short Flickr videos for the temporal localization of events with descriptions.",
+      id: "iejMac/CLIP-DiDeMo"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        label: "Input",
+        content: "Darth Vader is surfing on the waves.",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        filename: "text-to-video-output.gif",
+        type: "img"
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "Inception Score uses an image classification model that predicts class labels and evaluates how distinct and diverse the images are. A higher score indicates better video generation.",
+      id: "is"
+    },
+    {
+      description: "Frechet Inception Distance uses an image classification model to obtain image embeddings. The metric compares mean and standard deviation of the embeddings of real and generated images. A smaller score indicates better video generation.",
+      id: "fid"
+    },
+    {
+      description: "Frechet Video Distance uses a model that captures coherence for changes in frames and the quality of each frame. A smaller score indicates better video generation.",
+      id: "fvd"
+    },
+    {
+      description: "CLIPSIM measures similarity between video frames and text using an image-text similarity model. A higher score indicates better video generation.",
+      id: "clipsim"
+    }
+  ],
+  models: [
+    {
+      description: "A strong model for consistent video generation.",
+      id: "tencent/HunyuanVideo"
+    },
+    {
+      description: "A text-to-video model with high fidelity motion and strong prompt adherence.",
+      id: "Lightricks/LTX-Video"
+    },
+    {
+      description: "A text-to-video model focusing on physics-aware applications like robotics.",
+      id: "nvidia/Cosmos-1.0-Diffusion-7B-Text2World"
+    },
+    {
+      description: "Very fast model for video generation.",
+      id: "Lightricks/LTX-Video-0.9.8-13B-distilled"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application that generates video from text.",
+      id: "VideoCrafter/VideoCrafter"
+    },
+    {
+      description: "Consistent video generation application.",
+      id: "Wan-AI/Wan2.1"
+    },
+    {
+      description: "A cutting edge video generation application.",
+      id: "Pyramid-Flow/pyramid-flow"
+    }
+  ],
+  summary: "Text-to-video models can be used in any application that requires generating consistent sequence of images from text. ",
+  widgetModels: ["Wan-AI/Wan2.2-TI2V-5B"],
+  youtubeId: void 0
+};
+var data_default36 = taskData36;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/unconditional-image-generation/data.js
+var taskData37 = {
+  datasets: [
+    {
+      description: "The CIFAR-100 dataset consists of 60000 32x32 colour images in 100 classes, with 600 images per class.",
+      id: "cifar100"
+    },
+    {
+      description: "Multiple images of celebrities, used for facial expression translation.",
+      id: "CelebA"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        label: "Seed",
+        content: "42",
+        type: "text"
+      },
+      {
+        label: "Number of images to generate:",
+        content: "4",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        filename: "unconditional-image-generation-output.jpeg",
+        type: "img"
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "The inception score (IS) evaluates the quality of generated images. It measures the diversity of the generated images (the model predictions are evenly distributed across all possible labels) and their 'distinction' or 'sharpness' (the model confidently predicts a single label for each image).",
+      id: "Inception score (IS)"
+    },
+    {
+      description: "The Fr\xE9chet Inception Distance (FID) evaluates the quality of images created by a generative model by calculating the distance between feature vectors for real and generated images.",
+      id: "Fre\u0107het Inception Distance (FID)"
+    }
+  ],
+  models: [
+    {
+      description: "High-quality image generation model trained on the CIFAR-10 dataset. It synthesizes images of the ten classes presented in the dataset using diffusion probabilistic models, a class of latent variable models inspired by considerations from nonequilibrium thermodynamics.",
+      id: "google/ddpm-cifar10-32"
+    },
+    {
+      description: "High-quality image generation model trained on the 256x256 CelebA-HQ dataset. It synthesizes images of faces using diffusion probabilistic models, a class of latent variable models inspired by considerations from nonequilibrium thermodynamics.",
+      id: "google/ddpm-celebahq-256"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application that can generate realistic faces.",
+      id: "CompVis/celeba-latent-diffusion"
+    }
+  ],
+  summary: "Unconditional image generation is the task of generating images with no condition in any context (like a prompt text or another image). Once trained, the model will create images that resemble its training data distribution.",
+  widgetModels: [""],
+  // TODO: Add related video
+  youtubeId: ""
+};
+var data_default37 = taskData37;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/video-classification/data.js
+var taskData38 = {
+  datasets: [
+    {
+      // TODO write proper description
+      description: "Benchmark dataset used for video classification with videos that belong to 400 classes.",
+      id: "kinetics400"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        filename: "video-classification-input.gif",
+        type: "img"
+      }
+    ],
+    outputs: [
+      {
+        type: "chart",
+        data: [
+          {
+            label: "Playing Guitar",
+            score: 0.514
+          },
+          {
+            label: "Playing Tennis",
+            score: 0.193
+          },
+          {
+            label: "Cooking",
+            score: 0.068
+          }
+        ]
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "",
+      id: "accuracy"
+    },
+    {
+      description: "",
+      id: "recall"
+    },
+    {
+      description: "",
+      id: "precision"
+    },
+    {
+      description: "",
+      id: "f1"
+    }
+  ],
+  models: [
+    {
+      // TO DO: write description
+      description: "Strong Video Classification model trained on the Kinetics 400 dataset.",
+      id: "google/vivit-b-16x2-kinetics400"
+    },
+    {
+      // TO DO: write description
+      description: "Strong Video Classification model trained on the Kinetics 400 dataset.",
+      id: "microsoft/xclip-base-patch32"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application that classifies video at different timestamps.",
+      id: "nateraw/lavila"
+    },
+    {
+      description: "An application that classifies video.",
+      id: "fcakyon/video-classification"
+    }
+  ],
+  summary: "Video classification is the task of assigning a label or class to an entire video. Videos are expected to have only one class for each video. Video classification models take a video as input and return a prediction about which class the video belongs to.",
+  widgetModels: [],
+  youtubeId: ""
+};
+var data_default38 = taskData38;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/visual-document-retrieval/data.js
+var taskData39 = {
+  datasets: [
+    {
+      description: "A large dataset used to train visual document retrieval models.",
+      id: "vidore/colpali_train_set"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        filename: "input.png",
+        type: "img"
+      },
+      {
+        label: "Question",
+        content: "Is the model in this paper the fastest for inference?",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        type: "chart",
+        data: [
+          {
+            label: "Page 10",
+            score: 0.7
+          },
+          {
+            label: "Page 11",
+            score: 0.06
+          },
+          {
+            label: "Page 9",
+            score: 3e-3
+          }
+        ]
+      }
+    ]
+  },
+  isPlaceholder: false,
+  metrics: [
+    {
+      description: "NDCG@k scores ranked recommendation lists for top-k results. 0 is the worst, 1 is the best.",
+      id: "Normalized Discounted Cumulative Gain at K"
+    }
+  ],
+  models: [
+    {
+      description: "Very accurate visual document retrieval model for multilingual queries and documents.",
+      id: "vidore/colqwen2-v1.0"
+    },
+    {
+      description: "Very fast and efficient visual document retrieval model that can also take in other modalities like audio.",
+      id: "Tevatron/OmniEmbed-v0.1"
+    }
+  ],
+  spaces: [
+    {
+      description: "A leaderboard of visual document retrieval models.",
+      id: "vidore/vidore-leaderboard"
+    },
+    {
+      description: "Visual retrieval augmented generation demo based on ColQwen2 model.",
+      id: "vidore/visual-rag-tool"
+    }
+  ],
+  summary: "Visual document retrieval is the task of searching for relevant image-based documents, such as PDFs. These models take a text query and multiple documents as input and return the top-most relevant documents and relevancy scores as output.",
+  widgetModels: [""],
+  youtubeId: ""
+};
+var data_default39 = taskData39;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/visual-question-answering/data.js
+var taskData40 = {
+  datasets: [
+    {
+      description: "A widely used dataset containing questions (with answers) about images.",
+      id: "Graphcore/vqa"
+    },
+    {
+      description: "A dataset to benchmark visual reasoning based on text in images.",
+      id: "facebook/textvqa"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        filename: "elephant.jpeg",
+        type: "img"
+      },
+      {
+        label: "Question",
+        content: "What is in this image?",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        type: "chart",
+        data: [
+          {
+            label: "elephant",
+            score: 0.97
+          },
+          {
+            label: "elephants",
+            score: 0.06
+          },
+          {
+            label: "animal",
+            score: 3e-3
+          }
+        ]
+      }
+    ]
+  },
+  isPlaceholder: false,
+  metrics: [
+    {
+      description: "",
+      id: "accuracy"
+    },
+    {
+      description: "Measures how much a predicted answer differs from the ground truth based on the difference in their semantic meaning.",
+      id: "wu-palmer similarity"
+    }
+  ],
+  models: [
+    {
+      description: "A visual question answering model trained to convert charts and plots to text.",
+      id: "google/deplot"
+    },
+    {
+      description: "A visual question answering model trained for mathematical reasoning and chart derendering from images.",
+      id: "google/matcha-base"
+    },
+    {
+      description: "A strong visual question answering that answers questions from book covers.",
+      id: "google/pix2struct-ocrvqa-large"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application that compares visual question answering models across different tasks.",
+      id: "merve/pix2struct"
+    },
+    {
+      description: "An application that can answer questions based on images.",
+      id: "nielsr/vilt-vqa"
+    },
+    {
+      description: "An application that can caption images and answer questions about a given image. ",
+      id: "Salesforce/BLIP"
+    },
+    {
+      description: "An application that can caption images and answer questions about a given image. ",
+      id: "vumichien/Img2Prompt"
+    }
+  ],
+  summary: "Visual Question Answering is the task of answering open-ended questions based on an image. They output natural language responses to natural language questions.",
+  widgetModels: ["dandelin/vilt-b32-finetuned-vqa"],
+  youtubeId: ""
+};
+var data_default40 = taskData40;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/zero-shot-classification/data.js
+var taskData41 = {
+  datasets: [
+    {
+      description: "A widely used dataset used to benchmark multiple variants of text classification.",
+      id: "nyu-mll/glue"
+    },
+    {
+      description: "The Multi-Genre Natural Language Inference (MultiNLI) corpus is a crowd-sourced collection of 433k sentence pairs annotated with textual entailment information.",
+      id: "nyu-mll/multi_nli"
+    },
+    {
+      description: "FEVER is a publicly available dataset for fact extraction and verification against textual sources.",
+      id: "fever/fever"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        label: "Text Input",
+        content: "Dune is the best movie ever.",
+        type: "text"
+      },
+      {
+        label: "Candidate Labels",
+        content: "CINEMA, ART, MUSIC",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        type: "chart",
+        data: [
+          {
+            label: "CINEMA",
+            score: 0.9
+          },
+          {
+            label: "ART",
+            score: 0.1
+          },
+          {
+            label: "MUSIC",
+            score: 0
+          }
+        ]
+      }
+    ]
+  },
+  metrics: [],
+  models: [
+    {
+      description: "Powerful zero-shot text classification model.",
+      id: "facebook/bart-large-mnli"
+    },
+    {
+      description: "Cutting-edge zero-shot multilingual text classification model.",
+      id: "MoritzLaurer/ModernBERT-large-zeroshot-v2.0"
+    },
+    {
+      description: "Zero-shot text classification model that can be used for topic and sentiment classification.",
+      id: "knowledgator/gliclass-modern-base-v2.0-init"
+    }
+  ],
+  spaces: [],
+  summary: "Zero-shot text classification is a task in natural language processing where a model is trained on a set of labeled examples but is then able to classify new examples from previously unseen classes.",
+  widgetModels: ["facebook/bart-large-mnli"]
+};
+var data_default41 = taskData41;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/zero-shot-image-classification/data.js
+var taskData42 = {
+  datasets: [
+    {
+      // TODO write proper description
+      description: "",
+      id: ""
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        filename: "image-classification-input.jpeg",
+        type: "img"
+      },
+      {
+        label: "Classes",
+        content: "cat, dog, bird",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        type: "chart",
+        data: [
+          {
+            label: "Cat",
+            score: 0.664
+          },
+          {
+            label: "Dog",
+            score: 0.329
+          },
+          {
+            label: "Bird",
+            score: 8e-3
+          }
+        ]
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "Computes the number of times the correct label appears in top K labels predicted",
+      id: "top-K accuracy"
+    }
+  ],
+  models: [
+    {
+      description: "Multilingual image classification model for 80 languages.",
+      id: "visheratin/mexma-siglip"
+    },
+    {
+      description: "Strong zero-shot image classification model.",
+      id: "google/siglip2-base-patch16-224"
+    },
+    {
+      description: "Robust zero-shot image classification model.",
+      id: "intfloat/mmE5-mllama-11b-instruct"
+    },
+    {
+      description: "Powerful zero-shot image classification model supporting 94 languages.",
+      id: "jinaai/jina-clip-v2"
+    },
+    {
+      description: "Strong image classification model for biomedical domain.",
+      id: "microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application that leverages zero-shot image classification to find best captions to generate an image. ",
+      id: "pharma/CLIP-Interrogator"
+    },
+    {
+      description: "An application to compare different zero-shot image classification models. ",
+      id: "merve/compare_clip_siglip"
+    }
+  ],
+  summary: "Zero-shot image classification is the task of classifying previously unseen classes during training of a model.",
+  widgetModels: ["google/siglip-so400m-patch14-224"],
+  youtubeId: ""
+};
+var data_default42 = taskData42;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/zero-shot-object-detection/data.js
+var taskData43 = {
+  datasets: [],
+  demo: {
+    inputs: [
+      {
+        filename: "zero-shot-object-detection-input.jpg",
+        type: "img"
+      },
+      {
+        label: "Classes",
+        content: "cat, dog, bird",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        filename: "zero-shot-object-detection-output.jpg",
+        type: "img"
+      }
+    ]
+  },
+  metrics: [
+    {
+      description: "The Average Precision (AP) metric is the Area Under the PR Curve (AUC-PR). It is calculated for each class separately",
+      id: "Average Precision"
+    },
+    {
+      description: "The Mean Average Precision (mAP) metric is the overall average of the AP values",
+      id: "Mean Average Precision"
+    },
+    {
+      description: "The AP\u03B1 metric is the Average Precision at the IoU threshold of a \u03B1 value, for example, AP50 and AP75",
+      id: "AP\u03B1"
+    }
+  ],
+  models: [
+    {
+      description: "Solid zero-shot object detection model.",
+      id: "openmmlab-community/mm_grounding_dino_large_all"
+    },
+    {
+      description: "Cutting-edge zero-shot object detection model.",
+      id: "fushh7/LLMDet"
+    }
+  ],
+  spaces: [
+    {
+      description: "A demo to compare different zero-shot object detection models per output and latency.",
+      id: "ariG23498/zero-shot-od"
+    },
+    {
+      description: "A demo that combines a zero-shot object detection and mask generation model for zero-shot segmentation.",
+      id: "merve/OWLSAM"
+    }
+  ],
+  summary: "Zero-shot object detection is a computer vision task to detect objects and their classes in images, without any prior training or knowledge of the classes. Zero-shot object detection models receive an image as input, as well as a list of candidate classes, and output the bounding boxes and labels where the objects have been detected.",
+  widgetModels: [],
+  youtubeId: ""
+};
+var data_default43 = taskData43;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/image-to-3d/data.js
+var taskData44 = {
+  datasets: [
+    {
+      description: "A large dataset of over 10 million 3D objects.",
+      id: "allenai/objaverse-xl"
+    },
+    {
+      description: "A dataset of isolated object images for evaluating image-to-3D models.",
+      id: "dylanebert/iso3d"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        filename: "image-to-3d-image-input.png",
+        type: "img"
+      }
+    ],
+    outputs: [
+      {
+        label: "Result",
+        content: "image-to-3d-3d-output-filename.glb",
+        type: "text"
+      }
+    ]
+  },
+  metrics: [],
+  models: [
+    {
+      description: "Fast image-to-3D mesh model by Tencent.",
+      id: "TencentARC/InstantMesh"
+    },
+    {
+      description: "3D world generation model.",
+      id: "tencent/HunyuanWorld-1"
+    },
+    {
+      description: "A scaled up image-to-3D mesh model derived from TripoSR.",
+      id: "hwjiang/Real3D"
+    },
+    {
+      description: "Consistent image-to-3d generation model.",
+      id: "stabilityai/stable-point-aware-3d"
+    }
+  ],
+  spaces: [
+    {
+      description: "Leaderboard to evaluate image-to-3D models.",
+      id: "dylanebert/3d-arena"
+    },
+    {
+      description: "Image-to-3D demo with mesh outputs.",
+      id: "TencentARC/InstantMesh"
+    },
+    {
+      description: "Image-to-3D demo.",
+      id: "stabilityai/stable-point-aware-3d"
+    },
+    {
+      description: "Image-to-3D demo with mesh outputs.",
+      id: "hwjiang/Real3D"
+    },
+    {
+      description: "Image-to-3D demo with splat outputs.",
+      id: "dylanebert/LGM-mini"
+    }
+  ],
+  summary: "Image-to-3D models take in image input and produce 3D output.",
+  widgetModels: [],
+  youtubeId: ""
+};
+var data_default44 = taskData44;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/text-to-3d/data.js
+var taskData45 = {
+  datasets: [
+    {
+      description: "A large dataset of over 10 million 3D objects.",
+      id: "allenai/objaverse-xl"
+    },
+    {
+      description: "Descriptive captions for 3D objects in Objaverse.",
+      id: "tiange/Cap3D"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        label: "Prompt",
+        content: "a cat statue",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        label: "Result",
+        content: "text-to-3d-3d-output-filename.glb",
+        type: "text"
+      }
+    ]
+  },
+  metrics: [],
+  models: [
+    {
+      description: "Text-to-3D mesh model by OpenAI",
+      id: "openai/shap-e"
+    },
+    {
+      description: "Generative 3D gaussian splatting model.",
+      id: "ashawkey/LGM"
+    }
+  ],
+  spaces: [
+    {
+      description: "Text-to-3D demo with mesh outputs.",
+      id: "hysts/Shap-E"
+    },
+    {
+      description: "Text/image-to-3D demo with splat outputs.",
+      id: "ashawkey/LGM"
+    }
+  ],
+  summary: "Text-to-3D models take in text input and produce 3D output.",
+  widgetModels: [],
+  youtubeId: ""
+};
+var data_default45 = taskData45;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/keypoint-detection/data.js
+var taskData46 = {
+  datasets: [
+    {
+      description: "A dataset of hand keypoints of over 500k examples.",
+      id: "Vincent-luo/hagrid-mediapipe-hands"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        filename: "keypoint-detection-input.png",
+        type: "img"
+      }
+    ],
+    outputs: [
+      {
+        filename: "keypoint-detection-output.png",
+        type: "img"
+      }
+    ]
+  },
+  metrics: [],
+  models: [
+    {
+      description: "A robust keypoint detection model.",
+      id: "magic-leap-community/superpoint"
+    },
+    {
+      description: "A robust keypoint matching model.",
+      id: "magic-leap-community/superglue_outdoor"
+    },
+    {
+      description: "Strong keypoint detection model used to detect human pose.",
+      id: "qualcomm/RTMPose-Body2d"
+    },
+    {
+      description: "Powerful keypoint matching model.",
+      id: "ETH-CVG/lightglue_disk"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application that detects hand keypoints in real-time.",
+      id: "datasciencedojo/Hand-Keypoint-Detection-Realtime"
+    },
+    {
+      description: "An application for keypoint detection and matching.",
+      id: "ETH-CVG/LightGlue"
+    }
+  ],
+  summary: "Keypoint detection is the task of identifying meaningful distinctive points or features in an image.",
+  widgetModels: [],
+  youtubeId: ""
+};
+var data_default46 = taskData46;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/video-text-to-text/data.js
+var taskData47 = {
+  datasets: [
+    {
+      description: "Multiple-choice questions and answers about videos.",
+      id: "lmms-lab/Video-MME"
+    },
+    {
+      description: "A dataset of instructions and question-answer pairs about videos.",
+      id: "lmms-lab/VideoChatGPT"
+    },
+    {
+      description: "Large video understanding dataset.",
+      id: "HuggingFaceFV/finevideo"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        filename: "video-text-to-text-input.gif",
+        type: "img"
+      },
+      {
+        label: "Text Prompt",
+        content: "What is happening in this video?",
+        type: "text"
+      }
+    ],
+    outputs: [
+      {
+        label: "Answer",
+        content: "The video shows a series of images showing a fountain with water jets and a variety of colorful flowers and butterflies in the background.",
+        type: "text"
+      }
+    ]
+  },
+  metrics: [],
+  models: [
+    {
+      description: "A robust video-text-to-text model.",
+      id: "Vision-CAIR/LongVU_Qwen2_7B"
+    },
+    {
+      description: "Strong video-text-to-text model with reasoning capabilities.",
+      id: "GoodiesHere/Apollo-LMMs-Apollo-7B-t32"
+    },
+    {
+      description: "Strong video-text-to-text model.",
+      id: "HuggingFaceTB/SmolVLM2-2.2B-Instruct"
+    }
+  ],
+  spaces: [
+    {
+      description: "An application to chat with a video-text-to-text model.",
+      id: "llava-hf/video-llava"
+    },
+    {
+      description: "A leaderboard for various video-text-to-text models.",
+      id: "opencompass/openvlm_video_leaderboard"
+    },
+    {
+      description: "An application to generate highlights from a video.",
+      id: "HuggingFaceTB/SmolVLM2-HighlightGenerator"
+    }
+  ],
+  summary: "Video-text-to-text models take in a video and a text prompt and output text. These models are also called video-language models.",
+  widgetModels: [""],
+  youtubeId: ""
+};
+var data_default47 = taskData47;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/video-to-video/data.js
+var taskData48 = {
+  datasets: [
+    {
+      description: "Dataset with detailed annotations for training and benchmarking video instance editing.",
+      id: "suimu/VIRESET"
+    },
+    {
+      description: "Dataset to evaluate models on long video generation and understanding.",
+      id: "zhangsh2001/LongV-EVAL"
+    },
+    {
+      description: "Collection of 104 demo videos from the SeedVR/SeedVR2 series showcasing model outputs.",
+      id: "Iceclear/SeedVR_VideoDemos"
+    }
+  ],
+  demo: {
+    inputs: [
+      {
+        filename: "input.gif",
+        type: "img"
+      }
+    ],
+    outputs: [
+      {
+        filename: "output.gif",
+        type: "img"
+      }
+    ]
+  },
+  metrics: [],
+  models: [
+    {
+      description: "Model for editing outfits, character, and scenery in videos.",
+      id: "decart-ai/Lucy-Edit-Dev"
+    },
+    {
+      description: "Framework that uses 3D mesh proxies for precise, consistent video editing.",
+      id: "LeoLau/Shape-for-Motion"
+    },
+    {
+      description: "Model for generating physics-aware videos from input videos and control conditions.",
+      id: "nvidia/Cosmos-Transfer2.5-2B"
+    },
+    {
+      description: "A model to upscale videos at input, designed for seamless use with ComfyUI.",
+      id: "numz/SeedVR2_comfyUI"
+    }
+  ],
+  spaces: [
+    {
+      description: "Interactive demo space for Lucy-Edit-Dev video editing.",
+      id: "decart-ai/lucy-edit-dev"
+    },
+    {
+      description: "Demo space for SeedVR2-3B showcasing video upscaling and restoration.",
+      id: "ByteDance-Seed/SeedVR2-3B"
+    }
+  ],
+  summary: "Video-to-video models take one or more videos as input and generate new videos as output. They can enhance quality, interpolate frames, modify styles, or create new motion dynamics, enabling creative applications, video production, and research.",
+  widgetModels: [],
+  youtubeId: ""
+};
+var data_default48 = taskData48;
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/tasks/index.js
+var TASKS_MODEL_LIBRARIES = {
+  "audio-classification": ["speechbrain", "transformers", "transformers.js"],
+  "audio-to-audio": ["asteroid", "fairseq", "speechbrain"],
+  "automatic-speech-recognition": ["espnet", "nemo", "speechbrain", "transformers", "transformers.js"],
+  "audio-text-to-text": ["transformers"],
+  "depth-estimation": ["transformers", "transformers.js"],
+  "document-question-answering": ["transformers", "transformers.js"],
+  "feature-extraction": ["sentence-transformers", "transformers", "transformers.js"],
+  "fill-mask": ["transformers", "transformers.js"],
+  "graph-ml": ["transformers"],
+  "image-classification": ["keras", "timm", "transformers", "transformers.js"],
+  "image-feature-extraction": ["timm", "transformers"],
+  "image-segmentation": ["transformers", "transformers.js"],
+  "image-text-to-text": ["transformers"],
+  "image-text-to-image": ["diffusers"],
+  "image-text-to-video": ["diffusers"],
+  "image-to-image": ["diffusers", "transformers", "transformers.js"],
+  "image-to-text": ["transformers", "transformers.js"],
+  "image-to-video": ["diffusers"],
+  "keypoint-detection": ["transformers"],
+  "video-classification": ["transformers"],
+  "mask-generation": ["transformers"],
+  "multiple-choice": ["transformers"],
+  "object-detection": ["transformers", "transformers.js", "ultralytics"],
+  other: [],
+  "question-answering": ["adapter-transformers", "allennlp", "transformers", "transformers.js"],
+  robotics: [],
+  "reinforcement-learning": ["transformers", "stable-baselines3", "ml-agents", "sample-factory"],
+  "sentence-similarity": ["sentence-transformers", "spacy", "transformers.js"],
+  summarization: ["transformers", "transformers.js"],
+  "table-question-answering": ["transformers"],
+  "table-to-text": ["transformers"],
+  "tabular-classification": ["sklearn"],
+  "tabular-regression": ["sklearn"],
+  "tabular-to-text": ["transformers"],
+  "text-classification": ["adapter-transformers", "setfit", "spacy", "transformers", "transformers.js"],
+  "text-generation": ["transformers", "transformers.js"],
+  "text-ranking": ["sentence-transformers", "transformers"],
+  "text-retrieval": [],
+  "text-to-image": ["diffusers"],
+  "text-to-speech": ["espnet", "tensorflowtts", "transformers", "transformers.js"],
+  "text-to-audio": ["transformers", "transformers.js"],
+  "text-to-video": ["diffusers"],
+  "time-series-forecasting": [],
+  "token-classification": [
+    "adapter-transformers",
+    "flair",
+    "spacy",
+    "span-marker",
+    "stanza",
+    "transformers",
+    "transformers.js"
+  ],
+  translation: ["transformers", "transformers.js"],
+  "unconditional-image-generation": ["diffusers"],
+  "video-text-to-text": ["transformers"],
+  "visual-question-answering": ["transformers", "transformers.js"],
+  "voice-activity-detection": [],
+  "zero-shot-classification": ["transformers", "transformers.js"],
+  "zero-shot-image-classification": ["transformers", "transformers.js"],
+  "zero-shot-object-detection": ["transformers", "transformers.js"],
+  "text-to-3d": ["diffusers"],
+  "image-to-3d": ["diffusers"],
+  "any-to-any": ["transformers"],
+  "visual-document-retrieval": ["transformers"],
+  "video-to-video": ["diffusers"]
+};
+function getData(type, partialTaskData = data_default21) {
+  return {
+    ...partialTaskData,
+    id: type,
+    label: PIPELINE_DATA[type].name,
+    libraries: TASKS_MODEL_LIBRARIES[type]
+  };
+}
+var TASKS_DATA = {
+  "any-to-any": getData("any-to-any", data_default),
+  "audio-classification": getData("audio-classification", data_default2),
+  "audio-to-audio": getData("audio-to-audio", data_default4),
+  "audio-text-to-text": getData("audio-text-to-text", data_default3),
+  "automatic-speech-recognition": getData("automatic-speech-recognition", data_default5),
+  "depth-estimation": getData("depth-estimation", data_default20),
+  "document-question-answering": getData("document-question-answering", data_default6),
+  "visual-document-retrieval": getData("visual-document-retrieval", data_default39),
+  "feature-extraction": getData("feature-extraction", data_default7),
+  "fill-mask": getData("fill-mask", data_default8),
+  "graph-ml": void 0,
+  "image-classification": getData("image-classification", data_default9),
+  "image-feature-extraction": getData("image-feature-extraction", data_default10),
+  "image-segmentation": getData("image-segmentation", data_default16),
+  "image-to-image": getData("image-to-image", data_default11),
+  "image-text-to-text": getData("image-text-to-text", data_default13),
+  "image-text-to-image": getData("image-text-to-image", data_default14),
+  "image-text-to-video": getData("image-text-to-video", data_default15),
+  "image-to-text": getData("image-to-text", data_default12),
+  "image-to-video": getData("image-to-video", data_default17),
+  "keypoint-detection": getData("keypoint-detection", data_default46),
+  "mask-generation": getData("mask-generation", data_default18),
+  "multiple-choice": void 0,
+  "object-detection": getData("object-detection", data_default19),
+  "video-classification": getData("video-classification", data_default38),
+  other: void 0,
+  "question-answering": getData("question-answering", data_default23),
+  "reinforcement-learning": getData("reinforcement-learning", data_default22),
+  robotics: void 0,
+  "sentence-similarity": getData("sentence-similarity", data_default24),
+  summarization: getData("summarization", data_default25),
+  "table-question-answering": getData("table-question-answering", data_default26),
+  "table-to-text": void 0,
+  "tabular-classification": getData("tabular-classification", data_default27),
+  "tabular-regression": getData("tabular-regression", data_default28),
+  "tabular-to-text": void 0,
+  "text-classification": getData("text-classification", data_default33),
+  "text-generation": getData("text-generation", data_default34),
+  "text-ranking": getData("text-ranking", data_default35),
+  "text-retrieval": void 0,
+  "text-to-image": getData("text-to-image", data_default29),
+  "text-to-speech": getData("text-to-speech", data_default30),
+  "text-to-audio": void 0,
+  "text-to-video": getData("text-to-video", data_default36),
+  "time-series-forecasting": void 0,
+  "token-classification": getData("token-classification", data_default31),
+  translation: getData("translation", data_default32),
+  "unconditional-image-generation": getData("unconditional-image-generation", data_default37),
+  "video-text-to-text": getData("video-text-to-text", data_default47),
+  "video-to-video": getData("video-to-video", data_default48),
+  "visual-question-answering": getData("visual-question-answering", data_default40),
+  "voice-activity-detection": void 0,
+  "zero-shot-classification": getData("zero-shot-classification", data_default41),
+  "zero-shot-image-classification": getData("zero-shot-image-classification", data_default42),
+  "zero-shot-object-detection": getData("zero-shot-object-detection", data_default43),
+  "text-to-3d": getData("text-to-3d", data_default45),
+  "image-to-3d": getData("image-to-3d", data_default44)
+};
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/snippets/inputs.js
+var inputsZeroShotClassification = () => `"Hi, I recently bought a device from your company but it is not working as advertised and I would like to get reimbursed!"`;
+var inputsTranslation = () => `"\u041C\u0435\u043D\u044F \u0437\u043E\u0432\u0443\u0442 \u0412\u043E\u043B\u044C\u0444\u0433\u0430\u043D\u0433 \u0438 \u044F \u0436\u0438\u0432\u0443 \u0432 \u0411\u0435\u0440\u043B\u0438\u043D\u0435"`;
+var inputsSummarization = () => `"The tower is 324 metres (1,063 ft) tall, about the same height as an 81-storey building, and the tallest structure in Paris. Its base is square, measuring 125 metres (410 ft) on each side. During its construction, the Eiffel Tower surpassed the Washington Monument to become the tallest man-made structure in the world, a title it held for 41 years until the Chrysler Building in New York City was finished in 1930. It was the first structure to reach a height of 300 metres. Due to the addition of a broadcasting aerial at the top of the tower in 1957, it is now taller than the Chrysler Building by 5.2 metres (17 ft). Excluding transmitters, the Eiffel Tower is the second tallest free-standing structure in France after the Millau Viaduct."`;
+var inputsTableQuestionAnswering = () => `{
+    "query": "How many stars does the transformers repository have?",
+    "table": {
+        "Repository": ["Transformers", "Datasets", "Tokenizers"],
+        "Stars": ["36542", "4512", "3934"],
+        "Contributors": ["651", "77", "34"],
+        "Programming language": [
+            "Python",
+            "Python",
+            "Rust, Python and NodeJS"
+        ]
+    }
+}`;
+var inputsVisualQuestionAnswering = () => `{
+        "image": "cat.png",
+        "question": "What is in this image?"
+    }`;
+var inputsQuestionAnswering = () => `{
+    "question": "What is my name?",
+    "context": "My name is Clara and I live in Berkeley."
+}`;
+var inputsTextClassification = () => `"I like you. I love you"`;
+var inputsTokenClassification = () => `"My name is Sarah Jessica Parker but you can call me Jessica"`;
+var inputsTextGeneration = (model) => model.pipeline_tag === "text-generation" ? [{ role: "user", content: "What is the capital of France?" }] : [
+  {
+    role: "user",
+    content: [
+      {
+        type: "text",
+        text: "Describe this image in one sentence."
+      },
+      {
+        type: "image_url",
+        image_url: {
+          url: "https://cdn.britannica.com/61/93061-050-99147DCE/Statue-of-Liberty-Island-New-York-Bay.jpg"
+        }
+      }
+    ]
   }
-  get installed() {
-    return this.#paths.some(isFile);
+];
+var inputsFillMask = (model) => JSON.stringify(`The answer to the universe is ${model.mask_token}.`);
+var inputsTextRanking = () => `{
+    "query": "Which planet is known as the Red Planet?",
+    "texts": [
+        "Venus is often called Earth's twin because of its similar size and proximity.",
+        "Mars, known for its reddish appearance, is often referred to as the Red Planet.",
+        "Jupiter, the largest planet in our solar system, has a prominent red spot.",
+        "Saturn, famous for its rings, is sometimes mistaken for the Red Planet."
+    ]
+}`;
+var inputsSentenceSimilarity = () => `{
+    "source_sentence": "That is a happy person",
+    "sentences": [
+        "That is a happy dog",
+        "That is a very happy person",
+        "Today is a sunny day"
+    ]
+}`;
+var inputsFeatureExtraction = () => `"Today is a sunny day and I will get some ice cream."`;
+var inputsImageClassification = () => `"cats.jpg"`;
+var inputsImageToText = () => `"cats.jpg"`;
+var inputsImageToImage = () => `{
+    "image": "cat.png",
+    "prompt": "Turn the cat into a tiger."
+}`;
+var inputsImageToVideo = () => `{
+    "image": "cat.png",
+    "prompt": "The cat starts to dance"
+}`;
+var inputsImageTextToImage = () => `{
+    "image": "cat.png",
+    "prompt": "Turn the cat into a tiger."
+}`;
+var inputsImageTextToVideo = () => `{
+    "image": "cat.png",
+    "prompt": "The cat starts to dance"
+}`;
+var inputsImageSegmentation = () => `"cats.jpg"`;
+var inputsObjectDetection = () => `"cats.jpg"`;
+var inputsAudioToAudio = () => `"sample1.flac"`;
+var inputsAudioClassification = () => `"sample1.flac"`;
+var inputsTextToImage = () => `"Astronaut riding a horse"`;
+var inputsTextToVideo = () => `"A young man walking on the street"`;
+var inputsTextToSpeech = () => `"The answer to the universe is 42"`;
+var inputsTextToAudio = () => `"liquid drum and bass, atmospheric synths, airy sounds"`;
+var inputsAutomaticSpeechRecognition = () => `"sample1.flac"`;
+var inputsTabularPrediction = () => `'{"Height":[11.52,12.48],"Length1":[23.2,24.0],"Length2":[25.4,26.3],"Species": ["Bream","Bream"]}'`;
+var inputsZeroShotImageClassification = () => `"cats.jpg"`;
+var modelInputSnippets = {
+  "audio-to-audio": inputsAudioToAudio,
+  "audio-classification": inputsAudioClassification,
+  "automatic-speech-recognition": inputsAutomaticSpeechRecognition,
+  "document-question-answering": inputsVisualQuestionAnswering,
+  "feature-extraction": inputsFeatureExtraction,
+  "fill-mask": inputsFillMask,
+  "image-classification": inputsImageClassification,
+  "image-to-text": inputsImageToText,
+  "image-to-image": inputsImageToImage,
+  "image-to-video": inputsImageToVideo,
+  "image-text-to-image": inputsImageTextToImage,
+  "image-text-to-video": inputsImageTextToVideo,
+  "image-segmentation": inputsImageSegmentation,
+  "object-detection": inputsObjectDetection,
+  "question-answering": inputsQuestionAnswering,
+  "sentence-similarity": inputsSentenceSimilarity,
+  "text-ranking": inputsTextRanking,
+  summarization: inputsSummarization,
+  "table-question-answering": inputsTableQuestionAnswering,
+  "tabular-regression": inputsTabularPrediction,
+  "tabular-classification": inputsTabularPrediction,
+  "text-classification": inputsTextClassification,
+  "text-generation": inputsTextGeneration,
+  "image-text-to-text": inputsTextGeneration,
+  "text-to-image": inputsTextToImage,
+  "text-to-video": inputsTextToVideo,
+  "text-to-speech": inputsTextToSpeech,
+  "text-to-audio": inputsTextToAudio,
+  "token-classification": inputsTokenClassification,
+  translation: inputsTranslation,
+  "zero-shot-classification": inputsZeroShotClassification,
+  "zero-shot-image-classification": inputsZeroShotImageClassification
+};
+function getModelInputSnippet(model, noWrap = false, noQuotes = false) {
+  if (model.pipeline_tag) {
+    const inputs = modelInputSnippets[model.pipeline_tag];
+    if (inputs) {
+      let result = inputs(model);
+      if (typeof result === "string") {
+        if (noWrap) {
+          result = result.replace(/(?:(?:\r?\n|\r)\t*)|\t+/g, " ");
+        }
+        if (noQuotes) {
+          const REGEX_QUOTES = /^"(.+)"$/s;
+          const match = result.match(REGEX_QUOTES);
+          result = match ? match[1] : result;
+        }
+      }
+      return result;
+    }
   }
-  // A model that is not installed points where Handy downloads it, so its load
-  // error names that file.
-  get configuration() {
-    const paths = this.#paths;
-    return {
-      name: this.id,
-      path: paths.find(isFile) ?? paths[0],
-      language: this.language
-    };
+  return "No input example has been defined for this model task.";
+}
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/snippets/common.js
+function stringifyMessages(messages, opts) {
+  let messagesStr = JSON.stringify(messages, null, "	");
+  if (opts?.indent) {
+    messagesStr = messagesStr.replaceAll("\n", `
+${opts.indent}`);
   }
-  get #entry() {
-    const entry = catalog.getModel(this.id);
-    if (entry === void 0)
-      throw new Error(`Handy's catalog has no model ${this.id}.`);
-    return entry;
+  if (!opts?.attributeKeyQuotes) {
+    messagesStr = messagesStr.replace(/"([^"]+)":/g, "$1:");
   }
-  // The catalog's pinned revision comes first. Handy also loads the file from
-  // a snapshot of another revision, as after the catalog moves its pin
-  // (hf_snapshot_paths in Handy's src-tauri/src/managers/model.rs).
-  get #paths() {
-    const entry = this.#entry;
-    const { filename } = modelFile(entry);
-    const snapshots = join5(this.#folders.hub, `models--${entry.repository.replaceAll("/", "--")}`, "snapshots");
-    const revisions = existsSync3(snapshots) ? readdirSync2(snapshots) : [];
+  if (opts?.customContentEscaper) {
+    messagesStr = opts.customContentEscaper(messagesStr);
+  }
+  return messagesStr;
+}
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/model-libraries-snippets.js
+var TAG_CUSTOM_CODE = "custom_code";
+function nameWithoutNamespace(modelId) {
+  const splitted = modelId.split("/");
+  return splitted.length === 1 ? splitted[0] : splitted[1];
+}
+var escapeStringForJson = (str) => JSON.stringify(str).slice(1, -1);
+var isValidIdentifier = (str) => /^[A-Za-z_]\w*$/.test(str);
+var aadyaNeural = (model) => [
+  `# Install from https://github.com/manasdutta04/aadya (train extras: torch)
+from huggingface_hub import snapshot_download
+from aadya_neural.torch_forecaster import AadyaM1Forecaster
+
+weights = snapshot_download("${model.id}")
+model = AadyaM1Forecaster(weights)
+pmf = model.forecast([28, 30, 27], elapsed=0)`
+];
+var adapters = (model) => [
+  `from adapters import AutoAdapterModel
+
+model = AutoAdapterModel.from_pretrained("${escapeStringForJson(model.config?.adapter_transformers?.model_name ?? "<base-model-id>")}")
+model.load_adapter("${model.id}", set_active=True)`
+];
+var allennlpUnknown = (model) => [
+  `import allennlp_models
+from allennlp.predictors.predictor import Predictor
+
+predictor = Predictor.from_path("hf://${model.id}")`
+];
+var allennlpQuestionAnswering = (model) => [
+  `import allennlp_models
+from allennlp.predictors.predictor import Predictor
+
+predictor = Predictor.from_path("hf://${model.id}")
+predictor_input = {"passage": "My name is Wolfgang and I live in Berlin", "question": "Where do I live?"}
+predictions = predictor.predict_json(predictor_input)`
+];
+var allennlp = (model) => {
+  if (model.tags.includes("question-answering")) {
+    return allennlpQuestionAnswering(model);
+  }
+  return allennlpUnknown(model);
+};
+var araclip = (model) => [
+  `from araclip import AraClip
+
+model = AraClip.from_pretrained("${model.id}")`
+];
+var asimov = (model) => [
+  `# Run the policy in a browser simulation of the Asimov 1 humanoid (no GPU needed)
+git clone https://github.com/menloresearch/humanoid-policy-viewer
+cd humanoid-policy-viewer
+npm install
+npm run hf ${model.id}`
+];
+var asteroid = (model) => [
+  `from asteroid.models import BaseModel
+
+model = BaseModel.from_pretrained("${model.id}")`
+];
+var audioseal = (model) => {
+  const watermarkSnippet = `# Watermark Generator
+from audioseal import AudioSeal
+
+model = AudioSeal.load_generator("${model.id}")
+# pass a tensor (tensor_wav) of shape (batch, channels, samples) and a sample rate
+wav, sr = tensor_wav, 16000
+
+watermark = model.get_watermark(wav, sr)
+watermarked_audio = wav + watermark`;
+  const detectorSnippet = `# Watermark Detector
+from audioseal import AudioSeal
+
+detector = AudioSeal.load_detector("${model.id}")
+
+result, message = detector.detect_watermark(watermarked_audio, sr)`;
+  return [watermarkSnippet, detectorSnippet];
+};
+function get_base_diffusers_model(model) {
+  const baseModel = model.cardData?.base_model;
+  const candidates = Array.isArray(baseModel) ? baseModel : baseModel ? [baseModel] : [];
+  const chosen = candidates.find((id) => id.toLowerCase().endsWith("-diffusers")) ?? candidates[0];
+  return escapeStringForJson(chosen ?? "fill-in-base-model");
+}
+function get_prompt_from_diffusers_model(model) {
+  const prompt = model.widgetData?.[0]?.text ?? model.cardData?.instance_prompt;
+  if (prompt) {
+    return escapeStringForJson(prompt);
+  }
+}
+var ben2 = (model) => [
+  `import requests
+from PIL import Image
+from ben2 import AutoModel
+
+url = "https://huggingface.co/datasets/mishig/sample_images/resolve/main/teapot.jpg"
+image = Image.open(requests.get(url, stream=True).raw)
+
+model = AutoModel.from_pretrained("${model.id}")
+model.to("cuda").eval()
+foreground = model.inference(image)
+`
+];
+var bertopic = (model) => [
+  `from bertopic import BERTopic
+
+model = BERTopic.load("${model.id}")`
+];
+var bm25s = (model) => [
+  `from bm25s.hf import BM25HF
+
+retriever = BM25HF.load_from_hub("${model.id}")`
+];
+var chatterbox = () => [
+  `# pip install chatterbox-tts
+import torchaudio as ta
+from chatterbox.tts import ChatterboxTTS
+
+model = ChatterboxTTS.from_pretrained(device="cuda")
+
+text = "Ezreal and Jinx teamed up with Ahri, Yasuo, and Teemo to take down the enemy's Nexus in an epic late-game pentakill."
+wav = model.generate(text)
+ta.save("test-1.wav", wav, model.sr)
+
+# If you want to synthesize with a different voice, specify the audio prompt
+AUDIO_PROMPT_PATH="YOUR_FILE.wav"
+wav = model.generate(text, audio_prompt_path=AUDIO_PROMPT_PATH)
+ta.save("test-2.wav", wav, model.sr)`
+];
+var chronos_forecasting = (model) => {
+  const installSnippet = `pip install chronos-forecasting`;
+  const exampleSnippet = `import pandas as pd
+from chronos import BaseChronosPipeline
+
+pipeline = BaseChronosPipeline.from_pretrained("${model.id}", device_map="cuda")
+
+# Load historical data
+context_df = pd.read_csv("https://autogluon.s3.us-west-2.amazonaws.com/datasets/timeseries/misc/AirPassengers.csv")
+
+# Generate predictions
+pred_df = pipeline.predict_df(
+    context_df,
+    prediction_length=36,  # Number of steps to forecast
+    quantile_levels=[0.1, 0.5, 0.9],  # Quantiles for probabilistic forecast
+    id_column="item_id",  # Column identifying different time series
+    timestamp_column="Month",  # Column with datetime information
+    target="#Passengers",  # Column(s) with time series values to predict
+)`;
+  return [installSnippet, exampleSnippet];
+};
+var collectorvision = (model) => [
+  `pip install git+https://github.com/HanClinto/CollectorVision huggingface_hub`,
+  `from huggingface_hub import hf_hub_download
+import collector_vision as cvg
+
+checkpoint = hf_hub_download(repo_id="${model.id}", filename="model.onnx")
+
+# Detector models, such as Cornelius:
+detector = cvg.NeuralCornerDetector(checkpoint)
+
+# Embedder models, such as Milo:
+embedder = cvg.NeuralEmbedder(checkpoint)`
+];
+var colipri = () => {
+  const installSnippet = `pip install colipri`;
+  const exampleSnippet = `from colipri import get_model
+from colipri import get_processor
+from colipri import load_sample_ct
+from colipri import ZeroShotImageClassificationPipeline
+
+model = get_model().cuda()
+processor = get_processor()
+pipeline = ZeroShotImageClassificationPipeline(model, processor)
+
+image = load_sample_ct()
+
+pipeline(image, ["No lung nodules", "Lung nodules"])
+`;
+  return [installSnippet, exampleSnippet];
+};
+var sap_rpt_one_oss = () => {
+  const installSnippet = `pip install git+https://github.com/SAP-samples/sap-rpt-1-oss`;
+  const classificationSnippet = `# Run a classification task
+from sklearn.datasets import load_breast_cancer
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+
+from sap_rpt_oss import SAP_RPT_OSS_Classifier
+
+# Load sample data
+X, y = load_breast_cancer(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=42)
+
+# Initialize a classifier, 8k context and 8-fold bagging gives best performance, reduce if running out of memory
+clf = SAP_RPT_OSS_Classifier(max_context_size=8192, bagging=8)
+
+clf.fit(X_train, y_train)
+
+# Predict probabilities
+prediction_probabilities = clf.predict_proba(X_test)
+# Predict labels
+predictions = clf.predict(X_test)
+print("Accuracy", accuracy_score(y_test, predictions))`;
+  const regressionsSnippet = `# Run a regression task
+from sklearn.datasets import fetch_openml
+from sklearn.metrics import r2_score
+from sklearn.model_selection import train_test_split
+
+from sap_rpt_oss import SAP_RPT_OSS_Regressor
+
+# Load sample data
+df = fetch_openml(data_id=531, as_frame=True)
+X = df.data
+y = df.target.astype(float)
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=42)
+
+# Initialize the regressor, 8k context and 8-fold bagging gives best performance, reduce if running out of memory
+regressor = SAP_RPT_OSS_Regressor(max_context_size=8192, bagging=8)
+
+regressor.fit(X_train, y_train)
+
+# Predict on the test set
+predictions = regressor.predict(X_test)
+
+r2 = r2_score(y_test, predictions)
+print("R\xB2 Score:", r2)`;
+  return [installSnippet, classificationSnippet, regressionsSnippet];
+};
+var cortiq = (model) => {
+  const setup = `# one Rust binary, no additional dependencies
+cargo install cortiq-cli   # or a prebuilt binary from github.com/infosave2007/cmf/releases
+hf download ${model.id} --include "*.cmf" --local-dir .
+ls *.cmf                   # some repos ship more than one quantization`;
+  if (model.pipeline_tag === "text-to-image") {
+    return [setup, `cortiq imagine FILE.cmf --prompt "a red fox in a snowy forest" --out fox.ppm`];
+  }
+  if (model.pipeline_tag === "text-to-video") {
+    return [setup, `cortiq animate FILE.cmf --prompt "a corgi in a chef hat flipping a pancake" --out clip.avi`];
+  }
+  if (model.pipeline_tag === "text-to-audio") {
     return [
-      join5(snapshots, entry.revision, filename),
-      ...revisions.filter((revision) => revision !== entry.revision).map((revision) => join5(snapshots, revision, filename)),
-      join5(this.#folders.models, filename)
+      setup,
+      `cortiq music FILE.cmf --prompt "dream pop, warm analog synths, brushed drums" \\
+  --lyrics "[verse] the tide came in and took the map" --seconds 20 --out song.wav`
+    ];
+  }
+  return [
+    setup,
+    `cortiq run FILE.cmf --prompt "What is the capital of France?"`,
+    `cortiq serve FILE.cmf --port 8080   # OpenAI-compatible server`
+  ];
+};
+var cxr_foundation = () => [
+  `# pip install git+https://github.com/Google-Health/cxr-foundation.git#subdirectory=python
+
+# Load image as grayscale (Stillwaterising, CC0, via Wikimedia Commons)
+import requests
+from PIL import Image
+from io import BytesIO
+image_url = "https://upload.wikimedia.org/wikipedia/commons/c/c8/Chest_Xray_PA_3-8-2010.png"
+img = Image.open(requests.get(image_url, headers={'User-Agent': 'Demo'}, stream=True).raw).convert('L')
+
+# Run inference
+from clientside.clients import make_hugging_face_client
+cxr_client = make_hugging_face_client('cxr_model')
+print(cxr_client.get_image_embeddings_from_images([img]))`
+];
+var depth_anything_v2 = (model) => {
+  let encoder2;
+  let features;
+  let out_channels;
+  encoder2 = "<ENCODER>";
+  features = "<NUMBER_OF_FEATURES>";
+  out_channels = "<OUT_CHANNELS>";
+  if (model.id === "depth-anything/Depth-Anything-V2-Small") {
+    encoder2 = "vits";
+    features = "64";
+    out_channels = "[48, 96, 192, 384]";
+  } else if (model.id === "depth-anything/Depth-Anything-V2-Base") {
+    encoder2 = "vitb";
+    features = "128";
+    out_channels = "[96, 192, 384, 768]";
+  } else if (model.id === "depth-anything/Depth-Anything-V2-Large") {
+    encoder2 = "vitl";
+    features = "256";
+    out_channels = "[256, 512, 1024, 1024]";
+  }
+  return [
+    `
+# Install from https://github.com/DepthAnything/Depth-Anything-V2
+
+# Load the model and infer depth from an image
+import cv2
+import torch
+from huggingface_hub import hf_hub_download
+
+from depth_anything_v2.dpt import DepthAnythingV2
+
+# instantiate the model
+model = DepthAnythingV2(encoder="${encoder2}", features=${features}, out_channels=${out_channels})
+
+# load the weights
+filepath = hf_hub_download(repo_id="${model.id}", filename="depth_anything_v2_${encoder2}.pth", repo_type="model")
+state_dict = torch.load(filepath, map_location="cpu")
+model.load_state_dict(state_dict)
+model.eval()
+
+raw_img = cv2.imread("your/image/path")
+depth = model.infer_image(raw_img) # HxW raw depth map in numpy
+    `
+  ];
+};
+var depth_pro = (model) => {
+  const installSnippet = `# Download checkpoint
+pip install huggingface_hub
+hf download ${model.id} --local-dir checkpoints`;
+  const inferenceSnippet = `import depth_pro
+
+# Load model and preprocessing transform
+model, transform = depth_pro.create_model_and_transforms()
+model.eval()
+
+# Load and preprocess an image.
+image, _, f_px = depth_pro.load_rgb("example.png")
+image = transform(image)
+
+# Run inference.
+prediction = model.infer(image, f_px=f_px)
+
+# Results: 1. Depth in meters
+depth = prediction["depth"]
+# Results: 2. Focal length in pixels
+focallength_px = prediction["focallength_px"]`;
+  return [installSnippet, inferenceSnippet];
+};
+var derm_foundation = () => [
+  `from huggingface_hub import from_pretrained_keras
+import tensorflow as tf, requests
+
+# Load and format input
+IMAGE_URL = "https://storage.googleapis.com/dx-scin-public-data/dataset/images/3445096909671059178.png"
+input_tensor = tf.train.Example(
+    features=tf.train.Features(
+        feature={
+            "image/encoded": tf.train.Feature(
+                bytes_list=tf.train.BytesList(value=[requests.get(IMAGE_URL, stream=True).content])
+            )
+        }
+    )
+).SerializeToString()
+
+# Load model and run inference
+loaded_model = from_pretrained_keras("google/derm-foundation")
+infer = loaded_model.signatures["serving_default"]
+print(infer(inputs=tf.constant([input_tensor])))`
+];
+var dia = (model) => [
+  `import soundfile as sf
+from dia.model import Dia
+
+model = Dia.from_pretrained("${model.id}")
+text = "[S1] Dia is an open weights text to dialogue model. [S2] You get full control over scripts and voices. [S1] Wow. Amazing. (laughs) [S2] Try it now on Git hub or Hugging Face."
+output = model.generate(text)
+
+sf.write("simple.mp3", output, 44100)`
+];
+var dia2 = (model) => [
+  `from dia2 import Dia2, GenerationConfig, SamplingConfig
+
+dia = Dia2.from_repo("${model.id}", device="cuda", dtype="bfloat16")
+config = GenerationConfig(
+    cfg_scale=2.0,
+    audio=SamplingConfig(temperature=0.8, top_k=50),
+    use_cuda_graph=True,
+)
+result = dia.generate("[S1] Hello Dia2!", config=config, output_wav="hello.wav", verbose=True)
+`
+];
+var describe_anything = (model) => [
+  `# pip install git+https://github.com/NVlabs/describe-anything
+from huggingface_hub import snapshot_download
+from dam import DescribeAnythingModel
+
+snapshot_download("${model.id}", local_dir="checkpoints")
+
+dam = DescribeAnythingModel(
+	model_path="checkpoints",
+	conv_mode="v1",
+	prompt_mode="focal_prompt",
+)`
+];
+var diffusers_install = "pip install -U diffusers transformers accelerate";
+var diffusersDefaultPrompt = "Astronaut in a jungle, cold color palette, muted colors, detailed, 8k";
+var diffusersImg2ImgDefaultPrompt = "Turn this cat into a dog";
+var diffusersVideoDefaultPrompt = "A man with short gray hair plays a red electric guitar.";
+var diffusers_default = (model) => [
+  `import torch
+from diffusers import DiffusionPipeline
+
+# switch to "mps" for apple devices
+pipe = DiffusionPipeline.from_pretrained("${model.id}", dtype=torch.bfloat16, device_map="cuda")
+
+prompt = "${get_prompt_from_diffusers_model(model) ?? diffusersDefaultPrompt}"
+image = pipe(prompt).images[0]`
+];
+var diffusers_image_to_image = (model) => [
+  `import torch
+from diffusers import DiffusionPipeline
+from diffusers.utils import load_image
+
+# switch to "mps" for apple devices
+pipe = DiffusionPipeline.from_pretrained("${model.id}", dtype=torch.bfloat16, device_map="cuda")
+
+prompt = "${get_prompt_from_diffusers_model(model) ?? diffusersImg2ImgDefaultPrompt}"
+input_image = load_image("https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/diffusers/cat.png")
+
+image = pipe(image=input_image, prompt=prompt).images[0]`
+];
+var diffusers_image_to_video = (model) => [
+  `import torch
+from diffusers import DiffusionPipeline
+from diffusers.utils import load_image, export_to_video
+
+# switch to "mps" for apple devices
+pipe = DiffusionPipeline.from_pretrained("${model.id}", dtype=torch.bfloat16, device_map="cuda")
+pipe.to("cuda")
+
+prompt = "${get_prompt_from_diffusers_model(model) ?? diffusersVideoDefaultPrompt}"
+image = load_image(
+    "https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/diffusers/guitar-man.png"
+)
+
+output = pipe(image=image, prompt=prompt).frames[0]
+export_to_video(output, "output.mp4")`
+];
+var diffusers_controlnet = (model) => [
+  `from diffusers import ControlNetModel, StableDiffusionControlNetPipeline
+
+controlnet = ControlNetModel.from_pretrained("${model.id}")
+pipe = StableDiffusionControlNetPipeline.from_pretrained(
+	"${get_base_diffusers_model(model)}", controlnet=controlnet
+)`
+];
+var diffusers_lora = (model) => [
+  `import torch
+from diffusers import DiffusionPipeline
+
+# switch to "mps" for apple devices
+pipe = DiffusionPipeline.from_pretrained("${get_base_diffusers_model(model)}", dtype=torch.bfloat16, device_map="cuda")
+pipe.load_lora_weights("${model.id}")
+
+prompt = "${get_prompt_from_diffusers_model(model) ?? diffusersDefaultPrompt}"
+image = pipe(prompt).images[0]`
+];
+var diffusers_lora_image_to_image = (model) => [
+  `import torch
+from diffusers import DiffusionPipeline
+from diffusers.utils import load_image
+
+# switch to "mps" for apple devices
+pipe = DiffusionPipeline.from_pretrained("${get_base_diffusers_model(model)}", dtype=torch.bfloat16, device_map="cuda")
+pipe.load_lora_weights("${model.id}")
+
+prompt = "${get_prompt_from_diffusers_model(model) ?? diffusersImg2ImgDefaultPrompt}"
+input_image = load_image("https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/diffusers/cat.png")
+
+image = pipe(image=input_image, prompt=prompt).images[0]`
+];
+var diffusers_lora_text_to_video = (model) => [
+  `import torch
+from diffusers import DiffusionPipeline
+from diffusers.utils import export_to_video
+
+# switch to "mps" for apple devices
+pipe = DiffusionPipeline.from_pretrained("${get_base_diffusers_model(model)}", dtype=torch.bfloat16, device_map="cuda")
+pipe.load_lora_weights("${model.id}")
+
+prompt = "${get_prompt_from_diffusers_model(model) ?? diffusersVideoDefaultPrompt}"
+
+output = pipe(prompt=prompt).frames[0]
+export_to_video(output, "output.mp4")`
+];
+var diffusers_lora_image_to_video = (model) => [
+  `import torch
+from diffusers import DiffusionPipeline
+from diffusers.utils import load_image, export_to_video
+
+# switch to "mps" for apple devices
+pipe = DiffusionPipeline.from_pretrained("${get_base_diffusers_model(model)}", dtype=torch.bfloat16, device_map="cuda")
+pipe.load_lora_weights("${model.id}")
+
+prompt = "${get_prompt_from_diffusers_model(model) ?? diffusersVideoDefaultPrompt}"
+input_image = load_image("https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/diffusers/guitar-man.png")
+
+output = pipe(image=input_image, prompt=prompt).frames[0]
+export_to_video(output, "output.mp4")`
+];
+var diffusers_textual_inversion = (model) => [
+  `import torch
+from diffusers import DiffusionPipeline
+
+# switch to "mps" for apple devices
+pipe = DiffusionPipeline.from_pretrained("${get_base_diffusers_model(model)}", dtype=torch.bfloat16, device_map="cuda")
+pipe.load_textual_inversion("${model.id}")`
+];
+var diffusers_flux_fill = (model) => [
+  `import torch
+from diffusers import FluxFillPipeline
+from diffusers.utils import load_image
+
+image = load_image("https://huggingface.co/datasets/diffusers/diffusers-images-docs/resolve/main/cup.png")
+mask = load_image("https://huggingface.co/datasets/diffusers/diffusers-images-docs/resolve/main/cup_mask.png")
+
+# switch to "mps" for apple devices
+pipe = FluxFillPipeline.from_pretrained("${model.id}", dtype=torch.bfloat16, device_map="cuda")
+image = pipe(
+    prompt="a white paper cup",
+    image=image,
+    mask_image=mask,
+    height=1632,
+    width=1232,
+    guidance_scale=30,
+    num_inference_steps=50,
+    max_sequence_length=512,
+    generator=torch.Generator("cpu").manual_seed(0)
+).images[0]
+image.save(f"flux-fill-dev.png")`
+];
+var diffusers_inpainting = (model) => [
+  `import torch
+from diffusers import AutoPipelineForInpainting
+from diffusers.utils import load_image
+
+# switch to "mps" for apple devices
+pipe = AutoPipelineForInpainting.from_pretrained("${model.id}", dtype=torch.float16, device_map="cuda")
+
+img_url = "https://raw.githubusercontent.com/CompVis/latent-diffusion/main/data/inpainting_examples/overture-creations-5sI6fQgYIuo.png"
+mask_url = "https://raw.githubusercontent.com/CompVis/latent-diffusion/main/data/inpainting_examples/overture-creations-5sI6fQgYIuo_mask.png"
+
+image = load_image(img_url).resize((1024, 1024))
+mask_image = load_image(mask_url).resize((1024, 1024))
+
+prompt = "a tiger sitting on a park bench"
+generator = torch.Generator(device="cuda").manual_seed(0)
+
+image = pipe(
+  prompt=prompt,
+  image=image,
+  mask_image=mask_image,
+  guidance_scale=8.0,
+  num_inference_steps=20,  # steps between 15 and 30 work well for us
+  strength=0.99,  # make sure to use \`strength\` below 1.0
+  generator=generator,
+).images[0]`
+];
+var diffusers = (model) => {
+  const hasPipelineClass = (className) => model.tags.includes(`diffusers:${className}`) || model.tags.includes(className) || model.config?.diffusers?._class_name === className;
+  let codeSnippets;
+  if (hasPipelineClass("StableDiffusionInpaintPipeline") || hasPipelineClass("StableDiffusionXLInpaintPipeline")) {
+    codeSnippets = diffusers_inpainting(model);
+  } else if (model.tags.includes("controlnet")) {
+    codeSnippets = diffusers_controlnet(model);
+  } else if (model.tags.includes("lora")) {
+    if (model.pipeline_tag === "image-to-image") {
+      codeSnippets = diffusers_lora_image_to_image(model);
+    } else if (model.pipeline_tag === "image-to-video") {
+      codeSnippets = diffusers_lora_image_to_video(model);
+    } else if (model.pipeline_tag === "text-to-video") {
+      codeSnippets = diffusers_lora_text_to_video(model);
+    } else {
+      codeSnippets = diffusers_lora(model);
+    }
+  } else if (model.tags.includes("textual_inversion")) {
+    codeSnippets = diffusers_textual_inversion(model);
+  } else if (hasPipelineClass("FluxFillPipeline")) {
+    codeSnippets = diffusers_flux_fill(model);
+  } else if (model.pipeline_tag === "image-to-video") {
+    codeSnippets = diffusers_image_to_video(model);
+  } else if (model.pipeline_tag === "image-to-image") {
+    codeSnippets = diffusers_image_to_image(model);
+  } else {
+    codeSnippets = diffusers_default(model);
+  }
+  return [diffusers_install, ...codeSnippets];
+};
+var diffusionkit = (model) => {
+  const sd3Snippet = `# Pipeline for Stable Diffusion 3
+from diffusionkit.mlx import DiffusionPipeline
+
+pipeline = DiffusionPipeline(
+	shift=3.0,
+	use_t5=False,
+	model_version="${model.id}",
+	low_memory_mode=True,
+	a16=True,
+	w16=True,
+)`;
+  const fluxSnippet = `# Pipeline for Flux
+from diffusionkit.mlx import FluxPipeline
+
+pipeline = FluxPipeline(
+  shift=1.0,
+  model_version="${model.id}",
+  low_memory_mode=True,
+  a16=True,
+  w16=True,
+)`;
+  const generateSnippet = `# Image Generation
+HEIGHT = 512
+WIDTH = 512
+NUM_STEPS = ${model.tags.includes("flux") ? 4 : 50}
+CFG_WEIGHT = ${model.tags.includes("flux") ? 0 : 5}
+
+image, _ = pipeline.generate_image(
+  "a photo of a cat",
+  cfg_weight=CFG_WEIGHT,
+  num_steps=NUM_STEPS,
+  latent_size=(HEIGHT // 8, WIDTH // 8),
+)`;
+  const pipelineSnippet = model.tags.includes("flux") ? fluxSnippet : sd3Snippet;
+  return [pipelineSnippet, generateSnippet];
+};
+var cartesia_pytorch = (model) => [
+  `# The cartesia-pytorch package on PyPI ships no code: clone the repo and put its cartesia-pytorch folder on PYTHONPATH
+# (it needs an Ampere or newer CUDA GPU, torch 2.4, mamba-ssm 2.2.2 and flash-attn 2.6.3)
+# git clone https://github.com/cartesia-ai/edge && export PYTHONPATH="$PWD/edge/cartesia-pytorch:$PYTHONPATH"
+from cartesia_pytorch.Rene import ReneLMHeadModel
+from transformers import AutoTokenizer
+
+model = ReneLMHeadModel.from_pretrained("${model.id}").half().cuda()
+tokenizer = AutoTokenizer.from_pretrained("allenai/OLMo-1B-hf")
+
+in_message = ["Rene Descartes was"]
+inputs = tokenizer(in_message, return_tensors="pt")
+
+outputs = model.generate(inputs.input_ids.cuda(), max_length=50, top_k=100, top_p=0.99)
+out_message = tokenizer.batch_decode(outputs, skip_special_tokens=True)[0]
+
+print(out_message)`
+];
+var cartesia_mlx = (model) => [
+  `import mlx.core as mx
+import cartesia_mlx as cmx
+
+model = cmx.from_pretrained("${model.id}")
+model.set_dtype(mx.float32)
+
+prompt = "Rene Descartes was"
+
+for text in model.generate(
+    prompt,
+    max_tokens=500,
+    eval_every_n=5,
+    verbose=True,
+    top_p=0.99,
+    temperature=0.85,
+):
+    print(text, end="", flush=True)
+`
+];
+var edsnlp = (model) => {
+  const packageName = nameWithoutNamespace(model.id).replaceAll("-", "_");
+  return [
+    `# Load it from the Hub directly
+import edsnlp
+nlp = edsnlp.load("${model.id}")
+`,
+    `# Or install it as a package
+!pip install git+https://huggingface.co/${model.id}
+
+# and import it as a module
+import ${packageName}
+
+nlp = ${packageName}.load()  # or edsnlp.load("${packageName}")
+`
+  ];
+};
+var espnetTTS = (model) => [
+  `from espnet2.bin.tts_inference import Text2Speech
+
+model = Text2Speech.from_pretrained("${model.id}")
+
+speech, *_ = model("text to generate speech from")`
+];
+var espnetASR = (model) => [
+  `import soundfile
+from espnet2.bin.asr_inference import Speech2Text
+
+model = Speech2Text.from_pretrained(
+  "${model.id}"
+)
+
+speech, rate = soundfile.read("speech.wav")
+text, *_ = model(speech)[0]`
+];
+var espnetUnknown = () => [`unknown model type (must be text-to-speech or automatic-speech-recognition)`];
+var espnet = (model) => {
+  if (model.tags.includes("text-to-speech")) {
+    return espnetTTS(model);
+  } else if (model.tags.includes("automatic-speech-recognition")) {
+    return espnetASR(model);
+  }
+  return espnetUnknown();
+};
+var fairseq = (model) => [
+  `from fairseq.checkpoint_utils import load_model_ensemble_and_task_from_hf_hub
+
+models, cfg, task = load_model_ensemble_and_task_from_hf_hub(
+    "${model.id}"
+)`
+];
+var flair = (model) => [
+  `from flair.data import Sentence
+from flair.models import SequenceTagger
+
+tagger = SequenceTagger.load("${model.id}")
+
+sentence = Sentence("George Washington went to Washington.")
+tagger.predict(sentence)
+print(sentence)`
+];
+var flexray = (model) => [
+  `pip install flexray`,
+  `from fxr.inference import FleXraySegmenter
+
+segmenter = FleXraySegmenter.from_pretrained("${model.id}")
+prediction = segmenter.predict("image.png", threshold=0.5)
+masks = prediction.masks`
+];
+var flextab = () => {
+  const installSnippet = `pip install git+https://github.com/SAP-samples/flextab`;
+  const classificationSnippet = `# Run a classification task
+from sklearn.datasets import load_breast_cancer
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+
+from flextab import FlexTabClassifier
+
+# Load sample data
+X, y = load_breast_cancer(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=42)
+
+# Initialize a classifier, 8k context and 8-fold bagging gives best performance, reduce if running out of memory
+clf = FlexTabClassifier(max_context_size=8192, bagging=8)
+
+clf.fit(X_train, y_train)
+
+# Predict probabilities
+prediction_probabilities = clf.predict_proba(X_test)
+# Predict labels
+predictions = clf.predict(X_test)
+print("Accuracy", accuracy_score(y_test, predictions))`;
+  const regressionsSnippet = `# Run a regression task
+from sklearn.datasets import fetch_openml
+from sklearn.metrics import r2_score
+from sklearn.model_selection import train_test_split
+
+from flextab import FlexTabRegressor
+
+# Load sample data
+df = fetch_openml(data_id=531, as_frame=True)
+X = df.data
+y = df.target.astype(float)
+
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=42)
+
+# Initialize the regressor, 8k context and 8-fold bagging gives best performance, reduce if running out of memory
+regressor = FlexTabRegressor(max_context_size=8192, bagging=8)
+
+regressor.fit(X_train, y_train)
+
+# Predict on the test set
+predictions = regressor.predict(X_test)
+
+r2 = r2_score(y_test, predictions)
+print("R\xB2 Score:", r2)`;
+  const matchingSnippet = `# Run a matching task
+from sklearn.metrics import accuracy_score, roc_auc_score
+
+from flextab import FlexTabMatcher
+from flextab.utils.test_utils import load_febrl4
+
+left_train, left_test, right_train, right_test, y_train, y_test = load_febrl4()
+
+matcher = FlexTabMatcher(max_context_size=8192, bagging=1)
+matcher.fit(left_train, right_train, y_train)
+predictions = matcher.predict(left_test, right_test)
+print(f'Accuracy {accuracy_score(y_test, predictions):.2%}')
+# Probabilities (e.g. for thresholding or AUROC):
+# probas = matcher.predict_proba_matching(left_test, right_test)
+# print(f'AUROC {roc_auc_score(y_test, probas[:, 1]):.2%}')`;
+  return [installSnippet, classificationSnippet, regressionsSnippet, matchingSnippet];
+};
+var gaussianformer = (model) => [
+  `# pip install "gaussianformer @ git+https://github.com/SVLwoof/gaussianformer"
+from gaussianformer import GaussianFormerRenderingPipeline, load_ply
+
+pipeline = GaussianFormerRenderingPipeline.from_pretrained("${model.id}").to("cuda")
+gaussians = load_ply("object.ply")  # 3D Gaussian Splatting PLY -> [N, 14]`
+];
+var gliner = (model) => [
+  `from gliner import GLiNER
+
+model = GLiNER.from_pretrained("${model.id}")
+
+text = "Cristiano Ronaldo dos Santos Aveiro was born on 5 February 1985 in Funchal, Madeira, Portugal."
+labels = ["person", "date", "location"]
+
+entities = model.predict_entities(text, labels)
+for entity in entities:
+    print(entity["text"], "=>", entity["label"])`
+];
+var gliner2 = (model) => [
+  `from gliner2 import AutoExtractor
+
+extractor = AutoExtractor.from_pretrained("${model.id}")
+
+# Extract entities
+text = "Apple CEO Tim Cook announced iPhone 15 in Cupertino yesterday."
+result = extractor.extract_entities(text, ["company", "person", "product", "location"])
+
+print(result)`
+];
+var indextts = (model) => [
+  `# Download model
+from huggingface_hub import snapshot_download
+
+snapshot_download("${model.id}", local_dir="checkpoints")
+
+from indextts.infer import IndexTTS
+
+# Ensure config.yaml is present in the checkpoints directory
+tts = IndexTTS(model_dir="checkpoints", cfg_path="checkpoints/config.yaml")
+
+voice = "path/to/your/reference_voice.wav"  # Path to the voice reference audio file
+text = "Hello, how are you?"
+output_path = "output_index.wav"
+
+tts.infer(voice, text, output_path)`
+];
+var htrflow = (model) => [
+  `# CLI usage
+# see docs: https://ai-riksarkivet.github.io/htrflow/latest/getting_started/quick_start.html
+htrflow pipeline <path/to/pipeline.yaml> <path/to/image>`,
+  `# Python usage
+from htrflow.pipeline.pipeline import Pipeline
+from htrflow.pipeline.steps import Task
+from htrflow.models.framework.model import ModelClass
+
+pipeline = Pipeline(
+    [
+        Task(
+            ModelClass, {"model": "${model.id}"}, {}
+        ),
+    ])`
+];
+var jev_style = (model) => {
+  let setup = `pip install "jev-style[torch]"`;
+  if (model.tags.includes("mlx")) {
+    setup = `# Apple silicon
+pip install "jev-style[mlx]"`;
+  } else if (model.tags.includes("gguf")) {
+    setup = `pip install jev-style
+# GGUF builds score through llama.cpp: build the jev-score binary once
+hf download ${model.id} build_jev_score.sh jev_score.cpp --local-dir jev-score
+export JEV_SCORE_BIN=$(sh jev-score/build_jev_score.sh /path/to/llama.cpp | tail -n 1)`;
+  }
+  return [
+    setup,
+    `from jev_style import JevStyle, noul, choice
+
+js = JevStyle.from_pretrained("${model.id}")
+out = js.decide("I was charged twice for one order.", {
+    "billing": noul("This message is about billing."),
+    "team": choice("Which team should handle it?", ["billing", "shipping", "tech"]),
+})
+print(out["answers"]["team"]["choice"])`
+  ];
+};
+var keras = (model) => [
+  `# !pip install -U keras tensorflow huggingface_hub
+# Keras needs TensorFlow installed to read "hf://" paths, so the tensorflow backend is selected here;
+# "jax" and "torch" also work for computation once TensorFlow is installed.
+import os
+os.environ["KERAS_BACKEND"] = "tensorflow"
+
+import keras
+
+model = keras.saving.load_model("hf://${model.id}")
+`
+];
+var zeromodels = (model) => [
+  `# pip install -U zeromodels
+# ZeroModels is pure Keras 3, so pick a backend: "jax", "torch" or "tensorflow".
+import os
+os.environ["KERAS_BACKEND"] = "jax"
+
+from zeromodels import AutoZModel
+
+# AutoZModel reads the repo's model_type and loads the matching class.
+# For a task head use the matching loader, e.g. AutoZMImageClassify / AutoZMDetect /
+# AutoZMSemanticSegment / AutoZMTextGenerate (see zeromodels.auto).
+model = AutoZModel.from_weights("${model.id}")
+`
+];
+var _keras_hub_causal_lm = (modelId) => `
+import keras_hub
+
+# Load CausalLM model (optional: use half precision for inference)
+causal_lm = keras_hub.models.CausalLM.from_preset("hf://${modelId}", dtype="bfloat16")
+causal_lm.compile(sampler="greedy")  # (optional) specify a sampler
+
+# Generate text
+causal_lm.generate("Keras: deep learning for", max_length=64)
+`;
+var _keras_hub_text_to_image = (modelId) => `
+import keras_hub
+
+# Load TextToImage model (optional: use half precision for inference)
+text_to_image = keras_hub.models.TextToImage.from_preset("hf://${modelId}", dtype="bfloat16")
+
+# Generate images with a TextToImage model.
+text_to_image.generate("Astronaut in a jungle")
+`;
+var _keras_hub_text_classifier = (modelId) => `
+import keras_hub
+
+# Load TextClassifier model
+text_classifier = keras_hub.models.TextClassifier.from_preset(
+    "hf://${modelId}",
+    num_classes=2,
+)
+# Fine-tune
+text_classifier.fit(x=["Thilling adventure!", "Total snoozefest."], y=[1, 0])
+# Classify text
+text_classifier.predict(["Not my cup of tea."])
+`;
+var _keras_hub_image_classifier = (modelId) => `
+import keras_hub
+import keras
+
+# Load ImageClassifier model
+image_classifier = keras_hub.models.ImageClassifier.from_preset(
+    "hf://${modelId}",
+    num_classes=2,
+)
+# Fine-tune
+image_classifier.fit(
+    x=keras.random.randint((32, 64, 64, 3), 0, 256),
+    y=keras.random.randint((32, 1), 0, 2),
+)
+# Classify image
+image_classifier.predict(keras.random.randint((1, 64, 64, 3), 0, 256))
+`;
+var _keras_hub_tasks_with_example = {
+  CausalLM: _keras_hub_causal_lm,
+  TextToImage: _keras_hub_text_to_image,
+  TextClassifier: _keras_hub_text_classifier,
+  ImageClassifier: _keras_hub_image_classifier
+};
+var _keras_hub_task_without_example = (task, modelId) => `
+import keras_hub
+
+# Create a ${task} model
+task = keras_hub.models.${task}.from_preset("hf://${modelId}")
+`;
+var _keras_hub_generic_backbone = (modelId) => `
+import keras_hub
+
+# Create a Backbone model unspecialized for any task
+backbone = keras_hub.models.Backbone.from_preset("hf://${modelId}")
+`;
+var keras_hub = (model) => {
+  const modelId = model.id;
+  const tasks = (model.config?.keras_hub?.tasks ?? []).filter(isValidIdentifier);
+  const snippets = [];
+  for (const [task, snippet] of Object.entries(_keras_hub_tasks_with_example)) {
+    if (tasks.includes(task)) {
+      snippets.push(snippet(modelId));
+    }
+  }
+  for (const task of tasks) {
+    if (!Object.keys(_keras_hub_tasks_with_example).includes(task)) {
+      snippets.push(_keras_hub_task_without_example(task, modelId));
+    }
+  }
+  snippets.push(_keras_hub_generic_backbone(modelId));
+  return snippets;
+};
+var kernels = (model) => [
+  `# !pip install kernels
+
+from kernels import get_kernel
+
+# a version (or an explicit revision) is required; see the "Files and versions" tab for the available ones
+kernel = get_kernel("${model.id}", version=1)`
+];
+var kimi_audio = (model) => [
+  `# Example usage for KimiAudio
+# pip install git+https://github.com/MoonshotAI/Kimi-Audio.git "transformers<5"
+
+import soundfile as sf
+from kimia_infer.api.kimia import KimiAudio
+
+model = KimiAudio(model_path="${model.id}", load_detokenizer=True)
+
+sampling_params = {
+    "audio_temperature": 0.8,
+    "audio_top_k": 10,
+    "text_temperature": 0.0,
+    "text_top_k": 5,
+}
+
+# For ASR
+asr_audio = "asr_example.wav"
+messages_asr = [
+    {"role": "user", "message_type": "text", "content": "Please transcribe the following audio:"},
+    {"role": "user", "message_type": "audio", "content": asr_audio}
+]
+_, text = model.generate(messages_asr, **sampling_params, output_type="text")
+print(text)
+
+# For Q&A
+qa_audio = "qa_example.wav"
+messages_conv = [{"role": "user", "message_type": "audio", "content": qa_audio}]
+wav, text = model.generate(messages_conv, **sampling_params, output_type="both")
+sf.write("output_audio.wav", wav.cpu().view(-1).numpy(), 24000)
+print(text)
+`
+];
+var kittentts = (model) => [
+  `from kittentts import KittenTTS
+m = KittenTTS("${model.id}")
+
+audio = m.generate("This high quality TTS model works without a GPU")
+
+# Save the audio
+import soundfile as sf
+sf.write('output.wav', audio, 24000)`
+];
+function _isLtx25Model(model) {
+  const refs = [model.id, ...model.tags ?? []];
+  const base = model.cardData?.base_model;
+  if (Array.isArray(base)) {
+    refs.push(...base);
+  } else if (base) {
+    refs.push(base);
+  }
+  return refs.some((ref) => /ltx[-_]?2\.5/i.test(ref));
+}
+var _LTX_I2V_HINT = `# For image-to-video, add: --image path/to/image.jpg 0 0.8`;
+var _LTX_GEMMA3_ROOT = "models/gemma-3-12b";
+var _LTX_DEFAULT_PROMPT = "A beautiful sunset over the ocean";
+function _ltxInstall(is25) {
+  return `# Install the LTX-2 pipelines
+git clone https://github.com/Lightricks/LTX-2.git
+cd LTX-2
+uv sync ${is25 ? "--extra natten" : "--frozen"}`;
+}
+function _ltxRun(module, args, comment, options) {
+  const body = `uv run python -m ltx_pipelines.${module} \\
+    ${args.join(" \\\n    ")}`;
+  const parts = [`# ${comment}`, body];
+  if (options?.footer) {
+    parts.push(options.footer);
+  }
+  if (options?.hint) {
+    parts.push(_LTX_I2V_HINT);
+  }
+  return parts.join("\n");
+}
+var _LTX_DETAILING_LORA_REPO = "Lightricks/LTX-2.5-22b-IC-LoRA-Pixel-Spatial-Upscaler";
+var _LTX_DETAILING_LORA_FILE = "ltx-2.5-22b-ic-lora-pixel-spatial-upscaler-x2-1.0.safetensors";
+function _ltx25SplitArgs(paths) {
+  const args = [
+    `--transformer-path ${paths.transformer}`,
+    `--text-encoder-path ${paths.textEncoder}`,
+    `--video-vae-path ${paths.videoVae}`,
+    `--audio-vae-path ${paths.audioVae}`,
+    `--spatial-upsampler-path ${paths.spatialUpsampler}`
+  ];
+  if (paths.temporalUpsampler) {
+    args.push(`--temporal-upsampler-path ${paths.temporalUpsampler}`);
+  }
+  return args;
+}
+function _ltx25RepoPaths(localDir) {
+  const shared = {
+    transformer: `${localDir}/diffusion_models/<distilled-transformer>.safetensors`,
+    textEncoder: `${localDir}/text_encoders/gemma4-12b-with-proj-ltx-2.5-bf16.safetensors`,
+    videoVae: `${localDir}/vae/<video-vae>.safetensors`,
+    audioVae: `${localDir}/vae/<audio-vae>.safetensors`,
+    spatialUpsampler: `${localDir}/latent_upscale_models/<spatial-upsampler>.safetensors`
+  };
+  return {
+    distilled: shared,
+    // DFR runs on the distilled transformer; detailing IC-LoRA is required separately.
+    dfr: {
+      ...shared,
+      temporalUpsampler: `${localDir}/latent_upscale_models/<temporal-upsampler>.safetensors`
+    }
+  };
+}
+function _ltx25BasePlaceholderPaths() {
+  return {
+    transformer: "path/to/distilled-transformer.safetensors",
+    textEncoder: "path/to/gemma4-12b-with-proj-ltx-2.5-bf16.safetensors",
+    videoVae: "path/to/video-vae.safetensors",
+    audioVae: "path/to/audio-vae.safetensors",
+    spatialUpsampler: "path/to/spatial-upsampler.safetensors"
+  };
+}
+function _ltx25Download(modelId, localDir, kind) {
+  if (kind === "adapter") {
+    return `# Download the adapter weights from this repo
+# (base components come from Lightricks/LTX-2.5 \u2014 see Files and versions)
+hf download ${modelId} --local-dir ${localDir}`;
+  }
+  const detailingDir = `models/${_LTX_DETAILING_LORA_REPO.split("/")[1]}`;
+  return `# Download weights from this repo
+# Substitute filenames from this repo's "Files and versions" if they differ
+hf download ${modelId} \\
+    diffusion_models/<distilled-transformer>.safetensors \\
+    text_encoders/gemma4-12b-with-proj-ltx-2.5-bf16.safetensors \\
+    vae/<video-vae>.safetensors \\
+    vae/<audio-vae>.safetensors \\
+    latent_upscale_models/<spatial-upsampler>.safetensors \\
+    latent_upscale_models/<temporal-upsampler>.safetensors \\
+    --local-dir ${localDir}
+# DFR requires the detailing IC-LoRA (separate repo; strength is fixed at 0.5)
+hf download ${_LTX_DETAILING_LORA_REPO} --local-dir ${detailingDir}`;
+}
+function _ltx23Download(modelId, localDir) {
+  return `# Download the weights from this repo, plus the Gemma text encoder
+hf download ${modelId} --local-dir ${localDir}
+hf download google/gemma-3-12b-it-qat-q4_0-unquantized --local-dir ${_LTX_GEMMA3_ROOT}`;
+}
+function _ltx25Snippets(model, localDir, tags) {
+  const install2 = _ltxInstall(true);
+  const loraArg = `--lora ${localDir}/<weights>.safetensors 1.0`;
+  const basePaths = _ltx25BasePlaceholderPaths();
+  if (tags.includes("ic-lora")) {
+    return [
+      install2,
+      _ltx25Download(model.id, localDir, "adapter"),
+      _ltxRun("ic_lora", [
+        ..._ltx25SplitArgs(basePaths),
+        loraArg,
+        "--video-conditioning reference.mp4 1.0",
+        `--prompt "your prompt here"`,
+        "--output-path output.mp4"
+      ], "Video-to-video with the IC-LoRA (runs on the distilled LTX-2.5 base)")
+    ];
+  }
+  if (tags.includes("lora")) {
+    return [
+      install2,
+      _ltx25Download(model.id, localDir, "adapter"),
+      _ltxRun("distilled", [..._ltx25SplitArgs(basePaths), loraArg, `--prompt "your prompt here"`, "--output-path output.mp4"], "Text/image-to-video with the LoRA on the distilled LTX-2.5 pipeline", { hint: true })
+    ];
+  }
+  const { distilled, dfr } = _ltx25RepoPaths(localDir);
+  const detailingDir = `models/${_LTX_DETAILING_LORA_REPO.split("/")[1]}`;
+  return [
+    install2,
+    _ltx25Download(model.id, localDir, "base"),
+    _ltxRun("distilled", [
+      ..._ltx25SplitArgs(distilled),
+      "--num-frames 121",
+      `--prompt "${_LTX_DEFAULT_PROMPT}"`,
+      "--output-path output.mp4"
+    ], "Distilled LTX-2.5 pipeline (fast)", { hint: true }),
+    _ltxRun("dfr_pipeline", [
+      ..._ltx25SplitArgs(dfr),
+      `--detailing-lora ${detailingDir}/${_LTX_DETAILING_LORA_FILE}`,
+      "--spatial-upscalings 1",
+      "--temporal-upscalings 1",
+      "--height 1088",
+      "--width 1920",
+      "--num-frames 121",
+      `--prompt "${_LTX_DEFAULT_PROMPT}"`,
+      "--output-path output.mp4"
+    ], "DFR pipeline (higher detail fidelity; optional temporal 2x/4x)", {
+      footer: "# For 4K: --spatial-upscalings 2 --width 3840 --height 2176",
+      hint: true
+    })
+  ];
+}
+function _ltx23Snippets(model, localDir, tags) {
+  const install2 = _ltxInstall(false);
+  const download2 = _ltx23Download(model.id, localDir);
+  const loraArg = `--lora ${localDir}/<weights>.safetensors 1.0`;
+  const gemma = `--gemma-root ${_LTX_GEMMA3_ROOT}`;
+  if (tags.includes("ic-lora")) {
+    return [
+      install2,
+      download2,
+      _ltxRun("ic_lora", [
+        "--distilled-checkpoint-path path/to/distilled_checkpoint.safetensors",
+        "--spatial-upsampler-path path/to/spatial_upsampler.safetensors",
+        gemma,
+        loraArg,
+        "--video-conditioning reference.mp4 1.0",
+        `--prompt "your prompt here"`,
+        "--output-path output.mp4"
+      ], "Video-to-video with the IC-LoRA (runs on the distilled base model)")
+    ];
+  }
+  if (tags.includes("lora")) {
+    return [
+      install2,
+      download2,
+      _ltxRun("ti2vid_two_stages_hq", [
+        "--checkpoint-path path/to/checkpoint.safetensors",
+        "--distilled-lora path/to/distilled_lora.safetensors 0.8",
+        "--spatial-upsampler-path path/to/spatial_upsampler.safetensors",
+        gemma,
+        loraArg,
+        `--prompt "your prompt here"`,
+        "--output-path output.mp4"
+      ], "Text/image-to-video with the LoRA on the HQ two-stage base pipeline", { hint: true })
+    ];
+  }
+  return [
+    install2,
+    download2,
+    _ltxRun("distilled", [
+      `--distilled-checkpoint-path ${localDir}/<distilled-checkpoint>.safetensors`,
+      `--spatial-upsampler-path ${localDir}/<spatial-upsampler>.safetensors`,
+      gemma,
+      `--prompt "${_LTX_DEFAULT_PROMPT}"`,
+      "--output-path output.mp4"
+    ], "Fast pipeline (distilled model, no distilled LoRA needed)", { hint: true }),
+    _ltxRun("ti2vid_two_stages_hq", [
+      `--checkpoint-path ${localDir}/<checkpoint>.safetensors`,
+      `--distilled-lora ${localDir}/<distilled-lora>.safetensors 0.8`,
+      `--spatial-upsampler-path ${localDir}/<spatial-upsampler>.safetensors`,
+      gemma,
+      `--prompt "${_LTX_DEFAULT_PROMPT}"`,
+      "--output-path output.mp4"
+    ], "HQ pipeline (two-stage, higher quality)", { hint: true })
+  ];
+}
+var ltx = (model) => {
+  const localDir = `models/${nameWithoutNamespace(model.id)}`;
+  const tags = model.tags ?? [];
+  return _isLtx25Model(model) ? _ltx25Snippets(model, localDir, tags) : _ltx23Snippets(model, localDir, tags);
+};
+var lightning_ir = (model) => {
+  if (model.tags.includes("bi-encoder")) {
+    return [
+      `#install from https://github.com/webis-de/lightning-ir
+
+from lightning_ir import BiEncoderModule
+model = BiEncoderModule("${model.id}")
+
+model.score("query", ["doc1", "doc2", "doc3"])`
+    ];
+  } else if (model.tags.includes("cross-encoder")) {
+    return [
+      `#install from https://github.com/webis-de/lightning-ir
+
+from lightning_ir import CrossEncoderModule
+model = CrossEncoderModule("${model.id}")
+
+model.score("query", ["doc1", "doc2", "doc3"])`
+    ];
+  }
+  return [
+    `#install from https://github.com/webis-de/lightning-ir
+
+from lightning_ir import BiEncoderModule, CrossEncoderModule
+
+# depending on the model type, use either BiEncoderModule or CrossEncoderModule
+model = BiEncoderModule("${model.id}")
+# model = CrossEncoderModule("${model.id}")
+
+model.score("query", ["doc1", "doc2", "doc3"])`
+  ];
+};
+var llama_cpp_python = (model) => {
+  const snippets = [
+    `# !pip install llama-cpp-python
+
+from llama_cpp import Llama
+
+llm = Llama.from_pretrained(
+	repo_id="${model.id}",
+	filename="{{GGUF_FILE}}",
+)
+`
+  ];
+  if (model.tags.includes("conversational")) {
+    const messages = getModelInputSnippet(model);
+    snippets.push(`llm.create_chat_completion(
+	messages = ${stringifyMessages(messages, { attributeKeyQuotes: true, indent: "	" })}
+)`);
+  } else {
+    snippets.push(`output = llm(
+	"Once upon a time,",
+	max_tokens=512,
+	echo=True
+)
+print(output)`);
+  }
+  return snippets;
+};
+var lerobot = (model) => {
+  if (model.tags.includes("smolvla")) {
+    const smolvlaSnippets = [
+      // Installation snippet
+      `# See https://github.com/huggingface/lerobot?tab=readme-ov-file#installation for more details
+git clone https://github.com/huggingface/lerobot.git
+cd lerobot
+pip install -e .[smolvla]`,
+      // Finetune snippet
+      `# Launch finetuning on your dataset
+python lerobot/scripts/train.py \\
+--policy.path=${model.id} \\
+--dataset.repo_id=lerobot/svla_so101_pickplace \\
+--batch_size=64 \\
+--steps=20000 \\
+--output_dir=outputs/train/my_smolvla \\
+--job_name=my_smolvla_training \\
+--policy.device=cuda \\
+--wandb.enable=true`
+    ];
+    if (model.id !== "lerobot/smolvla_base") {
+      smolvlaSnippets.push(`# Run the policy using the record function
+python -m lerobot.record \\
+  --robot.type=so101_follower \\
+  --robot.port=/dev/ttyACM0 \\ # <- Use your port
+  --robot.id=my_blue_follower_arm \\ # <- Use your robot id
+  --robot.cameras="{ front: {type: opencv, index_or_path: 8, width: 640, height: 480, fps: 30}}" \\ # <- Use your cameras
+  --dataset.single_task="Grasp a lego block and put it in the bin." \\ # <- Use the same task description you used in your dataset recording
+  --dataset.repo_id=HF_USER/dataset_name \\  # <- This will be the dataset name on HF Hub
+  --dataset.episode_time_s=50 \\
+  --dataset.num_episodes=10 \\
+  --policy.path=${model.id}`);
+    }
+    return smolvlaSnippets;
+  }
+  return [];
+};
+var litert_lm = (model) => [
+  `# LiteRT-LM runs on various platforms (Android, iOS, Windows, Linux, macOS, IoT, Web/WASM)
+# and supports many APIs (C++, Python, Kotlin, Swift, JavaScript, Flutter).
+# For platform-specific integration guides, please refer to the official developer website:
+# https://ai.google.dev/edge/litert-lm
+
+# To try LiteRT-LM, the easiest way is to use our CLI tool.
+# 1. Install the LiteRT-LM CLI tool:
+pip install -U litert-lm
+
+# 2. Download and run this model locally:
+# See: https://ai.google.dev/edge/litert-lm/cli
+# A single .litertlm file in the repo is picked automatically; otherwise the CLI asks which one to run
+# (or pass its name right after the repo id).
+litert-lm run \\
+  --from-huggingface-repo=${model.id} \\
+  --prompt="Write me a poem"`
+];
+var tf_keras = (model) => [
+  `# Note: 'keras<3.x' or 'tf_keras' must be installed (legacy), and from_pretrained_keras was removed in huggingface_hub 1.0.
+# See https://github.com/keras-team/tf-keras for more details.
+# !pip install "huggingface_hub<1.0" tf_keras
+from huggingface_hub import from_pretrained_keras
+
+model = from_pretrained_keras("${model.id}")
+`
+];
+var mamba_ssm = (model) => [
+  `from mamba_ssm import MambaLMHeadModel
+
+model = MambaLMHeadModel.from_pretrained("${model.id}")`
+];
+var mars5_tts = (model) => [
+  `# Install from https://github.com/Camb-ai/MARS5-TTS
+
+from inference import Mars5TTS
+mars5 = Mars5TTS.from_pretrained("${model.id}")`
+];
+var matanyone = (model) => [
+  `# Install from https://github.com/pq-yang/MatAnyone.git
+
+from matanyone.model.matanyone import MatAnyone
+model = MatAnyone.from_pretrained("${model.id}")`,
+  `
+from matanyone import InferenceCore
+processor = InferenceCore("${model.id}")`
+];
+var memra = (model) => [
+  `# memra serves NVIDIA Blackwell workstation and consumer cards (sm_120a), with a
+# compile-gated Hopper lane. Prebuilt binaries need Linux x86_64 and driver 580+,
+# and no CUDA toolkit.
+curl -fsSL https://raw.githubusercontent.com/avifenesh/memra/main/tools/install.sh | sh`,
+  `# One chat-templated generation. In a repo with several GGUF files, append
+# :<substring> to choose one, for example hf:${model.id}:Q4_K_M
+MEMRA_CHAT=1 run-gen hf:${model.id} --prompt "Explain KV caches in one sentence."`,
+  `# Or an OpenAI-compatible server on 127.0.0.1:8080.
+MEMRA_MODELS="model=hf:${model.id}" memra-server`
+];
+var mesh_anything = () => [
+  `# Install from https://github.com/buaacyw/MeshAnything.git
+
+from MeshAnything.models.meshanything import MeshAnything
+
+# refer to https://github.com/buaacyw/MeshAnything/blob/main/main.py#L91 on how to define args
+# and https://github.com/buaacyw/MeshAnything/blob/main/app.py regarding usage
+model = MeshAnything(args)`
+];
+var microduck = (model) => {
+  const slots = ["walk", "stand", "sitstand", "ground_pick", "kick_left", "kick_right", "roulade"];
+  const matchingSlots = slots.filter((slot2) => model.tags.includes(`microduck-slot:${slot2}`));
+  const slot = matchingSlots.length === 1 ? matchingSlots[0] : "SLOT";
+  const prefix = matchingSlots.length === 1 ? "" : `# Replace SLOT with the slot specified in the model card (${slots.join(", ")}).
+`;
+  return [`${prefix}sudo robotctl policy load ${slot} ${model.id}`];
+};
+var multimolecule = (model) => {
+  const widgetExample = model.widgetData?.[0];
+  const exampleText = escapeStringForJson(widgetExample?.text ?? "");
+  const maskToken = model.mask_token ?? "<mask>";
+  const sequence = exampleText?.replace(maskToken, "A");
+  const snippets = [`pip install multimolecule`];
+  if (sequence) {
+    snippets.push(`from multimolecule import AutoModel, AutoTokenizer
+
+tokenizer = AutoTokenizer.from_pretrained("${model.id}")
+model = AutoModel.from_pretrained("${model.id}")
+
+inputs = tokenizer("${sequence}", return_tensors="pt")
+outputs = model(**inputs)
+embeddings = outputs.last_hidden_state`);
+  } else {
+    snippets.push(`from multimolecule import AutoModel, AutoTokenizer
+
+tokenizer = AutoTokenizer.from_pretrained("${model.id}")
+model = AutoModel.from_pretrained("${model.id}")`);
+  }
+  if (model.tags.includes("rna-secondary-structure") && exampleText) {
+    snippets.push(`import multimolecule
+from transformers import pipeline
+
+predictor = pipeline("rna-secondary-structure", model="${model.id}")
+output = predictor("${exampleText}")
+print(output["secondary_structure"])`);
+  } else if (model.pipeline_tag === "fill-mask" && exampleText) {
+    snippets.push(`import multimolecule
+from transformers import pipeline
+
+predictor = pipeline("fill-mask", model="${model.id}")
+output = predictor("${exampleText}")`);
+  }
+  return snippets;
+};
+var open_clip = (model) => [
+  `import open_clip
+
+model, preprocess_train, preprocess_val = open_clip.create_model_and_transforms('hf-hub:${model.id}')
+tokenizer = open_clip.get_tokenizer('hf-hub:${model.id}')`
+];
+var openasr = (model) => {
+  const modelId = model.id.split("/").pop() ?? model.id;
+  return [
+    `# Install the openasr CLI: https://github.com/QuintinShaw/openasr/releases
+openasr pull ${modelId}
+openasr transcribe audio.wav --model ${modelId}`
+  ];
+};
+var opendde = () => [
+  `# pip install 'opendde[gpu]'
+# Checkpoints are fetched from the Hub into $OPENDDE_ROOT_DIR (default ~/.cache/opendde)
+opendde doctor
+opendde pred -i examples/input.json -o ./output -n opendde_v1`
+];
+var paddlenlp = (model) => {
+  const architecture = model.config?.architectures?.[0];
+  if (architecture && isValidIdentifier(architecture)) {
+    return [
+      [
+        `from paddlenlp.transformers import AutoTokenizer, ${architecture}`,
+        "",
+        `tokenizer = AutoTokenizer.from_pretrained("${model.id}", from_hf_hub=True)`,
+        `model = ${architecture}.from_pretrained("${model.id}", from_hf_hub=True)`
+      ].join("\n")
+    ];
+  } else {
+    return [
+      [
+        `# \u26A0\uFE0F Type of model unknown`,
+        `from paddlenlp.transformers import AutoTokenizer, AutoModel`,
+        "",
+        `tokenizer = AutoTokenizer.from_pretrained("${model.id}", from_hf_hub=True)`,
+        `model = AutoModel.from_pretrained("${model.id}", from_hf_hub=True)`
+      ].join("\n")
     ];
   }
 };
-function isFile(path) {
-  return statSync2(path, { throwIfNoEntry: false })?.isFile() ?? false;
-}
+var paddleocr = (model) => {
+  const mapping = {
+    textline_detection: { className: "TextDetection" },
+    textline_recognition: { className: "TextRecognition" },
+    seal_text_detection: { className: "SealTextDetection" },
+    doc_img_unwarping: { className: "TextImageUnwarping" },
+    doc_img_orientation_classification: { className: "DocImgOrientationClassification" },
+    textline_orientation_classification: { className: "TextLineOrientationClassification" },
+    chart_parsing: { className: "ChartParsing" },
+    formula_recognition: { className: "FormulaRecognition" },
+    layout_detection: { className: "LayoutDetection" },
+    table_cells_detection: { className: "TableCellsDetection" },
+    wired_table_classification: { className: "TableClassification" },
+    table_structure_recognition: { className: "TableStructureRecognition" }
+  };
+  if (model.tags.includes("doc_vlm")) {
+    return [
+      `# 1. See https://www.paddlepaddle.org.cn/en/install to install paddlepaddle
+# 2. pip install paddleocr
 
-// ../elt/packages/sdks/handy/models/dist/cohere-arabic-model.js
-var CohereArabicModel = class extends HandyModel {
-  id = "cohere-transcribe-arabic-07-2026";
-  language = "ar";
+from paddleocr import DocVLM
+model = DocVLM(model_name="${nameWithoutNamespace(model.id)}")
+output = model.predict(
+    input={"image": "path/to/image.png", "query": "Parsing this image and output the content in Markdown format."},
+    batch_size=1
+)
+for res in output:
+    res.print()
+    res.save_to_json(save_path="./output/res.json")`
+    ];
+  }
+  if (model.tags.includes("document-parse")) {
+    const rawVersion = model.id.replace("PaddlePaddle/PaddleOCR-VL-", "v");
+    const version3 = rawVersion === "PaddlePaddle/PaddleOCR-VL" ? "v1" : rawVersion;
+    return [
+      `# See https://www.paddleocr.ai/latest/version3.x/pipeline_usage/PaddleOCR-VL.html to installation
+
+from paddleocr import PaddleOCRVL
+pipeline = PaddleOCRVL(pipeline_version="${version3}")
+output = pipeline.predict("path/to/document_image.png")
+for res in output:
+	res.print()
+	res.save_to_json(save_path="output")
+	res.save_to_markdown(save_path="output")`
+    ];
+  }
+  for (const tag of model.tags) {
+    if (tag in mapping) {
+      const { className } = mapping[tag];
+      return [
+        `# 1. See https://www.paddlepaddle.org.cn/en/install to install paddlepaddle
+# 2. pip install paddleocr
+
+from paddleocr import ${className}
+model = ${className}(model_name="${nameWithoutNamespace(model.id)}")
+output = model.predict(input="path/to/image.png", batch_size=1)
+for res in output:
+    res.print()
+    res.save_to_img(save_path="./output/")
+    res.save_to_json(save_path="./output/res.json")`
+      ];
+    }
+  }
+  return [
+    `# Please refer to the document for information on how to use the model.
+# https://paddlepaddle.github.io/PaddleOCR/latest/en/version3.x/module_usage/module_overview.html`
+  ];
+};
+var perception_encoder = (model) => {
+  const clip_model = `# Use PE-Core models as CLIP models
+import core.vision_encoder.pe as pe
+
+model = pe.CLIP.from_config("${model.id}", pretrained=True)`;
+  const vision_encoder = `# Use any PE model as a vision encoder
+import core.vision_encoder.pe as pe
+
+model = pe.VisionTransformer.from_config("${model.id}", pretrained=True)`;
+  if (model.id.includes("Core")) {
+    return [clip_model, vision_encoder];
+  } else {
+    return [vision_encoder];
+  }
+};
+var phantom_wan = (model) => [
+  `from huggingface_hub import snapshot_download
+from phantom_wan import WanI2V, configs
+from PIL import Image
+
+checkpoint_dir = snapshot_download("${model.id}")
+wan_i2v = WanI2V(
+    config=configs.WAN_CONFIGS['i2v-14B'],
+    checkpoint_dir=checkpoint_dir,
+)
+
+text_prompt = "A cat playing with a ball of yarn"
+image_prompt = Image.open("path/to/image.jpg").convert("RGB")
+video = wan_i2v.generate(text_prompt, image_prompt)`
+];
+var pocket_tts = (model) => [
+  `from pocket_tts import TTSModel
+import scipy.io.wavfile
+
+tts_model = TTSModel.load_model("${model.id}")
+voice_state = tts_model.get_state_for_audio_prompt(
+    "hf://kyutai/tts-voices/alba-mackenna/casual.wav"
+)
+audio = tts_model.generate_audio(voice_state, "Hello world, this is a test.")
+# Audio is a 1D torch tensor containing PCM data.
+scipy.io.wavfile.write("output.wav", tts_model.sample_rate, audio.numpy())`
+];
+var pyannote_audio_pipeline = (model) => [
+  `from pyannote.audio import Pipeline
+
+pipeline = Pipeline.from_pretrained("${model.id}")
+
+# inference on the whole file
+pipeline("file.wav")
+
+# inference on an excerpt
+from pyannote.core import Segment
+excerpt = Segment(start=2.0, end=5.0)
+
+from pyannote.audio import Audio
+waveform, sample_rate = Audio().crop("file.wav", excerpt)
+pipeline({"waveform": waveform, "sample_rate": sample_rate})`
+];
+var pyannote_audio_model = (model) => [
+  `from pyannote.audio import Model, Inference
+
+model = Model.from_pretrained("${model.id}")
+inference = Inference(model)
+
+# inference on the whole file
+inference("file.wav")
+
+# inference on an excerpt
+from pyannote.core import Segment
+excerpt = Segment(start=2.0, end=5.0)
+inference.crop("file.wav", excerpt)`
+];
+var pyannote_audio = (model) => {
+  if (model.tags.includes("pyannote-audio-pipeline")) {
+    return pyannote_audio_pipeline(model);
+  }
+  return pyannote_audio_model(model);
+};
+var relik = (model) => [
+  `from relik import Relik
+
+relik = Relik.from_pretrained("${model.id}")`
+];
+var renderformer = (model) => [
+  `# Install from https://github.com/microsoft/renderformer
+
+from renderformer import RenderFormerRenderingPipeline
+pipeline = RenderFormerRenderingPipeline.from_pretrained("${model.id}")`
+];
+var routee_powertrain = (model) => [
+  `# pip install routee.powertrain
+import pandas as pd
+import routee.powertrain as pt
+from routee.powertrain.registry import HFRegistry
+
+registry = HFRegistry(repo_id="${model.id}")
+
+# find a vehicle: filter by make, model, year, powertrain type, features, ...
+pt.query_available_models(make="tesla", model="model 3", registry=registry)
+
+# load one by its id: "<make>/<vehicle_slug>/<year>/<config_slug>"
+model = pt.load_model("tesla/model_3_bev/2022/rf_c3326385", registry=registry)
+
+links = pd.DataFrame({
+    "distance": [0.1, 0.2],  # miles
+    "speed_mph": [30, 55],
+    "grade_percent": [-2.0, 1.0],
+})
+model.predict(links)`
+];
+var tensorflowttsTextToMel = (model) => [
+  `from tensorflow_tts.inference import AutoProcessor, TFAutoModel
+
+processor = AutoProcessor.from_pretrained("${model.id}")
+model = TFAutoModel.from_pretrained("${model.id}")
+`
+];
+var tensorflowttsMelToWav = (model) => [
+  `from tensorflow_tts.inference import TFAutoModel
+
+model = TFAutoModel.from_pretrained("${model.id}")
+audios = model.inference(mels)
+`
+];
+var tensorflowttsUnknown = (model) => [
+  `from tensorflow_tts.inference import TFAutoModel
+
+model = TFAutoModel.from_pretrained("${model.id}")
+`
+];
+var tensorflowtts = (model) => {
+  if (model.tags.includes("text-to-mel")) {
+    return tensorflowttsTextToMel(model);
+  } else if (model.tags.includes("mel-to-wav")) {
+    return tensorflowttsMelToWav(model);
+  }
+  return tensorflowttsUnknown(model);
+};
+var timm = (model) => [
+  `import timm
+
+model = timm.create_model("hf-hub:${model.id}", pretrained=True)`
+];
+var saelens = () => [
+  `# pip install sae-lens
+from sae_lens import SAE
+
+sae, cfg_dict, sparsity = SAE.from_pretrained(
+    release = "RELEASE_ID", # e.g., "gpt2-small-res-jb". See other options in https://github.com/jbloomAus/SAELens/blob/main/sae_lens/pretrained_saes.yaml
+    sae_id = "SAE_ID", # e.g., "blocks.8.hook_resid_pre". Won't always be a hook point
+)`
+];
+var seed_story = () => [
+  `# seed_story_cfg_path refers to 'https://github.com/TencentARC/SEED-Story/blob/master/configs/clm_models/agent_7b_sft.yaml'
+# llm_cfg_path refers to 'https://github.com/TencentARC/SEED-Story/blob/master/configs/clm_models/llama2chat7b_lora.yaml'
+from omegaconf import OmegaConf
+import hydra
+
+# load Llama2
+llm_cfg = OmegaConf.load(llm_cfg_path)
+llm = hydra.utils.instantiate(llm_cfg, torch_dtype="fp16")
+
+# initialize seed_story
+seed_story_cfg = OmegaConf.load(seed_story_cfg_path)
+seed_story = hydra.utils.instantiate(seed_story_cfg, llm=llm) `
+];
+var SKLEARN_PICKLE_FILE = /\.(joblib|pkl|pickle)$/i;
+var sklearnPickle = (model, modelFile) => {
+  return [
+    `from huggingface_hub import hf_hub_download
+import joblib
+model = joblib.load(
+	hf_hub_download("${model.id}", "${escapeStringForJson(modelFile)}")
+)
+# only load pickle files from sources you trust
+# read more about it here https://skops.readthedocs.io/en/stable/persistence.html`
+  ];
+};
+var skopsFormat = (model, modelFile) => {
+  return [
+    `from huggingface_hub import hf_hub_download
+from skops.io import load
+# make sure model file is in skops format
+# if model is a pickle file, make sure it's from a source you trust
+model = load(hf_hub_download("${model.id}", "${escapeStringForJson(modelFile)}"))`
+  ];
+};
+var sklearn = (model) => {
+  const declaredFile = model.config?.sklearn?.model?.file;
+  if (model.tags.includes("skops")) {
+    if (!declaredFile) {
+      return [`# \u26A0\uFE0F Model filename not specified in config.json`];
+    }
+    if (model.config?.sklearn?.model_format === "pickle" || SKLEARN_PICKLE_FILE.test(declaredFile)) {
+      return sklearnPickle(model, declaredFile);
+    }
+    return skopsFormat(model, declaredFile);
+  }
+  return sklearnPickle(model, declaredFile && SKLEARN_PICKLE_FILE.test(declaredFile) ? declaredFile : "sklearn_model.joblib");
+};
+var stable_audio_tools = (model) => [
+  `import torch
+import torchaudio
+from einops import rearrange
+from stable_audio_tools import get_pretrained_model
+from stable_audio_tools.inference.generation import generate_diffusion_cond
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
+# Download model
+model, model_config = get_pretrained_model("${model.id}")
+sample_rate = model_config["sample_rate"]
+sample_size = model_config["sample_size"]
+
+model = model.to(device)
+
+# Set up text and timing conditioning
+conditioning = [{
+	"prompt": "128 BPM tech house drum loop",
+}]
+
+# Generate stereo audio
+output = generate_diffusion_cond(
+	model,
+	conditioning=conditioning,
+	sample_size=sample_size,
+	device=device
+)
+
+# Rearrange audio batch to a single sequence
+output = rearrange(output, "b d n -> d (b n)")
+
+# Peak normalize, clip, convert to int16, and save to file
+output = output.to(torch.float32).div(torch.max(torch.abs(output))).clamp(-1, 1).mul(32767).to(torch.int16).cpu()
+torchaudio.save("output.wav", output, sample_rate)`
+];
+var fastai = (model) => [
+  `from huggingface_hub import from_pretrained_fastai
+
+learn = from_pretrained_fastai("${model.id}")`
+];
+var sam2 = (model) => {
+  const image_predictor = `# Use SAM2 with images
+import torch
+from sam2.sam2_image_predictor import SAM2ImagePredictor
+
+predictor = SAM2ImagePredictor.from_pretrained("${model.id}")
+
+with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
+    predictor.set_image(<your_image>)
+    masks, _, _ = predictor.predict(<input_prompts>)`;
+  const video_predictor = `# Use SAM2 with videos
+import torch
+from sam2.sam2_video_predictor import SAM2VideoPredictor
+
+predictor = SAM2VideoPredictor.from_pretrained("${model.id}")
+
+with torch.inference_mode(), torch.autocast("cuda", dtype=torch.bfloat16):
+    state = predictor.init_state(<your_video>)
+
+    # add new prompts and instantly get the output on the same frame
+    frame_idx, object_ids, masks = predictor.add_new_points(state, <your_prompts>)
+
+    # propagate the prompts to get masklets throughout the video
+    for frame_idx, object_ids, masks in predictor.propagate_in_video(state):
+        ...`;
+  return [image_predictor, video_predictor];
+};
+var sam_3d_objects = (model) => [
+  `from inference import Inference, load_image, load_single_mask
+from huggingface_hub import hf_hub_download
+
+path = hf_hub_download("${model.id}", "pipeline.yaml")
+inference = Inference(path, compile=False)
+
+image = load_image("path_to_image.png")
+mask = load_single_mask("path_to_mask.png", index=14)
+
+output = inference(image, mask)`
+];
+var sam_3d_body = (model) => [
+  `import cv2
+import numpy as np
+from notebook.utils import setup_sam_3d_body
+from tools.vis_utils import visualize_sample_together
+
+estimator = setup_sam_3d_body("${model.id}")
+
+img_bgr = cv2.imread("path/to/image.jpg")
+outputs = estimator.process_one_image(cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB))
+
+rend_img = visualize_sample_together(img_bgr, outputs, estimator.faces)
+cv2.imwrite("output.jpg", rend_img.astype(np.uint8))`
+];
+var sampleFactory = (model) => [
+  `python -m sample_factory.huggingface.load_from_hub -r ${model.id} -d ./train_dir`
+];
+function get_widget_examples_from_st_model(model) {
+  const widgetExample = model.widgetData?.[0];
+  if (widgetExample?.source_sentence && widgetExample?.sentences?.length) {
+    return [widgetExample.source_sentence, ...widgetExample.sentences];
+  }
+}
+var aneforge = (model) => {
+  const header = "# Run this model on the Apple Neural Engine, without CoreML.";
+  if (model.pipeline_tag === "text-generation") {
+    return [
+      `${header}
+import aneforge as af
+from transformers import AutoTokenizer
+
+tok = AutoTokenizer.from_pretrained("${model.id}")
+model = af.load_llm("${model.id}")            # prefill + resident-KV-cache decode on the ANE
+ids = tok.encode("The Neural Engine is")
+print(tok.decode(model.generate(ids, max_new_tokens=20)))`
+    ];
+  }
+  if (model.pipeline_tag === "zero-shot-image-classification" || model.tags.includes("clip")) {
+    return [
+      `${header}
+import aneforge as af
+
+clip = af.load_clip("${model.id}")
+labels = clip.classify(image, ["a photo of a cat", "a photo of a dog"])  # image: a PIL.Image; zero-shot (label, prob)`
+    ];
+  }
+  if (model.tags.includes("resnet")) {
+    return [
+      `${header}
+import aneforge as af
+
+net = af.load_resnet("${model.id}")             # BatchNorm folded into the preceding conv at load
+logits = net(pixels)                          # pixels: a preprocessed [1, 3, 224, 224] float32 batch -> [1, 1000]`
+    ];
+  }
+  if (model.pipeline_tag === "image-classification") {
+    return [
+      `${header}
+import aneforge as af
+
+vit = af.load_vit("${model.id}")
+labels = vit.classify(image)                  # image: a PIL.Image; returns top-k (label, logit)`
+    ];
+  }
+  if (model.pipeline_tag === "automatic-speech-recognition") {
+    return [
+      `${header}
+import aneforge as af
+
+asr = af.load_whisper("${model.id}")
+text = asr.transcribe(audio)                  # audio: a 16 kHz mono float32 waveform`
+    ];
+  }
+  return [
+    `# Run this model's encoder on the Apple Neural Engine, without CoreML.
+from aneforge.sentence_transformers import SentenceTransformer
+
+model = SentenceTransformer("${model.id}")
+embeddings = model.encode(["Hello from the Neural Engine"], normalize_embeddings=True)`
+  ];
+};
+var sentenceTransformers = (model) => {
+  const remote_code_snippet = model.tags.includes(TAG_CUSTOM_CODE) ? ", trust_remote_code=True" : "";
+  if (model.tags.includes("PyLate")) {
+    return [
+      `from pylate import models
+
+queries = [
+    "Which planet is known as the Red Planet?",
+    "What is the largest planet in our solar system?",
+]
+
+documents = [
+    ["Mars is the Red Planet.", "Venus is Earth's twin."],
+    ["Jupiter is the largest planet.", "Saturn has rings."],
+]
+
+model = models.ColBERT(model_name_or_path="${model.id}")
+
+queries_emb = model.encode(queries, is_query=True)
+docs_emb = model.encode(documents, is_query=False)`
+    ];
+  }
+  const isCrossEncoder = model.tags.includes("cross-encoder") || model.pipeline_tag == "text-ranking" || model.pipeline_tag === "text-classification" && !model.tags.includes("setfit") && (model.config?.architectures ?? []).some((arch) => arch.endsWith("ForSequenceClassification"));
+  if (isCrossEncoder) {
+    return [
+      `from sentence_transformers import CrossEncoder
+
+model = CrossEncoder("${model.id}"${remote_code_snippet})
+
+query = "Which planet is known as the Red Planet?"
+passages = [
+	"Venus is often called Earth's twin because of its similar size and proximity.",
+	"Mars, known for its reddish appearance, is often referred to as the Red Planet.",
+	"Jupiter, the largest planet in our solar system, has a prominent red spot.",
+	"Saturn, famous for its rings, is sometimes mistaken for the Red Planet."
+]
+
+scores = model.predict([(query, passage) for passage in passages])
+print(scores)`
+    ];
+  }
+  const retrievalEncoder = model.tags.includes("sparse-encoder") ? "SparseEncoder" : model.tags.includes("multi-vector") ? "MultiVectorEncoder" : void 0;
+  if (retrievalEncoder) {
+    return [
+      `from sentence_transformers import ${retrievalEncoder}
+
+model = ${retrievalEncoder}("${model.id}"${remote_code_snippet})
+
+queries = ["Which planet is known as the Red Planet?"]
+documents = [
+	"Venus is often called Earth's twin because of its similar size and proximity.",
+	"Mars, known for its reddish appearance, is often referred to as the Red Planet.",
+	"Jupiter, the largest planet in our solar system, has a prominent red spot.",
+]
+
+query_embeddings = model.encode_query(queries)
+document_embeddings = model.encode_document(documents)
+
+similarities = model.similarity(query_embeddings, document_embeddings)
+print(similarities)`
+    ];
+  }
+  const exampleSentences = get_widget_examples_from_st_model(model) ?? [
+    "The weather is lovely today.",
+    "It's so sunny outside!",
+    "He drove to the stadium."
+  ];
+  return [
+    `from sentence_transformers import SentenceTransformer
+
+model = SentenceTransformer("${model.id}"${remote_code_snippet})
+
+sentences = ${JSON.stringify(exampleSentences, null, 4)}
+embeddings = model.encode(sentences)
+
+similarities = model.similarity(embeddings, embeddings)
+print(similarities.shape)
+# [${exampleSentences.length}, ${exampleSentences.length}]`
+  ];
+};
+var setfit = (model) => [
+  `from setfit import SetFitModel
+
+model = SetFitModel.from_pretrained("${model.id}")
+
+preds = model.predict(["i loved the spiderman movie!", "pineapple on pizza is the worst"])
+print(preds)`
+];
+var spacy = (model) => [
+  `!pip install https://huggingface.co/${model.id}/resolve/main/${nameWithoutNamespace(model.id)}-any-py3-none-any.whl
+
+# Using spacy.load().
+import spacy
+nlp = spacy.load("${nameWithoutNamespace(model.id)}")
+
+# Importing as module.
+import ${nameWithoutNamespace(model.id)}
+nlp = ${nameWithoutNamespace(model.id)}.load()`
+];
+var span_marker = (model) => [
+  `from span_marker import SpanMarkerModel
+
+model = SpanMarkerModel.from_pretrained("${model.id}")
+
+entities = model.predict("Amelia Earhart flew her single engine Lockheed Vega 5B across the Atlantic to Paris.")
+print(entities)`
+];
+var stanza = (model) => [
+  `import stanza
+
+stanza.download("${nameWithoutNamespace(model.id).replace("stanza-", "")}")
+nlp = stanza.Pipeline("${nameWithoutNamespace(model.id).replace("stanza-", "")}")`
+];
+var speechBrainMethod = (speechbrainInterface) => {
+  switch (speechbrainInterface) {
+    case "EncoderClassifier":
+      return "classify_file";
+    case "EncoderDecoderASR":
+    case "EncoderASR":
+      return "transcribe_file";
+    case "SpectralMaskEnhancement":
+      return "enhance_file";
+    case "SepformerSeparation":
+      return "separate_file";
+    case "SpeakerRecognition":
+      return "verify_files";
+    default:
+      return void 0;
+  }
+};
+var speechbrain = (model) => {
+  const speechbrainInterface = model.config?.speechbrain?.speechbrain_interface;
+  if (speechbrainInterface === void 0) {
+    return [`# interface not specified in config.json`];
+  }
+  const speechbrainMethod = speechBrainMethod(speechbrainInterface);
+  if (speechbrainMethod === void 0) {
+    return [`# interface in config.json invalid`];
+  }
+  const methodArgs = speechbrainMethod === "verify_files" ? '"speaker1.wav", "speaker2.wav"' : '"file.wav"';
+  return [
+    `from speechbrain.pretrained import ${speechbrainInterface}
+model = ${speechbrainInterface}.from_hparams(
+  "${model.id}"
+)
+model.${speechbrainMethod}(${methodArgs})`
+  ];
+};
+var terratorch = (model) => [
+  `from terratorch.registry import BACKBONE_REGISTRY
+
+model = BACKBONE_REGISTRY.build("${model.id}")`
+];
+var hasChatTemplate = (model) => model.config?.tokenizer_config?.chat_template !== void 0 || model.config?.processor_config?.chat_template !== void 0 || model.config?.chat_template_jinja !== void 0;
+var autoModelClass = (model) => {
+  const autoModel = model.transformersInfo?.auto_model;
+  return autoModel && isValidIdentifier(autoModel) ? autoModel : void 0;
+};
+var transformers = (model) => {
+  const info = model.transformersInfo;
+  if (!info) {
+    return [`# \u26A0\uFE0F Type of model unknown`];
+  }
+  const auto_model = autoModelClass(model) ?? "AutoModel";
+  const remote_code_snippet = model.tags.includes(TAG_CUSTOM_CODE) ? ", trust_remote_code=True" : "";
+  const autoSnippet = [];
+  if (info.processor) {
+    const processorVarName = info.processor === "AutoTokenizer" ? "tokenizer" : info.processor === "AutoFeatureExtractor" ? "extractor" : "processor";
+    autoSnippet.push("# pip install -U transformers accelerate", "# Load model directly", `from transformers import ${info.processor}, ${auto_model}`, "", `${processorVarName} = ${info.processor}.from_pretrained("${model.id}"` + remote_code_snippet + ")", `model = ${auto_model}.from_pretrained("${model.id}"` + remote_code_snippet + ', device_map="auto")');
+    if (model.tags.includes("conversational") && hasChatTemplate(model)) {
+      if (model.tags.includes("image-text-to-text")) {
+        autoSnippet.push("messages = [", [
+          "    {",
+          '        "role": "user",',
+          '        "content": [',
+          '            {"type": "image", "url": "https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/p-blog/candy.JPG"},',
+          '            {"type": "text", "text": "What animal is on the candy?"}',
+          "        ]",
+          "    },"
+        ].join("\n"), "]");
+      } else {
+        autoSnippet.push("messages = [", '    {"role": "user", "content": "Who are you?"},', "]");
+      }
+      autoSnippet.push(`inputs = ${processorVarName}.apply_chat_template(`, "	messages,", "	add_generation_prompt=True,", "	tokenize=True,", "	return_dict=True,", '	return_tensors="pt",', ").to(model.device)", "", "outputs = model.generate(**inputs, max_new_tokens=256)", `print(${processorVarName}.decode(outputs[0][inputs["input_ids"].shape[-1]:]))`);
+    }
+  } else {
+    autoSnippet.push("# pip install -U transformers accelerate", "# Load model directly", `from transformers import ${auto_model}`, `model = ${auto_model}.from_pretrained("${model.id}"` + remote_code_snippet + ', device_map="auto")');
+  }
+  if (model.pipeline_tag && LIBRARY_TASK_MAPPING.transformers?.includes(model.pipeline_tag)) {
+    const pipelineSnippet = ["# Use a pipeline as a high-level helper"];
+    if (REMOVED_IN_V5_TRANSFORMERS_PIPELINES.includes(model.pipeline_tag)) {
+      pipelineSnippet.push(`# Warning: Pipeline type "${model.pipeline_tag}" is no longer supported in transformers v5.`, `# You must load the model directly (see below) or downgrade to v4.x with:`, `# pip install "transformers<5.0.0"`);
+    }
+    pipelineSnippet.push("from transformers import pipeline", "", `pipe = pipeline("${model.pipeline_tag}", model="${model.id}"` + remote_code_snippet + ")");
+    if (model.tags.includes("conversational") && hasChatTemplate(model)) {
+      if (model.tags.includes("image-text-to-text")) {
+        pipelineSnippet.push("messages = [", [
+          "    {",
+          '        "role": "user",',
+          '        "content": [',
+          '            {"type": "image", "url": "https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/p-blog/candy.JPG"},',
+          '            {"type": "text", "text": "What animal is on the candy?"}',
+          "        ]",
+          "    },"
+        ].join("\n"), "]");
+        pipelineSnippet.push("pipe(text=messages)");
+      } else {
+        pipelineSnippet.push("messages = [", '    {"role": "user", "content": "Who are you?"},', "]");
+        pipelineSnippet.push("pipe(messages)");
+      }
+    } else if (model.pipeline_tag === "zero-shot-image-classification") {
+      pipelineSnippet.push("pipe(", '    "https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/hub/parrots.png",', '    candidate_labels=["animals", "humans", "landscape"],', ")");
+    } else if (model.pipeline_tag === "image-classification") {
+      pipelineSnippet.push('pipe("https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/hub/parrots.png")');
+    }
+    return [pipelineSnippet.join("\n"), autoSnippet.join("\n")];
+  }
+  return [autoSnippet.join("\n")];
+};
+var TRANSFORMERS_JS_TASK_ALIASES = {
+  "sentence-similarity": "feature-extraction"
+};
+var transformersJS = (model) => {
+  if (!model.pipeline_tag) {
+    return [`// \u26A0\uFE0F Unknown pipeline tag`];
+  }
+  const libName = "@huggingface/transformers";
+  if (model.pipeline_tag === "text-ranking") {
+    return [
+      `// npm i ${libName}
+import { AutoTokenizer, AutoModelForSequenceClassification } from '${libName}';
+
+const tokenizer = await AutoTokenizer.from_pretrained('${model.id}');
+const model = await AutoModelForSequenceClassification.from_pretrained('${model.id}');
+
+const query = 'Which planet is known as the Red Planet?';
+const documents = [
+	'Mars, known for its reddish appearance, is often referred to as the Red Planet.',
+	'Venus is often called the twin of Earth because of its similar size and proximity.',
+];
+
+const inputs = tokenizer(new Array(documents.length).fill(query), { text_pair: documents, padding: true, truncation: true });
+const { logits } = await model(inputs);
+console.log(logits.sigmoid().tolist()); // one relevance score per document`
+    ];
+  }
+  const task = TRANSFORMERS_JS_TASK_ALIASES[model.pipeline_tag] ?? model.pipeline_tag;
+  return [
+    `// npm i ${libName}
+import { pipeline } from '${libName}';
+
+// Allocate pipeline
+const pipe = await pipeline('${task}', '${model.id}');`
+  ];
+};
+var PEFT_TASK_TYPE_TO_AUTO_CLASS = {
+  CAUSAL_LM: "AutoModelForCausalLM",
+  SEQ_2_SEQ_LM: "AutoModelForSeq2SeqLM",
+  TOKEN_CLS: "AutoModelForTokenClassification",
+  SEQ_CLS: "AutoModelForSequenceClassification",
+  QUESTION_ANS: "AutoModelForQuestionAnswering",
+  // transformers has no AutoModelForFeatureExtraction; PEFT's own AutoPeftModelForFeatureExtraction resolves to AutoModel
+  FEATURE_EXTRACTION: "AutoModel"
+};
+var PEFT_SPEECH_TO_TEXT_BASE_MODEL = /whisper|\bs2t\b|speech[-_]to[-_]text/i;
+var PEFT_SEAMLESS_M4T_BASE_MODEL = /seamless[-_]m4t/i;
+var PEFT_TEXT_TASKS = ["translation", "text2text-generation", "summarization"];
+var PEFT_SPEECHT5_BASE_MODEL = /speecht5/i;
+var declaresTask = (model, task) => model.pipeline_tag === task || model.tags.includes(task);
+var peftSpeechAutoClass = (model, baseModel) => {
+  if (PEFT_SPEECH_TO_TEXT_BASE_MODEL.test(baseModel)) {
+    return "AutoModelForSpeechSeq2Seq";
+  }
+  if (PEFT_SEAMLESS_M4T_BASE_MODEL.test(baseModel)) {
+    return PEFT_TEXT_TASKS.some((task) => declaresTask(model, task)) ? void 0 : "AutoModelForSpeechSeq2Seq";
+  }
+  if (PEFT_SPEECHT5_BASE_MODEL.test(baseModel)) {
+    const isAsr = /(?:^|[^a-z])asr(?:[^a-z]|$)/i.test(baseModel) || declaresTask(model, "automatic-speech-recognition");
+    return isAsr ? "AutoModelForSpeechSeq2Seq" : "AutoModelForTextToSpectrogram";
+  }
+  return void 0;
+};
+var peft = (model) => {
+  const { base_model_name_or_path: peftBaseModel, task_type: peftTaskType } = model.config?.peft ?? {};
+  let autoClass = peftTaskType ? PEFT_TASK_TYPE_TO_AUTO_CLASS[peftTaskType] : void 0;
+  if (!autoClass) {
+    return [`Task type is invalid.`];
+  }
+  const cardBaseModel = Array.isArray(model.cardData?.base_model) ? model.cardData.base_model[0] : model.cardData?.base_model;
+  const baseModel = peftBaseModel || cardBaseModel;
+  if (!baseModel) {
+    return [`Base model is not found.`];
+  }
+  if (peftTaskType === "SEQ_2_SEQ_LM") {
+    autoClass = peftSpeechAutoClass(model, baseModel) ?? autoClass;
+  }
+  if (autoClass === "AutoModelForTextToSpectrogram") {
+    return [
+      `from peft import PeftConfig, PeftModel
+from transformers import AutoModelForTextToSpectrogram
+
+base_model = AutoModelForTextToSpectrogram.from_pretrained("${escapeStringForJson(baseModel)}")
+# PEFT's seq2seq wrapper needs generate(), which SpeechT5's text-to-speech model lacks: load the adapter without its task type
+config = PeftConfig.from_pretrained("${model.id}")
+config.task_type = None
+model = PeftModel.from_pretrained(base_model, "${model.id}", config=config)`
+    ];
+  }
+  return [
+    `from peft import PeftModel
+from transformers import ${autoClass}
+
+base_model = ${autoClass}.from_pretrained("${escapeStringForJson(baseModel)}")
+model = PeftModel.from_pretrained(base_model, "${model.id}")`
+  ];
+};
+var fasttext = (model) => [
+  `from huggingface_hub import hf_hub_download
+import fasttext
+
+model = fasttext.load_model(hf_hub_download("${model.id}", "model.bin"))`
+];
+var stableBaselines3 = (model) => [
+  `from huggingface_sb3 import load_from_hub
+checkpoint = load_from_hub(
+	repo_id="${model.id}",
+	filename="{MODEL FILENAME}.zip",
+)`
+];
+var nemoDomainResolver = (domain2, model) => {
+  switch (domain2) {
+    case "ASR":
+      return [
+        `import nemo.collections.asr as nemo_asr
+asr_model = nemo_asr.models.ASRModel.from_pretrained("${model.id}")
+
+transcriptions = asr_model.transcribe(["file.wav"])`
+      ];
+    default:
+      return void 0;
+  }
+};
+var mlAgents = (model) => [
+  `mlagents-load-from-hf --repo-id="${model.id}" --local-dir="./downloads"`
+];
+var sentis = () => [
+  `string modelName = "[Your model name here].sentis";
+Model model = ModelLoader.Load(Application.streamingAssetsPath + "/" + modelName);
+IWorker engine = WorkerFactory.CreateWorker(BackendType.GPUCompute, model);
+// Please see provided C# file for more details
+`
+];
+var sana = (model) => [
+  `
+# Load the model and infer image from text
+import torch
+from app.sana_pipeline import SanaPipeline
+from torchvision.utils import save_image
+
+sana = SanaPipeline("configs/sana_config/1024ms/Sana_1600M_img1024.yaml")
+sana.from_pretrained("hf://${model.id}")
+
+image = sana(
+    prompt='a cyberpunk cat with a neon sign that says "Sana"',
+    height=1024,
+    width=1024,
+    guidance_scale=5.0,
+    pag_guidance_scale=2.0,
+    num_inference_steps=18,
+) `
+];
+var vibevoice = (model) => [
+  `import torch, soundfile as sf, librosa, numpy as np
+from vibevoice.processor.vibevoice_processor import VibeVoiceProcessor
+from vibevoice.modular.modeling_vibevoice_inference import VibeVoiceForConditionalGenerationInference
+
+# Load voice sample (should be 24kHz mono)
+voice, sr = sf.read("path/to/voice_sample.wav")
+if voice.ndim > 1: voice = voice.mean(axis=1)
+if sr != 24000: voice = librosa.resample(voice, sr, 24000)
+
+processor = VibeVoiceProcessor.from_pretrained("${model.id}")
+model = VibeVoiceForConditionalGenerationInference.from_pretrained(
+    "${model.id}", torch_dtype=torch.bfloat16
+).to("cuda").eval()
+model.set_ddpm_inference_steps(5)
+
+inputs = processor(text=["Speaker 0: Hello!\\nSpeaker 1: Hi there!"],
+                   voice_samples=[[voice]], return_tensors="pt")
+audio = model.generate(**inputs, cfg_scale=1.3,
+                       tokenizer=processor.tokenizer).speech_outputs[0]
+sf.write("output.wav", audio.cpu().numpy().squeeze(), 24000)`
+];
+var videoprism = (model) => [
+  `# Install from https://github.com/google-deepmind/videoprism
+import jax
+from videoprism import models as vp
+
+flax_model = vp.get_model("${model.id}")
+loaded_state = vp.load_pretrained_weights("${model.id}")
+
+@jax.jit
+def forward_fn(inputs, train=False):
+  return flax_model.apply(loaded_state, inputs, train=train)`
+];
+var vfimamba = (model) => [
+  `from Trainer_finetune import Model
+
+model = Model.from_pretrained("${model.id}")`
+];
+var lvface = (model) => [
+  `from huggingface_hub import hf_hub_download
+from inference_onnx import LVFaceONNXInferencer
+
+model_path = hf_hub_download("${model.id}", "LVFace-L_Glint360K/LVFace-L_Glint360K.onnx")
+inferencer = LVFaceONNXInferencer(model_path, use_gpu=True)
+img_path = 'path/to/image1.jpg'
+embedding = inferencer.infer_from_image(img_path)`
+];
+var voicecraft = (model) => [
+  `from voicecraft import VoiceCraft
+
+model = VoiceCraft.from_pretrained("${model.id}")`
+];
+var voxcpm = (model) => [
+  `import soundfile as sf
+from voxcpm import VoxCPM
+
+model = VoxCPM.from_pretrained("${model.id}")
+
+wav = model.generate(
+    text="VoxCPM is an innovative end-to-end TTS model from ModelBest, designed to generate highly expressive speech.",
+    prompt_wav_path=None,      # optional: path to a prompt speech for voice cloning
+    prompt_text=None,          # optional: reference text
+    cfg_value=2.0,             # LM guidance on LocDiT, higher for better adherence to the prompt, but maybe worse
+    inference_timesteps=10,   # LocDiT inference timesteps, higher for better result, lower for fast speed
+    normalize=True,           # enable external TN tool
+    denoise=True,             # enable external Denoise tool
+    retry_badcase=True,        # enable retrying mode for some bad cases (unstoppable)
+    retry_badcase_max_times=3,  # maximum retrying times
+    retry_badcase_ratio_threshold=6.0, # maximum length restriction for bad case detection (simple but effective), it could be adjusted for slow pace speech
+)
+
+sf.write("output.wav", wav, 16000)
+print("saved: output.wav")`
+];
+var vui = () => [
+  `# !pip install git+https://github.com/fluxions-ai/vui
+
+import torchaudio
+
+from vui.legacy import Vui, render
+
+model = Vui.from_pretrained().cuda()
+waveform = render(
+    model,
+    "Hey, here is some random stuff, usually something quite long as the shorter the text the less likely the model can cope!",
+)
+print(waveform.shape)
+torchaudio.save("out.wav", waveform[0], 22050)
+`
+];
+var chattts = () => [
+  `import ChatTTS
+import torch
+import torchaudio
+
+chat = ChatTTS.Chat()
+chat.load(compile=False) # Set to True for better performance
+
+texts = ["PUT YOUR TEXT HERE",]
+
+wavs = chat.infer(texts, )
+
+torchaudio.save("output1.wav", torch.from_numpy(wavs[0]), 24000)`
+];
+var ultralytics = (model) => {
+  const isYolov10Fork = model.library_name === "yolov10" || model.tags.includes("yolov10") && (!model.tags.includes("ultralytics") || model.tags.includes("safetensors"));
+  if (isYolov10Fork) {
+    if (model.tags.includes("safetensors")) {
+      return [
+        `from ultralytics import YOLOv10
+
+model = YOLOv10.from_pretrained("${model.id}")
+source = 'http://images.cocodataset.org/val2017/000000039769.jpg'
+model.predict(source=source, save=True)`
+      ];
+    }
+    return [
+      `from huggingface_hub import hf_hub_download
+from ultralytics import YOLOv10
+
+# pick the weights file from this repo's "Files and versions" tab
+weights = hf_hub_download("${model.id}", "<weights>.pt")
+model = YOLOv10(weights)
+source = 'http://images.cocodataset.org/val2017/000000039769.jpg'
+model.predict(source=source, save=True)`
+    ];
+  }
+  return [
+    `from huggingface_hub import hf_hub_download
+from ultralytics import YOLO
+
+# pick the weights file from this repo's "Files and versions" tab
+weights = hf_hub_download("${model.id}", "<weights>.pt")
+model = YOLO(weights)
+source = 'http://images.cocodataset.org/val2017/000000039769.jpg'
+model.predict(source=source, save=True)`
+  ];
+};
+var birefnet = (model) => [
+  `# Option 1: use with transformers
+
+from transformers import AutoModelForImageSegmentation
+birefnet = AutoModelForImageSegmentation.from_pretrained("${model.id}", trust_remote_code=True)
+`,
+  `# Option 2: use with BiRefNet
+
+# Install from https://github.com/ZhengPeng7/BiRefNet
+
+from models.birefnet import BiRefNet
+model = BiRefNet.from_pretrained("${model.id}")`
+];
+var nobg = (model) => {
+  const installSnippet = `pip install nobg`;
+  const predictCall = model.tags.includes("promptable") ? `cutout = model.predict(processor, "image.jpg", "prompt")` : `cutout = model.predict(processor, "image.jpg")`;
+  const predictSnippet = `# Option 1: use via the predict method
+
+from nobg import AutoModel, AutoProcessor
+
+model = AutoModel.from_pretrained("${model.id}").eval()
+processor = AutoProcessor.from_pretrained("${model.id}")
+
+${predictCall}`;
+  const manualSnippet = `# Option 2: use the model and processor directly
+
+import torch
+from loadimg import load_img
+from nobg import AutoModel, AutoProcessor
+
+model = AutoModel.from_pretrained("${model.id}").eval()
+processor = AutoProcessor.from_pretrained("${model.id}")
+
+image = load_img("image.jpg").convert("RGB")
+inputs = processor(image, return_tensors="pt")
+
+with torch.no_grad():
+    outputs = model(pixel_values=inputs["pixel_values"])
+
+alpha = processor.post_process_alpha_matting(outputs, target_sizes=[(image.height, image.width)])[0]
+processor.cutout(image, alpha).save("output.png")`;
+  return [installSnippet, predictSnippet, manualSnippet];
+};
+var supertonic = () => [
+  `from supertonic import TTS
+
+tts = TTS(auto_download=True)
+
+style = tts.get_voice_style(voice_name="M1")
+
+text = "The train delay was announced at 4:45 PM on Wed, Apr 3, 2024 due to track maintenance."
+wav, duration = tts.synthesize(text, voice_style=style)
+
+tts.save_audio(wav, "output.wav")`
+];
+var swarmformer = (model) => [
+  `from swarmformer import SwarmFormerModel
+
+model = SwarmFormerModel.from_pretrained("${model.id}")
+`
+];
+var univa = (model) => [
+  `# Follow installation instructions at https://github.com/PKU-YuanGroup/UniWorld-V1
+import torch
+from transformers import AutoProcessor
+from univa.models.qwen2p5vl.modeling_univa_qwen2p5vl import UnivaQwen2p5VLForConditionalGeneration
+
+model = UnivaQwen2p5VLForConditionalGeneration.from_pretrained(
+    "${model.id}",
+    torch_dtype=torch.bfloat16,
+    attn_implementation="flash_attention_2",
+).to("cuda")
+processor = AutoProcessor.from_pretrained("${model.id}")
+`
+];
+var mlx_unknown = (model) => [
+  `# Download the model from the Hub
+pip install huggingface_hub[hf_xet]
+
+hf download ${model.id} --local-dir ${nameWithoutNamespace(model.id)}`
+];
+var mlxlm = (model) => [
+  `# Make sure mlx-lm is installed
+# pip install --upgrade mlx-lm
+# if on a CUDA device, also pip install mlx[cuda]
+
+# Generate text with mlx-lm
+from mlx_lm import load, generate
+
+model, tokenizer = load("${model.id}")
+
+prompt = "Once upon a time in"
+text = generate(model, tokenizer, prompt=prompt, verbose=True)`
+];
+var mlxchat = (model) => [
+  `# Make sure mlx-lm is installed
+# pip install --upgrade mlx-lm
+
+# Generate text with mlx-lm
+from mlx_lm import load, generate
+
+model, tokenizer = load("${model.id}")
+
+prompt = "Write a story about Einstein"
+messages = [{"role": "user", "content": prompt}]
+prompt = tokenizer.apply_chat_template(
+    messages, add_generation_prompt=True
+)
+
+text = generate(model, tokenizer, prompt=prompt, verbose=True)`
+];
+var mlxvlm = (model) => [
+  `# Make sure mlx-vlm is installed
+# pip install --upgrade mlx-vlm
+
+from mlx_vlm import load, generate
+from mlx_vlm.prompt_utils import apply_chat_template
+from mlx_vlm.utils import load_config
+
+# Load the model
+model, processor = load("${model.id}")
+config = load_config("${model.id}")
+
+# Prepare input
+image = ["http://images.cocodataset.org/val2017/000000039769.jpg"]
+prompt = "Describe this image."
+
+# Apply chat template
+formatted_prompt = apply_chat_template(
+    processor, config, prompt, num_images=1
+)
+
+# Generate output
+output = generate(model, processor, formatted_prompt, image)
+print(output)`
+];
+var mlxim = (model) => [
+  `from mlxim.model import create_model
+
+model = create_model("${nameWithoutNamespace(model.id).replace(/-mlxim$/, "")}")`
+];
+var mlx = (model) => {
+  if (model.pipeline_tag === "image-text-to-text") {
+    return mlxvlm(model);
+  }
+  if (model.pipeline_tag === "text-generation") {
+    if (model.tags.includes("conversational")) {
+      return mlxchat(model);
+    } else {
+      return mlxlm(model);
+    }
+  }
+  return mlx_unknown(model);
+};
+var model2vec = (model) => [
+  `from model2vec import StaticModel
+
+model = StaticModel.from_pretrained("${model.id}")
+
+embeddings = model.encode(["It's dangerous to go alone!", "It's a secret to everybody."])
+print(embeddings.shape)`
+];
+var mobilint = (model) => {
+  const modelName = nameWithoutNamespace(model.id);
+  return [
+    `# pip install mblt-model-zoo
+from mblt_model_zoo.vision import MBLT_Engine
+
+model = MBLT_Engine(
+    model_cls="${modelName}",
+    model_type="DEFAULT",
+    model_path="",
+    core_mode="global8",
+)
+
+try:
+    image = model.preprocess("path/to/image.jpg")
+    output = model(image)
+    result = model.postprocess(output)
+finally:
+    model.dispose()
+`
+  ];
+};
+var pruna = (model) => {
+  let snippets;
+  if (model.tags.includes("diffusers")) {
+    snippets = pruna_diffusers(model);
+  } else if (model.tags.includes("transformers")) {
+    snippets = pruna_transformers(model);
+  } else {
+    snippets = pruna_default(model);
+  }
+  const ensurePrunaModelImport = (snippet) => {
+    if (!/^from pruna import PrunaModel/m.test(snippet)) {
+      return `from pruna import PrunaModel
+${snippet}`;
+    }
+    return snippet;
+  };
+  snippets = snippets.map(ensurePrunaModelImport);
+  if (model.tags.includes("pruna_pro-ai")) {
+    return snippets.map((snippet) => snippet.replace(/^from pruna import /gm, "from pruna_pro import ").replace(/\bPrunaModel\b/g, "PrunaProModel"));
+  }
+  return snippets;
+};
+var pruna_diffusers = (model) => {
+  const diffusersSnippets = diffusers(model);
+  return diffusersSnippets.map((snippet) => snippet.replace(/\b\w*Pipeline\w*\b/g, "PrunaModel").replace(/from diffusers import ([^,\n]*PrunaModel[^,\n]*)/g, "").replace(/from diffusers import ([^,\n]+),?\s*([^,\n]*PrunaModel[^,\n]*)/g, "from diffusers import $1").replace(/from diffusers import\s*(\n|$)/g, "").replace(/from diffusers import PrunaModel/g, "from pruna import PrunaModel").replace(/from diffusers import ([^,\n]+), PrunaModel/g, "from diffusers import $1").replace(/from diffusers import PrunaModel, ([^,\n]+)/g, "from diffusers import $1").replace(/\n\n+/g, "\n").trim());
+};
+var pruna_transformers = (model) => {
+  const auto_model = autoModelClass(model);
+  const transformersSnippets = transformers(model);
+  let processedSnippets = transformersSnippets.map((snippet) => snippet.replace(/from transformers import pipeline/g, "from pruna import PrunaModel").replace(/pipeline\([^)]*\)/g, `PrunaModel.from_pretrained("${model.id}")`));
+  if (auto_model) {
+    processedSnippets = processedSnippets.map((snippet) => snippet.replace(new RegExp(`from transformers import ${auto_model}
+?`, "g"), "").replace(new RegExp(`${auto_model}.from_pretrained`, "g"), "PrunaModel.from_pretrained").replace(new RegExp(`^.*from.*import.*(, *${auto_model})+.*$`, "gm"), (line) => line.replace(new RegExp(`, *${auto_model}`, "g"), "")));
+  }
+  return processedSnippets;
+};
+var pruna_default = (model) => [
+  `from pruna import PrunaModel
+model = PrunaModel.from_pretrained("${model.id}")
+`
+];
+var nemo = (model) => {
+  let command = void 0;
+  if (model.tags.includes("automatic-speech-recognition")) {
+    command = nemoDomainResolver("ASR", model);
+  }
+  return command ?? [`# tag did not correspond to a valid NeMo domain.`];
+};
+var outetts = (model) => {
+  const t = model.tags ?? [];
+  if (t.includes("gguf") || t.includes("onnx")) {
+    return [];
+  }
+  return [
+    `import outetts
+
+enum = outetts.Models("${model.id}".split("/", 1)[1])       # VERSION_1_0_SIZE_1B
+cfg  = outetts.ModelConfig.auto_config(enum, outetts.Backend.HF)
+tts  = outetts.Interface(cfg)
+
+speaker = tts.load_default_speaker("EN-FEMALE-1-NEUTRAL")
+tts.generate(
+    outetts.GenerationConfig(
+        text="Hello there, how are you doing?",
+        speaker=speaker,
+    )
+).save("output.wav")`
+  ];
+};
+var pxia = (model) => [
+  `from pxia import AutoModel
+
+model = AutoModel.from_pretrained("${model.id}")`
+];
+var pythae = (model) => [
+  `from pythae.models import AutoModel
+
+model = AutoModel.load_from_hf_hub("${model.id}")`
+];
+var qwen3_tts = (model) => [
+  `# pip install qwen-tts
+import torch
+import soundfile as sf
+from qwen_tts import Qwen3TTSModel
+
+model = Qwen3TTSModel.from_pretrained(
+    "${model.id}",
+    device_map="cuda:0",
+    dtype=torch.bfloat16,
+    attn_implementation="flash_attention_2",
+)
+
+wavs, sr = model.generate_custom_voice(
+    text="Your text here.",
+    language="English",
+    speaker="Ryan",
+    instruct="Speak in a natural tone.",
+)
+
+sf.write("output.wav", wavs[0], sr)`
+];
+var musicgen = (model) => [
+  `from audiocraft.models import MusicGen
+
+model = MusicGen.get_pretrained("${model.id}")
+
+descriptions = ['happy rock', 'energetic EDM', 'sad jazz']
+wav = model.generate(descriptions)  # generates 3 samples.`
+];
+var magnet = (model) => [
+  `from audiocraft.models import MAGNeT
+
+model = MAGNeT.get_pretrained("${model.id}")
+
+descriptions = ['disco beat', 'energetic EDM', 'funky groove']
+wav = model.generate(descriptions)  # generates 3 samples.`
+];
+var audiogen = (model) => [
+  `from audiocraft.models import AudioGen
+
+model = AudioGen.get_pretrained("${model.id}")
+model.set_generation_params(duration=5)  # generate 5 seconds.
+descriptions = ['dog barking', 'sirene of an emergency vehicle', 'footsteps in a corridor']
+wav = model.generate(descriptions)  # generates 3 samples.`
+];
+var anemoi = (model) => [
+  `from anemoi.inference.runners.default import DefaultRunner
+from anemoi.inference.config.run import RunConfiguration
+# Create Configuration
+config = RunConfiguration(checkpoint = {"huggingface":"${model.id}"})
+# Load Runner
+runner = DefaultRunner(config)`
+];
+var audiocraft = (model) => {
+  if (model.tags.includes("musicgen")) {
+    return musicgen(model);
+  } else if (model.tags.includes("audiogen")) {
+    return audiogen(model);
+  } else if (model.tags.includes("magnet")) {
+    return magnet(model);
+  } else {
+    return [`# Type of model unknown.`];
+  }
+};
+var whisperkit = () => [
+  `# Install CLI with Homebrew on macOS device
+brew install whisperkit-cli
+
+# View all available inference options
+whisperkit-cli transcribe --help
+
+# Download and run inference using whisper base model
+whisperkit-cli transcribe --audio-path /path/to/audio.mp3
+
+# Or use your preferred model variant
+whisperkit-cli transcribe --model "large-v3" --model-prefix "distil" --audio-path /path/to/audio.mp3 --verbose`
+];
+var threedtopia_xl = (model) => [
+  `from threedtopia_xl.models import threedtopia_xl
+
+model = threedtopia_xl.from_pretrained("${model.id}")
+model.generate(cond="path/to/image.png")`
+];
+var zonos = (model) => [
+  `# pip install git+https://github.com/Zyphra/Zonos.git
+import torchaudio
+from zonos.model import Zonos
+from zonos.conditioning import make_cond_dict
+
+model = Zonos.from_pretrained("${model.id}", device="cuda")
+
+wav, sr = torchaudio.load("speaker.wav")           # 5-10s reference clip
+speaker = model.make_speaker_embedding(wav, sr)
+
+cond  = make_cond_dict(text="Hello, world!", speaker=speaker, language="en-us")
+codes = model.generate(model.prepare_conditioning(cond))
+
+audio = model.autoencoder.decode(codes)[0].cpu()
+torchaudio.save("sample.wav", audio, model.autoencoder.sampling_rate)
+`
+];
+var moshi = (model) => {
+  if (model.id.includes("-mlx")) {
+    const quantFlag = model.id.includes("-q4") ? " -q 4" : model.id.includes("-q8") ? " -q 8" : "";
+    return [
+      `# pip install moshi_mlx
+# Run local inference (macOS Apple Silicon)
+python -m moshi_mlx.local${quantFlag} --hf-repo "${model.id}"
+
+# Or run with web UI
+python -m moshi_mlx.local_web${quantFlag} --hf-repo "${model.id}"`
+    ];
+  }
+  if (model.id.includes("-candle")) {
+    return [
+      `# pip install rustymimi
+# Candle backend - see https://github.com/kyutai-labs/moshi
+# for Rust installation instructions`
+    ];
+  }
+  return [
+    `# pip install moshi
+# Run the interactive web server
+python -m moshi.server --hf-repo "${model.id}"
+# Then open https://localhost:8998 in your browser`,
+    `# pip install moshi
+import torch
+from moshi.models import loaders
+
+# Load checkpoint info from HuggingFace
+checkpoint = loaders.CheckpointInfo.from_hf_repo("${model.id}")
+
+# Load the Mimi audio codec
+mimi = checkpoint.get_mimi(device="cuda")
+mimi.set_num_codebooks(8)
+
+# Encode audio (24kHz, mono)
+wav = torch.randn(1, 1, 24000 * 10)  # [batch, channels, samples]
+with torch.no_grad():
+    codes = mimi.encode(wav.cuda())
+    decoded = mimi.decode(codes)`
+  ];
 };
 
-// ../elt/packages/sdks/handy/models/dist/handy-models.js
-var HandyModels = class {
+// ../elt/node_modules/@huggingface/tasks/dist/esm/model-libraries.js
+var MODEL_LIBRARIES_UI_ELEMENTS = {
+  "aadya-neural": {
+    prettyLabel: "aadya-neural",
+    repoName: "aadya",
+    repoUrl: "https://github.com/manasdutta04/aadya",
+    docsUrl: "https://github.com/manasdutta04/aadya/blob/main/train/README.md",
+    snippets: aadyaNeural,
+    filter: false,
+    countDownloads: `path:"model.safetensors" OR path:"pytorch_model.bin"`
+  },
+  acestep: {
+    prettyLabel: "ACE-Step",
+    repoName: "ACE-Step",
+    repoUrl: "https://github.com/ace-step/ACE-Step",
+    filter: false,
+    countDownloads: `path:"ace_step_transformer/config.json"`
+  },
+  "adapter-transformers": {
+    prettyLabel: "Adapters",
+    repoName: "adapters",
+    repoUrl: "https://github.com/Adapter-Hub/adapters",
+    docsUrl: "https://huggingface.co/docs/hub/adapters",
+    snippets: adapters,
+    filter: true,
+    countDownloads: `path:"adapter_config.json"`
+  },
+  allennlp: {
+    prettyLabel: "AllenNLP",
+    repoName: "AllenNLP",
+    repoUrl: "https://github.com/allenai/allennlp",
+    docsUrl: "https://huggingface.co/docs/hub/allennlp",
+    snippets: allennlp,
+    filter: true
+  },
+  aneforge: {
+    prettyLabel: "ANEForge",
+    repoName: "ANEForge",
+    repoUrl: "https://github.com/sbryngelson/ANEForge",
+    docsUrl: "https://aneforge.readthedocs.io",
+    snippets: aneforge,
+    filter: false
+  },
+  anemoi: {
+    prettyLabel: "AnemoI",
+    repoName: "AnemoI",
+    repoUrl: "https://github.com/ecmwf/anemoi-inference",
+    docsUrl: "https://anemoi.readthedocs.io/en/latest/",
+    filter: false,
+    countDownloads: `path_extension:"ckpt"`,
+    snippets: anemoi
+  },
+  araclip: {
+    prettyLabel: "AraClip",
+    repoName: "AraClip",
+    repoUrl: "https://huggingface.co/Arabic-Clip/araclip",
+    filter: false,
+    snippets: araclip
+  },
+  asimov: {
+    prettyLabel: "Asimov",
+    repoName: "Asimov",
+    repoUrl: "https://github.com/menloresearch/humanoid-policy-viewer",
+    snippets: asimov,
+    filter: false,
+    countDownloads: `path:"env.yaml"`
+  },
+  "aviation-ner": {
+    prettyLabel: "Aviation NER",
+    repoName: "Aviation NER",
+    repoUrl: "https://github.com/Boeing/aviation_ner_sdr",
+    docsUrl: "https://github.com/Boeing/aviation_ner_sdr",
+    countDownloads: `path:"gliner_config.json"`,
+    filter: false
+  },
+  asteroid: {
+    prettyLabel: "Asteroid",
+    repoName: "Asteroid",
+    repoUrl: "https://github.com/asteroid-team/asteroid",
+    docsUrl: "https://huggingface.co/docs/hub/asteroid",
+    snippets: asteroid,
+    filter: true,
+    countDownloads: `path:"pytorch_model.bin"`
+  },
+  audiocraft: {
+    prettyLabel: "Audiocraft",
+    repoName: "audiocraft",
+    repoUrl: "https://github.com/facebookresearch/audiocraft",
+    snippets: audiocraft,
+    filter: false,
+    countDownloads: `path:"state_dict.bin"`
+  },
+  audioseal: {
+    prettyLabel: "AudioSeal",
+    repoName: "audioseal",
+    repoUrl: "https://github.com/facebookresearch/audioseal",
+    filter: false,
+    countDownloads: `path_extension:"pth"`,
+    snippets: audioseal
+  },
+  "bagel-mot": {
+    prettyLabel: "Bagel",
+    repoName: "Bagel",
+    repoUrl: "https://github.com/ByteDance-Seed/Bagel/",
+    filter: false,
+    countDownloads: `path:"llm_config.json"`
+  },
+  bboxmaskpose: {
+    prettyLabel: "BBoxMaskPose",
+    repoName: "BBoxMaskPose",
+    repoUrl: "https://github.com/MiraPurkrabek/BBoxMaskPose",
+    filter: false,
+    countDownloads: `path_extension:"pth"`
+  },
+  ben2: {
+    prettyLabel: "BEN2",
+    repoName: "BEN2",
+    repoUrl: "https://github.com/PramaLLC/BEN2",
+    snippets: ben2,
+    filter: false
+  },
+  bertopic: {
+    prettyLabel: "BERTopic",
+    repoName: "BERTopic",
+    repoUrl: "https://github.com/MaartenGr/BERTopic",
+    snippets: bertopic,
+    filter: true
+  },
+  big_vision: {
+    prettyLabel: "Big Vision",
+    repoName: "big_vision",
+    repoUrl: "https://github.com/google-research/big_vision",
+    filter: false,
+    countDownloads: `path_extension:"npz"`
+  },
+  bionemo: {
+    prettyLabel: "BioNeMo",
+    repoName: "BioNeMo",
+    filter: false,
+    repoUrl: "https://github.com/nvidia/BioNeMo",
+    countDownloads: `path_extension:"ckpt" OR path:"config.json"`
+  },
+  birder: {
+    prettyLabel: "Birder",
+    repoName: "Birder",
+    repoUrl: "https://gitlab.com/birder/birder",
+    filter: false,
+    countDownloads: `path_extension:"pt"`
+  },
+  birefnet: {
+    prettyLabel: "BiRefNet",
+    repoName: "BiRefNet",
+    repoUrl: "https://github.com/ZhengPeng7/BiRefNet",
+    snippets: birefnet,
+    filter: false
+  },
+  bm25s: {
+    prettyLabel: "BM25S",
+    repoName: "bm25s",
+    repoUrl: "https://github.com/xhluca/bm25s",
+    snippets: bm25s,
+    filter: false,
+    countDownloads: `path:"params.index.json"`
+  },
+  boltzgen: {
+    prettyLabel: "BoltzGen",
+    repoName: "BoltzGen",
+    repoUrl: "https://github.com/HannesStark/boltzgen",
+    filter: false,
+    countDownloads: `path:"boltzgen1_diverse.ckpt"`
+  },
+  cancertathomev2: {
+    prettyLabel: "Cancer@HomeV2",
+    repoName: "Cancer@HomeV2",
+    repoUrl: "https://huggingface.co/OpenPeerAI/CancerAtHomeV2",
+    filter: false,
+    countDownloads: `path:"run.py"`
+  },
+  cartesia_pytorch: {
+    prettyLabel: "Cartesia Pytorch",
+    repoName: "Cartesia Pytorch",
+    repoUrl: "https://github.com/cartesia-ai/cartesia_pytorch",
+    snippets: cartesia_pytorch
+  },
+  cartesia_mlx: {
+    prettyLabel: "Cartesia MLX",
+    repoName: "Cartesia MLX",
+    repoUrl: "https://github.com/cartesia-ai/cartesia_mlx",
+    snippets: cartesia_mlx
+  },
+  causilo: {
+    prettyLabel: "Causilo",
+    repoName: "Causilo",
+    repoUrl: "https://github.com/nums-ai/causilo",
+    filter: false,
+    countDownloads: `path:"classifier/config.json" OR path:"regressor/config.json"`
+  },
+  ccpfn: {
+    prettyLabel: "CCPFN",
+    repoName: "CCPFN",
+    repoUrl: "https://huggingface.co/Layer6/CCPFN",
+    filter: false,
+    countDownloads: `path_extension:"pt"`
+  },
+  champ: {
+    prettyLabel: "Champ",
+    repoName: "Champ",
+    repoUrl: "https://github.com/fudan-generative-vision/champ",
+    countDownloads: `path:"champ/motion_module.pth"`
+  },
+  chatterbox: {
+    prettyLabel: "Chatterbox",
+    repoName: "Chatterbox",
+    repoUrl: "https://github.com/resemble-ai/chatterbox",
+    snippets: chatterbox,
+    countDownloads: `path:"tokenizer.json"`,
+    filter: false
+  },
+  chaossim: {
+    prettyLabel: "ChaosSIM",
+    repoName: "ChaosSIM",
+    repoUrl: "https://huggingface.co/OpenPeerAI/ChaosSIM/",
+    countDownloads: `path:"ChaosSim.nb"`,
+    filter: false
+  },
+  chat_tts: {
+    prettyLabel: "ChatTTS",
+    repoName: "ChatTTS",
+    repoUrl: "https://github.com/2noise/ChatTTS.git",
+    snippets: chattts,
+    filter: false,
+    countDownloads: `path:"asset/GPT.pt"`
+  },
+  chexmix: {
+    prettyLabel: "CheXmix",
+    repoName: "CheXmix",
+    repoUrl: "https://github.com/StanfordMIMI/CheXmix",
+    filter: false,
+    countDownloads: `path_extension:"safetensors"`
+  },
+  "chronos-forecasting": {
+    prettyLabel: "Chronos",
+    repoName: "Chronos",
+    repoUrl: "https://github.com/amazon-science/chronos-forecasting",
+    snippets: chronos_forecasting
+  },
+  clara: {
+    prettyLabel: "Clara",
+    repoName: "Clara",
+    filter: false,
+    repoUrl: "https://github.com/nvidia/clara",
+    countDownloads: `path_extension:"ckpt" OR path:"config.json"`
+  },
+  clipscope: {
+    prettyLabel: "clipscope",
+    repoName: "clipscope",
+    repoUrl: "https://github.com/Lewington-pitsos/clipscope",
+    filter: false,
+    countDownloads: `path_extension:"pt"`
+  },
+  "cloud-agents": {
+    prettyLabel: "Cloud Agents",
+    repoName: "Cloud Agents",
+    repoUrl: "https://huggingface.co/OpenPeerAI/Cloud-Agents",
+    filter: false,
+    countDownloads: `path:"setup.py"`
+  },
+  collectorvision: {
+    prettyLabel: "CollectorVision",
+    repoName: "CollectorVision",
+    repoUrl: "https://github.com/HanClinto/CollectorVision",
+    snippets: collectorvision,
+    filter: false,
+    countDownloads: `path_extension:"onnx"`
+  },
+  colipri: {
+    prettyLabel: "COLIPRI",
+    repoName: "COLIPRI",
+    repoUrl: "https://huggingface.co/microsoft/colipri",
+    snippets: colipri,
+    filter: false,
+    countDownloads: `path_extension:"safetensors"`
+  },
+  cosyvoice: {
+    prettyLabel: "CosyVoice",
+    repoName: "CosyVoice",
+    repoUrl: "https://github.com/FunAudioLLM/CosyVoice",
+    filter: false,
+    countDownloads: `path_extension:"onnx" OR path_extension:"pt"`
+  },
+  cotracker: {
+    prettyLabel: "CoTracker",
+    repoName: "CoTracker",
+    repoUrl: "https://github.com/facebookresearch/co-tracker",
+    filter: false,
+    countDownloads: `path_extension:"pth"`
+  },
+  colpali: {
+    prettyLabel: "ColPali",
+    repoName: "ColPali",
+    repoUrl: "https://github.com/ManuelFay/colpali",
+    filter: false,
+    countDownloads: `path:"adapter_config.json"`
+  },
+  comet: {
+    prettyLabel: "COMET",
+    repoName: "COMET",
+    repoUrl: "https://github.com/Unbabel/COMET/",
+    countDownloads: `path:"hparams.yaml"`
+  },
+  cortiq: {
+    prettyLabel: "cortiq",
+    repoName: "cortiq",
+    repoUrl: "https://github.com/infosave2007/cmf",
+    docsUrl: "https://github.com/infosave2007/cmf/blob/master/docs/CMF_V2_SPEC.md",
+    snippets: cortiq,
+    countDownloads: `path_extension:"cmf"`
+  },
+  cosmos: {
+    prettyLabel: "Cosmos",
+    repoName: "Cosmos",
+    repoUrl: "https://github.com/NVIDIA/Cosmos",
+    countDownloads: `path:"config.json" OR path_extension:"pt"`
+  },
+  "cxr-foundation": {
+    prettyLabel: "CXR Foundation",
+    repoName: "cxr-foundation",
+    repoUrl: "https://github.com/google-health/cxr-foundation",
+    snippets: cxr_foundation,
+    filter: false,
+    countDownloads: `path:"precomputed_embeddings/embeddings.npz" OR path:"pax-elixr-b-text/saved_model.pb"`
+  },
+  deepforest: {
+    prettyLabel: "DeepForest",
+    repoName: "deepforest",
+    docsUrl: "https://deepforest.readthedocs.io/en/latest/",
+    repoUrl: "https://github.com/weecology/DeepForest"
+  },
+  "depth-anything-v2": {
+    prettyLabel: "DepthAnythingV2",
+    repoName: "Depth Anything V2",
+    repoUrl: "https://github.com/DepthAnything/Depth-Anything-V2",
+    snippets: depth_anything_v2,
+    filter: false,
+    countDownloads: `path_extension:"pth"`
+  },
+  "depth-pro": {
+    prettyLabel: "Depth Pro",
+    repoName: "Depth Pro",
+    repoUrl: "https://github.com/apple/ml-depth-pro",
+    countDownloads: `path_extension:"pt"`,
+    snippets: depth_pro,
+    filter: false
+  },
+  "derm-foundation": {
+    prettyLabel: "Derm Foundation",
+    repoName: "derm-foundation",
+    repoUrl: "https://github.com/google-health/derm-foundation",
+    snippets: derm_foundation,
+    filter: false,
+    countDownloads: `path:"scin_dataset_precomputed_embeddings.npz" OR path:"saved_model.pb"`
+  },
+  "describe-anything": {
+    prettyLabel: "Describe Anything",
+    repoName: "Describe Anything",
+    repoUrl: "https://github.com/NVlabs/describe-anything",
+    snippets: describe_anything,
+    filter: false
+  },
+  "dia-tts": {
+    prettyLabel: "Dia",
+    repoName: "Dia",
+    repoUrl: "https://github.com/nari-labs/dia",
+    snippets: dia,
+    filter: false
+  },
+  dia2: {
+    prettyLabel: "Dia2",
+    repoName: "Dia2",
+    repoUrl: "https://github.com/nari-labs/dia2",
+    snippets: dia2,
+    filter: false
+  },
+  "diff-interpretation-tuning": {
+    prettyLabel: "Diff Interpretation Tuning",
+    repoName: "Diff Interpretation Tuning",
+    repoUrl: "https://github.com/Aviously/diff-interpretation-tuning",
+    filter: false,
+    countDownloads: `path_extension:"pt"`
+  },
+  diffree: {
+    prettyLabel: "Diffree",
+    repoName: "Diffree",
+    repoUrl: "https://github.com/OpenGVLab/Diffree",
+    filter: false,
+    countDownloads: `path:"diffree-step=000010999.ckpt"`
+  },
+  diffusers: {
+    prettyLabel: "Diffusers",
+    repoName: "\u{1F917}/diffusers",
+    repoUrl: "https://github.com/huggingface/diffusers",
+    docsUrl: "https://huggingface.co/docs/hub/diffusers",
+    snippets: diffusers,
+    filter: true
+    /// diffusers has its own more complex "countDownloads" query
+  },
+  diffusionkit: {
+    prettyLabel: "DiffusionKit",
+    repoName: "DiffusionKit",
+    repoUrl: "https://github.com/argmaxinc/DiffusionKit",
+    snippets: diffusionkit
+  },
+  "docking-at-home": {
+    prettyLabel: "Docking@Home",
+    repoName: "Docking@Home",
+    repoUrl: "https://huggingface.co/OpenPeerAI/DockingAtHOME",
+    filter: false,
+    countDownloads: `path:"setup.py"`
+  },
+  doctr: {
+    prettyLabel: "docTR",
+    repoName: "doctr",
+    repoUrl: "https://github.com/mindee/doctr"
+  },
+  drinkme: {
+    prettyLabel: "drinkme",
+    repoName: "drinkme",
+    repoUrl: "https://github.com/ninachaubal/drinkme",
+    docsUrl: "https://drinkme.petrichor.wtf",
+    filter: false,
+    countDownloads: `path_filename:"source-identity" AND path_extension:"json"`
+  },
+  edsnlp: {
+    prettyLabel: "EDS-NLP",
+    repoName: "edsnlp",
+    repoUrl: "https://github.com/aphp/edsnlp",
+    docsUrl: "https://aphp.github.io/edsnlp/latest/",
+    filter: false,
+    snippets: edsnlp,
+    countDownloads: `path_filename:"config" AND path_extension:"cfg"`
+  },
+  elm: {
+    prettyLabel: "ELM",
+    repoName: "elm",
+    repoUrl: "https://github.com/slicex-ai/elm",
+    filter: false,
+    countDownloads: `path_filename:"slicex_elm_config" AND path_extension:"json"`
+  },
+  encoderfile: {
+    prettyLabel: "encoderfile",
+    repoName: "encoderfile",
+    repoUrl: "https://github.com/mozilla-ai/encoderfile",
+    filter: false,
+    countDownloads: `path_extension:"encoderfile"`
+  },
+  ensomi: {
+    prettyLabel: "ensomi",
+    repoName: "ensomi",
+    repoUrl: "https://github.com/ensomi-labs/ensomi-model",
+    filter: false,
+    countDownloads: `(path_filename:"ensomi-package" AND path_extension:"json") OR path:"checkpoint.pt"`
+  },
+  espnet: {
+    prettyLabel: "ESPnet",
+    repoName: "ESPnet",
+    repoUrl: "https://github.com/espnet/espnet",
+    docsUrl: "https://huggingface.co/docs/hub/espnet",
+    snippets: espnet,
+    filter: true
+  },
+  eupe: {
+    prettyLabel: "EUPE",
+    repoName: "EUPE",
+    repoUrl: "https://github.com/facebookresearch/EUPE",
+    filter: false,
+    countDownloads: `path_extension:"pt"`
+  },
+  fairseq: {
+    prettyLabel: "Fairseq",
+    repoName: "fairseq",
+    repoUrl: "https://github.com/pytorch/fairseq",
+    snippets: fairseq,
+    filter: true
+  },
+  fastai: {
+    prettyLabel: "fastai",
+    repoName: "fastai",
+    repoUrl: "https://github.com/fastai/fastai",
+    docsUrl: "https://huggingface.co/docs/hub/fastai",
+    snippets: fastai,
+    filter: true
+  },
+  fastprint: {
+    prettyLabel: "Fast Print",
+    repoName: "Fast Print",
+    repoUrl: "https://huggingface.co/OpenPeerAI/FastPrint",
+    countDownloads: `path_extension:"cs"`
+  },
+  fasttext: {
+    prettyLabel: "fastText",
+    repoName: "fastText",
+    repoUrl: "https://fasttext.cc/",
+    snippets: fasttext,
+    filter: true,
+    countDownloads: `path_extension:"bin"`
+  },
+  fixer: {
+    prettyLabel: "Fixer",
+    repoName: "Fixer",
+    repoUrl: "https://github.com/nv-tlabs/Fixer",
+    filter: false,
+    countDownloads: `path:"pretrained/pretrained_fixer.pkl"`
+  },
+  flair: {
+    prettyLabel: "Flair",
+    repoName: "Flair",
+    repoUrl: "https://github.com/flairNLP/flair",
+    docsUrl: "https://huggingface.co/docs/hub/flair",
+    snippets: flair,
+    filter: true,
+    countDownloads: `path:"pytorch_model.bin"`
+  },
+  flexray: {
+    prettyLabel: "FleXray",
+    repoName: "FleXray",
+    repoUrl: "https://github.com/VictorButoi/FleXray",
+    filter: false,
+    countDownloads: `path_extension:"safetensors" OR path_extension:"onnx"`,
+    snippets: flexray
+  },
+  flextab: {
+    prettyLabel: "FlexTab",
+    repoName: "FlexTab",
+    repoUrl: "https://github.com/SAP-samples/flextab",
+    countDownloads: `path_extension:"pt"`,
+    snippets: flextab
+  },
+  fme: {
+    prettyLabel: "Full Model Emulation",
+    repoName: "Full Model Emulation",
+    repoUrl: "https://github.com/ai2cm/ace",
+    docsUrl: "https://ai2-climate-emulator.readthedocs.io/en/latest/",
+    filter: false,
+    countDownloads: `path_extension:"tar"`
+  },
+  gaussianformer: {
+    prettyLabel: "GaussianFormer",
+    repoName: "GaussianFormer",
+    repoUrl: "https://github.com/SVLwoof/gaussianformer",
+    snippets: gaussianformer,
+    filter: false,
+    countDownloads: `path:"config.json"`
+  },
+  "gemma.cpp": {
+    prettyLabel: "gemma.cpp",
+    repoName: "gemma.cpp",
+    repoUrl: "https://github.com/google/gemma.cpp",
+    filter: false,
+    countDownloads: `path_extension:"sbs"`
+  },
+  "geometry-crafter": {
+    prettyLabel: "GeometryCrafter",
+    repoName: "GeometryCrafter",
+    repoUrl: "https://github.com/TencentARC/GeometryCrafter",
+    countDownloads: `path:"point_map_vae/diffusion_pytorch_model.safetensors"`
+  },
+  gliformer: {
+    prettyLabel: "GLiFormer",
+    repoName: "GLiFormer",
+    repoUrl: "https://github.com/Knowledgator/GLiFormer",
+    filter: false,
+    countDownloads: `path:"gliner_config.json"`
+  },
+  gliner: {
+    prettyLabel: "GLiNER",
+    repoName: "GLiNER",
+    repoUrl: "https://github.com/urchade/GLiNER",
+    snippets: gliner,
+    filter: false,
+    countDownloads: `path:"gliner_config.json"`
+  },
+  gliner2: {
+    prettyLabel: "GLiNER2",
+    repoName: "GLiNER2",
+    repoUrl: "https://github.com/fastino-ai/GLiNER2",
+    snippets: gliner2,
+    filter: false
+  },
+  "glm-tts": {
+    prettyLabel: "GLM-TTS",
+    repoName: "GLM-TTS",
+    repoUrl: "https://github.com/zai-org/GLM-TTS",
+    filter: false,
+    countDownloads: `path:"flow/flow.pt"`
+  },
+  "glyph-byt5": {
+    prettyLabel: "Glyph-ByT5",
+    repoName: "Glyph-ByT5",
+    repoUrl: "https://github.com/AIGText/Glyph-ByT5",
+    filter: false,
+    countDownloads: `path:"checkpoints/byt5_model.pt"`
+  },
+  "granite-library": {
+    prettyLabel: "Granite Library",
+    repoName: "mellea",
+    repoUrl: "https://github.com/generative-computing/mellea",
+    filter: false,
+    countDownloads: `path_filename:"adapter_config" AND path_extension:"json"`
+  },
+  grok: {
+    prettyLabel: "Grok",
+    repoName: "Grok",
+    repoUrl: "https://github.com/xai-org/grok-1",
+    filter: false,
+    countDownloads: `path:"ckpt/tensor00000_000" OR path:"ckpt-0/tensor00000_000"`
+  },
+  "habibi-tts": {
+    prettyLabel: "Habibi-TTS",
+    repoName: "Habibi-TTS",
+    repoUrl: "https://github.com/SWivid/Habibi-TTS",
+    filter: false,
+    countDownloads: `path_extension:"safetensors"`
+  },
+  hallo: {
+    prettyLabel: "Hallo",
+    repoName: "Hallo",
+    repoUrl: "https://github.com/fudan-generative-vision/hallo",
+    countDownloads: `path:"hallo/net.pth"`
+  },
+  "minimax-h3": {
+    prettyLabel: "MiniMax H3",
+    repoName: "MiniMax-H3",
+    repoUrl: "https://github.com/MiniMax-AI/MiniMax-H3",
+    docsUrl: "https://huggingface.co/MiniMaxAI/MiniMax-H3",
+    filter: false,
+    countDownloads: `path_extension:"safetensors" OR path_filename:"model_index" OR path_filename:"config" OR path:"modular_model_index.json"`
+  },
+  mect: {
+    prettyLabel: "MECT",
+    repoName: "AntSpeaker",
+    repoUrl: "https://github.com/ant-research/AntSpeaker",
+    filter: false,
+    countDownloads: `path_extension:"pt"`
+  },
+  hermes: {
+    prettyLabel: "HERMES",
+    repoName: "HERMES",
+    repoUrl: "https://github.com/LMD0311/HERMES",
+    filter: false,
+    countDownloads: `path:"ckpt/hermes_final.pth"`
+  },
+  holomotion: {
+    prettyLabel: "HoloMotion",
+    repoName: "HoloMotion",
+    repoUrl: "https://github.com/HorizonRobotics/HoloMotion",
+    filter: false,
+    countDownloads: `path_extension:"onnx"`
+  },
+  hezar: {
+    prettyLabel: "Hezar",
+    repoName: "Hezar",
+    repoUrl: "https://github.com/hezarai/hezar",
+    docsUrl: "https://hezarai.github.io/hezar",
+    countDownloads: `path:"model_config.yaml" OR path:"embedding/embedding_config.yaml"`
+  },
+  htrflow: {
+    prettyLabel: "HTRflow",
+    repoName: "HTRflow",
+    repoUrl: "https://github.com/AI-Riksarkivet/htrflow",
+    docsUrl: "https://ai-riksarkivet.github.io/htrflow",
+    snippets: htrflow
+  },
+  "hunyuan-dit": {
+    prettyLabel: "HunyuanDiT",
+    repoName: "HunyuanDiT",
+    repoUrl: "https://github.com/Tencent/HunyuanDiT",
+    countDownloads: `path:"pytorch_model_ema.pt" OR path:"pytorch_model_distill.pt"`
+  },
+  "hunyuan3d-2": {
+    prettyLabel: "Hunyuan3D-2",
+    repoName: "Hunyuan3D-2",
+    repoUrl: "https://github.com/Tencent/Hunyuan3D-2",
+    countDownloads: `path_filename:"model_index" OR path_filename:"config"`
+  },
+  "hunyuanworld-voyager": {
+    prettyLabel: "HunyuanWorld-voyager",
+    repoName: "HunyuanWorld-voyager",
+    repoUrl: "https://github.com/Tencent-Hunyuan/HunyuanWorld-Voyager"
+  },
+  "hy-worldplay": {
+    prettyLabel: "HY-WorldPlay",
+    repoName: "HY-WorldPlay",
+    repoUrl: "https://github.com/Tencent-Hunyuan/HY-WorldPlay",
+    filter: false,
+    countDownloads: `path_extension:"json"`
+  },
+  "hy-world-2": {
+    prettyLabel: "HY-World-2.0",
+    repoName: "HY-World-2.0",
+    repoUrl: "https://github.com/Tencent-Hunyuan/HY-World-2.0",
+    filter: false,
+    countDownloads: `path_extension:"json"`
+  },
+  "image-matching-models": {
+    prettyLabel: "Image Matching Models",
+    repoName: "Image Matching Models",
+    repoUrl: "https://github.com/alexstoken/image-matching-models",
+    filter: false,
+    countDownloads: `path_extension:"safetensors"`
+  },
+  imstoucan: {
+    prettyLabel: "IMS Toucan",
+    repoName: "IMS-Toucan",
+    repoUrl: "https://github.com/DigitalPhonetics/IMS-Toucan",
+    countDownloads: `path:"embedding_gan.pt" OR path:"Vocoder.pt" OR path:"ToucanTTS.pt"`
+  },
+  "index-tts": {
+    prettyLabel: "IndexTTS",
+    repoName: "IndexTTS",
+    repoUrl: "https://github.com/index-tts/index-tts",
+    snippets: indextts,
+    filter: false
+  },
+  infinitetalk: {
+    prettyLabel: "InfiniteTalk",
+    repoName: "InfiniteTalk",
+    repoUrl: "https://github.com/MeiGen-AI/InfiniteTalk",
+    filter: false,
+    countDownloads: `path_extension:"safetensors"`
+  },
+  "infinite-you": {
+    prettyLabel: "InfiniteYou",
+    repoName: "InfiniteYou",
+    repoUrl: "https://github.com/bytedance/InfiniteYou",
+    filter: false,
+    countDownloads: `path:"infu_flux_v1.0/sim_stage1/image_proj_model.bin" OR path:"infu_flux_v1.0/aes_stage2/image_proj_model.bin"`
+  },
+  intellifold: {
+    prettyLabel: "IntelliFold",
+    repoName: "IntelliFold",
+    repoUrl: "https://github.com/IntelliGen-AI/IntelliFold",
+    filter: false,
+    countDownloads: `path_extension:"pt" OR path_extension:"zst"`
+  },
+  "ising-decoding": {
+    prettyLabel: "Ising Decoding",
+    repoName: "Ising-Decoding",
+    repoUrl: "https://github.com/NVIDIA/Ising-Decoding",
+    filter: false,
+    countDownloads: `path_extension:"safetensors"`
+  },
+  "jev-style": {
+    prettyLabel: "jev-style",
+    repoName: "jev-style",
+    repoUrl: "https://github.com/lawrence3699/jev-style",
+    snippets: jev_style,
+    filter: false,
+    countDownloads: `path_extension:"gguf" OR (path_filename:"config" AND path_extension:"json")`
+  },
+  keras: {
+    prettyLabel: "Keras",
+    repoName: "Keras",
+    repoUrl: "https://github.com/keras-team/keras",
+    docsUrl: "https://huggingface.co/docs/hub/keras",
+    snippets: keras,
+    filter: true,
+    countDownloads: `path:"config.json" OR path_extension:"keras"`
+  },
+  "tf-keras": {
+    // Legacy "Keras 2" library (tensorflow-only)
+    prettyLabel: "TF-Keras",
+    repoName: "TF-Keras",
+    repoUrl: "https://github.com/keras-team/tf-keras",
+    docsUrl: "https://huggingface.co/docs/hub/tf-keras",
+    snippets: tf_keras,
+    countDownloads: `path:"saved_model.pb"`
+  },
+  "keras-hub": {
+    prettyLabel: "KerasHub",
+    repoName: "KerasHub",
+    repoUrl: "https://github.com/keras-team/keras-hub",
+    docsUrl: "https://keras.io/keras_hub/",
+    snippets: keras_hub,
+    filter: true
+  },
+  zeromodels: {
+    prettyLabel: "ZeroModels",
+    repoName: "ZeroModels",
+    repoUrl: "https://github.com/IMvision12/ZeroModels",
+    docsUrl: "https://imvision12.github.io/ZeroModels/",
+    snippets: zeromodels,
+    countDownloads: `path:"model.weights.h5" OR path:"model.weights.json"`,
+    filter: false
+  },
+  kernels: {
+    prettyLabel: "Kernels",
+    repoName: "Kernels",
+    repoUrl: "https://github.com/huggingface/kernels",
+    docsUrl: "https://huggingface.co/docs/kernels",
+    snippets: kernels,
+    countDownloads: `path_filename:"_ops" AND path_extension:"py"`
+  },
+  "kimi-audio": {
+    prettyLabel: "KimiAudio",
+    repoName: "KimiAudio",
+    repoUrl: "https://github.com/MoonshotAI/Kimi-Audio",
+    snippets: kimi_audio,
+    filter: false
+  },
+  kittentts: {
+    prettyLabel: "KittenTTS",
+    repoName: "KittenTTS",
+    repoUrl: "https://github.com/KittenML/KittenTTS",
+    snippets: kittentts
+  },
+  kronos: {
+    prettyLabel: "KRONOS",
+    repoName: "KRONOS",
+    repoUrl: "https://github.com/mahmoodlab/KRONOS",
+    filter: false,
+    countDownloads: `path_extension:"pt"`
+  },
+  k2: {
+    prettyLabel: "K2",
+    repoName: "k2",
+    repoUrl: "https://github.com/k2-fsa/k2"
+  },
+  "lyra-2.0": {
+    prettyLabel: "Lyra-2.0",
+    repoName: "Lyra-2.0",
+    repoUrl: "https://github.com/nv-tlabs/lyra",
+    filter: false,
+    countDownloads: `path:"checkpoints/image_encoder/model.pth"`
+  },
+  lagernvs: {
+    prettyLabel: "LagerNVS",
+    repoName: "LagerNVS",
+    repoUrl: "https://github.com/facebookresearch/lagernvs",
+    filter: false,
+    countDownloads: `path_extension:"pt"`
+  },
+  laya: {
+    prettyLabel: "Laya",
+    repoName: "Laya",
+    repoUrl: "https://github.com/NandhaKishorM/laya",
+    filter: false,
+    countDownloads: `path:"rl_agent_config.json"`
+  },
+  ltx: {
+    prettyLabel: "LTX-2",
+    repoName: "LTX-2",
+    repoUrl: "https://github.com/Lightricks/LTX-2",
+    docsUrl: "https://github.com/Lightricks/LTX-2",
+    snippets: ltx,
+    filter: false,
+    countDownloads: `path_extension:"safetensors"`
+  },
+  "lightning-ir": {
+    prettyLabel: "Lightning IR",
+    repoName: "Lightning IR",
+    repoUrl: "https://github.com/webis-de/lightning-ir",
+    snippets: lightning_ir
+  },
+  litert: {
+    prettyLabel: "LiteRT",
+    repoName: "LiteRT",
+    repoUrl: "https://github.com/google-ai-edge/LiteRT",
+    filter: false,
+    countDownloads: `path_extension:"tflite"`
+  },
+  "litert-lm": {
+    prettyLabel: "LiteRT-LM",
+    repoName: "LiteRT-LM",
+    repoUrl: "https://github.com/google-ai-edge/LiteRT-LM",
+    snippets: litert_lm,
+    filter: false,
+    countDownloads: `path_extension:"litertlm" OR path_extension:"task"`
+  },
+  lerobot: {
+    prettyLabel: "LeRobot",
+    repoName: "LeRobot",
+    repoUrl: "https://github.com/huggingface/lerobot",
+    docsUrl: "https://huggingface.co/docs/lerobot",
+    filter: false,
+    snippets: lerobot
+  },
+  lightglue: {
+    prettyLabel: "LightGlue",
+    repoName: "LightGlue",
+    repoUrl: "https://github.com/cvg/LightGlue",
+    filter: false,
+    countDownloads: `path_extension:"pth" OR path:"config.json"`
+  },
+  liveportrait: {
+    prettyLabel: "LivePortrait",
+    repoName: "LivePortrait",
+    repoUrl: "https://github.com/KwaiVGI/LivePortrait",
+    filter: false,
+    countDownloads: `path:"liveportrait/landmark.onnx"`
+  },
+  "longcat-video-avatar-1.5": {
+    prettyLabel: "LongCat-Video-Avatar 1.5",
+    repoName: "LongCat-Video-Avatar 1.5",
+    repoUrl: "https://github.com/meituan-longcat/LongCat-Video",
+    filter: false
+  },
+  "llama-cpp-python": {
+    prettyLabel: "llama-cpp-python",
+    repoName: "llama-cpp-python",
+    repoUrl: "https://github.com/abetlen/llama-cpp-python",
+    snippets: llama_cpp_python
+  },
+  "mini-omni2": {
+    prettyLabel: "Mini-Omni2",
+    repoName: "Mini-Omni2",
+    repoUrl: "https://github.com/gpt-omni/mini-omni2",
+    countDownloads: `path:"model_config.yaml"`
+  },
+  mindspore: {
+    prettyLabel: "MindSpore",
+    repoName: "mindspore",
+    repoUrl: "https://github.com/mindspore-ai/mindspore"
+  },
+  "magi-1": {
+    prettyLabel: "MAGI-1",
+    repoName: "MAGI-1",
+    repoUrl: "https://github.com/SandAI-org/MAGI-1",
+    countDownloads: `path:"ckpt/vae/config.json"`
+  },
+  "magenta-realtime": {
+    prettyLabel: "Magenta RT",
+    repoName: "Magenta RT",
+    repoUrl: "https://github.com/magenta/magenta-realtime",
+    countDownloads: `path:"checkpoints/llm_base_x4286_c1860k.tar" OR path:"checkpoints/llm_large_x3047_c1860k.tar" OR path:"checkpoints/llm_large_x3047_c1860k/checkpoint"`
+  },
+  "magenta-realtime-2": {
+    prettyLabel: "Magenta RT 2",
+    repoName: "Magenta RT 2",
+    repoUrl: "https://github.com/magenta/magenta-realtime",
+    countDownloads: `path:"models/mrt2_base/mrt2_base.mlxfn" OR path:"models/mrt2_small/mrt2_small.mlxfn" OR path:"checkpoints/mrt2_base.safetensors" OR path:"checkpoints/mrt2_small.safetensors"`
+  },
+  "mamba-ssm": {
+    prettyLabel: "MambaSSM",
+    repoName: "MambaSSM",
+    repoUrl: "https://github.com/state-spaces/mamba",
+    filter: false,
+    snippets: mamba_ssm
+  },
+  "manas-1": {
+    prettyLabel: "MANAS-1",
+    repoName: "MANAS-1",
+    repoUrl: "https://github.com/NeurodxAI/manas-1",
+    countDownloads: `path_extension:"pt"`
+  },
+  "mars5-tts": {
+    prettyLabel: "MARS5-TTS",
+    repoName: "MARS5-TTS",
+    repoUrl: "https://github.com/Camb-ai/MARS5-TTS",
+    filter: false,
+    countDownloads: `path:"mars5_ar.safetensors"`,
+    snippets: mars5_tts
+  },
+  matanyone: {
+    prettyLabel: "MatAnyone",
+    repoName: "MatAnyone",
+    repoUrl: "https://github.com/pq-yang/MatAnyone",
+    snippets: matanyone,
+    filter: false
+  },
+  memra: {
+    prettyLabel: "memra",
+    repoName: "memra",
+    repoUrl: "https://github.com/avifenesh/memra",
+    snippets: memra,
+    filter: false
+  },
+  "mesh-anything": {
+    prettyLabel: "MeshAnything",
+    repoName: "MeshAnything",
+    repoUrl: "https://github.com/buaacyw/MeshAnything",
+    filter: false,
+    countDownloads: `path:"MeshAnything_350m.pth"`,
+    snippets: mesh_anything
+  },
+  merlin: {
+    prettyLabel: "Merlin",
+    repoName: "Merlin",
+    repoUrl: "https://github.com/StanfordMIMI/Merlin",
+    filter: false,
+    countDownloads: `path_extension:"pt"`
+  },
+  medvae: {
+    prettyLabel: "MedVAE",
+    repoName: "MedVAE",
+    repoUrl: "https://github.com/StanfordMIMI/MedVAE",
+    filter: false,
+    countDownloads: `path_extension:"ckpt"`
+  },
+  mflux: {
+    prettyLabel: "mflux",
+    repoName: "mflux",
+    repoUrl: "https://github.com/filipstrand/mflux",
+    filter: false,
+    countDownloads: `path_extension:"safetensors"`
+  },
+  microduck: {
+    prettyLabel: "Microduck",
+    repoName: "Microduck",
+    repoUrl: "https://github.com/pollen-robotics/microduck",
+    snippets: microduck,
+    filter: true,
+    countDownloads: `path_extension:"onnx"`
+  },
+  mitie: {
+    prettyLabel: "MITIE",
+    repoName: "MITIE",
+    repoUrl: "https://github.com/mit-nlp/MITIE",
+    countDownloads: `path_filename:"total_word_feature_extractor"`
+  },
+  "ml-agents": {
+    prettyLabel: "ml-agents",
+    repoName: "ml-agents",
+    repoUrl: "https://github.com/Unity-Technologies/ml-agents",
+    docsUrl: "https://huggingface.co/docs/hub/ml-agents",
+    snippets: mlAgents,
+    filter: true,
+    countDownloads: `path_extension:"onnx"`
+  },
+  "ml-sharp": {
+    prettyLabel: "Sharp",
+    repoName: "Sharp",
+    repoUrl: "https://github.com/apple/ml-sharp",
+    filter: false,
+    countDownloads: `path_extension:"pt"`
+  },
+  mlx: {
+    prettyLabel: "MLX",
+    repoName: "MLX",
+    repoUrl: "https://github.com/ml-explore/mlx-examples/tree/main",
+    snippets: mlx,
+    filter: true
+  },
+  "mlx-image": {
+    prettyLabel: "mlx-image",
+    repoName: "mlx-image",
+    repoUrl: "https://github.com/riccardomusmeci/mlx-image",
+    docsUrl: "https://huggingface.co/docs/hub/mlx-image",
+    snippets: mlxim,
+    filter: false,
+    countDownloads: `path:"model.safetensors"`
+  },
+  "mlc-llm": {
+    prettyLabel: "MLC-LLM",
+    repoName: "MLC-LLM",
+    repoUrl: "https://github.com/mlc-ai/mlc-llm",
+    docsUrl: "https://llm.mlc.ai/docs/",
+    filter: false,
+    countDownloads: `path:"mlc-chat-config.json"`
+  },
+  model2vec: {
+    prettyLabel: "Model2Vec",
+    repoName: "model2vec",
+    repoUrl: "https://github.com/MinishLab/model2vec",
+    snippets: model2vec,
+    filter: false
+  },
+  mobilint: {
+    prettyLabel: "Mobilint",
+    repoName: "mblt-model-zoo",
+    repoUrl: "https://github.com/mobilint/mblt-model-zoo",
+    docsUrl: "https://docs.mobilint.com",
+    countDownloads: `path:"config.json" OR path_extension:"mxq"`,
+    snippets: mobilint,
+    filter: false
+  },
+  "montreal-forced-aligner": {
+    prettyLabel: "Montreal Forced Aligner",
+    repoName: "Montreal Forced Aligner",
+    repoUrl: "https://github.com/MontrealCorpusTools/Montreal-Forced-Aligner",
+    docsUrl: "https://montreal-forced-aligner.readthedocs.io",
+    filter: false,
+    countDownloads: `path:"acoustic/final.mdl" OR path_extension:"zip"`
+  },
+  moshi: {
+    prettyLabel: "Moshi",
+    repoName: "Moshi",
+    repoUrl: "https://github.com/kyutai-labs/moshi",
+    snippets: moshi,
+    filter: false,
+    countDownloads: `path:"tokenizer-e351c8d8-checkpoint125.safetensors"`
+  },
+  mtvcraft: {
+    prettyLabel: "MTVCraft",
+    repoName: "MTVCraft",
+    repoUrl: "https://github.com/baaivision/MTVCraft",
+    filter: false,
+    countDownloads: `path:"vae/3d-vae.pt"`
+  },
+  multimolecule: {
+    prettyLabel: "MultiMolecule",
+    repoName: "MultiMolecule",
+    repoUrl: "https://github.com/MultiMolecule/multimolecule",
+    docsUrl: "https://multimolecule.danling.org",
+    snippets: multimolecule,
+    filter: false
+  },
+  nemo: {
+    prettyLabel: "NeMo",
+    repoName: "NeMo",
+    repoUrl: "https://github.com/NVIDIA/NeMo",
+    snippets: nemo,
+    filter: true,
+    countDownloads: `path_extension:"nemo" OR path:"model_config.yaml" OR path_extension:"json"`
+  },
+  ninfer: {
+    prettyLabel: "NInfer",
+    repoName: "NInfer",
+    repoUrl: "https://github.com/Neroued/ninfer",
+    filter: false,
+    countDownloads: `path_extension:"ninfer"`
+  },
+  nobg: {
+    prettyLabel: "nobg",
+    repoName: "nobg",
+    repoUrl: "https://github.com/feyninc/nobg",
+    snippets: nobg,
+    filter: false
+  },
+  "nv-medtech": {
+    prettyLabel: "NV-MedTech",
+    repoName: "NV-MedTech",
+    filter: false,
+    repoUrl: "https://github.com/nvidia-medtech",
+    countDownloads: `path_extension:"pt" OR path_extension:"safetensors" OR path:"config.json"`
+  },
+  "open-oasis": {
+    prettyLabel: "open-oasis",
+    repoName: "open-oasis",
+    repoUrl: "https://github.com/etched-ai/open-oasis",
+    countDownloads: `path:"oasis500m.safetensors"`
+  },
+  open_clip: {
+    prettyLabel: "OpenCLIP",
+    repoName: "OpenCLIP",
+    repoUrl: "https://github.com/mlfoundations/open_clip",
+    snippets: open_clip,
+    filter: true,
+    countDownloads: `path:"open_clip_model.safetensors"
+			OR path:"model.safetensors"
+			OR path:"open_clip_pytorch_model.bin"
+			OR path:"pytorch_model.bin"`
+  },
+  openasr: {
+    prettyLabel: "OpenASR",
+    repoName: "OpenASR",
+    repoUrl: "https://github.com/QuintinShaw/openasr",
+    docsUrl: "https://github.com/QuintinShaw/openasr/blob/main/docs/DOCS_INDEX.md",
+    snippets: openasr,
+    filter: false,
+    countDownloads: `path_extension:"oasr"`
+  },
+  opendde: {
+    prettyLabel: "OpenDDE",
+    repoName: "OpenDDE",
+    repoUrl: "https://github.com/aurekaresearch/OpenDDE",
+    docsUrl: "https://huggingface.co/aurekaresearch/OpenDDE/blob/main/docs/inference_instructions.md",
+    snippets: opendde,
+    filter: false,
+    countDownloads: `path_extension:"pt"`
+  },
+  openpeerllm: {
+    prettyLabel: "OpenPeerLLM",
+    repoName: "OpenPeerLLM",
+    repoUrl: "https://huggingface.co/openpeerai/openpeerllm",
+    docsUrl: "https://huggingface.co/OpenPeerAI/OpenPeerLLM/blob/main/README.md",
+    countDownloads: `path:".meta-huggingface.json"`,
+    filter: false
+  },
+  "open-sora": {
+    prettyLabel: "Open-Sora",
+    repoName: "Open-Sora",
+    repoUrl: "https://github.com/hpcaitech/Open-Sora",
+    filter: false,
+    countDownloads: `path:"Open_Sora_v2.safetensors"`
+  },
+  outetts: {
+    prettyLabel: "OuteTTS",
+    repoName: "OuteTTS",
+    repoUrl: "https://github.com/edwko/OuteTTS",
+    snippets: outetts,
+    filter: false
+  },
+  paddlenlp: {
+    prettyLabel: "paddlenlp",
+    repoName: "PaddleNLP",
+    repoUrl: "https://github.com/PaddlePaddle/PaddleNLP",
+    docsUrl: "https://huggingface.co/docs/hub/paddlenlp",
+    snippets: paddlenlp,
+    filter: true,
+    countDownloads: `path:"model_config.json"`
+  },
+  PaddleOCR: {
+    prettyLabel: "PaddleOCR",
+    repoName: "PaddleOCR",
+    repoUrl: "https://github.com/PaddlePaddle/PaddleOCR",
+    docsUrl: "https://www.paddleocr.ai/",
+    snippets: paddleocr,
+    filter: true,
+    countDownloads: `path_extension:"safetensors" OR path:"inference.pdiparams" OR path:"inference.onnx"`
+  },
+  peft: {
+    prettyLabel: "PEFT",
+    repoName: "PEFT",
+    repoUrl: "https://github.com/huggingface/peft",
+    snippets: peft,
+    filter: true,
+    countDownloads: `path:"adapter_config.json"`
+  },
+  "perception-encoder": {
+    prettyLabel: "PerceptionEncoder",
+    repoName: "PerceptionModels",
+    repoUrl: "https://github.com/facebookresearch/perception_models",
+    filter: false,
+    snippets: perception_encoder,
+    countDownloads: `path_extension:"pt"`
+  },
+  "phantom-wan": {
+    prettyLabel: "Phantom",
+    repoName: "Phantom",
+    repoUrl: "https://github.com/Phantom-video/Phantom",
+    snippets: phantom_wan,
+    filter: false,
+    countDownloads: `path_extension:"pth"`
+  },
+  piper: {
+    prettyLabel: "Piper",
+    repoName: "Piper",
+    repoUrl: "https://github.com/OHF-Voice/piper1-gpl",
+    filter: false,
+    countDownloads: `path_extension:"onnx" OR path_extension:"ckpt"`
+  },
+  "pocket-tts": {
+    prettyLabel: "Pocket-TTS",
+    repoName: "PocketTTS",
+    repoUrl: "https://github.com/kyutai-labs/pocket-tts",
+    snippets: pocket_tts,
+    filter: false,
+    countDownloads: `path:"tts_b6369a24.safetensors"`
+  },
+  "pruna-ai": {
+    prettyLabel: "Pruna AI",
+    repoName: "Pruna AI",
+    repoUrl: "https://github.com/PrunaAI/pruna",
+    snippets: pruna,
+    docsUrl: "https://docs.pruna.ai"
+  },
+  pxia: {
+    prettyLabel: "pxia",
+    repoName: "pxia",
+    repoUrl: "https://github.com/not-lain/pxia",
+    snippets: pxia,
+    filter: false
+  },
+  "pyannote-audio": {
+    prettyLabel: "pyannote.audio",
+    repoName: "pyannote-audio",
+    repoUrl: "https://github.com/pyannote/pyannote-audio",
+    snippets: pyannote_audio,
+    filter: true
+  },
+  "py-feat": {
+    prettyLabel: "Py-Feat",
+    repoName: "Py-Feat",
+    repoUrl: "https://github.com/cosanlab/py-feat",
+    docsUrl: "https://py-feat.org/",
+    filter: false
+  },
+  pythae: {
+    prettyLabel: "pythae",
+    repoName: "pythae",
+    repoUrl: "https://github.com/clementchadebec/benchmark_VAE",
+    snippets: pythae,
+    filter: false
+  },
+  quantumpeer: {
+    prettyLabel: "QuantumPeer",
+    repoName: "QuantumPeer",
+    repoUrl: "https://github.com/OpenPeer-AI/QuantumPeer",
+    filter: false,
+    countDownloads: `path_extension:"setup.py"`
+  },
+  qwen3_tts: {
+    prettyLabel: "Qwen3-TTS",
+    repoName: "Qwen3-TTS",
+    repoUrl: "https://github.com/QwenLM/Qwen3-TTS",
+    snippets: qwen3_tts,
+    filter: false
+  },
+  recurrentgemma: {
+    prettyLabel: "RecurrentGemma",
+    repoName: "recurrentgemma",
+    repoUrl: "https://github.com/google-deepmind/recurrentgemma",
+    filter: false,
+    countDownloads: `path:"tokenizer.model"`
+  },
+  relik: {
+    prettyLabel: "Relik",
+    repoName: "Relik",
+    repoUrl: "https://github.com/SapienzaNLP/relik",
+    snippets: relik,
+    filter: false
+  },
+  refiners: {
+    prettyLabel: "Refiners",
+    repoName: "Refiners",
+    repoUrl: "https://github.com/finegrain-ai/refiners",
+    docsUrl: "https://refine.rs/",
+    filter: false,
+    countDownloads: `path:"model.safetensors"`
+  },
+  renderformer: {
+    prettyLabel: "RenderFormer",
+    repoName: "RenderFormer",
+    repoUrl: "https://github.com/microsoft/renderformer",
+    snippets: renderformer,
+    filter: false
+  },
+  reverb: {
+    prettyLabel: "Reverb",
+    repoName: "Reverb",
+    repoUrl: "https://github.com/revdotcom/reverb",
+    filter: false
+  },
+  rkllm: {
+    prettyLabel: "RKLLM",
+    repoName: "RKLLM",
+    repoUrl: "https://github.com/airockchip/rknn-llm",
+    countDownloads: `path_extension:"rkllm"`
+  },
+  "robo-orchard-lab": {
+    prettyLabel: "RoboOrchardLab",
+    repoName: "RoboOrchardLab",
+    repoUrl: "https://github.com/HorizonRobotics/RoboOrchardLab",
+    filter: false,
+    countDownloads: `path_extension:"safetensors"`
+  },
+  "routee-powertrain": {
+    prettyLabel: "RouteE-Powertrain",
+    repoName: "RouteE-Powertrain",
+    repoUrl: "https://github.com/NatLabRockies/routee-powertrain",
+    docsUrl: "https://natlabrockies.github.io/routee-powertrain/",
+    snippets: routee_powertrain,
+    filter: false,
+    countDownloads: `path_extension:"onnx" OR path_extension:"joblib"`
+  },
+  rwkv: {
+    prettyLabel: "RWKV",
+    repoName: "RWKV-LM",
+    repoUrl: "https://github.com/BlinkDL/RWKV-LM",
+    docsUrl: "https://rwkv.com/",
+    filter: false,
+    countDownloads: `path_extension:"pth"`
+  },
+  saelens: {
+    prettyLabel: "SAELens",
+    repoName: "SAELens",
+    repoUrl: "https://github.com/jbloomAus/SAELens",
+    snippets: saelens,
+    filter: false
+  },
+  "sage-music": {
+    prettyLabel: "SAGE",
+    repoName: "SAGE",
+    repoUrl: "https://github.com/francescobrigante/SAGE",
+    filter: false,
+    countDownloads: `path_extension:"ckpt"`
+  },
+  "scail-2": {
+    prettyLabel: "SCAIL-2",
+    repoName: "SCAIL-2",
+    repoUrl: "https://github.com/zai-org/SCAIL-2",
+    filter: false,
+    countDownloads: `path:"model/1/fsdp2_rank_0000_checkpoint.pt"`
+  },
+  sam2: {
+    prettyLabel: "sam2",
+    repoName: "sam2",
+    repoUrl: "https://github.com/facebookresearch/segment-anything-2",
+    filter: false,
+    snippets: sam2,
+    countDownloads: `path_extension:"pt"`
+  },
+  "sam-3d-body": {
+    prettyLabel: "SAM 3D Body",
+    repoName: "SAM 3D Body",
+    repoUrl: "https://github.com/facebookresearch/sam-3d-body",
+    filter: false,
+    snippets: sam_3d_body,
+    countDownloads: `path:"model_config.yaml"`
+  },
+  "sam-3d-objects": {
+    prettyLabel: "SAM 3D Objects",
+    repoName: "SAM 3D Objects",
+    repoUrl: "https://github.com/facebookresearch/sam-3d-objects",
+    filter: false,
+    snippets: sam_3d_objects,
+    countDownloads: `path:"checkpoints/pipeline.yaml"`
+  },
+  same: {
+    prettyLabel: "SAME",
+    repoName: "SAME",
+    repoUrl: "https://github.com/GengzeZhou/SAME",
+    filter: false,
+    countDownloads: `path:"ckpt/SAME.pt" OR path:"pretrain/Attnq_pretrained_ckpt.pt"`
+  },
+  "sample-factory": {
+    prettyLabel: "sample-factory",
+    repoName: "sample-factory",
+    repoUrl: "https://github.com/alex-petrenko/sample-factory",
+    docsUrl: "https://huggingface.co/docs/hub/sample-factory",
+    snippets: sampleFactory,
+    filter: true,
+    countDownloads: `path:"cfg.json"`
+  },
+  "sap-rpt-1-oss": {
+    prettyLabel: "sap-rpt-1-oss",
+    repoName: "sap-rpt-1-oss",
+    repoUrl: "https://github.com/SAP-samples/sap-rpt-1-oss",
+    countDownloads: `path_extension:"pt"`,
+    snippets: sap_rpt_one_oss
+  },
+  sapiens: {
+    prettyLabel: "sapiens",
+    repoName: "sapiens",
+    repoUrl: "https://github.com/facebookresearch/sapiens",
+    filter: false,
+    countDownloads: `path_extension:"pt2" OR path_extension:"pth" OR path_extension:"onnx"`
+  },
+  sapiens2: {
+    prettyLabel: "sapiens2",
+    repoName: "sapiens2",
+    repoUrl: "https://github.com/facebookresearch/sapiens2",
+    filter: false,
+    countDownloads: `path_extension:"safetensors"`
+  },
+  seedvr: {
+    prettyLabel: "SeedVR",
+    repoName: "SeedVR",
+    repoUrl: "https://github.com/ByteDance-Seed/SeedVR",
+    filter: false,
+    countDownloads: `path_extension:"pth"`
+  },
+  "self-forcing": {
+    prettyLabel: "SelfForcing",
+    repoName: "SelfForcing",
+    repoUrl: "https://github.com/guandeh17/Self-Forcing",
+    filter: false,
+    countDownloads: `path_extension:"pt"`
+  },
+  "sentence-transformers": {
+    prettyLabel: "sentence-transformers",
+    repoName: "sentence-transformers",
+    repoUrl: "https://github.com/UKPLab/sentence-transformers",
+    docsUrl: "https://huggingface.co/docs/hub/sentence-transformers",
+    snippets: sentenceTransformers,
+    filter: true
+  },
+  setfit: {
+    prettyLabel: "setfit",
+    repoName: "setfit",
+    repoUrl: "https://github.com/huggingface/setfit",
+    docsUrl: "https://huggingface.co/docs/hub/setfit",
+    snippets: setfit,
+    filter: true
+  },
+  shadow: {
+    prettyLabel: "Shadow",
+    repoName: "Shadow",
+    repoUrl: "https://github.com/QLNI/SHADOW-250M-Instruct",
+    filter: false,
+    countDownloads: `path_extension:"shdw"`
+  },
+  sklearn: {
+    prettyLabel: "Scikit-learn",
+    repoName: "Scikit-learn",
+    repoUrl: "https://github.com/scikit-learn/scikit-learn",
+    snippets: sklearn,
+    filter: true,
+    countDownloads: `path:"sklearn_model.joblib"`
+  },
+  spacy: {
+    prettyLabel: "spaCy",
+    repoName: "spaCy",
+    repoUrl: "https://github.com/explosion/spaCy",
+    docsUrl: "https://huggingface.co/docs/hub/spacy",
+    snippets: spacy,
+    filter: true,
+    countDownloads: `path_extension:"whl"`
+  },
+  "span-marker": {
+    prettyLabel: "SpanMarker",
+    repoName: "SpanMarkerNER",
+    repoUrl: "https://github.com/tomaarsen/SpanMarkerNER",
+    docsUrl: "https://huggingface.co/docs/hub/span_marker",
+    snippets: span_marker,
+    filter: true
+  },
+  speechbrain: {
+    prettyLabel: "speechbrain",
+    repoName: "speechbrain",
+    repoUrl: "https://github.com/speechbrain/speechbrain",
+    docsUrl: "https://huggingface.co/docs/hub/speechbrain",
+    snippets: speechbrain,
+    filter: true,
+    countDownloads: `path:"hyperparams.yaml"`
+  },
+  "ssr-speech": {
+    prettyLabel: "SSR-Speech",
+    repoName: "SSR-Speech",
+    repoUrl: "https://github.com/WangHelin1997/SSR-Speech",
+    filter: false,
+    countDownloads: `path_extension:".pth"`
+  },
+  "stable-audio-3": {
+    prettyLabel: "Stable Audio 3",
+    repoName: "stable-audio-3",
+    repoUrl: "https://github.com/Stability-AI/stable-audio-3",
+    filter: false,
+    countDownloads: `path:"model_config.json"`
+  },
+  "stable-audio-tools": {
+    prettyLabel: "Stable Audio Tools",
+    repoName: "stable-audio-tools",
+    repoUrl: "https://github.com/Stability-AI/stable-audio-tools.git",
+    filter: false,
+    countDownloads: `path:"model.safetensors"`,
+    snippets: stable_audio_tools
+  },
+  monkeyocr: {
+    prettyLabel: "MonkeyOCR",
+    repoName: "monkeyocr",
+    repoUrl: "https://github.com/Yuliang-Liu/MonkeyOCR",
+    filter: false,
+    countDownloads: `path:"Recognition/config.json"`
+  },
+  "diffusion-single-file": {
+    prettyLabel: "Diffusion Single File",
+    repoName: "diffusion-single-file",
+    repoUrl: "https://github.com/comfyanonymous/ComfyUI",
+    filter: false,
+    countDownloads: `path_extension:"safetensors"`
+  },
+  "seed-story": {
+    prettyLabel: "SEED-Story",
+    repoName: "SEED-Story",
+    repoUrl: "https://github.com/TencentARC/SEED-Story",
+    filter: false,
+    countDownloads: `path:"cvlm_llama2_tokenizer/tokenizer.model"`,
+    snippets: seed_story
+  },
+  skala: {
+    prettyLabel: "Skala",
+    repoName: "Skala",
+    repoUrl: "https://github.com/microsoft/skala",
+    filter: false,
+    countDownloads: `path_extension:"fun"`
+  },
+  soloaudio: {
+    prettyLabel: "SoloAudio",
+    repoName: "SoloAudio",
+    repoUrl: "https://github.com/WangHelin1997/SoloAudio",
+    filter: false,
+    countDownloads: `path:"soloaudio_v2.pt"`
+  },
+  songbloom: {
+    prettyLabel: "SongBloom",
+    repoName: "SongBloom",
+    repoUrl: "https://github.com/Cypress-Yang/SongBloom",
+    filter: false,
+    countDownloads: `path_extension:"pt"`
+  },
+  "stable-baselines3": {
+    prettyLabel: "stable-baselines3",
+    repoName: "stable-baselines3",
+    repoUrl: "https://github.com/huggingface/huggingface_sb3",
+    docsUrl: "https://huggingface.co/docs/hub/stable-baselines3",
+    snippets: stableBaselines3,
+    filter: true,
+    countDownloads: `path_extension:"zip"`
+  },
+  stanza: {
+    prettyLabel: "Stanza",
+    repoName: "stanza",
+    repoUrl: "https://github.com/stanfordnlp/stanza",
+    docsUrl: "https://huggingface.co/docs/hub/stanza",
+    snippets: stanza,
+    filter: true,
+    countDownloads: `path:"models/default.zip"`
+  },
+  supertonic: {
+    prettyLabel: "Supertonic",
+    repoName: "Supertonic",
+    repoUrl: "https://github.com/supertone-inc/supertonic",
+    snippets: supertonic,
+    filter: false
+  },
+  swarmformer: {
+    prettyLabel: "SwarmFormer",
+    repoName: "SwarmFormer",
+    repoUrl: "https://github.com/takara-ai/SwarmFormer",
+    snippets: swarmformer,
+    filter: false
+  },
+  "synthefy-migas": {
+    prettyLabel: "Migas",
+    repoName: "Migas",
+    repoUrl: "https://github.com/Synthefy/synthefy-migas",
+    filter: false,
+    countDownloads: `path:"model.pt"`
+  },
+  "f5-tts": {
+    prettyLabel: "F5-TTS",
+    repoName: "F5-TTS",
+    repoUrl: "https://github.com/SWivid/F5-TTS",
+    filter: false,
+    countDownloads: `path_extension:"safetensors" OR path_extension:"pt"`
+  },
+  genmo: {
+    prettyLabel: "Genmo",
+    repoName: "Genmo",
+    repoUrl: "https://github.com/genmoai/models",
+    filter: false,
+    countDownloads: `path:"vae_stats.json"`
+  },
+  "tencent-song-generation": {
+    prettyLabel: "SongGeneration",
+    repoName: "SongGeneration",
+    repoUrl: "https://github.com/tencent-ailab/songgeneration",
+    filter: false,
+    countDownloads: `path:"ckpt/songgeneration_base/model.pt"`
+  },
+  tensorflowtts: {
+    prettyLabel: "TensorFlowTTS",
+    repoName: "TensorFlowTTS",
+    repoUrl: "https://github.com/TensorSpeech/TensorFlowTTS",
+    snippets: tensorflowtts
+  },
+  tensorrt: {
+    prettyLabel: "TensorRT",
+    repoName: "TensorRT",
+    repoUrl: "https://github.com/NVIDIA/TensorRT",
+    countDownloads: `path_extension:"onnx"`
+  },
+  tabpfn: {
+    prettyLabel: "TabPFN",
+    repoName: "TabPFN",
+    repoUrl: "https://github.com/PriorLabs/TabPFN"
+  },
+  terratorch: {
+    prettyLabel: "TerraTorch",
+    repoName: "TerraTorch",
+    repoUrl: "https://github.com/IBM/terratorch",
+    docsUrl: "https://ibm.github.io/terratorch/",
+    filter: false,
+    countDownloads: `path_extension:"pt" OR path_extension:"ckpt"`,
+    snippets: terratorch
+  },
+  "tic-clip": {
+    prettyLabel: "TiC-CLIP",
+    repoName: "TiC-CLIP",
+    repoUrl: "https://github.com/apple/ml-tic-clip",
+    filter: false,
+    countDownloads: `path_extension:"pt" AND path_prefix:"checkpoints/"`
+  },
+  timesfm: {
+    prettyLabel: "TimesFM",
+    repoName: "timesfm",
+    repoUrl: "https://github.com/google-research/timesfm",
+    filter: false,
+    countDownloads: `path:"config.json" OR path:"torch_model.ckpt" OR path:"checkpoints/checkpoint_1100000/state/checkpoint" OR path:"checkpoints/checkpoint_2150000/state/checkpoint"`
+  },
+  "timee-ts": {
+    prettyLabel: "timee-ts",
+    repoName: "timee-ts",
+    repoUrl: "https://github.com/liamsbhoo/timee",
+    filter: false,
+    countDownloads: `path:"model.safetensors"`
+  },
+  timm: {
+    prettyLabel: "timm",
+    repoName: "pytorch-image-models",
+    repoUrl: "https://github.com/rwightman/pytorch-image-models",
+    docsUrl: "https://huggingface.co/docs/hub/timm",
+    snippets: timm,
+    filter: true,
+    countDownloads: `path:"pytorch_model.bin" OR path:"model.safetensors"`
+  },
+  tirex: {
+    prettyLabel: "TiRex",
+    repoName: "TiRex",
+    repoUrl: "https://github.com/NX-AI/tirex",
+    countDownloads: `path_extension:"ckpt"`
+  },
+  "tirex-2": {
+    prettyLabel: "TiRex-2",
+    repoName: "TiRex-2",
+    repoUrl: "https://github.com/NX-AI/tirex-2",
+    countDownloads: `path:"model-config.yaml"`
+  },
+  torchgeo: {
+    prettyLabel: "TorchGeo",
+    repoName: "TorchGeo",
+    repoUrl: "https://github.com/microsoft/torchgeo",
+    docsUrl: "https://torchgeo.readthedocs.io/",
+    filter: false,
+    countDownloads: `path_extension:"pt" OR path_extension:"pth"`
+  },
+  transformers: {
+    prettyLabel: "Transformers",
+    repoName: "\u{1F917}/transformers",
+    repoUrl: "https://github.com/huggingface/transformers",
+    docsUrl: "https://huggingface.co/docs/hub/transformers",
+    snippets: transformers,
+    filter: true
+  },
+  "transformers.js": {
+    prettyLabel: "Transformers.js",
+    repoName: "transformers.js",
+    repoUrl: "https://github.com/huggingface/transformers.js",
+    docsUrl: "https://huggingface.co/docs/hub/transformers-js",
+    snippets: transformersJS,
+    filter: true
+  },
+  trellis: {
+    prettyLabel: "Trellis",
+    repoName: "Trellis",
+    repoUrl: "https://github.com/microsoft/TRELLIS",
+    countDownloads: `path_extension:"safetensors"`
+  },
+  trellis2: {
+    prettyLabel: "TRELLIS.2",
+    repoName: "TRELLIS.2",
+    repoUrl: "https://github.com/microsoft/TRELLIS.2",
+    countDownloads: `path_extension:"safetensors"`
+  },
+  tunejury: {
+    prettyLabel: "TuneJury",
+    repoName: "TuneJury",
+    repoUrl: "https://github.com/yonghyunk1m/TuneJury",
+    countDownloads: `path_extension:"pt"`
+  },
+  ultralytics: {
+    prettyLabel: "ultralytics",
+    repoName: "ultralytics",
+    repoUrl: "https://github.com/ultralytics/ultralytics",
+    docsUrl: "https://github.com/ultralytics/ultralytics",
+    filter: false,
+    countDownloads: `path_extension:"pt"`,
+    snippets: ultralytics
+  },
+  univa: {
+    prettyLabel: "univa",
+    repoName: "univa",
+    repoUrl: "https://github.com/PKU-YuanGroup/UniWorld-V1",
+    snippets: univa,
+    filter: true,
+    countDownloads: `path:"config.json"`
+  },
+  "uni-3dar": {
+    prettyLabel: "Uni-3DAR",
+    repoName: "Uni-3DAR",
+    repoUrl: "https://github.com/dptech-corp/Uni-3DAR",
+    docsUrl: "https://github.com/dptech-corp/Uni-3DAR",
+    countDownloads: `path_extension:"pt"`
+  },
+  "unity-sentis": {
+    prettyLabel: "unity-sentis",
+    repoName: "unity-sentis",
+    repoUrl: "https://github.com/Unity-Technologies/sentis-samples",
+    snippets: sentis,
+    filter: true,
+    countDownloads: `path_extension:"sentis"`
+  },
+  sana: {
+    prettyLabel: "Sana",
+    repoName: "Sana",
+    repoUrl: "https://github.com/NVlabs/Sana",
+    countDownloads: `path_extension:"pth"`,
+    snippets: sana
+  },
+  videoprism: {
+    prettyLabel: "VideoPrism",
+    repoName: "VideoPrism",
+    repoUrl: "https://github.com/google-deepmind/videoprism",
+    countDownloads: `path_extension:"npz"`,
+    snippets: videoprism
+  },
+  "vfi-mamba": {
+    prettyLabel: "VFIMamba",
+    repoName: "VFIMamba",
+    repoUrl: "https://github.com/MCG-NJU/VFIMamba",
+    countDownloads: `path_extension:"pkl"`,
+    snippets: vfimamba
+  },
+  vismatch: {
+    prettyLabel: "VisMatch",
+    repoName: "VisMatch",
+    repoUrl: "https://github.com/gmberton/vismatch",
+    filter: false,
+    countDownloads: `path:"vismatch.yaml"`
+  },
+  lvface: {
+    prettyLabel: "LVFace",
+    repoName: "LVFace",
+    repoUrl: "https://github.com/bytedance/LVFace",
+    countDownloads: `path_extension:"pt" OR path_extension:"onnx"`,
+    snippets: lvface
+  },
+  voicecraft: {
+    prettyLabel: "VoiceCraft",
+    repoName: "VoiceCraft",
+    repoUrl: "https://github.com/jasonppy/VoiceCraft",
+    docsUrl: "https://github.com/jasonppy/VoiceCraft",
+    snippets: voicecraft
+  },
+  voxcpm: {
+    prettyLabel: "VoxCPM",
+    repoName: "VoxCPM",
+    repoUrl: "https://github.com/OpenBMB/VoxCPM",
+    snippets: voxcpm,
+    filter: false
+  },
+  vui: {
+    prettyLabel: "Vui",
+    repoName: "Vui",
+    repoUrl: "https://github.com/vui-ai/vui",
+    countDownloads: `path_extension:"pt"`,
+    snippets: vui
+  },
+  vqweb: {
+    prettyLabel: "vqweb",
+    repoName: "vqweb",
+    repoUrl: "https://github.com/rosecky/embedding-quantization-public/tree/main/packages/vqweb",
+    docsUrl: "https://www.npmjs.com/package/@thinletterio/vqweb",
+    countDownloads: `path_extension:"vqw"`,
+    filter: false
+  },
+  vibevoice: {
+    prettyLabel: "VibeVoice",
+    repoName: "VibeVoice",
+    repoUrl: "https://github.com/microsoft/VibeVoice",
+    snippets: vibevoice,
+    filter: false
+  },
+  videox_fun: {
+    prettyLabel: "VideoX Fun",
+    repoName: "VideoX Fun",
+    repoUrl: "https://github.com/aigc-apps/VideoX-Fun",
+    filter: false,
+    countDownloads: `path_extension:"safetensors"`
+  },
+  "wan2.2": {
+    prettyLabel: "Wan2.2",
+    repoName: "Wan2.2",
+    repoUrl: "https://github.com/Wan-Video/Wan2.2",
+    countDownloads: `path_filename:"config" AND path_extension:"json"`
+  },
+  wham: {
+    prettyLabel: "WHAM",
+    repoName: "wham",
+    repoUrl: "https://huggingface.co/microsoft/wham",
+    docsUrl: "https://huggingface.co/microsoft/wham/blob/main/README.md",
+    countDownloads: `path_extension:"ckpt"`
+  },
+  whisperkit: {
+    prettyLabel: "WhisperKit",
+    repoName: "WhisperKit",
+    repoUrl: "https://github.com/argmaxinc/WhisperKit",
+    docsUrl: "https://github.com/argmaxinc/WhisperKit?tab=readme-ov-file#homebrew",
+    snippets: whisperkit,
+    countDownloads: `path_filename:"model" AND path_extension:"mil" AND _exists_:"path_prefix"`
+  },
+  yolov10: {
+    // YOLOv10 is a fork of ultraLytics. Code snippets and download count are the same but the repo is different.
+    prettyLabel: "YOLOv10",
+    repoName: "YOLOv10",
+    repoUrl: "https://github.com/THU-MIG/yolov10",
+    docsUrl: "https://github.com/THU-MIG/yolov10",
+    countDownloads: `path_extension:"pt" OR path_extension:"safetensors"`,
+    snippets: ultralytics
+  },
+  yolov26: {
+    prettyLabel: "YOLOv26",
+    repoName: "YOLOv26",
+    repoUrl: "https://github.com/ultralytics/ultralytics",
+    docsUrl: "https://docs.ultralytics.com/models/yolo26/",
+    countDownloads: `path_extension:"pt" OR path_extension:"safetensors"`
+  },
+  zonos: {
+    prettyLabel: "Zonos",
+    repoName: "Zonos",
+    repoUrl: "https://github.com/Zyphra/Zonos",
+    docsUrl: "https://github.com/Zyphra/Zonos",
+    snippets: zonos,
+    filter: false
+  },
+  "3dtopia-xl": {
+    prettyLabel: "3DTopia-XL",
+    repoName: "3DTopia-XL",
+    repoUrl: "https://github.com/3DTopia/3DTopia-XL",
+    filter: false,
+    countDownloads: `path:"model_vae_fp16.pt"`,
+    snippets: threedtopia_xl
+  }
+};
+var ALL_MODEL_LIBRARY_KEYS = Object.keys(MODEL_LIBRARIES_UI_ELEMENTS);
+var ALL_DISPLAY_MODEL_LIBRARY_KEYS = Object.entries(MODEL_LIBRARIES_UI_ELEMENTS).filter(([_, v]) => v.filter).map(([k]) => k);
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/gguf.js
+var GGMLFileQuantizationType;
+(function(GGMLFileQuantizationType2) {
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["F32"] = 0] = "F32";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["F16"] = 1] = "F16";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q4_0"] = 2] = "Q4_0";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q4_1"] = 3] = "Q4_1";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q4_1_SOME_F16"] = 4] = "Q4_1_SOME_F16";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q4_2"] = 5] = "Q4_2";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q4_3"] = 6] = "Q4_3";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q8_0"] = 7] = "Q8_0";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q5_0"] = 8] = "Q5_0";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q5_1"] = 9] = "Q5_1";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q2_K"] = 10] = "Q2_K";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q3_K_S"] = 11] = "Q3_K_S";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q3_K_M"] = 12] = "Q3_K_M";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q3_K_L"] = 13] = "Q3_K_L";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q4_K_S"] = 14] = "Q4_K_S";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q4_K_M"] = 15] = "Q4_K_M";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q5_K_S"] = 16] = "Q5_K_S";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q5_K_M"] = 17] = "Q5_K_M";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q6_K"] = 18] = "Q6_K";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["IQ2_XXS"] = 19] = "IQ2_XXS";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["IQ2_XS"] = 20] = "IQ2_XS";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q2_K_S"] = 21] = "Q2_K_S";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["IQ3_XS"] = 22] = "IQ3_XS";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["IQ3_XXS"] = 23] = "IQ3_XXS";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["IQ1_S"] = 24] = "IQ1_S";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["IQ4_NL"] = 25] = "IQ4_NL";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["IQ3_S"] = 26] = "IQ3_S";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["IQ3_M"] = 27] = "IQ3_M";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["IQ2_S"] = 28] = "IQ2_S";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["IQ2_M"] = 29] = "IQ2_M";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["IQ4_XS"] = 30] = "IQ4_XS";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["IQ1_M"] = 31] = "IQ1_M";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["BF16"] = 32] = "BF16";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q4_0_4_4"] = 33] = "Q4_0_4_4";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q4_0_4_8"] = 34] = "Q4_0_4_8";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q4_0_8_8"] = 35] = "Q4_0_8_8";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["TQ1_0"] = 36] = "TQ1_0";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["TQ2_0"] = 37] = "TQ2_0";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["MXFP4_MOE"] = 38] = "MXFP4_MOE";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["NVFP4"] = 39] = "NVFP4";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q1_0"] = 40] = "Q1_0";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q2_0"] = 41] = "Q2_0";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q2_K_XL"] = 1e3] = "Q2_K_XL";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q3_K_XL"] = 1001] = "Q3_K_XL";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q4_K_XL"] = 1002] = "Q4_K_XL";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q5_K_XL"] = 1003] = "Q5_K_XL";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q6_K_XL"] = 1004] = "Q6_K_XL";
+  GGMLFileQuantizationType2[GGMLFileQuantizationType2["Q8_K_XL"] = 1005] = "Q8_K_XL";
+})(GGMLFileQuantizationType || (GGMLFileQuantizationType = {}));
+var ggufQuants = Object.values(GGMLFileQuantizationType).filter((v) => typeof v === "string");
+var GGUF_QUANT_FILENAME_ALIASES = ["MXFP4"];
+var GGUF_QUANT_RE = new RegExp(`(?<prefix>UD-)?(?<quant>${[...ggufQuants, ...GGUF_QUANT_FILENAME_ALIASES].join("|")})(_(?<sizeVariation>[A-Z]+))?`);
+var GGUF_QUANT_RE_GLOBAL = new RegExp(GGUF_QUANT_RE, "g");
+var GGUF_QUANT_ORDER = [
+  GGMLFileQuantizationType.F32,
+  GGMLFileQuantizationType.BF16,
+  GGMLFileQuantizationType.F16,
+  GGMLFileQuantizationType.Q8_K_XL,
+  GGMLFileQuantizationType.Q8_0,
+  // 6-bit quantizations
+  GGMLFileQuantizationType.Q6_K_XL,
+  GGMLFileQuantizationType.Q6_K,
+  // 5-bit quantizations
+  GGMLFileQuantizationType.Q5_K_XL,
+  GGMLFileQuantizationType.Q5_K_M,
+  GGMLFileQuantizationType.Q5_K_S,
+  GGMLFileQuantizationType.Q5_0,
+  GGMLFileQuantizationType.Q5_1,
+  // 4-bit quantizations
+  GGMLFileQuantizationType.Q4_K_XL,
+  GGMLFileQuantizationType.Q4_K_M,
+  GGMLFileQuantizationType.Q4_K_S,
+  GGMLFileQuantizationType.IQ4_NL,
+  GGMLFileQuantizationType.IQ4_XS,
+  GGMLFileQuantizationType.Q4_0_4_4,
+  GGMLFileQuantizationType.Q4_0_4_8,
+  GGMLFileQuantizationType.Q4_0_8_8,
+  GGMLFileQuantizationType.Q4_1_SOME_F16,
+  GGMLFileQuantizationType.Q4_0,
+  GGMLFileQuantizationType.Q4_1,
+  GGMLFileQuantizationType.Q4_2,
+  GGMLFileQuantizationType.Q4_3,
+  GGMLFileQuantizationType.MXFP4_MOE,
+  GGMLFileQuantizationType.NVFP4,
+  // 3-bit quantizations
+  GGMLFileQuantizationType.Q3_K_XL,
+  GGMLFileQuantizationType.Q3_K_L,
+  GGMLFileQuantizationType.Q3_K_M,
+  GGMLFileQuantizationType.Q3_K_S,
+  GGMLFileQuantizationType.IQ3_M,
+  GGMLFileQuantizationType.IQ3_S,
+  GGMLFileQuantizationType.IQ3_XS,
+  GGMLFileQuantizationType.IQ3_XXS,
+  // 2-bit quantizations
+  GGMLFileQuantizationType.Q2_K_XL,
+  GGMLFileQuantizationType.Q2_K,
+  GGMLFileQuantizationType.Q2_K_S,
+  GGMLFileQuantizationType.IQ2_M,
+  GGMLFileQuantizationType.IQ2_S,
+  GGMLFileQuantizationType.IQ2_XS,
+  GGMLFileQuantizationType.IQ2_XXS,
+  GGMLFileQuantizationType.Q2_0,
+  // 1-bit quantizations
+  GGMLFileQuantizationType.IQ1_S,
+  GGMLFileQuantizationType.IQ1_M,
+  GGMLFileQuantizationType.TQ1_0,
+  GGMLFileQuantizationType.TQ2_0,
+  GGMLFileQuantizationType.Q1_0
+];
+var GGMLQuantizationType;
+(function(GGMLQuantizationType2) {
+  GGMLQuantizationType2[GGMLQuantizationType2["F32"] = 0] = "F32";
+  GGMLQuantizationType2[GGMLQuantizationType2["F16"] = 1] = "F16";
+  GGMLQuantizationType2[GGMLQuantizationType2["Q4_0"] = 2] = "Q4_0";
+  GGMLQuantizationType2[GGMLQuantizationType2["Q4_1"] = 3] = "Q4_1";
+  GGMLQuantizationType2[GGMLQuantizationType2["Q5_0"] = 6] = "Q5_0";
+  GGMLQuantizationType2[GGMLQuantizationType2["Q5_1"] = 7] = "Q5_1";
+  GGMLQuantizationType2[GGMLQuantizationType2["Q8_0"] = 8] = "Q8_0";
+  GGMLQuantizationType2[GGMLQuantizationType2["Q8_1"] = 9] = "Q8_1";
+  GGMLQuantizationType2[GGMLQuantizationType2["Q2_K"] = 10] = "Q2_K";
+  GGMLQuantizationType2[GGMLQuantizationType2["Q3_K"] = 11] = "Q3_K";
+  GGMLQuantizationType2[GGMLQuantizationType2["Q4_K"] = 12] = "Q4_K";
+  GGMLQuantizationType2[GGMLQuantizationType2["Q5_K"] = 13] = "Q5_K";
+  GGMLQuantizationType2[GGMLQuantizationType2["Q6_K"] = 14] = "Q6_K";
+  GGMLQuantizationType2[GGMLQuantizationType2["Q8_K"] = 15] = "Q8_K";
+  GGMLQuantizationType2[GGMLQuantizationType2["IQ2_XXS"] = 16] = "IQ2_XXS";
+  GGMLQuantizationType2[GGMLQuantizationType2["IQ2_XS"] = 17] = "IQ2_XS";
+  GGMLQuantizationType2[GGMLQuantizationType2["IQ3_XXS"] = 18] = "IQ3_XXS";
+  GGMLQuantizationType2[GGMLQuantizationType2["IQ1_S"] = 19] = "IQ1_S";
+  GGMLQuantizationType2[GGMLQuantizationType2["IQ4_NL"] = 20] = "IQ4_NL";
+  GGMLQuantizationType2[GGMLQuantizationType2["IQ3_S"] = 21] = "IQ3_S";
+  GGMLQuantizationType2[GGMLQuantizationType2["IQ2_S"] = 22] = "IQ2_S";
+  GGMLQuantizationType2[GGMLQuantizationType2["IQ4_XS"] = 23] = "IQ4_XS";
+  GGMLQuantizationType2[GGMLQuantizationType2["I8"] = 24] = "I8";
+  GGMLQuantizationType2[GGMLQuantizationType2["I16"] = 25] = "I16";
+  GGMLQuantizationType2[GGMLQuantizationType2["I32"] = 26] = "I32";
+  GGMLQuantizationType2[GGMLQuantizationType2["I64"] = 27] = "I64";
+  GGMLQuantizationType2[GGMLQuantizationType2["F64"] = 28] = "F64";
+  GGMLQuantizationType2[GGMLQuantizationType2["IQ1_M"] = 29] = "IQ1_M";
+  GGMLQuantizationType2[GGMLQuantizationType2["BF16"] = 30] = "BF16";
+  GGMLQuantizationType2[GGMLQuantizationType2["TQ1_0"] = 34] = "TQ1_0";
+  GGMLQuantizationType2[GGMLQuantizationType2["TQ2_0"] = 35] = "TQ2_0";
+  GGMLQuantizationType2[GGMLQuantizationType2["MXFP4"] = 39] = "MXFP4";
+  GGMLQuantizationType2[GGMLQuantizationType2["NVFP4"] = 40] = "NVFP4";
+  GGMLQuantizationType2[GGMLQuantizationType2["Q1_0"] = 41] = "Q1_0";
+  GGMLQuantizationType2[GGMLQuantizationType2["Q2_0"] = 42] = "Q2_0";
+})(GGMLQuantizationType || (GGMLQuantizationType = {}));
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/hardware-nvidia.js
+var NvidiaComputeCapabilities;
+(function(NvidiaComputeCapabilities2) {
+  NvidiaComputeCapabilities2[NvidiaComputeCapabilities2["BLACKWELL_ULTRA"] = 12.1] = "BLACKWELL_ULTRA";
+  NvidiaComputeCapabilities2[NvidiaComputeCapabilities2["BLACKWELL_RTX"] = 12] = "BLACKWELL_RTX";
+  NvidiaComputeCapabilities2[NvidiaComputeCapabilities2["THOR"] = 11] = "THOR";
+  NvidiaComputeCapabilities2[NvidiaComputeCapabilities2["BLACKWELL"] = 10] = "BLACKWELL";
+  NvidiaComputeCapabilities2[NvidiaComputeCapabilities2["HOPPER"] = 9] = "HOPPER";
+  NvidiaComputeCapabilities2[NvidiaComputeCapabilities2["ADA_LOVELACE"] = 8.9] = "ADA_LOVELACE";
+  NvidiaComputeCapabilities2[NvidiaComputeCapabilities2["ORIN"] = 8.7] = "ORIN";
+  NvidiaComputeCapabilities2[NvidiaComputeCapabilities2["AMPERE_RTX"] = 8.6] = "AMPERE_RTX";
+  NvidiaComputeCapabilities2[NvidiaComputeCapabilities2["AMPERE"] = 8] = "AMPERE";
+  NvidiaComputeCapabilities2[NvidiaComputeCapabilities2["TURING"] = 7.5] = "TURING";
+  NvidiaComputeCapabilities2[NvidiaComputeCapabilities2["XAVIER"] = 7.2] = "XAVIER";
+  NvidiaComputeCapabilities2[NvidiaComputeCapabilities2["VOLTA"] = 7] = "VOLTA";
+  NvidiaComputeCapabilities2[NvidiaComputeCapabilities2["PASCAL_TEGRA"] = 6.2] = "PASCAL_TEGRA";
+  NvidiaComputeCapabilities2[NvidiaComputeCapabilities2["PASCAL"] = 6.1] = "PASCAL";
+  NvidiaComputeCapabilities2[NvidiaComputeCapabilities2["PASCAL_DATACENTER"] = 6] = "PASCAL_DATACENTER";
+  NvidiaComputeCapabilities2[NvidiaComputeCapabilities2["MAXWELL"] = 5.3] = "MAXWELL";
+})(NvidiaComputeCapabilities || (NvidiaComputeCapabilities = {}));
+
+// ../elt/node_modules/@huggingface/tasks/dist/esm/hardware.js
+var TFLOPS_THRESHOLD_WHITE_HOUSE_MODEL_TRAINING_TOTAL = 10 ** 14;
+var TFLOPS_THRESHOLD_WHITE_HOUSE_MODEL_TRAINING_TOTAL_BIOLOGY = 10 ** 11;
+var TFLOPS_THRESHOLD_WHITE_HOUSE_CLUSTER = 10 ** 8;
+var TFLOPS_THRESHOLD_EU_AI_ACT_MODEL_TRAINING_TOTAL = 10 ** 13;
+
+// ../elt/node_modules/@huggingface/gguf/dist/chunk-ZJG7NGQD.mjs
+var LLM_ARCHITECTURES = [
+  "llama",
+  "deci",
+  "falcon",
+  "grok",
+  "gpt2",
+  "gptj",
+  "gptneox",
+  "mpt",
+  "baichuan",
+  "starcoder",
+  "refact",
+  "bert",
+  "nomic-bert",
+  "jina-bert-v2",
+  "bloom",
+  "stablelm",
+  "qwen",
+  "qwen2",
+  "qwen2moe",
+  "qwen2vl",
+  "phi2",
+  "phi3",
+  "phimoe",
+  "plamo",
+  "codeshell",
+  "orion",
+  "internlm2",
+  "minicpm",
+  "minicpm3",
+  "gemma",
+  "gemma2",
+  "starcoder2",
+  "mamba",
+  "xverse",
+  "command-r",
+  "cohere2",
+  "dbrx",
+  "olmo",
+  "olmo2",
+  "olmoe",
+  "openelm",
+  "arctic",
+  "deepseek",
+  "deepseek2",
+  "chatglm",
+  "bitnet",
+  "t5",
+  "t5encoder",
+  "jais",
+  "nemotron",
+  "exaone",
+  "rwkv6",
+  "rwkv6qwen2",
+  "granite",
+  "granitemoe",
+  "chameleon",
+  "wavtokenizer-dec"
+];
+var GGUFValueType = /* @__PURE__ */ ((GGUFValueType2) => {
+  GGUFValueType2[GGUFValueType2["UINT8"] = 0] = "UINT8";
+  GGUFValueType2[GGUFValueType2["INT8"] = 1] = "INT8";
+  GGUFValueType2[GGUFValueType2["UINT16"] = 2] = "UINT16";
+  GGUFValueType2[GGUFValueType2["INT16"] = 3] = "INT16";
+  GGUFValueType2[GGUFValueType2["UINT32"] = 4] = "UINT32";
+  GGUFValueType2[GGUFValueType2["INT32"] = 5] = "INT32";
+  GGUFValueType2[GGUFValueType2["FLOAT32"] = 6] = "FLOAT32";
+  GGUFValueType2[GGUFValueType2["BOOL"] = 7] = "BOOL";
+  GGUFValueType2[GGUFValueType2["STRING"] = 8] = "STRING";
+  GGUFValueType2[GGUFValueType2["ARRAY"] = 9] = "ARRAY";
+  GGUFValueType2[GGUFValueType2["UINT64"] = 10] = "UINT64";
+  GGUFValueType2[GGUFValueType2["INT64"] = 11] = "INT64";
+  GGUFValueType2[GGUFValueType2["FLOAT64"] = 12] = "FLOAT64";
+  return GGUFValueType2;
+})(GGUFValueType || {});
+var ARCHITECTURES = [...LLM_ARCHITECTURES, "rwkv", "whisper"];
+var isBrowser = typeof window !== "undefined" && typeof window.document !== "undefined";
+var isWebWorker = typeof self === "object" && self.constructor && self.constructor.name === "DedicatedWorkerGlobalScope";
+var isBackend = !isBrowser && !isWebWorker;
+var GGUF_QUANT_DESCRIPTIONS = {
+  [GGMLQuantizationType.F32]: {
+    txt: "32-bit standard IEEE 754 single-precision floating-point number.",
+    src_url: "https://en.wikipedia.org/wiki/Single-precision_floating-point_format"
+  },
+  [GGMLQuantizationType.F16]: {
+    txt: "16-bit standard IEEE 754 half-precision floating-point number.",
+    src_url: "https://en.wikipedia.org/wiki/Half-precision_floating-point_format"
+  },
+  [GGMLQuantizationType.Q8_0]: {
+    txt: "8-bit round-to-nearest quantization (q). Each block has 32 weights. Weight formula: w = q * block_scale. Legacy quantization method (not used widely as of today).",
+    src_url: "https://github.com/huggingface/huggingface.js/pull/615#discussion_r1557654249"
+  },
+  [GGMLQuantizationType.Q8_1]: {
+    txt: "8-bit round-to-nearest quantization (q). Each block has 32 weights. Weight formula: w = q * block_scale + block_minimum. Legacy quantization method (not used widely as of today).",
+    src_url: "https://github.com/huggingface/huggingface.js/pull/615#discussion_r1557682290"
+  },
+  [GGMLQuantizationType.Q8_K]: {
+    txt: `8-bit quantization (q). Each block has 256 weights. Only used for quantizing intermediate results. All 2-6 bit dot products are implemented for this quantization type. Weight formula: w = q * block_scale.`,
+    src_url: "https://github.com/ggerganov/llama.cpp/pull/1684#issue-1739619305"
+  },
+  [GGMLQuantizationType.Q6_K]: {
+    txt: `6-bit quantization (q). Super-blocks with 16 blocks, each block has 16 weights. Weight formula: w = q * block_scale(8-bit), resulting in 6.5625 bits-per-weight.`,
+    src_url: "https://github.com/ggerganov/llama.cpp/pull/1684#issue-1739619305"
+  },
+  [GGMLQuantizationType.Q5_0]: {
+    txt: "5-bit round-to-nearest quantization (q). Each block has 32 weights. Weight formula: w = q * block_scale. Legacy quantization method (not used widely as of today).",
+    src_url: "https://github.com/huggingface/huggingface.js/pull/615#discussion_r1557654249"
+  },
+  [GGMLQuantizationType.Q5_1]: {
+    txt: "5-bit round-to-nearest quantization (q). Each block has 32 weights. Weight formula: w = q * block_scale + block_minimum. Legacy quantization method (not used widely as of today).",
+    src_url: "https://github.com/huggingface/huggingface.js/pull/615#discussion_r1557682290"
+  },
+  [GGMLQuantizationType.Q5_K]: {
+    txt: `5-bit quantization (q). Super-blocks with 8 blocks, each block has 32 weights. Weight formula: w = q * block_scale(6-bit) + block_min(6-bit), resulting in 5.5 bits-per-weight.`,
+    src_url: "https://github.com/ggerganov/llama.cpp/pull/1684#issue-1739619305"
+  },
+  [GGMLQuantizationType.Q4_0]: {
+    txt: "4-bit round-to-nearest quantization (q). Each block has 32 weights. Weight formula: w = q * block_scale. Legacy quantization method (not used widely as of today).",
+    src_url: "https://github.com/huggingface/huggingface.js/pull/615#discussion_r1557654249"
+  },
+  [GGMLQuantizationType.Q4_1]: {
+    txt: "4-bit round-to-nearest quantization (q). Each block has 32 weights. Weight formula: w = q * block_scale + block_minimum. Legacy quantization method (not used widely as of today).",
+    src_url: "https://github.com/huggingface/huggingface.js/pull/615#discussion_r1557682290"
+  },
+  [GGMLQuantizationType.Q4_K]: {
+    txt: `4-bit quantization (q). Super-blocks with 8 blocks, each block has 32 weights. Weight formula: w = q * block_scale(6-bit) + block_min(6-bit), resulting in 4.5 bits-per-weight.`,
+    src_url: "https://github.com/ggerganov/llama.cpp/pull/1684#issue-1739619305"
+  },
+  [GGMLQuantizationType.Q3_K]: {
+    txt: `3-bit quantization (q). Super-blocks with 16 blocks, each block has 16 weights. Weight formula: w = q * block_scale(6-bit), resulting. 3.4375 bits-per-weight.`,
+    src_url: "https://github.com/ggerganov/llama.cpp/pull/1684#issue-1739619305"
+  },
+  [GGMLQuantizationType.Q2_K]: {
+    txt: `2-bit quantization (q). Super-blocks with 16 blocks, each block has 16 weight. Weight formula: w = q * block_scale(4-bit) + block_min(4-bit), resulting in 2.625 bits-per-weight.`,
+    src_url: "https://github.com/ggerganov/llama.cpp/pull/1684#issue-1739619305"
+  },
+  [GGMLQuantizationType.IQ4_XS]: {
+    txt: "4-bit quantization (q). Super-blocks with 256 weights. Weight w is obtained using super_block_scale & importance matrix, resulting in 4.25 bits-per-weight.",
+    src_url: "https://huggingface.co/CISCai/OpenCodeInterpreter-DS-6.7B-SOTA-GGUF/blob/main/README.md?code=true#L59-L70"
+  },
+  [GGMLQuantizationType.IQ3_S]: {
+    txt: "3-bit quantization (q). Super-blocks with 256 weights. Weight w is obtained using super_block_scale & importance matrix, resulting in 3.44 bits-per-weight.",
+    src_url: "https://huggingface.co/CISCai/OpenCodeInterpreter-DS-6.7B-SOTA-GGUF/blob/main/README.md?code=true#L59-L70"
+  },
+  [GGMLQuantizationType.IQ3_XXS]: {
+    txt: "3-bit quantization (q). Super-blocks with 256 weights. Weight w is obtained using super_block_scale & importance matrix, resulting in 3.06 bits-per-weight.",
+    src_url: "https://huggingface.co/CISCai/OpenCodeInterpreter-DS-6.7B-SOTA-GGUF/blob/main/README.md?code=true#L59-L70"
+  },
+  [GGMLQuantizationType.IQ2_S]: {
+    txt: "2-bit quantization (q). Super-blocks with 256 weights. Weight w is obtained using super_block_scale & importance matrix, resulting in 2.5 bits-per-weight.",
+    src_url: "https://huggingface.co/CISCai/OpenCodeInterpreter-DS-6.7B-SOTA-GGUF/blob/main/README.md?code=true#L59-L70"
+  },
+  [GGMLQuantizationType.IQ2_XS]: {
+    txt: "2-bit quantization (q). Super-blocks with 256 weights. Weight w is obtained using super_block_scale & importance matrix, resulting in 2.31 bits-per-weight.",
+    src_url: "https://huggingface.co/CISCai/OpenCodeInterpreter-DS-6.7B-SOTA-GGUF/blob/main/README.md?code=true#L59-L70"
+  },
+  [GGMLQuantizationType.IQ2_XXS]: {
+    txt: "2-bit quantization (q). Super-blocks with 256 weights. Weight w is obtained using super_block_scale & importance matrix, resulting in 2.06 bits-per-weight.",
+    src_url: "https://huggingface.co/CISCai/OpenCodeInterpreter-DS-6.7B-SOTA-GGUF/blob/main/README.md?code=true#L59-L70"
+  },
+  [GGMLQuantizationType.IQ1_S]: {
+    txt: "1-bit quantization (q). Super-blocks with 256 weights. Weight w is obtained using super_block_scale & importance matrix, resulting in 1.56 bits-per-weight.",
+    src_url: "https://huggingface.co/CISCai/OpenCodeInterpreter-DS-6.7B-SOTA-GGUF/blob/main/README.md?code=true#L59-L70"
+  },
+  [GGMLQuantizationType.IQ4_NL]: {
+    txt: "4-bit quantization (q). Super-blocks with 256 weights. Weight w is obtained using super_block_scale & importance matrix.",
+    src_url: "https://github.com/ggerganov/llama.cpp/pull/5590"
+  },
+  [GGMLQuantizationType.I8]: {
+    txt: "8-bit fixed-width integer number.",
+    src_url: "https://github.com/ggerganov/llama.cpp/pull/6045"
+  },
+  [GGMLQuantizationType.I16]: {
+    txt: "16-bit fixed-width integer number.",
+    src_url: "https://github.com/ggerganov/llama.cpp/pull/6045"
+  },
+  [GGMLQuantizationType.I32]: {
+    txt: "32-bit fixed-width integer number.",
+    src_url: "https://github.com/ggerganov/llama.cpp/pull/6045"
+  },
+  [GGMLQuantizationType.I64]: {
+    txt: "64-bit fixed-width integer number.",
+    src_url: "https://github.com/ggerganov/llama.cpp/pull/6062"
+  },
+  [GGMLQuantizationType.F64]: {
+    txt: "64-bit standard IEEE 754 double-precision floating-point number.",
+    src_url: "https://en.wikipedia.org/wiki/Double-precision_floating-point_format"
+  },
+  [GGMLQuantizationType.IQ1_M]: {
+    txt: "1-bit quantization (q). Super-blocks with 256 weights. Weight w is obtained using super_block_scale & importance matrix, resulting in 1.75 bits-per-weight.",
+    src_url: "https://github.com/ggerganov/llama.cpp/pull/6302"
+  },
+  [GGMLQuantizationType.BF16]: {
+    txt: "16-bit shortened version of the 32-bit IEEE 754 single-precision floating-point number.",
+    src_url: "https://en.wikipedia.org/wiki/Bfloat16_floating-point_format"
+  },
+  [GGMLQuantizationType.TQ1_0]: {
+    txt: "Ternary quantization.",
+    src_url: "https://github.com/ggml-org/llama.cpp/pull/8151"
+  },
+  [GGMLQuantizationType.TQ2_0]: {
+    txt: "Ternary quantization.",
+    src_url: "https://github.com/ggml-org/llama.cpp/pull/8151"
+  },
+  [GGMLQuantizationType.MXFP4]: {
+    txt: "4-bit Microscaling Block Floating Point.",
+    src_url: "https://github.com/ggml-org/llama.cpp/pull/15091"
+  },
+  [GGMLQuantizationType.NVFP4]: {
+    txt: "4-bit Microscaling Block Floating Point with global scale.",
+    src_url: "https://github.com/ggml-org/llama.cpp/pull/19769"
+  },
+  [GGMLQuantizationType.Q1_0]: {
+    txt: "1-bit quantization with fp16 block scale. Each block has 128 weights, where 0 represents -block_scale and 1 represents +block_scale.",
+    src_url: "https://github.com/ggml-org/llama.cpp/pull/21273"
+  },
+  [GGMLQuantizationType.Q2_0]: {
+    txt: "2-bit quantization with fp16 block scale. Each block has 64 weights, where {0, 1, 2, 3} represents {-1, 0, +1, +2} * block_scale, resulting in 2.25 bits-per-weight.",
+    src_url: "https://github.com/ggml-org/llama.cpp/pull/24448"
+  }
+};
+var QK_K = 256;
+var calcBPW = (blockSize, typeSize) => {
+  return typeSize * 8 / blockSize;
+};
+var GGML_QUANT_SIZES = {
+  [GGMLQuantizationType.F32]: calcBPW(1, 4),
+  [GGMLQuantizationType.F16]: calcBPW(1, 2),
+  [GGMLQuantizationType.Q4_0]: calcBPW(32, 2 + 16),
+  [GGMLQuantizationType.Q4_1]: calcBPW(32, 2 + 2 + 16),
+  [GGMLQuantizationType.Q5_0]: calcBPW(32, 2 + 4 + 16),
+  [GGMLQuantizationType.Q5_1]: calcBPW(32, 2 + 2 + 4 + 16),
+  [GGMLQuantizationType.Q8_0]: calcBPW(32, 2 + 32),
+  [GGMLQuantizationType.Q8_1]: calcBPW(32, 4 + 4 + 32),
+  [GGMLQuantizationType.Q2_K]: calcBPW(256, 2 + 2 + QK_K / 16 + QK_K / 4),
+  [GGMLQuantizationType.Q3_K]: calcBPW(256, 2 + QK_K / 4 + QK_K / 8 + 12),
+  [GGMLQuantizationType.Q4_K]: calcBPW(256, 2 + 2 + QK_K / 2 + 12),
+  [GGMLQuantizationType.Q5_K]: calcBPW(256, 2 + 2 + QK_K / 2 + QK_K / 8 + 12),
+  [GGMLQuantizationType.Q6_K]: calcBPW(256, 2 + QK_K / 2 + QK_K / 4 + QK_K / 16),
+  [GGMLQuantizationType.Q8_K]: calcBPW(256, 4 + QK_K + QK_K / 8),
+  [GGMLQuantizationType.IQ2_XXS]: calcBPW(256, 2 + QK_K / 4),
+  [GGMLQuantizationType.IQ2_XS]: calcBPW(256, 2 + QK_K / 4 + QK_K / 32),
+  [GGMLQuantizationType.IQ3_XXS]: calcBPW(256, 2 + QK_K / 4 + QK_K / 8),
+  [GGMLQuantizationType.IQ1_S]: calcBPW(256, 2 + QK_K / 8 + QK_K / 16),
+  [GGMLQuantizationType.IQ4_NL]: calcBPW(32, 2 + 16),
+  [GGMLQuantizationType.IQ3_S]: calcBPW(256, 2 + QK_K / 4 + QK_K / 8 + QK_K / 32 + 4),
+  [GGMLQuantizationType.IQ2_S]: calcBPW(256, 2 + QK_K / 4 + QK_K / 16),
+  [GGMLQuantizationType.IQ4_XS]: calcBPW(256, 2 + 2 + QK_K / 2 + QK_K / 64),
+  [GGMLQuantizationType.I8]: calcBPW(1, 1),
+  [GGMLQuantizationType.I16]: calcBPW(1, 2),
+  [GGMLQuantizationType.I32]: calcBPW(1, 4),
+  [GGMLQuantizationType.I64]: calcBPW(1, 8),
+  [GGMLQuantizationType.F64]: calcBPW(1, 8),
+  [GGMLQuantizationType.IQ1_M]: calcBPW(256, QK_K / 8 + QK_K / 16 + QK_K / 32),
+  [GGMLQuantizationType.BF16]: calcBPW(1, 2),
+  [GGMLQuantizationType.TQ1_0]: calcBPW(256, 2 + 4 * 13),
+  [GGMLQuantizationType.TQ2_0]: calcBPW(256, 2 + 64),
+  [GGMLQuantizationType.MXFP4]: calcBPW(32, 1 + 16),
+  [GGMLQuantizationType.NVFP4]: calcBPW(64, 4 + 32),
+  [GGMLQuantizationType.Q1_0]: calcBPW(128, 2 + 16),
+  [GGMLQuantizationType.Q2_0]: calcBPW(64, 2 + 16)
+};
+var GGUF_DEFAULT_ALIGNMENT = 32;
+var MAX_METADATA_ARRAY_LENGTH = 1e6;
+var MAX_KV_COUNT = 1e5;
+var MAX_TENSOR_COUNT = 1e7;
+var MAX_STRING_LENGTH = 1e7;
+var MAX_TENSOR_NDIMS = 8;
+var MAX_TENSOR_DIM = 2 ** 32;
+var MIN_BITS_PER_PARAMETER = 1;
+var MAX_ARRAY_RECURSION_DEPTH = 4;
+var MAX_CHUNK_FETCHES_PER_VALUE = 30;
+var GGML_PAD = (x, n) => x + n - 1 & ~(n - 1);
+var GGUF_MAGIC_NUMBER = new Uint8Array([71, 71, 85, 70]);
+var isVersion = (version3) => version3 === 1 || version3 === 2 || version3 === 3;
+function isGGUFValueType(n) {
+  return typeof GGUFValueType[n] === "string";
+}
+var HTTP_CHUNK_SIZE = 2 * 10 ** 6;
+var HTTP_DATA_LEEWAY = 5 * 10 ** 5;
+var HTTP_TOTAL_MAX_SIZE = 50 * 10 ** 6;
+var RangeView = class {
+  constructor(uri, params) {
+    this.uri = uri;
+    this.params = params;
+    this.chunk = 0;
+    this.buffer = new ArrayBuffer(0, { maxByteLength: HTTP_TOTAL_MAX_SIZE });
+    this.dataView = new DataView(this.buffer);
+  }
+  chunk;
+  buffer;
+  dataView;
+  /**
+   * Total size of the underlying file, once known. Comes for free from the `Content-Range` of the
+   * first range request; `undefined` when the server doesn't report it (in which case size-based
+   * validation is skipped rather than guessed).
+   */
+  totalFileSize;
+  get view() {
+    return this.dataView;
+  }
+  get fileSize() {
+    return this.totalFileSize;
+  }
+  /**
+   * Fetch a new chunk from the server
+   */
+  async fetchChunk() {
+    const range = [this.chunk * HTTP_CHUNK_SIZE, (this.chunk + 1) * HTTP_CHUNK_SIZE - 1];
+    const response = await (this.params?.fetch ?? fetch)(this.uri, {
+      headers: {
+        ...this.params?.additionalFetchHeaders ?? {},
+        Range: `bytes=${range[0]}-${range[1]}`
+      }
+    });
+    const contentRange = response.headers.get("content-range");
+    const total = contentRange?.match(/\/\s*(\d+)\s*$/)?.[1];
+    if (total !== void 0) {
+      const parsed = Number(total);
+      if (Number.isSafeInteger(parsed) && parsed >= 0) {
+        this.totalFileSize = parsed;
+      }
+    }
+    const buf = new Uint8Array(await response.arrayBuffer());
+    this.appendBuffer(buf);
+    this.chunk += 1;
+  }
+  /**
+   * Append new data into the buffer
+   */
+  appendBuffer(buf) {
+    if (ArrayBuffer.prototype.resize) {
+      this.buffer.resize((this.chunk + 1) * HTTP_CHUNK_SIZE);
+      new Uint8Array(this.buffer).set(buf, this.chunk * HTTP_CHUNK_SIZE);
+    } else {
+      const newBuffer = new ArrayBuffer((this.chunk + 1) * HTTP_CHUNK_SIZE, { maxByteLength: HTTP_TOTAL_MAX_SIZE });
+      const arrView = new Uint8Array(newBuffer);
+      arrView.set(new Uint8Array(this.buffer));
+      arrView.set(buf, this.chunk * HTTP_CHUNK_SIZE);
+      this.buffer = newBuffer;
+      this.dataView = new DataView(this.buffer);
+    }
+  }
+  /**
+   * Check whether we need to fetch a new chunk
+   */
+  async fetchChunkIfNeeded(offset) {
+    if (this.dataView.byteLength - offset < HTTP_DATA_LEEWAY) {
+      await this.fetchChunk();
+    }
+  }
+};
+var RangeViewLocalFile = class extends RangeView {
+  /**
+   * Read a new chunk from local file system.
+   */
+  async fetchChunk() {
+    const { FileBlob } = await import("./chunks/FileBlob-IQ6VMEFQ-CQAYVVC2.mjs");
+    const blob = await FileBlob.create(this.uri);
+    this.totalFileSize = blob.size;
+    const range = [this.chunk * HTTP_CHUNK_SIZE, (this.chunk + 1) * HTTP_CHUNK_SIZE];
+    const buffer = await blob.slice(range[0], range[1]).arrayBuffer();
+    this.appendBuffer(new Uint8Array(buffer));
+    this.chunk += 1;
+  }
+};
+function computeParameterCount(tensorInfos, fileSize) {
+  const parameterCount = tensorInfos.map(({ shape }) => shape.reduce((acc, val) => acc * Number(val), 1)).reduce((acc, val) => acc + val, 0);
+  if (!Number.isFinite(parameterCount) || parameterCount < 0) {
+    throw new Error(`Computed parameter count is not a valid number (${parameterCount})`);
+  }
+  if (fileSize !== void 0) {
+    const maxParameters = fileSize * 8 / MIN_BITS_PER_PARAMETER;
+    if (parameterCount > maxParameters) {
+      throw new Error(
+        `Declared tensor shapes imply ${parameterCount} parameters, which cannot fit in a ${fileSize}-byte file (at most ${maxParameters} at ${MIN_BITS_PER_PARAMETER} bit per parameter). The file is malformed.`
+      );
+    }
+  }
+  return parameterCount;
+}
+function readVersionedSize(view, byteOffset, version3, littleEndian) {
+  switch (version3) {
+    case 1: {
+      const n = view.getUint32(byteOffset, littleEndian);
+      return { value: BigInt(n), length: 4 };
+    }
+    case 2:
+    case 3: {
+      return { value: view.getBigUint64(byteOffset, littleEndian), length: 8 };
+    }
+  }
+}
+function readString(view, offset, version3, littleEndian) {
+  const length2 = readVersionedSize(view, offset, version3, littleEndian);
+  if (length2.value > MAX_STRING_LENGTH) {
+    throw new Error(`String length ${length2.value} exceeds maximum allowed (${MAX_STRING_LENGTH})`);
+  }
+  const off = length2.length;
+  const value = new TextDecoder().decode(view.buffer.slice(offset + off, offset + off + Number(length2.value)));
+  return { value, length: off + Number(length2.value) };
+}
+function readMetadataValue(view, type, offset, version3, littleEndian, depth = 0) {
+  switch (type) {
+    case 0:
+      return { value: view.getUint8(offset), length: 1 };
+    case 1:
+      return { value: view.getInt8(offset), length: 1 };
+    case 2:
+      return { value: view.getUint16(offset, littleEndian), length: 2 };
+    case 3:
+      return { value: view.getInt16(offset, littleEndian), length: 2 };
+    case 4:
+      return { value: view.getUint32(offset, littleEndian), length: 4 };
+    case 5:
+      return { value: view.getInt32(offset, littleEndian), length: 4 };
+    case 6:
+      return { value: view.getFloat32(offset, littleEndian), length: 4 };
+    case 7:
+      return { value: view.getUint8(offset) !== 0, length: 1 };
+    case 8:
+      return readString(view, offset, version3, littleEndian);
+    case 9: {
+      if (depth >= MAX_ARRAY_RECURSION_DEPTH) {
+        throw new Error(`Nested ARRAY depth ${depth} exceeds maximum allowed (${MAX_ARRAY_RECURSION_DEPTH})`);
+      }
+      const arrayType2 = view.getUint32(offset, littleEndian);
+      if (!isGGUFValueType(arrayType2)) {
+        throw new Error(`Unsupported array element type: ${arrayType2}`);
+      }
+      const arrayLength = readVersionedSize(view, offset + 4, version3, littleEndian);
+      if (arrayLength.value > MAX_METADATA_ARRAY_LENGTH) {
+        throw new Error(
+          `Metadata array length ${arrayLength.value} exceeds maximum allowed (${MAX_METADATA_ARRAY_LENGTH})`
+        );
+      }
+      let length2 = 4 + arrayLength.length;
+      const arrayValues = [];
+      for (let i = 0; i < arrayLength.value; i++) {
+        const metadataValue = readMetadataValue(view, arrayType2, offset + length2, version3, littleEndian, depth + 1);
+        arrayValues.push(metadataValue.value);
+        length2 += metadataValue.length;
+      }
+      return { value: arrayValues, length: length2 };
+    }
+    case 10:
+      return { value: view.getBigUint64(offset, littleEndian), length: 8 };
+    case 11:
+      return { value: view.getBigInt64(offset, littleEndian), length: 8 };
+    case 12:
+      return { value: view.getFloat64(offset, littleEndian), length: 8 };
+  }
+}
+async function gguf(uri, params) {
+  let r;
+  if (isBackend) {
+    if (uri.match(/^https?:\/\//)) {
+      r = new RangeView(uri, params);
+    } else if (params?.allowLocalFile) {
+      r = new RangeViewLocalFile(uri, params);
+    } else {
+      throw new Error("Access to local file is not enabled, please set allowLocalFile to true");
+    }
+  } else {
+    if (params?.allowLocalFile) {
+      throw new Error("allowLocalFile cannot be used on browser");
+    }
+    r = new RangeView(uri, params);
+  }
+  await r.fetchChunk();
+  const checkBuffer = (buffer, header) => {
+    for (let i = 0; i < header.length; i++) {
+      if (header[i] !== buffer[i]) {
+        return false;
+      }
+    }
+    return true;
+  };
+  if (!checkBuffer(new Uint8Array(r.view.buffer.slice(0, 4)), GGUF_MAGIC_NUMBER)) {
+    throw new Error("not a valid gguf file: not starting with GGUF magic number");
+  }
+  const [littleEndian, version3] = (() => {
+    const version22 = r.view.getUint32(4, true);
+    if (version22 & 65535) {
+      return [true, version22];
+    } else {
+      return [false, r.view.getUint32(4, false)];
+    }
+  })();
+  if (!isVersion(version3)) {
+    throw new Error(`not a valid gguf file: unsupported version "${version3}"`);
+  }
+  let offset = 8;
+  const tensorCount = readVersionedSize(r.view, offset, version3, littleEndian);
+  if (tensorCount.value > MAX_TENSOR_COUNT) {
+    throw new Error(`Tensor count ${tensorCount.value} exceeds maximum allowed (${MAX_TENSOR_COUNT})`);
+  }
+  offset += tensorCount.length;
+  const numKv = readVersionedSize(r.view, offset, version3, littleEndian);
+  if (numKv.value > MAX_KV_COUNT) {
+    throw new Error(`KV metadata count ${numKv.value} exceeds maximum allowed (${MAX_KV_COUNT})`);
+  }
+  offset += numKv.length;
+  const metadata = {
+    version: version3,
+    tensor_count: tensorCount.value,
+    kv_count: numKv.value
+  };
+  let typedMetadata;
+  if (params?.typedMetadata) {
+    typedMetadata = {
+      version: {
+        value: version3,
+        type: 4
+        /* UINT32 */
+      },
+      tensor_count: {
+        value: tensorCount.value,
+        type: version3 === 1 ? 4 : 10
+        /* UINT64 */
+      },
+      kv_count: {
+        value: numKv.value,
+        type: version3 === 1 ? 4 : 10
+        /* UINT64 */
+      }
+    };
+  }
+  for (let i = 0; i < numKv.value; i++) {
+    await r.fetchChunkIfNeeded(offset);
+    const keyResult = readString(r.view, offset, version3, littleEndian);
+    offset += keyResult.length;
+    const valueType = r.view.getUint32(offset, littleEndian);
+    offset += 4;
+    if (!isGGUFValueType(valueType)) {
+      throw new Error("Unsupported metadata type: " + valueType);
+    }
+    let valueResult;
+    let fetchCount = 0;
+    while (!valueResult) {
+      try {
+        valueResult = readMetadataValue(r.view, valueType, offset, version3, littleEndian);
+      } catch (err) {
+        if (err instanceof RangeError) {
+          if (++fetchCount > MAX_CHUNK_FETCHES_PER_VALUE) {
+            throw new Error(
+              `Exceeded maximum chunk fetches (${MAX_CHUNK_FETCHES_PER_VALUE}) while reading metadata value`
+            );
+          }
+          await r.fetchChunk();
+        } else {
+          throw err;
+        }
+      }
+    }
+    offset += valueResult.length;
+    metadata[keyResult.value] = valueResult.value;
+    if (typedMetadata) {
+      const typedEntry = {
+        value: valueResult.value,
+        type: valueType
+      };
+      if (valueType === 9) {
+        const arrayTypeOffset = offset - valueResult.length;
+        const arraySubType = r.view.getUint32(arrayTypeOffset, littleEndian);
+        if (isGGUFValueType(arraySubType)) {
+          typedEntry.subType = arraySubType;
+        }
+      }
+      typedMetadata[keyResult.value] = typedEntry;
+    }
+  }
+  const tensorInfoStartOffset = offset;
+  const tensorInfos = [];
+  for (let i = 0; i < tensorCount.value; i++) {
+    await r.fetchChunkIfNeeded(offset);
+    const keyResult = readString(r.view, offset, version3, littleEndian);
+    offset += keyResult.length;
+    const nDims = r.view.getUint32(offset, littleEndian);
+    if (nDims > MAX_TENSOR_NDIMS) {
+      throw new Error(`Tensor n_dims ${nDims} exceeds maximum allowed (${MAX_TENSOR_NDIMS})`);
+    }
+    offset += 4;
+    const shape = [];
+    for (let dim = 0; dim < nDims; dim++) {
+      const shapeDim = readVersionedSize(r.view, offset, version3, littleEndian);
+      if (shapeDim.value > BigInt(MAX_TENSOR_DIM)) {
+        throw new Error(
+          `Tensor "${keyResult.value}" dimension ${dim} is ${shapeDim.value}, which exceeds the maximum allowed (${MAX_TENSOR_DIM})`
+        );
+      }
+      shape.push(shapeDim.value);
+      offset += shapeDim.length;
+    }
+    const type = r.view.getUint32(offset, littleEndian);
+    offset += 4;
+    const tensorOffset = r.view.getBigUint64(offset, littleEndian);
+    offset += 8;
+    tensorInfos.push({
+      name: keyResult.value,
+      n_dims: nDims,
+      shape,
+      dtype: type,
+      offset: tensorOffset
+    });
+  }
+  const rawAlignment = metadata["general.alignment"] ?? GGUF_DEFAULT_ALIGNMENT;
+  if (typeof rawAlignment === "bigint" && rawAlignment > BigInt(Number.MAX_SAFE_INTEGER)) {
+    throw new Error(`general.alignment value ${rawAlignment} exceeds safe integer range`);
+  }
+  const alignment = Number(rawAlignment);
+  if (alignment <= 0 || !Number.isInteger(alignment)) {
+    throw new Error(`general.alignment must be a positive integer, got ${rawAlignment}`);
+  }
+  const tensorInfoEndBeforePadOffset = offset;
+  const tensorDataOffset = BigInt(GGML_PAD(offset, alignment));
+  const baseResult = {
+    metadata,
+    tensorInfos,
+    tensorDataOffset,
+    littleEndian,
+    tensorInfoByteRange: [tensorInfoStartOffset, tensorInfoEndBeforePadOffset]
+  };
+  if (params?.computeParametersCount) {
+    const parameterCount = computeParameterCount(tensorInfos, r.fileSize);
+    if (params?.typedMetadata) {
+      return {
+        ...baseResult,
+        parameterCount,
+        typedMetadata
+      };
+    }
+    return { ...baseResult, parameterCount };
+  } else if (params?.typedMetadata) {
+    return { ...baseResult, typedMetadata };
+  } else {
+    return baseResult;
+  }
+}
+
+// ../elt/packages/sdks/macos/speech-models/dist/speech-model.js
+var transcribing = new Set(ALL_MODELS.filter(({ role }) => role === "asr").map(({ family }) => family));
+var SpeechModel = class _SpeechModel {
+  id;
+  title;
+  configuration;
+  constructor(path, title, language) {
+    this.id = basename(path);
+    this.title = title;
+    this.configuration = {
+      name: this.id,
+      path,
+      ...language === void 0 ? {} : { language }
+    };
+  }
+  // A GGUF whose architecture transcribes, or a whisper.cpp model, whose file
+  // starts with "lmgg". Any other file is not a speech model.
+  static async read(path) {
+    const stem = basename(path, extname3(path));
+    if (extname3(path) !== ".gguf")
+      return await startsWith(path, "lmgg") ? new _SpeechModel(path, stem) : void 0;
+    const { metadata } = await gguf(path, { allowLocalFile: true });
+    const architecture = metadata["general.architecture"];
+    if (architecture === void 0 || !transcribing.has(architecture))
+      return void 0;
+    for (const model of ALL_MODELS)
+      for (const [quant, file2] of Object.entries(model.files))
+        if (basename(file2.filename) === basename(path))
+          return new _SpeechModel(
+            path,
+            quant === model.quant ? model.name : `${model.name} ${quant}`,
+            // Told the speech is Arabic, this model still writes English words
+            // and sentences as spoken, so one language covers mixed Arabic and
+            // English voice notes. Told English, it repeated a made-up
+            // sentence on a mixed note.
+            model.id === "cohere-transcribe-arabic-07-2026" ? "ar" : void 0
+          );
+    return new _SpeechModel(path, metadata["general.name"] ?? stem);
+  }
+};
+async function startsWith(path, magic) {
+  var _stack = [];
+  try {
+    const file2 = __using(_stack, await open3(path), true);
+    const { buffer, bytesRead } = await file2.read(Buffer.alloc(magic.length), 0, magic.length, 0);
+    return buffer.toString("latin1", 0, bytesRead) === magic;
+  } catch (_) {
+    var _error = _, _hasError = true;
+  } finally {
+    var _promise2 = __callDispose(_stack, _error, _hasError);
+    _promise2 && await _promise2;
+  }
+}
+
+// ../elt/packages/sdks/macos/speech-models/dist/speech-models.js
+var execute4 = promisify4(execFile4);
+var SpeechModels = class {
   #folders;
   constructor(folders = {
-    hub: join6(homedir2(), ".cache/huggingface/hub"),
-    models: join6(homedir2(), "Library/Application Support/com.pais.handy/models")
+    hub: join5(homedir2(), ".cache/huggingface/hub"),
+    home: homedir2()
   }) {
     this.#folders = folders;
   }
-  get #models() {
-    return [new CohereArabicModel(this.#folders)];
+  // One model per file name, the copy in Hugging Face's cache first.
+  async list() {
+    const paths = [...await this.#cached(), ...await this.#indexed()];
+    const models = /* @__PURE__ */ new Map();
+    for (const model of await Promise.all(paths.map(read2)))
+      if (model !== void 0 && !models.has(model.id))
+        models.set(model.id, model);
+    return [...models.values()].sort((left, right) => left.title.localeCompare(right.title));
   }
-  list() {
-    return this.#models.filter((model) => model.installed);
+  async find(id) {
+    return (await this.list()).find((model) => model.id === id);
   }
-  // The model Handy keeps under this id, whether or not its file is there.
-  find(id) {
-    return this.#models.find((model) => model.id === id);
+  // Sorted, so the same copy wins each time a file is in several snapshots.
+  async #cached() {
+    const paths = await Array.fromAsync(glob("models--*/snapshots/*/**/*.{gguf,bin}", {
+      cwd: this.#folders.hub
+    }));
+    return paths.sort().map((path) => join5(this.#folders.hub, path));
+  }
+  async #indexed() {
+    const { stdout } = await execute4("/usr/bin/mdfind", [
+      "-onlyin",
+      this.#folders.home,
+      'kMDItemFSName == "*.gguf"c || kMDItemFSName == "*.bin"c'
+    ]);
+    return stdout.split("\n").filter(Boolean);
   }
 };
+function read2(path) {
+  return SpeechModel.read(path).catch(() => void 0);
+}
 
 // apps/plugin/src/chat-status.ts
 import { relative } from "node:path";
@@ -61597,8 +71837,8 @@ function chatContext(plugin2) {
 }
 
 // apps/plugin/src/plugin.ts
-import { existsSync as existsSync5, rmSync } from "node:fs";
-import { join as join10, relative as relative2, sep } from "node:path";
+import { existsSync as existsSync4, rmSync } from "node:fs";
+import { join as join9, relative as relative2, sep } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
 
 // node_modules/@zukhruf/async/dist/latch.js
@@ -61837,7 +72077,7 @@ var LeaderElection = class {
 
 // node_modules/@zukhruf/election/dist/sqlite/sqlite-election.js
 import { mkdir, readFile as readFile3, rm as rm3 } from "node:fs/promises";
-import { join as join7 } from "node:path";
+import { join as join6 } from "node:path";
 
 // node_modules/@zukhruf/fs/dist/atomic-write.js
 import { rm, writeFile as writeFile2 } from "node:fs/promises";
@@ -61894,7 +72134,7 @@ async function atomicWrite(path, content) {
 }
 
 // node_modules/@zukhruf/fs/dist/durable-write.js
-import { open as open3, rm as rm2 } from "node:fs/promises";
+import { open as open4, rm as rm2 } from "node:fs/promises";
 import { dirname } from "node:path";
 async function durableWrite(path, content) {
   const draft = draftOf(path);
@@ -61910,7 +72150,7 @@ async function durableWrite(path, content) {
 async function writeSynced(path, content) {
   var _stack = [];
   try {
-    const handle = __using(_stack, await open3(path, "wx"), true);
+    const handle = __using(_stack, await open4(path, "wx"), true);
     await handle.writeFile(content);
     await handle.sync();
   } catch (_) {
@@ -61925,7 +72165,7 @@ async function syncDirectory(directory) {
   try {
     if (process.platform === "win32")
       return;
-    const handle = __using(_stack, await open3(directory, "r"), true);
+    const handle = __using(_stack, await open4(directory, "r"), true);
     try {
       await handle.sync();
     } catch (error62) {
@@ -61941,7 +72181,7 @@ async function syncDirectory(directory) {
 }
 
 // node_modules/@zukhruf/fs/dist/file-lock.js
-import { existsSync as existsSync4 } from "node:fs";
+import { existsSync as existsSync3 } from "node:fs";
 import { DatabaseSync } from "node:sqlite";
 var SQLITE_BUSY = 5;
 var SQLITE_CANTOPEN = 14;
@@ -61968,7 +72208,7 @@ var FileLock = class _FileLock {
     try {
       database = new DatabaseSync(path, { readOnly: true });
     } catch (error62) {
-      if (hasResultCode(error62, SQLITE_CANTOPEN) && !existsSync4(path)) {
+      if (hasResultCode(error62, SQLITE_CANTOPEN) && !existsSync3(path)) {
         return "missing";
       }
       throw error62;
@@ -62097,8 +72337,8 @@ var SqliteElection = class extends LeaderElection {
   constructor({ directory, claimFile, epochFile, pollInterval = 10 }) {
     super(pollInterval);
     this.#directory = directory;
-    this.#claimPath = join7(directory, claimFile);
-    this.#epochPath = join7(directory, epochFile);
+    this.#claimPath = join6(directory, claimFile);
+    this.#epochPath = join6(directory, epochFile);
     this.#cleanShutdownPath = `${this.#claimPath}.clean`;
   }
   /**
@@ -62880,7 +73120,7 @@ var ProtocolVersionError = class extends Error {
 // node_modules/@zukhruf/single-flight/dist/connection/socket-connection.js
 import { EventEmitter as EventEmitter2 } from "node:events";
 import { createInterface as createInterface2 } from "node:readline";
-import { promisify as promisify4 } from "node:util";
+import { promisify as promisify5 } from "node:util";
 var SocketConnection = class extends EventEmitter2 {
   #socket;
   /** A write after the socket closed reports the error through its callback. */
@@ -62888,7 +73128,7 @@ var SocketConnection = class extends EventEmitter2 {
   constructor(socket) {
     super();
     this.#socket = socket;
-    this.#write = promisify4(socket.write).bind(socket);
+    this.#write = promisify5(socket.write).bind(socket);
     leaveErrorsToClose(socket);
     const lines = createInterface2({ input: socket, crlfDelay: Infinity });
     lines.on("line", (line) => {
@@ -63079,14 +73319,14 @@ var LocalDirectoryConnector = class {
 
 // node_modules/@zukhruf/single-flight/dist/connection/socket-path.js
 import { createHash } from "node:crypto";
-import { join as join8, resolve as resolve7 } from "node:path";
+import { join as join7, resolve as resolve7 } from "node:path";
 var SOCKET_PATH_LIMIT = 103;
 function socketPathFor(directory) {
   if (process.platform === "win32") {
     const id = createHash("sha256").update(resolve7(directory).toLowerCase()).digest("hex").slice(0, 32);
     return `\\\\.\\pipe\\single-flight-${id}`;
   }
-  const socketPath = join8(directory, "flight.sock");
+  const socketPath = join7(directory, "flight.sock");
   if (Buffer.byteLength(socketPath) > SOCKET_PATH_LIMIT) {
     throw new RangeError(`The socket path ${socketPath} exceeds ${SOCKET_PATH_LIMIT} bytes; choose a shorter directory.`);
   }
@@ -63564,12 +73804,12 @@ function failureOf(error62) {
 // node_modules/@zukhruf/single-flight/dist/key-lock/key-locks.js
 import { createHash as createHash2 } from "node:crypto";
 import { mkdirSync } from "node:fs";
-import { join as join9 } from "node:path";
+import { join as join8 } from "node:path";
 var KeyLocks = class {
   #folder;
   #pollInterval;
   constructor(directory, pollInterval) {
-    this.#folder = join9(directory, "execution-locks");
+    this.#folder = join8(directory, "execution-locks");
     this.#pollInterval = pollInterval;
   }
   /**
@@ -63619,7 +73859,7 @@ var KeyLocks = class {
   }
   #pathOf(key) {
     const digest = createHash2("sha256").update(key).digest("hex");
-    return join9(this.#folder, `${digest}.lock`);
+    return join8(this.#folder, `${digest}.lock`);
   }
 };
 
@@ -63807,7 +74047,7 @@ var Plugin = class {
   // Whether another plugin version replaced this one, which deletes this
   // version's folder.
   get #replaced() {
-    return !existsSync5(join10(this.install, ".codex-plugin/plugin.json"));
+    return !existsSync4(join9(this.install, ".codex-plugin/plugin.json"));
   }
   // The store, refused once another plugin version replaced this one.
   #open() {
@@ -63852,9 +74092,9 @@ var Plugin = class {
             ...item,
             title: this.#loaded(item.connector)?.title ?? item.connector,
             watched: watched.includes(item.connector),
-            database: existsSync5(database) ? database : null,
+            database: existsSync4(database) ? database : null,
             sync,
-            content: existsSync5(database) ? this.#loaded(item.connector)?.contentStatus(database) ?? [] : [],
+            content: existsSync4(database) ? this.#loaded(item.connector)?.contentStatus(database) ?? [] : [],
             permissions: this.#permissions(item.connector)
           };
         })
@@ -64129,7 +74369,7 @@ var Plugin = class {
       );
       return (name5) => {
         const database = imports.get(name5);
-        return database !== void 0 && existsSync5(database) ? database : void 0;
+        return database !== void 0 && existsSync4(database) ? database : void 0;
       };
     } catch (_) {
       var _error = _, _hasError = true;
@@ -64319,8 +74559,8 @@ async function connectorChoices(plugin2, name5) {
 // apps/plugin/src/full-disk-access.ts
 import { execFile as execFileCallback } from "node:child_process";
 import { readdir } from "node:fs/promises";
-import { promisify as promisify5 } from "node:util";
-var execFile4 = promisify5(execFileCallback);
+import { promisify as promisify6 } from "node:util";
+var execFile5 = promisify6(execFileCallback);
 var protectedDirectory = "/Library/Application Support/com.apple.TCC";
 async function hasFullDiskAccess() {
   try {
@@ -64333,7 +74573,7 @@ async function hasFullDiskAccess() {
   }
 }
 async function openFullDiskAccessSettings() {
-  await execFile4("/usr/bin/open", [
+  await execFile5("/usr/bin/open", [
     "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles"
   ]);
 }
@@ -64367,19 +74607,19 @@ function status(monitor, now2) {
 }
 
 // apps/plugin/src/monitors.ts
-import { execFile as execFile5 } from "node:child_process";
+import { execFile as execFile6 } from "node:child_process";
 import {
-  existsSync as existsSync6,
+  existsSync as existsSync5,
   mkdirSync as mkdirSync2,
   readFileSync as readFileSync2,
-  readdirSync as readdirSync3,
+  readdirSync as readdirSync2,
   rmSync as rmSync2,
-  statSync as statSync3
+  statSync as statSync2
 } from "node:fs";
-import { dirname as dirname3, join as join11 } from "node:path";
+import { dirname as dirname3, join as join10 } from "node:path";
 import { DatabaseSync as DatabaseSync3 } from "node:sqlite";
 import { pathToFileURL as pathToFileURL2 } from "node:url";
-import { promisify as promisify6 } from "node:util";
+import { promisify as promisify7 } from "node:util";
 
 // node_modules/@zukhruf/sqlite-federation/dist/federation.js
 import { DatabaseSync as DatabaseSync2 } from "node:sqlite";
@@ -64656,7 +74896,7 @@ var Monitors = class {
         const keys = unsent.get(rule);
         if (keys === void 0) continue;
         try {
-          await promisify6(execFile5)(this.#codex, [
+          await promisify7(execFile6)(this.#codex, [
             "queue",
             "--thread",
             registered.thread,
@@ -64782,11 +75022,11 @@ var Monitors = class {
   async #load() {
     const loaded = /* @__PURE__ */ new Map();
     const broken = /* @__PURE__ */ new Map();
-    if (existsSync6(this.#root))
-      for (const folder of readdirSync3(this.#root).sort()) {
-        const path = join11(this.#root, folder);
-        const manifestPath = join11(path, "package.json");
-        if (!existsSync6(manifestPath)) continue;
+    if (existsSync5(this.#root))
+      for (const folder of readdirSync2(this.#root).sort()) {
+        const path = join10(this.#root, folder);
+        const manifestPath = join10(path, "package.json");
+        if (!existsSync5(manifestPath)) continue;
         let parsed;
         try {
           parsed = manifestSchema2.parse(
@@ -64798,8 +75038,8 @@ var Monitors = class {
         }
         const manifest = { ...parsed.contextCompiler, folder: path };
         try {
-          const entry = pathToFileURL2(join11(path, parsed.exports));
-          entry.searchParams.set("modified", String(statSync3(entry).mtimeMs));
+          const entry = pathToFileURL2(join10(path, parsed.exports));
+          entry.searchParams.set("modified", String(statSync2(entry).mtimeMs));
           const { default: exported } = await import(entry.href);
           loaded.set(manifest.name, {
             ...manifest,
@@ -64969,13 +75209,13 @@ var install = fileURLToPath2(new URL("..", import.meta.url));
 provideHostModules(
   ({ file: file2 }) => new URL(`modules/${file2}.mjs`, import.meta.url).href
 );
-var store = join12(
+var store = join11(
   homedir3(),
   "Library/Application Support/Context Compiler/Imports"
 );
 var transcription = new Transcription(
   store,
-  new HandyModels(),
+  new SpeechModels(),
   fileURLToPath2(new URL("transcribe-local", import.meta.url))
 );
 var plugin = new Plugin(
@@ -64993,11 +75233,11 @@ var plugin = new Plugin(
   install,
   store,
   new Monitors({
-    root: join12(
+    root: join11(
       homedir3(),
       "Library/Application Support/Context Compiler/Monitors"
     ),
-    store: join12(store, "monitors.sqlite"),
+    store: join11(store, "monitors.sqlite"),
     // The desktop's own codex, which .mcp.json forwards: a monitor's match is
     // queued into its chat through it, so the running app does the work.
     codex: process.env.CODEX_CLI_PATH ?? "codex"
@@ -65010,7 +75250,7 @@ async function refresh() {
 await refresh();
 var { version: version2 } = external_exports2.object({ version: external_exports2.string() }).parse(
   JSON.parse(
-    readFileSync3(join12(install, ".codex-plugin/plugin.json"), "utf8")
+    readFileSync3(join11(install, ".codex-plugin/plugin.json"), "utf8")
   )
 );
 var mcpServer = new McpServer(
@@ -65020,7 +75260,7 @@ var mcpServer = new McpServer(
     // ChatGPT shows the server's icon beside the sidebar page.
     icons: [
       {
-        src: `data:image/png;base64,${readFileSync3(join12(install, "assets/composer-icon.png")).toString("base64")}`,
+        src: `data:image/png;base64,${readFileSync3(join11(install, "assets/composer-icon.png")).toString("base64")}`,
         mimeType: "image/png",
         sizes: ["any"]
       }
@@ -65191,7 +75431,7 @@ mcpServer.registerTool(
     annotations: { readOnlyHint: true, openWorldHint: false },
     _meta: appOnly
   },
-  async () => structured(transcription.choices())
+  async () => structured(await transcription.choices())
 );
 mcpServer.registerTool(
   "transcription_update",
@@ -65215,7 +75455,7 @@ mcpServer.registerTool(
         plugin.status().connectors.filter(({ includeAttachments }) => includeAttachments),
         { afterCurrent: true }
       );
-    return structured(transcription.choices());
+    return structured(await transcription.choices());
   }
 );
 mcpServer.registerTool(
