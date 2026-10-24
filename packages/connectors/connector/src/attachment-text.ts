@@ -8,9 +8,13 @@ import { transaction } from '@zukhruf/sqlite-transaction';
 
 import type { DocumentParser } from '@workspace/elt';
 import { publishSQLiteViews } from '@workspace/elt-sqlite';
+import { visionConcurrency } from '@workspace/source-apple-macos/vision';
 
 // Files can decode concurrently; each native worker owns its request queue.
-const concurrency = Math.min(5, availableParallelism());
+const concurrency = visionConcurrency(
+  availableParallelism(),
+  process.availableMemory(),
+);
 
 // A table another version declared otherwise is replaced, and every stored
 // file is read again.

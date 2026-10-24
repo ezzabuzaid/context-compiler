@@ -93,7 +93,8 @@ The MCP server and CLI own its lifetime. `AttachmentText` owns admission of all
 attachment formats; it should not independently encode a machine-specific OCR
 worker count. A portable sizing policy needs available CPU and memory capacity;
 this investigation does not invent a cross-device formula from one Mac's results.
-The current cap remains in code until that policy is implemented and tested.
+The follow-up [device-aware sizing change](vision-device-sizing.md) implements
+and tests that policy, including its memory, timing and native reliability limits.
 
 ## Reproduction evidence and scope
 

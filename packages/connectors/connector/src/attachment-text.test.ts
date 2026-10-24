@@ -38,10 +38,11 @@ import {
 } from '@workspace/elt-sqlite';
 import { AudioFormat } from '@workspace/source-apple-macos/audio-format';
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
+import { visionConcurrency } from '@workspace/source-apple-macos/vision';
 
 import { AttachmentText } from './attachment-text.ts';
 
-const readers = Math.min(5, availableParallelism());
+const readers = availableParallelism();
 
 // A source whose upstream is current whenever it is read.
 abstract class LiveSource<
@@ -338,8 +339,11 @@ test('a stored copy removed while it is read leaves no row and no failure', asyn
 });
 
 test(
-  'a file that is slow to read holds only its own place: up to five read at once and the rest go on',
-  { skip: availableParallelism() < 2 },
+  'a file that is slow to read holds only its own place when the device has spare capacity',
+  {
+    skip:
+      visionConcurrency(availableParallelism(), process.availableMemory()) < 2,
+  },
   async () => {
     await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
     const store = await importStore(directory.path);
@@ -352,10 +356,12 @@ test(
     const update = store.readText(parser);
     try {
       await eventually(
-        () => parser.inFlight === 1 && store.texts().length === 6,
+        () =>
+          store.texts().filter(({ name }) => name !== 'a-slow.txt').length ===
+          6,
         'every file but the held one to be read',
       );
-      assert.equal(parser.peak, readers);
+      assert.ok(parser.peak > 1 && parser.peak <= readers);
     } finally {
       parser.release();
       await update;
@@ -398,34 +404,36 @@ test('an update stopped while files are read keeps the text it read, and the nex
   await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
   const store = await importStore(directory.path);
   // Whichever reads start first stay held, leaving the rest queued.
-  for (const name of ['a', 'b', 'c', 'd', 'e', 'f', 'g'])
-    await store.put(`${name}-held.txt`, `hold ${name}`);
+  const files = readers + 2;
+  for (let index = 0; index < files; index++)
+    await store.put(`${index}-held.txt`, `hold ${index}`);
   await store.importFiles();
   const parser = new HoldingParser();
   const stop = new AbortController();
   const update = store.readText(parser, stop.signal);
   try {
-    await eventually(() => parser.inFlight === readers, 'all readers held');
+    await eventually(() => parser.inFlight > 0, 'a read held');
   } finally {
     stop.abort();
     parser.release();
     await update;
   }
   // The reads that started kept their text; the queue's order is the stored copies'.
-  assert.equal(store.texts().length, readers);
+  const completed = store.texts().length;
+  assert.ok(completed > 0 && completed <= readers);
   const counting = new CountingParser();
 
   await store.readText(counting);
 
-  assert.equal(counting.read.length, 7 - readers);
-  assert.equal(store.texts().length, 7);
+  assert.equal(counting.read.length, files - completed);
+  assert.equal(store.texts().length, files);
 });
 
 test('a read that fails for a reason other than the file being gone fails the update, and stops it taking more files', async () => {
   await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
   const store = await importStore(directory.path);
-  for (const name of ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])
-    await store.put(`${name}.txt`, `text ${name}`);
+  for (let index = 0; index < readers + 2; index++)
+    await store.put(`${index}.txt`, `text ${index}`);
   await store.importFiles();
   const ref = join(
     directory.path,

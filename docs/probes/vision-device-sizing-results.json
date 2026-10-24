@@ -1,0 +1,545 @@
+{
+  "measuredOn": "2026-10-24",
+  "device": {
+    "model": "Apple M4 Pro",
+    "totalGiB": 48,
+    "availableCpus": 14,
+    "macOS": "27.0 (26A428)",
+    "node": "26.10.0",
+    "libuv": "1.53.0"
+  },
+  "policy": "max(1, min(availableParallelism(), floor(process.availableMemory() / (2 * 1024 ** 3))))",
+  "memoryBudgetGiBPerWorker": 2,
+  "method": {
+    "timing": "Before Node spawn through process exit, including eager multilingual OCR warm-up, ingestion, attachment parsing and shutdown",
+    "transcription": "off",
+    "input": "One frozen snapshot: ten SQLite online backups, Message and stickers directories, 386 profile pictures",
+    "output": "Fresh private import per pass; shared settings, imports and CLI watch untouched",
+    "order": [
+      "budget-before-1",
+      "budget-after-1",
+      "budget-after-2",
+      "budget-before-2"
+    ],
+    "control": "Committed five-worker Vision and AttachmentText from Git blobs, loaded only in memory through a temporary Node hook",
+    "controlCommits": {
+      "elt": "7bc0474bf9128f8f098ffa20416cf96c875bd6c6",
+      "contextCompiler": "90a10762bd2da1567943831e0b1647e37dd45c90"
+    },
+    "codeCheck": "SHA-256 of 1393 loaded modules and the native helper, excluding the two compared modules; per-variant hashes checked separately",
+    "memory": "Peak sum of ps RSS sampled every 250ms; can double-count shared pages and omits Apple service allocations",
+    "cache": "Warm OS and model caches",
+    "background": "Shared WhatsApp watch, other web benchmarks/builds, Spotlight and Apple services active; not a quiet-machine comparison"
+  },
+  "runs": [
+    {
+      "mode": "before",
+      "label": "budget-before-1",
+      "variantHashes": [
+        {
+          "module": "attachment-text.js",
+          "hash": "b57d3042cc191bf7baf0feb515c0ee87219acf2cda8398c10600814c36fd6e44"
+        },
+        {
+          "module": "vision.js",
+          "hash": "f6f1198da7bc30c083d59bd218572d7c9a473425b04106ed091abadaecc93922"
+        }
+      ],
+      "codeHash": "c58b8ceeee56227ad55ee498be19a77a047611a81368417da391fdb539f104a6",
+      "wallSeconds": 31.608272,
+      "pipelineSeconds": 21.445216165999998,
+      "postReportSeconds": 9.356362833000002,
+      "workerCount": 5,
+      "warmupSeconds": [
+        1.040296458, 1.041190708, 1.17371875, 1.175295083, 1.183819209
+      ],
+      "availableCpus": 14,
+      "availableMemory": 11973885952,
+      "budgets": [],
+      "peakWorkerMiB": 990.5,
+      "peakCliAndWorkersMiB": 1348.75,
+      "rows": 344021,
+      "streams": 32,
+      "files": 877,
+      "audioFilesWithoutTranscription": 94,
+      "workersExited": true,
+      "settingsUnchanged": true,
+      "failedAttachments": 0,
+      "differentTextOutputs": 0,
+      "differencesPreviouslyInvestigated": true,
+      "streamCountsMatch": true,
+      "referencesParsersStatusesMatch": true
+    },
+    {
+      "mode": "after",
+      "label": "budget-after-1",
+      "variantHashes": [
+        {
+          "module": "attachment-text.js",
+          "hash": "95724f6777b678cf53caa0fa55c01f881829622277784b2cf4251b375a4eb3e1"
+        },
+        {
+          "module": "vision.js",
+          "hash": "7d67efaddd179b25775af84f80fc4174caedc5ae8eb5dde33fc1412ee4d8b6c2"
+        }
+      ],
+      "codeHash": "c58b8ceeee56227ad55ee498be19a77a047611a81368417da391fdb539f104a6",
+      "wallSeconds": 32.753547792,
+      "pipelineSeconds": 23.648039875,
+      "postReportSeconds": 8.09090025,
+      "workerCount": 4,
+      "warmupSeconds": [1.103641375, 1.109436958, 1.130859083, 1.134810167],
+      "availableCpus": 14,
+      "availableMemory": 10325557248,
+      "budgets": [
+        {
+          "availableCpus": 14,
+          "availableGiB": 9.312545776367188
+        },
+        {
+          "availableCpus": 14,
+          "availableGiB": 9.226364135742188
+        }
+      ],
+      "peakWorkerMiB": 817.1875,
+      "peakCliAndWorkersMiB": 1124.9375,
+      "rows": 344021,
+      "streams": 32,
+      "files": 877,
+      "audioFilesWithoutTranscription": 94,
+      "workersExited": true,
+      "settingsUnchanged": true,
+      "failedAttachments": 0,
+      "differentTextOutputs": 0,
+      "differencesPreviouslyInvestigated": true,
+      "streamCountsMatch": true,
+      "referencesParsersStatusesMatch": true
+    },
+    {
+      "mode": "after",
+      "label": "budget-after-2",
+      "variantHashes": [
+        {
+          "module": "attachment-text.js",
+          "hash": "95724f6777b678cf53caa0fa55c01f881829622277784b2cf4251b375a4eb3e1"
+        },
+        {
+          "module": "vision.js",
+          "hash": "7d67efaddd179b25775af84f80fc4174caedc5ae8eb5dde33fc1412ee4d8b6c2"
+        }
+      ],
+      "codeHash": "c58b8ceeee56227ad55ee498be19a77a047611a81368417da391fdb539f104a6",
+      "wallSeconds": 32.739382167,
+      "pipelineSeconds": 24.520728625,
+      "postReportSeconds": 7.2739237920000015,
+      "workerCount": 5,
+      "warmupSeconds": [
+        1.136975, 1.13722175, 1.143910625, 1.18424275, 1.376132083
+      ],
+      "availableCpus": 14,
+      "availableMemory": 11311562752,
+      "budgets": [
+        {
+          "availableCpus": 14,
+          "availableGiB": 10.398773193359375
+        },
+        {
+          "availableCpus": 14,
+          "availableGiB": 10.37738037109375
+        }
+      ],
+      "peakWorkerMiB": 982.078125,
+      "peakCliAndWorkersMiB": 1316.171875,
+      "rows": 344021,
+      "streams": 32,
+      "files": 877,
+      "audioFilesWithoutTranscription": 94,
+      "workersExited": true,
+      "settingsUnchanged": true,
+      "failedAttachments": 0,
+      "differentTextOutputs": 2,
+      "differencesPreviouslyInvestigated": true,
+      "streamCountsMatch": true,
+      "referencesParsersStatusesMatch": true
+    },
+    {
+      "mode": "before",
+      "label": "budget-before-2",
+      "variantHashes": [
+        {
+          "module": "attachment-text.js",
+          "hash": "b57d3042cc191bf7baf0feb515c0ee87219acf2cda8398c10600814c36fd6e44"
+        },
+        {
+          "module": "vision.js",
+          "hash": "f6f1198da7bc30c083d59bd218572d7c9a473425b04106ed091abadaecc93922"
+        }
+      ],
+      "codeHash": "c58b8ceeee56227ad55ee498be19a77a047611a81368417da391fdb539f104a6",
+      "wallSeconds": 30.389606333,
+      "pipelineSeconds": 20.934676875,
+      "postReportSeconds": 8.598611999999996,
+      "workerCount": 5,
+      "warmupSeconds": [
+        1.048582625, 1.049505709, 1.184369833, 1.1835977500000001, 1.193336958
+      ],
+      "availableCpus": 14,
+      "availableMemory": 11194892288,
+      "budgets": [],
+      "peakWorkerMiB": 993.265625,
+      "peakCliAndWorkersMiB": 1317.03125,
+      "rows": 344021,
+      "streams": 32,
+      "files": 877,
+      "audioFilesWithoutTranscription": 94,
+      "workersExited": true,
+      "settingsUnchanged": true,
+      "failedAttachments": 0,
+      "differentTextOutputs": 0,
+      "differencesPreviouslyInvestigated": true,
+      "streamCountsMatch": true,
+      "referencesParsersStatusesMatch": true
+    }
+  ],
+  "statistics": {
+    "before": {
+      "wallSeconds": {
+        "mean": 30.9989391665,
+        "min": 30.389606333,
+        "max": 31.608272
+      },
+      "pipelineSeconds": {
+        "mean": 21.1899465205,
+        "min": 20.934676875,
+        "max": 21.445216165999998
+      },
+      "postReportSeconds": {
+        "mean": 8.977487416499999,
+        "min": 8.598611999999996,
+        "max": 9.356362833000002
+      },
+      "peakWorkerMiB": {
+        "mean": 991.8828125,
+        "min": 990.5,
+        "max": 993.265625
+      },
+      "peakCliAndWorkersMiB": {
+        "mean": 1332.890625,
+        "min": 1317.03125,
+        "max": 1348.75
+      }
+    },
+    "after": {
+      "wallSeconds": {
+        "mean": 32.746464979500004,
+        "min": 32.739382167,
+        "max": 32.753547792
+      },
+      "pipelineSeconds": {
+        "mean": 24.08438425,
+        "min": 23.648039875,
+        "max": 24.520728625
+      },
+      "postReportSeconds": {
+        "mean": 7.682412021000001,
+        "min": 7.2739237920000015,
+        "max": 8.09090025
+      },
+      "peakWorkerMiB": {
+        "mean": 899.6328125,
+        "min": 817.1875,
+        "max": 982.078125
+      },
+      "peakCliAndWorkersMiB": {
+        "mean": 1220.5546875,
+        "min": 1124.9375,
+        "max": 1316.171875
+      }
+    }
+  },
+  "deltaPercent": {
+    "wallSeconds": 5.637372955293007,
+    "pipelineSeconds": 13.65948576934728,
+    "postReportSeconds": -14.425811314641768,
+    "peakWorkerMiB": -9.300493852442882,
+    "peakCliAndWorkersMiB": -8.427993669773171
+  },
+  "calibration": [
+    {
+      "mode": "before",
+      "label": "baseline-1",
+      "wallSeconds": 31.100206583,
+      "pipelineSeconds": 22.193537459,
+      "postReportSeconds": 7.830046082999999,
+      "workerCount": 5,
+      "warmupSeconds": [
+        1.3175980829999998, 1.3173026659999998, 1.3179255840000001, 1.317704917,
+        1.349627917
+      ],
+      "availableCpus": 14,
+      "availableMemory": 8381104128,
+      "budgets": [],
+      "peakWorkerMiB": 1044.84375,
+      "peakCliAndWorkersMiB": 1311.421875,
+      "rows": 344021,
+      "streams": 32,
+      "files": 877,
+      "audioFilesWithoutTranscription": 94,
+      "workersExited": true,
+      "settingsUnchanged": true,
+      "failedAttachments": 0
+    },
+    {
+      "mode": "before",
+      "label": "matched-before-1",
+      "codeHash": "50be665191f1720a632a94b2905a5c4e81db1764e8500130b5b36de8b83b041e",
+      "wallSeconds": 44.754891332999996,
+      "pipelineSeconds": 35.61750566600001,
+      "postReportSeconds": 8.278612540999994,
+      "workerCount": 5,
+      "warmupSeconds": [
+        1.429199708, 1.522189375, 1.5229189589999998, 1.5224656249999997,
+        1.564273167
+      ],
+      "availableCpus": 14,
+      "availableMemory": 9341616128,
+      "budgets": [],
+      "peakWorkerMiB": 973.546875,
+      "peakCliAndWorkersMiB": 1358.15625,
+      "rows": 344021,
+      "streams": 32,
+      "files": 877,
+      "audioFilesWithoutTranscription": 94,
+      "workersExited": true,
+      "settingsUnchanged": true,
+      "failedAttachments": 0
+    },
+    {
+      "mode": "after",
+      "label": "matched-after-1",
+      "codeHash": "50be665191f1720a632a94b2905a5c4e81db1764e8500130b5b36de8b83b041e",
+      "wallSeconds": 32.446122417000005,
+      "pipelineSeconds": 24.071840625,
+      "postReportSeconds": 7.584516292000007,
+      "workerCount": 10,
+      "warmupSeconds": [
+        1.6676267089999999, 1.67931275, 1.905338292, 1.910617583, 1.968873791,
+        1.989227167, 1.992025917, 1.9904144999999998, 2.009950375, 2.141731958
+      ],
+      "availableCpus": 14,
+      "availableMemory": 10840440832,
+      "budgets": [
+        {
+          "event": "budget",
+          "ms": 348.834625,
+          "cpus": 14,
+          "memory": 10732732416
+        },
+        {
+          "event": "budget",
+          "ms": 404.03025,
+          "cpus": 14,
+          "memory": 11051352064
+        }
+      ],
+      "peakWorkerMiB": 1514.75,
+      "peakCliAndWorkersMiB": 1763.484375,
+      "rows": 344021,
+      "streams": 32,
+      "files": 877,
+      "audioFilesWithoutTranscription": 94,
+      "workersExited": true,
+      "settingsUnchanged": true,
+      "failedAttachments": 0
+    },
+    {
+      "mode": "before",
+      "label": "final-before-1",
+      "codeHash": "c58b8ceeee56227ad55ee498be19a77a047611a81368417da391fdb539f104a6",
+      "wallSeconds": 29.44510475,
+      "pipelineSeconds": 21.887544875,
+      "postReportSeconds": 6.908638458999999,
+      "workerCount": 5,
+      "warmupSeconds": [
+        1.1624885409999999, 1.161636667, 1.162361083, 1.1927112500000001,
+        1.2011984590000002
+      ],
+      "availableCpus": 14,
+      "availableMemory": 11721474048,
+      "budgets": [],
+      "peakWorkerMiB": 1070.171875,
+      "peakCliAndWorkersMiB": 1509.90625,
+      "rows": 344021,
+      "streams": 32,
+      "files": 877,
+      "audioFilesWithoutTranscription": 94,
+      "workersExited": true,
+      "settingsUnchanged": true,
+      "failedAttachments": 0
+    },
+    {
+      "mode": "after",
+      "label": "final-after-1",
+      "codeHash": "c58b8ceeee56227ad55ee498be19a77a047611a81368417da391fdb539f104a6",
+      "wallSeconds": 28.251371,
+      "pipelineSeconds": 20.986804,
+      "postReportSeconds": 6.362917041999996,
+      "workerCount": 11,
+      "warmupSeconds": [
+        2.087953916, 2.095954791, 2.162895, 2.171687167, 2.171527083,
+        2.167208291, 2.178554083, 2.177960416, 2.180901875, 2.1830063330000002,
+        2.181917958
+      ],
+      "availableCpus": 14,
+      "availableMemory": 12785270784,
+      "budgets": [
+        {
+          "event": "budget",
+          "ms": 276.000667,
+          "cpus": 14,
+          "memory": 12734906368
+        },
+        {
+          "event": "budget",
+          "ms": 319.336542,
+          "cpus": 14,
+          "memory": 12713164800
+        }
+      ],
+      "peakWorkerMiB": 2028.15625,
+      "peakCliAndWorkersMiB": 2532.171875,
+      "rows": 344021,
+      "streams": 32,
+      "files": 877,
+      "audioFilesWithoutTranscription": 94,
+      "workersExited": true,
+      "settingsUnchanged": true,
+      "failedAttachments": 0
+    },
+    {
+      "mode": "before",
+      "label": "failure-control-5",
+      "codeHash": "c58b8ceeee56227ad55ee498be19a77a047611a81368417da391fdb539f104a6",
+      "wallSeconds": 29.194479041999998,
+      "pipelineSeconds": 21.403872416,
+      "postReportSeconds": 6.994837916999998,
+      "workerCount": 5,
+      "warmupSeconds": [
+        1.211319125, 1.221359833, 1.220861125, 1.2730042080000001, 1.272326167
+      ],
+      "availableCpus": 14,
+      "availableMemory": 11263328256,
+      "budgets": [],
+      "peakWorkerMiB": 1063.203125,
+      "peakCliAndWorkersMiB": 1520.53125,
+      "rows": 344021,
+      "streams": 32,
+      "files": 877,
+      "audioFilesWithoutTranscription": 94,
+      "workersExited": true,
+      "settingsUnchanged": true,
+      "failedAttachments": 0
+    },
+    {
+      "mode": "after",
+      "label": "reproduce-12",
+      "forcedWorkers": "12",
+      "codeHash": "c58b8ceeee56227ad55ee498be19a77a047611a81368417da391fdb539f104a6",
+      "wallSeconds": 29.061743500000002,
+      "pipelineSeconds": 23.243763416999997,
+      "postReportSeconds": 4.749744542000002,
+      "workerCount": 12,
+      "warmupSeconds": [
+        2.834773625, 2.8398802919999997, 2.838177333, 2.840920792, 2.840593291,
+        2.836939875, 2.839711416, 3.000915292, 3.062486667, 3.067953209,
+        3.070696125, 3.083357458
+      ],
+      "availableCpus": 14,
+      "availableMemory": 10010787840,
+      "budgets": [
+        {
+          "event": "budget",
+          "ms": 288.474,
+          "cpus": 14,
+          "memory": 10010787840
+        },
+        {
+          "event": "budget",
+          "ms": 333.637125,
+          "cpus": 14,
+          "memory": 10010787840
+        }
+      ],
+      "peakWorkerMiB": 2041.859375,
+      "peakCliAndWorkersMiB": 2300.578125,
+      "rows": 344021,
+      "streams": 32,
+      "files": 877,
+      "audioFilesWithoutTranscription": 94,
+      "workersExited": true,
+      "settingsUnchanged": true,
+      "failedAttachments": 176
+    }
+  ],
+  "incomplete": [
+    {
+      "label": "before-1",
+      "reason": "Temporary settings used an absolute directory where Settings requires a relative one; the import was skipped",
+      "failedAttachments": null,
+      "workerCount": 5,
+      "pipelineSeconds": null,
+      "wallSeconds": null,
+      "workersExited": true
+    },
+    {
+      "label": "matched-after-2",
+      "reason": "Whole-checkout code guard detected an unrelated web-article build; no valid parent wall timing retained",
+      "failedAttachments": 0,
+      "workerCount": 11,
+      "pipelineSeconds": 22.491022541000003,
+      "wallSeconds": null,
+      "workersExited": true
+    },
+    {
+      "label": "final-after-2",
+      "reason": "The one-GiB candidate selected 12 workers and failed 196 images; no valid parent wall timing retained",
+      "failedAttachments": 196,
+      "workerCount": 12,
+      "pipelineSeconds": 20.58847175,
+      "wallSeconds": null,
+      "workersExited": true
+    }
+  ],
+  "existingNativeFailure": {
+    "backlog": 2896,
+    "automatic12WorkerFailures": 196,
+    "forced12WorkerFailures": 176,
+    "nativeErrorResponses": 176,
+    "systemLog": "E5RT precompiled compute-operation creation failed (Code: 13)",
+    "fiveWorkerControlFailures": 0,
+    "internalCauseProven": false
+  },
+  "validation": {
+    "regression": "Old cap failed 8 CPUs/2 GiB: 5 versus 2; after increasing headroom, one-GiB policy failed the revised case: 2 versus 1",
+    "macosTests": 9,
+    "connectorTests": 21,
+    "mcpShutdownTests": 2,
+    "finalPassAttachmentFailures": 0,
+    "allVoiceFilesUnsupported": true,
+    "allFinalWorkersExited": true,
+    "typechecks": ["source-apple-macos", "connector", "server"],
+    "eltFullBuild": {
+      "projects": 65,
+      "passed": true,
+      "earlierInterference": "An intermediate full build failed in unrelated sdk-web-article web-article.ts:55 (TS2345 string | string[] versus string). The later retry passed without editing peer files."
+    },
+    "cleanup": {
+      "trackedBenchmarkWorkers": 100,
+      "noTrackedWorkersRunning": true,
+      "temporaryInputsOutputsAndProgramsRemoved": true,
+      "backlog2896Updated": true
+    }
+  },
+  "conclusion": "Final device-aware passes used 4 and 5 workers, reduced mean peak worker RSS, and were slower overall in this busy-machine sample. This implements device-aware resource budgeting, not a demonstrated speedup or a fix for existing Apple Vision instability.",
+  "calibrationPurpose": "One-GiB candidate exploration and five-worker controls; retained separately from final two-GiB policy statistics."
+}
