@@ -1,3 +1,6 @@
+import { homedir } from 'node:os';
+import { join } from 'node:path';
+
 import { Command as Program } from 'commander';
 
 import { builtInConnectors } from '@workspace/connector-manifest/built-in-connectors';
@@ -28,7 +31,7 @@ const program = new Program('context-compiler')
   .option(
     '--directory <path>',
     'directory for settings and imports',
-    'outputs/cli',
+    join(homedir(), 'Library/Application Support/Context Compiler/Imports'),
   )
   .option(
     '--transcription-model <id>',

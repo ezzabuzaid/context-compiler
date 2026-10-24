@@ -30,10 +30,10 @@ The setup skill can be run again to change or disconnect connectors. It accesses
 
 ## CLI
 
-[`apps/cli`](apps/cli/src/main.ts) reads the same connectors from a terminal. Use **Node.js 26** and npm on macOS; Calendar and Reminders require **macOS 27**, the release the EventKit helper is built for. The CLI runs from a checkout (see [Development](#development)). Its store defaults to `outputs/cli` relative to the working directory. Pass `--directory <path>` before the command to choose where settings, imports, checkpoints and attachment files live. For example, read the plugin's store with:
+[`apps/cli`](apps/cli/src/main.ts) reads the same connectors from a terminal. Use **Node.js 26** and npm on macOS; Calendar and Reminders require **macOS 27**, the release the EventKit helper is built for. The CLI runs from a checkout (see [Development](#development)). Plugin, desktop and CLI share `~/Library/Application Support/Context Compiler/Imports` by default: settings, imports, checkpoints and attachment files. Pass `--directory <path>` before the command to use a separate CLI store. Read the shared store with:
 
 ```sh
-npx nx run cli:start -- --directory "$HOME/Library/Application Support/Context Compiler/Imports" status
+npx nx run cli:start -- status
 ```
 
 Commands run with `npx nx run cli:start -- [--directory <path>] <command>`:
@@ -72,14 +72,14 @@ Reminders reads through EventKit, so Reminders.app need not be open. Grant the t
 
 Audio transcription is off until you choose a model. On the Context Compiler page, open **Audio transcription**, enable it, choose a speech model installed on this Mac, and save. The page lists every model it finds through Spotlight and in the Hugging Face cache, whichever app or tool installed it; Cohere Transcribe Arabic transcribes Arabic and English speech. Audio stays on this Mac; existing and new imported attachments become searchable through `attachment_text`. Turning it off keeps existing transcripts.
 
-The CLI saves the same choice in its `--directory` store:
+The CLI saves the same choice in the shared store, or its `--directory` override:
 
 ```sh
 npx nx run cli:start -- --transcription-model cohere-transcribe-arabic-07-2026-Q8_0.gguf sync --connector whatsapp
 npx nx run cli:start -- --transcription-model off status
 ```
 
-Use `--directory "$HOME/Library/Application Support/Context Compiler/Imports"` before the command to share the Context Compiler page's settings. Local transcription decodes audio with macOS's `afconvert`, so it needs nothing installed. Building the native worker requires Rust/Cargo and CMake; Nx builds it automatically. Installed models are reused in place and are never modified.
+Local transcription decodes audio with macOS's `afconvert`, so it needs nothing installed. Building the native worker requires Rust/Cargo and CMake; Nx builds it automatically. Installed models are reused in place and are never modified.
 
 ## Permissions
 
