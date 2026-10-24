@@ -1,0 +1,318 @@
+{
+  "date": "2026-10-24",
+  "freshOutput": true,
+  "scope": {},
+  "includeAttachments": true,
+  "transcriptionModel": null,
+  "fresh": {
+    "startedAt": "2026-10-24T06:46:15.747175+00:00",
+    "completedAt": "2026-10-24T06:51:15.733728+00:00",
+    "wallSeconds": 299.98350112498156,
+    "exitCode": 0,
+    "command": [
+      "node",
+      "apps/cli/dist/main.js",
+      "--directory",
+      "/Users/ezzabuzaid/Library/Application Support/Context Compiler/Imports",
+      "--transcription-model",
+      "off",
+      "sync",
+      "--connector",
+      "whatsapp",
+      "--json"
+    ],
+    "resources": "      299.98 real       106.27 user        24.29 sys\n           910098432  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n             2935605  page reclaims\n                8128  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                 768  messages sent\n                 731  messages received\n                   0  signals received\n               19697  voluntary context switches\n              508704  involuntary context switches\n        245260285160  instructions retired\n         70343075238  cycles elapsed\n           905639472  peak memory footprint\n",
+    "dataPassSeconds": 22.265,
+    "postPassSeconds": 277.21348400000716
+  },
+  "repeat": {
+    "startedAt": "2026-10-24T06:51:34.715874+00:00",
+    "completedAt": "2026-10-24T06:51:38.812844+00:00",
+    "wallSeconds": 4.096961540984921,
+    "exitCode": 0,
+    "command": [
+      "node",
+      "apps/cli/dist/main.js",
+      "--directory",
+      "/Users/ezzabuzaid/Library/Application Support/Context Compiler/Imports",
+      "--transcription-model",
+      "off",
+      "sync",
+      "--connector",
+      "whatsapp",
+      "--json"
+    ],
+    "resources": "        4.09 real         3.59 user         0.47 sys\n           699121664  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n               58254  page reclaims\n                 149  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                  70  messages sent\n                  38  messages received\n                   0  signals received\n                2235  voluntary context switches\n                9728  involuntary context switches\n         55342427341  instructions retired\n         15736934115  cycles elapsed\n           681847960  peak memory footprint\n",
+    "dataPassSeconds": 3.307,
+    "postPassSeconds": 0.07326883298810571
+  },
+  "attempts": [
+    {
+      "attempt_id": 1,
+      "connector": "whatsapp",
+      "source": "whatsapp-desktop",
+      "started_at": "2026-10-24T06:46:16.251Z",
+      "completed_at": "2026-10-24T06:46:38.516Z",
+      "status": "succeeded",
+      "error": null,
+      "failure_type": null
+    },
+    {
+      "attempt_id": 2,
+      "connector": "whatsapp",
+      "source": "whatsapp-desktop",
+      "started_at": "2026-10-24T06:51:35.431Z",
+      "completed_at": "2026-10-24T06:51:38.738Z",
+      "status": "succeeded",
+      "error": null,
+      "failure_type": null
+    }
+  ],
+  "firstPassStreams": [
+    {
+      "stream": "blockedContacts",
+      "status": "succeeded",
+      "written_count": 12,
+      "deleted_count": 0
+    },
+    {
+      "stream": "businessBotPrompts",
+      "status": "succeeded",
+      "written_count": 3,
+      "deleted_count": 0
+    },
+    {
+      "stream": "businessCategories",
+      "status": "succeeded",
+      "written_count": 161,
+      "deleted_count": 0
+    },
+    {
+      "stream": "businessHours",
+      "status": "succeeded",
+      "written_count": 556,
+      "deleted_count": 0
+    },
+    {
+      "stream": "businessProfiles",
+      "status": "succeeded",
+      "written_count": 136,
+      "deleted_count": 0
+    },
+    {
+      "stream": "businessServiceAreas",
+      "status": "succeeded",
+      "written_count": 5,
+      "deleted_count": 0
+    },
+    {
+      "stream": "businessVerifiedNames",
+      "status": "succeeded",
+      "written_count": 155,
+      "deleted_count": 0
+    },
+    {
+      "stream": "callParticipants",
+      "status": "succeeded",
+      "written_count": 195,
+      "deleted_count": 0
+    },
+    {
+      "stream": "calls",
+      "status": "succeeded",
+      "written_count": 189,
+      "deleted_count": 0
+    },
+    {
+      "stream": "changedNumbers",
+      "status": "succeeded",
+      "written_count": 0,
+      "deleted_count": 0
+    },
+    {
+      "stream": "chatPushConfigs",
+      "status": "succeeded",
+      "written_count": 31,
+      "deleted_count": 0
+    },
+    {
+      "stream": "chats",
+      "status": "succeeded",
+      "written_count": 746,
+      "deleted_count": 0
+    },
+    {
+      "stream": "contacts",
+      "status": "succeeded",
+      "written_count": 326,
+      "deleted_count": 0
+    },
+    {
+      "stream": "disappearingModes",
+      "status": "succeeded",
+      "written_count": 4152,
+      "deleted_count": 0
+    },
+    {
+      "stream": "favoriteStickers",
+      "status": "succeeded",
+      "written_count": 150,
+      "deleted_count": 0
+    },
+    {
+      "stream": "groupMembers",
+      "status": "succeeded",
+      "written_count": 9260,
+      "deleted_count": 0
+    },
+    {
+      "stream": "groupMembersChanges",
+      "status": "succeeded",
+      "written_count": 101,
+      "deleted_count": 0
+    },
+    {
+      "stream": "linkedProfiles",
+      "status": "succeeded",
+      "written_count": 6,
+      "deleted_count": 0
+    },
+    {
+      "stream": "messageAssociations",
+      "status": "succeeded",
+      "written_count": 911,
+      "deleted_count": 0
+    },
+    {
+      "stream": "messageDataItems",
+      "status": "succeeded",
+      "written_count": 4429,
+      "deleted_count": 0
+    },
+    {
+      "stream": "messageReactionCounts",
+      "status": "succeeded",
+      "written_count": 0,
+      "deleted_count": 0
+    },
+    {
+      "stream": "messageReactions",
+      "status": "succeeded",
+      "written_count": 17301,
+      "deleted_count": 0
+    },
+    {
+      "stream": "messageReceipts",
+      "status": "succeeded",
+      "written_count": 217562,
+      "deleted_count": 0
+    },
+    {
+      "stream": "messages",
+      "status": "succeeded",
+      "written_count": 74053,
+      "deleted_count": 0
+    },
+    {
+      "stream": "privacySettings",
+      "status": "succeeded",
+      "written_count": 11,
+      "deleted_count": 0
+    },
+    {
+      "stream": "profilePictures",
+      "status": "succeeded",
+      "written_count": 4821,
+      "deleted_count": 0
+    },
+    {
+      "stream": "pushNames",
+      "status": "succeeded",
+      "written_count": 2123,
+      "deleted_count": 0
+    },
+    {
+      "stream": "recentStickers",
+      "status": "succeeded",
+      "written_count": 32,
+      "deleted_count": 0
+    },
+    {
+      "stream": "statuses",
+      "status": "succeeded",
+      "written_count": 7,
+      "deleted_count": 0
+    },
+    {
+      "stream": "stickerPacks",
+      "status": "succeeded",
+      "written_count": 125,
+      "deleted_count": 0
+    },
+    {
+      "stream": "stickers",
+      "status": "succeeded",
+      "written_count": 248,
+      "deleted_count": 0
+    },
+    {
+      "stream": "users",
+      "status": "succeeded",
+      "written_count": 4955,
+      "deleted_count": 0
+    }
+  ],
+  "attachmentText": [
+    {
+      "status": "no_text",
+      "parser": "image-v1",
+      "files": 445
+    },
+    {
+      "status": "no_text",
+      "parser": "unsupported",
+      "files": 104
+    },
+    {
+      "status": "parsed",
+      "parser": "image-v1",
+      "files": 236
+    },
+    {
+      "status": "parsed",
+      "parser": "pdf-v1",
+      "files": 7
+    },
+    {
+      "status": "parsed",
+      "parser": "text-v1",
+      "files": 3
+    }
+  ],
+  "opusAudio": [
+    {
+      "status": "no_text",
+      "parser": "unsupported",
+      "files": 62
+    }
+  ],
+  "uniqueFiles": 795,
+  "copiedFileBytes": 226457493,
+  "checkpointJsonBytes": 67501024,
+  "finalStatus": {
+    "connector": "whatsapp",
+    "enabled": true,
+    "state": "succeeded",
+    "completedAt": "2026-10-24T06:51:38.738Z",
+    "error": null,
+    "successfulStreams": 32,
+    "totalStreams": 32
+  },
+  "notes": [
+    "No existing WhatsApp import folder or selection was present before setup. Other 14 connector selections were preserved.",
+    "The installed CLI resolves WhatsApp source and SDK from the sibling elt build containing compact scan.",
+    "Fresh refers to empty import output; OS file and Vision caches were not cleared.",
+    "One one-second stack sample was taken during OCR. It showed a synchronous Neural Engine model-compilation wait; this timing is observational, not a controlled microbenchmark.",
+    "The repeat wrote and deleted zero rows."
+  ]
+}

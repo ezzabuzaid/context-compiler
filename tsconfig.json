@@ -3,7 +3,10 @@
   "files": [],
   "references": [
     {
-      "path": "./apps/plugin"
+      "path": "./apps/desktop"
+    },
+    {
+      "path": "./apps/server"
     },
     {
       "path": "./apps/cli"
@@ -70,6 +73,9 @@
     },
     {
       "path": "./packages/connectors/whatsapp"
+    },
+    {
+      "path": "./packages/ui"
     }
   ]
 }

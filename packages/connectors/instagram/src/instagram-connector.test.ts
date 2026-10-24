@@ -12,17 +12,19 @@ import { fileURLToPath } from 'node:url';
 import { HttpResponse, http } from 'msw';
 import { setupServer } from 'msw/node';
 
-import { Pipeline } from '@workspace/elt';
+import { type DocumentParser, Pipeline } from '@workspace/elt';
 import { SQLiteSyncHistory } from '@workspace/elt-sqlite';
 import { ScratchMac } from '@workspace/sdk-chromium-cookies/test';
+import { ImageFormat } from '@workspace/source-apple-macos/image-format';
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
+import { Vision } from '@workspace/source-apple-macos/vision';
 
 import InstagramConnector from './instagram-connector.ts';
 
 // This package's folder, which holds its manifest.
 const folder = fileURLToPath(new URL('..', import.meta.url));
 
-function connector(): InstagramConnector {
+function connector(documentParser: DocumentParser): InstagramConnector {
   const { contextCompiler } = JSON.parse(
     readFileSync(join(folder, 'package.json'), 'utf8'),
   );
@@ -30,7 +32,7 @@ function connector(): InstagramConnector {
   return new InstagramConnector(
     {
       grantee: 'Codex',
-      documentParser: new MacOSDocumentParser(),
+      documentParser,
       eventKitHelper: '',
     },
     { name: contextCompiler.name, title: contextCompiler.title, folder },
@@ -271,7 +273,7 @@ test('setup offers the accounts the browser’s Instagram account follows, by us
   await using _mac = await signedInMac();
   using _wire = instagram(new Map());
 
-  const [profiles] = await connector().listChoices();
+  const [profiles] = await connector(new MacOSDocumentParser()).listChoices();
 
   assert.deepEqual(profiles?.options, [
     { id: '44555906095', label: 'hivefitnationgym (Hive Fit Nation)' },
@@ -331,7 +333,7 @@ test('an everything import keeps each followed profile once across overlapping p
   );
   server.listen({ onUnhandledRequest: 'error' });
   try {
-    const instagramConnector = connector();
+    const instagramConnector = connector(new MacOSDocumentParser());
 
     const { connection } = await instagramConnector.connection(imports.path, {
       connector: instagramConnector.name,
@@ -356,6 +358,11 @@ test('an everything import keeps each followed profile once across overlapping p
 });
 
 test('an import that keeps attachments, as setup does by default, makes the text on a timetable slide searchable', async () => {
+  await using vision = new Vision(
+    fileURLToPath(
+      import.meta.resolve('@workspace/source-apple-macos/vision-worker'),
+    ),
+  );
   await using mac = await signedInMac();
   const slides = new Map<string, Buffer>();
   for (const [id, text] of [
@@ -370,7 +377,9 @@ test('an import that keeps attachments, as setup does by default, makes the text
   await using imports = await mkdtempDisposable(
     join(tmpdir(), 'instagram-import-'),
   );
-  const instagramConnector = connector();
+  const instagramConnector = connector(
+    new MacOSDocumentParser([new ImageFormat(vision)]),
+  );
   const { connection, text, destination } = await instagramConnector.connection(
     imports.path,
     {

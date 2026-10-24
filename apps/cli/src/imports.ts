@@ -454,7 +454,7 @@ function unloaded(name: string): string {
 // sync watch until it stops. The claim sits at the store's root, beside the
 // settings, so the removal of an import's folder never deletes a claim a
 // waiting watch holds open. The Context Compiler plugin has a copy in
-// apps/plugin/src/plugin.ts: change both.
+// apps/server/src/plugin.ts: change both.
 function owners(settings: Settings, directory: string): SqliteElection {
   const name = relative(settings.root, directory).replaceAll(sep, '.');
   return new SqliteElection({

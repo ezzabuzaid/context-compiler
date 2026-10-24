@@ -1,0 +1,265 @@
+{
+  "date": "2026-10-24",
+  "availableCpus": 14,
+  "policies": {
+    "5": "Math.min(5, availableParallelism())",
+    "14": "availableParallelism()"
+  },
+  "isolatedOrder": [5, 14, 14, 5],
+  "isolatedRuns": [
+    {
+      "workers": 5,
+      "imageCount": 681,
+      "warmupSeconds": [
+        1.125716083, 1.129415916, 1.1297383749999999, 1.125603958, 1.129459166
+      ],
+      "ocrSeconds": 5.515964416999999,
+      "startupAndOcrSeconds": 6.6457053329999995,
+      "peakWorkerRssMiB": 1116.25,
+      "samples": 32,
+      "corpusSha256": "4842c373fdc44b61081f57cc779e0e244c0b1c7c7ced92246bc65317286d4fdb",
+      "helperSha256": "54a5db62415e0b784430bf5facaf8f8b1ce0520f0effb53457a115a4c931ccbf",
+      "outputsMatch": true,
+      "differentOutputs": 0
+    },
+    {
+      "workers": 14,
+      "imageCount": 681,
+      "warmupSeconds": [
+        2.5524772919999994, 2.538145042, 2.4321237089999994, 2.2642847089999996,
+        2.439528042, 2.677238208999999, 2.5381650000000007, 2.3066079169999996,
+        2.5318765839999995, 2.4305461250000007, 2.4395436669999997,
+        2.3066276670000008, 2.5324455419999996, 2.2793797090000005
+      ],
+      "ocrSeconds": 4.803126542,
+      "startupAndOcrSeconds": 7.480368791999999,
+      "peakWorkerRssMiB": 2491.71875,
+      "samples": 36,
+      "corpusSha256": "4842c373fdc44b61081f57cc779e0e244c0b1c7c7ced92246bc65317286d4fdb",
+      "helperSha256": "54a5db62415e0b784430bf5facaf8f8b1ce0520f0effb53457a115a4c931ccbf",
+      "outputsMatch": false,
+      "differentOutputs": 1
+    },
+    {
+      "workers": 14,
+      "imageCount": 681,
+      "warmupSeconds": [
+        2.4842191250000014, 2.494036750000001, 2.4248831250000022,
+        2.4273623749999986, 2.4559369590000006, 2.493659334000002,
+        2.491534042000001, 2.4950980839999994, 2.491501000000002,
+        2.695580749999999, 2.4467291669999995, 2.4559558750000017,
+        2.4862563339999997, 2.491523542000001
+      ],
+      "ocrSeconds": 4.790010249999999,
+      "startupAndOcrSeconds": 7.485594834000001,
+      "peakWorkerRssMiB": 2483.34375,
+      "samples": 35,
+      "corpusSha256": "4842c373fdc44b61081f57cc779e0e244c0b1c7c7ced92246bc65317286d4fdb",
+      "helperSha256": "54a5db62415e0b784430bf5facaf8f8b1ce0520f0effb53457a115a4c931ccbf",
+      "outputsMatch": false,
+      "differentOutputs": 1
+    },
+    {
+      "workers": 5,
+      "imageCount": 681,
+      "warmupSeconds": [
+        1.1198011670000014, 1.1197877090000001, 1.155853500000001,
+        1.1548782920000011, 1.1590891670000019
+      ],
+      "ocrSeconds": 5.487754083,
+      "startupAndOcrSeconds": 6.646846125,
+      "peakWorkerRssMiB": 1098.8125,
+      "samples": 31,
+      "corpusSha256": "4842c373fdc44b61081f57cc779e0e244c0b1c7c7ced92246bc65317286d4fdb",
+      "helperSha256": "54a5db62415e0b784430bf5facaf8f8b1ce0520f0effb53457a115a4c931ccbf",
+      "outputsMatch": true,
+      "differentOutputs": 0
+    }
+  ],
+  "isolatedMeans": {
+    "5": {
+      "ocrSeconds": 5.501859249999999,
+      "startupAndOcrSeconds": 6.646275728999999,
+      "peakWorkerRssMiB": 1107.53125
+    },
+    "14": {
+      "ocrSeconds": 4.796568396,
+      "startupAndOcrSeconds": 7.482981813,
+      "peakWorkerRssMiB": 2487.53125
+    }
+  },
+  "fullOrder": [5, 14, 14, 5],
+  "fullRuns": [
+    {
+      "workers": 5,
+      "wallSeconds": 25.918362458000004,
+      "pipelineSeconds": 18.864527333,
+      "reportSeconds": 19.781261625000003,
+      "postReportSeconds": 6.137100833000002,
+      "warmupSeconds": [
+        1.1457628340000001, 1.1456279590000003, 1.155476542, 1.1554265419999998,
+        1.1550908750000002
+      ],
+      "peakWorkerRssMiB": 1092.859375,
+      "peakCliAndWorkerRssMiB": 1638.765625,
+      "samples": 127,
+      "files": 795,
+      "differentTextOutputs": 0,
+      "exitCode": 0,
+      "settingsUnchanged": true,
+      "workersExited": true
+    },
+    {
+      "workers": 14,
+      "wallSeconds": 25.013024333000004,
+      "pipelineSeconds": 18.863901917000003,
+      "reportSeconds": 19.590238083,
+      "postReportSeconds": 5.422786250000005,
+      "warmupSeconds": [
+        2.638273458, 2.616561125, 2.616204166, 2.512710625, 2.6255509999999997,
+        2.6354985, 2.4991004159999997, 2.74719575, 2.510859125,
+        2.6140032499999997, 2.634330958, 2.634180584, 2.633726625, 2.611947958
+      ],
+      "peakWorkerRssMiB": 2475.6875,
+      "peakCliAndWorkerRssMiB": 3057.6875,
+      "samples": 122,
+      "files": 795,
+      "differentTextOutputs": 1,
+      "exitCode": 0,
+      "settingsUnchanged": true,
+      "workersExited": true
+    },
+    {
+      "workers": 14,
+      "wallSeconds": 25.164428083000008,
+      "pipelineSeconds": 18.642834208,
+      "reportSeconds": 19.604470916000004,
+      "postReportSeconds": 5.559957167000004,
+      "warmupSeconds": [
+        2.304826166, 2.4782986670000002, 2.39646825, 2.396345584,
+        2.4666495420000003, 2.395324208, 2.3229548749999998, 2.321867125,
+        2.3930333330000004, 2.606424375, 2.300226209, 2.3918546669999996,
+        2.3089170000000006, 2.307318333
+      ],
+      "peakWorkerRssMiB": 2471.578125,
+      "peakCliAndWorkerRssMiB": 3057.921875,
+      "samples": 123,
+      "files": 795,
+      "differentTextOutputs": 1,
+      "exitCode": 0,
+      "settingsUnchanged": true,
+      "workersExited": true
+    },
+    {
+      "workers": 5,
+      "wallSeconds": 25.872027959,
+      "pipelineSeconds": 18.772909457999997,
+      "reportSeconds": 19.729674167000006,
+      "postReportSeconds": 6.142353791999994,
+      "warmupSeconds": [
+        1.1627808750000002, 1.161996917, 1.097207792, 1.16104425, 1.160471708
+      ],
+      "peakWorkerRssMiB": 1094.09375,
+      "peakCliAndWorkerRssMiB": 1682.234375,
+      "samples": 126,
+      "files": 795,
+      "differentTextOutputs": 0,
+      "exitCode": 0,
+      "settingsUnchanged": true,
+      "workersExited": true
+    }
+  ],
+  "fullMeans": {
+    "5": {
+      "wallSeconds": 25.895195208500002,
+      "pipelineSeconds": 18.8187183955,
+      "postReportSeconds": 6.139727312499998,
+      "peakWorkerRssMiB": 1093.4765625,
+      "peakCliAndWorkerRssMiB": 1660.5
+    },
+    "14": {
+      "wallSeconds": 25.088726208000004,
+      "pipelineSeconds": 18.7533680625,
+      "postReportSeconds": 5.4913717085000044,
+      "peakWorkerRssMiB": 2473.6328125,
+      "peakCliAndWorkerRssMiB": 3057.8046875
+    }
+  },
+  "fullRows": 342770,
+  "fullStreams": 32,
+  "fullFiles": 795,
+  "fullStreamCountsMatch": true,
+  "fullAttachmentReferencesParsersStatusesMatch": true,
+  "fullAttachmentResults": [
+    {
+      "parser": "image-v1",
+      "status": "no_text",
+      "n": 445
+    },
+    {
+      "parser": "image-v1",
+      "status": "parsed",
+      "n": 236
+    },
+    {
+      "parser": "pdf-v1",
+      "status": "parsed",
+      "n": 7
+    },
+    {
+      "parser": "text-v1",
+      "status": "parsed",
+      "n": 3
+    },
+    {
+      "parser": "unsupported",
+      "status": "no_text",
+      "n": 104
+    }
+  ],
+  "transcription": "off",
+  "startupAndShutdownIncluded": true,
+  "nativeImplementationUnchanged": true,
+  "productionCodeUnchanged": true,
+  "rssSampling": "Summed process RSS sampled about every 0.20 seconds. Includes shared pages more than once and excludes separate Apple services.",
+  "targetedRepeat": {
+    "uniqueImages": 4,
+    "repeatsPerImagePerRun": 20,
+    "order": [5, 14, 14, 5],
+    "runs": [
+      {
+        "workers": 5,
+        "imageCount": 80,
+        "differentOutputs": 0,
+        "outputsMatch": true
+      },
+      {
+        "workers": 14,
+        "imageCount": 80,
+        "differentOutputs": 1,
+        "outputsMatch": false
+      },
+      {
+        "workers": 14,
+        "imageCount": 80,
+        "differentOutputs": 2,
+        "outputsMatch": false
+      },
+      {
+        "workers": 5,
+        "imageCount": 80,
+        "differentOutputs": 0,
+        "outputsMatch": true
+      }
+    ],
+    "fiveWorkerDifferentOutputs": 0,
+    "fourteenWorkerDifferentOutputs": 3
+  },
+  "ocrPercentLessWith14": 12.819136621861048,
+  "startupAndOcrPercentMoreWith14": 12.589096783167797,
+  "fullSecondsLessWith14": 0.8064690004999981,
+  "fullPercentLessWith14": 3.114357679123725,
+  "additionalFullWorkerRssMiB": 1380.15625,
+  "decision": "Keep the five-worker CPU cap: fourteen failed exact text parity and costs about 1.35 GiB additional worker RSS for 0.81 seconds less full-pass time.",
+  "trackedProcessesExited": 141
+}

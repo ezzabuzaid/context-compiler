@@ -1,0 +1,444 @@
+{
+  "measuredAt": "2026-10-24",
+  "boundary": "Warm unchanged extraction and comparison; excludes checkpoint persistence, destination writes and file processing",
+  "full": {
+    "mode": "full",
+    "node": "v26.10.0",
+    "seedCounts": [
+      {
+        "stream": "messages",
+        "count": 74053
+      },
+      {
+        "stream": "messageReceipts",
+        "count": 217562
+      },
+      {
+        "stream": "messageReactions",
+        "count": 17301
+      },
+      {
+        "stream": "messageReactionCounts",
+        "count": 0
+      }
+    ],
+    "stateBytes": 39755689,
+    "medianMs": 6867.090916999998,
+    "minMs": 6642.6576669999995,
+    "maxMs": 9857.318958999997,
+    "trials": [
+      {
+        "round": 0,
+        "warmup": true,
+        "ms": 6773.201375,
+        "metadataMs": 0,
+        "unexpectedReads": 0,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 2428.7572500000006,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 2531.650208000001,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 995.9759589999994,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 816.7937079999992,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      },
+      {
+        "round": 1,
+        "warmup": false,
+        "ms": 6642.6576669999995,
+        "metadataMs": 0,
+        "unexpectedReads": 0,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 2399.896167000001,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 2472.3586669999986,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 961.0383330000004,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 809.3467090000013,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      },
+      {
+        "round": 2,
+        "warmup": false,
+        "ms": 6777.922583,
+        "metadataMs": 0,
+        "unexpectedReads": 0,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 2426.4520840000005,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 2564.0418329999993,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 973.8626669999976,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 813.5551669999986,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      },
+      {
+        "round": 3,
+        "warmup": false,
+        "ms": 6867.090916999998,
+        "metadataMs": 0,
+        "unexpectedReads": 0,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 2488.4930410000015,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 2536.406167000001,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 997.2412500000028,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 844.9380410000012,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      },
+      {
+        "round": 4,
+        "warmup": false,
+        "ms": 6871.4375,
+        "metadataMs": 0,
+        "unexpectedReads": 0,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 2512.759665999998,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 2525.4733330000017,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 999.5809579999986,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 833.6129589999982,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      },
+      {
+        "round": 5,
+        "warmup": false,
+        "ms": 9857.318958999997,
+        "metadataMs": 0,
+        "unexpectedReads": 0,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 2543.118125000001,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 5149.689250000003,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 1280.5581250000032,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 883.9380419999943,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      }
+    ]
+  },
+  "compact": {
+    "mode": "compact",
+    "node": "v26.10.0",
+    "seedCounts": [
+      {
+        "stream": "messages",
+        "count": 74053
+      },
+      {
+        "stream": "messageReceipts",
+        "count": 217562
+      },
+      {
+        "stream": "messageReactions",
+        "count": 17301
+      },
+      {
+        "stream": "messageReactionCounts",
+        "count": 0
+      }
+    ],
+    "stateBytes": 64480172,
+    "medianMs": 1948.7250830000012,
+    "minMs": 1874.0969160000004,
+    "maxMs": 2062.4849590000013,
+    "trials": [
+      {
+        "round": 0,
+        "warmup": true,
+        "ms": 2064.751375,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 526.7457919999997,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 598.2504590000008,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 482.70487500000127,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 457.0196250000008,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      },
+      {
+        "round": 1,
+        "warmup": false,
+        "ms": 1948.7250830000012,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 481.8795420000006,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 525.2011249999996,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 469.70837499999834,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 471.89491700000144,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      },
+      {
+        "round": 2,
+        "warmup": false,
+        "ms": 1874.0969160000004,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 480.61874999999964,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 519.3725830000003,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 440.29691699999967,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 433.77808300000106,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      },
+      {
+        "round": 3,
+        "warmup": false,
+        "ms": 2009.207416000001,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 489.19566699999996,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 603.3409579999989,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 475.2371669999993,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 441.4031669999986,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      },
+      {
+        "round": 4,
+        "warmup": false,
+        "ms": 1944.4779999999992,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 475.54299999999785,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 547.5080830000006,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 450.8322079999998,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 470.56124999999884,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      },
+      {
+        "round": 5,
+        "warmup": false,
+        "ms": 2062.4849590000013,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 550.9864170000001,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 560.708333999999,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 472.57787499999904,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 478.17754200000127,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      }
+    ]
+  }
+}

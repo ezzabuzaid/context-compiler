@@ -1,0 +1,1235 @@
+{
+  "date": "2026-10-23",
+  "whatsapp": "26.40.77 (1088046289)",
+  "node": "v26.10.0",
+  "machine": "Apple M4 Pro, 48 GiB RAM, arm64",
+  "scope": "Warm unchanged-snapshot extraction and diff for messages, receipts, reactions and reaction counts. No destination writes, checkpoint JSON parsing/serialization or attachment parsing in timed region.",
+  "full": {
+    "mode": "full",
+    "node": "v26.10.0",
+    "seedCounts": [
+      {
+        "stream": "messages",
+        "count": 74051
+      },
+      {
+        "stream": "messageReceipts",
+        "count": 217522
+      },
+      {
+        "stream": "messageReactions",
+        "count": 17283
+      },
+      {
+        "stream": "messageReactionCounts",
+        "count": 0
+      }
+    ],
+    "stateBytes": 39747626,
+    "medianMs": 7085.974332999998,
+    "minMs": 7004.898999999998,
+    "maxMs": 7212.143583999998,
+    "trials": [
+      {
+        "round": 0,
+        "warmup": true,
+        "ms": 7005.399042,
+        "metadataMs": 0,
+        "unexpectedReads": 0,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 2519.435707999999,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 2602.5258329999997,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 1039.0575840000001,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 844.3477909999983,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      },
+      {
+        "round": 1,
+        "warmup": false,
+        "ms": 7044.945707999999,
+        "metadataMs": 0,
+        "unexpectedReads": 0,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 2535.5999999999985,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 2605.775125,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 1037.1910419999986,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 866.3632500000022,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      },
+      {
+        "round": 2,
+        "warmup": false,
+        "ms": 7004.898999999998,
+        "metadataMs": 0,
+        "unexpectedReads": 0,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 2515.819291,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 2620.6957909999983,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 1005.544084000001,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 862.8299169999991,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      },
+      {
+        "round": 3,
+        "warmup": false,
+        "ms": 7117.069917000001,
+        "metadataMs": 0,
+        "unexpectedReads": 0,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 2565.7543330000008,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 2654.722417000001,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 1030.8845000000001,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 865.6923749999987,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      },
+      {
+        "round": 4,
+        "warmup": false,
+        "ms": 7212.143583999998,
+        "metadataMs": 0,
+        "unexpectedReads": 0,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 2629.834167000001,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 2672.4155829999945,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 1061.5730829999957,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 848.309792,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      },
+      {
+        "round": 5,
+        "warmup": false,
+        "ms": 7085.974332999998,
+        "metadataMs": 0,
+        "unexpectedReads": 0,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 2582.0455839999995,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 2615.592875000002,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 1026.0120830000014,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 862.3058749999982,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      }
+    ]
+  },
+  "compact": {
+    "mode": "compact",
+    "node": "v26.10.0",
+    "seedCounts": [
+      {
+        "stream": "messages",
+        "count": 74051
+      },
+      {
+        "stream": "messageReceipts",
+        "count": 217522
+      },
+      {
+        "stream": "messageReactions",
+        "count": 17283
+      },
+      {
+        "stream": "messageReactionCounts",
+        "count": 0
+      }
+    ],
+    "stateBytes": 83489498,
+    "medianMs": 1049.9619170000005,
+    "minMs": 1035.9837079999998,
+    "maxMs": 1100.6522499999992,
+    "trials": [
+      {
+        "round": 0,
+        "warmup": true,
+        "ms": 1156.4676250000011,
+        "metadataMs": 381.75729200000023,
+        "unexpectedReads": 0,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 220.5336669999997,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 238.15008300000045,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 158.7796249999992,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 157.21245799999997,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      },
+      {
+        "round": 1,
+        "warmup": false,
+        "ms": 1100.6522499999992,
+        "metadataMs": 353.5283339999987,
+        "unexpectedReads": 0,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 207.49108400000114,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 227.5614170000008,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 154.9305000000004,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 157.09941600000093,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      },
+      {
+        "round": 2,
+        "warmup": false,
+        "ms": 1051.9444999999996,
+        "metadataMs": 347.53358299999854,
+        "unexpectedReads": 0,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 195.07329200000095,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 224.01258299999972,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 143.74883299999965,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 141.54441600000064,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      },
+      {
+        "round": 3,
+        "warmup": false,
+        "ms": 1049.9619170000005,
+        "metadataMs": 344.27145799999926,
+        "unexpectedReads": 0,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 195.39370899999994,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 221.91487499999857,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 149.8372500000005,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 138.5057080000006,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      },
+      {
+        "round": 4,
+        "warmup": false,
+        "ms": 1048.817583,
+        "metadataMs": 345.27458399999887,
+        "unexpectedReads": 0,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 196.30612500000097,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 221.260542,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 147.21570900000006,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 138.7242499999993,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      },
+      {
+        "round": 5,
+        "warmup": false,
+        "ms": 1035.9837079999998,
+        "metadataMs": 350.33729200000016,
+        "unexpectedReads": 0,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 183.9662500000013,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 219.6190829999996,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 145.2135419999995,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 136.8077919999996,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      }
+    ]
+  },
+  "eltCommit": "692ea80c8c77d81ae487380951e6e8dbb4400e3a",
+  "snapshotDifferentialVersion": "0.3.28",
+  "compactRepeat": {
+    "mode": "compact",
+    "node": "v26.10.0",
+    "seedCounts": [
+      {
+        "stream": "messages",
+        "count": 74051
+      },
+      {
+        "stream": "messageReceipts",
+        "count": 217522
+      },
+      {
+        "stream": "messageReactions",
+        "count": 17283
+      },
+      {
+        "stream": "messageReactionCounts",
+        "count": 0
+      }
+    ],
+    "stateBytes": 83489498,
+    "medianMs": 1047.9096250000002,
+    "minMs": 1038.6781250000004,
+    "maxMs": 1084.7090420000004,
+    "trials": [
+      {
+        "round": 0,
+        "warmup": true,
+        "ms": 1137.0226660000008,
+        "metadataMs": 343.3850419999999,
+        "unexpectedReads": 0,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 226.19195799999943,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 254.7274580000012,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 157.82095800000025,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 154.8568749999995,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      },
+      {
+        "round": 1,
+        "warmup": false,
+        "ms": 1084.7090420000004,
+        "metadataMs": 345.8583749999998,
+        "unexpectedReads": 0,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 203.80333299999984,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 225.19245899999987,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 166.1389169999984,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 143.66591700000026,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      },
+      {
+        "round": 2,
+        "warmup": false,
+        "ms": 1047.9096250000002,
+        "metadataMs": 341.9091669999998,
+        "unexpectedReads": 0,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 183.2270840000001,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 229.96950000000106,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 153.07245799999873,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 139.6962910000002,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      },
+      {
+        "round": 3,
+        "warmup": false,
+        "ms": 1053.9322089999987,
+        "metadataMs": 346.2980829999997,
+        "unexpectedReads": 0,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 188.60829199999898,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 231.48250000000007,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 147.09495900000002,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 140.40845799999988,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      },
+      {
+        "round": 4,
+        "warmup": false,
+        "ms": 1039.3561659999996,
+        "metadataMs": 351.57245899999907,
+        "unexpectedReads": 0,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 185.82554199999868,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 216.47649999999885,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 143.88387499999953,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 141.56070799999907,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      },
+      {
+        "round": 5,
+        "warmup": false,
+        "ms": 1038.6781250000004,
+        "metadataMs": 338.8272080000006,
+        "unexpectedReads": 0,
+        "details": [
+          {
+            "stream": "messages",
+            "ms": 192.7682079999995,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReceipts",
+            "ms": 219.5257079999992,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactions",
+            "ms": 147.6604580000003,
+            "upserts": 0,
+            "deletes": 0
+          },
+          {
+            "stream": "messageReactionCounts",
+            "ms": 139.85820799999965,
+            "upserts": 0,
+            "deletes": 0
+          }
+        ]
+      }
+    ]
+  },
+  "deletionVerification": [
+    {
+      "stream": "messages",
+      "records": 0,
+      "full": {
+        "upserts": 0,
+        "deletes": 1
+      },
+      "compact": {
+        "upserts": 0,
+        "deletes": 1
+      }
+    },
+    {
+      "stream": "messageReceipts",
+      "records": 0,
+      "full": {
+        "upserts": 0,
+        "deletes": 1
+      },
+      "compact": {
+        "upserts": 0,
+        "deletes": 1
+      }
+    },
+    {
+      "stream": "messageReactions",
+      "records": 0,
+      "full": {
+        "upserts": 0,
+        "deletes": 0
+      },
+      "compact": {
+        "upserts": 0,
+        "deletes": 0
+      }
+    },
+    {
+      "stream": "messageReactionCounts",
+      "records": 0,
+      "full": {
+        "upserts": 0,
+        "deletes": 0
+      },
+      "compact": {
+        "upserts": 0,
+        "deletes": 0
+      }
+    }
+  ],
+  "liveStages": [
+    {
+      "stage": "inserted",
+      "at": "2026-10-23T20:07:32.416Z",
+      "testRows": [
+        {
+          "pk": 74244,
+          "version": 4,
+          "type": 0,
+          "status": 8,
+          "mediaPk": 71497,
+          "mediaVersion": 1,
+          "infoPk": 37152,
+          "infoVersion": 2,
+          "reactions": [],
+          "receipts": [
+            {
+              "deliveredAt": "2026-10-23T20:07:28Z",
+              "readAt": "2026-10-23T20:07:28Z",
+              "playedAt": "2026-10-23T20:07:28Z"
+            }
+          ]
+        }
+      ],
+      "unchangedVersionContentChanges": [],
+      "receiptChanges": {
+        "delivered": 0,
+        "read": 0,
+        "played": 0,
+        "reactionAdded": 0,
+        "reactionChanged": 0,
+        "reactionRemoved": 0,
+        "infoVersions": []
+      },
+      "deletedKeys": {}
+    },
+    {
+      "stage": "edited",
+      "at": "2026-10-23T20:08:24.586Z",
+      "testRows": [
+        {
+          "pk": 74244,
+          "version": 5,
+          "type": 0,
+          "status": 8,
+          "mediaPk": 71497,
+          "mediaVersion": 2,
+          "infoPk": 37152,
+          "infoVersion": 5,
+          "reactions": [],
+          "receipts": [
+            {
+              "deliveredAt": "2026-10-23T20:07:28Z",
+              "readAt": "2026-10-23T20:07:28Z",
+              "playedAt": "2026-10-23T20:07:28Z"
+            }
+          ]
+        }
+      ],
+      "unchangedVersionContentChanges": [],
+      "receiptChanges": {
+        "delivered": 0,
+        "read": 0,
+        "played": 0,
+        "reactionAdded": 0,
+        "reactionChanged": 0,
+        "reactionRemoved": 0,
+        "infoVersions": []
+      },
+      "deletedKeys": {}
+    },
+    {
+      "stage": "reacted",
+      "at": "2026-10-23T20:09:37.442Z",
+      "testRows": [
+        {
+          "pk": 74244,
+          "version": 5,
+          "type": 0,
+          "status": 8,
+          "mediaPk": 71497,
+          "mediaVersion": 2,
+          "infoPk": 37152,
+          "infoVersion": 8,
+          "reactions": [],
+          "receipts": [
+            {
+              "deliveredAt": "2026-10-23T20:07:28Z",
+              "readAt": "2026-10-23T20:07:28Z",
+              "playedAt": "2026-10-23T20:07:28Z"
+            }
+          ]
+        }
+      ],
+      "unchangedVersionContentChanges": [],
+      "receiptChanges": {
+        "delivered": 0,
+        "read": 1,
+        "played": 0,
+        "reactionAdded": 0,
+        "reactionChanged": 0,
+        "reactionRemoved": 0,
+        "infoVersions": [
+          {
+            "pk": 37142,
+            "from": 64,
+            "to": 65
+          }
+        ]
+      },
+      "deletedKeys": {}
+    },
+    {
+      "stage": "reaction-replaced",
+      "at": "2026-10-23T20:10:44.153Z",
+      "testRows": [
+        {
+          "pk": 74244,
+          "version": 5,
+          "type": 0,
+          "status": 8,
+          "mediaPk": 71497,
+          "mediaVersion": 2,
+          "infoPk": 37152,
+          "infoVersion": 11,
+          "outgoingReaction": {
+            "emoji": "\u2764\ufe0f",
+            "time": 1792786238653,
+            "status": 1
+          },
+          "reactions": [],
+          "receipts": [
+            {
+              "deliveredAt": "2026-10-23T20:07:28Z",
+              "readAt": "2026-10-23T20:07:28Z",
+              "playedAt": "2026-10-23T20:07:28Z"
+            }
+          ]
+        }
+      ],
+      "unchangedVersionContentChanges": [],
+      "receiptChanges": {
+        "delivered": 0,
+        "read": 0,
+        "played": 0,
+        "reactionAdded": 0,
+        "reactionChanged": 0,
+        "reactionRemoved": 0,
+        "infoVersions": []
+      },
+      "deletedKeys": {}
+    },
+    {
+      "stage": "reaction-removed",
+      "at": "2026-10-23T20:11:05.116Z",
+      "testRows": [
+        {
+          "pk": 74244,
+          "version": 5,
+          "type": 0,
+          "status": 8,
+          "mediaPk": 71497,
+          "mediaVersion": 2,
+          "infoPk": 37152,
+          "infoVersion": 14,
+          "outgoingReaction": {
+            "emoji": null,
+            "time": 1792786260895,
+            "status": 1
+          },
+          "reactions": [],
+          "receipts": [
+            {
+              "deliveredAt": "2026-10-23T20:07:28Z",
+              "readAt": "2026-10-23T20:07:28Z",
+              "playedAt": "2026-10-23T20:07:28Z"
+            }
+          ]
+        }
+      ],
+      "unchangedVersionContentChanges": [],
+      "receiptChanges": {
+        "delivered": 0,
+        "read": 0,
+        "played": 0,
+        "reactionAdded": 0,
+        "reactionChanged": 0,
+        "reactionRemoved": 0,
+        "infoVersions": []
+      },
+      "deletedKeys": {}
+    },
+    {
+      "stage": "receipt-probe",
+      "at": "2026-10-23T20:12:44.101Z",
+      "testRows": [
+        {
+          "pk": 74244,
+          "version": 6,
+          "type": 0,
+          "status": 8,
+          "mediaPk": 71497,
+          "mediaVersion": 2,
+          "infoPk": 37152,
+          "infoVersion": 14,
+          "outgoingReaction": {
+            "emoji": null,
+            "time": 1792786260895,
+            "status": 1
+          },
+          "reactions": [],
+          "receipts": [
+            {
+              "deliveredAt": "2026-10-23T20:07:28Z",
+              "readAt": "2026-10-23T20:07:28Z",
+              "playedAt": "2026-10-23T20:07:28Z"
+            }
+          ]
+        },
+        {
+          "pk": 74245,
+          "version": 4,
+          "type": 0,
+          "status": 8,
+          "mediaPk": 71498,
+          "mediaVersion": 1,
+          "infoPk": 37153,
+          "infoVersion": 2,
+          "outgoingReaction": null,
+          "reactions": [],
+          "receipts": [
+            {
+              "deliveredAt": "2026-10-23T20:11:59Z",
+              "readAt": "2026-10-23T20:11:59Z",
+              "playedAt": "2026-10-23T20:11:59Z"
+            }
+          ]
+        }
+      ],
+      "unchangedVersionContentChanges": [],
+      "receiptChanges": {
+        "delivered": 0,
+        "read": 0,
+        "played": 0,
+        "reactionAdded": 0,
+        "reactionChanged": 0,
+        "reactionRemoved": 0,
+        "infoVersions": []
+      },
+      "deletedKeys": {}
+    },
+    {
+      "stage": "deleted-first",
+      "at": "2026-10-23T20:22:39.326Z",
+      "testRows": [
+        {
+          "pk": 74245,
+          "version": 4,
+          "type": 0,
+          "status": 8,
+          "mediaPk": 71498,
+          "mediaVersion": 1,
+          "infoPk": 37153,
+          "infoVersion": 2,
+          "outgoingReaction": null,
+          "reactions": [],
+          "receipts": [
+            {
+              "deliveredAt": "2026-10-23T20:11:59Z",
+              "readAt": "2026-10-23T20:11:59Z",
+              "playedAt": "2026-10-23T20:11:59Z"
+            }
+          ]
+        }
+      ],
+      "unchangedVersionContentChanges": [],
+      "receiptChanges": {
+        "delivered": 0,
+        "read": 0,
+        "played": 0,
+        "reactionAdded": 0,
+        "reactionChanged": 0,
+        "reactionRemoved": 0,
+        "infoVersions": []
+      },
+      "deletedKeys": {
+        "ZWAMEDIAITEM": [71497],
+        "ZWAMESSAGE": [74244],
+        "ZWAMESSAGEINFO": [37152]
+      }
+    },
+    {
+      "stage": "deleted-final",
+      "at": "2026-10-23T20:23:42.790Z",
+      "testRows": [],
+      "unchangedVersionContentChanges": [],
+      "receiptChanges": {
+        "delivered": 0,
+        "read": 0,
+        "played": 0,
+        "reactionAdded": 0,
+        "reactionChanged": 0,
+        "reactionRemoved": 0,
+        "infoVersions": []
+      },
+      "deletedKeys": {
+        "ZWAMEDIAITEM": [71498],
+        "ZWAMESSAGE": [74245],
+        "ZWAMESSAGEINFO": [37153]
+      }
+    }
+  ],
+  "receiptTimeline": [
+    {
+      "at": "2026-10-23T20:11:55.180Z",
+      "rows": [
+        {
+          "pk": 74244,
+          "version": 5,
+          "status": 8,
+          "infoPk": 37152,
+          "infoVersion": 14,
+          "receipts": [
+            {
+              "deliveredAt": "2026-10-23T20:07:28Z",
+              "readAt": "2026-10-23T20:07:28Z",
+              "playedAt": "2026-10-23T20:07:28Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "at": "2026-10-23T20:12:00.012Z",
+      "rows": [
+        {
+          "pk": 74244,
+          "version": 6,
+          "status": 8,
+          "infoPk": 37152,
+          "infoVersion": 14,
+          "receipts": [
+            {
+              "deliveredAt": "2026-10-23T20:07:28Z",
+              "readAt": "2026-10-23T20:07:28Z",
+              "playedAt": "2026-10-23T20:07:28Z"
+            }
+          ]
+        },
+        {
+          "pk": 74245,
+          "version": 1,
+          "status": 9,
+          "infoPk": 37153,
+          "infoVersion": 1,
+          "receipts": [
+            {
+              "deliveredAt": null,
+              "readAt": null,
+              "playedAt": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "at": "2026-10-23T20:12:00.045Z",
+      "rows": [
+        {
+          "pk": 74244,
+          "version": 6,
+          "status": 8,
+          "infoPk": 37152,
+          "infoVersion": 14,
+          "receipts": [
+            {
+              "deliveredAt": "2026-10-23T20:07:28Z",
+              "readAt": "2026-10-23T20:07:28Z",
+              "playedAt": "2026-10-23T20:07:28Z"
+            }
+          ]
+        },
+        {
+          "pk": 74245,
+          "version": 2,
+          "status": 9,
+          "infoPk": 37153,
+          "infoVersion": 1,
+          "receipts": [
+            {
+              "deliveredAt": null,
+              "readAt": null,
+              "playedAt": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "at": "2026-10-23T20:12:00.067Z",
+      "rows": [
+        {
+          "pk": 74244,
+          "version": 6,
+          "status": 8,
+          "infoPk": 37152,
+          "infoVersion": 14,
+          "receipts": [
+            {
+              "deliveredAt": "2026-10-23T20:07:28Z",
+              "readAt": "2026-10-23T20:07:28Z",
+              "playedAt": "2026-10-23T20:07:28Z"
+            }
+          ]
+        },
+        {
+          "pk": 74245,
+          "version": 2,
+          "status": 9,
+          "infoPk": 37153,
+          "infoVersion": 2,
+          "receipts": [
+            {
+              "deliveredAt": "2026-10-23T20:11:59Z",
+              "readAt": "2026-10-23T20:11:59Z",
+              "playedAt": "2026-10-23T20:11:59Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "at": "2026-10-23T20:12:00.330Z",
+      "rows": [
+        {
+          "pk": 74244,
+          "version": 6,
+          "status": 8,
+          "infoPk": 37152,
+          "infoVersion": 14,
+          "receipts": [
+            {
+              "deliveredAt": "2026-10-23T20:07:28Z",
+              "readAt": "2026-10-23T20:07:28Z",
+              "playedAt": "2026-10-23T20:07:28Z"
+            }
+          ]
+        },
+        {
+          "pk": 74245,
+          "version": 3,
+          "status": 1,
+          "infoPk": 37153,
+          "infoVersion": 2,
+          "receipts": [
+            {
+              "deliveredAt": "2026-10-23T20:11:59Z",
+              "readAt": "2026-10-23T20:11:59Z",
+              "playedAt": "2026-10-23T20:11:59Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "at": "2026-10-23T20:12:00.342Z",
+      "rows": [
+        {
+          "pk": 74244,
+          "version": 6,
+          "status": 8,
+          "infoPk": 37152,
+          "infoVersion": 14,
+          "receipts": [
+            {
+              "deliveredAt": "2026-10-23T20:07:28Z",
+              "readAt": "2026-10-23T20:07:28Z",
+              "playedAt": "2026-10-23T20:07:28Z"
+            }
+          ]
+        },
+        {
+          "pk": 74245,
+          "version": 4,
+          "status": 8,
+          "infoPk": 37153,
+          "infoVersion": 2,
+          "receipts": [
+            {
+              "deliveredAt": "2026-10-23T20:11:59Z",
+              "readAt": "2026-10-23T20:11:59Z",
+              "playedAt": "2026-10-23T20:11:59Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

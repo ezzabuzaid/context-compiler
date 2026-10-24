@@ -1,0 +1,291 @@
+{
+  "profile": {
+    "wallSeconds": 130.57048325,
+    "exitCode": 0,
+    "dataReportReceivedSeconds": 29.173650083999974,
+    "nodeSetupToPipelineSeconds": 1.081109833,
+    "pipelineSeconds": 28.0175655,
+    "pipelineUserCpuSeconds": 17.424608,
+    "pipelineSystemCpuSeconds": 1.910344,
+    "workers": [
+      {
+        "pid": 67375,
+        "spawnedMs": 317.548417,
+        "readyMs": 119719.740417,
+        "response": {
+          "ready": true
+        },
+        "exitMs": 130485.782417,
+        "code": null,
+        "signal": "SIGTERM",
+        "warmupSeconds": 119.402192
+      },
+      {
+        "pid": 67378,
+        "spawnedMs": 318.336708,
+        "readyMs": 119717.360958,
+        "response": {
+          "ready": true
+        },
+        "exitMs": 130485.819417,
+        "code": null,
+        "signal": "SIGTERM",
+        "warmupSeconds": 119.39902425
+      }
+    ],
+    "rowsWritten": 342768,
+    "streams": [["succeeded", 32]],
+    "attachmentResults": [
+      ["image-v1", "no_text", 445],
+      ["image-v1", "parsed", 236],
+      ["pdf-v1", "parsed", 7],
+      ["text-v1", "parsed", 3],
+      ["unsupported", "no_text", 104]
+    ],
+    "files": 795,
+    "settingsUnchanged": true,
+    "outputDigest": "0cf0e3af7e2d62b8d08039559c8ce919af42baf463541f6e8487eebf1feadecf",
+    "dataOperations": {
+      "sql.destination.exec": {
+        "calls": 551,
+        "ms": 189.1627589999921
+      },
+      "sql.destination.get": {
+        "calls": 271,
+        "ms": 1.8916290000108802
+      },
+      "sql.destination.run": {
+        "calls": 343779,
+        "ms": 2848.2926879995684
+      },
+      "sql.checkpoint.exec": {
+        "calls": 198,
+        "ms": 28.30945599999609
+      },
+      "file.writeFile": {
+        "calls": 900,
+        "ms": 176.56780000002914
+      },
+      "file.sync.directory": {
+        "calls": 895,
+        "ms": 3941.9768790000066
+      },
+      "sql.checkpoint.get": {
+        "calls": 41,
+        "ms": 0.20341700000017227
+      },
+      "sql.source.exec": {
+        "calls": 84,
+        "ms": 2.1747509999981958
+      },
+      "sql.source.all": {
+        "calls": 109,
+        "ms": 0.9253709999991315
+      },
+      "LocalFiles.retain": {
+        "calls": 8,
+        "ms": 28.04591600000049
+      },
+      "sql.source.get": {
+        "calls": 36,
+        "ms": 1.3646239999932277
+      },
+      "sql.source.next": {
+        "calls": 625833,
+        "ms": 3232.989240999666
+      },
+      "sql.destination.all": {
+        "calls": 96,
+        "ms": 1.1489569999855576
+      },
+      "sql.checkpoint.run": {
+        "calls": 64,
+        "ms": 128.0546219999942
+      },
+      "file.read": {
+        "calls": 868,
+        "ms": 282.7945520000335
+      },
+      "file.sync.content": {
+        "calls": 817,
+        "ms": 4421.815453999993
+      },
+      "LocalFiles.save": {
+        "calls": 817,
+        "ms": 9647.691340999996
+      },
+      "sql.destination.next": {
+        "calls": 79135,
+        "ms": 41.93704300018544
+      }
+    }
+  },
+  "control": {
+    "wallSeconds": 33.40767241599997,
+    "exitCode": 0,
+    "dataReportReceivedSeconds": 22.862230791,
+    "nodeSetupToPipelineSeconds": 0.7614612909999999,
+    "pipelineSeconds": 22.028415292000002,
+    "pipelineUserCpuSeconds": 15.243221,
+    "pipelineSystemCpuSeconds": 1.491509,
+    "workers": [
+      {
+        "pid": 81955,
+        "spawnedMs": 243.113041,
+        "readyMs": 986.235291,
+        "response": {
+          "ready": true
+        },
+        "exitMs": 33321.15575,
+        "code": null,
+        "signal": "SIGTERM",
+        "warmupSeconds": 0.7431222499999999
+      },
+      {
+        "pid": 81956,
+        "spawnedMs": 243.9295,
+        "readyMs": 986.885541,
+        "response": {
+          "ready": true
+        },
+        "exitMs": 33321.346583,
+        "code": null,
+        "signal": "SIGTERM",
+        "warmupSeconds": 0.742956041
+      }
+    ],
+    "rowsWritten": 342768,
+    "streams": [["succeeded", 32]],
+    "attachmentResults": [
+      ["image-v1", "no_text", 445],
+      ["image-v1", "parsed", 236],
+      ["pdf-v1", "parsed", 7],
+      ["text-v1", "parsed", 3],
+      ["unsupported", "no_text", 104]
+    ],
+    "files": 795,
+    "settingsUnchanged": true,
+    "outputDigest": "0cf0e3af7e2d62b8d08039559c8ce919af42baf463541f6e8487eebf1feadecf",
+    "dataOperations": {}
+  },
+  "date": "2026-10-24",
+  "environment": {
+    "node": "26.10.0",
+    "macOS": "27.0",
+    "architecture": "arm64"
+  },
+  "method": {
+    "transcription": "off",
+    "freshOutputAndCheckpoints": true,
+    "timer": "before Node spawn through process exit",
+    "cpuSamplingMicroseconds": 5000,
+    "cpuWindow": "Pipeline.run entry through return",
+    "profile": "temporary wrappers around actual filesystem and SQLite calls plus CPU sampling",
+    "control": "boundary and native readiness markers only",
+    "cacheState": "profile was the first full run after the machine restarted; control followed the successful profile; Apple caches were not manually cleared",
+    "fileProbeOverlap": "file A/B ran while profiled CLI waited for native startup, after ingestion had completed; OS compiler was active"
+  },
+  "outputParity": {
+    "matched": 795,
+    "changed": 0,
+    "compare": ["reference", "parser", "status", "text SHA-256"],
+    "audioUnsupportedNoText": 62
+  },
+  "sampledDataSeconds": {
+    "other": 1.368081,
+    "SQLite destination": 4.118415,
+    "WhatsApp source/mapping": 7.491977,
+    "(idle)": 9.310121,
+    "(program)": 0.528179,
+    "record validation": 1.050765,
+    "snapshot diff/hash": 3.132015,
+    "file handling": 0.494433,
+    "(garbage collector)": 0.601687
+  },
+  "sampledTotalSeconds": 28.095673,
+  "snapshotDiffInclusiveSampledSeconds": 10.951612,
+  "fileExperiment": {
+    "runs": [
+      {
+        "deferDirectorySync": false,
+        "seconds": 8.082548625,
+        "files": 795,
+        "hashesVerified": 784,
+        "content": {
+          "calls": 795,
+          "ms": 3570.194215000005
+        },
+        "directory": {
+          "calls": 800,
+          "ms": 3317.772665000004
+        },
+        "skippedDirectory": 0
+      },
+      {
+        "deferDirectorySync": true,
+        "seconds": 5.148397667000001,
+        "files": 795,
+        "hashesVerified": 784,
+        "content": {
+          "calls": 795,
+          "ms": 4286.334073999977
+        },
+        "directory": {
+          "calls": 1,
+          "ms": 4.755415999999968
+        },
+        "skippedDirectory": 799
+      },
+      {
+        "deferDirectorySync": true,
+        "seconds": 4.515338333000002,
+        "files": 795,
+        "hashesVerified": 784,
+        "content": {
+          "calls": 795,
+          "ms": 3661.1066359999604
+        },
+        "directory": {
+          "calls": 1,
+          "ms": 4.152833000000101
+        },
+        "skippedDirectory": 799
+      },
+      {
+        "deferDirectorySync": false,
+        "seconds": 8.136321541000001,
+        "files": 795,
+        "hashesVerified": 784,
+        "content": {
+          "calls": 795,
+          "ms": 3730.5014800000317
+        },
+        "directory": {
+          "calls": 800,
+          "ms": 3424.083630999943
+        },
+        "skippedDirectory": 0
+      }
+    ],
+    "currentMeanSeconds": 8.109435083000001,
+    "deferredDirectoryMeanSeconds": 4.831868000000002,
+    "meanSecondsSaved": 3.277567082999999,
+    "reductionPercent": 40.41671274822632,
+    "allHashesVerified": true,
+    "scope": "795 source paths copied into one disposable scope; 784 unique byte-and-extension objects; no database/checkpoint commits",
+    "limitations": "Not a production patch or crash-durability test. Final retain does not establish safe publication ordering or newly-created parent-directory durability."
+  },
+  "cleanup": {
+    "deleted": "/Users/ezzabuzaid/Library/Application Support/Context Compiler/Imports/mail/d58fec66e4f1d6c6",
+    "allocatedBytes": 4993388544,
+    "freeBefore": 72943431680,
+    "freeAfter": 77779714048,
+    "settingsUnchanged": true
+  },
+  "followUp": {
+    "repository": "elt",
+    "id": 2923,
+    "nativeStartupIssue": 2896
+  },
+  "rawEvidence": "/tmp/cc-wa-data-profile"
+}

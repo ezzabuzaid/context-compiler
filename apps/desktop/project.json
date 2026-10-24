@@ -1,0 +1,114 @@
+{
+  "name": "desktop",
+  "sourceRoot": "apps/desktop/src",
+  "projectType": "application",
+  "targets": {
+    "format": {},
+    "bundle-main": {
+      "executor": "@nx/esbuild:esbuild",
+      "cache": true,
+      "outputs": ["{projectRoot}/dist/host"],
+      "options": {
+        "main": "apps/desktop/src/main.ts",
+        "outputPath": "apps/desktop/dist/host",
+        "tsConfig": "apps/desktop/tsconfig.json",
+        "platform": "node",
+        "format": ["esm"],
+        "target": "node24.22",
+        "bundle": true,
+        "thirdParty": true,
+        "external": ["electron"],
+        "skipTypeCheck": true,
+        "declaration": false,
+        "esbuildOptions": {
+          "outExtension": {
+            ".js": ".mjs"
+          },
+          "banner": {
+            "js": "import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);"
+          }
+        }
+      }
+    },
+    "bundle-preload": {
+      "executor": "@nx/esbuild:esbuild",
+      "cache": true,
+      "outputs": ["{projectRoot}/dist/preload"],
+      "options": {
+        "main": "apps/desktop/src/preload.ts",
+        "outputPath": "apps/desktop/dist/preload",
+        "tsConfig": "apps/desktop/tsconfig.json",
+        "platform": "node",
+        "format": ["cjs"],
+        "target": "node24.22",
+        "bundle": true,
+        "thirdParty": true,
+        "external": ["electron"],
+        "skipTypeCheck": true,
+        "declaration": false
+      }
+    },
+    "bundle-renderer": {
+      "command": "vite build --config apps/desktop/frontend/vite.config.mts",
+      "dependsOn": ["^build"],
+      "cache": true,
+      "outputs": ["{projectRoot}/dist/renderer"]
+    },
+    "bundle": {
+      "executor": "nx:noop",
+      "dependsOn": [
+        "bundle-main",
+        "bundle-preload",
+        "bundle-renderer",
+        {
+          "projects": ["server"],
+          "target": "bundle"
+        }
+      ]
+    },
+    "start": {
+      "dependsOn": ["bundle"],
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "apps/desktop",
+        "command": "electron-forge start"
+      }
+    },
+    "package": {
+      "dependsOn": ["bundle"],
+      "executor": "nx:run-commands",
+      "outputs": ["{projectRoot}/dist/package"],
+      "options": {
+        "cwd": "apps/desktop",
+        "command": "electron-forge package --platform=darwin"
+      }
+    },
+    "test": {
+      "dependsOn": [
+        "build",
+        "bundle",
+        {
+          "projects": ["plugin"],
+          "target": "bundle"
+        }
+      ],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node --test --test-concurrency=1 {args} apps/desktop/dist/src/desktop.e2e.test.js apps/desktop/dist/src/security.e2e.test.js apps/desktop/dist/src/backend.e2e.test.js"
+      }
+    },
+    "verify-package": {
+      "dependsOn": ["build", "package"],
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node --test {args} apps/desktop/dist/src/package.e2e.test.js"
+      }
+    },
+    "open": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "open apps/desktop/dist/package/Context\\ Compiler-darwin-$(uname -m | sed s/x86_64/x64/)/Context\\ Compiler.app"
+      }
+    }
+  }
+}

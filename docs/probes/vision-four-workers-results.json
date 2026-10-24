@@ -1,0 +1,133 @@
+{
+  "date": "2026-10-24",
+  "comparisonOrder": [3, 4, 4, 3],
+  "isolatedRuns": [
+    {
+      "workers": 3,
+      "imageCount": 681,
+      "warmupSeconds": [
+        1.012150415999713, 1.0123755829999936, 1.0142010409999784
+      ],
+      "ocrSeconds": 8.08700320800017,
+      "startupAndOcrSeconds": 9.101265500000409,
+      "peakWorkerRssMiB": 753.84375,
+      "samples": 41,
+      "corpusSha256": "725b6a895d971a39c074afb3ea42a59b2d2466b07ac3a24ea10abe267bf21ada",
+      "helperSha256": "54a5db62415e0b784430bf5facaf8f8b1ce0520f0effb53457a115a4c931ccbf",
+      "outputsMatch": true
+    },
+    {
+      "workers": 4,
+      "imageCount": 681,
+      "warmupSeconds": [
+        0.9897535000000062, 0.9963962920000995, 1.01095633299974,
+        1.0112127919992417
+      ],
+      "ocrSeconds": 6.9054269170001135,
+      "startupAndOcrSeconds": 7.9166810829992755,
+      "peakWorkerRssMiB": 875.25,
+      "samples": 31,
+      "corpusSha256": "725b6a895d971a39c074afb3ea42a59b2d2466b07ac3a24ea10abe267bf21ada",
+      "helperSha256": "54a5db62415e0b784430bf5facaf8f8b1ce0520f0effb53457a115a4c931ccbf",
+      "outputsMatch": true
+    },
+    {
+      "workers": 4,
+      "imageCount": 681,
+      "warmupSeconds": [
+        0.9744385419999162, 0.9799576670002352, 0.9806867079996664,
+        0.9811964999998963
+      ],
+      "ocrSeconds": 6.429511124999408,
+      "startupAndOcrSeconds": 7.41074829199988,
+      "peakWorkerRssMiB": 846.375,
+      "samples": 33,
+      "corpusSha256": "725b6a895d971a39c074afb3ea42a59b2d2466b07ac3a24ea10abe267bf21ada",
+      "helperSha256": "54a5db62415e0b784430bf5facaf8f8b1ce0520f0effb53457a115a4c931ccbf",
+      "outputsMatch": true
+    },
+    {
+      "workers": 3,
+      "imageCount": 681,
+      "warmupSeconds": [
+        0.9114803330003269, 0.9134630830003516, 0.9153835830002208
+      ],
+      "ocrSeconds": 8.214771707999716,
+      "startupAndOcrSeconds": 9.130194041000323,
+      "peakWorkerRssMiB": 734.125,
+      "samples": 42,
+      "corpusSha256": "725b6a895d971a39c074afb3ea42a59b2d2466b07ac3a24ea10abe267bf21ada",
+      "helperSha256": "54a5db62415e0b784430bf5facaf8f8b1ce0520f0effb53457a115a4c931ccbf",
+      "outputsMatch": true
+    }
+  ],
+  "means": {
+    "3": {
+      "ocrSeconds": 8.150887457999943,
+      "startupAndOcrSeconds": 9.115729770500366,
+      "peakWorkerRssMiB": 743.984375
+    },
+    "4": {
+      "ocrSeconds": 6.667469020999761,
+      "startupAndOcrSeconds": 7.663714687499578,
+      "peakWorkerRssMiB": 860.8125
+    }
+  },
+  "rssSampling": "Sum of native-worker RSS from ps, roughly 0.21-second intervals; shared pages may be counted more than once; excludes separate system services.",
+  "exactOutputsMatched": 2724,
+  "fullPasses": {
+    "before": {
+      "workers": 3,
+      "wallSeconds": 29.37070004100042,
+      "pipelineSeconds": 19.640172791,
+      "reportSeconds": 20.660293249999995,
+      "postReportSeconds": 8.710406791000423,
+      "warmupSeconds": [0.960649083, 0.959556292, 0.9581170000000002],
+      "rows": 342770,
+      "streams": [["succeeded", 32]],
+      "files": 795,
+      "attachmentResults": [
+        ["image-v1", "no_text", 445],
+        ["image-v1", "parsed", 236],
+        ["pdf-v1", "parsed", 7],
+        ["text-v1", "parsed", 3],
+        ["unsupported", "no_text", 104]
+      ],
+      "audio": [["unsupported", "no_text", 62]],
+      "exitCode": 0,
+      "settingsUnchanged": true,
+      "workersExited": true
+    },
+    "after": {
+      "workers": 4,
+      "wallSeconds": 26.74744812499921,
+      "pipelineSeconds": 19.019077499999998,
+      "reportSeconds": 19.725810332999572,
+      "postReportSeconds": 7.021637791999638,
+      "warmupSeconds": [
+        1.301285417, 1.289800916, 1.2901149170000001, 1.2897092079999999
+      ],
+      "rows": 342770,
+      "streams": [["succeeded", 32]],
+      "files": 795,
+      "attachmentResults": [
+        ["image-v1", "no_text", 445],
+        ["image-v1", "parsed", 236],
+        ["pdf-v1", "parsed", 7],
+        ["text-v1", "parsed", 3],
+        ["unsupported", "no_text", 104]
+      ],
+      "audio": [["unsupported", "no_text", 62]],
+      "exitCode": 0,
+      "settingsUnchanged": true,
+      "workersExited": true
+    }
+  },
+  "fullAttachmentResultsMatched": 795,
+  "fullStreamResultsMatched": 32,
+  "transcription": "off",
+  "startupIncluded": true,
+  "ocrPercentLess": 18.199471464229767,
+  "fullPassPercentLess": 8.931526699531322,
+  "additionalWorkerRssMiB": 116.828125
+}

@@ -26,15 +26,15 @@ Paths are relative to the repository root. The _source_ is the elt package that 
 2. Set the names in `package.json` and `project.json`. Set `contextCompiler.name` and `contextCompiler.title`.
 3. Replace the dependencies in `package.json` with the source package and the other packages the entry imports.
 4. Write `src/<name>-connector.ts`. Start from the connector whose app is most similar.
-5. Add `@workspace/connector-<source>` to the dependencies of `apps/cli/package.json` and `apps/plugin/package.json`. Nx then builds it before both hosts.
+5. Add `@workspace/connector-<source>` to the dependencies of `apps/cli/package.json` and `apps/server/package.json`. Nx then builds it before both hosts.
 6. Run `npm install`. Nx keeps the TypeScript project references current itself (`sync.applyChanges` in `nx.json`).
 7. Add the connector's row to the permissions table in `README.md` when it needs a grant. Describe host behavior in `docs/connectors-and-hosts.md` only when this connector changes it. Stream details go in elt's `docs/reference.md`.
-8. Run `npx nx run connector-<source>:typecheck`, `npx nx run cli:typecheck` and `npx nx run plugin:typecheck`.
-9. Run `npx nx run connector-manifest:test`, `npx nx run cli:test` and `npx nx run plugin:test`.
+8. Run `npx nx run connector-<source>:typecheck`, `npx nx run cli:typecheck` and `npx nx run server:typecheck`.
+9. Run `npx nx run connector-manifest:test`, `npx nx run cli:test` and `npx nx run server:test`.
 
 ## Gotchas
 
-- **The package is not a dependency of both hosts.** Nx does not build it before the host that lacks it. The CLI or the bundle then misses the connector, or loads a stale build. Add it to `apps/cli` and `apps/plugin`.
+- **The package is not a dependency of both hosts.** Nx does not build it before the host that lacks it. The CLI or the bundle then misses the connector, or loads a stale build. Add it to `apps/cli` and `apps/server`.
 - **The class declares its name or title.** The manifest owns both. Take them out of the class.
 - **The `exports` field is an object or names more than the entry.** Discovery reads one entry string. Name only `./dist/<name>-connector.js`.
 - **The connector works around an elt gap.** The next connector meets the same gap. Fix it in elt and commit there first.
@@ -46,6 +46,6 @@ Paths are relative to the repository root. The _source_ is the elt package that 
 - `npx nx run cli:start -- setup --connector <name>` and `npx nx run cli:start -- sync --connector <name>` import the real app's data on this Mac. Inspect the import with `npx nx run cli:start -- query <name> --tables` and one `query <name> "<sql>"`.
 - A second `sync` with no changes in the app behaves as the source's sync strategy promises: a snapshot stream writes nothing.
 - `npx nx run plugin:install` installs a plugin that lists the connector, and setup through the plugin imports it.
-- Typecheck and tests pass for the connector, `connector-manifest`, `cli` and `plugin`.
+- Typecheck and tests pass for the connector, `connector-manifest`, `cli` and `server`.
 - Each gotcha above is checked against the diff.
 - The elt change, if any, is committed in elt before the commit here.

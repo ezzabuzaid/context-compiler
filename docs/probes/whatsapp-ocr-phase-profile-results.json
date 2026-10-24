@@ -1,0 +1,86 @@
+{
+  "date": "2026-10-24",
+  "transcription": "off",
+  "startupIncluded": true,
+  "wallSeconds": 34.289210666000145,
+  "pipelineSeconds": 20.803397083,
+  "reportSeconds": 21.723601832999975,
+  "attachmentUpdateSeconds": 12.547964166999998,
+  "postReportSeconds": 12.56560883300017,
+  "warmupSeconds": [1.057472542, 1.05563825],
+  "visionService": {
+    "count": 681,
+    "sumSeconds": 24.969099759999995,
+    "medianMs": 21.37920800000211,
+    "p95Ms": 107.17733299999963,
+    "maxMs": 435.60562500000015
+  },
+  "visionQueue": {
+    "count": 681,
+    "sumSeconds": 22.846752535999947,
+    "medianMs": 20.084999999999127,
+    "p95Ms": 93.9529579999944,
+    "maxMs": 356.8902079999971
+  },
+  "visionAnyWorkerBusySeconds": 12.529342250000001,
+  "visionWorkerBusySeconds": [12.478465376999987, 12.490634383000009],
+  "visionByResult": {
+    "text": {
+      "count": 236,
+      "sumSeconds": 15.406824630000006,
+      "medianMs": 52.51212499999929,
+      "p95Ms": 134.71137499999895,
+      "maxMs": 435.60562500000015
+    },
+    "noText": {
+      "count": 445,
+      "sumSeconds": 9.562275129999987,
+      "medianMs": 16.297041999998328,
+      "p95Ms": 42.837916000000405,
+      "maxMs": 131.7363329999971
+    }
+  },
+  "parserByFormat": {
+    "image-v1": {
+      "count": 681,
+      "sumSeconds": 48.03287459300003,
+      "medianMs": 45.495708000002196,
+      "p95Ms": 187.4409169999999,
+      "maxMs": 612.9101249999985
+    },
+    "pdf-v1": {
+      "count": 7,
+      "sumSeconds": 0.7975632079999959,
+      "medianMs": 91.1773749999993,
+      "p95Ms": 165.05495800000062,
+      "maxMs": 177.39454099999784
+    },
+    "text-v1": {
+      "count": 3,
+      "sumSeconds": 0.246109583999998,
+      "medianMs": 99.1038750000007,
+      "p95Ms": 99.1038750000007,
+      "maxMs": 107.09229199999754
+    }
+  },
+  "identityChecks": {
+    "count": 795,
+    "sumSeconds": 0.26432844500000285,
+    "medianMs": 0.18412499999976717,
+    "p95Ms": 0.835666000002675,
+    "maxMs": 11.672999999998865
+  },
+  "textWrites": {
+    "count": 795,
+    "sumSeconds": 0.4784287939999631,
+    "medianMs": 0.5447080000012647,
+    "p95Ms": 0.8208330000015849,
+    "maxMs": 13.13679200000115
+  },
+  "attachmentResultsMatch": 795,
+  "streamResultsMatch": 32,
+  "rows": 342770,
+  "exitCode": 0,
+  "settingsUnchanged": true,
+  "workersExited": true
+}

@@ -2,7 +2,9 @@ import type { DocumentParser } from '@workspace/elt';
 import type { SpeechModels } from '@workspace/sdk-macos-speech-models';
 import { Settings } from '@workspace/settings';
 import { AudioFormat } from '@workspace/source-apple-macos/audio-format';
+import { ImageFormat } from '@workspace/source-apple-macos/image-format';
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
+import type { Vision } from '@workspace/source-apple-macos/vision';
 import { LocalTranscriptionModel } from '@workspace/transcription-local';
 
 // The hosts share the user's saved choice: the file name of a speech model,
@@ -17,12 +19,20 @@ export class Transcription implements AsyncDisposable {
   readonly #helper: string | undefined;
   #chosen: string | null | undefined = null;
   #model: LocalTranscriptionModel | undefined;
-  #parser: DocumentParser = new MacOSDocumentParser();
+  readonly #image: ImageFormat;
+  #parser: DocumentParser;
 
-  constructor(directory: string, models: SpeechModels, helper?: string) {
+  constructor(
+    directory: string,
+    models: SpeechModels,
+    vision: Vision,
+    helper?: string,
+  ) {
     this.#settings = new Settings(directory);
     this.#models = models;
     this.#helper = helper;
+    this.#image = new ImageFormat(vision);
+    this.#parser = new MacOSDocumentParser([this.#image]);
   }
 
   get parser(): DocumentParser {
@@ -65,9 +75,10 @@ export class Transcription implements AsyncDisposable {
       configuration === undefined
         ? undefined
         : new LocalTranscriptionModel(configuration, this.#helper);
-    this.#parser = new MacOSDocumentParser(
-      this.#model === undefined ? [] : [new AudioFormat(this.#model)],
-    );
+    this.#parser = new MacOSDocumentParser([
+      this.#image,
+      ...(this.#model === undefined ? [] : [new AudioFormat(this.#model)]),
+    ]);
     if (previous !== undefined)
       this.#closing = Promise.all([
         this.#closing,

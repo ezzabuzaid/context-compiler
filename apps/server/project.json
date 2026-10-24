@@ -1,0 +1,30 @@
+{
+  "name": "server",
+  "sourceRoot": "apps/server/src",
+  "projectType": "application",
+  "targets": {
+    "format": {},
+    "bundle": {
+      "command": "node apps/server/build.mjs",
+      "dependsOn": ["^build"],
+      "cache": true,
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/plugins/context-compiler/.codex-plugin/plugin.json",
+        "{workspaceRoot}/plugins/context-compiler/assets/composer-icon.png"
+      ],
+      "outputs": ["{projectRoot}/dist/server"]
+    },
+    "test": {
+      "dependsOn": [
+        "build",
+        {
+          "projects": ["plugin"],
+          "target": "bundle"
+        }
+      ],
+      "command": "node --test {args} \"apps/server/dist/*.test.js\""
+    }
+  }
+}

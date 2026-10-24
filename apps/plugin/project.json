@@ -1,19 +1,18 @@
 {
   "name": "plugin",
-  "sourceRoot": "apps/plugin/src",
   "projectType": "application",
   "targets": {
     "format": {},
     "bundle": {
       "command": "node apps/plugin/build.mjs",
-      "dependsOn": ["^build"],
-      "cache": true,
-      "inputs": [
-        "default",
-        "^default",
-        "{workspaceRoot}/plugins/context-compiler/.codex-plugin/plugin.json",
-        "{workspaceRoot}/plugins/context-compiler/assets/composer-icon.png"
+      "dependsOn": [
+        {
+          "projects": ["server"],
+          "target": "bundle"
+        }
       ],
+      "cache": true,
+      "inputs": ["default", { "dependentTasksOutputFiles": "**/*" }],
       "outputs": ["{workspaceRoot}/plugins/context-compiler/server"]
     },
     "marketplace": {
@@ -29,8 +28,24 @@
       "command": "node apps/plugin/release.mjs"
     },
     "test": {
-      "dependsOn": ["build", "bundle"],
-      "command": "node --test {args} \"apps/plugin/dist/*.test.js\""
+      "executor": "nx:noop",
+      "dependsOn": [
+        {
+          "projects": ["server"],
+          "target": "test",
+          "params": "forward"
+        }
+      ]
+    },
+    "typecheck": {
+      "executor": "nx:noop",
+      "dependsOn": [
+        "lint",
+        {
+          "projects": ["server"],
+          "target": "typecheck"
+        }
+      ]
     }
   }
 }

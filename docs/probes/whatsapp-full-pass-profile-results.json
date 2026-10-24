@@ -1,0 +1,255 @@
+{
+  "measuredAt": "2026-10-24T08:09:34.109Z",
+  "environment": {
+    "node": "v26.10.0",
+    "macOS": "27.0",
+    "architecture": "arm64",
+    "cacheState": "OS/model caches were not reset; initial run still incurred first-use model and language preparation. Control and worker comparison followed it with caches warm."
+  },
+  "method": {
+    "command": [
+      "node",
+      "--cpu-prof",
+      "--cpu-prof-interval=5000",
+      "--import",
+      "/tmp/cc-wa-profile.mjs",
+      "apps/cli/dist/main.js",
+      "--directory",
+      "/Users/ezzabuzaid/Library/Application Support/Context Compiler/Imports",
+      "--transcription-model",
+      "off",
+      "sync",
+      "--connector",
+      "whatsapp",
+      "--json"
+    ],
+    "boundaries": [
+      "Pipeline.run",
+      "AttachmentText.update",
+      "Vision.read",
+      "native stdin-write to stdout-response",
+      "MacOSDocumentParser.parse and identityFor",
+      "LocalFiles.save and retain",
+      "FileHandle.sync and writeFile",
+      "SQLite prepare,exec,run,get,all,iterator.next"
+    ],
+    "notes": [
+      "Temporary preload wrappers observed real methods without modifying production files. Counters and timestamps add overhead.",
+      "Nested/overlapping operation totals are not additive. OCR queue-inclusive durations are excluded from the critical-path sum.",
+      "Native samples came from a rejected failed run; no native sampling was used for the successful full profile.",
+      "Raw local traces and CPU profiles remain under /tmp/cc-wa-profile; shared artifacts contain no message or recognized-text contents."
+    ]
+  },
+  "profile": {
+    "wallSeconds": 93.11,
+    "exitCode": 0,
+    "criticalPathSeconds": {
+      "startupAndConnection": 0.837560125,
+      "dataPipeline": 23.085969917,
+      "remainingWarmupWait": 6.525878500000003,
+      "ocrService": 62.47868974699994,
+      "otherAttachmentGaps": 0.06861083700005821,
+      "shutdownAndProfileFlush": 0.11309729100000254
+    },
+    "nativeWarmupSeconds": 30.103529041,
+    "attachmentStageSeconds": 69.073179084,
+    "dataDetails": {
+      "fileSaveCount": 817,
+      "fileSaveWallSumSeconds": 7.547761757999976,
+      "fsyncCount": 1712,
+      "fsyncWallSumSeconds": 6.727002629000013,
+      "fileWriteWallSumSeconds": 0.08850779499989869,
+      "sqliteCallWallSumSeconds": 4.994919800999989,
+      "checkpointSaveWallSumSeconds": 0.09261770800000249
+    },
+    "attachmentDetails": {
+      "imageCount": 681,
+      "imageMedianSeconds": 0.01699987499999406,
+      "imageP95Seconds": 0.09303845799999544,
+      "topFiveInitialSeconds": 42.00749299900001,
+      "topFiveWarmSeconds": 0.354124667996075,
+      "topFive": [
+        {
+          "extension": ".thumb",
+          "views": ["profile_pictures"],
+          "initialSeconds": 18.178390666000002,
+          "warmSeconds": 0.04761570898699574,
+          "startSeconds": 30.450962459,
+          "endSeconds": 48.629353125,
+          "status": "parsed"
+        },
+        {
+          "extension": ".thumb",
+          "views": ["profile_pictures"],
+          "initialSeconds": 12.974653124999998,
+          "warmSeconds": 0.02869450001162477,
+          "startSeconds": 52.63707575,
+          "endSeconds": 65.611728875,
+          "status": "no_text"
+        },
+        {
+          "extension": ".webp",
+          "views": ["stickers"],
+          "initialSeconds": 3.6635329159999963,
+          "warmSeconds": 0.10275125000043772,
+          "startSeconds": 79.043082834,
+          "endSeconds": 82.70661575,
+          "status": "parsed"
+        },
+        {
+          "extension": ".thumb",
+          "views": ["profile_pictures"],
+          "initialSeconds": 3.6365568750000095,
+          "warmSeconds": 0.09175404199049808,
+          "startSeconds": 66.64613545899999,
+          "endSeconds": 70.282692334,
+          "status": "parsed"
+        },
+        {
+          "extension": ".thumb",
+          "views": ["profile_pictures"],
+          "initialSeconds": 3.5543594169999997,
+          "warmSeconds": 0.08330916700651869,
+          "startSeconds": 48.946961542,
+          "endSeconds": 52.501320959,
+          "status": "parsed"
+        }
+      ],
+      "pdfCount": 7,
+      "pdfWallSumSeconds": 0.8150866660000029,
+      "textCount": 3,
+      "textWallSumSeconds": 0.35772529199998826,
+      "identityWallSumSeconds": 0.30954646099996536,
+      "sqliteWallSumSeconds": 0.6335250639999904
+    },
+    "nativeLanguageAssetFirstSeenLocal": [
+      "11:10:04.612 en",
+      "11:10:22.769 ar",
+      "11:10:39.781 hi",
+      "11:10:44.447 ko",
+      "11:10:47.904 ru",
+      "11:10:56.878 th",
+      "11:10:58.540 id",
+      "11:11:04.713 tr",
+      "11:11:06.939 nb",
+      "11:11:06.941 mul_154"
+    ],
+    "v8IdleSampleSeconds": 75.565,
+    "rowsWritten": 342768,
+    "streams": 32,
+    "output": {
+      "text": [
+        ["image-v1", "no_text", 445],
+        ["image-v1", "parsed", 236],
+        ["pdf-v1", "parsed", 7],
+        ["text-v1", "parsed", 3],
+        ["unsupported", "no_text", 104]
+      ],
+      "attempts": [
+        ["2026-10-24T08:09:35.058Z", "2026-10-24T08:09:58.111Z", "succeeded"]
+      ],
+      "audio": [["unsupported", "no_text", 62]]
+    },
+    "comparison": {
+      "sameFiles": 795,
+      "sameTextAndStatus": 795,
+      "changedTextOrStatus": 0,
+      "added": 0,
+      "removed": 0
+    },
+    "settingsUnchanged": true
+  },
+  "warmFreshControl": {
+    "wallSeconds": 44.88,
+    "dataReportSeconds": 24.301880749990232,
+    "postDataReportSeconds": 20.57811925000977,
+    "exitCode": 0,
+    "attempts": [
+      ["2026-10-24T08:13:16.300Z", "2026-10-24T08:13:39.725Z", "succeeded"]
+    ],
+    "attachmentResults": [
+      ["image-v1", "no_text", 445],
+      ["image-v1", "parsed", 236],
+      ["pdf-v1", "parsed", 7],
+      ["text-v1", "parsed", 3],
+      ["unsupported", "no_text", 104]
+    ],
+    "sameOutput": true,
+    "settingsUnchanged": true,
+    "freshGeneratedOutputAndCheckpoints": true,
+    "profilingHooks": false
+  },
+  "warmOcrWorkers": [
+    {
+      "workers": 1,
+      "totalSeconds": 20.80562637501862,
+      "warmupSeconds": [0.1543459590175189],
+      "recognitionWallSeconds": 20.651094250002643,
+      "sumServiceSeconds": 20.64384132725536,
+      "files": 681,
+      "matches": 681,
+      "errors": 0
+    },
+    {
+      "workers": 2,
+      "totalSeconds": 11.039834291994339,
+      "warmupSeconds": [0.17101062499568798, 0.17104912499780767],
+      "recognitionWallSeconds": 10.868642167013604,
+      "sumServiceSeconds": 21.679119922191603,
+      "files": 681,
+      "matches": 681,
+      "errors": 0
+    },
+    {
+      "workers": 2,
+      "totalSeconds": 10.98530137501075,
+      "warmupSeconds": [0.1530571670155041, 0.15309420801349916],
+      "recognitionWallSeconds": 10.832094249984948,
+      "sumServiceSeconds": 21.646490004553925,
+      "files": 681,
+      "matches": 681,
+      "errors": 0
+    },
+    {
+      "workers": 1,
+      "totalSeconds": 21.131212332984433,
+      "warmupSeconds": [0.135260915994877],
+      "recognitionWallSeconds": 20.995849540981,
+      "sumServiceSeconds": 20.988984412048012,
+      "files": 681,
+      "matches": 681,
+      "errors": 0
+    }
+  ],
+  "rejectedRuns": [
+    {
+      "wallSeconds": 78.1,
+      "dataPipelineSeconds": 33.237,
+      "imageFailures": 680,
+      "nativeError": "e5rt_execution_stream_operation_create_precompiled_compute_operation_with_options Code 13",
+      "reason": "Failed OCR output; excluded from successful performance comparisons."
+    },
+    {
+      "wallSeconds": 120.43,
+      "reason": "Incomplete import and no final trace; excluded. Host was below 1 GB free with about 42 GB swap."
+    }
+  ],
+  "nativeStandaloneFailure": {
+    "error": "e5rt_e5_compiler_compile Code 11; Could not initialize orientation corrector; worker exited during warm-up",
+    "backlog": 2896
+  },
+  "dockerCleanup": {
+    "reclaimedUnusedImagesGB": 8.929,
+    "remainingImageCount": 1,
+    "activeContainers": 1,
+    "volumesPreserved": 5,
+    "hostFreeDiskAfterGBApprox": 20,
+    "note": "Docker was restarted after its API stopped responding. Active text2sql database container was healthy afterward. Host free-space recovery also includes OS allocation changes."
+  },
+  "followup": {
+    "id": 2921,
+    "repository": "elt",
+    "title": "Cover Vision first-use model paths beyond the English startup warm-up"
+  },
+  "productionCodeChanged": false
+}

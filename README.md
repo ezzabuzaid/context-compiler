@@ -18,7 +18,7 @@ The [Context Compiler plugin](plugins/context-compiler/.codex-plugin/plugin.json
 
 Setup asks in one form which connectors to import, each in full; a connector narrowed earlier in chat keeps that selection. Mail, Notes, Messages, Safari, Books, Activity, Accounts, Call History, Notification Center, Slack, Microsoft Teams and WhatsApp need Full Disk Access for ChatGPT, which macOS does not prompt for; when it is missing, setup reports those connectors as unavailable and a second form offers to open the Full Disk Access list in System Settings. Users do not install Node, Docker or a repository: the launcher runs the server on the Node runtime bundled with the desktop app. The terminal equivalent of steps 1–2 is `codex plugin marketplace add ezzabuzaid/context-compiler --ref release`. The post-install setup prompt requires Codex 0.156 or later.
 
-`plugins/context-compiler` is the installable package; [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json) lists it. Codex copies the folder from a git ref and runs it as is, without installing or building anything, so its server is bundled into `plugins/context-compiler/server` from `apps/plugin` by `npx nx run plugin:bundle` (`apps/plugin/build.mjs`): `main.mjs`, one folder per built-in connector, the chunks they share, and the EventKit helper. That folder is build output, ignored on main. `npx nx run plugin:marketplace` assembles the installable marketplace, `marketplace.json` and the built `plugins/context-compiler`, in `dist/plugin-marketplace`, which `codex plugin marketplace add` accepts as a local path. `npx nx run plugin:release` publishes that result to the `release` branch (see [Release](#release)).
+`plugins/context-compiler` is the installable package; [`.agents/plugins/marketplace.json`](.agents/plugins/marketplace.json) lists it. Codex copies the folder from a git ref and runs it as is, without installing or building anything, so its server is bundled into `plugins/context-compiler/server` from the shared `apps/server` build by `npx nx run plugin:bundle`: `main.mjs`, one folder per built-in connector, the chunks they share, and the EventKit helper. That folder is build output, ignored on main. `npx nx run plugin:marketplace` assembles the installable marketplace, `marketplace.json` and the built `plugins/context-compiler`, in `dist/plugin-marketplace`, which `codex plugin marketplace add` accepts as a local path. `npx nx run plugin:release` publishes that result to the `release` branch (see [Release](#release)).
 
 The MCP tools only set up; the settings file's `selected_connectors` view lists each selected connector and where its import lives, relative to that folder. Each selection imports into `~/Library/Application Support/Context Compiler/Imports/<connector>/<selection>`: `data.sqlite`, where each stream loads into a `raw_<stream>` table read through a described view, beside the `catalog`, `sync_status`, `stream_status` and `extraction_coverage` views elt-sqlite publishes, plus checkpoints and managed attachment copies. The query skill reads each `data.sqlite` directly with `sqlite3 -readonly`; the Codex sandbox also denies writes there.
 
@@ -106,8 +106,11 @@ Manage permissions in **System Settings → Privacy & Security**. Calendar and R
 packages/connectors/   One package per connector (connector-<source>), with
                        Connector (connector) and discovery
                        (connector-manifest)
-packages/settings/     The selection and settings both hosts keep in settings.sqlite
-apps/plugin/           Codex plugin server, bundled into plugins/context-compiler/server (plugin)
+packages/settings/     The selection and settings all hosts keep in settings.sqlite
+apps/server/           Shared MCP server and its MCP page adapter (server)
+apps/plugin/           Codex plugin packaging and release (plugin)
+apps/desktop/          Electron shell and Vite React frontend (desktop)
+packages/ui/           Shared React page, components, styles and tool result schemas (ui)
 apps/cli/              Terminal CLI: setup, sync, status, query (cli)
 plugins/context-compiler/ The installable plugin: manifest, skills, hooks, launcher
 docs/                  Host behavior and verification notes
@@ -137,7 +140,7 @@ npx nx run-many -t test
 
 `typecheck` first runs the project's `lint` target (ESLint), which runs its `format` target (Prettier, which rewrites files and sorts imports) first. The repository has no pre-commit hook yet (backlog #2880), so run `npx nx run <project>:typecheck` for each project you change before you commit. Test targets build first and use Node's test runner.
 
-The plugin's end-to-end tests (`apps/plugin/src/plugin.e2e.test.ts`) start the plugin server on the Node runtime that the ChatGPT desktop app keeps in `~/.cache/codex-runtimes`. When `CODEX_MCP_NODE_PATH` is set, they use that Node instead. Run `npx nx run plugin:test` on a Mac that has the ChatGPT app, with `CODEX_MCP_NODE_PATH` not set, so the tests run the plugin on the Node that users have.
+The server's end-to-end tests (`apps/server/src/plugin.e2e.test.ts`) start the plugin server on the Node runtime that the ChatGPT desktop app keeps in `~/.cache/codex-runtimes`. When `CODEX_MCP_NODE_PATH` is set, they use that Node instead. Run `npx nx run plugin:test` on a Mac that has the ChatGPT app, with `CODEX_MCP_NODE_PATH` not set, so the tests run the plugin on the Node that users have. The MCP page test also uses an installed Google Chrome through Playwright.
 
 Run apps only through their Nx targets: `start` builds the app and its packages first and loads the workspace `.env` (gitignored). Node's default TypeScript stripping does not support the parameter properties used here, so the targets run the built JavaScript. `npx nx run plugin:install` builds the marketplace and installs the plugin from it into this Mac's Codex (`codex plugin add context-compiler@context-compiler`).
 
@@ -148,3 +151,13 @@ The repository has no CI. `npx nx run plugin:release` builds `dist/plugin-market
 ### Adding a connector
 
 Add the source in elt first, with elt's [add-elt-source skill](https://github.com/ezzabuzaid/elt/blob/main/.agents/skills/add-elt-source/SKILL.md). Then register its connector here with the [register-connector skill](.agents/skills/register-connector/SKILL.md). [Connectors and their hosts](docs/connectors-and-hosts.md) describes how the hosts discover, load and import connectors.
+
+## Desktop and shared UI
+
+`npx nx run desktop:start` builds and opens the Electron app. `npx nx run desktop:package` packages it; `npx nx run desktop:verify-package` checks the native package. The Vite entry is `apps/desktop/frontend/index.html`; its output is `apps/desktop/dist/renderer`.
+
+`packages/ui` owns the existing page layout, components and interaction state. Its `./contract` export contains only the Zod result schemas, so the server can use it without loading React. Each host supplies the SDK's `callServerTool` interface. The MCP adapter in `apps/server/src/page/main.tsx` owns host styles, deep links and chat links; the desktop entry owns native theme updates, startup/retry state and the narrow preload connection. React is a peer dependency of the UI package.
+
+`npx nx run server:bundle` produces `apps/server/dist/server`, including the self-contained MCP page resource and native helpers. Plugin packaging copies that output into the installable plugin; Electron packages the same output as a resource. Sync, watch and monitor orchestration live in `apps/server`; neither frontend implements them. The CLI continues to use the existing connector packages directly.
+
+The desktop renderer has no Node access. Electron validates IPC senders and tool names, serves only its built frontend directory, and blocks remote requests, frames, injected scripts, navigation and browser permissions. React handles form submissions locally; the content security policy still prohibits document form navigation. Run `npx nx run desktop:test` for sync, settings, restart, cancellation and security scenarios, and `npx nx run server:test` for MCP behavior. `plugin:test` retains its existing entry point and runs the server suite.

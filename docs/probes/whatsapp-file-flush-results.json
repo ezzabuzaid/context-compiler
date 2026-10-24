@@ -1,0 +1,63 @@
+{
+  "date": "2026-10-24",
+  "backlog": 2923,
+  "transcription": "off",
+  "startupIncluded": true,
+  "runs": {
+    "before": {
+      "wallSeconds": 36.87023974999988,
+      "pipelineSeconds": 24.030876041,
+      "reportSeconds": 24.92452212499984,
+      "postReportSeconds": 11.945717625000043,
+      "warmupSeconds": [0.950159625, 0.951349542],
+      "fsync": {
+        "content": 817,
+        "directory": 947
+      },
+      "exitCode": 0,
+      "rows": 342770,
+      "streams": [["succeeded", 32]],
+      "attempts": [["succeeded", 1]],
+      "attachmentResults": [
+        ["image-v1", "no_text", 445],
+        ["image-v1", "parsed", 236],
+        ["pdf-v1", "parsed", 7],
+        ["text-v1", "parsed", 3],
+        ["unsupported", "no_text", 104]
+      ],
+      "files": 795,
+      "audio": [["unsupported", "no_text", 62]],
+      "settingsUnchanged": true
+    },
+    "after": {
+      "wallSeconds": 31.548199208999904,
+      "pipelineSeconds": 19.242228209,
+      "reportSeconds": 19.997628083999643,
+      "postReportSeconds": 11.55057112500026,
+      "warmupSeconds": [1.068767833, 1.0686431659999998],
+      "fsync": {
+        "content": 817,
+        "directory": 136
+      },
+      "exitCode": 0,
+      "rows": 342770,
+      "streams": [["succeeded", 32]],
+      "attempts": [["succeeded", 1]],
+      "attachmentResults": [
+        ["image-v1", "no_text", 445],
+        ["image-v1", "parsed", 236],
+        ["pdf-v1", "parsed", 7],
+        ["text-v1", "parsed", 3],
+        ["unsupported", "no_text", 104]
+      ],
+      "files": 795,
+      "audio": [["unsupported", "no_text", 62]],
+      "settingsUnchanged": true
+    }
+  },
+  "attachmentResultParity": {
+    "matching": 795,
+    "total": 795,
+    "fields": ["reference", "parser", "status", "textSha256"]
+  }
+}

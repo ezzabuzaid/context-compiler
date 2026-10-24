@@ -1,0 +1,553 @@
+{
+  "warmup": {
+    "seconds": 0.14717312500579283,
+    "pid": 70275,
+    "exitCode": -15
+  },
+  "command": [
+    "node",
+    "apps/cli/dist/main.js",
+    "--directory",
+    "/Users/ezzabuzaid/Library/Application Support/Context Compiler/Imports",
+    "--transcription-model",
+    "off",
+    "sync",
+    "--connector",
+    "whatsapp",
+    "--json"
+  ],
+  "runs": [
+    {
+      "name": "fresh",
+      "seconds": 92.60704529099166,
+      "exitCode": 0,
+      "events": [
+        {
+          "seconds": 28.41276012500748,
+          "event": {
+            "connector": "whatsapp",
+            "status": "succeeded",
+            "seconds": 28,
+            "streams": [
+              {
+                "stream": "chats",
+                "written": 746,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "messages",
+                "written": 74056,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "messageReceipts",
+                "written": 217565,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "messageReactions",
+                "written": 17301,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "messageReactionCounts",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "messageDataItems",
+                "written": 4430,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "messageAssociations",
+                "written": 911,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "groupMembers",
+                "written": 9260,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "groupMembersChanges",
+                "written": 101,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "chatPushConfigs",
+                "written": 31,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "pushNames",
+                "written": 2123,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "profilePictures",
+                "written": 4821,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "blockedContacts",
+                "written": 12,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "contacts",
+                "written": 326,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "users",
+                "written": 4955,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "calls",
+                "written": 189,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "callParticipants",
+                "written": 195,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "businessProfiles",
+                "written": 136,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "businessVerifiedNames",
+                "written": 155,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "businessCategories",
+                "written": 161,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "businessHours",
+                "written": 556,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "businessServiceAreas",
+                "written": 5,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "businessBotPrompts",
+                "written": 3,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "statuses",
+                "written": 6,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "stickerPacks",
+                "written": 125,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "stickers",
+                "written": 248,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "favoriteStickers",
+                "written": 150,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "recentStickers",
+                "written": 32,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "privacySettings",
+                "written": 11,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "disappearingModes",
+                "written": 4152,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "linkedProfiles",
+                "written": 6,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "changedNumbers",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              }
+            ],
+            "error": null
+          }
+        }
+      ],
+      "resources": "       92.60 real        31.24 user         7.36 sys\n           740048896  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n              318623  page reclaims\n                5131  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                2140  messages sent\n                1417  messages received\n                   0  signals received\n               29951  voluntary context switches\n              277209  involuntary context switches\n        251975612440  instructions retired\n         74829234458  cycles elapsed\n           741464976  peak memory footprint\n",
+      "written": 342768,
+      "deleted": 0,
+      "streams": 32,
+      "postDataSeconds": 64.19428516598418
+    },
+    {
+      "name": "repeat",
+      "seconds": 5.08704333298374,
+      "exitCode": 0,
+      "events": [
+        {
+          "seconds": 4.976659041974926,
+          "event": {
+            "connector": "whatsapp",
+            "status": "succeeded",
+            "seconds": 4,
+            "streams": [
+              {
+                "stream": "chats",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "messages",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "messageReceipts",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "messageReactions",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "messageReactionCounts",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "messageDataItems",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "messageAssociations",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "groupMembers",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "groupMembersChanges",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "chatPushConfigs",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "pushNames",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "profilePictures",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "blockedContacts",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "contacts",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "users",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "calls",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "callParticipants",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "businessProfiles",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "businessVerifiedNames",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "businessCategories",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "businessHours",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "businessServiceAreas",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "businessBotPrompts",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "statuses",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "stickerPacks",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "stickers",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "favoriteStickers",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "recentStickers",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "privacySettings",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "disappearingModes",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "linkedProfiles",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              },
+              {
+                "stream": "changedNumbers",
+                "written": 0,
+                "deleted": 0,
+                "errors": []
+              }
+            ],
+            "error": null
+          }
+        }
+      ],
+      "resources": "        5.08 real         3.94 user         0.65 sys\n           703201280  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n               62122  page reclaims\n                 270  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                  76  messages sent\n                  41  messages received\n                   0  signals received\n                3157  voluntary context switches\n               15440  involuntary context switches\n         55778039607  instructions retired\n         17151563455  cycles elapsed\n           686387000  peak memory footprint\n",
+      "written": 0,
+      "deleted": 0,
+      "streams": 32,
+      "postDataSeconds": 0.1103842910088133
+    }
+  ],
+  "output": {
+    "files": 795,
+    "textResults": [
+      {
+        "parser": "image-v1",
+        "status": "no_text",
+        "files": 445
+      },
+      {
+        "parser": "image-v1",
+        "status": "parsed",
+        "files": 236
+      },
+      {
+        "parser": "pdf-v1",
+        "status": "parsed",
+        "files": 7
+      },
+      {
+        "parser": "text-v1",
+        "status": "parsed",
+        "files": 3
+      },
+      {
+        "parser": "unsupported",
+        "status": "no_text",
+        "files": 104
+      }
+    ],
+    "audio": [
+      {
+        "status": "no_text",
+        "parser": "unsupported",
+        "files": 62
+      }
+    ],
+    "sameTextAndStatus": 794,
+    "differentTextOrStatus": [],
+    "attempts": [
+      {
+        "started_at": "2026-10-24T07:46:08.091Z",
+        "completed_at": "2026-10-24T07:46:35.707Z",
+        "status": "succeeded"
+      },
+      {
+        "started_at": "2026-10-24T07:47:41.003Z",
+        "completed_at": "2026-10-24T07:47:44.848Z",
+        "status": "succeeded"
+      }
+    ],
+    "copiedBytes": 226433484,
+    "replacedFiles": {
+      "added": [
+        {
+          "extension": ".jpg",
+          "status": "parsed",
+          "parser": "image-v1",
+          "bytes": 135636
+        }
+      ],
+      "removed": [
+        {
+          "extension": ".jpg",
+          "status": "parsed",
+          "parser": "image-v1"
+        }
+      ],
+      "views": ["messages"],
+      "sameRecognizedText": false,
+      "matchesPreviousReader": true
+    },
+    "streamCountChanges": [
+      {
+        "stream": "messages",
+        "before": 74053,
+        "after": 74056
+      },
+      {
+        "stream": "messageReceipts",
+        "before": 217562,
+        "after": 217565
+      },
+      {
+        "stream": "messageDataItems",
+        "before": 4429,
+        "after": 4430
+      },
+      {
+        "stream": "statuses",
+        "before": 7,
+        "after": 6
+      }
+    ]
+  },
+  "settingsUnchanged": true,
+  "environment": {
+    "platform": "darwin",
+    "arch": "arm64",
+    "node": "v26.10.0",
+    "measuredAt": "2026-10-24T07:49:05.298Z",
+    "cacheState": "OS file and model caches were not cleared; native OCR tests and a standalone warm-up probe ran before the fresh import."
+  }
+}

@@ -1,4 +1,5 @@
 import { lstat } from 'node:fs/promises';
+import { availableParallelism } from 'node:os';
 import { basename, extname, join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 
@@ -8,9 +9,8 @@ import { transaction } from '@zukhruf/sqlite-transaction';
 import type { DocumentParser } from '@workspace/elt';
 import { publishSQLiteViews } from '@workspace/elt-sqlite';
 
-// Vision text recognition, the slowest format, read about three times as
-// many files a second with four at once and little more with eight.
-const concurrency = 4;
+// Files can decode concurrently; each native worker owns its request queue.
+const concurrency = Math.min(5, availableParallelism());
 
 // A table another version declared otherwise is replaced, and every stored
 // file is read again.

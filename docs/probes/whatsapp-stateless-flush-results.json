@@ -1,0 +1,313 @@
+{
+  "measuredOn": "2026-10-24",
+  "purpose": "Full WhatsApp import after removing FileTransfer pending map",
+  "method": {
+    "order": [
+      "closed-before-1",
+      "closed-after-1",
+      "closed-after-2",
+      "closed-before-2",
+      "closed-after-3",
+      "closed-before-3",
+      "closed-before-4",
+      "closed-after-4"
+    ],
+    "timing": "before Node spawn through process exit, including startup, OCR warm-up, ingestion, attachment processing and shutdown",
+    "input": {
+      "databaseCount": 10,
+      "mediaDirectories": ["Message", "stickers"],
+      "profilePictureFiles": 386,
+      "method": "SQLite online backups plus Node file copies; original stores opened read-only",
+      "frozen": true,
+      "whatsAppClosedDuringAllEightRuns": true
+    },
+    "output": "Private settings copy and fresh generated import before each pass; separate from the active shared watch",
+    "transcription": "off",
+    "workers": 5,
+    "availableCpus": 14,
+    "beforeGitBlobs": {
+      "fileTransfer": "b8217f58084adf9ac5bfa57e95c9f0fbf28649b4",
+      "localFiles": "ca21a983d90241e2422fc43e2a7750f1da24e10e"
+    },
+    "comparison": "Temporary Node load hook substitutes those two former modules in memory only for before; both modes use the same frozen source and instrumentation",
+    "backgroundActivity": "Concurrent web benchmarks, shared WhatsApp CLI watch, antivirus and Spotlight observed; no unrelated process stopped",
+    "cache": "Warm OS and Apple Vision caches; no reboot or model-cache purge"
+  },
+  "runs": [
+    {
+      "mode": "before",
+      "label": "closed-before-1",
+      "wallSeconds": 28.163043083,
+      "pipelineSeconds": 20.102088583,
+      "reportSeconds": 20.800756166,
+      "postReportSeconds": 7.362286917000002,
+      "warmupSeconds": [
+        1.1401914160000002, 1.19249675, 1.1913989999999999, 1.1906106669999998,
+        1.2115237079999999
+      ],
+      "flushCalls": 4,
+      "rows": 344020,
+      "streams": 32,
+      "files": 877,
+      "voiceFilesWithoutTranscription": 94,
+      "differentTextOutputs": 0,
+      "streamCountsMatch": true,
+      "referencesParsersStatusesMatch": true,
+      "exitCode": 0,
+      "settingsUnchanged": true,
+      "codeHashesUnchanged": true,
+      "workersExited": true
+    },
+    {
+      "mode": "after",
+      "label": "closed-after-1",
+      "wallSeconds": 31.078339125000003,
+      "pipelineSeconds": 22.406629334,
+      "reportSeconds": 23.708880500000003,
+      "postReportSeconds": 7.369458625,
+      "warmupSeconds": [
+        1.4026235000000002, 1.5434446669999997, 1.5576165419999999, 1.566646125,
+        1.5652334170000004
+      ],
+      "flushCalls": 4,
+      "rows": 344020,
+      "streams": 32,
+      "files": 877,
+      "voiceFilesWithoutTranscription": 94,
+      "differentTextOutputs": 0,
+      "streamCountsMatch": true,
+      "referencesParsersStatusesMatch": true,
+      "exitCode": 0,
+      "settingsUnchanged": true,
+      "codeHashesUnchanged": true,
+      "workersExited": true
+    },
+    {
+      "mode": "after",
+      "label": "closed-after-2",
+      "wallSeconds": 29.065132249999998,
+      "pipelineSeconds": 19.635493708,
+      "reportSeconds": 20.333630792,
+      "postReportSeconds": 8.731501457999997,
+      "warmupSeconds": [
+        1.1186484579999998, 1.1200235, 1.13083925, 1.1300624589999997,
+        1.129569167
+      ],
+      "flushCalls": 4,
+      "rows": 344020,
+      "streams": 32,
+      "files": 877,
+      "voiceFilesWithoutTranscription": 94,
+      "differentTextOutputs": 0,
+      "streamCountsMatch": true,
+      "referencesParsersStatusesMatch": true,
+      "exitCode": 0,
+      "settingsUnchanged": true,
+      "codeHashesUnchanged": true,
+      "workersExited": true
+    },
+    {
+      "mode": "before",
+      "label": "closed-before-2",
+      "wallSeconds": 29.129082333,
+      "pipelineSeconds": 20.436814208,
+      "reportSeconds": 21.216161667,
+      "postReportSeconds": 7.912920665999998,
+      "warmupSeconds": [
+        1.256704584, 1.255829792, 1.266273209, 1.287630125, 1.297603541
+      ],
+      "flushCalls": 4,
+      "rows": 344020,
+      "streams": 32,
+      "files": 877,
+      "voiceFilesWithoutTranscription": 94,
+      "differentTextOutputs": 0,
+      "streamCountsMatch": true,
+      "referencesParsersStatusesMatch": true,
+      "exitCode": 0,
+      "settingsUnchanged": true,
+      "codeHashesUnchanged": true,
+      "workersExited": true
+    },
+    {
+      "mode": "after",
+      "label": "closed-after-3",
+      "wallSeconds": 29.811936291,
+      "pipelineSeconds": 21.181963083,
+      "reportSeconds": 22.298305041,
+      "postReportSeconds": 7.5136312499999995,
+      "warmupSeconds": [
+        1.4971516249999999, 1.49947875, 1.5499775829999998, 1.5492917499999999,
+        1.56113
+      ],
+      "flushCalls": 4,
+      "rows": 344020,
+      "streams": 32,
+      "files": 877,
+      "voiceFilesWithoutTranscription": 94,
+      "differentTextOutputs": 0,
+      "streamCountsMatch": true,
+      "referencesParsersStatusesMatch": true,
+      "exitCode": 0,
+      "settingsUnchanged": true,
+      "codeHashesUnchanged": true,
+      "workersExited": true
+    },
+    {
+      "mode": "before",
+      "label": "closed-before-3",
+      "wallSeconds": 27.204590709,
+      "pipelineSeconds": 19.26750075,
+      "reportSeconds": 19.954698084,
+      "postReportSeconds": 7.249892625000001,
+      "warmupSeconds": [
+        1.094247958, 1.1037402499999998, 1.1235148750000001, 1.123995875,
+        1.1249085839999997
+      ],
+      "flushCalls": 4,
+      "rows": 344020,
+      "streams": 32,
+      "files": 877,
+      "voiceFilesWithoutTranscription": 94,
+      "differentTextOutputs": 0,
+      "streamCountsMatch": true,
+      "referencesParsersStatusesMatch": true,
+      "exitCode": 0,
+      "settingsUnchanged": true,
+      "codeHashesUnchanged": true,
+      "workersExited": true
+    },
+    {
+      "mode": "before",
+      "label": "closed-before-4",
+      "wallSeconds": 27.053793625,
+      "pipelineSeconds": 19.025995708,
+      "reportSeconds": 19.73594125,
+      "postReportSeconds": 7.317852375000001,
+      "warmupSeconds": [
+        1.1137842919999998, 1.1137762910000002, 1.1242122079999999,
+        1.1338834999999998, 1.1355693749999998
+      ],
+      "flushCalls": 4,
+      "rows": 344020,
+      "streams": 32,
+      "files": 877,
+      "voiceFilesWithoutTranscription": 94,
+      "differentTextOutputs": 0,
+      "streamCountsMatch": true,
+      "referencesParsersStatusesMatch": true,
+      "exitCode": 0,
+      "settingsUnchanged": true,
+      "codeHashesUnchanged": true,
+      "workersExited": true
+    },
+    {
+      "mode": "after",
+      "label": "closed-after-4",
+      "wallSeconds": 27.253611708,
+      "pipelineSeconds": 19.213068583000002,
+      "reportSeconds": 19.960857583,
+      "postReportSeconds": 7.292754125000002,
+      "warmupSeconds": [
+        1.133791, 1.1359863329999997, 1.144887459, 1.1453280840000002,
+        1.1457159160000001
+      ],
+      "flushCalls": 4,
+      "rows": 344020,
+      "streams": 32,
+      "files": 877,
+      "voiceFilesWithoutTranscription": 94,
+      "differentTextOutputs": 0,
+      "streamCountsMatch": true,
+      "referencesParsersStatusesMatch": true,
+      "exitCode": 0,
+      "settingsUnchanged": true,
+      "codeHashesUnchanged": true,
+      "workersExited": true
+    }
+  ],
+  "statistics": {
+    "before": {
+      "wallSeconds": {
+        "mean": 27.8876274375,
+        "median": 27.683816896000003,
+        "min": 27.053793625,
+        "max": 29.129082333
+      },
+      "pipelineSeconds": {
+        "mean": 19.70809981225,
+        "median": 19.6847946665,
+        "min": 19.025995708,
+        "max": 20.436814208
+      },
+      "postReportSeconds": {
+        "mean": 7.460738145750001,
+        "median": 7.340069646000002,
+        "min": 7.249892625000001,
+        "max": 7.912920665999998
+      }
+    },
+    "after": {
+      "wallSeconds": {
+        "mean": 29.3022548435,
+        "median": 29.4385342705,
+        "min": 27.253611708,
+        "max": 31.078339125000003
+      },
+      "pipelineSeconds": {
+        "mean": 20.609288677000002,
+        "median": 20.4087283955,
+        "min": 19.213068583000002,
+        "max": 22.406629334
+      },
+      "postReportSeconds": {
+        "mean": 7.7268363644999996,
+        "median": 7.4415449375,
+        "min": 7.292754125000002,
+        "max": 8.731501457999997
+      }
+    }
+  },
+  "deltaPercent": {
+    "wallSeconds": 5.0725986252160515,
+    "pipelineSeconds": 4.572682670248329,
+    "postReportSeconds": 3.566647341745699
+  },
+  "previousRun": {
+    "report": "docs/vision-cpu-sizing.md",
+    "label": "3-cap",
+    "wallSeconds": 25.872027959,
+    "pipelineSeconds": 18.772909457999997,
+    "rows": 342770,
+    "streams": 32,
+    "files": 795,
+    "voiceFilesWithoutTranscription": 62,
+    "comparableInput": false
+  },
+  "excludedAttempts": [
+    {
+      "labels": ["after-1", "before-1", "isolated-before-1"],
+      "reason": "Live source changed between attempts; 850 then 877 attachments"
+    },
+    {
+      "labels": ["after-2"],
+      "reason": "Shared CLI watch owned the import, so sync skipped it"
+    },
+    {
+      "labels": ["stable-before-1"],
+      "reason": "Frozen-input hook missed the connector manifest URL query parameter; input.loaded validation rejected the attempt"
+    }
+  ],
+  "checks": {
+    "identicalStreamReports": true,
+    "identicalAttachmentReferencesParsersStatusesAndTextHashes": true,
+    "identicalBuiltArtifactHashesAcrossRuns": true,
+    "failedAttachments": 0,
+    "allVoiceFilesUnsupportedWithNullContent": true,
+    "allWorkersExited": true,
+    "settingsUnchanged": true,
+    "whatsAppReopened": true,
+    "transcriptionEnabled": false
+  },
+  "conclusion": "Map-free mean was 5.1% slower overall and 4.6% slower in ingestion. Observed variability and background load prevent attributing the difference to the refactor; no-slowdown acceptance remains unresolved."
+}

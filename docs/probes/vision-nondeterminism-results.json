@@ -1,0 +1,497 @@
+{
+  "date": "2026-10-24",
+  "hardware": {
+    "chip": "Apple M4 Pro",
+    "availableCPUs": 14,
+    "memoryGiB": 48,
+    "macOS": "27.0",
+    "build": "26A428",
+    "node": "26.10.0"
+  },
+  "conclusions": {
+    "origin": "Apple Vision raw observations, independently reproduced outside both production worker layers",
+    "workerCountRequired": false,
+    "poolResponseMismatches": 0,
+    "automaticComputeSelection": "suspect; explicit assignments did not vary in these samples; internal cause not established"
+  },
+  "counts": {
+    "automatic": {
+      "reads": 3040,
+      "changed": 6
+    },
+    "cpu": {
+      "reads": 1480,
+      "changed": 0
+    },
+    "gpu": {
+      "reads": 1480,
+      "changed": 0
+    },
+    "neuralEngine": {
+      "reads": 1480,
+      "changed": 0
+    }
+  },
+  "requestConfiguration": {
+    "revision": 3,
+    "autoLanguage": true,
+    "languageCorrection": true,
+    "languages": ["en_US"],
+    "supportedMainDevices": ["neuralEngine", "gpu", "cpu"]
+  },
+  "native": [
+    {
+      "label": "default-one-a",
+      "mode": "default",
+      "workers": 1,
+      "readsPerProcess": 120,
+      "elapsed": 66.920604,
+      "peakMiB": 148.28125,
+      "reads": 120,
+      "changedText": 0,
+      "assignedMainDevice": "automatic",
+      "variants": []
+    },
+    {
+      "label": "default-fourteen-a",
+      "mode": "default",
+      "workers": 14,
+      "readsPerProcess": 20,
+      "elapsed": 6.898131291999991,
+      "peakMiB": 1857.859375,
+      "reads": 280,
+      "changedText": 0,
+      "assignedMainDevice": "automatic",
+      "variants": []
+    },
+    {
+      "label": "default-one-b",
+      "mode": "default",
+      "workers": 1,
+      "readsPerProcess": 120,
+      "elapsed": 11.310504499999995,
+      "peakMiB": 148.03125,
+      "reads": 120,
+      "changedText": 1,
+      "assignedMainDevice": "automatic",
+      "variants": [
+        {
+          "input": 3,
+          "sha256": "dfa407ab161111b0b22cde46019aa9ce3bc4511b4070feecd9a082666d4c1416",
+          "values": [
+            {
+              "textSha256": "54acba6c27f85f1020cca920da4a47028fdda4fdb1ffaabfa2e69178f555fa2f",
+              "count": 29
+            },
+            {
+              "textSha256": "7d45d26196ff2fb909dda1b73386337429e4e891c7c79517f46097d38c04b265",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "default-fourteen-b",
+      "mode": "default",
+      "workers": 14,
+      "readsPerProcess": 20,
+      "elapsed": 6.934611499999999,
+      "peakMiB": 1871.203125,
+      "reads": 280,
+      "changedText": 2,
+      "assignedMainDevice": "automatic",
+      "variants": [
+        {
+          "input": 3,
+          "sha256": "dfa407ab161111b0b22cde46019aa9ce3bc4511b4070feecd9a082666d4c1416",
+          "values": [
+            {
+              "textSha256": "54acba6c27f85f1020cca920da4a47028fdda4fdb1ffaabfa2e69178f555fa2f",
+              "count": 68
+            },
+            {
+              "textSha256": "7d45d26196ff2fb909dda1b73386337429e4e891c7c79517f46097d38c04b265",
+              "count": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "cpu-one",
+      "mode": "cpu",
+      "workers": 1,
+      "readsPerProcess": 80,
+      "elapsed": 5.866402583,
+      "peakMiB": 149.78125,
+      "reads": 80,
+      "changedText": 0,
+      "assignedMainDevice": "cpu",
+      "variants": []
+    },
+    {
+      "label": "gpu-one",
+      "mode": "gpu",
+      "workers": 1,
+      "readsPerProcess": 80,
+      "elapsed": 6.073280916999999,
+      "peakMiB": 152.390625,
+      "reads": 80,
+      "changedText": 0,
+      "assignedMainDevice": "gpu",
+      "variants": []
+    },
+    {
+      "label": "ane-one",
+      "mode": "neuralEngine",
+      "workers": 1,
+      "readsPerProcess": 80,
+      "elapsed": 6.611467415999999,
+      "peakMiB": 143.0625,
+      "reads": 80,
+      "changedText": 0,
+      "assignedMainDevice": "neuralEngine",
+      "variants": []
+    },
+    {
+      "label": "cpu-fourteen",
+      "mode": "cpu",
+      "workers": 14,
+      "readsPerProcess": 20,
+      "elapsed": 6.7657056250000025,
+      "peakMiB": 1917.640625,
+      "reads": 280,
+      "changedText": 0,
+      "assignedMainDevice": "cpu",
+      "variants": []
+    },
+    {
+      "label": "gpu-fourteen",
+      "mode": "gpu",
+      "workers": 14,
+      "readsPerProcess": 20,
+      "elapsed": 6.855352541,
+      "peakMiB": 1896.9375,
+      "reads": 280,
+      "changedText": 0,
+      "assignedMainDevice": "gpu",
+      "variants": []
+    },
+    {
+      "label": "ane-fourteen",
+      "mode": "neuralEngine",
+      "workers": 14,
+      "readsPerProcess": 20,
+      "elapsed": 6.5262818340000015,
+      "peakMiB": 1995.703125,
+      "reads": 280,
+      "changedText": 0,
+      "assignedMainDevice": "neuralEngine",
+      "variants": []
+    },
+    {
+      "label": "url-default-a",
+      "mode": "url-default",
+      "workers": 14,
+      "readsPerProcess": 80,
+      "elapsed": 24.102664,
+      "peakMiB": 1975.609375,
+      "reads": 1120,
+      "changedText": 2,
+      "assignedMainDevice": "automatic",
+      "variants": [
+        {
+          "input": 0,
+          "sha256": "10cf4f7d6deefa5cb575dc42252d847112323bf47c393a0f7042dbafdd2690d7",
+          "values": [
+            {
+              "textSha256": "37173ee7ad20840edfab62baa16924a738be47a89402c3be417c45f5f2659c24",
+              "count": 279
+            },
+            {
+              "textSha256": "c91019f7e0907fe04910d2fb39a3c2c674859138d31852883eba30de9dcbd327",
+              "count": 1
+            }
+          ]
+        },
+        {
+          "input": 3,
+          "sha256": "dfa407ab161111b0b22cde46019aa9ce3bc4511b4070feecd9a082666d4c1416",
+          "values": [
+            {
+              "textSha256": "54acba6c27f85f1020cca920da4a47028fdda4fdb1ffaabfa2e69178f555fa2f",
+              "count": 279
+            },
+            {
+              "textSha256": "7d45d26196ff2fb909dda1b73386337429e4e891c7c79517f46097d38c04b265",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "label": "url-cpu-a",
+      "mode": "url-cpu",
+      "workers": 14,
+      "readsPerProcess": 80,
+      "elapsed": 22.372345957999997,
+      "peakMiB": 1959.0625,
+      "reads": 1120,
+      "changedText": 0,
+      "assignedMainDevice": "cpu",
+      "variants": []
+    },
+    {
+      "label": "url-gpu-a",
+      "mode": "url-gpu",
+      "workers": 14,
+      "readsPerProcess": 80,
+      "elapsed": 22.084176583,
+      "peakMiB": 2018.171875,
+      "reads": 1120,
+      "changedText": 0,
+      "assignedMainDevice": "gpu",
+      "variants": []
+    },
+    {
+      "label": "url-ane-a",
+      "mode": "url-neuralEngine",
+      "workers": 14,
+      "readsPerProcess": 80,
+      "elapsed": 21.69383837499999,
+      "peakMiB": 2064.34375,
+      "reads": 1120,
+      "changedText": 0,
+      "assignedMainDevice": "neuralEngine",
+      "variants": []
+    },
+    {
+      "label": "url-default-b",
+      "mode": "url-default",
+      "workers": 14,
+      "readsPerProcess": 80,
+      "elapsed": 21.784910791999994,
+      "peakMiB": 2105.40625,
+      "reads": 1120,
+      "changedText": 1,
+      "assignedMainDevice": "automatic",
+      "variants": [
+        {
+          "input": 0,
+          "sha256": "10cf4f7d6deefa5cb575dc42252d847112323bf47c393a0f7042dbafdd2690d7",
+          "values": [
+            {
+              "textSha256": "37173ee7ad20840edfab62baa16924a738be47a89402c3be417c45f5f2659c24",
+              "count": 279
+            },
+            {
+              "textSha256": "c91019f7e0907fe04910d2fb39a3c2c674859138d31852883eba30de9dcbd327",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "pool": [
+    {
+      "label": "production-fourteen",
+      "workers": 14,
+      "reads": 1120,
+      "mismatches": 2,
+      "pipeMismatches": 0,
+      "elapsed": 21.949816916999996,
+      "allWorkersExited": true,
+      "variants": [
+        {
+          "sha256": "10cf4f7d6deefa5cb575dc42252d847112323bf47c393a0f7042dbafdd2690d7",
+          "values": [
+            "c91019f7e0907fe04910d2fb39a3c2c674859138d31852883eba30de9dcbd327",
+            "37173ee7ad20840edfab62baa16924a738be47a89402c3be417c45f5f2659c24"
+          ]
+        },
+        {
+          "sha256": "35bbc680963259dc5b900138203904d1b3c0864a4e736c6bfdee1bef22cea93a",
+          "values": [
+            "02b051ffd003754aa2f19ca8080735cd9f25c7ec113c21ef8498e6b9eec6ed7b"
+          ]
+        },
+        {
+          "sha256": "366602e88cffbb5c6c845be462461e7c45de149b0b1854710d2e17854820b5ef",
+          "values": [
+            "ba172f7946be57752223ee703de4de388125d6d8f7a1342a7248fa9ca0f9b922"
+          ]
+        },
+        {
+          "sha256": "dfa407ab161111b0b22cde46019aa9ce3bc4511b4070feecd9a082666d4c1416",
+          "values": [
+            "54acba6c27f85f1020cca920da4a47028fdda4fdb1ffaabfa2e69178f555fa2f"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "production-five",
+      "workers": 5,
+      "reads": 1120,
+      "mismatches": 0,
+      "pipeMismatches": 0,
+      "elapsed": 22.712490958,
+      "allWorkersExited": true,
+      "variants": [
+        {
+          "sha256": "10cf4f7d6deefa5cb575dc42252d847112323bf47c393a0f7042dbafdd2690d7",
+          "values": [
+            "37173ee7ad20840edfab62baa16924a738be47a89402c3be417c45f5f2659c24"
+          ]
+        },
+        {
+          "sha256": "35bbc680963259dc5b900138203904d1b3c0864a4e736c6bfdee1bef22cea93a",
+          "values": [
+            "02b051ffd003754aa2f19ca8080735cd9f25c7ec113c21ef8498e6b9eec6ed7b"
+          ]
+        },
+        {
+          "sha256": "366602e88cffbb5c6c845be462461e7c45de149b0b1854710d2e17854820b5ef",
+          "values": [
+            "ba172f7946be57752223ee703de4de388125d6d8f7a1342a7248fa9ca0f9b922"
+          ]
+        },
+        {
+          "sha256": "dfa407ab161111b0b22cde46019aa9ce3bc4511b4070feecd9a082666d4c1416",
+          "values": [
+            "54acba6c27f85f1020cca920da4a47028fdda4fdb1ffaabfa2e69178f555fa2f"
+          ]
+        }
+      ]
+    }
+  ],
+  "singleProcessWitness": {
+    "pid": 14562,
+    "beforeIteration": 3,
+    "afterIteration": 99,
+    "inputSha256": "dfa407ab161111b0b22cde46019aa9ce3bc4511b4070feecd9a082666d4c1416",
+    "unchangedBoundingBoxes": 19,
+    "changedTopCandidates": [
+      {
+        "box": [
+          0.25288201560944806, 0.9047502826468544, 0.25691940307617184,
+          0.02531733751296994
+        ],
+        "before": [
+          {
+            "confidence": 0.30000001192092896,
+            "text": "TE 00:12"
+          },
+          {
+            "confidence": 0.30000001192092896,
+            "text": "TE 90:12"
+          },
+          {
+            "confidence": 0.30000001192092896,
+            "text": "TE 00-12"
+          }
+        ],
+        "after": [
+          {
+            "confidence": 0.30000001192092896,
+            "text": "TET 0012"
+          },
+          {
+            "confidence": 0.30000001192092896,
+            "text": "TT 00:12"
+          },
+          {
+            "confidence": 0.30000001192092896,
+            "text": "TT -0012"
+          }
+        ]
+      },
+      {
+        "box": [
+          0.16782316319279125, 0.8091922244337794, 0.22766116672092016,
+          0.025510900020599414
+        ],
+        "before": [
+          {
+            "confidence": 1,
+            "text": "8% Al clipper"
+          },
+          {
+            "confidence": 1,
+            "text": "% Al clipper"
+          },
+          {
+            "confidence": 1,
+            "text": "3% Al clipper"
+          }
+        ],
+        "after": [
+          {
+            "confidence": 1,
+            "text": "% Al clipper"
+          },
+          {
+            "confidence": 1,
+            "text": "8% Al clipper"
+          },
+          {
+            "confidence": 1,
+            "text": "e% Al clipper"
+          }
+        ]
+      },
+      {
+        "box": [
+          0.7413479608343952, 0.6943195785993403, 0.11161932203504765,
+          0.02124456405639652
+        ],
+        "before": [
+          {
+            "confidence": 1,
+            "text": "100:05"
+          },
+          {
+            "confidence": 1,
+            "text": "| 00:05"
+          },
+          {
+            "confidence": 1,
+            "text": "1 00:05"
+          }
+        ],
+        "after": [
+          {
+            "confidence": 1,
+            "text": "1 00:05"
+          },
+          {
+            "confidence": 1,
+            "text": "| 00:05"
+          },
+          {
+            "confidence": 1,
+            "text": "100:05"
+          }
+        ]
+      }
+    ]
+  },
+  "productionHelperSha256": "54a5db62415e0b784430bf5facaf8f8b1ce0520f0effb53457a115a4c931ccbf",
+  "directProbeSourceSha256": "286745cdd290c20be73f36c8aa34a5a602a612da4c6e1a6b224ae78f0eb0bd5f",
+  "directProbeSource": "import Foundation\nimport Vision\nimport CoreML\nimport CryptoKit\n\nstruct Input: Decodable { let path: String }\nlet args = CommandLine.arguments\nlet manifest = try JSONDecoder().decode([Input].self, from: Data(contentsOf: URL(fileURLWithPath: args[1])))\nlet urlInput = args[3].hasPrefix(\"url-\")\nlet mode = urlInput ? String(args[3].dropFirst(4)) : args[3]\nlet count = Int(args[4])!\nlet inputs = try manifest.map { try Data(contentsOf: URL(fileURLWithPath: $0.path)) }\nlet hashes = inputs.map { SHA256.hash(data: $0).map { String(format: \"%02x\", $0) }.joined() }\nfunc name(_ device: MLComputeDevice) -> String {\n    switch device { case .cpu: return \"cpu\"; case .gpu: return \"gpu\"; case .neuralEngine: return \"neuralEngine\"; @unknown default: return \"unknown\" }\n}\nvar records: [[String: Any]] = []\nvar configuration: [String: Any] = [:]\nlet start = Date()\nfor i in 0..<count {\n    try autoreleasepool {\n        let input = i % inputs.count\n        let request = VNRecognizeTextRequest()\n        request.recognitionLevel = .accurate\n        request.automaticallyDetectsLanguage = true\n        if mode == \"uncorrected\" { request.usesLanguageCorrection = false }\n        if mode == \"languages\" { request.automaticallyDetectsLanguage = false; request.recognitionLanguages = [\"en-US\", \"ar-SA\"] }\n        let supported = try request.supportedComputeStageDevices\n        if mode == \"cpu\" || mode == \"gpu\" || mode == \"neuralEngine\" {\n            for (stage, devices) in supported {\n                guard let device = devices.first(where: { name($0) == mode }) else { fatalError(\"Unsupported \\(mode) for \\(stage)\") }\n                request.setComputeDevice(device, for: stage)\n            }\n        }\n        if i == 0 {\n            configuration = [\"revision\": request.revision, \"languageCorrection\": request.usesLanguageCorrection,\n                \"autoLanguage\": request.automaticallyDetectsLanguage, \"languages\": request.recognitionLanguages,\n                \"supported\": Dictionary(uniqueKeysWithValues: supported.map { ($0.key.rawValue, $0.value.map(name)) }),\n                \"assigned\": Dictionary(uniqueKeysWithValues: supported.keys.map { ($0.rawValue, request.computeDevice(for: $0).map(name) ?? \"automatic\") })]\n        }\n        let handler = urlInput\n            ? VNImageRequestHandler(url: URL(fileURLWithPath: manifest[input].path))\n            : VNImageRequestHandler(data: inputs[input])\n        try handler.perform([request])\n        let observations = (request.results ?? []).map { observation -> [String: Any] in\n            let box = observation.boundingBox\n            return [\"box\": [box.origin.x, box.origin.y, box.size.width, box.size.height],\n                \"candidates\": observation.topCandidates(3).map { [\"text\": $0.string, \"confidence\": $0.confidence] as [String: Any] }]\n        }\n        records.append([\"iteration\": i, \"input\": input, \"sha256\": hashes[input], \"observations\": observations])\n    }\n}\nlet result: [String: Any] = [\"pid\": ProcessInfo.processInfo.processIdentifier, \"mode\": mode,\n    \"configuration\": configuration, \"elapsed\": Date().timeIntervalSince(start), \"records\": records]\ntry JSONSerialization.data(withJSONObject: result, options: [.sortedKeys]).write(to: URL(fileURLWithPath: args[2]))\n",
+  "cleanup": {
+    "trackedProcesses": 169,
+    "remainingProcesses": 0,
+    "appleSharedCompilerStopped": false
+  },
+  "limits": [
+    "Four previously affected images; one Mac and macOS build.",
+    "Single-process first run included cold model compilation; these are not full-import performance measurements.",
+    "Zero observed variation for explicit device assignments does not establish deterministic behavior.",
+    "RSS can double-count shared pages and excludes separate Apple services."
+  ],
+  "rawEvidenceDirectory": "/tmp/cc-ocr-cause"
+}

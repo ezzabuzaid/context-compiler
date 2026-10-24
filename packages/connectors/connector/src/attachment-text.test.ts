@@ -9,7 +9,7 @@ import {
   rm,
   writeFile,
 } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { availableParallelism, tmpdir } from 'node:os';
 import { basename, dirname, extname, join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
@@ -40,6 +40,8 @@ import { AudioFormat } from '@workspace/source-apple-macos/audio-format';
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
 
 import { AttachmentText } from './attachment-text.ts';
+
+const readers = Math.min(5, availableParallelism());
 
 // A source whose upstream is current whenever it is read.
 abstract class LiveSource<
@@ -335,32 +337,38 @@ test('a stored copy removed while it is read leaves no row and no failure', asyn
   assert.deepEqual(store.read('SELECT ref, status FROM attachment_text'), []);
 });
 
-test('a file that is slow to read holds only its own place: four read at once and the rest go on', async () => {
-  await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
-  const store = await importStore(directory.path);
-  await store.put('a-slow.txt', 'hold until released');
-  for (const name of ['b', 'c', 'd', 'e', 'f', 'g'])
-    await store.put(`${name}.txt`, `text of ${name}`);
-  await store.importFiles();
-  const parser = new HoldingParser();
+test(
+  'a file that is slow to read holds only its own place: up to five read at once and the rest go on',
+  { skip: availableParallelism() < 2 },
+  async () => {
+    await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
+    const store = await importStore(directory.path);
+    await store.put('a-slow.txt', 'hold until released');
+    for (const name of ['b', 'c', 'd', 'e', 'f', 'g'])
+      await store.put(`${name}.txt`, `text of ${name}`);
+    await store.importFiles();
+    const parser = new HoldingParser();
 
-  const update = store.readText(parser);
-  await eventually(
-    () => parser.inFlight === 1 && parser.peak === 4,
-    'every file but the held one to be read',
-  );
-  parser.release();
-  await update;
-
-  assert.equal(parser.peak, 4);
-  assert.deepEqual(
-    store.texts().map(({ name, status }) => [name, status]),
-    ['a-slow', 'b', 'c', 'd', 'e', 'f', 'g'].map((name) => [
-      `${name}.txt`,
-      'parsed',
-    ]),
-  );
-});
+    const update = store.readText(parser);
+    try {
+      await eventually(
+        () => parser.inFlight === 1 && store.texts().length === 6,
+        'every file but the held one to be read',
+      );
+      assert.equal(parser.peak, readers);
+    } finally {
+      parser.release();
+      await update;
+    }
+    assert.deepEqual(
+      store.texts().map(({ name, status }) => [name, status]),
+      ['a-slow', 'b', 'c', 'd', 'e', 'f', 'g'].map((name) => [
+        `${name}.txt`,
+        'parsed',
+      ]),
+    );
+  },
+);
 
 test('an import loads and commits its rows while a file is still being read', async () => {
   await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
@@ -389,26 +397,28 @@ test('an import loads and commits its rows while a file is still being read', as
 test('an update stopped while files are read keeps the text it read, and the next update reads the rest', async () => {
   await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
   const store = await importStore(directory.path);
-  // Whichever four start first stay held, so the other two remain queued.
-  for (const name of ['a', 'b', 'c', 'd', 'e', 'f'])
+  // Whichever reads start first stay held, leaving the rest queued.
+  for (const name of ['a', 'b', 'c', 'd', 'e', 'f', 'g'])
     await store.put(`${name}-held.txt`, `hold ${name}`);
   await store.importFiles();
   const parser = new HoldingParser();
   const stop = new AbortController();
   const update = store.readText(parser, stop.signal);
-  await eventually(() => parser.inFlight === 4, 'four held reads');
-  stop.abort();
-  parser.release();
-  await update;
-  // The four reads that started kept their text; the queue's order is the
-  // stored copies', so which four is not fixed.
-  assert.equal(store.texts().length, 4);
+  try {
+    await eventually(() => parser.inFlight === readers, 'all readers held');
+  } finally {
+    stop.abort();
+    parser.release();
+    await update;
+  }
+  // The reads that started kept their text; the queue's order is the stored copies'.
+  assert.equal(store.texts().length, readers);
   const counting = new CountingParser();
 
   await store.readText(counting);
 
-  assert.equal(counting.read.length, 2);
-  assert.equal(store.texts().length, 6);
+  assert.equal(counting.read.length, 7 - readers);
+  assert.equal(store.texts().length, 7);
 });
 
 test('a read that fails for a reason other than the file being gone fails the update, and stops it taking more files', async () => {
@@ -429,7 +439,10 @@ test('a read that fails for a reason other than the file being gone fails the up
   try {
     await assert.rejects(store.readText(parser), /EACCES/);
 
-    assert.ok(parser.read.length <= 4, `read ${parser.read.length} files`);
+    assert.ok(
+      parser.read.length <= readers,
+      `read ${parser.read.length} files`,
+    );
   } finally {
     await chmod(dirname(ref), 0o700);
   }

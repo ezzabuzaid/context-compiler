@@ -1,0 +1,191 @@
+{
+  "date": "2026-10-24",
+  "availableCpus": 14,
+  "configuredWorkers": "Math.min(5, availableParallelism())",
+  "comparisonOrder": [4, 5, 5, 4],
+  "isolatedRuns": [
+    {
+      "workers": 4,
+      "imageCount": 681,
+      "warmupSeconds": [
+        1.322170291, 1.3222364160000002, 1.3223596659999999, 1.3222089160000001
+      ],
+      "ocrSeconds": 6.35109325,
+      "startupAndOcrSeconds": 7.673456207999999,
+      "peakWorkerRssMiB": 944.796875,
+      "samples": 38,
+      "corpusSha256": "4842c373fdc44b61081f57cc779e0e244c0b1c7c7ced92246bc65317286d4fdb",
+      "helperSha256": "54a5db62415e0b784430bf5facaf8f8b1ce0520f0effb53457a115a4c931ccbf",
+      "outputsMatch": true
+    },
+    {
+      "workers": 5,
+      "imageCount": 681,
+      "warmupSeconds": [
+        1.1600472090000002, 1.1745800419999997, 1.1775801250000004,
+        1.1745615419999995, 1.1605956669999995
+      ],
+      "ocrSeconds": 5.5368401669999985,
+      "startupAndOcrSeconds": 6.714424333999999,
+      "peakWorkerRssMiB": 1121.953125,
+      "samples": 33,
+      "corpusSha256": "4842c373fdc44b61081f57cc779e0e244c0b1c7c7ced92246bc65317286d4fdb",
+      "helperSha256": "54a5db62415e0b784430bf5facaf8f8b1ce0520f0effb53457a115a4c931ccbf",
+      "outputsMatch": true
+    },
+    {
+      "workers": 5,
+      "imageCount": 681,
+      "warmupSeconds": [
+        1.139313666, 1.0982923329999994, 1.1432727500000002, 1.1038332499999997,
+        1.1414475000000002
+      ],
+      "ocrSeconds": 5.545670667000002,
+      "startupAndOcrSeconds": 6.688945208000001,
+      "peakWorkerRssMiB": 1135.359375,
+      "samples": 33,
+      "corpusSha256": "4842c373fdc44b61081f57cc779e0e244c0b1c7c7ced92246bc65317286d4fdb",
+      "helperSha256": "54a5db62415e0b784430bf5facaf8f8b1ce0520f0effb53457a115a4c931ccbf",
+      "outputsMatch": true
+    },
+    {
+      "workers": 4,
+      "imageCount": 681,
+      "warmupSeconds": [
+        1.0155867499999987, 1.005507749999997, 0.8588013749999991,
+        1.0155987499999974
+      ],
+      "ocrSeconds": 6.211612790999999,
+      "startupAndOcrSeconds": 7.227213207999998,
+      "peakWorkerRssMiB": 948.09375,
+      "samples": 35,
+      "corpusSha256": "4842c373fdc44b61081f57cc779e0e244c0b1c7c7ced92246bc65317286d4fdb",
+      "helperSha256": "54a5db62415e0b784430bf5facaf8f8b1ce0520f0effb53457a115a4c931ccbf",
+      "outputsMatch": true
+    }
+  ],
+  "means": {
+    "4": {
+      "ocrSeconds": 6.281353020499999,
+      "startupAndOcrSeconds": 7.450334707999998,
+      "peakWorkerRssMiB": 946.4453125
+    },
+    "5": {
+      "ocrSeconds": 5.541255417,
+      "startupAndOcrSeconds": 6.701684771,
+      "peakWorkerRssMiB": 1128.65625
+    }
+  },
+  "rssSampling": "Sum of native-worker RSS from ps, roughly 0.20-second intervals; shared pages may be counted more than once; excludes separate system services.",
+  "exactOutputsMatched": 2724,
+  "fullPasses": {
+    "before": {
+      "workers": 4,
+      "wallSeconds": 26.268880875000004,
+      "pipelineSeconds": 18.261291625000002,
+      "reportSeconds": 19.171681042,
+      "postReportSeconds": 7.097199833000005,
+      "warmupSeconds": [
+        0.9802171250000001, 0.979367125, 0.9523737080000001, 0.9498577079999999
+      ],
+      "rows": 342770,
+      "streamCount": 32,
+      "files": 795,
+      "attachmentResults": [
+        {
+          "parser": "image-v1",
+          "status": "no_text",
+          "n": 445
+        },
+        {
+          "parser": "image-v1",
+          "status": "parsed",
+          "n": 236
+        },
+        {
+          "parser": "pdf-v1",
+          "status": "parsed",
+          "n": 7
+        },
+        {
+          "parser": "text-v1",
+          "status": "parsed",
+          "n": 3
+        },
+        {
+          "parser": "unsupported",
+          "status": "no_text",
+          "n": 104
+        }
+      ],
+      "audio": [
+        {
+          "parser": "unsupported",
+          "status": "no_text",
+          "n": 62
+        }
+      ],
+      "exitCode": 0,
+      "settingsUnchanged": true,
+      "workersExited": true
+    },
+    "after": {
+      "workers": 5,
+      "wallSeconds": 25.71945075,
+      "pipelineSeconds": 18.7576515,
+      "reportSeconds": 19.441286,
+      "postReportSeconds": 6.278164749999998,
+      "warmupSeconds": [
+        1.338204083, 1.3372396250000003, 1.336965709, 1.3358631250000002,
+        1.3361639170000001
+      ],
+      "rows": 342770,
+      "streamCount": 32,
+      "files": 795,
+      "attachmentResults": [
+        {
+          "parser": "image-v1",
+          "status": "no_text",
+          "n": 445
+        },
+        {
+          "parser": "image-v1",
+          "status": "parsed",
+          "n": 236
+        },
+        {
+          "parser": "pdf-v1",
+          "status": "parsed",
+          "n": 7
+        },
+        {
+          "parser": "text-v1",
+          "status": "parsed",
+          "n": 3
+        },
+        {
+          "parser": "unsupported",
+          "status": "no_text",
+          "n": 104
+        }
+      ],
+      "audio": [
+        {
+          "parser": "unsupported",
+          "status": "no_text",
+          "n": 62
+        }
+      ],
+      "exitCode": 0,
+      "settingsUnchanged": true,
+      "workersExited": true
+    }
+  },
+  "fullAttachmentResultsMatched": 795,
+  "fullStreamResultsMatched": 32,
+  "transcription": "off",
+  "startupIncluded": true,
+  "ocrPercentLess": 11.782455166659089,
+  "fullPassPercentLess": 2.0915627415361127,
+  "additionalWorkerRssMiB": 182.2109375
+}

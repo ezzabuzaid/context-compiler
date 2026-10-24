@@ -1,5 +1,6 @@
 import { homedir } from 'node:os';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { Command as Program } from 'commander';
 
@@ -9,6 +10,7 @@ import { provideHostModules } from '@workspace/connector-manifest/host-modules';
 import { userConnectors } from '@workspace/connector-manifest/user-connectors';
 import { Transcription } from '@workspace/connector/transcription';
 import { SpeechModels } from '@workspace/sdk-macos-speech-models';
+import { Vision } from '@workspace/source-apple-macos/vision';
 
 import { OptionsCommand } from './commands/options.ts';
 import { QueryCommand } from './commands/query.ts';
@@ -50,7 +52,16 @@ const { directory, transcriptionModel } = program.opts<{
   directory: string;
   transcriptionModel?: string;
 }>();
-await using transcription = new Transcription(directory, new SpeechModels());
+await using vision = new Vision(
+  fileURLToPath(
+    import.meta.resolve('@workspace/source-apple-macos/vision-worker'),
+  ),
+);
+await using transcription = new Transcription(
+  directory,
+  new SpeechModels(),
+  vision,
+);
 if (transcriptionModel === undefined) await transcription.refresh();
 else
   await transcription
