@@ -8,13 +8,10 @@ import { transaction } from '@zukhruf/sqlite-transaction';
 
 import type { DocumentParser } from '@workspace/elt';
 import { publishSQLiteViews } from '@workspace/elt-sqlite';
-import { visionConcurrency } from '@workspace/source-apple-macos/vision';
 
-// Files can decode concurrently; each native worker owns its request queue.
-const concurrency = visionConcurrency(
-  availableParallelism(),
-  process.availableMemory(),
-);
+// Files can decode concurrently. This bounds the conversions themselves; an
+// image read beyond the OCR workers waits in the host's pool.
+const concurrency = availableParallelism();
 
 // A table another version declared otherwise is replaced, and every stored
 // file is read again.

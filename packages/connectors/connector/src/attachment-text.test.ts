@@ -38,7 +38,6 @@ import {
 } from '@workspace/elt-sqlite';
 import { AudioFormat } from '@workspace/source-apple-macos/audio-format';
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
-import { visionConcurrency } from '@workspace/source-apple-macos/vision';
 
 import { AttachmentText } from './attachment-text.ts';
 
@@ -340,10 +339,7 @@ test('a stored copy removed while it is read leaves no row and no failure', asyn
 
 test(
   'a file that is slow to read holds only its own place when the device has spare capacity',
-  {
-    skip:
-      visionConcurrency(availableParallelism(), process.availableMemory()) < 2,
-  },
+  { skip: readers < 2 },
   async () => {
     await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
     const store = await importStore(directory.path);
