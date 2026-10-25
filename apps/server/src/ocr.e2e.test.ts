@@ -9,7 +9,7 @@ import { promisify } from 'node:util';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 
-async function children(parent: number, command = '') {
+async function children(parent: number) {
   const { stdout } = await promisify(execFile)('/bin/ps', [
     '-axo',
     'pid=,ppid=,comm=',
@@ -18,11 +18,17 @@ async function children(parent: number, command = '') {
     .trim()
     .split('\n')
     .flatMap((line) => {
-      const [pid, ppid, comm] = line.trim().split(/\s+/);
-      return Number(ppid) === parent && comm!.endsWith(command)
-        ? [Number(pid)]
+      const [pid, ppid, command] = line.trim().split(/\s+/);
+      return Number(ppid) === parent
+        ? [{ pid: Number(pid), command: command! }]
         : [];
     });
+}
+
+async function ocrWorkers(parent: number) {
+  return (await children(parent)).flatMap(({ pid, command }) =>
+    command.endsWith('/vision-worker') ? [pid] : [],
+  );
 }
 
 for (const shutdown of ['stdin', 'SIGTERM'] as const)
@@ -45,7 +51,7 @@ for (const shutdown of ['stdin', 'SIGTERM'] as const)
     try {
       await client.connect(transport, { timeout: 120_000 });
       assert.ok(transport.pid);
-      const ocr = await children(transport.pid, '/vision-worker');
+      const ocr = await ocrWorkers(transport.pid);
       assert.ok(
         ocr.length >= 1,
         'OCR must already be warming up before the first tool call',
@@ -56,13 +62,13 @@ for (const shutdown of ['stdin', 'SIGTERM'] as const)
           arguments: { model },
         });
         assert.equal(changed.isError, undefined);
-        const running = await children(transport.pid, '/vision-worker');
+        const running = await ocrWorkers(transport.pid);
         assert.ok(
           ocr.every((pid) => running.includes(pid)),
           'a settings change must keep the OCR workers',
         );
       }
-      workers = await children(transport.pid);
+      workers = (await children(transport.pid)).map(({ pid }) => pid);
       const started = performance.now();
       if (shutdown === 'stdin') await client.close();
       else {
