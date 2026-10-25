@@ -1,37 +1,41 @@
 import type { DocumentParser } from '@workspace/elt';
+import { Parallel, Pool } from '@workspace/pool';
 import type { SpeechModels } from '@workspace/sdk-macos-speech-models';
 import { Settings } from '@workspace/settings';
 import { AudioFormat } from '@workspace/source-apple-macos/audio-format';
+import type { DocumentFormat } from '@workspace/source-apple-macos/document-format';
 import { ImageFormat } from '@workspace/source-apple-macos/image-format';
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
-import type { Vision } from '@workspace/source-apple-macos/vision';
+import type { VisionWorker } from '@workspace/source-apple-macos/vision';
 import { LocalTranscriptionModel } from '@workspace/transcription-local';
+import { TranscriptionWorker } from '@workspace/transcription-local/transcription-worker';
 
 // The hosts share the user's saved choice: the file name of a speech model,
 // which each host finds wherever it is installed on its own Mac. Each host
-// owns its model process; refresh notices choices another CLI or plugin
-// process saved in the same store.
+// owns its OCR pool; this owns the pool of the chosen model's engine, which
+// loads the weights as soon as the model is chosen. refresh notices choices
+// another CLI or plugin process saved in the same store.
 export class Transcription implements AsyncDisposable {
   readonly #settings: Settings;
   readonly #models: SpeechModels;
   #closing = Promise.resolve();
   #loading = Promise.resolve();
-  readonly #helper: string | undefined;
+  readonly #helper: string;
   #chosen: string | null | undefined = null;
-  #model: LocalTranscriptionModel | undefined;
+  #engines: Pool<TranscriptionWorker> | undefined;
   readonly #image: ImageFormat;
   #parser: DocumentParser;
 
   constructor(
     directory: string,
     models: SpeechModels,
-    vision: Vision,
-    helper?: string,
+    ocr: Pool<VisionWorker>,
+    helper: string,
   ) {
     this.#settings = new Settings(directory);
     this.#models = models;
     this.#helper = helper;
-    this.#image = new ImageFormat(vision);
+    this.#image = new ImageFormat(ocr);
     this.#parser = new MacOSDocumentParser([this.#image]);
   }
 
@@ -70,15 +74,21 @@ export class Transcription implements AsyncDisposable {
         ? undefined
         : (await this.#models.find(chosen))?.configuration;
     if (chosen !== this.#chosen) return;
-    const previous = this.#model;
-    this.#model =
-      configuration === undefined
-        ? undefined
-        : new LocalTranscriptionModel(configuration, this.#helper);
-    this.#parser = new MacOSDocumentParser([
-      this.#image,
-      ...(this.#model === undefined ? [] : [new AudioFormat(this.#model)]),
-    ]);
+    const previous = this.#engines;
+    this.#engines = undefined;
+    const formats: DocumentFormat[] = [this.#image];
+    if (configuration !== undefined) {
+      const engines = new Pool({
+        size: 1,
+        startup: new Parallel(),
+        create: () => new TranscriptionWorker(this.#helper, configuration),
+      });
+      this.#engines = engines;
+      formats.push(
+        new AudioFormat(new LocalTranscriptionModel(configuration, engines)),
+      );
+    }
+    this.#parser = new MacOSDocumentParser(formats);
     if (previous !== undefined)
       this.#closing = Promise.all([
         this.#closing,
@@ -91,16 +101,11 @@ export class Transcription implements AsyncDisposable {
   async configure(id: string | null): Promise<void> {
     if (id !== null) {
       const installed = await this.#models.list();
-      const model = installed.find((candidate) => candidate.id === id);
-      if (model === undefined)
+      if (!installed.some((candidate) => candidate.id === id))
         throw new Error(
           `No speech model ${id} is installed on this Mac. Installed: ${installed.map((candidate) => candidate.id).join(', ') || 'none'}.`,
         );
-      await using candidate = new LocalTranscriptionModel(
-        model.configuration,
-        this.#helper,
-      );
-      await candidate.check();
+      await TranscriptionWorker.check(this.#helper);
     }
     this.#settings.setTranscription(id);
     await this.refresh();
@@ -118,7 +123,10 @@ export class Transcription implements AsyncDisposable {
 
   async [Symbol.asyncDispose](): Promise<void> {
     try {
-      await Promise.all([this.#closing, this.#model?.[Symbol.asyncDispose]()]);
+      await Promise.all([
+        this.#closing,
+        this.#engines?.[Symbol.asyncDispose](),
+      ]);
     } finally {
       this.#settings[Symbol.dispose]();
     }

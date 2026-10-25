@@ -1,6 +1,5 @@
 import { homedir } from 'node:os';
 import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 
 import { Command as Program } from 'commander';
 
@@ -8,9 +7,6 @@ import { builtInConnectors } from '@workspace/connector-manifest/built-in-connec
 import { Connectors } from '@workspace/connector-manifest/connectors';
 import { provideHostModules } from '@workspace/connector-manifest/host-modules';
 import { userConnectors } from '@workspace/connector-manifest/user-connectors';
-import { Transcription } from '@workspace/connector/transcription';
-import { SpeechModels } from '@workspace/sdk-macos-speech-models';
-import { Vision } from '@workspace/source-apple-macos/vision';
 
 import { OptionsCommand } from './commands/options.ts';
 import { QueryCommand } from './commands/query.ts';
@@ -18,6 +14,7 @@ import { SetupCommand } from './commands/setup.ts';
 import { StatusCommand } from './commands/status.ts';
 import { SyncCommand } from './commands/sync.ts';
 import { Imports } from './imports.ts';
+import { Parsing } from './parsing.ts';
 import { TerminalHost } from './terminal-host.ts';
 
 if (process.platform !== 'darwin')
@@ -52,19 +49,9 @@ const { directory, transcriptionModel } = program.opts<{
   directory: string;
   transcriptionModel?: string;
 }>();
-await using vision = new Vision(
-  fileURLToPath(
-    import.meta.resolve('@workspace/source-apple-macos/vision-worker'),
-  ),
-);
-await using transcription = new Transcription(
-  directory,
-  new SpeechModels(),
-  vision,
-);
-if (transcriptionModel === undefined) await transcription.refresh();
-else
-  await transcription
+await using parsing = new Parsing(directory);
+if (transcriptionModel !== undefined)
+  await parsing
     .configure(transcriptionModel === 'off' ? null : transcriptionModel)
     .catch((error: unknown) =>
       program.error(error instanceof Error ? error.message : String(error)),
@@ -73,12 +60,12 @@ else
 const { connectors, broken } = await new Connectors([
   builtInConnectors,
   userConnectors,
-]).load(new TerminalHost(() => transcription.parser));
+]).load(new TerminalHost(() => parsing.parser));
 
 for (const { title, error } of broken)
   process.stderr.write(`${title} could not be loaded: ${error}\n`);
 
-const imports = new Imports(connectors, directory);
+const imports = new Imports(connectors, directory, parsing);
 
 for (const command of [
   new SetupCommand(imports),

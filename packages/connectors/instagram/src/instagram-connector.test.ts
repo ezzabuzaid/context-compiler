@@ -14,10 +14,11 @@ import { setupServer } from 'msw/node';
 
 import { type DocumentParser, Pipeline } from '@workspace/elt';
 import { SQLiteSyncHistory } from '@workspace/elt-sqlite';
+import { LeaderFirst, Pool } from '@workspace/pool';
 import { ScratchMac } from '@workspace/sdk-chromium-cookies/test';
 import { ImageFormat } from '@workspace/source-apple-macos/image-format';
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
-import { Vision } from '@workspace/source-apple-macos/vision';
+import { VisionWorker } from '@workspace/source-apple-macos/vision';
 
 import InstagramConnector from './instagram-connector.ts';
 
@@ -358,11 +359,16 @@ test('an everything import keeps each followed profile once across overlapping p
 });
 
 test('an import that keeps attachments, as setup does by default, makes the text on a timetable slide searchable', async () => {
-  await using vision = new Vision(
-    fileURLToPath(
-      import.meta.resolve('@workspace/source-apple-macos/vision-worker'),
-    ),
-  );
+  await using ocr = new Pool({
+    size: 1,
+    startup: new LeaderFirst(),
+    create: () =>
+      new VisionWorker(
+        fileURLToPath(
+          import.meta.resolve('@workspace/source-apple-macos/vision-worker'),
+        ),
+      ),
+  });
   await using mac = await signedInMac();
   const slides = new Map<string, Buffer>();
   for (const [id, text] of [
@@ -378,7 +384,7 @@ test('an import that keeps attachments, as setup does by default, makes the text
     join(tmpdir(), 'instagram-import-'),
   );
   const instagramConnector = connector(
-    new MacOSDocumentParser([new ImageFormat(vision)]),
+    new MacOSDocumentParser([new ImageFormat(ocr)]),
   );
   const { connection, text, destination } = await instagramConnector.connection(
     imports.path,

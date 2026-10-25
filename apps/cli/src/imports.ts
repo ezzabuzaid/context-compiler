@@ -18,6 +18,7 @@ import {
 } from '@workspace/elt-sqlite';
 import { type Selection, Settings } from '@workspace/settings';
 
+import type { Parsing } from './parsing.ts';
 import {
   ObservedPasses,
   type PassReport,
@@ -91,10 +92,16 @@ export type ConnectorStatus = {
 export class Imports {
   readonly root: string;
   readonly connectors: readonly Connector[];
+  readonly #parsing: Parsing;
 
-  constructor(connectors: readonly Connector[], directory: string) {
+  constructor(
+    connectors: readonly Connector[],
+    directory: string,
+    parsing: Parsing,
+  ) {
     this.connectors = connectors;
     this.root = resolve(directory);
+    this.#parsing = parsing;
   }
 
   get names(): string[] {
@@ -287,6 +294,8 @@ export class Imports {
     const selections = settings.selections();
     if (selections.length === 0)
       throw new Error('No connectors are set up; run: setup');
+    // Syncs and watches read the files they store.
+    await this.#parsing.prepare();
     await using flights = this.#flights();
     await removeStale(settings, flights);
     const imports = [];

@@ -1423,6 +1423,59 @@ test('SIGTERM stops a sync in a terminal at once while its spinner shows', async
   assert.match(sync.screen, /Sync interrupted/);
 });
 
+// The OCR workers below a process, at any depth: the terminal runs the CLI
+// under expect.
+async function ocrWorkers(root: number): Promise<number[]> {
+  const { stdout } = await execute('/bin/ps', ['-axo', 'pid=,ppid=,comm=']);
+  const rows = stdout
+    .trim()
+    .split('\n')
+    .map((line) => line.trim().split(/\s+/));
+  const below = new Set([root]);
+  for (let grew = true; grew;) {
+    grew = false;
+    for (const [pid, ppid] of rows)
+      if (below.has(Number(ppid)) && !below.has(Number(pid))) {
+        below.add(Number(pid));
+        grew = true;
+      }
+  }
+  return rows.flatMap(([pid, , comm]) =>
+    below.has(Number(pid)) && comm!.endsWith('/vision-worker')
+      ? [Number(pid)]
+      : [],
+  );
+}
+
+test('only a command that reads files starts the OCR workers', async () => {
+  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await withConnectors(mac.path);
+  // A pipe no one writes to: the Photos pass runs until the sync stops.
+  const pictures = join(mac.path, 'Pictures/photos.json');
+  await rm(pictures);
+  spawnSync('/usr/bin/mkfifo', [pictures]);
+
+  // A setup waiting at its first question has read no file.
+  const wizard = terminal(mac.path, 'setup');
+  try {
+    await wizard.shows('Which connectors should be imported?');
+    assert.deepEqual(await ocrWorkers(wizard.child.pid!), []);
+  } finally {
+    wizard.child.kill();
+    await wizard.exited;
+  }
+
+  cli(mac.path, 'setup', '--connector', 'photos');
+  const sync = started(mac.path, 'sync', '--json');
+  try {
+    await passRunning(mac.path);
+    assert.notDeepEqual(await ocrWorkers(sync.child.pid!), []);
+  } finally {
+    sync.child.kill('SIGTERM');
+    await sync.exited;
+  }
+});
+
 test('a setup that removes a connector stops the sync importing it, while the rest loads, and the next sync removes its import', async () => {
   await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
   await withNotes(mac.path);

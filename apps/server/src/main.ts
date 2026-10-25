@@ -1,4 +1,4 @@
-import { vision } from './startup.ts';
+import { ocr } from './startup.ts';
 
 import { readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
@@ -69,7 +69,7 @@ const store = join(
 const transcription = new Transcription(
   store,
   new SpeechModels(),
-  vision,
+  ocr,
   fileURLToPath(new URL('transcribe-local', import.meta.url)),
 );
 const plugin = new Plugin(
@@ -515,7 +515,7 @@ void plugin.watch(watching.signal);
 mcpServer.server.onclose = () => {
   watching.abort();
   void transcription[Symbol.asyncDispose]();
-  void vision[Symbol.asyncDispose]();
+  void ocr[Symbol.asyncDispose]();
 };
 for (const signal of ['SIGINT', 'SIGTERM'] as const)
   process.once(signal, () => {

@@ -16,8 +16,8 @@ test('the CLI saves an installed model in its chosen directory, rejects unknown 
     '.cache/huggingface/hub/models--ggerganov--whisper.cpp/snapshots/a1',
   );
   await mkdir(snapshot, { recursive: true });
-  // A whisper.cpp model's magic is enough for discovery to list the model.
-  // No import is selected, so this settings test loads no weights.
+  // A whisper.cpp model's magic is enough for discovery to list the model;
+  // its engine fails to load these bytes and exits.
   await writeFile(join(snapshot, 'ggml-small.bin'), 'lmgg');
   const directory = join(scratch.path, 'imports');
   const run = (id: string) =>

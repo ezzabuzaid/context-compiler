@@ -21,6 +21,7 @@
     "@workspace/elt": "0.0.1",
     "@workspace/elt-sqlite": "0.0.1",
     "@workspace/google-auth": "0.0.1",
+    "@workspace/pool": "0.0.1",
     "@workspace/settings": "0.0.1",
     "@workspace/source-apple-macos": "0.0.1",
     "@zukhruf/sqlite-drift": "0.3.35",

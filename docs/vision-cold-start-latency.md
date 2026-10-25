@@ -21,19 +21,31 @@ total: **58.04 seconds** for the first, then **0.60, 0.59 and 0.59 seconds**. Ea
 performed the same eight-script recognition checks. This is a process-namespace
 cold-cache experiment, not a reboot or a reset of every Apple cache.
 
-Elt's `Vision` pool now releases native warm-up one worker at a time through its
-existing stdin pipe. Every process still starts eagerly; the worker waits for a
-blank startup line before its existing multilingual warm-up. Once ready, it
-processes images concurrently with the other ready workers. No recognition,
-compute-device, language, pool-sizing or per-image timeout policy changed.
+Elt's `Vision` pool first released native warm-up one worker at a time through
+its stdin pipe, on every start. Only the first start after a new helper binary
+needs that order: once the first worker compiles the models, the cache holds
+them, and four workers that start together with a warm cache are each ready in
+1.1–1.3 seconds, against 0.9 seconds for one worker alone. The chain made every
+warm start wait for each worker in turn.
 
-The pool owns initialization ordering because it knows its workers and readiness.
-The native helper owns model warm-up. The CLI and MCP server retain ownership of
-startup and disposal. There are two internal worker-construction sites: initial
-pool creation and replacement after a worker exits. Both obey the startup
-barrier. Cancelling a waiting worker preserves the chain of earlier initializers;
-a replacement waits for outstanding initialization. The public `Vision` API and
-both production host call sites are unchanged.
+Elt now has a shared `Pool` (`@workspace/pool`). The hosts build an OCR pool
+with the `LeaderFirst` startup: the first worker starts alone, and the others
+start together once it is ready. A replacement after a crash starts at once,
+because the cache is warm. The pool also serves the local transcription engine.
+The helper no longer waits for a startup line. The MCP server builds its pool
+when it starts; the CLI builds its pools only for a sync or a watch.
+
+Measurements on 2026-10-25, same M4 Pro, 325 WhatsApp images, four workers:
+
+| Run | Ready | Reads |
+| --- | ---: | ---: |
+| Chain, warm cache | 3.39–4.17 s | 8.90–12.15 s |
+| `LeaderFirst`, warm cache | 1.79–2.49 s | 7.08–8.80 s |
+| `LeaderFirst`, new helper binary (cold) | 73.43 s | 6.89 s |
+
+One Vision process does not replace the pool. With 1, 3, 6 and 14 images in
+flight, one process read the same 325 images in 20–26 seconds; Vision runs its
+requests mostly one at a time inside a process. Only more processes add speed.
 
 ## Regression and integration checks
 

@@ -6,9 +6,10 @@ import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import { LeaderFirst, Pool } from '@workspace/pool';
 import { SpeechModels } from '@workspace/sdk-macos-speech-models';
 import { Settings } from '@workspace/settings';
-import { Vision } from '@workspace/source-apple-macos/vision';
+import { VisionWorker } from '@workspace/source-apple-macos/vision';
 
 import { AttachmentText } from './attachment-text.ts';
 import { Transcription } from './transcription.ts';
@@ -32,18 +33,26 @@ test('an existing attachment reader observes a model saved or disabled by anothe
   );
   await mkdir(snapshot, { recursive: true });
   await writeFile(join(snapshot, 'ggml-small.bin'), 'lmgg');
-  await using vision = new Vision(
-    fileURLToPath(
-      import.meta.resolve('@workspace/source-apple-macos/vision-worker'),
-    ),
-  );
+  await using ocr = new Pool({
+    size: 1,
+    startup: new LeaderFirst(),
+    create: () =>
+      new VisionWorker(
+        fileURLToPath(
+          import.meta.resolve('@workspace/source-apple-macos/vision-worker'),
+        ),
+      ),
+  });
   await using host = new Transcription(
     directory.path,
     new SpeechModels({
       hub: join(directory.path, 'hub'),
       home: directory.path,
     }),
-    vision,
+    ocr,
+    fileURLToPath(
+      import.meta.resolve('@workspace/transcription-local/transcribe-local'),
+    ),
   );
   using other = new Settings(directory.path);
   const reader = new AttachmentText(
