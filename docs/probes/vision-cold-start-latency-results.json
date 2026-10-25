@@ -1,0 +1,457 @@
+{
+  "date": "2026-10-25",
+  "machine": {
+    "node": "v26.10.0",
+    "availableCpus": 14,
+    "model": "Apple M4 Pro",
+    "memoryBytes": 51539607552,
+    "macOS": "27.0",
+    "build": "26A428"
+  },
+  "cause": "Concurrent cold worker initialization submits byte-identical native model compilations; sequential warm-up reuses the resulting cache.",
+  "native": [
+    {
+      "label": "cc2896-parallel-a",
+      "workers": 4,
+      "sequential": false,
+      "seconds": 194.621165583,
+      "sourceSha256": "62610defc855316e07dcd11b8586fedcefe81ca9c82e6e36542c2d498060293f",
+      "helperSha256": "ea3f5fe494fafcadcc3d1ac97cd25ad79b0f95f758f497c73b45cc5caf715794",
+      "runs": [
+        {
+          "pid": 31493,
+          "readySeconds": 194.61694741699998,
+          "exit": {
+            "code": 0,
+            "signal": null
+          }
+        },
+        {
+          "pid": 31494,
+          "readySeconds": 172.334172875,
+          "exit": {
+            "code": 0,
+            "signal": null
+          }
+        },
+        {
+          "pid": 31495,
+          "readySeconds": 161.11701845800002,
+          "exit": {
+            "code": 0,
+            "signal": null
+          }
+        },
+        {
+          "pid": 31496,
+          "readySeconds": 183.452441459,
+          "exit": {
+            "code": 0,
+            "signal": null
+          }
+        }
+      ]
+    },
+    {
+      "label": "cc2896-serial-a",
+      "workers": 4,
+      "sequential": true,
+      "seconds": 59.828011999999994,
+      "sourceSha256": "62610defc855316e07dcd11b8586fedcefe81ca9c82e6e36542c2d498060293f",
+      "helperSha256": "b901cfc29939314469f2be53be481fb18d19f6ccdef03bf6c04190f2518129d6",
+      "runs": [
+        {
+          "pid": 48581,
+          "readySeconds": 58.037369417,
+          "exit": {
+            "code": 0,
+            "signal": null
+          }
+        },
+        {
+          "pid": 53167,
+          "readySeconds": 0.596072334000004,
+          "exit": {
+            "code": 0,
+            "signal": null
+          }
+        },
+        {
+          "pid": 53214,
+          "readySeconds": 0.5917588749999996,
+          "exit": {
+            "code": 0,
+            "signal": null
+          }
+        },
+        {
+          "pid": 53309,
+          "readySeconds": 0.5870680829999982,
+          "exit": {
+            "code": 0,
+            "signal": null
+          }
+        }
+      ]
+    },
+    {
+      "label": "production",
+      "workers": 1,
+      "sequential": false,
+      "seconds": 0.8610568749999999,
+      "sourceSha256": "62610defc855316e07dcd11b8586fedcefe81ca9c82e6e36542c2d498060293f",
+      "helperSha256": "54a5db62415e0b784430bf5facaf8f8b1ce0520f0effb53457a115a4c931ccbf",
+      "runs": [
+        {
+          "pid": 29814,
+          "readySeconds": 0.856926834,
+          "exit": {
+            "code": 0,
+            "signal": null
+          }
+        }
+      ]
+    }
+  ],
+  "duplicateInputs": [
+    {
+      "sha256": "87cf3761a11051774ab1763ed52d43244c14fe9c3b9e93afbbd023ba7afddceb",
+      "copies": 3,
+      "bytes": 92513,
+      "file": "model.mil",
+      "pids": [91434, 91435, 91436]
+    },
+    {
+      "sha256": "678efc2a2420afcd217decf695d874ac7cc6a1a7462bd5cd723d43b183104933",
+      "copies": 3,
+      "bytes": 2068612,
+      "file": "weights1.bin",
+      "pids": [91434, 91435, 91436]
+    },
+    {
+      "sha256": "6f52fb4383011d8684a094990303ce8c822e63c28a6d9a1301eb5793e206b65e",
+      "copies": 3,
+      "bytes": 92523,
+      "file": "model.mil",
+      "pids": [91432, 91433, 91437]
+    },
+    {
+      "sha256": "08d04864c5864904fcc9aa85274b24630f67eae27c21b6abd62b37c60cbaf0f9",
+      "copies": 3,
+      "bytes": 2123182,
+      "file": "weights1.bin",
+      "pids": [91432, 91433, 91437]
+    }
+  ],
+  "fullPasses": [
+    {
+      "label": "cold-before",
+      "policy": {
+        "memoryBudget": 10274996224
+      },
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "wallSeconds": 208.208911,
+      "pipelineSeconds": 21.974253708,
+      "workerCount": 4,
+      "warmupSeconds": [
+        167.692865792, 181.72573616600002, 196.27549916699996,
+        207.79310800000002
+      ],
+      "peakCliMiB": 755.859375,
+      "peakWorkersMiB": 635.125,
+      "peakCombinedMiB": 942.640625,
+      "peakCompilerMiB": 111.28125,
+      "before": {
+        "memory": 10275160064,
+        "swap": "vm.swapusage: total = 12288.00M  used = 11422.31M  free = 865.69M  (encrypted)"
+      },
+      "after": {
+        "memory": 9908731904,
+        "swap": "vm.swapusage: total = 13312.00M  used = 12099.31M  free = 1212.69M  (encrypted)"
+      },
+      "workersExited": true,
+      "verifiedFrozenStores": 10,
+      "output": {
+        "rows": 345272,
+        "tables": 32,
+        "rowHash": "7ef7ce8323c462d992f0a92f6638e3b7d4e4142d058cea54afa29269f1d97547",
+        "attachments": 916,
+        "metadataHash": "0d39df857586a462518151d8fc8f238cfd058bcbb268f1d20c9e4ef061425d54",
+        "textHash": "1a19e83db2e6ced366aae8d02e953e4fb73650a907a6c0a2f9184e12ef2f35e9",
+        "failedAttachments": 0,
+        "untranscribedOpus": 116
+      },
+      "helperSha256": "f9be2924faec581922ab8c33f0c96fb21bfccbca6254eb8961d621666fbb4a7f"
+    },
+    {
+      "label": "cold-fixed",
+      "policy": {
+        "memoryBudget": 10274996224
+      },
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "wallSeconds": 97.93038129199999,
+      "pipelineSeconds": 20.816116374999996,
+      "workerCount": 4,
+      "warmupSeconds": [
+        77.41830754200001, 80.297769042, 82.296435084, 84.15224391699999
+      ],
+      "peakCliMiB": 859.859375,
+      "peakWorkersMiB": 881.515625,
+      "peakCombinedMiB": 1031.953125,
+      "peakCompilerMiB": 102.78125,
+      "before": {
+        "memory": 9925656576,
+        "swap": "vm.swapusage: total = 13312.00M  used = 12067.31M  free = 1244.69M  (encrypted)"
+      },
+      "after": {
+        "memory": 9242247168,
+        "swap": "vm.swapusage: total = 17408.00M  used = 16094.69M  free = 1313.31M  (encrypted)"
+      },
+      "workersExited": true,
+      "verifiedFrozenStores": 10,
+      "output": {
+        "rows": 345272,
+        "tables": 32,
+        "rowHash": "7ef7ce8323c462d992f0a92f6638e3b7d4e4142d058cea54afa29269f1d97547",
+        "attachments": 916,
+        "metadataHash": "8b9cc8457d4a1e56c47885a4cbba36254390cf02e45094a642f05e4cf4dda471",
+        "textHash": "0cb632b992391bf1886f8a0bc7325c1b1c2e612995c651b9ce310c3c2a4c3762",
+        "failedAttachments": 0,
+        "untranscribedOpus": 116
+      },
+      "helperSha256": "81ead22162b51a724bfcfb003707dd11bd543cd30eb391a3fae10b05da0ffc6e"
+    },
+    {
+      "label": "warm-production",
+      "policy": null,
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "wallSeconds": 55.102333958,
+      "pipelineSeconds": 33.919651916,
+      "workerCount": 4,
+      "warmupSeconds": [
+        2.3732145829999998, 3.8209152079999997, 4.944919291, 6.610959
+      ],
+      "peakCliMiB": 677.234375,
+      "peakWorkersMiB": 894.25,
+      "peakCombinedMiB": 1009.859375,
+      "peakCompilerMiB": 4.859375,
+      "before": {
+        "memory": 9197027328,
+        "swap": "vm.swapusage: total = 17408.00M  used = 16094.69M  free = 1313.31M  (encrypted)"
+      },
+      "after": {
+        "memory": 9878192128,
+        "swap": "vm.swapusage: total = 18432.00M  used = 17272.19M  free = 1159.81M  (encrypted)"
+      },
+      "workersExited": true,
+      "verifiedFrozenStores": 10,
+      "output": {
+        "rows": 345272,
+        "tables": 32,
+        "rowHash": "7ef7ce8323c462d992f0a92f6638e3b7d4e4142d058cea54afa29269f1d97547",
+        "attachments": 916,
+        "metadataHash": "8b9cc8457d4a1e56c47885a4cbba36254390cf02e45094a642f05e4cf4dda471",
+        "textHash": "0cb632b992391bf1886f8a0bc7325c1b1c2e612995c651b9ce310c3c2a4c3762",
+        "failedAttachments": 0,
+        "untranscribedOpus": 116
+      },
+      "helperSha256": "f4a4ea27767058a0a01348d905470b862b03e11607d4b1b2920bd7f5fa007a50"
+    }
+  ],
+  "comparisons": [
+    {
+      "baseline": "cold-before",
+      "candidate": "cold-fixed",
+      "identicalSourceRows": true,
+      "identicalAttachmentBytesAndMetadata": false,
+      "identicalAttachmentBytesAndParsers": true,
+      "identicalOriginalLoadedModules": true,
+      "matchingText": 910,
+      "textDifferences": [
+        {
+          "inputSha256": "890ccb8657d896b19fd32c0ded640bed4d1a23815424f08f72ea1c2b20c44dd9",
+          "textSha256": [
+            "4948da7248078095f3c4d394a6d683201429a5d802ecb4e83d13651de5199f3c",
+            "b73bdea889c5bd576418f87d7ce80152a3dddc399207b7629f29e2f899e6c9b2"
+          ]
+        },
+        {
+          "inputSha256": "a435cdfc908f25377eab61bc9a6b2bb280bc128a8eac7161dd552344bc0a49a0",
+          "textSha256": [
+            "18f115fcdf6b84f8feed3bdf2d6c6c5cc5a4aff82b5b4d6ac5796dd779703169",
+            "8728b3a9a8e3ef0043bbf5c1513027210735b6a242d8e2de068ea25b2dc43239"
+          ]
+        },
+        {
+          "inputSha256": "c275e3f548081a79ddba84c34125f8e9ef12bfd32997d86478f53b42b7e54bd2",
+          "textSha256": [
+            "177d0dd74844adcc0cc9f7252cf4598d69300fa0e53597bc02ae7122e1e4f8e0",
+            "0149a35b4247d393e2e8cb9d82566bdf8db94ce003abff7743ce5b8909b94999"
+          ]
+        },
+        {
+          "inputSha256": "cd9ee0a16b6889b167f08c31a4fb17397095482f6c74ab4e188cfb061dd2005e",
+          "textSha256": [
+            null,
+            "f204c208f76d35f75aee44128d7349fdce68b97e08b586b194c6565abaf3ddc0"
+          ]
+        },
+        {
+          "inputSha256": "d2b538e7f5813f1bd22dcef6086a423569dead1287297f4d49370b4463cb95de",
+          "textSha256": [
+            "ebb8dc5ae68e00914bfab51d84e759eff84e3e1b8b0661728205194550799856",
+            "e8b050f73b368c6a221c13b7c31ab63bdfff458e86a1889c9e50d6d0d20e26ed"
+          ]
+        },
+        {
+          "inputSha256": "f4c2b880f3bf6d968ebe44b88c2e5aefb1339936a518ece54953c4c7954becc8",
+          "textSha256": [
+            "8d0045ac07e0f9afc528d65bcaf0d224b7f2dbcf0c94315ba688bb93fe93df12",
+            "c1b4a9a094ec46ee9b07b7aaa8e153ff1632c5066bc0af83e85681bb0020a0a6"
+          ]
+        }
+      ],
+      "metadataDifferences": [
+        {
+          "inputSha256": "cd9ee0a16b6889b167f08c31a4fb17397095482f6c74ab4e188cfb061dd2005e",
+          "beforeStatus": "no_text",
+          "afterStatus": "parsed"
+        }
+      ]
+    },
+    {
+      "baseline": "cold-fixed",
+      "candidate": "warm-production",
+      "identicalSourceRows": true,
+      "identicalAttachmentBytesAndMetadata": true,
+      "identicalAttachmentBytesAndParsers": true,
+      "identicalOriginalLoadedModules": true,
+      "matchingText": 916,
+      "textDifferences": [],
+      "metadataDifferences": []
+    }
+  ],
+  "excluded": [
+    {
+      "label": "cold-before",
+      "policy": {
+        "memoryBudget": 13029376000
+      },
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "wallSeconds": 321.658083125,
+      "pipelineSeconds": 22.434636457999996,
+      "workerCount": 6,
+      "warmupSeconds": [
+        257.561819875, 272.187952666, 287.790278792, 298.964494875,
+        310.219556041, 321.33455341700005
+      ],
+      "peakCliMiB": 775.734375,
+      "peakWorkersMiB": 821.40625,
+      "peakCombinedMiB": 1148.109375,
+      "peakCompilerMiB": 135.3125,
+      "before": {
+        "memory": 13029408768,
+        "swap": "vm.swapusage: total = 11264.00M  used = 9648.38M  free = 1615.62M  (encrypted)"
+      },
+      "after": {
+        "memory": 13535707136,
+        "swap": "vm.swapusage: total = 11264.00M  used = 9608.31M  free = 1655.69M  (encrypted)"
+      },
+      "workersExited": true,
+      "output": {
+        "rows": 345273,
+        "tables": 32,
+        "rowHash": "43894d40f308783273369c8db17136664f7fdcb14e4952e462467cf2adefcbf6",
+        "attachments": 916,
+        "metadataHash": "8b9cc8457d4a1e56c47885a4cbba36254390cf02e45094a642f05e4cf4dda471",
+        "textHash": "0cb632b992391bf1886f8a0bc7325c1b1c2e612995c651b9ce310c3c2a4c3762",
+        "failedAttachments": 0,
+        "untranscribedOpus": 116
+      },
+      "helperSha256": "5be850538d7579d90f2b244dd0aecdc4d3c5600fe37fac80ff5a7950b90ac92d",
+      "reason": "Excluded from controlled comparison: source passed the live container explicitly, bypassing the initial SDK-default override."
+    },
+    {
+      "label": "cold-fixed",
+      "policy": {
+        "memoryBudget": 13029376000
+      },
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "wallSeconds": 69.98557862499999,
+      "pipelineSeconds": 19.537072499999997,
+      "workerCount": 6,
+      "warmupSeconds": [
+        59.791053833, 60.423771875, 61.034907790999995, 61.708118667,
+        62.420223708, 63.19588175
+      ],
+      "peakCliMiB": 787.984375,
+      "peakWorkersMiB": 1205.734375,
+      "peakCombinedMiB": 1378.328125,
+      "peakCompilerMiB": 141.90625,
+      "before": {
+        "memory": 13546569728,
+        "swap": "vm.swapusage: total = 11264.00M  used = 9608.31M  free = 1655.69M  (encrypted)"
+      },
+      "after": {
+        "memory": 8667529216,
+        "swap": "vm.swapusage: total = 12288.00M  used = 11422.31M  free = 865.69M  (encrypted)"
+      },
+      "workersExited": true,
+      "output": {
+        "rows": 345279,
+        "tables": 32,
+        "rowHash": "6d6ed1e61d05999bd8f2faca94f267579963e70872af602c8abd9526776dc596",
+        "attachments": 916,
+        "metadataHash": "8b9cc8457d4a1e56c47885a4cbba36254390cf02e45094a642f05e4cf4dda471",
+        "textHash": "0cb632b992391bf1886f8a0bc7325c1b1c2e612995c651b9ce310c3c2a4c3762",
+        "failedAttachments": 0,
+        "untranscribedOpus": 116
+      },
+      "helperSha256": "446c8568c8e64c5ae313fd2f2914f2a5f675f9ab0d48cf8fd333d0e893364d4c",
+      "reason": "Excluded from controlled comparison: source passed the live container explicitly, bypassing the initial SDK-default override."
+    }
+  ],
+  "input": {
+    "frozenAt": "2026-10-25T07:33:14.276Z",
+    "databases": 10,
+    "mediaFiles": 952,
+    "mediaBytes": 395612391,
+    "filesRehashedPerRun": 962,
+    "manifestSha256": "529b4ad0077e45ef60ec6ae2b98f7dacf41536d0baa0dd98f6f4ef07fe44dfc1"
+  },
+  "source": {
+    "contextHead": "80a172abb6a48fa8b48c6389e315b210a5e9b06f",
+    "eltHead": "3bcddeea17a47b67ab7212291af3f742010c3f4d",
+    "sha256": {
+      "../elt/packages/sources/apple/macos/src/vision.ts": "7a2221ee2b10fdbed4f621e8705636177df5f6a1e9977503dd10e84f790cb4bb",
+      "../elt/packages/sources/apple/macos/src/image-format.test.ts": "171310aec229e423ce9063684dba624dee408578d0afb0129b743241fca7eead",
+      "../elt/packages/sources/apple/macos/src/helper/main.swift": "80598000442d9fac26c672a8d873ace8d4dea44d18fe49d3cc486990964aa2c5",
+      "../elt/packages/sources/apple/macos/dist/vision-worker": "f4a4ea27767058a0a01348d905470b862b03e11607d4b1b2920bd7f5fa007a50"
+    }
+  },
+  "checks": {
+    "red": "Startup-order regression failed: six reads completed while the first initializer was held.",
+    "firstGreenSeconds": 82.186633167,
+    "macosTests": 14,
+    "macosSuiteSeconds": 50.350240959,
+    "mcpLifecycleCases": 2,
+    "typecheck": "passed",
+    "eltBuildProjects": 65,
+    "hostBuild": "CLI and uncached plugin bundle passed; generated readiness barrier and native helper verified"
+  }
+}

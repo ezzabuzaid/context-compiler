@@ -1,0 +1,587 @@
+{
+  "task": 2896,
+  "date": "2026-10-24T19:52:45.203Z",
+  "input": {
+    "frozenAt": "2026-10-24T19:45:58.634Z",
+    "databases": 10,
+    "files": 925,
+    "bytes": 393209262,
+    "manifestSha256": "8beb0122bdd1c1b1ec8b2303a1adb3d322da3a2adce5ed579dff8e8d3e80b20e",
+    "reverified": true
+  },
+  "nativeProbe": {
+    "pid": 80700,
+    "sourceSha256": "62610defc855316e07dcd11b8586fedcefe81ca9c82e6e36542c2d498060293f",
+    "seconds": 59.9603365,
+    "exit": {
+      "code": 0,
+      "signal": null
+    },
+    "ready": true,
+    "stdout": "{\"ready\":true}\n",
+    "stderr": "start 1792870956.826514 Context Compiler\nstart 1792870986.251133 صباح الخير\nstart 1792871002.6518378 नमस्ते दुनिया\nstart 1792871015.97851 안녕하세요\nstart 1792871016.14242 Доброе утро\nstart 1792871016.181895 สวัสดีครับ\nstart 1792871016.270832 你好世界\nstart 1792871016.398271 こんにちは世界\nfinished 1792871016.444707\n",
+    "events": [
+      {
+        "ms": 338.40262500000017,
+        "text": "start 1792870956.826514 Context Compiler\n"
+      },
+      {
+        "ms": 29762.506291,
+        "text": "start 1792870986.251133 صباح الخير\n"
+      },
+      {
+        "ms": 46163.153332999995,
+        "text": "start 1792871002.6518378 नमस्ते दुनिया\n"
+      },
+      {
+        "ms": 59489.768790999995,
+        "text": "start 1792871015.97851 안녕하세요\n"
+      },
+      {
+        "ms": 59653.675291,
+        "text": "start 1792871016.14242 Доброе утро\n"
+      },
+      {
+        "ms": 59693.15025,
+        "text": "start 1792871016.181895 สวัสดีครับ\n"
+      },
+      {
+        "ms": 59782.090165999994,
+        "text": "start 1792871016.270832 你好世界\n"
+      },
+      {
+        "ms": 59909.528290999995,
+        "text": "start 1792871016.398271 こんにちは世界\n"
+      },
+      {
+        "ms": 59955.952915999995,
+        "text": "finished 1792871016.444707\n"
+      }
+    ]
+  },
+  "runs": [
+    {
+      "label": "pass-a",
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "wallSeconds": 31.783455667,
+      "reportSeconds": 20.695692124999997,
+      "pipelineSeconds": 19.8527075,
+      "workerCount": 4,
+      "warmupSeconds": [
+        1.2179659999999999, 1.218597041, 1.222076083, 1.219503958
+      ],
+      "peakCliMiB": 741.59375,
+      "peakWorkerMiB": 851.015625,
+      "peakCombinedMiB": 1314.984375,
+      "peakSharedCompilerMiB": 82.21875,
+      "samples": 126,
+      "before": {
+        "memory": 8852062208,
+        "swap": "vm.swapusage: total = 14336.00M  used = 13786.44M  free = 549.56M  (encrypted)"
+      },
+      "after": {
+        "memory": 10080387072,
+        "swap": "vm.swapusage: total = 14336.00M  used = 13778.44M  free = 557.56M  (encrypted)"
+      },
+      "workersExited": true,
+      "output": {
+        "rows": 344343,
+        "tables": 32,
+        "rowHash": "01109c571245acc4c42d68eff9b4bc4203f38acde54540308dfbd069ece2763d",
+        "attachments": 891,
+        "attachmentHash": "91edd9cf000b7e776f39716acd1750cb6529267f702545c29174f77c28aa2126",
+        "failedAttachments": 0,
+        "untranscribedOpus": 95,
+        "byStatus": {
+          "image-v1:parsed": 276,
+          "image-v1:no_text": 461,
+          "unsupported:no_text": 144,
+          "pdf-v1:parsed": 7,
+          "text-v1:parsed": 3
+        }
+      },
+      "report": {
+        "connector": "whatsapp",
+        "status": "succeeded",
+        "seconds": 20,
+        "streams": [
+          {
+            "stream": "chats",
+            "written": 749,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "messages",
+            "written": 74645,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "messageReceipts",
+            "written": 218396,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "messageReactions",
+            "written": 17354,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "messageReactionCounts",
+            "written": 0,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "messageDataItems",
+            "written": 4456,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "messageAssociations",
+            "written": 915,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "groupMembers",
+            "written": 9270,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "groupMembersChanges",
+            "written": 112,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "chatPushConfigs",
+            "written": 31,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "pushNames",
+            "written": 2130,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "profilePictures",
+            "written": 4837,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "blockedContacts",
+            "written": 12,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "contacts",
+            "written": 326,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "users",
+            "written": 4962,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "calls",
+            "written": 192,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "callParticipants",
+            "written": 198,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "businessProfiles",
+            "written": 136,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "businessVerifiedNames",
+            "written": 156,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "businessCategories",
+            "written": 162,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "businessHours",
+            "written": 554,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "businessServiceAreas",
+            "written": 5,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "businessBotPrompts",
+            "written": 3,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "statuses",
+            "written": 14,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "stickerPacks",
+            "written": 125,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "stickers",
+            "written": 250,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "favoriteStickers",
+            "written": 152,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "recentStickers",
+            "written": 32,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "privacySettings",
+            "written": 11,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "disappearingModes",
+            "written": 4152,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "linkedProfiles",
+            "written": 6,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "changedNumbers",
+            "written": 0,
+            "deleted": 0,
+            "errors": []
+          }
+        ],
+        "error": null
+      }
+    },
+    {
+      "label": "pass-b",
+      "exit": {
+        "code": 0,
+        "signal": null
+      },
+      "wallSeconds": 41.898219792,
+      "reportSeconds": 24.061977583,
+      "pipelineSeconds": 23.291448375,
+      "workerCount": 4,
+      "warmupSeconds": [1.616201333, 1.617585833, 1.628657, 1.639946375],
+      "peakCliMiB": 669.75,
+      "peakWorkerMiB": 899.46875,
+      "peakCombinedMiB": 1186.125,
+      "peakSharedCompilerMiB": 87.484375,
+      "samples": 165,
+      "before": {
+        "memory": 9721053184,
+        "swap": "vm.swapusage: total = 14336.00M  used = 13778.44M  free = 557.56M  (encrypted)"
+      },
+      "after": {
+        "memory": 9549266944,
+        "swap": "vm.swapusage: total = 14336.00M  used = 13778.44M  free = 557.56M  (encrypted)"
+      },
+      "workersExited": true,
+      "output": {
+        "rows": 344343,
+        "tables": 32,
+        "rowHash": "01109c571245acc4c42d68eff9b4bc4203f38acde54540308dfbd069ece2763d",
+        "attachments": 891,
+        "attachmentHash": "96f4823b2476937d917d649b59d973fdc85ac6a62168b21337318f4757683b23",
+        "failedAttachments": 0,
+        "untranscribedOpus": 95,
+        "byStatus": {
+          "image-v1:parsed": 276,
+          "image-v1:no_text": 461,
+          "unsupported:no_text": 144,
+          "pdf-v1:parsed": 7,
+          "text-v1:parsed": 3
+        }
+      },
+      "report": {
+        "connector": "whatsapp",
+        "status": "succeeded",
+        "seconds": 23,
+        "streams": [
+          {
+            "stream": "chats",
+            "written": 749,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "messages",
+            "written": 74645,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "messageReceipts",
+            "written": 218396,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "messageReactions",
+            "written": 17354,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "messageReactionCounts",
+            "written": 0,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "messageDataItems",
+            "written": 4456,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "messageAssociations",
+            "written": 915,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "groupMembers",
+            "written": 9270,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "groupMembersChanges",
+            "written": 112,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "chatPushConfigs",
+            "written": 31,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "pushNames",
+            "written": 2130,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "profilePictures",
+            "written": 4837,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "blockedContacts",
+            "written": 12,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "contacts",
+            "written": 326,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "users",
+            "written": 4962,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "calls",
+            "written": 192,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "callParticipants",
+            "written": 198,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "businessProfiles",
+            "written": 136,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "businessVerifiedNames",
+            "written": 156,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "businessCategories",
+            "written": 162,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "businessHours",
+            "written": 554,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "businessServiceAreas",
+            "written": 5,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "businessBotPrompts",
+            "written": 3,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "statuses",
+            "written": 14,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "stickerPacks",
+            "written": 125,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "stickers",
+            "written": 250,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "favoriteStickers",
+            "written": 152,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "recentStickers",
+            "written": 32,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "privacySettings",
+            "written": 11,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "disappearingModes",
+            "written": 4152,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "linkedProfiles",
+            "written": 6,
+            "deleted": 0,
+            "errors": []
+          },
+          {
+            "stream": "changedNumbers",
+            "written": 0,
+            "deleted": 0,
+            "errors": []
+          }
+        ],
+        "error": null
+      }
+    }
+  ],
+  "identicalRows": true,
+  "identicalAttachmentBytesAndMetadata": true,
+  "identicalText": false,
+  "matchingText": 890,
+  "textDifferences": [
+    {
+      "inputSha256": "b4668e3fd28b47fdd6fa02f29e20f4662be206b8e25665c4445e57c474a376f6",
+      "textSha256": [
+        "2976083d1c9f2b15df14b2fb5206bc1ab1fe2171fc53795b9518bdffb92bb98c",
+        "eea518cdabdc2799bb6c1cd24e6bc5ed9ecc8bddc8cb661b3749a13799ba558c"
+      ]
+    }
+  ],
+  "identicalModules": true,
+  "source": {
+    "contextHead": "80a172abb6a48fa8b48c6389e315b210a5e9b06f",
+    "eltHead": "3bcddeea17a47b67ab7212291af3f742010c3f4d",
+    "hashes": {
+      "elt/packages/sources/apple/macos/src/vision.ts": "4adea02a8a762fa9e20ab85b235d23e807784c95b1e074156b0045bdeb5c7343",
+      "elt/packages/sources/apple/macos/src/image-format.test.ts": "d1a6168e54d12cb5c13cba967bb38659dc10e1fb26eba31b44fb86a21c182e94",
+      "elt/packages/sources/apple/macos/src/helper/main.swift": "62610defc855316e07dcd11b8586fedcefe81ca9c82e6e36542c2d498060293f",
+      "elt/packages/sources/apple/macos/dist/vision-worker": "54a5db62415e0b784430bf5facaf8f8b1ce0520f0effb53457a115a4c931ccbf"
+    }
+  },
+  "checks": {
+    "baselineTests": 9,
+    "red": "slow warm-up regression failed with Vision worker exited (SIGTERM) before implementation",
+    "focusedGreenSeconds": 3.642924042,
+    "macosTests": 12,
+    "macosSuiteSeconds": 321.483930834,
+    "firstRealParserTestSeconds": 310.724770583,
+    "mcpLifecycleCases": 2,
+    "typecheck": "source-apple-macos passed",
+    "eltBuildProjects": 65,
+    "hostBuild": "cli, server and uncached plugin bundle passed"
+  },
+  "helperSha256": "54a5db62415e0b784430bf5facaf8f8b1ce0520f0effb53457a115a4c931ccbf"
+}
