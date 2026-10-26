@@ -1,6 +1,6 @@
 {
   "type": "module",
-  "exports": "./broken-connector.js",
+  "exports": "./broken-connector.ts",
   "contextCompiler": {
     "name": "broken",
     "title": "Broken"

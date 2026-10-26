@@ -1,6 +1,6 @@
 {
   "type": "module",
-  "exports": "./photos-connector.js",
+  "exports": "./photos-connector.ts",
   "contextCompiler": {
     "name": "photos",
     "title": "Photos"

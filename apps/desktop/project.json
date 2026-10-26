@@ -11,7 +11,7 @@
       "options": {
         "main": "apps/desktop/src/main.ts",
         "outputPath": "apps/desktop/dist/host",
-        "tsConfig": "apps/desktop/tsconfig.json",
+        "tsConfig": "apps/desktop/tsconfig.lib.json",
         "platform": "node",
         "format": ["esm"],
         "target": "node24.22",
@@ -37,7 +37,7 @@
       "options": {
         "main": "apps/desktop/src/preload.ts",
         "outputPath": "apps/desktop/dist/preload",
-        "tsConfig": "apps/desktop/tsconfig.json",
+        "tsConfig": "apps/desktop/tsconfig.lib.json",
         "platform": "node",
         "format": ["cjs"],
         "target": "node24.22",
@@ -94,14 +94,14 @@
       ],
       "executor": "nx:run-commands",
       "options": {
-        "command": "node --test --test-concurrency=1 {args} apps/desktop/dist/src/desktop.e2e.test.js apps/desktop/dist/src/security.e2e.test.js apps/desktop/dist/src/backend.e2e.test.js"
+        "command": "node --test --test-concurrency=1 {args} apps/desktop/src/desktop.e2e.test.ts apps/desktop/src/security.e2e.test.ts apps/desktop/src/backend.e2e.test.ts"
       }
     },
     "verify-package": {
       "dependsOn": ["build", "package"],
       "executor": "nx:run-commands",
       "options": {
-        "command": "node --test {args} apps/desktop/dist/src/package.e2e.test.js"
+        "command": "node --test {args} apps/desktop/src/package.e2e.test.ts"
       }
     },
     "open": {

@@ -1,74 +1,13 @@
 {
   "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "dist",
-    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
-  },
-  "include": ["src/**/*.ts"],
+  "files": [],
+  "include": [],
   "references": [
     {
-      "path": "../../packages/settings"
+      "path": "./tsconfig.lib.json"
     },
     {
-      "path": "../../packages/connectors/whatsapp"
-    },
-    {
-      "path": "../../packages/connectors/wallet"
-    },
-    {
-      "path": "../../packages/connectors/teams"
-    },
-    {
-      "path": "../../packages/connectors/slack"
-    },
-    {
-      "path": "../../packages/connectors/safari"
-    },
-    {
-      "path": "../../packages/connectors/reminders"
-    },
-    {
-      "path": "../../packages/connectors/notification-center"
-    },
-    {
-      "path": "../../packages/connectors/notes"
-    },
-    {
-      "path": "../../packages/connectors/messages"
-    },
-    {
-      "path": "../../packages/connectors/manifest"
-    },
-    {
-      "path": "../../packages/connectors/mail"
-    },
-    {
-      "path": "../../packages/connectors/instagram"
-    },
-    {
-      "path": "../../packages/connectors/contacts"
-    },
-    {
-      "path": "../../packages/connectors/connector"
-    },
-    {
-      "path": "../../packages/connectors/clock"
-    },
-    {
-      "path": "../../packages/connectors/call-history"
-    },
-    {
-      "path": "../../packages/connectors/calendar"
-    },
-    {
-      "path": "../../packages/connectors/books"
-    },
-    {
-      "path": "../../packages/connectors/activity"
-    },
-    {
-      "path": "../../packages/connectors/accounts"
+      "path": "./tsconfig.spec.json"
     }
   ]
 }

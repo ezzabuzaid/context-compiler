@@ -116,7 +116,7 @@ async function photosPlugin(
   const plugin = new Plugin(
     new Connectors([
       builtInConnectors,
-      resolve('packages/connectors/manifest/dist/fixtures'),
+      resolve('packages/connectors/manifest/src/fixtures'),
     ]),
     host,
     versionFile,

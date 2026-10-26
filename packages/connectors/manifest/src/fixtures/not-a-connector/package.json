@@ -1,6 +1,6 @@
 {
   "type": "module",
-  "exports": "./not-a-connector-connector.js",
+  "exports": "./not-a-connector-connector.ts",
   "contextCompiler": {
     "name": "not-a-connector",
     "title": "Not a connector"

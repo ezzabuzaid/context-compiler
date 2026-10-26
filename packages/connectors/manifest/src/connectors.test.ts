@@ -100,7 +100,7 @@ test('every connector folder loads as its connector for the host, and one that c
       },
       {
         title: 'Not a connector',
-        error: `${fixtures}not-a-connector/not-a-connector-connector.js does not export a Connector class by default.`,
+        error: `${fixtures}not-a-connector/not-a-connector-connector.ts does not export a Connector class by default.`,
       },
       { title: 'Notes again', error: 'Another connector is named notes.' },
     ],

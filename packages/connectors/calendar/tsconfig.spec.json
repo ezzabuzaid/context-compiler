@@ -1,0 +1,22 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist/spec",
+    "tsBuildInfoFile": "dist/spec/tsconfig.spec.tsbuildinfo",
+    "emitDeclarationOnly": true,
+    "rewriteRelativeImportExtensions": false
+  },
+  "include": ["src/**/*.test.ts"],
+  "references": [
+    {
+      "path": "./tsconfig.lib.json"
+    },
+    {
+      "path": "../connector/tsconfig.lib.json"
+    },
+    {
+      "path": "../../settings/tsconfig.lib.json"
+    }
+  ]
+}

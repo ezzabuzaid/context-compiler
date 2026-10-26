@@ -1,0 +1,75 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.test.ts"],
+  "references": [
+    {
+      "path": "../../packages/settings/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/whatsapp/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/wallet/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/teams/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/slack/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/safari/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/reminders/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/notification-center/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/notes/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/messages/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/manifest/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/mail/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/instagram/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/contacts/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/connector/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/clock/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/call-history/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/calendar/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/books/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/activity/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/accounts/tsconfig.lib.json"
+    }
+  ]
+}

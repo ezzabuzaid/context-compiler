@@ -12,7 +12,7 @@
         "{workspaceRoot}/packages/connectors/messages/presets/*.sql",
         "{workspaceRoot}/packages/connectors/notes/presets/*.sql"
       ],
-      "command": "node --test {args} \"packages/connectors/mail/dist/*.test.js\""
+      "command": "node --test {args} \"packages/connectors/mail/src/*.test.ts\""
     }
   }
 }

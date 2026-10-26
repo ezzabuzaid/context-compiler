@@ -57,7 +57,7 @@ await build({
   target: 'node24.19',
   outExtension: { '.js': '.mjs' },
   chunkNames: 'chunks/[name]-[hash]',
-  tsconfig: 'apps/server/tsconfig.json',
+  tsconfig: 'apps/server/tsconfig.lib.json',
   logLevel: 'warning',
   banner: {
     js: "import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);",

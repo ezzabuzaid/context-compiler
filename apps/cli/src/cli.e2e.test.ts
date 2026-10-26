@@ -1019,7 +1019,7 @@ async function tabsFixture(root: string, path: string) {
     .run(color);
 }
 
-const entry = join(import.meta.dirname, 'main.js');
+const entry = join(import.meta.dirname, '../dist/main.js');
 
 // Keep the shared store's Unix socket within macOS's 103-byte path limit.
 const homes = realpathSync('/tmp');

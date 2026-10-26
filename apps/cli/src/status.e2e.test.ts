@@ -6,7 +6,7 @@ import { test } from 'node:test';
 
 import type { ConnectorStatus } from './imports.ts';
 
-const entry = join(import.meta.dirname, 'main.js');
+const entry = join(import.meta.dirname, '../dist/main.js');
 
 test('status lists disabled connectors and keeps configuration separate from sync state', async () => {
   // Keep the shared store's Unix socket within macOS's 103-byte path limit.

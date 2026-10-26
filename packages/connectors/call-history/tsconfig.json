@@ -1,17 +1,10 @@
 {
   "extends": "../../../tsconfig.base.json",
-  "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "dist",
-    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo"
-  },
-  "include": ["src/**/*.ts"],
+  "files": [],
+  "include": [],
   "references": [
     {
-      "path": "../connector"
-    },
-    {
-      "path": "../../settings"
+      "path": "./tsconfig.lib.json"
     }
   ]
 }

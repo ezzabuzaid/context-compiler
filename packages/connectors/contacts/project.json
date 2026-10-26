@@ -6,7 +6,7 @@
     "format": {},
     "test": {
       "dependsOn": ["build"],
-      "command": "node --test {args} \"packages/connectors/contacts/dist/*.test.js\""
+      "command": "node --test {args} \"packages/connectors/contacts/src/*.test.ts\""
     }
   }
 }

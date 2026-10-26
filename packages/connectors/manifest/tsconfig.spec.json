@@ -1,0 +1,70 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist/spec",
+    "tsBuildInfoFile": "dist/spec/tsconfig.spec.tsbuildinfo",
+    "emitDeclarationOnly": true,
+    "rewriteRelativeImportExtensions": false
+  },
+  "include": ["src/**/*.test.ts", "src/fixtures/*/*.ts"],
+  "references": [
+    {
+      "path": "./tsconfig.lib.json"
+    },
+    {
+      "path": "../connector/tsconfig.lib.json"
+    },
+    {
+      "path": "../whatsapp/tsconfig.lib.json"
+    },
+    {
+      "path": "../wallet/tsconfig.lib.json"
+    },
+    {
+      "path": "../teams/tsconfig.lib.json"
+    },
+    {
+      "path": "../slack/tsconfig.lib.json"
+    },
+    {
+      "path": "../safari/tsconfig.lib.json"
+    },
+    {
+      "path": "../reminders/tsconfig.lib.json"
+    },
+    {
+      "path": "../notification-center/tsconfig.lib.json"
+    },
+    {
+      "path": "../notes/tsconfig.lib.json"
+    },
+    {
+      "path": "../messages/tsconfig.lib.json"
+    },
+    {
+      "path": "../mail/tsconfig.lib.json"
+    },
+    {
+      "path": "../instagram/tsconfig.lib.json"
+    },
+    {
+      "path": "../contacts/tsconfig.lib.json"
+    },
+    {
+      "path": "../call-history/tsconfig.lib.json"
+    },
+    {
+      "path": "../calendar/tsconfig.lib.json"
+    },
+    {
+      "path": "../books/tsconfig.lib.json"
+    },
+    {
+      "path": "../activity/tsconfig.lib.json"
+    },
+    {
+      "path": "../accounts/tsconfig.lib.json"
+    }
+  ]
+}

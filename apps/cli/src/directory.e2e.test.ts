@@ -6,7 +6,7 @@ import { dirname, join, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 
-const entry = join(import.meta.dirname, 'main.js');
+const entry = join(import.meta.dirname, '../dist/main.js');
 
 for (const mode of ['default', 'relative', 'absolute'])
   test(`CLI uses the ${mode} store for setup, status and query`, async () => {

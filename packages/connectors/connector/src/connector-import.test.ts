@@ -298,7 +298,7 @@ test(
         cwd: join(import.meta.dirname, '..'),
         env: {
           ...process.env,
-          CONNECTOR: pathToFileURL(join(import.meta.dirname, 'connector.js'))
+          CONNECTOR: pathToFileURL(join(import.meta.dirname, 'connector.ts'))
             .href,
           STORE: join(scratch.path, 'Imports'),
           SELECTION: JSON.stringify(selection),

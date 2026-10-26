@@ -1,66 +1,13 @@
 {
   "extends": "../../../tsconfig.base.json",
-  "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "dist",
-    "tsBuildInfoFile": "dist/tsconfig.tsbuildinfo",
-    "resolveJsonModule": true
-  },
-  "include": ["src/**/*.ts", "src/fixtures/*/package.json"],
+  "files": [],
+  "include": [],
   "references": [
     {
-      "path": "../connector"
+      "path": "./tsconfig.lib.json"
     },
     {
-      "path": "../whatsapp"
-    },
-    {
-      "path": "../wallet"
-    },
-    {
-      "path": "../teams"
-    },
-    {
-      "path": "../slack"
-    },
-    {
-      "path": "../safari"
-    },
-    {
-      "path": "../reminders"
-    },
-    {
-      "path": "../notification-center"
-    },
-    {
-      "path": "../notes"
-    },
-    {
-      "path": "../messages"
-    },
-    {
-      "path": "../mail"
-    },
-    {
-      "path": "../instagram"
-    },
-    {
-      "path": "../contacts"
-    },
-    {
-      "path": "../call-history"
-    },
-    {
-      "path": "../calendar"
-    },
-    {
-      "path": "../books"
-    },
-    {
-      "path": "../activity"
-    },
-    {
-      "path": "../accounts"
+      "path": "./tsconfig.spec.json"
     }
   ]
 }

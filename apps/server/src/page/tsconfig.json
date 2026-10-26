@@ -10,7 +10,7 @@
   "include": ["**/*.ts", "**/*.tsx"],
   "references": [
     {
-      "path": "../../../../packages/ui"
+      "path": "../../../../packages/ui/tsconfig.lib.json"
     }
   ]
 }

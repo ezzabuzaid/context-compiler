@@ -24,7 +24,7 @@ test('the CLI saves an installed model in its chosen directory, rejects unknown 
     spawnSync(
       process.execPath,
       [
-        join(import.meta.dirname, 'main.js'),
+        join(import.meta.dirname, '../dist/main.js'),
         '--directory',
         directory,
         '--transcription-model',
