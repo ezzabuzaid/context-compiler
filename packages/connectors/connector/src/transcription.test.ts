@@ -6,7 +6,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import { LeaderFirst, Pool } from '@workspace/pool';
+import { Fixed, LeaderFirst, Pool } from '@workspace/pool';
 import { SpeechModels } from '@workspace/sdk-macos-speech-models';
 import { Settings } from '@workspace/settings';
 import { VisionWorker } from '@workspace/source-apple-macos/vision';
@@ -34,7 +34,7 @@ test('an existing attachment reader observes a model saved or disabled by anothe
   await mkdir(snapshot, { recursive: true });
   await writeFile(join(snapshot, 'ggml-small.bin'), 'lmgg');
   await using ocr = new Pool({
-    size: 1,
+    size: new Fixed(1),
     startup: new LeaderFirst(),
     create: () =>
       new VisionWorker(

@@ -1,14 +1,10 @@
-import { availableParallelism } from 'node:os';
 import { fileURLToPath } from 'node:url';
 
 import { Transcription } from '@workspace/connector/transcription';
 import type { DocumentParser } from '@workspace/elt';
-import { LeaderFirst, Pool } from '@workspace/pool';
+import { HillClimbing, LeaderFirst, Pool } from '@workspace/pool';
 import { SpeechModels } from '@workspace/sdk-macos-speech-models';
-import {
-  VisionWorker,
-  visionConcurrency,
-} from '@workspace/source-apple-macos/vision';
+import { VisionWorker } from '@workspace/source-apple-macos/vision';
 
 // The OCR workers and the speech engine that read the files an import
 // stores. The CLI starts them only for a command that reads files, so query,
@@ -40,10 +36,7 @@ export class Parsing implements AsyncDisposable {
     if (this.#transcription !== undefined) return this.#transcription;
     // The server builds the same pool: change both.
     const ocr = new Pool({
-      size: visionConcurrency(
-        availableParallelism(),
-        process.availableMemory(),
-      ),
+      size: new HillClimbing({ memoryPerWorker: VisionWorker.memory }),
       startup: new LeaderFirst(),
       create: () =>
         new VisionWorker(

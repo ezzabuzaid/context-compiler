@@ -1,5 +1,5 @@
 import type { DocumentParser } from '@workspace/elt';
-import { Parallel, Pool } from '@workspace/pool';
+import { Fixed, Parallel, Pool } from '@workspace/pool';
 import type { SpeechModels } from '@workspace/sdk-macos-speech-models';
 import { Settings } from '@workspace/settings';
 import { AudioFormat } from '@workspace/source-apple-macos/audio-format';
@@ -79,7 +79,7 @@ export class Transcription implements AsyncDisposable {
     const formats: DocumentFormat[] = [this.#image];
     if (configuration !== undefined) {
       const engines = new Pool({
-        size: 1,
+        size: new Fixed(1),
         startup: new Parallel(),
         create: () => new TranscriptionWorker(this.#helper, configuration),
       });

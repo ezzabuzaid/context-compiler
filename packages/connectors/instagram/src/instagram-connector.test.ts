@@ -14,7 +14,7 @@ import { setupServer } from 'msw/node';
 
 import { type DocumentParser, Pipeline } from '@workspace/elt';
 import { SQLiteSyncHistory } from '@workspace/elt-sqlite';
-import { LeaderFirst, Pool } from '@workspace/pool';
+import { Fixed, LeaderFirst, Pool } from '@workspace/pool';
 import { ScratchMac } from '@workspace/sdk-chromium-cookies/test';
 import { ImageFormat } from '@workspace/source-apple-macos/image-format';
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
@@ -360,7 +360,7 @@ test('an everything import keeps each followed profile once across overlapping p
 
 test('an import that keeps attachments, as setup does by default, makes the text on a timetable slide searchable', async () => {
   await using ocr = new Pool({
-    size: 1,
+    size: new Fixed(1),
     startup: new LeaderFirst(),
     create: () =>
       new VisionWorker(
