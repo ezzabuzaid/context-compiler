@@ -37,6 +37,9 @@ else app.quit();
 
 async function launch() {
   let window: BrowserWindow | undefined;
+  // Started with --hidden, as at login, the app runs its backend with no
+  // window on screen, no Dock icon and no focus until the user opens it.
+  let hidden = process.argv.includes('--hidden');
   let quitting = false;
   let quitComplete = false;
   const calls = new Map<string, AbortController>();
@@ -149,6 +152,7 @@ async function launch() {
   nativeTheme.on('updated', publish);
 
   await app.whenReady();
+  if (hidden) app.setActivationPolicy('accessory');
   Menu.setApplicationMenu(
     Menu.buildFromTemplate([
       { role: 'appMenu' },
@@ -191,17 +195,25 @@ async function launch() {
     response.headers.set('Cache-Control', 'no-store');
     return response;
   });
-  showWindow();
+  createWindow();
   await backend.start();
 
+  // The user opened the app, which ends a hidden start.
   function showWindow() {
-    if (window !== undefined) {
-      if (window.isMinimized()) window.restore();
-      window.show();
-      window.focus();
-      return;
+    if (hidden) {
+      hidden = false;
+      app.setActivationPolicy('regular');
+      window?.webContents.setBackgroundThrottling(true);
     }
+    if (window === undefined) return createWindow();
+    if (window.isMinimized()) window.restore();
+    window.show();
+    window.focus();
+  }
+
+  function createWindow() {
     window = new BrowserWindow({
+      show: !hidden,
       title: 'Context Compiler',
       width: 1050,
       height: 760,
@@ -215,6 +227,9 @@ async function launch() {
         nodeIntegrationInSubFrames: false,
         webSecurity: true,
         webviewTag: false,
+        // Chromium throttles the page of a hidden window until the page
+        // stalls; a hidden start must keep it working.
+        backgroundThrottling: !hidden,
       },
     });
     window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));

@@ -45,7 +45,7 @@ writeFileSync(join(homedir(), 'backend.json'), JSON.stringify({ pid: process.pid
         JSON.stringify([{ id: 'p1', title: 'Beach' }]),
       );
       application = await _electron.launch({
-        args: [resolve('apps/desktop')],
+        args: [resolve('apps/desktop'), '--hidden'],
         env: {
           HOME: home,
           PATH: process.env.PATH ?? '',
@@ -58,6 +58,13 @@ writeFileSync(join(homedir(), 'backend.json'), JSON.stringify({ pid: process.pid
       const page = await application.firstWindow();
       await page.getByRole('switch', { name: 'Photos connected' }).waitFor();
       assert.equal(await page.title(), 'Context Compiler');
+      const electron = application;
+      const visible = () =>
+        electron.evaluate(({ BrowserWindow }) =>
+          BrowserWindow.getAllWindows().map((window) => window.isVisible()),
+        );
+      // Started hidden, the page works with no window on screen.
+      assert.deepEqual(await visible(), [false]);
       second = spawn(
         application.process().spawnfile,
         [resolve('apps/desktop')],
@@ -211,6 +218,8 @@ writeFileSync(join(homedir(), 'backend.json'), JSON.stringify({ pid: process.pid
       await reopened
         .getByRole('switch', { name: 'Photos connected' })
         .waitFor();
+      // Opening the app ends the hidden start.
+      assert.deepEqual(await visible(), [true]);
       process.kill(backend.pid, 'SIGKILL');
       await reopened
         .getByRole('button', { name: 'Retry', exact: true })
@@ -272,7 +281,7 @@ test(
         'A file cannot be an import directory.',
       );
       application = await _electron.launch({
-        args: [resolve('apps/desktop')],
+        args: [resolve('apps/desktop'), '--hidden'],
         env: { HOME: home, PATH: process.env.PATH ?? '', TMPDIR: '/tmp' },
       });
       const hostWindow = await application.firstWindow();

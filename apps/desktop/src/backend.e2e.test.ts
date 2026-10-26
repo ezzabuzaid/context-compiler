@@ -55,7 +55,7 @@ test(
       assert.match(JSON.stringify(before), /Turn on ChatGPT/);
 
       application = await _electron.launch({
-        args: [resolve('apps/desktop')],
+        args: [resolve('apps/desktop'), '--hidden'],
         env: {
           HOME: home,
           PATH: process.env.PATH ?? '',
@@ -122,7 +122,7 @@ test(
     try {
       photos(home);
       application = await _electron.launch({
-        args: [resolve('apps/desktop')],
+        args: [resolve('apps/desktop'), '--hidden'],
         env: { HOME: home, PATH: process.env.PATH ?? '', TMPDIR: '/tmp' },
       });
       const page = await application.firstWindow();
@@ -236,7 +236,7 @@ test(
     try {
       photos(home);
       application = await _electron.launch({
-        args: [resolve('apps/desktop')],
+        args: [resolve('apps/desktop'), '--hidden'],
         env: { HOME: home, PATH: process.env.PATH ?? '', TMPDIR: '/tmp' },
       });
       const page = await application.firstWindow();
