@@ -50,13 +50,13 @@ async function importActivity(
   connector: Connector,
   directory: string,
 ): Promise<string> {
-  const { connection, destination } = await connector.connection(directory, {
+  const { connection, derived } = await connector.connection(directory, {
     connector: connector.name,
     scope: {},
     includeAttachments: false,
   });
   const history = new SQLiteSyncHistory();
-  await new Pipeline({ connections: [connection], history }).run();
+  await new Pipeline({ connections: [connection], history, derived }).run();
   return join(directory, 'data.sqlite');
 }
 

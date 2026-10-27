@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { chmodSync } from 'node:fs';
 import {
   chmod,
   mkdir,
@@ -18,27 +20,20 @@ import { MockTranscriptionModelV4 } from 'ai/test';
 
 import {
   Catalog,
-  Connection,
-  Copy,
   type CopyConfiguration,
   DocumentParser,
-  LocalFiles,
+  type PassObserver,
   Pipeline,
   Source,
   type SourceMessage,
   type SourceWatchOptions,
   Stream,
 } from '@workspace/elt';
-import {
-  SQLiteCheckpointStore,
-  SQLiteColumns,
-  SQLiteDestination,
-  SQLiteSyncHistory,
-} from '@workspace/elt-sqlite';
+import { SQLiteSyncHistory, type SQLiteTable } from '@workspace/elt-sqlite';
 import { AudioFormat } from '@workspace/source-apple-macos/audio-format';
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
 
-import { AttachmentText } from './attachment-text.ts';
+import { Connector } from './connector.ts';
 
 const readers = availableParallelism();
 
@@ -51,34 +46,39 @@ abstract class LiveSource<
   }
 }
 
-// The import whose stored files the text reads: one record per file in a
-// folder, its copy stored through LocalFiles as Connector stores
-// attachments, and deleted once its file is.
-const documents = new Stream({
-  name: 'documents',
-  jsonSchema: {
-    type: 'object',
-    description: 'One record per file in the folder.',
-    properties: {
-      name: { type: 'string', description: 'The file name in the folder.' },
-    },
-    required: ['name'],
-  },
-  primaryKey: ['name'],
-  supportedSyncModes: ['incremental'],
-  supportsFileTransfer: true,
-  sourceDefinedCursor: true,
-  emitsDeletes: true,
-});
-
+// An app that keeps files in a folder: one record per file, its copy stored
+// as Connector stores attachments, and deleted once its file is. It reports a
+// change each time the test says the folder changed.
 class FolderSource extends LiveSource {
   readonly identity = 'folder';
-  protected readonly catalog = new Catalog([documents]);
+  protected readonly catalog = new Catalog([
+    new Stream({
+      name: 'documents',
+      jsonSchema: {
+        type: 'object',
+        description: 'One record per file in the folder.',
+        properties: {
+          name: { type: 'string', description: 'The file name in the folder.' },
+        },
+        required: ['name'],
+      },
+      primaryKey: ['name'],
+      supportedSyncModes: ['incremental'],
+      supportsFileTransfer: true,
+      sourceDefinedCursor: true,
+      emitsDeletes: true,
+    }),
+  ]);
   readonly #folder: string;
+  #change = Promise.withResolvers<void>();
 
   constructor(folder: string) {
     super();
     this.#folder = folder;
+  }
+
+  changed() {
+    this.#change.resolve();
   }
 
   override coverage() {
@@ -89,8 +89,17 @@ class FolderSource extends LiveSource {
     return new AsyncDisposableStack();
   }
 
-  protected override async *observe({ streams }: SourceWatchOptions) {
+  protected override async *observe({ streams, signal }: SourceWatchOptions) {
     yield streams;
+    const stopped = new Promise((resolve) =>
+      signal.addEventListener('abort', resolve, { once: true }),
+    );
+    while (!signal.aborted) {
+      await Promise.race([this.#change.promise, stopped]);
+      if (signal.aborted) return;
+      this.#change = Promise.withResolvers();
+      yield streams;
+    }
   }
 
   // Every file each run, and a deletion for each file gone since the last.
@@ -113,39 +122,66 @@ class FolderSource extends LiveSource {
   }
 }
 
-// One import as Connector keeps it: its tables, views and stored copies
-// beside one data.sqlite, and the attachment text read from them.
-async function importStore(directory: string) {
-  const upstream = join(directory, 'upstream');
-  await mkdir(upstream, { recursive: true });
-  const path = join(directory, 'data.sqlite');
-  const destination = new SQLiteDestination({ path });
-  const files = new LocalFiles({ directory: join(directory, 'files') });
-  const history = new SQLiteSyncHistory();
-  const imported = new Connection({
-    name: 'import',
-    source: new FolderSource(upstream),
-    destination,
-    checkpoints: new SQLiteCheckpointStore({
-      path: join(directory, 'checkpoints.sqlite'),
-    }),
-    steps: [
-      new Copy(
-        documents,
-        destination
-          .table('raw_documents', (columns) => [
-            ...SQLiteColumns.fromSchema(documents.jsonSchema),
-            columns.text('attachmentRef').from(documents.file.store(files)),
-          ])
-          .withReaderView('documents'),
-        {
-          id: 'documents',
-          syncMode: 'incremental',
-          destinationSyncMode: 'append_dedup',
+// The host's parser is the one the test last chose, as a host's is the
+// transcription choice saved last.
+class FolderConnector extends Connector {
+  readonly datedBy = null;
+  readonly fullDiskAccess = false;
+  protected readonly choices = [];
+  protected readonly unscoped = [];
+  protected readonly storeCopies = [];
+  readonly #source: FolderSource;
+
+  constructor(host: { documentParser: DocumentParser }, source: FolderSource) {
+    super(
+      {
+        grantee: 'Codex',
+        get documentParser() {
+          return host.documentParser;
         },
-      ),
-    ],
-  });
+        eventKitHelper: '',
+      },
+      { name: 'folder', title: 'Folder', folder: '/nonexistent' },
+    );
+    this.#source = source;
+  }
+
+  protected access(): string {
+    return 'Nothing to grant.';
+  }
+
+  protected source() {
+    return this.#source;
+  }
+}
+
+// One import as a host keeps it, in directory: the pipeline Connector builds
+// from its connection and derived datasets, over a folder in upstream.
+async function importStore(
+  directory: string,
+  upstream = join(directory, 'upstream'),
+) {
+  await mkdir(upstream, { recursive: true });
+  const host: { documentParser: DocumentParser } = {
+    documentParser: new MacOSDocumentParser(),
+  };
+  const source = new FolderSource(upstream);
+  const connector = new FolderConnector(host, source);
+  const imported = join(directory, 'import');
+  const path = join(imported, 'data.sqlite');
+  const pipeline = async (observer?: PassObserver<SQLiteTable>) => {
+    const { connection, derived } = await connector.connection(imported, {
+      connector: connector.name,
+      scope: {},
+      includeAttachments: true,
+    });
+    return new Pipeline({
+      connections: [connection],
+      history: new SQLiteSyncHistory({ soleWriter: true }),
+      observer,
+      derived,
+    });
+  };
   const read = (sql: string) => {
     using database = new DatabaseSync(path, { readOnly: true });
     return database
@@ -154,35 +190,61 @@ async function importStore(directory: string) {
       .map((row) => ({ ...row }));
   };
   return {
+    imported,
+    source,
     put: (name: string, content: string) =>
       writeFile(join(upstream, name), content),
     remove: (name: string) => rm(join(upstream, name)),
-    importFiles: () => new Pipeline({ history, connections: [imported] }).run(),
-    readText: (parser: DocumentParser, signal = new AbortController().signal) =>
-      new AttachmentText(
-        path,
-        files.directory,
-        ['documents'],
-        () => parser,
-      ).update(signal),
+    // The pipeline a host watches with, reading text with parser.
+    watching: (parser: DocumentParser) => {
+      host.documentParser = parser;
+      return pipeline();
+    },
+    // One sync as a host runs it: a pass, then the text of what it stored.
+    sync: async (
+      parser: DocumentParser,
+      {
+        signal,
+        observer,
+      }: { signal?: AbortSignal; observer?: PassObserver<SQLiteTable> } = {},
+    ) => {
+      host.documentParser = parser;
+      await (await pipeline(observer)).run({ signal });
+    },
     read,
     // What a reader searching attachment text sees, by document; none before
-    // the text's first update creates its view.
+    // the first refresh creates its view.
     texts: () =>
       read(
         `SELECT 1 FROM sqlite_schema WHERE name IN ('attachment_text', 'documents')`,
       ).length < 2
         ? []
         : read(
-            `SELECT d.name, t.status, t.content, t.error, t.parser
+            `SELECT d.name, t.status, t.content, t.error, t.rule
              FROM documents d JOIN attachment_text t ON t.ref = d.attachmentRef
              ORDER BY d.name`,
           ),
   };
 }
 
-// The real parser, counting what it is asked to read: whether an update
-// read a file has no other output a test can see.
+// A parser that reads nothing: every file is a format it does not handle, so
+// a sync with it loads the import and leaves the text unread.
+class NoFormatParser extends DocumentParser {
+  constructor() {
+    super('no-format');
+  }
+
+  override async identityFor() {
+    return null;
+  }
+
+  override async parse(): Promise<string | null> {
+    throw new Error('No format is handled');
+  }
+}
+
+// The real parser, counting what it is asked to read: whether a sync read a
+// file has no other output a test can see.
 class CountingParser extends DocumentParser {
   readonly read: string[] = [];
   readonly #parser = new MacOSDocumentParser();
@@ -266,33 +328,35 @@ function textPdf(text: string): string {
   return body;
 }
 
-test('an unreadable file loads as failed with its error, and the update still reads every other file', async () => {
+test('an unreadable file loads as failed with its error, and the sync still reads every other file', async () => {
   await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
   const store = await importStore(directory.path);
   await store.put('invoice.txt', 'Careem invoice 4471');
   await store.put('corrupt.pdf', 'not a pdf');
   await store.put('note.txt', 'Dinner at eight');
-  await store.importFiles();
 
-  await store.readText(new MacOSDocumentParser());
+  await store.sync(new MacOSDocumentParser());
 
   const texts = store.texts();
   assert.deepEqual(
     texts.map(({ name, status, content }) => ({ name, status, content })),
     [
       { name: 'corrupt.pdf', status: 'failed', content: null },
-      { name: 'invoice.txt', status: 'parsed', content: 'Careem invoice 4471' },
-      { name: 'note.txt', status: 'parsed', content: 'Dinner at eight' },
+      {
+        name: 'invoice.txt',
+        status: 'computed',
+        content: 'Careem invoice 4471',
+      },
+      { name: 'note.txt', status: 'computed', content: 'Dinner at eight' },
     ],
   );
   assert.match(String(texts[0]?.error), /Cannot read PDF/);
 });
 
-test('a file whose read failed is read again on the next update', async () => {
+test('a file whose read failed is read again on the next sync', async () => {
   await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
   const store = await importStore(directory.path);
   await store.put('invoice.txt', 'Careem invoice 4471');
-  await store.importFiles();
   // The real parser fails only for reasons a test cannot switch on and off,
   // such as Vision under a sandbox or an osascript timeout.
   const flaky = new (class extends DocumentParser {
@@ -303,14 +367,14 @@ test('a file whose read failed is read again on the next update', async () => {
       return this.#parser.parse(path);
     }
   })(new MacOSDocumentParser().identity);
-  await store.readText(flaky);
+  await store.sync(flaky);
   assert.equal(store.texts()[0]?.status, 'failed');
 
-  await store.readText(flaky);
+  await store.sync(flaky);
 
   assert.deepEqual(
     store.texts().map(({ status, content }) => ({ status, content })),
-    [{ status: 'parsed', content: 'Careem invoice 4471' }],
+    [{ status: 'computed', content: 'Careem invoice 4471' }],
   );
 });
 
@@ -318,7 +382,6 @@ test('a stored copy removed while it is read leaves no row and no failure', asyn
   await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
   const store = await importStore(directory.path);
   await store.put('invoice.txt', 'Careem invoice 4471');
-  await store.importFiles();
   // Only a commit that lands mid-read removes a copy, and a test cannot time
   // a real commit into that window, so the parser removes it first.
   const racing = new (class extends DocumentParser {
@@ -329,7 +392,7 @@ test('a stored copy removed while it is read leaves no row and no failure', asyn
     }
   })(new MacOSDocumentParser().identity);
 
-  await store.readText(racing);
+  await store.sync(racing);
 
   assert.deepEqual(store.read('SELECT ref, status FROM attachment_text'), []);
 });
@@ -343,11 +406,11 @@ test(
     await store.put('a-slow.txt', 'hold until released');
     for (const name of ['b', 'c', 'd', 'e', 'f', 'g'])
       await store.put(`${name}.txt`, `text of ${name}`);
-    await store.importFiles();
     const parser = new HoldingParser();
 
-    const update = store.readText(parser);
+    const sync = store.sync(parser);
     try {
+      await eventually(() => parser.inFlight > 0, 'the reads to start');
       await eventually(
         () =>
           store.texts().filter(({ name }) => name !== 'a-slow.txt').length ===
@@ -357,30 +420,32 @@ test(
       assert.ok(parser.peak > 1 && parser.peak <= readers);
     } finally {
       parser.release();
-      await update;
+      await sync;
     }
     assert.deepEqual(
       store.texts().map(({ name, status }) => [name, status]),
       ['a-slow', 'b', 'c', 'd', 'e', 'f', 'g'].map((name) => [
         `${name}.txt`,
-        'parsed',
+        'computed',
       ]),
     );
   },
 );
 
-test('an import loads and commits its rows while a file is still being read', async () => {
+test('a watched import loads and commits its rows while a file is still being read', async () => {
   await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
   const store = await importStore(directory.path);
   await store.put('slow.txt', 'hold until released');
-  await store.importFiles();
   const parser = new HoldingParser();
-  const update = store.readText(parser);
+  const stop = new AbortController();
+  const passes = (await store.watching(parser)).watch({ signal: stop.signal });
   try {
+    await passes.next();
     await eventually(() => parser.inFlight === 1, 'the held read to start');
     await store.put('invoice.txt', 'Careem invoice 4471');
+    store.source.changed();
 
-    await store.importFiles();
+    await passes.next();
 
     assert.deepEqual(store.read('SELECT name FROM documents ORDER BY name'), [
       { name: 'invoice.txt' },
@@ -389,86 +454,101 @@ test('an import loads and commits its rows while a file is still being read', as
     assert.equal(parser.inFlight, 1);
   } finally {
     parser.release();
-    await update;
+    stop.abort();
+    await passes.return(undefined);
   }
 });
 
-test('an update stopped while files are read keeps the text it read, and the next update reads the rest', async () => {
+test('a sync stopped while files are read keeps the text it read, and the next sync reads the rest', async () => {
   await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
   const store = await importStore(directory.path);
   // Whichever reads start first stay held, leaving the rest queued.
   const files = readers + 2;
   for (let index = 0; index < files; index++)
     await store.put(`${index}-held.txt`, `hold ${index}`);
-  await store.importFiles();
   const parser = new HoldingParser();
   const stop = new AbortController();
-  const update = store.readText(parser, stop.signal);
+  const sync = store.sync(parser, { signal: stop.signal });
   try {
     await eventually(() => parser.inFlight > 0, 'a read held');
   } finally {
     stop.abort();
     parser.release();
-    await update;
+    await sync;
   }
-  // The reads that started kept their text; the queue's order is the stored copies'.
+  // The reads that started kept their text.
   const completed = store.texts().length;
   assert.ok(completed > 0 && completed <= readers);
   const counting = new CountingParser();
 
-  await store.readText(counting);
+  await store.sync(counting);
 
   assert.equal(counting.read.length, files - completed);
   assert.equal(store.texts().length, files);
 });
 
-test('a read that fails for a reason other than the file being gone fails the update, and stops it taking more files', async () => {
+test('a read that fails for a reason other than the file being gone fails the sync, and stops it taking more files', async () => {
   await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
   const store = await importStore(directory.path);
   for (let index = 0; index < readers + 2; index++)
     await store.put(`${index}.txt`, `text ${index}`);
-  await store.importFiles();
-  const ref = join(
-    directory.path,
-    'files',
-    String(store.read('SELECT attachmentRef AS ref FROM documents')[0]?.ref),
+  await store.sync(new NoFormatParser());
+  const stored = dirname(
+    join(
+      store.imported,
+      'files',
+      String(store.read('SELECT attachmentRef AS ref FROM documents')[0]?.ref),
+    ),
   );
-  // The stored copies' directory, unreadable, as permissions can leave it:
-  // the parser cannot open a copy, nor the update tell whether it is gone.
-  await chmod(dirname(ref), 0o000);
-  const parser = new CountingParser();
+  // The stored copies' directory, made unreadable once the pass committed, as
+  // permissions can leave it: the parser cannot open a copy, nor the sync tell
+  // whether it is gone.
+  const unreadable: PassObserver<SQLiteTable> = {
+    begin: () => ({
+      progress: () => undefined,
+      fail: () => undefined,
+      finish: () => chmodSync(stored, 0o000),
+    }),
+  };
+  const parser = new CountingParser('macos-document-next');
   try {
-    await assert.rejects(store.readText(parser), /EACCES/);
+    await assert.rejects(
+      store.sync(parser, { observer: unreadable }),
+      /EACCES/,
+    );
 
     assert.ok(
       parser.read.length <= readers,
       `read ${parser.read.length} files`,
     );
   } finally {
-    await chmod(dirname(ref), 0o700);
+    await chmod(stored, 0o700);
   }
 });
 
-test('an update before the import committed anything reads nothing and fails nothing', async () => {
+test('a sync of an import with no files yet reads nothing and fails nothing', async () => {
   await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
   const store = await importStore(directory.path);
   const parser = new CountingParser();
 
-  await store.readText(parser);
+  await store.sync(parser);
 
   assert.deepEqual(parser.read, []);
   assert.deepEqual(store.read('SELECT ref FROM attachment_text'), []);
 });
 
-test('a reader finds a stored file by its text: text and PDF files load their text, a file with no text loads no_text', async () => {
+test('a reader finds a stored file by its text: text and PDF files load their text, a file with no text loads empty', async () => {
   await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
   const store = await importStore(directory.path);
-  await store.put('note.txt', 'Dinner at eight');
-  await store.put('receipt.pdf', textPdf('Careem invoice 4471'));
-  await store.put('blob.bin', '\u0001\u0002\u0003 binary');
-  await store.importFiles();
+  const contents = {
+    'note.txt': 'Dinner at eight',
+    'receipt.pdf': textPdf('Careem invoice 4471'),
+    'blob.bin': '\u0001\u0002\u0003 binary',
+  };
+  for (const [name, content] of Object.entries(contents))
+    await store.put(name, content);
 
-  await store.readText(new MacOSDocumentParser());
+  await store.sync(new MacOSDocumentParser());
 
   assert.deepEqual(
     store.read(
@@ -480,41 +560,51 @@ test('a reader finds a stored file by its text: text and PDF files load their te
   assert.deepEqual(
     store.texts().map(({ name, status }) => [name, status]),
     [
-      ['blob.bin', 'no_text'],
-      ['note.txt', 'parsed'],
-      ['receipt.pdf', 'parsed'],
+      ['blob.bin', 'empty'],
+      ['note.txt', 'computed'],
+      ['receipt.pdf', 'computed'],
     ],
   );
-  for (const { ref, sha256 } of store.read(
-    'SELECT ref, sha256 FROM attachment_text',
-  )) {
-    assert.match(String(sha256), /^[0-9a-f]{64}$/);
-    assert.equal(basename(String(ref), extname(String(ref))), sha256);
-  }
+  // The ref names the stored copy by the SHA-256 of its bytes.
+  assert.deepEqual(
+    store
+      .read(
+        'SELECT d.name, t.ref FROM documents d JOIN attachment_text t ON t.ref = d.attachmentRef ORDER BY d.name',
+      )
+      .map(({ name, ref }) => [
+        name,
+        basename(String(ref), extname(String(ref))),
+      ]),
+    Object.entries(contents)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([name, content]) => [
+        name,
+        createHash('sha256').update(content).digest('hex'),
+      ]),
+  );
   assert.deepEqual(
     store.read(
       `SELECT name FROM catalog WHERE name LIKE 'attachment_text%' ORDER BY name`,
     ),
     [
       'attachment_text',
-      ...['content', 'error', 'parser', 'ref', 'sha256', 'status'].map(
+      ...['content', 'error', 'input_hash', 'ref', 'rule', 'status'].map(
         (column) => `attachment_text.${column}`,
       ),
     ].map((name) => ({ name })),
   );
 });
 
-test('an update with nothing new reads no file', async () => {
+test('a sync with nothing new reads no file', async () => {
   await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
   const store = await importStore(directory.path);
   await store.put('note.txt', 'Dinner at eight');
   await store.put('invoice.txt', 'Careem invoice 4471');
   await store.put('blob.bin', '\u0001\u0002\u0003 binary');
-  await store.importFiles();
-  await store.readText(new MacOSDocumentParser());
+  await store.sync(new MacOSDocumentParser());
   const parser = new CountingParser();
 
-  await store.readText(parser);
+  await store.sync(parser);
 
   assert.deepEqual(parser.read, []);
   assert.equal(store.texts().length, 3);
@@ -525,15 +615,14 @@ test('a parser with a new identity reads every file again', async () => {
   const store = await importStore(directory.path);
   await store.put('note.txt', 'Dinner at eight');
   await store.put('invoice.txt', 'Careem invoice 4471');
-  await store.importFiles();
-  await store.readText(new MacOSDocumentParser());
+  await store.sync(new MacOSDocumentParser());
   const upgraded = new CountingParser('macos-document-next');
 
-  await store.readText(upgraded);
+  await store.sync(upgraded);
 
   assert.equal(upgraded.read.length, 2);
   assert.deepEqual(
-    store.texts().map(({ name, parser }) => [name, parser]),
+    store.texts().map(({ name, rule }) => [name, rule]),
     [
       ['invoice.txt', 'macos-document-next'],
       ['note.txt', 'macos-document-next'],
@@ -541,17 +630,15 @@ test('a parser with a new identity reads every file again', async () => {
   );
 });
 
-test('a file the import deletes loses its text on the next update', async () => {
+test('a file the import deletes loses its text on the next sync', async () => {
   await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
   const store = await importStore(directory.path);
   await store.put('note.txt', 'Dinner at eight');
   await store.put('invoice.txt', 'Careem invoice 4471');
-  await store.importFiles();
-  await store.readText(new MacOSDocumentParser());
+  await store.sync(new MacOSDocumentParser());
   await store.remove('invoice.txt');
-  await store.importFiles();
 
-  await store.readText(new MacOSDocumentParser());
+  await store.sync(new MacOSDocumentParser());
 
   assert.deepEqual(store.read('SELECT content FROM attachment_text'), [
     { content: 'Dinner at eight' },
@@ -563,10 +650,9 @@ test('one file attached in three chats is read once, and all three find its text
   const store = await importStore(directory.path);
   for (const chat of ['family', 'work', 'friends'])
     await store.put(`${chat}-invoice.txt`, 'Careem invoice 4471');
-  await store.importFiles();
   const parser = new CountingParser();
 
-  await store.readText(parser);
+  await store.sync(parser);
 
   assert.equal(parser.read.length, 1);
   assert.deepEqual(
@@ -585,9 +671,8 @@ test('enabling or changing an audio model processes stored audio; disabling keep
   const store = await importStore(directory.path);
   await store.put('note.txt', 'Keep this document');
   await store.put('voice.opus', '\u0000audio');
-  await store.importFiles();
-  await store.readText(new MacOSDocumentParser());
-  assert.equal(store.texts()[1]?.status, 'no_text');
+  await store.sync(new MacOSDocumentParser());
+  assert.equal(store.texts()[1]?.status, 'empty');
   const model = (id: string) =>
     new MockTranscriptionModelV4({
       modelId: id,
@@ -600,57 +685,44 @@ test('enabling or changing an audio model processes stored audio; disabling keep
         response: { timestamp: new Date(), modelId: id },
       }),
     });
-  const parser = new MacOSDocumentParser([new AudioFormat(model('first'))]);
-  await store.readText(parser);
+  await store.sync(new MacOSDocumentParser([new AudioFormat(model('first'))]));
   assert.deepEqual(
     store.texts().map(({ content }) => content),
     ['Keep this document', 'first'],
   );
   // A native document already read keeps its existing identity and content.
   const document = store.texts()[0];
-  await store.readText(
-    new MacOSDocumentParser([new AudioFormat(model('second'))]),
-  );
+  await store.sync(new MacOSDocumentParser([new AudioFormat(model('second'))]));
   assert.deepEqual(store.texts()[0], document);
   assert.equal(store.texts()[1]?.content, 'second');
-  await store.readText(new MacOSDocumentParser());
+  await store.sync(new MacOSDocumentParser());
   assert.equal(store.texts()[1]?.content, 'second');
   await store.put('new.opus', '\u0000new audio');
-  await store.importFiles();
-  await store.readText(new MacOSDocumentParser());
+  await store.sync(new MacOSDocumentParser());
   assert.equal(
     store.texts().find(({ name }) => name === 'new.opus')?.status,
-    'no_text',
+    'empty',
   );
 });
 
 test('a moved import reads the text of its stored files', async () => {
   await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
-  const before = join(directory.path, 'before');
-  const after = join(directory.path, 'after');
-  const store = await importStore(before);
-  await store.put('note.txt', 'milk and eggs');
-  await store.importFiles();
+  const upstream = join(directory.path, 'upstream');
+  const before = await importStore(join(directory.path, 'before'), upstream);
+  await before.put('note.txt', 'milk and eggs');
+  await before.sync(new NoFormatParser());
 
   // The import's folder moves to another disk or home, files and all.
-  await rename(before, after);
-  await new AttachmentText(
-    join(after, 'data.sqlite'),
-    join(after, 'files'),
-    ['documents'],
-    () => new MacOSDocumentParser(),
-  ).update(new AbortController().signal);
+  await rename(join(directory.path, 'before'), join(directory.path, 'after'));
+  const after = await importStore(join(directory.path, 'after'), upstream);
+  await after.sync(new MacOSDocumentParser());
 
-  using database = new DatabaseSync(join(after, 'data.sqlite'), {
-    readOnly: true,
-  });
   assert.deepEqual(
-    database
-      .prepare(
-        'SELECT d.name, t.status, t.content FROM documents d JOIN attachment_text t ON t.ref = d.attachmentRef',
-      )
-      .all()
-      .map((row) => ({ ...row })),
-    [{ name: 'note.txt', status: 'parsed', content: 'milk and eggs' }],
+    after.texts().map(({ name, status, content }) => ({
+      name,
+      status,
+      content,
+    })),
+    [{ name: 'note.txt', status: 'computed', content: 'milk and eggs' }],
   );
 });

@@ -386,7 +386,7 @@ test('an import that keeps attachments, as setup does by default, makes the text
   const instagramConnector = connector(
     new MacOSDocumentParser([new ImageFormat(ocr)]),
   );
-  const { connection, text, destination } = await instagramConnector.connection(
+  const { connection, derived } = await instagramConnector.connection(
     imports.path,
     {
       connector: instagramConnector.name,
@@ -396,8 +396,7 @@ test('an import that keeps attachments, as setup does by default, makes the text
   );
   const history = new SQLiteSyncHistory();
 
-  await new Pipeline({ history, connections: [connection] }).run();
-  await text?.update(new AbortController().signal);
+  await new Pipeline({ history, connections: [connection], derived }).run();
 
   using database = new DatabaseSync(join(imports.path, 'data.sqlite'), {
     readOnly: true,
@@ -414,7 +413,7 @@ test('an import that keeps attachments, as setup does by default, makes the text
     .map((row) => ({ ...row }));
   assert.equal(found.length, 2);
   assert.equal(found[0]?.code, 'DeEQ0U9kau9');
-  assert.equal(found[0]?.status, 'parsed');
+  assert.equal(found[0]?.status, 'computed');
   assert.match(String(found[0]?.content), /BodyPump 06:30 Hasan/);
-  assert.equal(found[1]?.status, 'no_text');
+  assert.equal(found[1]?.status, 'empty');
 });

@@ -43,7 +43,16 @@ Mail's `mail_messages` preset exposes both `body_text` and `body_html`; a plain-
 
 ## Attachment text
 
-The hosts load the text of every file an import stored into the import's own `data.sqlite`, so readers can search attachments with SQL. The `attachment_text` view holds one row per stored copy, keyed by `ref`, the path each row's `attachmentRef` holds, relative to the import's `files` folder: `sha256` (the bytes' hash, which names the copy), `parser` (the parser's identity, `macos-document-v4`), `status` (`parsed`, `no_text` or `failed`), `content` (the text when parsed) and `error` (why the read failed). Readers join `attachmentRef` to `ref`:
+The text of each file that an import stored goes into the `data.sqlite` of that import. Readers use SQL to search the attachments. The `attachment_text` view holds one row for each stored copy. These are its columns:
+
+- `ref`: the path of the stored copy, relative to the `files` folder of the import. The `attachmentRef` column of each row that holds the file has the same value. The file name of the copy is the SHA-256 of its bytes.
+- `input_hash`: the SHA-256 of the input that made the row.
+- `rule`: the identity of the parser that read the file, such as `macos-document-v4`. `unsupported` tells that no format of the parser reads the file.
+- `status`: `computed` (`content` holds the text), `empty` (the parser found no text, such as in a photo without words) or `failed` (`error` tells why).
+- `content`: the text. It is NULL unless `status` is `computed`.
+- `error`: why the read failed. It is NULL unless `status` is `failed`.
+
+Readers join `attachmentRef` to `ref`:
 
 ```sql
 SELECT a.id, t.content
@@ -51,8 +60,19 @@ FROM attachments a JOIN attachment_text t ON t.ref = a.attachmentRef
 WHERE t.content LIKE '%invoice%';
 ```
 
-Reading the text is auxiliary to the import, not part of it: no source reads it and the import never waits on it. `AttachmentText` in `connector` reads after each pass the import commits, from the caller's side, since elt has no hook for work after a commit yet (backlog #2618). The rows the import committed are its work queue: each update takes the `attachmentRef` values of the import's views whose streams store files, deletes the text of every copy no row references any longer, and reads the copies this parser has not read or failed to read, as many at once as the Mac has CPUs. An image read beyond the host's OCR workers waits in their pool, which the host sizes from the Mac's CPUs and free memory. Each read commits on its own, so readers see text as it lands and an update stopped partway keeps what it read. A stored copy is content-addressed within its field, so one file attached in three chats is read once; the same bytes stored by two streams are two copies and are read twice. A file the parser cannot read loads as `failed` with its error and fails nothing; the next update reads it again, since Vision under a sandbox, a full disk or an `osascript` timeout fail only for a while. A copy that a commit removed after the update listed it loads no row. A format or model with a changed identity causes the copies it handles to be read again.
+The attachment text is a derived dataset of the import. No source reads it. `Connector.connection` declares it when the import stores files: elt-sqlite's `ComputedDataset` named `attachment_text`, over the tables of the streams that store files, with elt's `DocumentText` as its rule. The rule reads the `attachmentRef` column and asks the host's parser for the text. The data is in the table `raw_attachment_text`. When the declaration of that table changes, a refresh replaces the table, and the parser reads each file again.
 
-A one-shot import (the CLI's `sync`, the plugin's Sync) reads the text after the import's pass, also when some copies failed, so a sync ends with the text of the files it stored. `sync watch` reads after each pass in the background, coalesced: while an update runs, further passes ask for one more, so the import's next pass never waits on parsing. No host shows the update as a pass. A stored copy not read yet has no row, so search results are complete only once the text caught up with the sync.
+The pipeline refreshes the dataset after each pass. Each refresh does these steps:
+
+1. It deletes the row of each copy that no row of the import references.
+2. It reads each copy that has no row, that has a row from a different parser identity, or that has a `failed` row.
+3. It reads as many copies at one time as the Mac has CPUs. An image read that is more than the OCR workers of the host can do waits in their pool. The host sizes that pool from the CPUs and the free memory of the Mac.
+4. It reads one file in each call, as many calls at once as the Mac has cores, and commits each file when its read ends. Readers see the text of a file as soon as it is read, and a slow file holds back no other file. A refresh that stops keeps the files that it committed.
+
+The name of a stored copy comes from its bytes, in its field. Thus, the parser reads one file that is in three chats one time. When two streams store the same bytes, they make two copies, and the parser reads each copy.
+
+A file that the parser cannot read gets a `failed` row with its error. This does not fail the import. The next refresh reads the file again, because Vision in a sandbox, a full disk or an `osascript` timeout fail only for some time. A different error, such as a folder that the refresh cannot open, fails the refresh. A copy that a commit removes during the refresh gets no row. When the identity of a format or a model changes, the parser reads again the copies of that format. When the parser stops reading a format, such as audio when transcription is off, a `computed` row of that format stays.
+
+A one-shot import (the `sync` command of the CLI, the Sync button of the plugin) refreshes the text after the pass, also when some copies failed. Thus, a sync ends with the text of the files that it stored. `sync watch` refreshes in the background after each pass, one refresh at a time. When passes commit during a refresh, the watch does one more refresh after it. Thus, the next pass of the import does not wait for the parser. The failure of a refresh stops the watch. No host shows a refresh as a pass. A stored copy that the parser did not read yet has no row. Thus, the search results are complete only after the text is up to date with the sync.
 
 `ConnectorHost.documentParser` is supplied by each host. The CLI and plugin compose it from the saved transcription choice. Each host builds the pool of OCR workers that reads images (elt's `Pool` with the `LeaderFirst` startup and the `HillClimbing` sizing, which adds workers while they add throughput, up to what the Mac's CPUs and free memory afford); `Transcription` builds the pool of the chosen speech model's engine, which loads the weights as soon as the model is chosen. The plugin's server builds its OCR pool when it starts. The CLI builds its pools only for a sync or a watch, so `query`, `status` and help start no native process. Enabling or changing that choice processes audio from the selected imports; changing the audio model does not invalidate PDF, image or text extraction. Disabling transcription preserves existing successful transcripts. Failed files are retried on the next sync. A sync's attachment text is queryable in `attachment_text`, joined to the source view through `attachmentRef = ref`. elt's [document parsing reference](https://github.com/ezzabuzaid/elt/blob/main/docs/reference.md) describes `MacOSDocumentParser` and the local transcription model.

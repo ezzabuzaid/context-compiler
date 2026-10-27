@@ -1659,7 +1659,7 @@ test('a sync ends with the text of the attachments it stored, which a query find
   );
   assert.equal(found.status, 0, found.stderr);
   assert.deepEqual(JSON.parse(found.stdout), [
-    { status: 'parsed', content: 'attached words' },
+    { status: 'computed', content: 'attached words' },
   ]);
 });
 
@@ -2986,7 +2986,7 @@ test('sync watch reads the files an import stores, with no command of its own', 
     }
 
     assert.deepEqual(JSON.parse(found.stdout), [
-      { name: 'icon', status: 'no_text' },
+      { name: 'icon', status: 'empty' },
     ]);
   } finally {
     watch.child.kill('SIGKILL');

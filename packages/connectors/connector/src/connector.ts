@@ -9,6 +9,7 @@ import {
   CopyConfiguration,
   type DerivedDataset,
   type DocumentParser,
+  DocumentText,
   type FailureType,
   LocalFiles,
   type PassObserver,
@@ -20,6 +21,7 @@ import {
   WatchError,
 } from '@workspace/elt';
 import {
+  ComputedDataset,
   SQLiteCheckpointStore,
   SQLiteColumns,
   SQLiteDestination,
@@ -34,7 +36,6 @@ import {
 } from '@workspace/settings';
 import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 
-import { AttachmentText } from './attachment-text.ts';
 import type { Choice, Row, Rows } from './choice.ts';
 
 export type { Selection } from '@workspace/settings';
@@ -282,9 +283,9 @@ export abstract class Connector {
   // aborts, as a flight's lease does once the flight is no longer its
   // leader's, its outcome in the import's sync history, and in the settings
   // any failure that history could not record, a failure to connect among
-  // them. The attachment text is read once the import has committed the
-  // files it stored, so a sync ends with the text of its own files; it is
-  // read even when some copies failed, from the files that did commit.
+  // them. The pipeline brings the import's derived data, such as the text of
+  // the files it stored, in step before the run ends, also when some copies
+  // failed, from what did commit.
   async import(
     settings: Settings,
     selection: Selection,
@@ -296,21 +297,13 @@ export abstract class Connector {
       selection,
       observer,
       signal,
-      async (pipeline, text, removal) => {
+      async (pipeline, removal) => {
         const stopped =
           signal === undefined ? removal : AbortSignal.any([removal, signal]);
         let completed = false;
         await pRetry(
           async () => {
-            let failed: unknown = null;
-            try {
-              await pipeline.run({ signal: stopped });
-            } catch (error) {
-              if (!(error instanceof PipelineError)) throw error;
-              failed = error;
-            }
-            await text?.update(stopped);
-            if (failed !== null) throw failed;
+            await pipeline.run({ signal: stopped });
             completed = true;
           },
           {
@@ -326,7 +319,7 @@ export abstract class Connector {
           },
         ).catch((error: unknown) => {
           // A stop after the pass committed still leaves a successful import;
-          // it only stops attachment parsing, as it did before retrying.
+          // it only stops the derived data catching up.
           if (completed && stopped.aborted) return;
           // p-retry normalizes non-Error throws; cancellation must preserve
           // the caller's exact reason, including a string or other value.
@@ -339,8 +332,8 @@ export abstract class Connector {
 
   // Keeps this connector's import current: a pass at once, then one for each
   // change its source reports, each recorded in the import's sync history.
-  // The attachment text is read after each pass, coalesced: while it reads,
-  // passes only ask for one more read, so the import never waits on it.
+  // The pipeline refreshes the import's derived data after each pass, in the
+  // background, so the import never waits on it.
   // Ends once the user removes the connector, once the source stops
   // reporting changes, or quietly once signal aborts; otherwise it lasts as
   // long as the process.
@@ -355,46 +348,10 @@ export abstract class Connector {
       selection,
       observer,
       signal,
-      async (pipeline, text, removal) => {
-        const stopping = new AbortController();
-        const stopped = AbortSignal.any(
-          signal === undefined
-            ? [removal, stopping.signal]
-            : [removal, stopping.signal, signal],
-        );
-        // A read that fails stops the watch, as an error no sync history
-        // recorded does, and becomes the abort reason, so the pass it stops
-        // records it as the cause.
-        const failures: unknown[] = [];
-        let running: Promise<void> | null = null;
-        let again = false;
-        const read = (attachments: AttachmentText) => {
-          if (running !== null) {
-            again = true;
-            return;
-          }
-          running = (async () => {
-            do {
-              again = false;
-              await attachments.update(stopped);
-            } while (again && !stopped.aborted);
-          })()
-            .catch((error: unknown) => {
-              failures.push(error);
-              stopping.abort(error);
-            })
-            .finally(() => {
-              running = null;
-            });
-        };
-        try {
-          for await (const _pass of pipeline.watch({ signal: stopped }))
-            if (text !== null) read(text);
-        } finally {
-          stopping.abort();
-          await running;
-        }
-        if (failures.length > 0) throw failures[0];
+      async (pipeline, removal) => {
+        const stopped =
+          signal === undefined ? removal : AbortSignal.any([removal, signal]);
+        for await (const _pass of pipeline.watch({ signal: stopped })) continue;
         // A watch ends quietly on abort, where a run throws its reason.
         removal.throwIfAborted();
       },
@@ -409,7 +366,6 @@ export abstract class Connector {
     signal: AbortSignal | undefined,
     load: (
       pipeline: Pipeline<SQLiteTable>,
-      text: AttachmentText | null,
       removal: AbortSignal,
     ) => Promise<unknown>,
   ): Promise<ImportOutcome> {
@@ -426,7 +382,7 @@ export abstract class Connector {
       return { status: 'unconnected', error };
     }
     settings.clearConnectionFailure(selection);
-    const { connection, text, destination } = built;
+    const { connection, derived } = built;
     // Every host loads an import only while it owns it, so no other process
     // can: a pass of it still recorded running is one whose process ended.
     const history = new SQLiteSyncHistory({ soleWriter: true });
@@ -436,9 +392,8 @@ export abstract class Connector {
           connections: [connection],
           history,
           observer,
-          derived: this.derived(destination),
+          derived,
         }),
-        text,
         removal.signal,
       );
     } catch (error) {
@@ -465,15 +420,15 @@ export abstract class Connector {
 
   // The connector's streams, loaded incrementally into raw_<stream> tables of
   // the import directory's data.sqlite and read through documented views, with
-  // checkpoints.sqlite and attachment copies in files/ beside it. When the
-  // import stores files, text reads their text into attachment_text.
+  // checkpoints.sqlite and attachment copies in files/ beside it. Its derived
+  // datasets are its own and, when it stores files, attachment_text, the text
+  // of each stored file.
   async connection(
     directory: string,
     selection: Selection,
   ): Promise<{
     connection: Connection<SQLiteTable>;
-    text: AttachmentText | null;
-    destination: SQLiteDestination;
+    derived: readonly DerivedDataset<SQLiteTable>[];
   }> {
     const { scope, includeAttachments } = selection;
     const source = await this.importSource(selection);
@@ -491,6 +446,20 @@ export abstract class Connector {
     const copied = streams.filter(
       ({ name }) => !(narrowed && this.unscoped.includes(name)),
     );
+    const copies = copied.map((stream) => ({
+      stream,
+      target: destination
+        .table(
+          `raw_${stream.name}`,
+          withFiles(stream)
+            ? (columns) => [
+                ...SQLiteColumns.fromSchema(stream.jsonSchema),
+                columns.text('attachmentRef').from(stream.file.store(files)),
+              ]
+            : undefined,
+        )
+        .withReaderView(this.view(stream.name)),
+    }));
     const connection = new Connection({
       name: this.name,
       source,
@@ -498,42 +467,40 @@ export abstract class Connector {
       checkpoints: new SQLiteCheckpointStore({
         path: join(directory, 'checkpoints.sqlite'),
       }),
-      steps: copied.map(
-        (stream) =>
-          new Copy(
-            stream,
-            destination
-              .table(
-                `raw_${stream.name}`,
-                withFiles(stream)
-                  ? (columns) => [
-                      ...SQLiteColumns.fromSchema(stream.jsonSchema),
-                      columns
-                        .text('attachmentRef')
-                        .from(stream.file.store(files)),
-                    ]
-                  : undefined,
-              )
-              .withReaderView(this.view(stream.name)),
-            {
-              id: `${this.name}:${stream.name}`,
-              syncMode: 'incremental',
-              destinationSyncMode: 'append_dedup',
-            },
-          ),
+      steps: copies.map(
+        ({ stream, target }) =>
+          new Copy(stream, target, {
+            id: `${this.name}:${stream.name}`,
+            syncMode: 'incremental',
+            destinationSyncMode: 'append_dedup',
+          }),
       ),
     });
-    const stored = copied.filter(withFiles);
-    const text =
-      stored.length === 0
-        ? null
-        : new AttachmentText(
-            destination.path,
-            files.directory,
-            stored.map(({ name }) => this.view(name)),
-            () => this.host.documentParser,
-          );
-    return { connection, text, destination };
+    const stored = copies
+      .filter(({ stream }) => withFiles(stream))
+      .map(({ target }) => target);
+    return {
+      connection,
+      derived: [
+        ...this.derived(destination),
+        ...(stored.length === 0
+          ? []
+          : [
+              new ComputedDataset({
+                into: destination,
+                name: 'attachment_text',
+                description:
+                  'One row per file this import stored, with the text its parser extracted, read after each sync. A stored file not read yet has no row, so search results are complete only once the text caught up with the sync. Primary key ref.',
+                from: stored,
+                compute: new DocumentText({
+                  parser: () => this.host.documentParser,
+                  files: files.directory,
+                  column: 'attachmentRef',
+                }),
+              }),
+            ]),
+      ],
+    };
   }
 }
 

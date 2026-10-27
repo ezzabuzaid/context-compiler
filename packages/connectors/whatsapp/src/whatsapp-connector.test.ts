@@ -101,14 +101,14 @@ async function importWhatsApp(
   directory: string,
   scope: ImportScope,
 ) {
-  const { connection, destination } = await connector.connection(directory, {
+  const { connection, derived } = await connector.connection(directory, {
     connector: connector.name,
     scope,
     includeAttachments: false,
   });
   const history = new SQLiteSyncHistory();
   try {
-    await new Pipeline({ history, connections: [connection] }).run();
+    await new Pipeline({ history, connections: [connection], derived }).run();
   } catch (error) {
     // The stores this container lacks fail their streams; the rest load.
     if (!(error instanceof PipelineError)) throw error;
