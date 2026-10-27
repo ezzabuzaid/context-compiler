@@ -138,7 +138,7 @@ npx nx run-many -t typecheck
 npx nx run-many -t test
 ```
 
-`typecheck` first runs the project's `lint` target (ESLint), which runs its `format` target (Prettier, which rewrites files and sorts imports) first. The repository has no pre-commit hook yet (backlog #2880), so run `npx nx run <project>:typecheck` for each project you change before you commit. Test targets build first and use Node's test runner.
+`typecheck` first runs the project's `lint` target (ESLint), which runs its `format` target (Prettier, which rewrites files and sorts imports) first. The pre-commit hook (`.husky/pre-commit.ts`, from `@zukhruf/git-hooks`) runs `nx sync`, stages only the files that sync wrote, and checks the staged copy of each file with Prettier. It does not lint or type-check, so run `npx nx run <project>:typecheck` for each project you change before you commit. Test targets build first and use Node's test runner.
 
 The server's end-to-end tests (`apps/server/src/plugin.e2e.test.ts`) start the plugin server on the Node runtime that the ChatGPT desktop app keeps in `~/.cache/codex-runtimes`. When `CODEX_MCP_NODE_PATH` is set, they use that Node instead. Run `npx nx run plugin:test` on a Mac that has the ChatGPT app, with `CODEX_MCP_NODE_PATH` not set, so the tests run the plugin on the Node that users have. The MCP page test also uses an installed Google Chrome through Playwright.
 

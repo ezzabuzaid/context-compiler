@@ -4,7 +4,7 @@
 
 Every session shares this checkout. Do not make a git worktree, a `git clone`, an exported tree or any other copy of the repository, not even to gate a commit or run a live check. Build and test here. To commit only your part of a shared file, stage your hunks with `git apply --cached`, read each staged hunk where it landed with `git diff --cached -U3`, and after committing check `git show --stat HEAD`. When a peer's unfinished work breaks a test, ask that peer; do not copy the tree to get around it.
 
-This repository has no pre-commit hook yet (backlog #2880). Run `npx nx run <project>:typecheck` for each project you changed before you commit. That target formats, lints and type-checks the project.
+The pre-commit hook (`.husky/pre-commit.ts`) runs `nx sync` and checks the format of the staged files. It does not lint or type-check. Run `npx nx run <project>:typecheck` for each project you changed before you commit. That target formats, lints and type-checks the project.
 
 ## The library lives in elt
 

@@ -27,4 +27,4 @@ Why: the island rules check packages that are written as if published to npm. No
 
 ## Not copied
 
-The pre-commit check of staged formatting (`.husky/check-staged-format.mjs` in elt) would be its third place, after zukhruf and elt. It is extracted instead (backlog #2880). Until then, this repository has no pre-commit hook, and `nx run <project>:typecheck` formats each project before it lints and type-checks it.
+The pre-commit check is not copied. The `.husky/pre-commit.ts` of each repository runs the `Sync` and `Format` steps of `@zukhruf/git-hooks`, and the code of the check is in that package.
