@@ -5,7 +5,7 @@ import {
   byId,
 } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
-import { readSQLite } from '@workspace/elt-sqlite';
+import { type SQLiteDestination, readSQLite } from '@workspace/elt-sqlite';
 import {
   AccountsStore,
   accountsStorePath,
@@ -49,8 +49,8 @@ export default class MailConnector extends Connector {
   // Each message's raw .emlx; messageParts already holds its decoded text.
   protected readonly storeCopies = ['messageFiles'];
 
-  protected override views() {
-    return [mailContentStatus];
+  protected override derived(destination: SQLiteDestination) {
+    return [mailContentStatus(destination)];
   }
 
   override contentStatus(path: string): readonly string[] {

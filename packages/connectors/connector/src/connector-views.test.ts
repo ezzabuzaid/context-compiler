@@ -14,7 +14,7 @@ import {
   type SourceWatchOptions,
   Stream,
 } from '@workspace/elt';
-import type { SQLiteView } from '@workspace/elt-sqlite';
+import { type SQLiteDestination, View } from '@workspace/elt-sqlite';
 import { Settings } from '@workspace/settings';
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
 
@@ -77,6 +77,9 @@ class TwoStoreSource extends LiveSource {
   }
 }
 
+// A view this connector declares over its stores' views.
+type ViewSpec = Omit<ConstructorParameters<typeof View>[0], 'into'>;
+
 // A connector with views over its stores' views.
 class TwoStoreConnector extends Connector {
   readonly datedBy = null;
@@ -85,9 +88,9 @@ class TwoStoreConnector extends Connector {
   protected readonly unscoped = [];
   protected readonly storeCopies = [];
   readonly #broken: string;
-  readonly #views: readonly SQLiteView[];
+  readonly #views: readonly ViewSpec[];
 
-  constructor(broken: string, views: readonly SQLiteView[]) {
+  constructor(broken: string, views: readonly ViewSpec[]) {
     super(
       {
         grantee: 'Codex',
@@ -100,8 +103,8 @@ class TwoStoreConnector extends Connector {
     this.#views = views;
   }
 
-  protected override views() {
-    return this.#views;
+  protected override derived(destination: SQLiteDestination) {
+    return this.#views.map((view) => new View({ into: destination, ...view }));
   }
 
   protected access(): string {
@@ -113,21 +116,21 @@ class TwoStoreConnector extends Connector {
   }
 }
 
-const everyone: SQLiteView = {
+const everyone: ViewSpec = {
   name: 'everyone',
   description: 'Each person.',
   columns: { person: 'A people id.' },
-  query: 'SELECT id AS person FROM people',
+  sql: 'SELECT id AS person FROM people',
 };
 
-const both: SQLiteView = {
+const both: ViewSpec = {
   name: 'both',
   description: 'Each person with each call.',
   columns: { person: 'A people id.', call: 'A calls id.' },
-  query: 'SELECT p.id AS person, c.id AS call FROM people p, calls c',
+  sql: 'SELECT p.id AS person, c.id AS call FROM people p, calls c',
 };
 
-async function imports(directory: string, views: readonly SQLiteView[]) {
+async function imports(directory: string, views: readonly ViewSpec[]) {
   const broken = join(directory, 'broken');
   const connector = new TwoStoreConnector(broken, views);
   const settings = new Settings(join(directory, 'Imports'));
@@ -187,7 +190,7 @@ test('a view that cannot be published once every stream loaded fails the import,
   const app = await imports(scratch.path, [
     {
       ...both,
-      query: 'SELECT p.id AS person, c.missing AS call FROM people p, calls c',
+      sql: 'SELECT p.id AS person, c.missing AS call FROM people p, calls c',
     },
   ]);
   try {

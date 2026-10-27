@@ -1,6 +1,5 @@
 import { existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
 
 import pRetry from 'p-retry';
 
@@ -8,6 +7,7 @@ import {
   Connection,
   Copy,
   CopyConfiguration,
+  type DerivedDataset,
   type DocumentParser,
   type FailureType,
   LocalFiles,
@@ -25,8 +25,6 @@ import {
   SQLiteDestination,
   SQLiteSyncHistory,
   type SQLiteTable,
-  type SQLiteView,
-  publishSQLiteViews,
 } from '@workspace/elt-sqlite';
 import type { GoogleRequester } from '@workspace/google-auth';
 import {
@@ -112,11 +110,11 @@ export abstract class Connector {
   // File streams that copy the app's own store rather than attachments; they
   // load metadata only.
   protected abstract readonly storeCopies: readonly string[];
-  // Views over the import's own views, such as Mail's mail_content_status,
-  // published after each pass: a stream's view exists only once a pass
-  // committed it. copied names the streams the import holds; a narrowed one
-  // leaves out unscoped.
-  protected views(_copied: ReadonlySet<string>): readonly SQLiteView[] {
+  // Data the import keeps in step with what it loads, such as Mail's
+  // mail_content_status view; the pipeline refreshes it after each pass.
+  protected derived(
+    _destination: SQLiteDestination,
+  ): readonly DerivedDataset<SQLiteTable>[] {
     return [];
   }
 
@@ -298,7 +296,7 @@ export abstract class Connector {
       selection,
       observer,
       signal,
-      async (pipeline, text, removal, publish) => {
+      async (pipeline, text, removal) => {
         const stopped =
           signal === undefined ? removal : AbortSignal.any([removal, signal]);
         let completed = false;
@@ -311,7 +309,6 @@ export abstract class Connector {
               if (!(error instanceof PipelineError)) throw error;
               failed = error;
             }
-            publish();
             await text?.update(stopped);
             if (failed !== null) throw failed;
             completed = true;
@@ -358,7 +355,7 @@ export abstract class Connector {
       selection,
       observer,
       signal,
-      async (pipeline, text, removal, publish) => {
+      async (pipeline, text, removal) => {
         const stopping = new AbortController();
         const stopped = AbortSignal.any(
           signal === undefined
@@ -391,10 +388,8 @@ export abstract class Connector {
             });
         };
         try {
-          for await (const _pass of pipeline.watch({ signal: stopped })) {
-            publish();
+          for await (const _pass of pipeline.watch({ signal: stopped }))
             if (text !== null) read(text);
-          }
         } finally {
           stopping.abort();
           await running;
@@ -416,7 +411,6 @@ export abstract class Connector {
       pipeline: Pipeline<SQLiteTable>,
       text: AttachmentText | null,
       removal: AbortSignal,
-      publish: () => void,
     ) => Promise<unknown>,
   ): Promise<ImportOutcome> {
     using removal = settings.removal(selection);
@@ -437,20 +431,15 @@ export abstract class Connector {
     // can: a pass of it still recorded running is one whose process ended.
     const history = new SQLiteSyncHistory({ soleWriter: true });
     try {
-      const copied = connection.steps.map(
-        ({ configuration }) => configuration.stream.name,
-      );
-      const views = this.views(new Set(copied));
       await load(
-        new Pipeline({ connections: [connection], history, observer }),
+        new Pipeline({
+          connections: [connection],
+          history,
+          observer,
+          derived: this.derived(destination),
+        }),
         text,
         removal.signal,
-        () =>
-          publish(
-            destination.path,
-            copied.map((name) => this.view(name)),
-            views,
-          ),
       );
     } catch (error) {
       if (error instanceof ConnectorRemovedError) return { status: 'removed' };
@@ -545,35 +534,6 @@ export abstract class Connector {
             () => this.host.documentParser,
           );
     return { connection, text, destination };
-  }
-}
-
-// Publishes a connector's views. While a stream the import copies has not
-// loaded yet, whose failure the sync history records, a view that reads it
-// waits and the others are published; once every stream loaded, a view that
-// cannot be published is wrong itself.
-function publish(
-  path: string,
-  readerViews: readonly string[],
-  views: readonly SQLiteView[],
-): void {
-  if (views.length === 0) return;
-  using database = new DatabaseSync(path, { timeout: 30_000 });
-  const loaded = database.prepare(
-    `SELECT 1 FROM sqlite_schema WHERE type = 'view' AND name = ?`,
-  );
-  const waiting = readerViews.some((view) => loaded.get(view) === undefined);
-  publishSQLiteViews(database, {
-    views: waiting ? views.filter((view) => readable(database, view)) : views,
-  });
-}
-
-function readable(database: DatabaseSync, view: SQLiteView): boolean {
-  try {
-    database.prepare(view.query);
-    return true;
-  } catch {
-    return false;
   }
 }
 
