@@ -395,7 +395,6 @@ test('an import that keeps attachments, as setup does by default, makes the text
     },
   );
   const history = new SQLiteSyncHistory();
-  await history.install([destination]);
 
   await new Pipeline({ history, connections: [connection] }).run();
   await text?.update(new AbortController().signal);

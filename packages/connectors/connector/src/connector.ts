@@ -26,7 +26,6 @@ import {
   SQLiteSyncHistory,
   type SQLiteTable,
   type SQLiteView,
-  installSQLiteCatalog,
   publishSQLiteViews,
 } from '@workspace/elt-sqlite';
 import type { GoogleRequester } from '@workspace/google-auth';
@@ -434,14 +433,10 @@ export abstract class Connector {
     }
     settings.clearConnectionFailure(selection);
     const { connection, text, destination } = built;
-    const history = new SQLiteSyncHistory();
+    // Every host loads an import only while it owns it, so no other process
+    // can: a pass of it still recorded running is one whose process ended.
+    const history = new SQLiteSyncHistory({ soleWriter: true });
     try {
-      await history.install([destination]);
-      // Every host loads an import only while it owns it, so no other
-      // process can: a pass of it still recorded running is one whose
-      // process ended.
-      await history.failUnfinished(connection);
-      installSQLiteCatalog(destination);
       const copied = connection.steps.map(
         ({ configuration }) => configuration.stream.name,
       );

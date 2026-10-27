@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 
 import type { Connector, Preset } from '@workspace/connector/connector';
 import { Pipeline } from '@workspace/elt';
-import { SQLiteSyncHistory, installSQLiteCatalog } from '@workspace/elt-sqlite';
+import { SQLiteSyncHistory } from '@workspace/elt-sqlite';
 import { Settings } from '@workspace/settings';
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
 
@@ -55,8 +55,6 @@ async function importMail(
     includeAttachments: false,
   });
   const history = new SQLiteSyncHistory();
-  await history.install([destination]);
-  installSQLiteCatalog(destination);
   await new Pipeline({ connections: [connection], history }).run();
   return join(directory, 'data.sqlite');
 }

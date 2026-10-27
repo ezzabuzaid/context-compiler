@@ -215,11 +215,13 @@ function imported(directory: string, item: Selection) {
 // data.sqlite as a server's history records them: each pass declares every
 // copy of the connection, and one that finishes loads them all.
 async function passes(plugin: Plugin, item: Selection) {
-  const { connection, destination } = await plugin
+  const { connection } = await plugin
     .connector(item.connector)
     .connection(importDirectory(plugin.directory, item), item);
+  // A server's pipeline installs its history before a pass; these passes
+  // begin without one.
   const history = new SQLiteSyncHistory();
-  await history.install([destination]);
+  await history.install([connection]);
   const copies = connection.steps.map((copy) => ({
     copy,
     coverage: connection.source.coverage(copy.from),

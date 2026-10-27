@@ -107,7 +107,6 @@ async function importWhatsApp(
     includeAttachments: false,
   });
   const history = new SQLiteSyncHistory();
-  await history.install([destination]);
   try {
     await new Pipeline({ history, connections: [connection] }).run();
   } catch (error) {

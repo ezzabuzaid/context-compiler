@@ -34,7 +34,6 @@ import {
   SQLiteColumns,
   SQLiteDestination,
   SQLiteSyncHistory,
-  installSQLiteCatalog,
 } from '@workspace/elt-sqlite';
 import { AudioFormat } from '@workspace/source-apple-macos/audio-format';
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
@@ -123,8 +122,6 @@ async function importStore(directory: string) {
   const destination = new SQLiteDestination({ path });
   const files = new LocalFiles({ directory: join(directory, 'files') });
   const history = new SQLiteSyncHistory();
-  await history.install([destination]);
-  installSQLiteCatalog({ path });
   const imported = new Connection({
     name: 'import',
     source: new FolderSource(upstream),
