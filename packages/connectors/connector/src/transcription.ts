@@ -1,5 +1,6 @@
+import { Fixed, Parallel, Pool } from '@zukhruf/pool';
+
 import type { DocumentParser } from '@workspace/elt';
-import { Fixed, Parallel, Pool } from '@workspace/pool';
 import type { SpeechModels } from '@workspace/sdk-macos-speech-models';
 import { Settings } from '@workspace/settings';
 import { AudioFormat } from '@workspace/source-apple-macos/audio-format';

@@ -21,12 +21,12 @@
     "@workspace/elt": "0.0.1",
     "@workspace/elt-sqlite": "0.0.1",
     "@workspace/google-auth": "0.0.1",
-    "@workspace/pool": "0.0.1",
+    "@workspace/sdk-macos-speech-models": "0.0.1",
     "@workspace/settings": "0.0.1",
     "@workspace/source-apple-macos": "0.0.1",
-    "p-retry": "^8.0.1",
     "@workspace/transcription-local": "0.0.1",
-    "@workspace/sdk-macos-speech-models": "0.0.1"
+    "@zukhruf/pool": "0.3.50",
+    "p-retry": "^8.0.1"
   },
   "devDependencies": {
     "ai": "7.0.148"

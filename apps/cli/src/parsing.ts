@@ -1,8 +1,9 @@
 import { fileURLToPath } from 'node:url';
 
+import { HillClimbing, LeaderFirst, Pool } from '@zukhruf/pool';
+
 import { Transcription } from '@workspace/connector/transcription';
 import type { DocumentParser } from '@workspace/elt';
-import { HillClimbing, LeaderFirst, Pool } from '@workspace/pool';
 import { SpeechModels } from '@workspace/sdk-macos-speech-models';
 import { VisionWorker } from '@workspace/source-apple-macos/vision';
 

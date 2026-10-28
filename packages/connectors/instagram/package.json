@@ -16,8 +16,8 @@
   "devDependencies": {
     "@workspace/elt": "0.0.1",
     "@workspace/elt-sqlite": "0.0.1",
-    "@workspace/pool": "0.0.1",
     "@workspace/sdk-chromium-cookies": "0.0.1",
+    "@zukhruf/pool": "0.3.50",
     "msw": "^2.15.0"
   }
 }

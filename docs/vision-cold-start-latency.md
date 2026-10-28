@@ -28,7 +28,7 @@ them, and four workers that start together with a warm cache are each ready in
 1.1–1.3 seconds, against 0.9 seconds for one worker alone. The chain made every
 warm start wait for each worker in turn.
 
-Elt now has a shared `Pool` (`@workspace/pool`). The hosts build an OCR pool
+The hosts build an OCR pool from `Pool` (`@zukhruf/pool`)
 with the `LeaderFirst` startup: the first worker starts alone, and the others
 start together once it is ready. A replacement after a crash starts at once,
 because the cache is warm. The pool also serves the local transcription engine.
@@ -37,11 +37,11 @@ when it starts; the CLI builds its pools only for a sync or a watch.
 
 Measurements on 2026-10-25, same M4 Pro, 325 WhatsApp images, four workers:
 
-| Run | Ready | Reads |
-| --- | ---: | ---: |
-| Chain, warm cache | 3.39–4.17 s | 8.90–12.15 s |
-| `LeaderFirst`, warm cache | 1.79–2.49 s | 7.08–8.80 s |
-| `LeaderFirst`, new helper binary (cold) | 73.43 s | 6.89 s |
+| Run                                     |       Ready |        Reads |
+| --------------------------------------- | ----------: | -----------: |
+| Chain, warm cache                       | 3.39–4.17 s | 8.90–12.15 s |
+| `LeaderFirst`, warm cache               | 1.79–2.49 s |  7.08–8.80 s |
+| `LeaderFirst`, new helper binary (cold) |     73.43 s |       6.89 s |
 
 One Vision process does not replace the pool. With 1, 3, 6 and 14 images in
 flight, one process read the same 325 images in 20–26 seconds; Vision runs its

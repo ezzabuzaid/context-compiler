@@ -6,6 +6,8 @@ import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import { Fixed, LeaderFirst, Pool } from '@zukhruf/pool';
+
 import {
   Catalog,
   Pipeline,
@@ -15,7 +17,6 @@ import {
   Stream,
 } from '@workspace/elt';
 import { SQLiteSyncHistory } from '@workspace/elt-sqlite';
-import { Fixed, LeaderFirst, Pool } from '@workspace/pool';
 import { SpeechModels } from '@workspace/sdk-macos-speech-models';
 import { Settings } from '@workspace/settings';
 import { VisionWorker } from '@workspace/source-apple-macos/vision';

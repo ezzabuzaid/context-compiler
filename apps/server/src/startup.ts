@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 
-import { HillClimbing, LeaderFirst, Pool } from '@workspace/pool';
+import { HillClimbing, LeaderFirst, Pool } from '@zukhruf/pool';
+
 import { VisionWorker } from '@workspace/source-apple-macos/vision';
 
 // Start recognition while the server registers its tools. Reads wait for a
