@@ -34,7 +34,7 @@
     "@workspace/source-apple-macos": "0.0.1",
     "@workspace/ui": "0.0.1",
     "@zukhruf/election": "0.3.21",
-    "@zukhruf/pool": "0.3.50",
+    "@zukhruf/pool": "0.3.52",
     "@zukhruf/single-flight": "0.3.21",
     "@zukhruf/sqlite-drift": "0.3.35",
     "@zukhruf/sqlite-federation": "0.3.31",

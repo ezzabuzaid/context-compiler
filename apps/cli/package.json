@@ -33,7 +33,7 @@
     "@workspace/source-apple-macos": "0.0.1",
     "@workspace/transcription-local": "0.0.1",
     "@zukhruf/election": "0.3.21",
-    "@zukhruf/pool": "0.3.50",
+    "@zukhruf/pool": "0.3.52",
     "@zukhruf/single-flight": "0.3.21",
     "@zukhruf/sqlite-federation": "0.3.31",
     "commander": "15.0.0"
