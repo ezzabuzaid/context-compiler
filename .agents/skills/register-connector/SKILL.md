@@ -28,7 +28,7 @@ Paths are relative to the repository root. The _source_ is the elt package that 
 4. Write `src/<name>-connector.ts`. Start from the connector whose app is most similar.
 5. Add `@workspace/connector-<source>` to the dependencies of `apps/cli/package.json` and `apps/server/package.json`. Nx then builds it before both hosts.
 6. Run `npm install`. Nx keeps the TypeScript project references current itself (`sync.applyChanges` in `nx.json`).
-7. Add the connector's row to the permissions table in `README.md` when it needs a grant. Describe host behavior in `docs/connectors-and-hosts.md` only when this connector changes it. Stream details go in elt's `docs/reference.md`.
+7. Add the connector's row to the permissions table in `README.md` when it needs a grant. Describe host behavior in `docs/connectors-and-hosts.md` only when this connector changes it. Stream details go in the README of the source's package in elt; elt's `docs/reference.md` is being retired, so add nothing to it.
 8. Run `npx nx run connector-<source>:typecheck`, `npx nx run cli:typecheck` and `npx nx run server:typecheck`.
 9. Run `npx nx run connector-manifest:test`, `npx nx run cli:test` and `npx nx run server:test`.
 
