@@ -6,8 +6,10 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
+  readdirSync,
   realpathSync,
   renameSync,
+  statSync,
   writeFileSync,
 } from 'node:fs';
 import {
@@ -1524,6 +1526,34 @@ test('a setup that removes a connector stops the sync importing it, while the re
     sync.child.kill('SIGKILL');
     await sync.exited;
   }
+});
+
+test("a sync leaves the key locks of the store's single flight in place and campaigns for none of them", async () => {
+  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await withNotes(mac.path);
+  const store = join(
+    mac.path,
+    'Library/Application Support/Context Compiler/Imports',
+  );
+  const locks = join(store, 'execution-locks');
+  // Each key lock with its inode: a lock removed and opened again is a new
+  // file that a second leader of the same key could hold.
+  const held = () =>
+    readdirSync(locks).map((name) => [name, statSync(join(locks, name)).ino]);
+  cli(mac.path, 'setup', '--connector', 'notes');
+  const first = cli(mac.path, 'sync');
+  assert.equal(first.status, 0, first.stderr);
+  const before = held();
+
+  const synced = cli(mac.path, 'sync');
+
+  assert.equal(synced.status, 0, synced.stderr);
+  assert.notDeepEqual(before, []);
+  assert.deepEqual(held(), before);
+  assert.deepEqual(
+    readdirSync(store).filter((name) => name.startsWith('execution-locks.')),
+    [],
+  );
 });
 
 test("status waits out a write to the store's settings instead of printing nothing", async () => {

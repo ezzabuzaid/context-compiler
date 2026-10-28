@@ -45,11 +45,16 @@ export function importDirectory(root: string, selection: Selection): string {
   return join(root, importFolder(selection));
 }
 
+// An import's folder in its connector's folder is named by the first hex
+// digits of the SHA-256 of its selection.
+const keyDigits = 16;
+const importKey = new RegExp(`^[0-9a-f]{${keyDigits}}$`);
+
 function importFolder(selection: Selection): string {
   const key = createHash('sha256')
     .update(JSON.stringify([selection.scope, selection.includeAttachments]))
     .digest('hex')
-    .slice(0, 16);
+    .slice(0, keyDigits);
   return join(selection.connector, key);
 }
 
@@ -234,7 +239,10 @@ export class Settings implements Disposable {
 
   // Every import directory but the selected one of each connector, including
   // those of connectors no longer selected. A host removes each once no pass
-  // runs it, since a pass keeps its locks inside.
+  // runs it, since a pass keeps its locks inside. Only a folder named as
+  // importFolder names one is an import: the hosts' single flight keeps its
+  // key locks in a folder of root too, and removing one while a process uses
+  // root lets a second leader run the same key.
   staleImports(): string[] {
     const kept = new Set(
       this.selections().map((selection) => this.directory(selection)),
@@ -242,9 +250,9 @@ export class Settings implements Disposable {
     return readdirSync(this.root, { withFileTypes: true })
       .filter((connector) => connector.isDirectory())
       .flatMap((connector) =>
-        readdirSync(join(this.root, connector.name)).map((entry) =>
-          join(this.root, connector.name, entry),
-        ),
+        readdirSync(join(this.root, connector.name))
+          .filter((entry) => importKey.test(entry))
+          .map((entry) => join(this.root, connector.name, entry)),
       )
       .filter((directory) => !kept.has(directory));
   }
