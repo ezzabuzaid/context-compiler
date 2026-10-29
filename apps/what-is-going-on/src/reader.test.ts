@@ -204,6 +204,40 @@ await test('a crawl of a lab blog makes its posts appear among the events no int
   assert.doesNotMatch(unmatched, /About/);
 });
 
+await test('a lab post whose page carries no date shows the date its feed gives', async () => {
+  await using lab = await site({
+    '/feed.xml': feed([
+      {
+        title: 'Moss Lab maps river sediment',
+        path: '/posts/sediment',
+        hours: 50,
+      },
+    ]),
+    '/posts/sediment': {
+      type: 'text/html',
+      body: () =>
+        `<!doctype html><html><head><title>Moss Lab maps river sediment</title></head><body><article><h1>Moss Lab maps river sediment</h1><p>Moss Lab mapped the sediment of 300 rivers with a fleet of 40 drones.</p><p>The map shows where dams trap the most silt.</p><p>The survey data is open to researchers.</p></article></body></html>`,
+    },
+  });
+  await crawl([
+    {
+      name: 'Moss Lab',
+      kind: 'lab',
+      site: `${lab.origin}/`,
+      feed: `${lab.origin}/feed.xml`,
+      posts: `${lab.origin}/`,
+    },
+  ]);
+  await using reader = await serveApp();
+
+  const unmatched = await page(`${reader.origin}/not-matched`);
+
+  assert.match(
+    unmatched,
+    /Moss Lab maps river sediment<\/a> \[Moss Lab\] \[2d\]/,
+  );
+});
+
 await test("an outlet's report of a lab's announcement folds under the lab's line as [+1], and the event page lists both", async () => {
   await using lab = await blog({
     '/blog/atlas-7': article(

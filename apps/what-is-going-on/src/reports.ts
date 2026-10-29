@@ -44,6 +44,7 @@ const articleSchema = z.object({
   articleUrl: z.string(),
   title: z.string(),
   publishedTime: z.string().nullable(),
+  published: z.string().nullable(),
   textContent: z.string(),
 });
 
@@ -132,7 +133,10 @@ export class Reports extends DerivedDataset<SQLiteTable> {
           );
         for (const { row, source } of rows) {
           if (reports.has(row.articleUrl)) continue;
-          const published = Date.parse(row.publishedTime ?? '');
+          // The page's own date first, then the date its feed gave.
+          const published = [row.publishedTime, row.published]
+            .map((value) => Date.parse(value ?? ''))
+            .find((time) => !Number.isNaN(time));
           const publisher = new URL(row.articleUrl).host;
           const stored = upsert.get({
             id: row.articleUrl,
@@ -142,7 +146,7 @@ export class Reports extends DerivedDataset<SQLiteTable> {
             source: source.name,
             kind: source.kind,
             publisher,
-            published: Number.isNaN(published) ? null : published,
+            published: published ?? null,
             now,
           });
           reports.set(row.articleUrl, {
@@ -208,7 +212,7 @@ function articles(connections: readonly Connection<SQLiteTable>[]) {
         return [];
       return database
         .prepare(
-          `SELECT inputUrl, articleUrl, title, publishedTime, textContent FROM "${relation}"
+          `SELECT inputUrl, articleUrl, title, publishedTime, published, textContent FROM "${relation}"
           WHERE NOT list AND title IS NOT NULL`,
         )
         .all()
