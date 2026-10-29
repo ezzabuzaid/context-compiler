@@ -70,13 +70,16 @@ export default function (router: Hono) {
     validate((payload) => ({
       name: { select: payload.body.name, against: z.string().trim().min(1) },
       sentence: { select: payload.body.sentence, against: z.string().trim() },
-      keywords: {
-        select: payload.body.keywords,
-        against: keywordsSchema.pipe(z.array(z.string()).min(1)),
-      },
+      keywords: { select: payload.body.keywords, against: keywordsSchema },
     })),
     (c) => {
-      settings.addInterest(c.var.input);
+      const { name, sentence, keywords } = c.var.input;
+      // An interest without keywords of its own matches by its name.
+      settings.addInterest({
+        name,
+        sentence,
+        keywords: keywords.length > 0 ? keywords : [name],
+      });
       return c.redirect('/', 303);
     },
   );

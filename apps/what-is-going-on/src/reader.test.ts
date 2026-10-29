@@ -383,6 +383,43 @@ await test('Today shows a column per interest with only the events whose lab rep
   assert.doesNotMatch(today, /Fern Lab tapes out its first inference chip/);
 });
 
+await test('an interest added without keywords matches by its name', async () => {
+  await using lab = await blog({
+    '/blog/kelp': article('Kelp Lab farms seaweed for jet fuel', hoursAgo(3), [
+      'Kelp Lab grew 40 tonnes of seaweed off the coast and turned it into jet fuel.',
+      'The fuel passed the first engine tests at a test site in Norway.',
+      'Kelp Lab plans a farm ten times larger next year.',
+    ]),
+  });
+  await crawl([labBlog('Kelp Lab', lab.origin)]);
+  await using reader = await serveApp();
+  await addInterest(reader.origin, 'Seaweed', '');
+
+  const today = await page(`${reader.origin}/`);
+
+  assert.match(
+    today,
+    /<h3><a class="source" href="\/interest\/Seaweed">Seaweed<\/a><\/h3><ul><li><a href="[^"]+">Kelp Lab farms seaweed for jet fuel<\/a>/,
+  );
+});
+
+await test('a form the app cannot accept answers with a page that names the problem, not JSON', async () => {
+  await using reader = await serveApp();
+
+  const response = await fetch(`${reader.origin}/interests`, {
+    method: 'POST',
+    body: new URLSearchParams({ name: ' ', sentence: '', keywords: 'kelp' }),
+    redirect: 'manual',
+  });
+  const body = await response.text();
+
+  assert.equal(response.status, 400);
+  assert.match(response.headers.get('content-type') ?? '', /text\/html/);
+  assert.match(body, /What is going on/);
+  assert.match(body, /Name is empty\./);
+  assert.doesNotMatch(body, /"code"/);
+});
+
 await test("[x] on an interest's page removes the event from that interest's page", async () => {
   await using lab = await blog({
     '/blog/reef': article(
