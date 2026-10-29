@@ -403,6 +403,30 @@ await test('an interest added without keywords matches by its name', async () =>
   );
 });
 
+await test('a keyword with a space matches the same words joined by a hyphen', async () => {
+  await using lab = await blog({
+    '/blog/kestrel-tuning': article(
+      'Kestrel Lab: Fine-Tuning the pitch of its glass bells',
+      hoursAgo(3),
+      [
+        'Kestrel Lab tuned 24 glass bells for a cathedral by grinding their rims by hand.',
+        'Each bell took four days and lost about 30 grams of glass.',
+        'The bells ring for the first time at the winter concert.',
+      ],
+    ),
+  });
+  await crawl([labBlog('Kestrel Lab', lab.origin)]);
+  await using reader = await serveApp();
+  await addInterest(reader.origin, 'Small tuning', 'fine tuning');
+
+  const interest = await page(`${reader.origin}/interest/Small%20tuning`);
+
+  assert.match(
+    interest,
+    /Kestrel Lab: Fine-Tuning the pitch of its glass bells<\/a>/,
+  );
+});
+
 await test('a form the app cannot accept answers with a page that names the problem, not JSON', async () => {
   await using reader = await serveApp();
 

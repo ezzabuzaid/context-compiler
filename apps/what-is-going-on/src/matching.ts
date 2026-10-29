@@ -1,13 +1,23 @@
 import type { Line, Report } from './events.ts';
 import settings, { type Interest } from './settings.ts';
 
+// Spaces and hyphens between words, so "fine tuning" and "Fine-Tuning" are
+// the same words, as a search engine's tokenizer splits words at hyphens.
+const between = String.raw`[\s\-‐-―]+`;
+
 // An interest's keywords at the start of a word in the report's title or
 // lead, ignoring case, so "protein" matches "proteins" and "LFM" "LFM3". No
 // learned filter yet (#3195).
 export function matches(keywords: readonly string[], report: Report) {
   const text = `${report.title}\n${report.lead}`;
   return keywords.some((keyword) =>
-    new RegExp(`(?<!\\w)${RegExp.escape(keyword)}`, 'iu').test(text),
+    new RegExp(
+      `(?<!\\w)${keyword
+        .split(new RegExp(between, 'u'))
+        .map((word) => RegExp.escape(word))
+        .join(between)}`,
+      'iu',
+    ).test(text),
   );
 }
 
