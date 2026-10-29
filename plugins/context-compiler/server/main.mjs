@@ -34,13 +34,14 @@ import {
 import {
   Connector,
   Declaration,
+  Latch,
   Settings,
   readPassStatus,
   transaction
-} from "./chunks/chunk-IARFH5EI.mjs";
+} from "./chunks/chunk-C5RMD7F7.mjs";
 import {
   DocumentParser
-} from "./chunks/chunk-UZWKSGGL.mjs";
+} from "./chunks/chunk-C22NLYQC.mjs";
 import {
   __callDispose,
   __commonJS,
@@ -93,13 +94,13 @@ var require_code = __commonJS({
       }
       get str() {
         var _a3;
-        return (_a3 = this._str) !== null && _a3 !== void 0 ? _a3 : this._str = this._items.reduce((s, c) => `${s}${c}`, "");
+        return (_a3 = this._str) !== null && _a3 !== void 0 ? _a3 : this._str = this._items.reduce((s, c3) => `${s}${c3}`, "");
       }
       get names() {
         var _a3;
-        return (_a3 = this._names) !== null && _a3 !== void 0 ? _a3 : this._names = this._items.reduce((names, c) => {
-          if (c instanceof Name)
-            names[c.str] = (names[c.str] || 0) + 1;
+        return (_a3 = this._names) !== null && _a3 !== void 0 ? _a3 : this._names = this._items.reduce((names, c3) => {
+          if (c3 instanceof Name)
+            names[c3.str] = (names[c3.str] || 0) + 1;
           return names;
         }, {});
       }
@@ -108,10 +109,10 @@ var require_code = __commonJS({
     exports.nil = new _Code("");
     function _(strs, ...args) {
       const code = [strs[0]];
-      let i = 0;
-      while (i < args.length) {
-        addCodeArg(code, args[i]);
-        code.push(strs[++i]);
+      let i2 = 0;
+      while (i2 < args.length) {
+        addCodeArg(code, args[i2]);
+        code.push(strs[++i2]);
       }
       return new _Code(code);
     }
@@ -119,11 +120,11 @@ var require_code = __commonJS({
     var plus = new _Code("+");
     function str(strs, ...args) {
       const expr = [safeStringify(strs[0])];
-      let i = 0;
-      while (i < args.length) {
+      let i2 = 0;
+      while (i2 < args.length) {
         expr.push(plus);
-        addCodeArg(expr, args[i]);
-        expr.push(plus, safeStringify(strs[++i]));
+        addCodeArg(expr, args[i2]);
+        expr.push(plus, safeStringify(strs[++i2]));
       }
       optimize(expr);
       return new _Code(expr);
@@ -139,39 +140,39 @@ var require_code = __commonJS({
     }
     exports.addCodeArg = addCodeArg;
     function optimize(expr) {
-      let i = 1;
-      while (i < expr.length - 1) {
-        if (expr[i] === plus) {
-          const res = mergeExprItems(expr[i - 1], expr[i + 1]);
+      let i2 = 1;
+      while (i2 < expr.length - 1) {
+        if (expr[i2] === plus) {
+          const res = mergeExprItems(expr[i2 - 1], expr[i2 + 1]);
           if (res !== void 0) {
-            expr.splice(i - 1, 3, res);
+            expr.splice(i2 - 1, 3, res);
             continue;
           }
-          expr[i++] = "+";
+          expr[i2++] = "+";
         }
-        i++;
+        i2++;
       }
     }
-    function mergeExprItems(a, b) {
+    function mergeExprItems(a2, b) {
       if (b === '""')
-        return a;
-      if (a === '""')
+        return a2;
+      if (a2 === '""')
         return b;
-      if (typeof a == "string") {
-        if (b instanceof Name || a[a.length - 1] !== '"')
+      if (typeof a2 == "string") {
+        if (b instanceof Name || a2[a2.length - 1] !== '"')
           return;
         if (typeof b != "string")
-          return `${a.slice(0, -1)}${b}"`;
+          return `${a2.slice(0, -1)}${b}"`;
         if (b[0] === '"')
-          return a.slice(0, -1) + b.slice(1);
+          return a2.slice(0, -1) + b.slice(1);
         return;
       }
-      if (typeof b == "string" && b[0] === '"' && !(a instanceof Name))
-        return `"${a}${b.slice(1)}`;
+      if (typeof b == "string" && b[0] === '"' && !(a2 instanceof Name))
+        return `"${a2}${b.slice(1)}`;
       return;
     }
-    function strConcat(c1, c2) {
-      return c2.emptyStr() ? c1 : c1.emptyStr() ? c2 : str`${c1}${c2}`;
+    function strConcat(c1, c22) {
+      return c22.emptyStr() ? c1 : c1.emptyStr() ? c22 : str`${c1}${c22}`;
     }
     exports.strConcat = strConcat;
     function interpolate(x) {
@@ -329,12 +330,12 @@ var require_scope = __commonJS({
             if (nameSet.has(name5))
               return;
             nameSet.set(name5, UsedValueState.Started);
-            let c = valueCode(name5);
-            if (c) {
+            let c3 = valueCode(name5);
+            if (c3) {
               const def = this.opts.es5 ? exports.varKinds.var : exports.varKinds.const;
-              code = (0, code_1._)`${code}${def} ${name5} = ${c};${this.opts._n}`;
-            } else if (c = getCode === null || getCode === void 0 ? void 0 : getCode(name5)) {
-              code = (0, code_1._)`${code}${c}${this.opts._n}`;
+              code = (0, code_1._)`${code}${def} ${name5} = ${c3};${this.opts._n}`;
+            } else if (c3 = getCode === null || getCode === void 0 ? void 0 : getCode(name5)) {
+              code = (0, code_1._)`${code}${c3}${this.opts._n}`;
             } else {
               throw new ValueError(name5);
             }
@@ -426,11 +427,11 @@ var require_codegen = __commonJS({
         const rhs = this.rhs === void 0 ? "" : ` = ${this.rhs}`;
         return `${varKind} ${this.name}${rhs};` + _n;
       }
-      optimizeNames(names, constants) {
+      optimizeNames(names, constants4) {
         if (!names[this.name.str])
           return;
         if (this.rhs)
-          this.rhs = optimizeExpr(this.rhs, names, constants);
+          this.rhs = optimizeExpr(this.rhs, names, constants4);
         return this;
       }
       get names() {
@@ -447,10 +448,10 @@ var require_codegen = __commonJS({
       render({ _n }) {
         return `${this.lhs} = ${this.rhs};` + _n;
       }
-      optimizeNames(names, constants) {
+      optimizeNames(names, constants4) {
         if (this.lhs instanceof code_1.Name && !names[this.lhs.str] && !this.sideEffects)
           return;
-        this.rhs = optimizeExpr(this.rhs, names, constants);
+        this.rhs = optimizeExpr(this.rhs, names, constants4);
         return this;
       }
       get names() {
@@ -511,8 +512,8 @@ var require_codegen = __commonJS({
       optimizeNodes() {
         return `${this.code}` ? this : void 0;
       }
-      optimizeNames(names, constants) {
-        this.code = optimizeExpr(this.code, names, constants);
+      optimizeNames(names, constants4) {
+        this.code = optimizeExpr(this.code, names, constants4);
         return this;
       }
       get names() {
@@ -525,36 +526,36 @@ var require_codegen = __commonJS({
         this.nodes = nodes;
       }
       render(opts) {
-        return this.nodes.reduce((code, n) => code + n.render(opts), "");
+        return this.nodes.reduce((code, n2) => code + n2.render(opts), "");
       }
       optimizeNodes() {
         const { nodes } = this;
-        let i = nodes.length;
-        while (i--) {
-          const n = nodes[i].optimizeNodes();
-          if (Array.isArray(n))
-            nodes.splice(i, 1, ...n);
-          else if (n)
-            nodes[i] = n;
+        let i2 = nodes.length;
+        while (i2--) {
+          const n2 = nodes[i2].optimizeNodes();
+          if (Array.isArray(n2))
+            nodes.splice(i2, 1, ...n2);
+          else if (n2)
+            nodes[i2] = n2;
           else
-            nodes.splice(i, 1);
+            nodes.splice(i2, 1);
         }
         return nodes.length > 0 ? this : void 0;
       }
-      optimizeNames(names, constants) {
+      optimizeNames(names, constants4) {
         const { nodes } = this;
-        let i = nodes.length;
-        while (i--) {
-          const n = nodes[i];
-          if (n.optimizeNames(names, constants))
+        let i2 = nodes.length;
+        while (i2--) {
+          const n2 = nodes[i2];
+          if (n2.optimizeNames(names, constants4))
             continue;
-          subtractNames(names, n.names);
-          nodes.splice(i, 1);
+          subtractNames(names, n2.names);
+          nodes.splice(i2, 1);
         }
         return nodes.length > 0 ? this : void 0;
       }
       get names() {
-        return this.nodes.reduce((names, n) => addNames(names, n.names), {});
+        return this.nodes.reduce((names, n2) => addNames(names, n2.names), {});
       }
     };
     var BlockNode = class extends ParentNode {
@@ -599,12 +600,12 @@ var require_codegen = __commonJS({
           return void 0;
         return this;
       }
-      optimizeNames(names, constants) {
+      optimizeNames(names, constants4) {
         var _a3;
-        this.else = (_a3 = this.else) === null || _a3 === void 0 ? void 0 : _a3.optimizeNames(names, constants);
-        if (!(super.optimizeNames(names, constants) || this.else))
+        this.else = (_a3 = this.else) === null || _a3 === void 0 ? void 0 : _a3.optimizeNames(names, constants4);
+        if (!(super.optimizeNames(names, constants4) || this.else))
           return;
-        this.condition = optimizeExpr(this.condition, names, constants);
+        this.condition = optimizeExpr(this.condition, names, constants4);
         return this;
       }
       get names() {
@@ -627,10 +628,10 @@ var require_codegen = __commonJS({
       render(opts) {
         return `for(${this.iteration})` + super.render(opts);
       }
-      optimizeNames(names, constants) {
-        if (!super.optimizeNames(names, constants))
+      optimizeNames(names, constants4) {
+        if (!super.optimizeNames(names, constants4))
           return;
-        this.iteration = optimizeExpr(this.iteration, names, constants);
+        this.iteration = optimizeExpr(this.iteration, names, constants4);
         return this;
       }
       get names() {
@@ -666,10 +667,10 @@ var require_codegen = __commonJS({
       render(opts) {
         return `for(${this.varKind} ${this.name} ${this.loop} ${this.iterable})` + super.render(opts);
       }
-      optimizeNames(names, constants) {
-        if (!super.optimizeNames(names, constants))
+      optimizeNames(names, constants4) {
+        if (!super.optimizeNames(names, constants4))
           return;
-        this.iterable = optimizeExpr(this.iterable, names, constants);
+        this.iterable = optimizeExpr(this.iterable, names, constants4);
         return this;
       }
       get names() {
@@ -711,11 +712,11 @@ var require_codegen = __commonJS({
         (_b = this.finally) === null || _b === void 0 ? void 0 : _b.optimizeNodes();
         return this;
       }
-      optimizeNames(names, constants) {
+      optimizeNames(names, constants4) {
         var _a3, _b;
-        super.optimizeNames(names, constants);
-        (_a3 = this.catch) === null || _a3 === void 0 ? void 0 : _a3.optimizeNames(names, constants);
-        (_b = this.finally) === null || _b === void 0 ? void 0 : _b.optimizeNames(names, constants);
+        super.optimizeNames(names, constants4);
+        (_a3 = this.catch) === null || _a3 === void 0 ? void 0 : _a3.optimizeNames(names, constants4);
+        (_b = this.finally) === null || _b === void 0 ? void 0 : _b.optimizeNames(names, constants4);
         return this;
       }
       get names() {
@@ -810,11 +811,11 @@ var require_codegen = __commonJS({
         return this._leafNode(new AssignOp(lhs, exports.operators.ADD, rhs));
       }
       // appends passed SafeExpr to code or executes Block
-      code(c) {
-        if (typeof c == "function")
-          c();
-        else if (c !== code_1.nil)
-          this._leafNode(new AnyCode(c));
+      code(c3) {
+        if (typeof c3 == "function")
+          c3();
+        else if (c3 !== code_1.nil)
+          this._leafNode(new AnyCode(c3));
         return this;
       }
       // returns code for object literal for the passed argument list of key-value pairs
@@ -876,8 +877,8 @@ var require_codegen = __commonJS({
         const name5 = this._scope.toName(nameOrPrefix);
         if (this.opts.es5) {
           const arr = iterable instanceof code_1.Name ? iterable : this.var("_arr", iterable);
-          return this.forRange("_i", 0, (0, code_1._)`${arr}.length`, (i) => {
-            this.var(name5, (0, code_1._)`${arr}[${i}]`);
+          return this.forRange("_i", 0, (0, code_1._)`${arr}.length`, (i2) => {
+            this.var(name5, (0, code_1._)`${arr}[${i2}]`);
             forBody(name5);
           });
         }
@@ -965,8 +966,8 @@ var require_codegen = __commonJS({
       endFunc() {
         return this._endBlockNode(Func);
       }
-      optimize(n = 1) {
-        while (n-- > 0) {
+      optimize(n2 = 1) {
+        while (n2-- > 0) {
           this._root.optimizeNodes();
           this._root.optimizeNames(this._root.names, this._constants);
         }
@@ -980,19 +981,19 @@ var require_codegen = __commonJS({
         this._nodes.push(node2);
       }
       _endBlockNode(N1, N2) {
-        const n = this._currNode;
-        if (n instanceof N1 || N2 && n instanceof N2) {
+        const n2 = this._currNode;
+        if (n2 instanceof N1 || N2 && n2 instanceof N2) {
           this._nodes.pop();
           return this;
         }
         throw new Error(`CodeGen: not in block "${N2 ? `${N1.kind}/${N2.kind}` : N1.kind}"`);
       }
       _elseNode(node2) {
-        const n = this._currNode;
-        if (!(n instanceof If)) {
+        const n2 = this._currNode;
+        if (!(n2 instanceof If)) {
           throw new Error('CodeGen: "else" without "if"');
         }
-        this._currNode = n.else = node2;
+        this._currNode = n2.else = node2;
         return this;
       }
       get _root() {
@@ -1009,41 +1010,41 @@ var require_codegen = __commonJS({
     };
     exports.CodeGen = CodeGen;
     function addNames(names, from) {
-      for (const n in from)
-        names[n] = (names[n] || 0) + (from[n] || 0);
+      for (const n2 in from)
+        names[n2] = (names[n2] || 0) + (from[n2] || 0);
       return names;
     }
     function addExprNames(names, from) {
       return from instanceof code_1._CodeOrName ? addNames(names, from.names) : names;
     }
-    function optimizeExpr(expr, names, constants) {
+    function optimizeExpr(expr, names, constants4) {
       if (expr instanceof code_1.Name)
         return replaceName(expr);
       if (!canOptimize(expr))
         return expr;
-      return new code_1._Code(expr._items.reduce((items, c) => {
-        if (c instanceof code_1.Name)
-          c = replaceName(c);
-        if (c instanceof code_1._Code)
-          items.push(...c._items);
+      return new code_1._Code(expr._items.reduce((items, c3) => {
+        if (c3 instanceof code_1.Name)
+          c3 = replaceName(c3);
+        if (c3 instanceof code_1._Code)
+          items.push(...c3._items);
         else
-          items.push(c);
+          items.push(c3);
         return items;
       }, []));
-      function replaceName(n) {
-        const c = constants[n.str];
-        if (c === void 0 || names[n.str] !== 1)
-          return n;
-        delete names[n.str];
-        return c;
+      function replaceName(n2) {
+        const c3 = constants4[n2.str];
+        if (c3 === void 0 || names[n2.str] !== 1)
+          return n2;
+        delete names[n2.str];
+        return c3;
       }
       function canOptimize(e) {
-        return e instanceof code_1._Code && e._items.some((c) => c instanceof code_1.Name && names[c.str] === 1 && constants[c.str] !== void 0);
+        return e instanceof code_1._Code && e._items.some((c3) => c3 instanceof code_1.Name && names[c3.str] === 1 && constants4[c3.str] !== void 0);
       }
     }
     function subtractNames(names, from) {
-      for (const n in from)
-        names[n] = (names[n] || 0) - (from[n] || 0);
+      for (const n2 in from)
+        names[n2] = (names[n2] || 0) - (from[n2] || 0);
     }
     function not(x) {
       return typeof x == "boolean" || typeof x == "number" || x === null ? !x : (0, code_1._)`!${par(x)}`;
@@ -1319,8 +1320,8 @@ var require_errors = __commonJS({
       if (errsCount === void 0)
         throw new Error("ajv implementation error");
       const err = gen.name("err");
-      gen.forRange("i", errsCount, names_1.default.errors, (i) => {
-        gen.const(err, (0, codegen_1._)`${names_1.default.vErrors}[${i}]`);
+      gen.forRange("i", errsCount, names_1.default.errors, (i2) => {
+        gen.const(err, (0, codegen_1._)`${names_1.default.vErrors}[${i2}]`);
         gen.if((0, codegen_1._)`${err}.instancePath === undefined`, () => gen.assign((0, codegen_1._)`${err}.instancePath`, (0, codegen_1.strConcat)(names_1.default.instancePath, it.errorPath)));
         gen.assign((0, codegen_1._)`${err}.schemaPath`, (0, codegen_1.str)`${it.errSchemaPath}/${keyword}`);
         if (it.opts.verbose) {
@@ -1700,7 +1701,7 @@ var require_defaults = __commonJS({
           assignDefault(it, key, properties[key].default);
         }
       } else if (ty === "array" && Array.isArray(items)) {
-        items.forEach((sch, i) => assignDefault(it, i, sch.default));
+        items.forEach((sch, i2) => assignDefault(it, i2, sch.default));
       }
     }
     exports.assignDefaults = assignDefaults;
@@ -1795,13 +1796,13 @@ var require_code2 = __commonJS({
     exports.callValidateCode = callValidateCode;
     var newRegExp = (0, codegen_1._)`new RegExp`;
     function usePattern({ gen, it: { opts } }, pattern) {
-      const u = opts.unicodeRegExp ? "u" : "";
+      const u2 = opts.unicodeRegExp ? "u" : "";
       const { regExp } = opts.code;
-      const rx = regExp(pattern, u);
+      const rx = regExp(pattern, u2);
       return gen.scopeValue("pattern", {
         key: rx.toString(),
         ref: rx,
-        code: (0, codegen_1._)`${regExp.code === "new RegExp" ? newRegExp : (0, util_2.useFunc)(gen, regExp)}(${pattern}, ${u})`
+        code: (0, codegen_1._)`${regExp.code === "new RegExp" ? newRegExp : (0, util_2.useFunc)(gen, regExp)}(${pattern}, ${u2})`
       });
     }
     exports.usePattern = usePattern;
@@ -1818,10 +1819,10 @@ var require_code2 = __commonJS({
       return valid;
       function validateItems(notValid) {
         const len = gen.const("len", (0, codegen_1._)`${data}.length`);
-        gen.forRange("i", 0, len, (i) => {
+        gen.forRange("i", 0, len, (i2) => {
           cxt.subschema({
             keyword,
-            dataProp: i,
+            dataProp: i2,
             dataPropType: util_1.Type.Num
           }, valid);
           gen.if((0, codegen_1.not)(valid), notValid);
@@ -1838,10 +1839,10 @@ var require_code2 = __commonJS({
         return;
       const valid = gen.let("valid", false);
       const schValid = gen.name("_valid");
-      gen.block(() => schema.forEach((_sch, i) => {
+      gen.block(() => schema.forEach((_sch, i2) => {
         const schCxt = cxt.subschema({
           keyword,
-          schemaProp: i,
+          schemaProp: i2,
           compositeRule: true
         }, schValid);
         gen.assign(valid, (0, codegen_1._)`${valid} || ${schValid}`);
@@ -2060,33 +2061,33 @@ var require_subschema = __commonJS({
 var require_fast_deep_equal = __commonJS({
   "node_modules/fast-deep-equal/index.js"(exports, module) {
     "use strict";
-    module.exports = function equal(a, b) {
-      if (a === b) return true;
-      if (a && b && typeof a == "object" && typeof b == "object") {
-        if (a.constructor !== b.constructor) return false;
-        var length2, i, keys;
-        if (Array.isArray(a)) {
-          length2 = a.length;
+    module.exports = function equal(a2, b) {
+      if (a2 === b) return true;
+      if (a2 && b && typeof a2 == "object" && typeof b == "object") {
+        if (a2.constructor !== b.constructor) return false;
+        var length2, i2, keys;
+        if (Array.isArray(a2)) {
+          length2 = a2.length;
           if (length2 != b.length) return false;
-          for (i = length2; i-- !== 0; )
-            if (!equal(a[i], b[i])) return false;
+          for (i2 = length2; i2-- !== 0; )
+            if (!equal(a2[i2], b[i2])) return false;
           return true;
         }
-        if (a.constructor === RegExp) return a.source === b.source && a.flags === b.flags;
-        if (a.valueOf !== Object.prototype.valueOf) return a.valueOf() === b.valueOf();
-        if (a.toString !== Object.prototype.toString) return a.toString() === b.toString();
-        keys = Object.keys(a);
+        if (a2.constructor === RegExp) return a2.source === b.source && a2.flags === b.flags;
+        if (a2.valueOf !== Object.prototype.valueOf) return a2.valueOf() === b.valueOf();
+        if (a2.toString !== Object.prototype.toString) return a2.toString() === b.toString();
+        keys = Object.keys(a2);
         length2 = keys.length;
         if (length2 !== Object.keys(b).length) return false;
-        for (i = length2; i-- !== 0; )
-          if (!Object.prototype.hasOwnProperty.call(b, keys[i])) return false;
-        for (i = length2; i-- !== 0; ) {
-          var key = keys[i];
-          if (!equal(a[key], b[key])) return false;
+        for (i2 = length2; i2-- !== 0; )
+          if (!Object.prototype.hasOwnProperty.call(b, keys[i2])) return false;
+        for (i2 = length2; i2-- !== 0; ) {
+          var key = keys[i2];
+          if (!equal(a2[key], b[key])) return false;
         }
         return true;
       }
-      return a !== a && b !== b;
+      return a2 !== a2 && b !== b;
     };
   }
 });
@@ -2158,8 +2159,8 @@ var require_json_schema_traverse = __commonJS({
           var sch = schema[key];
           if (Array.isArray(sch)) {
             if (key in traverse.arrayKeywords) {
-              for (var i = 0; i < sch.length; i++)
-                _traverse(opts, pre, post, sch[i], jsonPtr + "/" + key + "/" + i, rootSchema, jsonPtr, key, schema, i);
+              for (var i2 = 0; i2 < sch.length; i2++)
+                _traverse(opts, pre, post, sch[i2], jsonPtr + "/" + key + "/" + i2, rootSchema, jsonPtr, key, schema, i2);
             }
           } else if (key in traverse.propsKeywords) {
             if (sch && typeof sch == "object") {
@@ -2236,20 +2237,20 @@ var require_resolve = __commonJS({
       return false;
     }
     function countKeys(schema) {
-      let count = 0;
+      let count2 = 0;
       for (const key in schema) {
         if (key === "$ref")
           return Infinity;
-        count++;
+        count2++;
         if (SIMPLE_INLINED.has(key))
           continue;
         if (typeof schema[key] == "object") {
-          (0, util_1.eachItem)(schema[key], (sch) => count += countKeys(sch));
+          (0, util_1.eachItem)(schema[key], (sch) => count2 += countKeys(sch));
         }
-        if (count === Infinity)
+        if (count2 === Infinity)
           return Infinity;
       }
-      return count;
+      return count2;
     }
     function getFullPath(resolver, id = "", normalize) {
       if (normalize !== false)
@@ -3134,8 +3135,8 @@ var require_utils = __commonJS({
     var BYTE_HEX = new Array(256);
     {
       const HEX_DIGITS = "0123456789ABCDEF";
-      for (let i = 0; i < 256; i++) {
-        BYTE_HEX[i] = "%" + HEX_DIGITS[i >> 4] + HEX_DIGITS[i & 15];
+      for (let i2 = 0; i2 < 256; i2++) {
+        BYTE_HEX[i2] = "%" + HEX_DIGITS[i2 >> 4] + HEX_DIGITS[i2 & 15];
       }
     }
     function percentEncodeNonAscii(cp) {
@@ -3150,24 +3151,24 @@ var require_utils = __commonJS({
     function stringArrayToHexStripped(input2) {
       let acc = "";
       let code = 0;
-      let i = 0;
-      for (i = 0; i < input2.length; i++) {
-        code = input2[i].charCodeAt(0);
+      let i2 = 0;
+      for (i2 = 0; i2 < input2.length; i2++) {
+        code = input2[i2].charCodeAt(0);
         if (code === 48) {
           continue;
         }
         if (!(code >= 48 && code <= 57 || code >= 65 && code <= 70 || code >= 97 && code <= 102)) {
           return "";
         }
-        acc += input2[i];
+        acc += input2[i2];
         break;
       }
-      for (i += 1; i < input2.length; i++) {
-        code = input2[i].charCodeAt(0);
+      for (i2 += 1; i2 < input2.length; i2++) {
+        code = input2[i2].charCodeAt(0);
         if (!(code >= 48 && code <= 57 || code >= 65 && code <= 70 || code >= 97 && code <= 102)) {
           return "";
         }
-        acc += input2[i];
+        acc += input2[i2];
       }
       return acc;
     }
@@ -3177,10 +3178,10 @@ var require_utils = __commonJS({
     var nonSimpleDomain = RegExp.prototype.test.bind(/[^!"$&'()*+,\-.;=_`a-z{}~]/u);
     function isZoneIdentifier(zone) {
       if (zone.length === 0) return false;
-      for (let i = 0; i < zone.length; i++) {
-        if (isZoneCharacter(zone[i])) continue;
-        if (zone[i] === "%" && i + 2 < zone.length && isHexPair(zone.slice(i + 1, i + 3))) {
-          i += 2;
+      for (let i2 = 0; i2 < zone.length; i2++) {
+        if (isZoneCharacter(zone[i2])) continue;
+        if (zone[i2] === "%" && i2 + 2 < zone.length && isHexPair(zone.slice(i2 + 1, i2 + 3))) {
+          i2 += 2;
           continue;
         }
         return false;
@@ -3192,9 +3193,9 @@ var require_utils = __commonJS({
       let bestLength = 0;
       let runStart = -1;
       let runLength = 0;
-      for (let i = 0; i < hextets.length; i++) {
-        if (hextets[i] === "0") {
-          if (runStart === -1) runStart = i;
+      for (let i2 = 0; i2 < hextets.length; i2++) {
+        if (hextets[i2] === "0") {
+          if (runStart === -1) runStart = i2;
           runLength++;
           if (runLength > bestLength) {
             bestLength = runLength;
@@ -3207,8 +3208,8 @@ var require_utils = __commonJS({
       }
       if (bestLength < 2) return hextets.join(":");
       const head = hextets.slice(0, bestStart).join(":");
-      const tail = hextets.slice(bestStart + bestLength).join(":");
-      return head + "::" + tail;
+      const tail2 = hextets.slice(bestStart + bestLength).join(":");
+      return head + "::" + tail2;
     }
     function normalizeIPv6Address(input2) {
       const compression = input2.indexOf("::");
@@ -3221,16 +3222,16 @@ var require_utils = __commonJS({
       }
       const parts = left.concat(right);
       let hextetCount = 0;
-      for (let i = 0; i < parts.length; i++) {
-        const part = parts[i];
+      for (let i2 = 0; i2 < parts.length; i2++) {
+        const part = parts[i2];
         if (part === "") return void 0;
         if (part.indexOf(".") !== -1) {
-          if (i !== parts.length - 1 || compression !== -1 && right.length === 0 || !isIPv42(part)) return void 0;
+          if (i2 !== parts.length - 1 || compression !== -1 && right.length === 0 || !isIPv42(part)) return void 0;
           hextetCount += 2;
           continue;
         }
         if (!isHextet(part)) return void 0;
-        parts[i] = parseInt(part, 16).toString(16);
+        parts[i2] = parseInt(part, 16).toString(16);
         hextetCount++;
       }
       if (compression === -1) {
@@ -3239,8 +3240,8 @@ var require_utils = __commonJS({
       }
       if (hextetCount >= 8) return void 0;
       const expanded = parts.slice(0, left.length);
-      for (let i = hextetCount; i < 8; i++) expanded.push("0");
-      for (let i = left.length; i < parts.length; i++) expanded.push(parts[i]);
+      for (let i2 = hextetCount; i2 < 8; i2++) expanded.push("0");
+      for (let i2 = left.length; i2 < parts.length; i2++) expanded.push(parts[i2]);
       return compressIPv6ZeroRun(expanded);
     }
     function normalizeIPv6(host) {
@@ -3273,13 +3274,13 @@ var require_utils = __commonJS({
     }
     function findToken(str, token) {
       let ind = 0;
-      for (let i = 0; i < str.length; i++) {
-        if (str[i] === token) ind++;
+      for (let i2 = 0; i2 < str.length; i2++) {
+        if (str[i2] === token) ind++;
       }
       return ind;
     }
-    function removeDotSegments(path) {
-      let input2 = path;
+    function removeDotSegments(path10) {
+      let input2 = path10;
       const output2 = [];
       let nextSlash = -1;
       let len = 0;
@@ -3353,16 +3354,16 @@ var require_utils = __commonJS({
       }
       return output2.join("");
     }
-    function removeDotSegmentsRelative(path) {
-      if (path === "" || path[0] === "/") {
-        return removeDotSegments(path);
+    function removeDotSegmentsRelative(path10) {
+      if (path10 === "" || path10[0] === "/") {
+        return removeDotSegments(path10);
       }
-      const segments = path.split("/");
+      const segments = path10.split("/");
       const last = segments.length - 1;
       const output2 = [];
       let trailingDirectory = false;
-      for (let i = 0; i <= last; i++) {
-        const segment = segments[i];
+      for (let i2 = 0; i2 <= last; i2++) {
+        const segment = segments[i2];
         if (segment === "." || segment === "..") {
           if (segment === "..") {
             if (output2.length !== 0 && output2[output2.length - 1] !== "..") {
@@ -3371,7 +3372,7 @@ var require_utils = __commonJS({
               output2.push("..");
             }
           }
-          trailingDirectory = i === last;
+          trailingDirectory = i2 === last;
         } else {
           output2.push(segment);
         }
@@ -3397,9 +3398,9 @@ var require_utils = __commonJS({
         return input2;
       }
       let output2 = "";
-      for (let i = 0; i < input2.length; i++) {
-        if (input2[i] === "%" && i + 2 < input2.length) {
-          const hex3 = input2.slice(i + 1, i + 3);
+      for (let i2 = 0; i2 < input2.length; i2++) {
+        if (input2[i2] === "%" && i2 + 2 < input2.length) {
+          const hex3 = input2.slice(i2 + 1, i2 + 3);
           if (isHexPair(hex3)) {
             const normalizedHex = hex3.toUpperCase();
             const decoded = String.fromCharCode(parseInt(normalizedHex, 16));
@@ -3408,20 +3409,20 @@ var require_utils = __commonJS({
             } else {
               output2 += "%" + normalizedHex;
             }
-            i += 2;
+            i2 += 2;
             continue;
           }
         }
-        output2 += input2[i];
+        output2 += input2[i2];
       }
       return output2;
     }
     function normalizePathEncoding(input2) {
       let output2 = "";
-      for (let i = 0; i < input2.length; i++) {
-        const ch = input2[i];
-        if (ch === "%" && i + 2 < input2.length) {
-          const hex3 = input2.slice(i + 1, i + 3);
+      for (let i2 = 0; i2 < input2.length; i2++) {
+        const ch = input2[i2];
+        if (ch === "%" && i2 + 2 < input2.length) {
+          const hex3 = input2.slice(i2 + 1, i2 + 3);
           if (isHexPair(hex3)) {
             const normalizedHex = hex3.toUpperCase();
             const decoded = String.fromCharCode(parseInt(normalizedHex, 16));
@@ -3430,23 +3431,23 @@ var require_utils = __commonJS({
             } else {
               output2 += "%" + normalizedHex;
             }
-            i += 2;
+            i2 += 2;
             continue;
           }
         }
         if (isPathCharacter(ch)) {
           output2 += ch;
         } else {
-          const code = input2.charCodeAt(i);
+          const code = input2.charCodeAt(i2);
           if (code < 128) {
             output2 += isEscapeSafe(code) ? ch : BYTE_HEX[code];
           } else if (code < 55296 || code > 57343) {
             output2 += percentEncodeNonAscii(code);
-          } else if (code <= 56319 && i + 1 < input2.length) {
-            const low = input2.charCodeAt(i + 1);
+          } else if (code <= 56319 && i2 + 1 < input2.length) {
+            const low = input2.charCodeAt(i2 + 1);
             if (low >= 56320 && low <= 57343) {
               output2 += percentEncodeNonAscii(65536 + (code - 55296 << 10) + (low - 56320));
-              i++;
+              i2++;
             } else {
               output2 += percentEncodeNonAscii(65533);
             }
@@ -3460,13 +3461,13 @@ var require_utils = __commonJS({
     function serializePathEncoding(input2, pathNoScheme = false) {
       let output2 = "";
       let firstSegment = pathNoScheme && input2[0] !== "/";
-      for (let i = 0; i < input2.length; i++) {
-        const ch = input2[i];
-        if (ch === "%" && i + 2 < input2.length) {
-          const hex3 = input2.slice(i + 1, i + 3);
+      for (let i2 = 0; i2 < input2.length; i2++) {
+        const ch = input2[i2];
+        if (ch === "%" && i2 + 2 < input2.length) {
+          const hex3 = input2.slice(i2 + 1, i2 + 3);
           if (isHexPair(hex3)) {
             output2 += "%" + hex3.toUpperCase();
-            i += 2;
+            i2 += 2;
             continue;
           }
         }
@@ -3476,16 +3477,16 @@ var require_utils = __commonJS({
         if (isPathCharacter(ch) && (ch !== ":" || !firstSegment)) {
           output2 += ch;
         } else {
-          const code = input2.charCodeAt(i);
+          const code = input2.charCodeAt(i2);
           if (code < 128) {
             output2 += BYTE_HEX[code];
           } else if (code < 55296 || code > 57343) {
             output2 += percentEncodeNonAscii(code);
-          } else if (code <= 56319 && i + 1 < input2.length) {
-            const low = input2.charCodeAt(i + 1);
+          } else if (code <= 56319 && i2 + 1 < input2.length) {
+            const low = input2.charCodeAt(i2 + 1);
             if (low >= 56320 && low <= 57343) {
               output2 += percentEncodeNonAscii(65536 + (code - 55296 << 10) + (low - 56320));
-              i++;
+              i2++;
             } else {
               output2 += percentEncodeNonAscii(65533);
             }
@@ -3498,29 +3499,29 @@ var require_utils = __commonJS({
     }
     function encodeComponent(input2, isAllowed) {
       let output2 = "";
-      for (let i = 0; i < input2.length; i++) {
-        const ch = input2[i];
-        if (ch === "%" && i + 2 < input2.length) {
-          const hex3 = input2.slice(i + 1, i + 3);
+      for (let i2 = 0; i2 < input2.length; i2++) {
+        const ch = input2[i2];
+        if (ch === "%" && i2 + 2 < input2.length) {
+          const hex3 = input2.slice(i2 + 1, i2 + 3);
           if (isHexPair(hex3)) {
             output2 += "%" + hex3.toUpperCase();
-            i += 2;
+            i2 += 2;
             continue;
           }
         }
         if (isAllowed(ch)) {
           output2 += ch;
         } else {
-          const code = input2.charCodeAt(i);
+          const code = input2.charCodeAt(i2);
           if (code < 128) {
             output2 += BYTE_HEX[code];
           } else if (code < 55296 || code > 57343) {
             output2 += percentEncodeNonAscii(code);
-          } else if (code <= 56319 && i + 1 < input2.length) {
-            const low = input2.charCodeAt(i + 1);
+          } else if (code <= 56319 && i2 + 1 < input2.length) {
+            const low = input2.charCodeAt(i2 + 1);
             if (low >= 56320 && low <= 57343) {
               output2 += percentEncodeNonAscii(65536 + (code - 55296 << 10) + (low - 56320));
-              i++;
+              i2++;
             } else {
               output2 += percentEncodeNonAscii(65533);
             }
@@ -3545,10 +3546,10 @@ var require_utils = __commonJS({
     }
     function normalizeQueryFragmentEncoding(input2) {
       let output2 = "";
-      for (let i = 0; i < input2.length; i++) {
-        const ch = input2[i];
-        if (ch === "%" && i + 2 < input2.length) {
-          const hex3 = input2.slice(i + 1, i + 3);
+      for (let i2 = 0; i2 < input2.length; i2++) {
+        const ch = input2[i2];
+        if (ch === "%" && i2 + 2 < input2.length) {
+          const hex3 = input2.slice(i2 + 1, i2 + 3);
           if (isHexPair(hex3)) {
             const normalizedHex = hex3.toUpperCase();
             const decoded = String.fromCharCode(parseInt(normalizedHex, 16));
@@ -3557,23 +3558,23 @@ var require_utils = __commonJS({
             } else {
               output2 += "%" + normalizedHex;
             }
-            i += 2;
+            i2 += 2;
             continue;
           }
         }
         if (isQueryFragmentCharacter(ch)) {
           output2 += ch;
         } else {
-          const code = input2.charCodeAt(i);
+          const code = input2.charCodeAt(i2);
           if (code < 128) {
             output2 += isEscapeSafe(code) ? ch : BYTE_HEX[code];
           } else if (code < 55296 || code > 57343) {
             output2 += percentEncodeNonAscii(code);
-          } else if (code <= 56319 && i + 1 < input2.length) {
-            const low = input2.charCodeAt(i + 1);
+          } else if (code <= 56319 && i2 + 1 < input2.length) {
+            const low = input2.charCodeAt(i2 + 1);
             if (low >= 56320 && low <= 57343) {
               output2 += percentEncodeNonAscii(65536 + (code - 55296 << 10) + (low - 56320));
-              i++;
+              i2++;
             } else {
               output2 += percentEncodeNonAscii(65533);
             }
@@ -3586,16 +3587,16 @@ var require_utils = __commonJS({
     }
     function escapePreservingEscapes(input2) {
       let output2 = "";
-      for (let i = 0; i < input2.length; i++) {
-        if (input2[i] === "%" && i + 2 < input2.length) {
-          const hex3 = input2.slice(i + 1, i + 3);
+      for (let i2 = 0; i2 < input2.length; i2++) {
+        if (input2[i2] === "%" && i2 + 2 < input2.length) {
+          const hex3 = input2.slice(i2 + 1, i2 + 3);
           if (isHexPair(hex3)) {
             output2 += "%" + hex3.toUpperCase();
-            i += 2;
+            i2 += 2;
             continue;
           }
         }
-        output2 += escape(input2[i]);
+        output2 += escape(input2[i2]);
       }
       return output2;
     }
@@ -3720,8 +3721,8 @@ var require_schemes = __commonJS({
       }
       if (wsComponent.resourceName) {
         const queryIndex = wsComponent.resourceName.indexOf("?");
-        const path = queryIndex === -1 ? wsComponent.resourceName : wsComponent.resourceName.slice(0, queryIndex);
-        wsComponent.path = path && path !== "/" ? path : void 0;
+        const path10 = queryIndex === -1 ? wsComponent.resourceName : wsComponent.resourceName.slice(0, queryIndex);
+        wsComponent.path = path10 && path10 !== "/" ? path10 : void 0;
         wsComponent.query = queryIndex === -1 ? void 0 : wsComponent.resourceName.slice(queryIndex + 1);
         wsComponent.resourceName = void 0;
       }
@@ -3887,7 +3888,7 @@ var require_fast_uri = __commonJS({
         normalizeString(uri, options);
       } else if (typeof uri === "object") {
         uri = /** @type {T} */
-        parse4(serialize(uri, options), options);
+        parse4(serialize2(uri, options), options);
       }
       return uri;
     }
@@ -3925,13 +3926,13 @@ var require_fast_uri = __commonJS({
         throw new Error(resolved.error);
       }
       schemelessOptions.skipEscape = true;
-      return serialize(resolved, schemelessOptions);
+      return serialize2(resolved, schemelessOptions);
     }
     function resolveComponent(base, relative4, options, skipNormalization) {
       const target = {};
       if (!skipNormalization) {
-        base = parse4(serialize(base, options), options);
-        relative4 = parse4(serialize(relative4, options), options);
+        base = parse4(serialize2(base, options), options);
+        relative4 = parse4(serialize2(relative4, options), options);
       }
       options = options || {};
       if (!options.tolerant && relative4.scheme) {
@@ -3986,7 +3987,7 @@ var require_fast_uri = __commonJS({
       const normalizedB = normalizeComparableURI(uriB, options);
       return normalizedA !== void 0 && normalizedB !== void 0 && normalizedA === normalizedB;
     }
-    function serialize(cmpts, opts) {
+    function serialize2(cmpts, opts) {
       const component = {
         host: cmpts.host,
         scheme: cmpts.scheme,
@@ -4258,7 +4259,7 @@ var require_fast_uri = __commonJS({
     function normalizeStringWithStatus(uri, opts) {
       const { parsed, malformedAuthorityOrPort, malformedPercentEncoding, malformedSchemeSpecific, malformedHost, malformedScheme } = parseWithStatus(uri, opts);
       return {
-        normalized: malformedAuthorityOrPort || malformedPercentEncoding || malformedSchemeSpecific || malformedHost || malformedScheme ? uri : serialize(parsed, opts),
+        normalized: malformedAuthorityOrPort || malformedPercentEncoding || malformedSchemeSpecific || malformedHost || malformedScheme ? uri : serialize2(parsed, opts),
         malformedAuthorityOrPort,
         malformedPercentEncoding,
         malformedSchemeSpecific,
@@ -4272,7 +4273,7 @@ var require_fast_uri = __commonJS({
       }
       let value;
       try {
-        value = typeof uri === "string" ? uri : serialize(uri, opts);
+        value = typeof uri === "string" ? uri : serialize2(uri, opts);
       } catch {
         return void 0;
       }
@@ -4285,7 +4286,7 @@ var require_fast_uri = __commonJS({
       resolve: resolve8,
       resolveComponent,
       equal,
-      serialize,
+      serialize: serialize2,
       parse: parse4
     };
     module.exports = fastUri;
@@ -4385,31 +4386,31 @@ var require_core = __commonJS({
       unicode: '"minLength"/"maxLength" account for unicode characters by default.'
     };
     var MAX_EXPRESSION = 200;
-    function requiredOptions(o) {
+    function requiredOptions(o2) {
       var _a3, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0;
-      const s = o.strict;
-      const _optz = (_a3 = o.code) === null || _a3 === void 0 ? void 0 : _a3.optimize;
+      const s = o2.strict;
+      const _optz = (_a3 = o2.code) === null || _a3 === void 0 ? void 0 : _a3.optimize;
       const optimize = _optz === true || _optz === void 0 ? 1 : _optz || 0;
-      const regExp = (_c = (_b = o.code) === null || _b === void 0 ? void 0 : _b.regExp) !== null && _c !== void 0 ? _c : defaultRegExp;
-      const uriResolver = (_d = o.uriResolver) !== null && _d !== void 0 ? _d : uri_1.default;
+      const regExp = (_c = (_b = o2.code) === null || _b === void 0 ? void 0 : _b.regExp) !== null && _c !== void 0 ? _c : defaultRegExp;
+      const uriResolver = (_d = o2.uriResolver) !== null && _d !== void 0 ? _d : uri_1.default;
       return {
-        strictSchema: (_f = (_e = o.strictSchema) !== null && _e !== void 0 ? _e : s) !== null && _f !== void 0 ? _f : true,
-        strictNumbers: (_h = (_g = o.strictNumbers) !== null && _g !== void 0 ? _g : s) !== null && _h !== void 0 ? _h : true,
-        strictTypes: (_k = (_j = o.strictTypes) !== null && _j !== void 0 ? _j : s) !== null && _k !== void 0 ? _k : "log",
-        strictTuples: (_m = (_l = o.strictTuples) !== null && _l !== void 0 ? _l : s) !== null && _m !== void 0 ? _m : "log",
-        strictRequired: (_p = (_o = o.strictRequired) !== null && _o !== void 0 ? _o : s) !== null && _p !== void 0 ? _p : false,
-        code: o.code ? { ...o.code, optimize, regExp } : { optimize, regExp },
-        loopRequired: (_q = o.loopRequired) !== null && _q !== void 0 ? _q : MAX_EXPRESSION,
-        loopEnum: (_r = o.loopEnum) !== null && _r !== void 0 ? _r : MAX_EXPRESSION,
-        meta: (_s = o.meta) !== null && _s !== void 0 ? _s : true,
-        messages: (_t = o.messages) !== null && _t !== void 0 ? _t : true,
-        inlineRefs: (_u = o.inlineRefs) !== null && _u !== void 0 ? _u : true,
-        schemaId: (_v = o.schemaId) !== null && _v !== void 0 ? _v : "$id",
-        addUsedSchema: (_w = o.addUsedSchema) !== null && _w !== void 0 ? _w : true,
-        validateSchema: (_x = o.validateSchema) !== null && _x !== void 0 ? _x : true,
-        validateFormats: (_y = o.validateFormats) !== null && _y !== void 0 ? _y : true,
-        unicodeRegExp: (_z = o.unicodeRegExp) !== null && _z !== void 0 ? _z : true,
-        int32range: (_0 = o.int32range) !== null && _0 !== void 0 ? _0 : true,
+        strictSchema: (_f = (_e = o2.strictSchema) !== null && _e !== void 0 ? _e : s) !== null && _f !== void 0 ? _f : true,
+        strictNumbers: (_h = (_g = o2.strictNumbers) !== null && _g !== void 0 ? _g : s) !== null && _h !== void 0 ? _h : true,
+        strictTypes: (_k = (_j = o2.strictTypes) !== null && _j !== void 0 ? _j : s) !== null && _k !== void 0 ? _k : "log",
+        strictTuples: (_m = (_l = o2.strictTuples) !== null && _l !== void 0 ? _l : s) !== null && _m !== void 0 ? _m : "log",
+        strictRequired: (_p = (_o = o2.strictRequired) !== null && _o !== void 0 ? _o : s) !== null && _p !== void 0 ? _p : false,
+        code: o2.code ? { ...o2.code, optimize, regExp } : { optimize, regExp },
+        loopRequired: (_q = o2.loopRequired) !== null && _q !== void 0 ? _q : MAX_EXPRESSION,
+        loopEnum: (_r = o2.loopEnum) !== null && _r !== void 0 ? _r : MAX_EXPRESSION,
+        meta: (_s = o2.meta) !== null && _s !== void 0 ? _s : true,
+        messages: (_t = o2.messages) !== null && _t !== void 0 ? _t : true,
+        inlineRefs: (_u = o2.inlineRefs) !== null && _u !== void 0 ? _u : true,
+        schemaId: (_v = o2.schemaId) !== null && _v !== void 0 ? _v : "$id",
+        addUsedSchema: (_w = o2.addUsedSchema) !== null && _w !== void 0 ? _w : true,
+        validateSchema: (_x = o2.validateSchema) !== null && _x !== void 0 ? _x : true,
+        validateFormats: (_y = o2.validateFormats) !== null && _y !== void 0 ? _y : true,
+        unicodeRegExp: (_z = o2.unicodeRegExp) !== null && _z !== void 0 ? _z : true,
+        int32range: (_0 = o2.int32range) !== null && _0 !== void 0 ? _0 : true,
         uriResolver
       };
     }
@@ -4681,17 +4682,17 @@ var require_core = __commonJS({
         delete RULES.keywords[keyword];
         delete RULES.all[keyword];
         for (const group of RULES.rules) {
-          const i = group.rules.findIndex((rule) => rule.keyword === keyword);
-          if (i >= 0)
-            group.rules.splice(i, 1);
+          const i2 = group.rules.findIndex((rule) => rule.keyword === keyword);
+          if (i2 >= 0)
+            group.rules.splice(i2, 1);
         }
         return this;
       }
       // Add format
-      addFormat(name5, format) {
-        if (typeof format == "string")
-          format = new RegExp(format);
-        this.formats[name5] = format;
+      addFormat(name5, format2) {
+        if (typeof format2 == "string")
+          format2 = new RegExp(format2);
+        this.formats[name5] = format2;
         return this;
       }
       errorsText(errors = this.errors, { separator = ", ", dataVar = "data" } = {}) {
@@ -4809,9 +4810,9 @@ var require_core = __commonJS({
     }
     function addInitialFormats() {
       for (const name5 in this.opts.formats) {
-        const format = this.opts.formats[name5];
-        if (format)
-          this.addFormat(name5, format);
+        const format2 = this.opts.formats[name5];
+        if (format2)
+          this.addFormat(name5, format2);
       }
     }
     function addInitialKeywords(defs) {
@@ -4891,9 +4892,9 @@ var require_core = __commonJS({
       (_a3 = definition.implements) === null || _a3 === void 0 ? void 0 : _a3.forEach((kwd) => this.addKeyword(kwd));
     }
     function addBeforeRule(ruleGroup, rule, before) {
-      const i = ruleGroup.rules.findIndex((_rule) => _rule.keyword === before);
-      if (i >= 0) {
-        ruleGroup.rules.splice(i, 0, rule);
+      const i2 = ruleGroup.rules.findIndex((_rule) => _rule.keyword === before);
+      if (i2 >= 0) {
+        ruleGroup.rules.splice(i2, 0, rule);
       } else {
         ruleGroup.rules.push(rule);
         this.logger.warn(`rule ${before} is not defined`);
@@ -5212,12 +5213,12 @@ var require_pattern = __commonJS({
       error: error62,
       code(cxt) {
         const { gen, data, $data, schema, schemaCode, it } = cxt;
-        const u = it.opts.unicodeRegExp ? "u" : "";
+        const u2 = it.opts.unicodeRegExp ? "u" : "";
         if ($data) {
           const { regExp } = it.opts.code;
           const regExpCode = regExp.code === "new RegExp" ? (0, codegen_1._)`new RegExp` : (0, util_1.useFunc)(gen, regExp);
           const valid = gen.let("valid");
-          gen.try(() => gen.assign(valid, (0, codegen_1._)`${regExpCode}(${schemaCode}, ${u}).test(${data})`), () => gen.assign(valid, false));
+          gen.try(() => gen.assign(valid, (0, codegen_1._)`${regExpCode}(${schemaCode}, ${u2}).test(${data})`), () => gen.assign(valid, false));
           cxt.fail$data((0, codegen_1._)`!${valid}`);
         } else {
           const regExp = (0, code_1.usePattern)(cxt, schema);
@@ -5390,8 +5391,8 @@ var require_uniqueItems = __commonJS({
     var util_1 = require_util();
     var equal_1 = require_equal();
     var error62 = {
-      message: ({ params: { i, j } }) => (0, codegen_1.str)`must NOT have duplicate items (items ## ${j} and ${i} are identical)`,
-      params: ({ params: { i, j } }) => (0, codegen_1._)`{i: ${i}, j: ${j}}`
+      message: ({ params: { i: i2, j } }) => (0, codegen_1.str)`must NOT have duplicate items (items ## ${j} and ${i2} are identical)`,
+      params: ({ params: { i: i2, j } }) => (0, codegen_1._)`{i: ${i2}, j: ${j}}`
     };
     var def = {
       keyword: "uniqueItems",
@@ -5408,21 +5409,21 @@ var require_uniqueItems = __commonJS({
         cxt.block$data(valid, validateUniqueItems, (0, codegen_1._)`${schemaCode} === false`);
         cxt.ok(valid);
         function validateUniqueItems() {
-          const i = gen.let("i", (0, codegen_1._)`${data}.length`);
+          const i2 = gen.let("i", (0, codegen_1._)`${data}.length`);
           const j = gen.let("j");
-          cxt.setParams({ i, j });
+          cxt.setParams({ i: i2, j });
           gen.assign(valid, true);
-          gen.if((0, codegen_1._)`${i} > 1`, () => (canOptimize() ? loopN : loopN2)(i, j));
+          gen.if((0, codegen_1._)`${i2} > 1`, () => (canOptimize() ? loopN : loopN2)(i2, j));
         }
         function canOptimize() {
           return itemTypes.length > 0 && !itemTypes.some((t) => t === "object" || t === "array");
         }
-        function loopN(i, j) {
+        function loopN(i2, j) {
           const item = gen.name("item");
           const wrongType = (0, dataType_1.checkDataTypes)(itemTypes, item, it.opts.strictNumbers, dataType_1.DataType.Wrong);
           const indices = gen.const("indices", (0, codegen_1._)`{}`);
-          gen.for((0, codegen_1._)`;${i}--;`, () => {
-            gen.let(item, (0, codegen_1._)`${data}[${i}]`);
+          gen.for((0, codegen_1._)`;${i2}--;`, () => {
+            gen.let(item, (0, codegen_1._)`${data}[${i2}]`);
             gen.if(wrongType, (0, codegen_1._)`continue`);
             if (itemTypes.length > 1)
               gen.if((0, codegen_1._)`typeof ${item} == "string"`, (0, codegen_1._)`${item} += "_"`);
@@ -5430,13 +5431,13 @@ var require_uniqueItems = __commonJS({
               gen.assign(j, (0, codegen_1._)`${indices}[${item}]`);
               cxt.error();
               gen.assign(valid, false).break();
-            }).code((0, codegen_1._)`${indices}[${item}] = ${i}`);
+            }).code((0, codegen_1._)`${indices}[${item}] = ${i2}`);
           });
         }
-        function loopN2(i, j) {
+        function loopN2(i2, j) {
           const eql = (0, util_1.useFunc)(gen, equal_1.default);
           const outer = gen.name("outer");
-          gen.label(outer).for((0, codegen_1._)`;${i}--;`, () => gen.for((0, codegen_1._)`${j} = ${i}; ${j}--;`, () => gen.if((0, codegen_1._)`${eql}(${data}[${i}], ${data}[${j}])`, () => {
+          gen.label(outer).for((0, codegen_1._)`;${i2}--;`, () => gen.for((0, codegen_1._)`${j} = ${i2}; ${j}--;`, () => gen.if((0, codegen_1._)`${eql}(${data}[${i2}], ${data}[${j}])`, () => {
             cxt.error();
             gen.assign(valid, false).break(outer);
           })));
@@ -5508,16 +5509,16 @@ var require_enum = __commonJS({
           if (!Array.isArray(schema))
             throw new Error("ajv implementation error");
           const vSchema = gen.const("vSchema", schemaCode);
-          valid = (0, codegen_1.or)(...schema.map((_x, i) => equalCode(vSchema, i)));
+          valid = (0, codegen_1.or)(...schema.map((_x, i2) => equalCode(vSchema, i2)));
         }
         cxt.pass(valid);
         function loopEnum() {
           gen.assign(valid, false);
           gen.forOf("v", schemaCode, (v) => gen.if((0, codegen_1._)`${getEql()}(${data}, ${v})`, () => gen.assign(valid, true).break()));
         }
-        function equalCode(vSchema, i) {
-          const sch = schema[i];
-          return typeof sch === "object" && sch !== null ? (0, codegen_1._)`${getEql()}(${data}, ${vSchema}[${i}])` : (0, codegen_1._)`${data} === ${sch}`;
+        function equalCode(vSchema, i2) {
+          const sch = schema[i2];
+          return typeof sch === "object" && sch !== null ? (0, codegen_1._)`${getEql()}(${data}, ${vSchema}[${i2}])` : (0, codegen_1._)`${data} === ${sch}`;
         }
       }
     };
@@ -5604,8 +5605,8 @@ var require_additionalItems = __commonJS({
         cxt.ok(valid);
       }
       function validateItems(valid) {
-        gen.forRange("i", items.length, len, (i) => {
-          cxt.subschema({ keyword, dataProp: i, dataPropType: util_1.Type.Num }, valid);
+        gen.forRange("i", items.length, len, (i2) => {
+          cxt.subschema({ keyword, dataProp: i2, dataPropType: util_1.Type.Num }, valid);
           if (!it.allErrors)
             gen.if((0, codegen_1.not)(valid), () => gen.break());
         });
@@ -5648,13 +5649,13 @@ var require_items = __commonJS({
       }
       const valid = gen.name("valid");
       const len = gen.const("len", (0, codegen_1._)`${data}.length`);
-      schArr.forEach((sch, i) => {
+      schArr.forEach((sch, i2) => {
         if ((0, util_1.alwaysValidSchema)(it, sch))
           return;
-        gen.if((0, codegen_1._)`${len} > ${i}`, () => cxt.subschema({
+        gen.if((0, codegen_1._)`${len} > ${i2}`, () => cxt.subschema({
           keyword,
-          schemaProp: i,
-          dataProp: i
+          schemaProp: i2,
+          dataProp: i2
         }, valid));
         cxt.ok(valid);
       });
@@ -5787,30 +5788,30 @@ var require_contains = __commonJS({
         cxt.result(valid, () => cxt.reset());
         function validateItemsWithCount() {
           const schValid = gen.name("_valid");
-          const count = gen.let("count", 0);
-          validateItems(schValid, () => gen.if(schValid, () => checkLimits(count)));
+          const count2 = gen.let("count", 0);
+          validateItems(schValid, () => gen.if(schValid, () => checkLimits(count2)));
         }
         function validateItems(_valid, block) {
-          gen.forRange("i", 0, len, (i) => {
+          gen.forRange("i", 0, len, (i2) => {
             cxt.subschema({
               keyword: "contains",
-              dataProp: i,
+              dataProp: i2,
               dataPropType: util_1.Type.Num,
               compositeRule: true
             }, _valid);
             block();
           });
         }
-        function checkLimits(count) {
-          gen.code((0, codegen_1._)`${count}++`);
+        function checkLimits(count2) {
+          gen.code((0, codegen_1._)`${count2}++`);
           if (max === void 0) {
-            gen.if((0, codegen_1._)`${count} >= ${min}`, () => gen.assign(valid, true).break());
+            gen.if((0, codegen_1._)`${count2} >= ${min}`, () => gen.assign(valid, true).break());
           } else {
-            gen.if((0, codegen_1._)`${count} > ${max}`, () => gen.assign(valid, false).break());
+            gen.if((0, codegen_1._)`${count2} > ${max}`, () => gen.assign(valid, false).break());
             if (min === 1)
               gen.assign(valid, true);
             else
-              gen.if((0, codegen_1._)`${count} >= ${min}`, () => gen.assign(valid, true));
+              gen.if((0, codegen_1._)`${count2} >= ${min}`, () => gen.assign(valid, true));
           }
         }
       }
@@ -6272,23 +6273,23 @@ var require_oneOf = __commonJS({
         gen.block(validateOneOf);
         cxt.result(valid, () => cxt.reset(), () => cxt.error(true));
         function validateOneOf() {
-          schArr.forEach((sch, i) => {
+          schArr.forEach((sch, i2) => {
             let schCxt;
             if ((0, util_1.alwaysValidSchema)(it, sch)) {
               gen.var(schValid, true);
             } else {
               schCxt = cxt.subschema({
                 keyword: "oneOf",
-                schemaProp: i,
+                schemaProp: i2,
                 compositeRule: true
               }, schValid);
             }
-            if (i > 0) {
-              gen.if((0, codegen_1._)`${schValid} && ${valid}`).assign(valid, false).assign(passing, (0, codegen_1._)`[${passing}, ${i}]`).else();
+            if (i2 > 0) {
+              gen.if((0, codegen_1._)`${schValid} && ${valid}`).assign(valid, false).assign(passing, (0, codegen_1._)`[${passing}, ${i2}]`).else();
             }
             gen.if(schValid, () => {
               gen.assign(valid, true);
-              gen.assign(passing, i);
+              gen.assign(passing, i2);
               if (schCxt)
                 cxt.mergeEvaluated(schCxt, codegen_1.Name);
             });
@@ -6314,10 +6315,10 @@ var require_allOf = __commonJS({
         if (!Array.isArray(schema))
           throw new Error("ajv implementation error");
         const valid = gen.name("valid");
-        schema.forEach((sch, i) => {
+        schema.forEach((sch, i2) => {
           if ((0, util_1.alwaysValidSchema)(it, sch))
             return;
-          const schCxt = cxt.subschema({ keyword: "allOf", schemaProp: i }, valid);
+          const schCxt = cxt.subschema({ keyword: "allOf", schemaProp: i2 }, valid);
           cxt.ok(valid);
           cxt.mergeEvaluated(schCxt);
         });
@@ -6494,18 +6495,18 @@ var require_format = __commonJS({
           });
           const fDef = gen.const("fDef", (0, codegen_1._)`${fmts}[${schemaCode}]`);
           const fType = gen.let("fType");
-          const format = gen.let("format");
-          gen.if((0, codegen_1._)`typeof ${fDef} == "object" && !(${fDef} instanceof RegExp)`, () => gen.assign(fType, (0, codegen_1._)`${fDef}.type || "string"`).assign(format, (0, codegen_1._)`${fDef}.validate`), () => gen.assign(fType, (0, codegen_1._)`"string"`).assign(format, fDef));
+          const format2 = gen.let("format");
+          gen.if((0, codegen_1._)`typeof ${fDef} == "object" && !(${fDef} instanceof RegExp)`, () => gen.assign(fType, (0, codegen_1._)`${fDef}.type || "string"`).assign(format2, (0, codegen_1._)`${fDef}.validate`), () => gen.assign(fType, (0, codegen_1._)`"string"`).assign(format2, fDef));
           cxt.fail$data((0, codegen_1.or)(unknownFmt(), invalidFmt()));
           function unknownFmt() {
             if (opts.strictSchema === false)
               return codegen_1.nil;
-            return (0, codegen_1._)`${schemaCode} && !${format}`;
+            return (0, codegen_1._)`${schemaCode} && !${format2}`;
           }
           function invalidFmt() {
-            const callFormat = schemaEnv.$async ? (0, codegen_1._)`(${fDef}.async ? await ${format}(${data}) : ${format}(${data}))` : (0, codegen_1._)`${format}(${data})`;
-            const validData = (0, codegen_1._)`(typeof ${format} == "function" ? ${callFormat} : ${format}.test(${data}))`;
-            return (0, codegen_1._)`${format} && ${format} !== true && ${fType} === ${ruleType} && !${validData}`;
+            const callFormat = schemaEnv.$async ? (0, codegen_1._)`(${fDef}.async ? await ${format2}(${data}) : ${format2}(${data}))` : (0, codegen_1._)`${format2}(${data})`;
+            const validData = (0, codegen_1._)`(typeof ${format2} == "function" ? ${callFormat} : ${format2}.test(${data}))`;
+            return (0, codegen_1._)`${format2} && ${format2} !== true && ${fType} === ${ruleType} && !${validData}`;
           }
         }
         function validateFormat() {
@@ -6516,7 +6517,7 @@ var require_format = __commonJS({
           }
           if (formatDef === true)
             return;
-          const [fmtType, format, fmtRef] = getFormat(formatDef);
+          const [fmtType, format2, fmtRef] = getFormat(formatDef);
           if (fmtType === ruleType)
             cxt.pass(validCondition());
           function unknownFormat() {
@@ -6543,7 +6544,7 @@ var require_format = __commonJS({
                 throw new Error("async format in sync schema");
               return (0, codegen_1._)`await ${fmtRef}(${data})`;
             }
-            return typeof format == "function" ? (0, codegen_1._)`${fmtRef}(${data})` : (0, codegen_1._)`${fmtRef}.test(${data})`;
+            return typeof format2 == "function" ? (0, codegen_1._)`${fmtRef}(${data})` : (0, codegen_1._)`${fmtRef}.test(${data})`;
           }
         }
       }
@@ -6558,8 +6559,8 @@ var require_format2 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var format_1 = require_format();
-    var format = [format_1.default];
-    exports.default = format;
+    var format2 = [format_1.default];
+    exports.default = format2;
   }
 });
 
@@ -6680,8 +6681,8 @@ var require_discriminator = __commonJS({
           const oneOfMapping = {};
           const topRequired = hasRequired(parentSchema);
           let tagRequired = true;
-          for (let i = 0; i < oneOf.length; i++) {
-            let sch = oneOf[i];
+          for (let i2 = 0; i2 < oneOf.length; i2++) {
+            let sch = oneOf[i2];
             if ((sch === null || sch === void 0 ? void 0 : sch.$ref) && !(0, util_1.schemaHasRulesButRef)(sch, it.self.RULES)) {
               const ref = sch.$ref;
               sch = compile_1.resolveRef.call(it.self, it.schemaEnv.root, it.baseId, ref);
@@ -6695,7 +6696,7 @@ var require_discriminator = __commonJS({
               throw new Error(`discriminator: oneOf subschemas (or referenced schemas) must have "properties/${tagName}"`);
             }
             tagRequired = tagRequired && (topRequired || hasRequired(sch));
-            addMappings(propSch, i);
+            addMappings(propSch, i2);
           }
           if (!tagRequired)
             throw new Error(`discriminator: "${tagName}" must be required`);
@@ -6703,22 +6704,22 @@ var require_discriminator = __commonJS({
           function hasRequired({ required: required2 }) {
             return Array.isArray(required2) && required2.includes(tagName);
           }
-          function addMappings(sch, i) {
+          function addMappings(sch, i2) {
             if (sch.const) {
-              addMapping(sch.const, i);
+              addMapping(sch.const, i2);
             } else if (sch.enum) {
               for (const tagValue of sch.enum) {
-                addMapping(tagValue, i);
+                addMapping(tagValue, i2);
               }
             } else {
               throw new Error(`discriminator: "properties/${tagName}" must have "const" or "enum"`);
             }
           }
-          function addMapping(tagValue, i) {
+          function addMapping(tagValue, i2) {
             if (typeof tagValue != "string" || tagValue in oneOfMapping) {
               throw new Error(`discriminator: "${tagName}" values must be unique strings`);
             }
-            oneOfMapping[tagValue] = i;
+            oneOfMapping[tagValue] = i2;
           }
         }
       }
@@ -7201,13 +7202,13 @@ var require_code3 = __commonJS({
       }
       get str() {
         var _a3;
-        return (_a3 = this._str) !== null && _a3 !== void 0 ? _a3 : this._str = this._items.reduce((s, c) => `${s}${c}`, "");
+        return (_a3 = this._str) !== null && _a3 !== void 0 ? _a3 : this._str = this._items.reduce((s, c3) => `${s}${c3}`, "");
       }
       get names() {
         var _a3;
-        return (_a3 = this._names) !== null && _a3 !== void 0 ? _a3 : this._names = this._items.reduce((names, c) => {
-          if (c instanceof Name)
-            names[c.str] = (names[c.str] || 0) + 1;
+        return (_a3 = this._names) !== null && _a3 !== void 0 ? _a3 : this._names = this._items.reduce((names, c3) => {
+          if (c3 instanceof Name)
+            names[c3.str] = (names[c3.str] || 0) + 1;
           return names;
         }, {});
       }
@@ -7216,10 +7217,10 @@ var require_code3 = __commonJS({
     exports.nil = new _Code("");
     function _(strs, ...args) {
       const code = [strs[0]];
-      let i = 0;
-      while (i < args.length) {
-        addCodeArg(code, args[i]);
-        code.push(strs[++i]);
+      let i2 = 0;
+      while (i2 < args.length) {
+        addCodeArg(code, args[i2]);
+        code.push(strs[++i2]);
       }
       return new _Code(code);
     }
@@ -7227,11 +7228,11 @@ var require_code3 = __commonJS({
     var plus = new _Code("+");
     function str(strs, ...args) {
       const expr = [safeStringify(strs[0])];
-      let i = 0;
-      while (i < args.length) {
+      let i2 = 0;
+      while (i2 < args.length) {
         expr.push(plus);
-        addCodeArg(expr, args[i]);
-        expr.push(plus, safeStringify(strs[++i]));
+        addCodeArg(expr, args[i2]);
+        expr.push(plus, safeStringify(strs[++i2]));
       }
       optimize(expr);
       return new _Code(expr);
@@ -7247,39 +7248,39 @@ var require_code3 = __commonJS({
     }
     exports.addCodeArg = addCodeArg;
     function optimize(expr) {
-      let i = 1;
-      while (i < expr.length - 1) {
-        if (expr[i] === plus) {
-          const res = mergeExprItems(expr[i - 1], expr[i + 1]);
+      let i2 = 1;
+      while (i2 < expr.length - 1) {
+        if (expr[i2] === plus) {
+          const res = mergeExprItems(expr[i2 - 1], expr[i2 + 1]);
           if (res !== void 0) {
-            expr.splice(i - 1, 3, res);
+            expr.splice(i2 - 1, 3, res);
             continue;
           }
-          expr[i++] = "+";
+          expr[i2++] = "+";
         }
-        i++;
+        i2++;
       }
     }
-    function mergeExprItems(a, b) {
+    function mergeExprItems(a2, b) {
       if (b === '""')
-        return a;
-      if (a === '""')
+        return a2;
+      if (a2 === '""')
         return b;
-      if (typeof a == "string") {
-        if (b instanceof Name || a[a.length - 1] !== '"')
+      if (typeof a2 == "string") {
+        if (b instanceof Name || a2[a2.length - 1] !== '"')
           return;
         if (typeof b != "string")
-          return `${a.slice(0, -1)}${b}"`;
+          return `${a2.slice(0, -1)}${b}"`;
         if (b[0] === '"')
-          return a.slice(0, -1) + b.slice(1);
+          return a2.slice(0, -1) + b.slice(1);
         return;
       }
-      if (typeof b == "string" && b[0] === '"' && !(a instanceof Name))
-        return `"${a}${b.slice(1)}`;
+      if (typeof b == "string" && b[0] === '"' && !(a2 instanceof Name))
+        return `"${a2}${b.slice(1)}`;
       return;
     }
-    function strConcat(c1, c2) {
-      return c2.emptyStr() ? c1 : c1.emptyStr() ? c2 : str`${c1}${c2}`;
+    function strConcat(c1, c22) {
+      return c22.emptyStr() ? c1 : c1.emptyStr() ? c22 : str`${c1}${c22}`;
     }
     exports.strConcat = strConcat;
     function interpolate(x) {
@@ -7437,12 +7438,12 @@ var require_scope2 = __commonJS({
             if (nameSet.has(name5))
               return;
             nameSet.set(name5, UsedValueState.Started);
-            let c = valueCode(name5);
-            if (c) {
+            let c3 = valueCode(name5);
+            if (c3) {
               const def = this.opts.es5 ? exports.varKinds.var : exports.varKinds.const;
-              code = (0, code_1._)`${code}${def} ${name5} = ${c};${this.opts._n}`;
-            } else if (c = getCode === null || getCode === void 0 ? void 0 : getCode(name5)) {
-              code = (0, code_1._)`${code}${c}${this.opts._n}`;
+              code = (0, code_1._)`${code}${def} ${name5} = ${c3};${this.opts._n}`;
+            } else if (c3 = getCode === null || getCode === void 0 ? void 0 : getCode(name5)) {
+              code = (0, code_1._)`${code}${c3}${this.opts._n}`;
             } else {
               throw new ValueError(name5);
             }
@@ -7534,11 +7535,11 @@ var require_codegen2 = __commonJS({
         const rhs = this.rhs === void 0 ? "" : ` = ${this.rhs}`;
         return `${varKind} ${this.name}${rhs};` + _n;
       }
-      optimizeNames(names, constants) {
+      optimizeNames(names, constants4) {
         if (!names[this.name.str])
           return;
         if (this.rhs)
-          this.rhs = optimizeExpr(this.rhs, names, constants);
+          this.rhs = optimizeExpr(this.rhs, names, constants4);
         return this;
       }
       get names() {
@@ -7555,10 +7556,10 @@ var require_codegen2 = __commonJS({
       render({ _n }) {
         return `${this.lhs} = ${this.rhs};` + _n;
       }
-      optimizeNames(names, constants) {
+      optimizeNames(names, constants4) {
         if (this.lhs instanceof code_1.Name && !names[this.lhs.str] && !this.sideEffects)
           return;
-        this.rhs = optimizeExpr(this.rhs, names, constants);
+        this.rhs = optimizeExpr(this.rhs, names, constants4);
         return this;
       }
       get names() {
@@ -7619,8 +7620,8 @@ var require_codegen2 = __commonJS({
       optimizeNodes() {
         return `${this.code}` ? this : void 0;
       }
-      optimizeNames(names, constants) {
-        this.code = optimizeExpr(this.code, names, constants);
+      optimizeNames(names, constants4) {
+        this.code = optimizeExpr(this.code, names, constants4);
         return this;
       }
       get names() {
@@ -7633,36 +7634,36 @@ var require_codegen2 = __commonJS({
         this.nodes = nodes;
       }
       render(opts) {
-        return this.nodes.reduce((code, n) => code + n.render(opts), "");
+        return this.nodes.reduce((code, n2) => code + n2.render(opts), "");
       }
       optimizeNodes() {
         const { nodes } = this;
-        let i = nodes.length;
-        while (i--) {
-          const n = nodes[i].optimizeNodes();
-          if (Array.isArray(n))
-            nodes.splice(i, 1, ...n);
-          else if (n)
-            nodes[i] = n;
+        let i2 = nodes.length;
+        while (i2--) {
+          const n2 = nodes[i2].optimizeNodes();
+          if (Array.isArray(n2))
+            nodes.splice(i2, 1, ...n2);
+          else if (n2)
+            nodes[i2] = n2;
           else
-            nodes.splice(i, 1);
+            nodes.splice(i2, 1);
         }
         return nodes.length > 0 ? this : void 0;
       }
-      optimizeNames(names, constants) {
+      optimizeNames(names, constants4) {
         const { nodes } = this;
-        let i = nodes.length;
-        while (i--) {
-          const n = nodes[i];
-          if (n.optimizeNames(names, constants))
+        let i2 = nodes.length;
+        while (i2--) {
+          const n2 = nodes[i2];
+          if (n2.optimizeNames(names, constants4))
             continue;
-          subtractNames(names, n.names);
-          nodes.splice(i, 1);
+          subtractNames(names, n2.names);
+          nodes.splice(i2, 1);
         }
         return nodes.length > 0 ? this : void 0;
       }
       get names() {
-        return this.nodes.reduce((names, n) => addNames(names, n.names), {});
+        return this.nodes.reduce((names, n2) => addNames(names, n2.names), {});
       }
     };
     var BlockNode = class extends ParentNode {
@@ -7707,12 +7708,12 @@ var require_codegen2 = __commonJS({
           return void 0;
         return this;
       }
-      optimizeNames(names, constants) {
+      optimizeNames(names, constants4) {
         var _a3;
-        this.else = (_a3 = this.else) === null || _a3 === void 0 ? void 0 : _a3.optimizeNames(names, constants);
-        if (!(super.optimizeNames(names, constants) || this.else))
+        this.else = (_a3 = this.else) === null || _a3 === void 0 ? void 0 : _a3.optimizeNames(names, constants4);
+        if (!(super.optimizeNames(names, constants4) || this.else))
           return;
-        this.condition = optimizeExpr(this.condition, names, constants);
+        this.condition = optimizeExpr(this.condition, names, constants4);
         return this;
       }
       get names() {
@@ -7735,10 +7736,10 @@ var require_codegen2 = __commonJS({
       render(opts) {
         return `for(${this.iteration})` + super.render(opts);
       }
-      optimizeNames(names, constants) {
-        if (!super.optimizeNames(names, constants))
+      optimizeNames(names, constants4) {
+        if (!super.optimizeNames(names, constants4))
           return;
-        this.iteration = optimizeExpr(this.iteration, names, constants);
+        this.iteration = optimizeExpr(this.iteration, names, constants4);
         return this;
       }
       get names() {
@@ -7774,10 +7775,10 @@ var require_codegen2 = __commonJS({
       render(opts) {
         return `for(${this.varKind} ${this.name} ${this.loop} ${this.iterable})` + super.render(opts);
       }
-      optimizeNames(names, constants) {
-        if (!super.optimizeNames(names, constants))
+      optimizeNames(names, constants4) {
+        if (!super.optimizeNames(names, constants4))
           return;
-        this.iterable = optimizeExpr(this.iterable, names, constants);
+        this.iterable = optimizeExpr(this.iterable, names, constants4);
         return this;
       }
       get names() {
@@ -7819,11 +7820,11 @@ var require_codegen2 = __commonJS({
         (_b = this.finally) === null || _b === void 0 ? void 0 : _b.optimizeNodes();
         return this;
       }
-      optimizeNames(names, constants) {
+      optimizeNames(names, constants4) {
         var _a3, _b;
-        super.optimizeNames(names, constants);
-        (_a3 = this.catch) === null || _a3 === void 0 ? void 0 : _a3.optimizeNames(names, constants);
-        (_b = this.finally) === null || _b === void 0 ? void 0 : _b.optimizeNames(names, constants);
+        super.optimizeNames(names, constants4);
+        (_a3 = this.catch) === null || _a3 === void 0 ? void 0 : _a3.optimizeNames(names, constants4);
+        (_b = this.finally) === null || _b === void 0 ? void 0 : _b.optimizeNames(names, constants4);
         return this;
       }
       get names() {
@@ -7918,11 +7919,11 @@ var require_codegen2 = __commonJS({
         return this._leafNode(new AssignOp(lhs, exports.operators.ADD, rhs));
       }
       // appends passed SafeExpr to code or executes Block
-      code(c) {
-        if (typeof c == "function")
-          c();
-        else if (c !== code_1.nil)
-          this._leafNode(new AnyCode(c));
+      code(c3) {
+        if (typeof c3 == "function")
+          c3();
+        else if (c3 !== code_1.nil)
+          this._leafNode(new AnyCode(c3));
         return this;
       }
       // returns code for object literal for the passed argument list of key-value pairs
@@ -7984,8 +7985,8 @@ var require_codegen2 = __commonJS({
         const name5 = this._scope.toName(nameOrPrefix);
         if (this.opts.es5) {
           const arr = iterable instanceof code_1.Name ? iterable : this.var("_arr", iterable);
-          return this.forRange("_i", 0, (0, code_1._)`${arr}.length`, (i) => {
-            this.var(name5, (0, code_1._)`${arr}[${i}]`);
+          return this.forRange("_i", 0, (0, code_1._)`${arr}.length`, (i2) => {
+            this.var(name5, (0, code_1._)`${arr}[${i2}]`);
             forBody(name5);
           });
         }
@@ -8073,8 +8074,8 @@ var require_codegen2 = __commonJS({
       endFunc() {
         return this._endBlockNode(Func);
       }
-      optimize(n = 1) {
-        while (n-- > 0) {
+      optimize(n2 = 1) {
+        while (n2-- > 0) {
           this._root.optimizeNodes();
           this._root.optimizeNames(this._root.names, this._constants);
         }
@@ -8088,19 +8089,19 @@ var require_codegen2 = __commonJS({
         this._nodes.push(node2);
       }
       _endBlockNode(N1, N2) {
-        const n = this._currNode;
-        if (n instanceof N1 || N2 && n instanceof N2) {
+        const n2 = this._currNode;
+        if (n2 instanceof N1 || N2 && n2 instanceof N2) {
           this._nodes.pop();
           return this;
         }
         throw new Error(`CodeGen: not in block "${N2 ? `${N1.kind}/${N2.kind}` : N1.kind}"`);
       }
       _elseNode(node2) {
-        const n = this._currNode;
-        if (!(n instanceof If)) {
+        const n2 = this._currNode;
+        if (!(n2 instanceof If)) {
           throw new Error('CodeGen: "else" without "if"');
         }
-        this._currNode = n.else = node2;
+        this._currNode = n2.else = node2;
         return this;
       }
       get _root() {
@@ -8117,41 +8118,41 @@ var require_codegen2 = __commonJS({
     };
     exports.CodeGen = CodeGen;
     function addNames(names, from) {
-      for (const n in from)
-        names[n] = (names[n] || 0) + (from[n] || 0);
+      for (const n2 in from)
+        names[n2] = (names[n2] || 0) + (from[n2] || 0);
       return names;
     }
     function addExprNames(names, from) {
       return from instanceof code_1._CodeOrName ? addNames(names, from.names) : names;
     }
-    function optimizeExpr(expr, names, constants) {
+    function optimizeExpr(expr, names, constants4) {
       if (expr instanceof code_1.Name)
         return replaceName(expr);
       if (!canOptimize(expr))
         return expr;
-      return new code_1._Code(expr._items.reduce((items, c) => {
-        if (c instanceof code_1.Name)
-          c = replaceName(c);
-        if (c instanceof code_1._Code)
-          items.push(...c._items);
+      return new code_1._Code(expr._items.reduce((items, c3) => {
+        if (c3 instanceof code_1.Name)
+          c3 = replaceName(c3);
+        if (c3 instanceof code_1._Code)
+          items.push(...c3._items);
         else
-          items.push(c);
+          items.push(c3);
         return items;
       }, []));
-      function replaceName(n) {
-        const c = constants[n.str];
-        if (c === void 0 || names[n.str] !== 1)
-          return n;
-        delete names[n.str];
-        return c;
+      function replaceName(n2) {
+        const c3 = constants4[n2.str];
+        if (c3 === void 0 || names[n2.str] !== 1)
+          return n2;
+        delete names[n2.str];
+        return c3;
       }
       function canOptimize(e) {
-        return e instanceof code_1._Code && e._items.some((c) => c instanceof code_1.Name && names[c.str] === 1 && constants[c.str] !== void 0);
+        return e instanceof code_1._Code && e._items.some((c3) => c3 instanceof code_1.Name && names[c3.str] === 1 && constants4[c3.str] !== void 0);
       }
     }
     function subtractNames(names, from) {
-      for (const n in from)
-        names[n] = (names[n] || 0) - (from[n] || 0);
+      for (const n2 in from)
+        names[n2] = (names[n2] || 0) - (from[n2] || 0);
     }
     function not(x) {
       return typeof x == "boolean" || typeof x == "number" || x === null ? !x : (0, code_1._)`!${par(x)}`;
@@ -8427,8 +8428,8 @@ var require_errors2 = __commonJS({
       if (errsCount === void 0)
         throw new Error("ajv implementation error");
       const err = gen.name("err");
-      gen.forRange("i", errsCount, names_1.default.errors, (i) => {
-        gen.const(err, (0, codegen_1._)`${names_1.default.vErrors}[${i}]`);
+      gen.forRange("i", errsCount, names_1.default.errors, (i2) => {
+        gen.const(err, (0, codegen_1._)`${names_1.default.vErrors}[${i2}]`);
         gen.if((0, codegen_1._)`${err}.instancePath === undefined`, () => gen.assign((0, codegen_1._)`${err}.instancePath`, (0, codegen_1.strConcat)(names_1.default.instancePath, it.errorPath)));
         gen.assign((0, codegen_1._)`${err}.schemaPath`, (0, codegen_1.str)`${it.errSchemaPath}/${keyword}`);
         if (it.opts.verbose) {
@@ -8808,7 +8809,7 @@ var require_defaults2 = __commonJS({
           assignDefault(it, key, properties[key].default);
         }
       } else if (ty === "array" && Array.isArray(items)) {
-        items.forEach((sch, i) => assignDefault(it, i, sch.default));
+        items.forEach((sch, i2) => assignDefault(it, i2, sch.default));
       }
     }
     exports.assignDefaults = assignDefaults;
@@ -8903,13 +8904,13 @@ var require_code4 = __commonJS({
     exports.callValidateCode = callValidateCode;
     var newRegExp = (0, codegen_1._)`new RegExp`;
     function usePattern({ gen, it: { opts } }, pattern) {
-      const u = opts.unicodeRegExp ? "u" : "";
+      const u2 = opts.unicodeRegExp ? "u" : "";
       const { regExp } = opts.code;
-      const rx = regExp(pattern, u);
+      const rx = regExp(pattern, u2);
       return gen.scopeValue("pattern", {
         key: rx.toString(),
         ref: rx,
-        code: (0, codegen_1._)`${regExp.code === "new RegExp" ? newRegExp : (0, util_2.useFunc)(gen, regExp)}(${pattern}, ${u})`
+        code: (0, codegen_1._)`${regExp.code === "new RegExp" ? newRegExp : (0, util_2.useFunc)(gen, regExp)}(${pattern}, ${u2})`
       });
     }
     exports.usePattern = usePattern;
@@ -8926,10 +8927,10 @@ var require_code4 = __commonJS({
       return valid;
       function validateItems(notValid) {
         const len = gen.const("len", (0, codegen_1._)`${data}.length`);
-        gen.forRange("i", 0, len, (i) => {
+        gen.forRange("i", 0, len, (i2) => {
           cxt.subschema({
             keyword,
-            dataProp: i,
+            dataProp: i2,
             dataPropType: util_1.Type.Num
           }, valid);
           gen.if((0, codegen_1.not)(valid), notValid);
@@ -8946,10 +8947,10 @@ var require_code4 = __commonJS({
         return;
       const valid = gen.let("valid", false);
       const schValid = gen.name("_valid");
-      gen.block(() => schema.forEach((_sch, i) => {
+      gen.block(() => schema.forEach((_sch, i2) => {
         const schCxt = cxt.subschema({
           keyword,
-          schemaProp: i,
+          schemaProp: i2,
           compositeRule: true
         }, schValid);
         gen.assign(valid, (0, codegen_1._)`${valid} || ${schValid}`);
@@ -9231,8 +9232,8 @@ var require_json_schema_traverse2 = __commonJS({
           var sch = schema[key];
           if (Array.isArray(sch)) {
             if (key in traverse.arrayKeywords) {
-              for (var i = 0; i < sch.length; i++)
-                _traverse(opts, pre, post, sch[i], jsonPtr + "/" + key + "/" + i, rootSchema, jsonPtr, key, schema, i);
+              for (var i2 = 0; i2 < sch.length; i2++)
+                _traverse(opts, pre, post, sch[i2], jsonPtr + "/" + key + "/" + i2, rootSchema, jsonPtr, key, schema, i2);
             }
           } else if (key in traverse.propsKeywords) {
             if (sch && typeof sch == "object") {
@@ -9309,20 +9310,20 @@ var require_resolve2 = __commonJS({
       return false;
     }
     function countKeys(schema) {
-      let count = 0;
+      let count2 = 0;
       for (const key in schema) {
         if (key === "$ref")
           return Infinity;
-        count++;
+        count2++;
         if (SIMPLE_INLINED.has(key))
           continue;
         if (typeof schema[key] == "object") {
-          (0, util_1.eachItem)(schema[key], (sch) => count += countKeys(sch));
+          (0, util_1.eachItem)(schema[key], (sch) => count2 += countKeys(sch));
         }
-        if (count === Infinity)
+        if (count2 === Infinity)
           return Infinity;
       }
-      return count;
+      return count2;
     }
     function getFullPath(resolver, id = "", normalize) {
       if (normalize !== false)
@@ -10283,31 +10284,31 @@ var require_core3 = __commonJS({
       unicode: '"minLength"/"maxLength" account for unicode characters by default.'
     };
     var MAX_EXPRESSION = 200;
-    function requiredOptions(o) {
+    function requiredOptions(o2) {
       var _a3, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, _0;
-      const s = o.strict;
-      const _optz = (_a3 = o.code) === null || _a3 === void 0 ? void 0 : _a3.optimize;
+      const s = o2.strict;
+      const _optz = (_a3 = o2.code) === null || _a3 === void 0 ? void 0 : _a3.optimize;
       const optimize = _optz === true || _optz === void 0 ? 1 : _optz || 0;
-      const regExp = (_c = (_b = o.code) === null || _b === void 0 ? void 0 : _b.regExp) !== null && _c !== void 0 ? _c : defaultRegExp;
-      const uriResolver = (_d = o.uriResolver) !== null && _d !== void 0 ? _d : uri_1.default;
+      const regExp = (_c = (_b = o2.code) === null || _b === void 0 ? void 0 : _b.regExp) !== null && _c !== void 0 ? _c : defaultRegExp;
+      const uriResolver = (_d = o2.uriResolver) !== null && _d !== void 0 ? _d : uri_1.default;
       return {
-        strictSchema: (_f = (_e = o.strictSchema) !== null && _e !== void 0 ? _e : s) !== null && _f !== void 0 ? _f : true,
-        strictNumbers: (_h = (_g = o.strictNumbers) !== null && _g !== void 0 ? _g : s) !== null && _h !== void 0 ? _h : true,
-        strictTypes: (_k = (_j = o.strictTypes) !== null && _j !== void 0 ? _j : s) !== null && _k !== void 0 ? _k : "log",
-        strictTuples: (_m = (_l = o.strictTuples) !== null && _l !== void 0 ? _l : s) !== null && _m !== void 0 ? _m : "log",
-        strictRequired: (_p = (_o = o.strictRequired) !== null && _o !== void 0 ? _o : s) !== null && _p !== void 0 ? _p : false,
-        code: o.code ? { ...o.code, optimize, regExp } : { optimize, regExp },
-        loopRequired: (_q = o.loopRequired) !== null && _q !== void 0 ? _q : MAX_EXPRESSION,
-        loopEnum: (_r = o.loopEnum) !== null && _r !== void 0 ? _r : MAX_EXPRESSION,
-        meta: (_s = o.meta) !== null && _s !== void 0 ? _s : true,
-        messages: (_t = o.messages) !== null && _t !== void 0 ? _t : true,
-        inlineRefs: (_u = o.inlineRefs) !== null && _u !== void 0 ? _u : true,
-        schemaId: (_v = o.schemaId) !== null && _v !== void 0 ? _v : "$id",
-        addUsedSchema: (_w = o.addUsedSchema) !== null && _w !== void 0 ? _w : true,
-        validateSchema: (_x = o.validateSchema) !== null && _x !== void 0 ? _x : true,
-        validateFormats: (_y = o.validateFormats) !== null && _y !== void 0 ? _y : true,
-        unicodeRegExp: (_z = o.unicodeRegExp) !== null && _z !== void 0 ? _z : true,
-        int32range: (_0 = o.int32range) !== null && _0 !== void 0 ? _0 : true,
+        strictSchema: (_f = (_e = o2.strictSchema) !== null && _e !== void 0 ? _e : s) !== null && _f !== void 0 ? _f : true,
+        strictNumbers: (_h = (_g = o2.strictNumbers) !== null && _g !== void 0 ? _g : s) !== null && _h !== void 0 ? _h : true,
+        strictTypes: (_k = (_j = o2.strictTypes) !== null && _j !== void 0 ? _j : s) !== null && _k !== void 0 ? _k : "log",
+        strictTuples: (_m = (_l = o2.strictTuples) !== null && _l !== void 0 ? _l : s) !== null && _m !== void 0 ? _m : "log",
+        strictRequired: (_p = (_o = o2.strictRequired) !== null && _o !== void 0 ? _o : s) !== null && _p !== void 0 ? _p : false,
+        code: o2.code ? { ...o2.code, optimize, regExp } : { optimize, regExp },
+        loopRequired: (_q = o2.loopRequired) !== null && _q !== void 0 ? _q : MAX_EXPRESSION,
+        loopEnum: (_r = o2.loopEnum) !== null && _r !== void 0 ? _r : MAX_EXPRESSION,
+        meta: (_s = o2.meta) !== null && _s !== void 0 ? _s : true,
+        messages: (_t = o2.messages) !== null && _t !== void 0 ? _t : true,
+        inlineRefs: (_u = o2.inlineRefs) !== null && _u !== void 0 ? _u : true,
+        schemaId: (_v = o2.schemaId) !== null && _v !== void 0 ? _v : "$id",
+        addUsedSchema: (_w = o2.addUsedSchema) !== null && _w !== void 0 ? _w : true,
+        validateSchema: (_x = o2.validateSchema) !== null && _x !== void 0 ? _x : true,
+        validateFormats: (_y = o2.validateFormats) !== null && _y !== void 0 ? _y : true,
+        unicodeRegExp: (_z = o2.unicodeRegExp) !== null && _z !== void 0 ? _z : true,
+        int32range: (_0 = o2.int32range) !== null && _0 !== void 0 ? _0 : true,
         uriResolver
       };
     }
@@ -10579,17 +10580,17 @@ var require_core3 = __commonJS({
         delete RULES.keywords[keyword];
         delete RULES.all[keyword];
         for (const group of RULES.rules) {
-          const i = group.rules.findIndex((rule) => rule.keyword === keyword);
-          if (i >= 0)
-            group.rules.splice(i, 1);
+          const i2 = group.rules.findIndex((rule) => rule.keyword === keyword);
+          if (i2 >= 0)
+            group.rules.splice(i2, 1);
         }
         return this;
       }
       // Add format
-      addFormat(name5, format) {
-        if (typeof format == "string")
-          format = new RegExp(format);
-        this.formats[name5] = format;
+      addFormat(name5, format2) {
+        if (typeof format2 == "string")
+          format2 = new RegExp(format2);
+        this.formats[name5] = format2;
         return this;
       }
       errorsText(errors = this.errors, { separator = ", ", dataVar = "data" } = {}) {
@@ -10707,9 +10708,9 @@ var require_core3 = __commonJS({
     }
     function addInitialFormats() {
       for (const name5 in this.opts.formats) {
-        const format = this.opts.formats[name5];
-        if (format)
-          this.addFormat(name5, format);
+        const format2 = this.opts.formats[name5];
+        if (format2)
+          this.addFormat(name5, format2);
       }
     }
     function addInitialKeywords(defs) {
@@ -10789,9 +10790,9 @@ var require_core3 = __commonJS({
       (_a3 = definition.implements) === null || _a3 === void 0 ? void 0 : _a3.forEach((kwd) => this.addKeyword(kwd));
     }
     function addBeforeRule(ruleGroup, rule, before) {
-      const i = ruleGroup.rules.findIndex((_rule) => _rule.keyword === before);
-      if (i >= 0) {
-        ruleGroup.rules.splice(i, 0, rule);
+      const i2 = ruleGroup.rules.findIndex((_rule) => _rule.keyword === before);
+      if (i2 >= 0) {
+        ruleGroup.rules.splice(i2, 0, rule);
       } else {
         ruleGroup.rules.push(rule);
         this.logger.warn(`rule ${before} is not defined`);
@@ -11110,12 +11111,12 @@ var require_pattern2 = __commonJS({
       error: error62,
       code(cxt) {
         const { gen, data, $data, schema, schemaCode, it } = cxt;
-        const u = it.opts.unicodeRegExp ? "u" : "";
+        const u2 = it.opts.unicodeRegExp ? "u" : "";
         if ($data) {
           const { regExp } = it.opts.code;
           const regExpCode = regExp.code === "new RegExp" ? (0, codegen_1._)`new RegExp` : (0, util_1.useFunc)(gen, regExp);
           const valid = gen.let("valid");
-          gen.try(() => gen.assign(valid, (0, codegen_1._)`${regExpCode}(${schemaCode}, ${u}).test(${data})`), () => gen.assign(valid, false));
+          gen.try(() => gen.assign(valid, (0, codegen_1._)`${regExpCode}(${schemaCode}, ${u2}).test(${data})`), () => gen.assign(valid, false));
           cxt.fail$data((0, codegen_1._)`!${valid}`);
         } else {
           const regExp = (0, code_1.usePattern)(cxt, schema);
@@ -11288,8 +11289,8 @@ var require_uniqueItems2 = __commonJS({
     var util_1 = require_util2();
     var equal_1 = require_equal2();
     var error62 = {
-      message: ({ params: { i, j } }) => (0, codegen_1.str)`must NOT have duplicate items (items ## ${j} and ${i} are identical)`,
-      params: ({ params: { i, j } }) => (0, codegen_1._)`{i: ${i}, j: ${j}}`
+      message: ({ params: { i: i2, j } }) => (0, codegen_1.str)`must NOT have duplicate items (items ## ${j} and ${i2} are identical)`,
+      params: ({ params: { i: i2, j } }) => (0, codegen_1._)`{i: ${i2}, j: ${j}}`
     };
     var def = {
       keyword: "uniqueItems",
@@ -11306,21 +11307,21 @@ var require_uniqueItems2 = __commonJS({
         cxt.block$data(valid, validateUniqueItems, (0, codegen_1._)`${schemaCode} === false`);
         cxt.ok(valid);
         function validateUniqueItems() {
-          const i = gen.let("i", (0, codegen_1._)`${data}.length`);
+          const i2 = gen.let("i", (0, codegen_1._)`${data}.length`);
           const j = gen.let("j");
-          cxt.setParams({ i, j });
+          cxt.setParams({ i: i2, j });
           gen.assign(valid, true);
-          gen.if((0, codegen_1._)`${i} > 1`, () => (canOptimize() ? loopN : loopN2)(i, j));
+          gen.if((0, codegen_1._)`${i2} > 1`, () => (canOptimize() ? loopN : loopN2)(i2, j));
         }
         function canOptimize() {
           return itemTypes.length > 0 && !itemTypes.some((t) => t === "object" || t === "array");
         }
-        function loopN(i, j) {
+        function loopN(i2, j) {
           const item = gen.name("item");
           const wrongType = (0, dataType_1.checkDataTypes)(itemTypes, item, it.opts.strictNumbers, dataType_1.DataType.Wrong);
           const indices = gen.const("indices", (0, codegen_1._)`{}`);
-          gen.for((0, codegen_1._)`;${i}--;`, () => {
-            gen.let(item, (0, codegen_1._)`${data}[${i}]`);
+          gen.for((0, codegen_1._)`;${i2}--;`, () => {
+            gen.let(item, (0, codegen_1._)`${data}[${i2}]`);
             gen.if(wrongType, (0, codegen_1._)`continue`);
             if (itemTypes.length > 1)
               gen.if((0, codegen_1._)`typeof ${item} == "string"`, (0, codegen_1._)`${item} += "_"`);
@@ -11328,13 +11329,13 @@ var require_uniqueItems2 = __commonJS({
               gen.assign(j, (0, codegen_1._)`${indices}[${item}]`);
               cxt.error();
               gen.assign(valid, false).break();
-            }).code((0, codegen_1._)`${indices}[${item}] = ${i}`);
+            }).code((0, codegen_1._)`${indices}[${item}] = ${i2}`);
           });
         }
-        function loopN2(i, j) {
+        function loopN2(i2, j) {
           const eql = (0, util_1.useFunc)(gen, equal_1.default);
           const outer = gen.name("outer");
-          gen.label(outer).for((0, codegen_1._)`;${i}--;`, () => gen.for((0, codegen_1._)`${j} = ${i}; ${j}--;`, () => gen.if((0, codegen_1._)`${eql}(${data}[${i}], ${data}[${j}])`, () => {
+          gen.label(outer).for((0, codegen_1._)`;${i2}--;`, () => gen.for((0, codegen_1._)`${j} = ${i2}; ${j}--;`, () => gen.if((0, codegen_1._)`${eql}(${data}[${i2}], ${data}[${j}])`, () => {
             cxt.error();
             gen.assign(valid, false).break(outer);
           })));
@@ -11406,16 +11407,16 @@ var require_enum2 = __commonJS({
           if (!Array.isArray(schema))
             throw new Error("ajv implementation error");
           const vSchema = gen.const("vSchema", schemaCode);
-          valid = (0, codegen_1.or)(...schema.map((_x, i) => equalCode(vSchema, i)));
+          valid = (0, codegen_1.or)(...schema.map((_x, i2) => equalCode(vSchema, i2)));
         }
         cxt.pass(valid);
         function loopEnum() {
           gen.assign(valid, false);
           gen.forOf("v", schemaCode, (v) => gen.if((0, codegen_1._)`${getEql()}(${data}, ${v})`, () => gen.assign(valid, true).break()));
         }
-        function equalCode(vSchema, i) {
-          const sch = schema[i];
-          return typeof sch === "object" && sch !== null ? (0, codegen_1._)`${getEql()}(${data}, ${vSchema}[${i}])` : (0, codegen_1._)`${data} === ${sch}`;
+        function equalCode(vSchema, i2) {
+          const sch = schema[i2];
+          return typeof sch === "object" && sch !== null ? (0, codegen_1._)`${getEql()}(${data}, ${vSchema}[${i2}])` : (0, codegen_1._)`${data} === ${sch}`;
         }
       }
     };
@@ -11502,8 +11503,8 @@ var require_additionalItems2 = __commonJS({
         cxt.ok(valid);
       }
       function validateItems(valid) {
-        gen.forRange("i", items.length, len, (i) => {
-          cxt.subschema({ keyword, dataProp: i, dataPropType: util_1.Type.Num }, valid);
+        gen.forRange("i", items.length, len, (i2) => {
+          cxt.subschema({ keyword, dataProp: i2, dataPropType: util_1.Type.Num }, valid);
           if (!it.allErrors)
             gen.if((0, codegen_1.not)(valid), () => gen.break());
         });
@@ -11546,13 +11547,13 @@ var require_items2 = __commonJS({
       }
       const valid = gen.name("valid");
       const len = gen.const("len", (0, codegen_1._)`${data}.length`);
-      schArr.forEach((sch, i) => {
+      schArr.forEach((sch, i2) => {
         if ((0, util_1.alwaysValidSchema)(it, sch))
           return;
-        gen.if((0, codegen_1._)`${len} > ${i}`, () => cxt.subschema({
+        gen.if((0, codegen_1._)`${len} > ${i2}`, () => cxt.subschema({
           keyword,
-          schemaProp: i,
-          dataProp: i
+          schemaProp: i2,
+          dataProp: i2
         }, valid));
         cxt.ok(valid);
       });
@@ -11685,30 +11686,30 @@ var require_contains2 = __commonJS({
         cxt.result(valid, () => cxt.reset());
         function validateItemsWithCount() {
           const schValid = gen.name("_valid");
-          const count = gen.let("count", 0);
-          validateItems(schValid, () => gen.if(schValid, () => checkLimits(count)));
+          const count2 = gen.let("count", 0);
+          validateItems(schValid, () => gen.if(schValid, () => checkLimits(count2)));
         }
         function validateItems(_valid, block) {
-          gen.forRange("i", 0, len, (i) => {
+          gen.forRange("i", 0, len, (i2) => {
             cxt.subschema({
               keyword: "contains",
-              dataProp: i,
+              dataProp: i2,
               dataPropType: util_1.Type.Num,
               compositeRule: true
             }, _valid);
             block();
           });
         }
-        function checkLimits(count) {
-          gen.code((0, codegen_1._)`${count}++`);
+        function checkLimits(count2) {
+          gen.code((0, codegen_1._)`${count2}++`);
           if (max === void 0) {
-            gen.if((0, codegen_1._)`${count} >= ${min}`, () => gen.assign(valid, true).break());
+            gen.if((0, codegen_1._)`${count2} >= ${min}`, () => gen.assign(valid, true).break());
           } else {
-            gen.if((0, codegen_1._)`${count} > ${max}`, () => gen.assign(valid, false).break());
+            gen.if((0, codegen_1._)`${count2} > ${max}`, () => gen.assign(valid, false).break());
             if (min === 1)
               gen.assign(valid, true);
             else
-              gen.if((0, codegen_1._)`${count} >= ${min}`, () => gen.assign(valid, true));
+              gen.if((0, codegen_1._)`${count2} >= ${min}`, () => gen.assign(valid, true));
           }
         }
       }
@@ -12170,23 +12171,23 @@ var require_oneOf2 = __commonJS({
         gen.block(validateOneOf);
         cxt.result(valid, () => cxt.reset(), () => cxt.error(true));
         function validateOneOf() {
-          schArr.forEach((sch, i) => {
+          schArr.forEach((sch, i2) => {
             let schCxt;
             if ((0, util_1.alwaysValidSchema)(it, sch)) {
               gen.var(schValid, true);
             } else {
               schCxt = cxt.subschema({
                 keyword: "oneOf",
-                schemaProp: i,
+                schemaProp: i2,
                 compositeRule: true
               }, schValid);
             }
-            if (i > 0) {
-              gen.if((0, codegen_1._)`${schValid} && ${valid}`).assign(valid, false).assign(passing, (0, codegen_1._)`[${passing}, ${i}]`).else();
+            if (i2 > 0) {
+              gen.if((0, codegen_1._)`${schValid} && ${valid}`).assign(valid, false).assign(passing, (0, codegen_1._)`[${passing}, ${i2}]`).else();
             }
             gen.if(schValid, () => {
               gen.assign(valid, true);
-              gen.assign(passing, i);
+              gen.assign(passing, i2);
               if (schCxt)
                 cxt.mergeEvaluated(schCxt, codegen_1.Name);
             });
@@ -12212,10 +12213,10 @@ var require_allOf2 = __commonJS({
         if (!Array.isArray(schema))
           throw new Error("ajv implementation error");
         const valid = gen.name("valid");
-        schema.forEach((sch, i) => {
+        schema.forEach((sch, i2) => {
           if ((0, util_1.alwaysValidSchema)(it, sch))
             return;
-          const schCxt = cxt.subschema({ keyword: "allOf", schemaProp: i }, valid);
+          const schCxt = cxt.subschema({ keyword: "allOf", schemaProp: i2 }, valid);
           cxt.ok(valid);
           cxt.mergeEvaluated(schCxt);
         });
@@ -12392,18 +12393,18 @@ var require_format3 = __commonJS({
           });
           const fDef = gen.const("fDef", (0, codegen_1._)`${fmts}[${schemaCode}]`);
           const fType = gen.let("fType");
-          const format = gen.let("format");
-          gen.if((0, codegen_1._)`typeof ${fDef} == "object" && !(${fDef} instanceof RegExp)`, () => gen.assign(fType, (0, codegen_1._)`${fDef}.type || "string"`).assign(format, (0, codegen_1._)`${fDef}.validate`), () => gen.assign(fType, (0, codegen_1._)`"string"`).assign(format, fDef));
+          const format2 = gen.let("format");
+          gen.if((0, codegen_1._)`typeof ${fDef} == "object" && !(${fDef} instanceof RegExp)`, () => gen.assign(fType, (0, codegen_1._)`${fDef}.type || "string"`).assign(format2, (0, codegen_1._)`${fDef}.validate`), () => gen.assign(fType, (0, codegen_1._)`"string"`).assign(format2, fDef));
           cxt.fail$data((0, codegen_1.or)(unknownFmt(), invalidFmt()));
           function unknownFmt() {
             if (opts.strictSchema === false)
               return codegen_1.nil;
-            return (0, codegen_1._)`${schemaCode} && !${format}`;
+            return (0, codegen_1._)`${schemaCode} && !${format2}`;
           }
           function invalidFmt() {
-            const callFormat = schemaEnv.$async ? (0, codegen_1._)`(${fDef}.async ? await ${format}(${data}) : ${format}(${data}))` : (0, codegen_1._)`${format}(${data})`;
-            const validData = (0, codegen_1._)`(typeof ${format} == "function" ? ${callFormat} : ${format}.test(${data}))`;
-            return (0, codegen_1._)`${format} && ${format} !== true && ${fType} === ${ruleType} && !${validData}`;
+            const callFormat = schemaEnv.$async ? (0, codegen_1._)`(${fDef}.async ? await ${format2}(${data}) : ${format2}(${data}))` : (0, codegen_1._)`${format2}(${data})`;
+            const validData = (0, codegen_1._)`(typeof ${format2} == "function" ? ${callFormat} : ${format2}.test(${data}))`;
+            return (0, codegen_1._)`${format2} && ${format2} !== true && ${fType} === ${ruleType} && !${validData}`;
           }
         }
         function validateFormat() {
@@ -12414,7 +12415,7 @@ var require_format3 = __commonJS({
           }
           if (formatDef === true)
             return;
-          const [fmtType, format, fmtRef] = getFormat(formatDef);
+          const [fmtType, format2, fmtRef] = getFormat(formatDef);
           if (fmtType === ruleType)
             cxt.pass(validCondition());
           function unknownFormat() {
@@ -12441,7 +12442,7 @@ var require_format3 = __commonJS({
                 throw new Error("async format in sync schema");
               return (0, codegen_1._)`await ${fmtRef}(${data})`;
             }
-            return typeof format == "function" ? (0, codegen_1._)`${fmtRef}(${data})` : (0, codegen_1._)`${fmtRef}.test(${data})`;
+            return typeof format2 == "function" ? (0, codegen_1._)`${fmtRef}(${data})` : (0, codegen_1._)`${fmtRef}.test(${data})`;
           }
         }
       }
@@ -12456,8 +12457,8 @@ var require_format4 = __commonJS({
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var format_1 = require_format3();
-    var format = [format_1.default];
-    exports.default = format;
+    var format2 = [format_1.default];
+    exports.default = format2;
   }
 });
 
@@ -12578,8 +12579,8 @@ var require_discriminator2 = __commonJS({
           const oneOfMapping = {};
           const topRequired = hasRequired(parentSchema);
           let tagRequired = true;
-          for (let i = 0; i < oneOf.length; i++) {
-            let sch = oneOf[i];
+          for (let i2 = 0; i2 < oneOf.length; i2++) {
+            let sch = oneOf[i2];
             if ((sch === null || sch === void 0 ? void 0 : sch.$ref) && !(0, util_1.schemaHasRulesButRef)(sch, it.self.RULES)) {
               const ref = sch.$ref;
               sch = compile_1.resolveRef.call(it.self, it.schemaEnv.root, it.baseId, ref);
@@ -12593,7 +12594,7 @@ var require_discriminator2 = __commonJS({
               throw new Error(`discriminator: oneOf subschemas (or referenced schemas) must have "properties/${tagName}"`);
             }
             tagRequired = tagRequired && (topRequired || hasRequired(sch));
-            addMappings(propSch, i);
+            addMappings(propSch, i2);
           }
           if (!tagRequired)
             throw new Error(`discriminator: "${tagName}" must be required`);
@@ -12601,22 +12602,22 @@ var require_discriminator2 = __commonJS({
           function hasRequired({ required: required2 }) {
             return Array.isArray(required2) && required2.includes(tagName);
           }
-          function addMappings(sch, i) {
+          function addMappings(sch, i2) {
             if (sch.const) {
-              addMapping(sch.const, i);
+              addMapping(sch.const, i2);
             } else if (sch.enum) {
               for (const tagValue of sch.enum) {
-                addMapping(tagValue, i);
+                addMapping(tagValue, i2);
               }
             } else {
               throw new Error(`discriminator: "properties/${tagName}" must have "const" or "enum"`);
             }
           }
-          function addMapping(tagValue, i) {
+          function addMapping(tagValue, i2) {
             if (typeof tagValue != "string" || tagValue in oneOfMapping) {
               throw new Error(`discriminator: "${tagName}" values must be unique strings`);
             }
-            oneOfMapping[tagValue] = i;
+            oneOfMapping[tagValue] = i2;
           }
         }
       }
@@ -12896,17 +12897,17 @@ var require_limit = __commonJS({
           cxt.fail$data((0, codegen_1.or)((0, codegen_1._)`typeof ${fmt} != "object"`, (0, codegen_1._)`${fmt} instanceof RegExp`, (0, codegen_1._)`typeof ${fmt}.compare != "function"`, compareCode(fmt)));
         }
         function validateFormat() {
-          const format = fCxt.schema;
-          const fmtDef = self2.formats[format];
+          const format2 = fCxt.schema;
+          const fmtDef = self2.formats[format2];
           if (!fmtDef || fmtDef === true)
             return;
           if (typeof fmtDef != "object" || fmtDef instanceof RegExp || typeof fmtDef.compare != "function") {
-            throw new Error(`"${keyword}": format "${format}" does not define "compare" function`);
+            throw new Error(`"${keyword}": format "${format2}" does not define "compare" function`);
           }
           const fmt = gen.scopeValue("formats", {
-            key: format,
+            key: format2,
             ref: fmtDef,
-            code: opts.code.formats ? (0, codegen_1._)`${opts.code.formats}${(0, codegen_1.getProperty)(format)}` : void 0
+            code: opts.code.formats ? (0, codegen_1._)`${opts.code.formats}${(0, codegen_1.getProperty)(format2)}` : void 0
           });
           cxt.fail$data(compareCode(fmt));
         }
@@ -12953,12 +12954,12 @@ var require_dist = __commonJS({
         throw new Error(`Unknown format "${name5}"`);
       return f;
     };
-    function addFormats(ajv, list, fs, exportName) {
+    function addFormats(ajv, list, fs2, exportName) {
       var _a3;
       var _b;
       (_a3 = (_b = ajv.opts.code).formats) !== null && _a3 !== void 0 ? _a3 : _b.formats = (0, codegen_1._)`require("ajv-formats/dist/formats").${exportName}`;
       for (const f of list)
-        ajv.addFormat(f, fs[f]);
+        ajv.addFormat(f, fs2[f]);
     }
     module.exports = exports = formatsPlugin;
     Object.defineProperty(exports, "__esModule", { value: true });
@@ -13120,19 +13121,19 @@ var require_ieee754 = __commonJS({
       var eMax = (1 << eLen) - 1;
       var eBias = eMax >> 1;
       var nBits = -7;
-      var i = isLE ? nBytes - 1 : 0;
+      var i2 = isLE ? nBytes - 1 : 0;
       var d = isLE ? -1 : 1;
-      var s = buffer[offset + i];
-      i += d;
+      var s = buffer[offset + i2];
+      i2 += d;
       e = s & (1 << -nBits) - 1;
       s >>= -nBits;
       nBits += eLen;
-      for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8) {
+      for (; nBits > 0; e = e * 256 + buffer[offset + i2], i2 += d, nBits -= 8) {
       }
       m = e & (1 << -nBits) - 1;
       e >>= -nBits;
       nBits += mLen;
-      for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8) {
+      for (; nBits > 0; m = m * 256 + buffer[offset + i2], i2 += d, nBits -= 8) {
       }
       if (e === 0) {
         e = 1 - eBias;
@@ -13145,12 +13146,12 @@ var require_ieee754 = __commonJS({
       return (s ? -1 : 1) * m * Math.pow(2, e - mLen);
     };
     exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
-      var e, m, c;
+      var e, m, c3;
       var eLen = nBytes * 8 - mLen - 1;
       var eMax = (1 << eLen) - 1;
       var eBias = eMax >> 1;
       var rt = mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0;
-      var i = isLE ? 0 : nBytes - 1;
+      var i2 = isLE ? 0 : nBytes - 1;
       var d = isLE ? 1 : -1;
       var s = value < 0 || value === 0 && 1 / value < 0 ? 1 : 0;
       value = Math.abs(value);
@@ -13159,46 +13160,9380 @@ var require_ieee754 = __commonJS({
         e = eMax;
       } else {
         e = Math.floor(Math.log(value) / Math.LN2);
-        if (value * (c = Math.pow(2, -e)) < 1) {
+        if (value * (c3 = Math.pow(2, -e)) < 1) {
           e--;
-          c *= 2;
+          c3 *= 2;
         }
         if (e + eBias >= 1) {
-          value += rt / c;
+          value += rt / c3;
         } else {
           value += rt * Math.pow(2, 1 - eBias);
         }
-        if (value * c >= 2) {
+        if (value * c3 >= 2) {
           e++;
-          c /= 2;
+          c3 /= 2;
         }
         if (e + eBias >= eMax) {
           m = 0;
           e = eMax;
         } else if (e + eBias >= 1) {
-          m = (value * c - 1) * Math.pow(2, mLen);
+          m = (value * c3 - 1) * Math.pow(2, mLen);
           e = e + eBias;
         } else {
           m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen);
           e = 0;
         }
       }
-      for (; mLen >= 8; buffer[offset + i] = m & 255, i += d, m /= 256, mLen -= 8) {
+      for (; mLen >= 8; buffer[offset + i2] = m & 255, i2 += d, m /= 256, mLen -= 8) {
       }
       e = e << mLen | m;
       eLen += mLen;
-      for (; eLen > 0; buffer[offset + i] = e & 255, i += d, e /= 256, eLen -= 8) {
+      for (; eLen > 0; buffer[offset + i2] = e & 255, i2 += d, e /= 256, eLen -= 8) {
       }
-      buffer[offset + i - d] |= s * 128;
+      buffer[offset + i2 - d] |= s * 128;
     };
   }
 });
 
-// apps/plugin/src/main.ts
-import { readFileSync as readFileSync3 } from "node:fs";
-import { homedir as homedir3 } from "node:os";
-import { join as join11 } from "node:path";
+// apps/server/src/startup.ts
+import { fileURLToPath as fileURLToPath4 } from "node:url";
+
+// node_modules/@zukhruf/pool/dist/fixed.js
+var Fixed = class {
+  ceiling;
+  current;
+  kept;
+  constructor(workers) {
+    this.ceiling = workers;
+    this.current = workers;
+    this.kept = workers;
+  }
+  record() {
+  }
+};
+
+// node_modules/@zukhruf/pool/dist/capacity.js
+import { availableParallelism } from "node:os";
+function capacity(memoryPerWorker) {
+  return Math.max(1, Math.min(availableParallelism(), Math.floor(process.availableMemory() / memoryPerWorker)));
+}
+
+// node_modules/@zukhruf/pool/dist/climbing.js
+var jobs = 20;
+var span = 2e3;
+var Climbing = class {
+  ceiling;
+  #size;
+  #step;
+  #before = 0;
+  #more = 0;
+  #first = 0;
+  #count = 0;
+  #busy = 0;
+  constructor(options) {
+    this.ceiling = capacity(options.memoryPerWorker);
+    this.#size = Math.min(2, this.ceiling);
+    this.#step = this.#size < this.ceiling ? "before" : "settled";
+  }
+  get current() {
+    return this.#step === "more" ? this.#size + 1 : this.#size;
+  }
+  // The worker the step tries stays alive while the step measures the size
+  // before it again.
+  get kept() {
+    return this.#step === "more" || this.#step === "after" ? this.#size + 1 : this.#size;
+  }
+  record({ started, finished: finished7, measurable }) {
+    if (this.#step === "settled")
+      return;
+    if (!measurable) {
+      this.#restart();
+      return;
+    }
+    if (this.#count === 0)
+      this.#first = finished7;
+    this.#count++;
+    this.#busy += finished7 - started;
+    if (this.#count < jobs || finished7 - this.#first < span)
+      return;
+    const value = this.measure({
+      jobs: this.#count,
+      span: finished7 - this.#first,
+      busy: this.#busy
+    });
+    this.#restart();
+    if (this.#step === "before") {
+      this.#before = value;
+      this.#step = "more";
+    } else if (this.#step === "more") {
+      this.#more = value;
+      this.#step = "after";
+    } else if (this.pays(this.#more / ((this.#before + value) / 2))) {
+      this.#size++;
+      this.#step = this.#size < this.ceiling ? "before" : "settled";
+    } else
+      this.#step = "settled";
+  }
+  #restart() {
+    this.#count = 0;
+    this.#busy = 0;
+  }
+};
+
+// node_modules/@zukhruf/pool/dist/hill-climbing.js
+var HillClimbing = class extends Climbing {
+  measure({ jobs: jobs2, span: span2 }) {
+    return jobs2 / span2;
+  }
+  pays(ratio) {
+    return ratio >= 1.1;
+  }
+};
+
+// node_modules/@zukhruf/async/dist/latch.js
+var Latch2 = class {
+  /** Holds the value in a box, so it never adopts a promise and never rejects, whatever `T` is. */
+  // eslint-disable-next-line zukhruf/no-promise-field -- A latch never rejects and is never replaced, so no hazard of the rule applies; it is the primitive the rule recommends.
+  #opened = Promise.withResolvers();
+  /**
+   * A later open changes nothing. A type that names a promise is refused: a
+   * wait would adopt the promise, and could then reject.
+   */
+  open(value) {
+    this.#opened.resolve({ value });
+  }
+  wait() {
+    return this.#opened.promise.then(({ value }) => value);
+  }
+};
+
+// node_modules/@zukhruf/async/dist/poll.js
+import { setTimeout as delay } from "node:timers/promises";
+
+// node_modules/@zukhruf/async/dist/until-aborted.js
+import { addAbortListener } from "node:events";
+function untilAborted(promise2, signal) {
+  if (!signal)
+    return promise2;
+  return new Promise((resolve8, reject) => {
+    const listening = addAbortListener(signal, () => reject(signal.reason));
+    promise2.then((value) => {
+      listening[Symbol.dispose]();
+      resolve8(value);
+    }, (error62) => {
+      listening[Symbol.dispose]();
+      reject(error62);
+    });
+  });
+}
+
+// node_modules/@zukhruf/async/dist/poll.js
+async function poll(attempt, { interval, signal, deadline, ref }) {
+  for (; ; ) {
+    const value = await attempt();
+    if (value !== void 0)
+      return value;
+    if (deadline !== void 0 && performance.now() >= deadline) {
+      return void 0;
+    }
+    await untilAborted(delay(interval, void 0, { signal, ref }), signal);
+  }
+}
+
+// node_modules/@zukhruf/pool/dist/leader-first.js
+var LeaderFirst = class {
+  eager = true;
+  #leader = new Latch2();
+  // The first creation leads; every later one waits for it.
+  #turn = (settled2) => {
+    void settled2.then(() => this.#leader.open());
+    this.#turn = () => this.#leader.wait();
+    return Promise.resolve();
+  };
+  turn(settled2) {
+    return this.#turn(settled2);
+  }
+};
+
+// node_modules/p-queue/dist/lower-bound.js
+function lowerBound(array3, value, comparator) {
+  let first = 0;
+  let count2 = array3.length;
+  while (count2 > 0) {
+    const step = Math.trunc(count2 / 2);
+    let it = first + step;
+    if (comparator(array3[it], value) <= 0) {
+      first = ++it;
+      count2 -= step + 1;
+    } else {
+      count2 = step;
+    }
+  }
+  return first;
+}
+
+// node_modules/p-queue/dist/priority-queue.js
+var compactionThreshold = 100;
+var PriorityQueue = class {
+  // The slots before `#head` are `undefined`.
+  #queue = [];
+  // The queue is stored as a sorted array, but dequeued slots are left before `#head` until compaction. Only items from `#head` onward are live, which keeps repeated dequeues amortized O(1).
+  #head = 0;
+  #compact() {
+    if (this.#head === 0) {
+      return;
+    }
+    this.#queue.splice(0, this.#head);
+    this.#head = 0;
+  }
+  // Only the live items, because a dequeued item with the same id or function is no longer part of the queue.
+  #findIndex(isMatch) {
+    for (let index = this.#head; index < this.#queue.length; index++) {
+      if (isMatch(this.#queue[index])) {
+        return index;
+      }
+    }
+    return -1;
+  }
+  // Not `dequeue()`, which a subclass can override, because `remove()` also uses it.
+  #removeFirst() {
+    const item = this.#queue[this.#head];
+    this.#queue[this.#head] = void 0;
+    this.#head++;
+    if (this.#head === this.#queue.length) {
+      this.#queue.length = 0;
+      this.#head = 0;
+    } else if (this.#head > compactionThreshold && this.#head > this.#queue.length / 2) {
+      this.#compact();
+    }
+    return item.run;
+  }
+  enqueue(run, options) {
+    const { priority = 0, id } = options ?? {};
+    const { size } = this;
+    const element = {
+      priority,
+      id,
+      run
+    };
+    if (size === 0) {
+      this.#queue.length = 0;
+      this.#head = 0;
+      this.#queue.push(element);
+      return;
+    }
+    if (this.#queue.at(-1).priority >= priority) {
+      this.#queue.push(element);
+      return;
+    }
+    this.#compact();
+    const index = lowerBound(this.#queue, element, (a2, b) => a2.priority === b.priority ? 0 : b.priority - a2.priority);
+    this.#queue.splice(index, 0, element);
+  }
+  setPriority(id, priority) {
+    const index = this.#findIndex((element) => element.id === id);
+    if (index === -1) {
+      throw new ReferenceError(`No promise function with the id "${id}" exists in the queue.`);
+    }
+    if (this.#queue[index].priority === priority) {
+      return;
+    }
+    const [item] = this.#queue.splice(index, 1);
+    this.enqueue(item.run, { priority, id });
+  }
+  remove(idOrRun) {
+    const index = this.#findIndex((element) => (typeof idOrRun === "string" ? element.id : element.run) === idOrRun);
+    if (index === this.#head) {
+      this.#removeFirst();
+    } else if (index !== -1) {
+      this.#queue.splice(index, 1);
+    }
+  }
+  dequeue() {
+    return this.#head === this.#queue.length ? void 0 : this.#removeFirst();
+  }
+  filter(options) {
+    const result = [];
+    for (let index = this.#head; index < this.#queue.length; index++) {
+      const element = this.#queue[index];
+      if (element.priority === options.priority) {
+        result.push(element.run);
+      }
+    }
+    return result;
+  }
+  get size() {
+    return this.#queue.length - this.#head;
+  }
+};
+
+// node_modules/p-queue/dist/index.js
+var maximumTimerDelay = 2147483647;
+var asyncHooks = globalThis.process?.getBuiltinModule?.("node:async_hooks");
+var bindAsyncContext = (function_) => {
+  if (asyncHooks === void 0) {
+    return function_;
+  }
+  const asyncResource = new asyncHooks.AsyncResource("PQueueTask");
+  return () => asyncResource.runInAsyncScope(function_);
+};
+var validateTimeout = (timeout) => {
+  if (timeout !== void 0 && !(Number.isFinite(timeout) && timeout > 0 && timeout <= maximumTimerDelay)) {
+    throw new TypeError(`Expected \`timeout\` to be a positive finite number up to ${maximumTimerDelay}, got \`${timeout}\` (${typeof timeout})`);
+  }
+};
+var validateLimit = (name5, value) => {
+  if (!(typeof value === "number" && value >= 1 && (value === Infinity || Number.isInteger(value)))) {
+    throw new TypeError(`Expected \`${name5}\` to be an integer from 1 and up or \`Infinity\`, got \`${String(value)}\` (${typeof value})`);
+  }
+};
+var validateRateLimit = (interval, intervalCap, isStrict) => {
+  validateLimit("intervalCap", intervalCap);
+  if (!(Number.isFinite(interval) && interval >= 0)) {
+    throw new TypeError(`Expected \`interval\` to be a finite number >= 0, got \`${String(interval)}\` (${typeof interval})`);
+  }
+  if (intervalCap !== Infinity && interval > maximumTimerDelay) {
+    throw new TypeError(`Expected \`interval\` to be at most ${maximumTimerDelay} with an \`intervalCap\`, got \`${interval}\``);
+  }
+  if (isStrict && interval === 0) {
+    throw new TypeError("The `strict` option requires a non-zero `interval`");
+  }
+  if (isStrict && intervalCap === Infinity) {
+    throw new TypeError("The `strict` option requires a finite `intervalCap`");
+  }
+};
+var PQueue = class extends EventTarget {
+  #carryoverIntervalCount;
+  #isIntervalIgnored;
+  #intervalCount = 0;
+  #intervalCap;
+  #rateLimitedInInterval = false;
+  #rateLimitFlushScheduled = false;
+  #interval;
+  /*
+  Timestamp when the current interval window ends. Kept accurate at every window transition: `#initializeIntervalIfNeeded` sets it when a window starts and `#onInterval` advances it as the recurring timer rolls into each new window. This is the source of truth for whether a task added after the queue goes idle belongs to a fresh window, so it must not go stale.
+  */
+  #intervalEnd = 0;
+  // Recurring timer that drives windows while the queue is actively processing. Absent (`undefined`) once the queue goes idle.
+  #intervalId;
+  // One-shot timer used while idle to resume at the next window boundary, since `#intervalId` is cleared when idle.
+  #timeoutId;
+  #strict;
+  // Circular buffer implementation for better performance
+  #strictTicks = [];
+  #strictTicksStartIndex = 0;
+  #queue;
+  #queueClass;
+  #pending = 0;
+  // The `!` is needed because of https://github.com/microsoft/TypeScript/issues/32194
+  #concurrency;
+  #isPaused;
+  // Use to assign a unique identifier to a promise function, if not explicitly specified
+  #idAssigner = 1n;
+  // Track currently running tasks for debugging
+  #runningTasks = /* @__PURE__ */ new Set();
+  // The `abort` listener of each signal, with the callbacks of the tasks that use the signal.
+  #abortListeners = /* @__PURE__ */ new Map();
+  // The waiting tasks, so that `.clear()` can reject their promises.
+  #waitingTasks = /* @__PURE__ */ new Set();
+  #timeout;
+  constructor(options) {
+    super();
+    globalThis.process?.getBuiltinModule?.("node:events")?.setMaxListeners(Infinity, this);
+    const { carryoverIntervalCount = false, intervalCap = Infinity, interval = 0, concurrency = Infinity, autoStart = true, queueClass = PriorityQueue, strict = false, timeout } = options ?? {};
+    validateRateLimit(interval, intervalCap, strict);
+    this.#carryoverIntervalCount = carryoverIntervalCount;
+    this.#isIntervalIgnored = intervalCap === Infinity || interval === 0;
+    this.#intervalCap = intervalCap;
+    this.#interval = interval;
+    this.#strict = strict;
+    this.#queueClass = queueClass;
+    this.#queue = new this.#queueClass();
+    this.concurrency = concurrency;
+    this.timeout = timeout;
+    this.#isPaused = !autoStart;
+    this.#setupRateLimitTracking();
+  }
+  // Calls `callback` when `signal` aborts, and returns a function that stops it. The tasks that share a signal share one listener on it, because Node.js searches all the listeners of a signal to add or remove one, so a listener for each task takes O(n²) time with many tasks.
+  #onAbort(signal, callback) {
+    let listener = this.#abortListeners.get(signal);
+    if (!listener) {
+      const callbacks = /* @__PURE__ */ new Set();
+      const dispatch = () => {
+        this.#abortListeners.delete(signal);
+        for (const abortCallback of callbacks) {
+          abortCallback();
+        }
+      };
+      listener = { callbacks, dispatch };
+      this.#abortListeners.set(signal, listener);
+      signal.addEventListener("abort", dispatch, { once: true });
+    }
+    const currentListener = listener;
+    currentListener.callbacks.add(callback);
+    return () => {
+      currentListener.callbacks.delete(callback);
+      if (currentListener.callbacks.size > 0 || this.#abortListeners.get(signal) !== currentListener) {
+        return;
+      }
+      this.#abortListeners.delete(signal);
+      signal.removeEventListener("abort", currentListener.dispatch);
+    };
+  }
+  #emit(event, detail) {
+    this.dispatchEvent(new CustomEvent(event, { detail }));
+  }
+  async #onEvent(events, shouldHandle) {
+    const eventList = Array.isArray(events) ? events : [events];
+    return new Promise((resolve8) => {
+      const controller = new AbortController();
+      const listener = () => {
+        if (shouldHandle && !shouldHandle()) {
+          return;
+        }
+        controller.abort();
+        resolve8();
+      };
+      for (const event of eventList) {
+        this.addEventListener(event, listener, { signal: controller.signal });
+      }
+    });
+  }
+  // From the current state. `#rateLimitedInInterval` is what the events last reported, and it updates in a microtask.
+  get #isRateLimitedNow() {
+    if (this.#isIntervalIgnored || this.#queue.size === 0) {
+      return false;
+    }
+    const now2 = Date.now();
+    if (this.#strict) {
+      this.#cleanupStrictTicks(now2);
+      return this.#getActiveTicksCount() >= this.#intervalCap;
+    }
+    const isWindowOver = this.#intervalId === void 0 && this.#intervalEnd <= now2;
+    const count2 = isWindowOver ? this.#intervalCountAtWindowStart : this.#intervalCount;
+    return count2 >= this.#intervalCap;
+  }
+  // The tasks that still run count against the new window with `carryoverIntervalCount`.
+  get #intervalCountAtWindowStart() {
+    return this.#carryoverIntervalCount ? this.#pending : 0;
+  }
+  #updateRateLimitState() {
+    const shouldBeRateLimited = this.#isRateLimitedNow;
+    if (shouldBeRateLimited === this.#rateLimitedInInterval) {
+      return;
+    }
+    this.#rateLimitedInInterval = shouldBeRateLimited;
+    this.#emit(shouldBeRateLimited ? "rateLimit" : "rateLimitCleared");
+  }
+  #rollbackIntervalConsumption() {
+    if (this.#isIntervalIgnored) {
+      return;
+    }
+    this.#rollbackIntervalSlot();
+    this.#scheduleRateLimitUpdate();
+  }
+  #scheduleRateLimitUpdate() {
+    if (this.#isIntervalIgnored || this.#rateLimitFlushScheduled) {
+      return;
+    }
+    this.#rateLimitFlushScheduled = true;
+    queueMicrotask(() => {
+      this.#rateLimitFlushScheduled = false;
+      this.#updateRateLimitState();
+    });
+  }
+  #setupRateLimitTracking() {
+    if (this.#isIntervalIgnored) {
+      return;
+    }
+    this.addEventListener("add", () => {
+      if (this.#queue.size > 0) {
+        this.#scheduleRateLimitUpdate();
+      }
+    });
+    this.addEventListener("next", () => {
+      this.#scheduleRateLimitUpdate();
+    });
+  }
+  #cleanupStrictTicks(now2) {
+    while (this.#strictTicksStartIndex < this.#strictTicks.length) {
+      const oldestTick = this.#strictTicks[this.#strictTicksStartIndex];
+      if (oldestTick !== void 0 && now2 - oldestTick >= this.#interval) {
+        this.#strictTicksStartIndex++;
+      } else {
+        break;
+      }
+    }
+    const shouldCompact = this.#strictTicksStartIndex > 100 && this.#strictTicksStartIndex > this.#strictTicks.length / 2 || this.#strictTicksStartIndex === this.#strictTicks.length;
+    if (!shouldCompact) {
+      return;
+    }
+    this.#strictTicks = this.#strictTicks.slice(this.#strictTicksStartIndex);
+    this.#strictTicksStartIndex = 0;
+  }
+  // Helper methods for interval consumption
+  #consumeIntervalSlot(now2) {
+    if (this.#strict) {
+      this.#strictTicks.push(now2);
+    } else {
+      this.#intervalCount++;
+    }
+  }
+  #rollbackIntervalSlot() {
+    if (this.#strict) {
+      if (this.#strictTicks.length > this.#strictTicksStartIndex) {
+        this.#strictTicks.pop();
+      }
+      return;
+    }
+    if (this.#intervalCount > 0) {
+      this.#intervalCount--;
+    }
+  }
+  #getActiveTicksCount() {
+    return this.#strictTicks.length - this.#strictTicksStartIndex;
+  }
+  get #doesIntervalAllowAnother() {
+    if (this.#isIntervalIgnored) {
+      return true;
+    }
+    const count2 = this.#strict ? this.#getActiveTicksCount() : this.#intervalCount;
+    return count2 < this.#intervalCap;
+  }
+  get #doesConcurrentAllowAnother() {
+    return this.#pending < this.#concurrency;
+  }
+  #next() {
+    this.#pending--;
+    if (this.#pending === 0) {
+      this.#emit("pendingZero");
+    }
+    this.#processQueue();
+    this.#emit("next");
+  }
+  #onResumeInterval() {
+    this.#timeoutId = void 0;
+    this.#onInterval();
+    if (!this.#isPaused) {
+      this.#initializeIntervalIfNeeded();
+    }
+  }
+  #isIntervalPausedAt(now2) {
+    if (this.#strict) {
+      this.#cleanupStrictTicks(now2);
+      const activeTicksCount = this.#getActiveTicksCount();
+      if (activeTicksCount >= this.#intervalCap) {
+        const oldestTick = this.#strictTicks[this.#strictTicksStartIndex];
+        const delay5 = this.#interval - (now2 - oldestTick);
+        this.#createIntervalTimeout(delay5);
+        return true;
+      }
+      return false;
+    }
+    if (this.#intervalId === void 0) {
+      const delay5 = this.#intervalEnd - now2;
+      if (delay5 <= 0) {
+        this.#intervalCount = this.#intervalCountAtWindowStart;
+      } else {
+        this.#createIntervalTimeout(delay5);
+        return true;
+      }
+    }
+    return false;
+  }
+  #createIntervalTimeout(delay5) {
+    if (this.#timeoutId !== void 0) {
+      return;
+    }
+    this.#timeoutId = setTimeout(() => {
+      this.#onResumeInterval();
+    }, delay5);
+  }
+  #clearIntervalTimer() {
+    if (this.#intervalId === void 0) {
+      return;
+    }
+    clearInterval(this.#intervalId);
+    this.#intervalId = void 0;
+  }
+  #clearTimeoutTimer() {
+    if (this.#timeoutId === void 0) {
+      return;
+    }
+    clearTimeout(this.#timeoutId);
+    this.#timeoutId = void 0;
+  }
+  // Emits `empty`, and `idle` when no tasks run. For when the queue has no waiting tasks.
+  #emitEmptyAndIdle() {
+    this.#clearIntervalTimer();
+    this.#emit("empty");
+    if (this.#pending > 0 || this.#queue.size > 0) {
+      return;
+    }
+    this.#clearTimeoutTimer();
+    if (this.#strict) {
+      this.#cleanupStrictTicks(Date.now());
+    }
+    this.#emit("idle");
+  }
+  #tryToStartAnother() {
+    let isStarted;
+    do {
+      isStarted = this.#startNextTask();
+    } while (isStarted === void 0);
+    return isStarted;
+  }
+  // Returns `undefined` when it skipped a task whose signal aborted while it waited.
+  #startNextTask() {
+    if (this.#queue.size === 0) {
+      this.#emitEmptyAndIdle();
+      return false;
+    }
+    if (this.#isPaused) {
+      if (!this.#doesIntervalAllowAnother) {
+        this.#isIntervalPausedAt(Date.now());
+      }
+      return false;
+    }
+    const now2 = Date.now();
+    const canInitializeInterval = !this.#isIntervalPausedAt(now2);
+    if (this.#doesIntervalAllowAnother && this.#doesConcurrentAllowAnother) {
+      const job = this.#queue.dequeue();
+      if (!this.#isIntervalIgnored) {
+        this.#consumeIntervalSlot(now2);
+        this.#scheduleRateLimitUpdate();
+      }
+      if (canInitializeInterval) {
+        this.#initializeIntervalIfNeeded();
+      }
+      const pendingBefore = this.#pending;
+      job();
+      if (this.#pending === pendingBefore) {
+        this.#emit("next");
+        return;
+      }
+      this.#emit("active");
+      return true;
+    }
+    return false;
+  }
+  #initializeIntervalIfNeeded() {
+    if (this.#isIntervalIgnored || this.#intervalId !== void 0 || this.#strict) {
+      return;
+    }
+    this.#clearTimeoutTimer();
+    this.#intervalId = setInterval(() => {
+      this.#onInterval();
+    }, this.#interval);
+    this.#intervalEnd = Date.now() + this.#interval;
+  }
+  #onInterval() {
+    if (!this.#strict) {
+      if (this.#intervalId !== void 0) {
+        if (this.#intervalCount === 0 && this.#pending === 0) {
+          this.#clearIntervalTimer();
+        } else {
+          this.#intervalEnd = Date.now() + this.#interval;
+        }
+      }
+      this.#intervalCount = this.#intervalCountAtWindowStart;
+    }
+    this.#processQueue();
+    this.#scheduleRateLimitUpdate();
+  }
+  /**
+  Executes all queued functions until it reaches the limit.
+  */
+  #processQueue() {
+    while (this.#tryToStartAnother()) {
+    }
+  }
+  // On an empty queue, `#processQueue()` emits `empty` and `idle`. An `idle` listener that sets `concurrency` or calls `.start()` would then recurse without end.
+  #processWaitingTasks() {
+    if (this.#queue.size > 0) {
+      this.#processQueue();
+    }
+  }
+  async #add(function_, options, waitingTask) {
+    const id = options.id ?? (this.#idAssigner++).toString();
+    options = {
+      timeout: this.#timeout,
+      ...options,
+      id
+    };
+    validateTimeout(options.timeout);
+    if (options.priority !== void 0 && (typeof options.priority !== "number" || Number.isNaN(options.priority))) {
+      throw new TypeError(`Expected \`priority\` to be a number, got \`${String(options.priority)}\` (${typeof options.priority})`);
+    }
+    waitingTask.id = id;
+    waitingTask.priority = options.priority ?? 0;
+    return new Promise((resolve8, reject) => {
+      if (options.signal?.aborted) {
+        reject(options.signal.reason);
+        return;
+      }
+      const run = bindAsyncContext(async () => {
+        waitingTask.stopListeningForAbort?.();
+        this.#waitingTasks.delete(waitingTask);
+        if (options.signal?.aborted) {
+          this.#rollbackIntervalConsumption();
+          reject(options.signal.reason);
+          return;
+        }
+        this.#pending++;
+        const runningTask = {
+          id,
+          priority: waitingTask.priority,
+          startTime: Date.now(),
+          timeout: options.timeout
+        };
+        this.#runningTasks.add(runningTask);
+        let { signal } = options;
+        let stopListeningForAbort;
+        let stopForwardingAbort;
+        let timeoutId;
+        try {
+          if (options.timeout !== void 0) {
+            const { signal: userSignal, timeout } = options;
+            const taskController = new AbortController();
+            timeoutId = setTimeout(() => {
+              taskController.abort(new TimeoutError(`Task timed out after ${timeout}ms (queue has ${this.#pending} running, ${this.#queue.size} waiting)`));
+            }, timeout);
+            if (userSignal) {
+              stopForwardingAbort = this.#onAbort(userSignal, () => {
+                taskController.abort(userSignal.reason);
+              });
+            }
+            signal = taskController.signal;
+          }
+          let operation;
+          if (signal) {
+            const abortSignal = signal;
+            const abortPromise = new Promise((_resolve, rejectWithReason) => {
+              stopListeningForAbort = this.#onAbort(abortSignal, () => {
+                rejectWithReason(abortSignal.reason);
+              });
+            });
+            operation = Promise.race([abortPromise, (async () => function_({ signal }))()]);
+          } else {
+            try {
+              operation = function_({ signal });
+            } catch (error62) {
+              operation = Promise.reject(error62);
+            }
+          }
+          const result = await operation;
+          resolve8(result);
+          this.#emit("completed", result);
+        } catch (error62) {
+          reject(error62);
+          this.#emit("error", error62);
+        } finally {
+          clearTimeout(timeoutId);
+          stopListeningForAbort?.();
+          stopForwardingAbort?.();
+          this.#runningTasks.delete(runningTask);
+          queueMicrotask(() => {
+            this.#next();
+          });
+        }
+      });
+      const hasWaitingTasks = this.#queue.size > 0;
+      this.#queue.enqueue(run, options);
+      waitingTask.reject = reject;
+      this.#waitingTasks.add(waitingTask);
+      if (options.signal) {
+        const { signal } = options;
+        waitingTask.stopListeningForAbort = this.#onAbort(signal, () => {
+          this.#waitingTasks.delete(waitingTask);
+          if (this.#queue instanceof PriorityQueue) {
+            this.#queue.remove(run);
+          } else {
+            this.#queue.remove(id);
+          }
+          reject(signal.reason);
+          this.#processQueue();
+          this.#emit("next");
+        });
+      }
+      this.#emit("add");
+      if (hasWaitingTasks) {
+        this.#processQueue();
+      } else {
+        this.#tryToStartAnother();
+      }
+    });
+  }
+  /**
+      Get or set the default timeout. A change applies to tasks added after it.
+  
+      @example
+      ```
+      const queue = new PQueue({timeout: 5000});
+  
+      queue.timeout = 10000;
+      ```
+      */
+  get timeout() {
+    return this.#timeout;
+  }
+  // Validated here, not only in `.add()`, so that an invalid value throws where it is set, instead of making every later `.add()` reject.
+  set timeout(timeout) {
+    validateTimeout(timeout);
+    this.#timeout = timeout;
+  }
+  get concurrency() {
+    return this.#concurrency;
+  }
+  set concurrency(newConcurrency) {
+    validateLimit("concurrency", newConcurrency);
+    this.#concurrency = newConcurrency;
+    this.#processWaitingTasks();
+  }
+  /**
+      Changes the priority of a waiting task, found by its `id`. Throws a `ReferenceError` if no waiting task has that `id`, for example because it already started. Throws a `TypeError` if `priority` is not a finite number. Tasks only wait when the queue has a `concurrency` limit, is paused, or is rate-limited.
+  
+      @example
+      ```
+      // Raise the priority to run a task earlier
+      import PQueue from 'p-queue';
+  
+      const queue = new PQueue({concurrency: 1});
+  
+      queue.add(async () => '🦄', {priority: 1});
+      queue.add(async () => '🦀', {priority: 0, id: '🦀'});
+      queue.add(async () => '🦄', {priority: 1});
+      queue.add(async () => '🦄', {priority: 1});
+  
+      queue.setPriority('🦀', 2);
+      // '🦀' runs second
+      ```
+  
+      @example
+      ```
+      // Lower the priority to run a task later
+      import PQueue from 'p-queue';
+  
+      const queue = new PQueue({concurrency: 1});
+  
+      queue.add(async () => '🦄', {priority: 1});
+      queue.add(async () => '🦀', {priority: 1, id: '🦀'});
+      queue.add(async () => '🦄');
+      queue.add(async () => '🦄', {priority: 0});
+  
+      queue.setPriority('🦀', -1);
+      // '🦀' runs last
+      ```
+      */
+  setPriority(id, priority) {
+    if (typeof priority !== "number" || !Number.isFinite(priority)) {
+      throw new TypeError(`Expected \`priority\` to be a finite number, got \`${priority}\` (${typeof priority})`);
+    }
+    for (const waitingTask of this.#waitingTasks) {
+      if (waitingTask.id === id) {
+        this.#queue.setPriority(id, priority);
+        waitingTask.priority = priority;
+        return;
+      }
+    }
+    throw new ReferenceError(`No promise function with the id "${id}" exists in the queue.`);
+  }
+  /**
+      Adds a sync or async task to the queue.
+  
+      Returns a promise that settles with the result of `fn` when the task completes, not when it is added. The function gets `{signal}` as its first argument. The signal is set when the task has a `signal` or a `timeout`, and aborts when either one does. Pass it on, for example to `fetch()`, to stop the work. The function runs in the async context of the `.add()` call (in Node.js 22.3 and later, Deno, and Bun), so it sees the [`AsyncLocalStorage`](https://nodejs.org/api/async_context.html#class-asynclocalstorage) values of the caller, also when it starts later.
+  
+      If you `await` each `.add()` call before the next, the tasks run one after the other, whatever the `concurrency`.
+  
+      Handle rejections of the returned promise. Otherwise, they are unhandled rejections, which can make the process exit.
+      */
+  add(function_, options = {}) {
+    const waitingTask = {};
+    const promise2 = this.#add(function_, options, waitingTask);
+    waitingTask.promise = promise2;
+    if (waitingTask.isCleared) {
+      promise2.catch(() => void 0);
+    }
+    return promise2;
+  }
+  async addAll(functions, options) {
+    return Promise.all(functions.map(async (function_) => this.add(function_, options)));
+  }
+  /**
+      Starts (or resumes) running queued tasks. Only needed if the queue is paused, with `autoStart: false` or `.pause()`.
+  
+      @returns `this` (the instance).
+      */
+  start() {
+    if (!this.#isPaused) {
+      return this;
+    }
+    this.#isPaused = false;
+    this.#processWaitingTasks();
+    return this;
+  }
+  /**
+  Stops starting new tasks. Running tasks continue.
+  */
+  pause() {
+    this.#isPaused = true;
+  }
+  /**
+      Removes all waiting tasks. Running tasks continue.
+  
+      The promises returned by `.add()` for the removed tasks reject with an `AbortError`, which is a `DOMException`. The removed tasks do not run, and they do not emit the `error` event.
+  
+      If you ignore such a promise, its rejection is not reported as unhandled. This does not apply to a promise made from it, like the one from `queue.add(fn).then(…)` or from `.addAll()`, so handle the rejection of that promise.
+  
+      @example
+      ```
+      import PQueue from 'p-queue';
+  
+      const queue = new PQueue({concurrency: 1});
+  
+      queue.add(() => doWork());
+      const promise = queue.add(() => doWork());
+  
+      queue.clear();
+  
+      try {
+          await promise;
+      } catch (error) {
+          console.log(error.name);
+          //=> 'AbortError'
+      }
+      ```
+      */
+  clear() {
+    if (this.#queue.size === 0) {
+      return;
+    }
+    this.#queue = new this.#queueClass();
+    const error62 = new DOMException("The queue was cleared", "AbortError");
+    for (const waitingTask of this.#waitingTasks) {
+      waitingTask.stopListeningForAbort?.();
+      waitingTask.isCleared = true;
+      waitingTask.promise?.catch(() => void 0);
+      waitingTask.reject(error62);
+    }
+    this.#waitingTasks.clear();
+    this.#emitEmptyAndIdle();
+    this.#updateRateLimitState();
+    this.#emit("next");
+  }
+  /**
+      Returns a promise that resolves when the queue is empty. Tasks can still be running.
+  
+      The promise resolves once. Call `.onEmpty()` again to wait for the next time, or use the `empty` event to get every time.
+      */
+  async onEmpty() {
+    if (this.#queue.size === 0) {
+      return;
+    }
+    await this.#onEvent(["empty", "active"], () => this.#queue.size === 0);
+  }
+  /**
+      Returns a promise that resolves when `queue.size < limit`.
+  
+      Await it before you add a task, to keep the queue from growing beyond a size. It counts only waiting tasks, not running tasks.
+      */
+  async onSizeLessThan(limit) {
+    if (this.#queue.size < limit) {
+      return;
+    }
+    await this.#onEvent(["next", "active"], () => this.#queue.size < limit);
+  }
+  /**
+      Returns a promise that resolves when the queue is empty and all tasks have completed: `queue.size === 0 && queue.pending === 0`.
+  
+      Unlike `.onEmpty()`, it waits for running tasks to finish.
+  
+      The promise resolves once. Call `.onIdle()` again to wait for the next time, or use the `idle` event to get every time.
+      */
+  async onIdle() {
+    if (this.#pending === 0 && this.#queue.size === 0) {
+      return;
+    }
+    await this.#onEvent("idle");
+  }
+  /**
+      Returns a promise that resolves when no tasks are running: `queue.pending === 0`.
+  
+      Unlike `.onIdle()`, it ignores queued tasks. Use it to let running tasks finish before you change shared state. A task that timed out, or whose `signal` aborted while it ran, no longer counts, although its function can still run.
+  
+      @example
+      ```
+      queue.pause();
+      await queue.onPendingZero();
+      // No tasks are running, but the queue can still have tasks
+      ```
+      */
+  async onPendingZero() {
+    if (this.#pending === 0) {
+      return;
+    }
+    await this.#onEvent("pendingZero");
+  }
+  /**
+      Returns a promise that resolves when the queue becomes rate-limited by `intervalCap`. If the queue is already rate-limited, it resolves immediately.
+  
+      Useful for backpressure, when tasks are added faster than they run.
+  
+      @example
+      ```
+      const queue = new PQueue({intervalCap: 5, interval: 1000});
+  
+      for (let index = 0; index < 10; index++) {
+          queue.add(() => someTask());
+      }
+  
+      await queue.onRateLimit();
+      console.log('The queue is rate-limited');
+      ```
+      */
+  async onRateLimit() {
+    this.#updateRateLimitState();
+    if (this.isRateLimited) {
+      return;
+    }
+    await this.#onEvent("rateLimit");
+  }
+  /**
+      Returns a promise that resolves when the queue is no longer rate-limited. If the queue is not rate-limited, it resolves immediately.
+  
+      @example
+      ```
+      const queue = new PQueue({intervalCap: 5, interval: 1000});
+  
+      for (let index = 0; index < 10; index++) {
+          queue.add(() => someTask());
+      }
+  
+      await queue.onRateLimitCleared();
+      console.log('The rate limit is cleared');
+      ```
+      */
+  async onRateLimitCleared() {
+    this.#updateRateLimitState();
+    if (!this.isRateLimited) {
+      return;
+    }
+    await this.#onEvent("rateLimitCleared");
+  }
+  /**
+      Returns a promise that rejects when a task fails: it throws, times out, or its `signal` aborts while it runs. It rejects with the error of the task, or with `null` if the error is `undefined`, like the `error` event.
+  
+      Use `Promise.race([queue.onError(), queue.onIdle()])` to stop at the first error, and to resolve normally when the queue becomes idle. Each call adds an `error` listener that stays until a task fails, so to get every error, for example in a loop, use the `error` event instead.
+  
+      Important: The promises returned by `.add()` still reject. Handle each of them (for example with `.catch(() => {})`) to prevent unhandled rejections.
+  
+      @example
+      ```
+      import PQueue from 'p-queue';
+  
+      const queue = new PQueue({concurrency: 2});
+  
+      // Do not start the remaining tasks. Pause in an `error` listener, because it runs before the next task starts, and the code after `await` runs later.
+      queue.addEventListener('error', () => {
+          queue.pause();
+      }, {once: true});
+  
+      queue.add(() => fetchData(1)).catch(() => {});
+      queue.add(() => fetchData(2)).catch(() => {});
+      queue.add(() => fetchData(3)).catch(() => {});
+  
+      try {
+          await Promise.race([
+              queue.onError(),
+              queue.onIdle()
+          ]);
+      } catch (error) {
+          console.error('Queue failed:', error);
+      }
+      ```
+      */
+  // eslint-disable-next-line @typescript-eslint/promise-function-async
+  onError() {
+    return new Promise((_resolve, reject) => {
+      this.addEventListener("error", (event) => {
+        reject(event.detail);
+      }, { once: true });
+    });
+  }
+  /**
+  The number of tasks waiting to run.
+  */
+  get size() {
+    return this.#queue.size;
+  }
+  /**
+      The number of waiting tasks with the given `priority`.
+  
+      @example
+      ```
+      import PQueue from 'p-queue';
+  
+      const queue = new PQueue();
+  
+      // Paused, so the tasks stay queued. Without it they all start synchronously and the queue is empty by the time `sizeBy` reads it.
+      queue.pause();
+  
+      queue.add(async () => '🦄', {priority: 1});
+      queue.add(async () => '🦄', {priority: 0});
+      queue.add(async () => '🦄', {priority: 1});
+  
+      console.log(queue.sizeBy({priority: 1}));
+      //=> 2
+  
+      console.log(queue.sizeBy({priority: 0}));
+      //=> 1
+      ```
+      */
+  sizeBy(options) {
+    return this.#queue.filter(options).length;
+  }
+  /**
+  The number of running tasks.
+  */
+  get pending() {
+    return this.#pending;
+  }
+  /**
+  Whether the queue is paused.
+  */
+  get isPaused() {
+    return this.#isPaused;
+  }
+  /**
+  Whether the queue is rate-limited: the number of tasks started in the current interval, plus the tasks still running from earlier intervals with `carryoverIntervalCount`, has reached `intervalCap`, and tasks are waiting.
+  */
+  get isRateLimited() {
+    return this.#isRateLimitedNow;
+  }
+  /**
+      Whether tasks are waiting because all concurrency slots are in use, or because the queue is rate-limited.
+  
+      Useful to detect backpressure and tasks that hang.
+  
+      @example
+      ```
+      import PQueue from 'p-queue';
+  
+      const queue = new PQueue({concurrency: 2});
+  
+      // Backpressure
+      if (queue.isSaturated) {
+          await queue.onSizeLessThan(queue.concurrency);
+      }
+  
+      // Monitoring
+      setInterval(() => {
+          if (queue.isSaturated) {
+              console.warn(`Queue saturated: ${queue.pending} running, ${queue.size} waiting`);
+          }
+      }, 60000);
+      ```
+      */
+  get isSaturated() {
+    return this.#queue.size > 0 && (this.#pending >= this.#concurrency || this.isRateLimited);
+  }
+  /**
+      An array with the running tasks. Each task has its `id`, `priority`, `startTime`, `timeout`, and `timeoutRemaining` (the milliseconds until it times out). Without a timeout, `timeout` and `timeoutRemaining` are `undefined`.
+  
+      @example
+      ```
+      import PQueue from 'p-queue';
+  
+      const queue = new PQueue({concurrency: 2, timeout: 10000});
+  
+      queue.add(() => fetchUser(123), {id: 'user-123'});
+      queue.add(() => fetchPosts(456), {id: 'posts-456', priority: 1});
+  
+      console.log(queue.runningTasks);
+      // => [{
+      //   id: 'user-123',
+      //   priority: 0,
+      //   startTime: 1759253001716,
+      //   timeout: 10000,
+      //   timeoutRemaining: 10000
+      // }, {
+      //   id: 'posts-456',
+      //   priority: 1,
+      //   startTime: 1759253001716,
+      //   timeout: 10000,
+      //   timeoutRemaining: 10000
+      // }]
+      ```
+      */
+  get runningTasks() {
+    return Array.from(this.#runningTasks, (task) => ({
+      ...task,
+      timeoutRemaining: task.timeout === void 0 ? void 0 : Math.max(0, task.startTime + task.timeout - Date.now())
+    }));
+  }
+};
+var TimeoutError = class extends DOMException {
+  constructor(message) {
+    super(message, "TimeoutError");
+  }
+};
+
+// node_modules/@zukhruf/pool/dist/parallel.js
+var Parallel = class {
+  eager = true;
+  turn() {
+    return Promise.resolve();
+  }
+};
+
+// node_modules/@zukhruf/pool/dist/pool.js
+var backoff = { first: 1e3, most: 6e4, reset: 6e5 };
+var Pool = class {
+  #create;
+  #startup;
+  #sizing;
+  #queue;
+  #slots;
+  #lent = /* @__PURE__ */ new Set();
+  #workers = /* @__PURE__ */ new Set();
+  #stopped = new AbortController();
+  #started = new Latch2();
+  // When the pool last changed how many workers it runs.
+  #resized = performance.now();
+  constructor(options) {
+    this.#create = options.create;
+    this.#startup = options.startup;
+    this.#sizing = options.size;
+    this.#queue = new PQueue({ concurrency: this.#sizing.current });
+    this.#slots = Array.from({ length: this.#sizing.ceiling }, (_, index) => ({
+      index,
+      state: { kind: "empty" },
+      early: 0
+    }));
+    const outcomes = options.startup.eager ? this.#running().map((slot) => this.#spawn(slot)) : [];
+    Promise.all(outcomes.map((outcome) => settled(outcome))).then(() => this.#started.open({ status: "fulfilled", value: void 0 }), (reason) => this.#started.open({ status: "rejected", reason }));
+  }
+  // Settles when the workers the startup starts with the pool are ready, and
+  // rejects when one of them fails to start.
+  async ready() {
+    const outcome = await this.#started.wait();
+    if (outcome.status === "rejected")
+      throw outcome.reason;
+  }
+  get stats() {
+    const stats = { starting: 0, idle: 0, lent: 0, waiting: this.#queue.size };
+    for (const slot of this.#slots) {
+      const lent = this.#lent.has(slot);
+      if (slot.state.kind === "starting") {
+        stats.starting++;
+        if (lent)
+          stats.waiting++;
+      } else if (slot.state.kind === "ready") {
+        if (lent)
+          stats.lent++;
+        else
+          stats.idle++;
+      }
+    }
+    return stats;
+  }
+  // A job aborted while it runs kills its worker. A job aborted while its
+  // worker warms up leaves the warm-up running for the jobs after it.
+  use(job, signal) {
+    const stop = signal === void 0 ? this.#stopped.signal : AbortSignal.any([this.#stopped.signal, signal]);
+    if (stop.aborted)
+      return Promise.reject(stop.reason);
+    return this.#queue.add(async () => {
+      stop.throwIfAborted();
+      const slot = this.#running().find((free) => !this.#lent.has(free));
+      this.#lent.add(slot);
+      try {
+        const worker = await untilAborted(this.#borrow(slot), stop);
+        const kill = () => {
+          worker.kill();
+          this.#lose(slot, worker);
+        };
+        stop.addEventListener("abort", kill, { once: true });
+        const started = performance.now();
+        try {
+          const result = await job(worker);
+          stop.throwIfAborted();
+          return result;
+        } catch (error62) {
+          stop.throwIfAborted();
+          throw error62;
+        } finally {
+          stop.removeEventListener("abort", kill);
+          if (!stop.aborted)
+            this.#record(started);
+        }
+      } finally {
+        this.#lent.delete(slot);
+        if (slot.index >= this.#sizing.kept)
+          this.#retire(slot);
+      }
+    });
+  }
+  #running() {
+    return this.#slots.slice(0, this.#sizing.current);
+  }
+  async #borrow(slot) {
+    const state = slot.state;
+    if (state.kind === "ready")
+      return state.worker;
+    if (state.kind === "lost") {
+      slot.state = { kind: "empty" };
+      void this.#close(state.worker);
+    }
+    if (state.kind === "backoff")
+      clearTimeout(state.timer);
+    const worker = await settled(state.kind === "starting" ? state.outcome : this.#spawn(slot));
+    const now2 = slot.state;
+    if (now2.kind === "ready" && now2.worker === worker)
+      return worker;
+    return this.#borrow(slot);
+  }
+  // A job measures how many workers pay only if, since it started, the pool
+  // ran the same number of workers and each was ready, and another job waited
+  // when it finished.
+  #record(started) {
+    const steady = this.#steady();
+    this.#sizing.record({
+      started,
+      finished: performance.now(),
+      measurable: steady !== void 0 && started >= steady && this.#queue.size > 0
+    });
+    for (const slot of this.#slots.slice(this.#sizing.kept))
+      this.#retire(slot);
+    if (this.#sizing.current === this.#queue.concurrency)
+      return;
+    this.#queue.concurrency = this.#sizing.current;
+    this.#resized = performance.now();
+    for (const slot of this.#running())
+      if (slot.state.kind === "empty")
+        this.#spawn(slot);
+  }
+  // Since when every slot the pool runs has had a ready worker, if they have.
+  #steady() {
+    let since = this.#resized;
+    for (const { state } of this.#running()) {
+      if (state.kind !== "ready")
+        return void 0;
+      since = Math.max(since, state.since);
+    }
+    return since;
+  }
+  #spawn(slot) {
+    const outcome = new Latch2();
+    slot.state = { kind: "starting", outcome };
+    const turn = Promise.withResolvers();
+    this.#startup.turn(turn.promise).then(async () => {
+      this.#stopped.signal.throwIfAborted();
+      const worker = this.#create();
+      this.#workers.add(worker);
+      try {
+        await worker.ready?.();
+        return worker;
+      } catch (error62) {
+        worker.kill();
+        await this.#close(worker);
+        throw error62;
+      }
+    }).then((worker) => {
+      if (slot.state.kind === "starting" && slot.state.outcome === outcome)
+        slot.state = { kind: "ready", worker, since: performance.now() };
+      outcome.open({ status: "fulfilled", value: worker });
+      turn.resolve();
+      void worker.exited().then(() => this.#ended(slot, worker));
+    }, (reason) => {
+      if (slot.state.kind === "starting" && slot.state.outcome === outcome)
+        slot.state = { kind: "empty" };
+      outcome.open({ status: "rejected", reason });
+      turn.resolve();
+    });
+    return outcome;
+  }
+  // The pool killed the worker of a slot: no job may borrow it any more.
+  #lose(slot, worker) {
+    const state = slot.state;
+    if (state.kind === "ready" && state.worker === worker)
+      slot.state = { kind: "lost", worker, since: state.since };
+  }
+  #ended(slot, worker) {
+    const state = slot.state;
+    if (state.kind !== "ready" && state.kind !== "lost" || state.worker !== worker)
+      return;
+    slot.state = { kind: "lost", worker, since: state.since };
+    if (this.#lent.has(slot) || this.#stopped.signal.aborted || !this.#startup.eager)
+      return;
+    slot.state = { kind: "empty" };
+    void this.#close(worker);
+    slot.early = performance.now() - state.since < backoff.reset ? slot.early + 1 : 0;
+    if (slot.index >= this.#sizing.current)
+      return;
+    if (slot.early === 0) {
+      this.#spawn(slot);
+      return;
+    }
+    const delay5 = Math.min(backoff.first * 2 ** (slot.early - 1), backoff.most);
+    slot.state = {
+      kind: "backoff",
+      timer: setTimeout(() => {
+        slot.state = { kind: "empty" };
+        if (slot.index < this.#sizing.current)
+          this.#spawn(slot);
+      }, delay5)
+    };
+  }
+  // Closes the worker of a slot the pool no longer keeps, once its job ends.
+  #retire(slot) {
+    if (this.#lent.has(slot))
+      return;
+    const state = slot.state;
+    slot.state = { kind: "empty" };
+    if (state.kind === "ready" || state.kind === "lost")
+      void this.#close(state.worker);
+    else if (state.kind === "backoff")
+      clearTimeout(state.timer);
+    else if (state.kind === "starting")
+      void settled(state.outcome).then((worker) => this.#close(worker), () => void 0);
+  }
+  async #close(worker) {
+    await worker.close();
+    this.#workers.delete(worker);
+  }
+  async [Symbol.asyncDispose]() {
+    this.#stopped.abort();
+    for (const { state } of this.#slots)
+      if (state.kind === "backoff")
+        clearTimeout(state.timer);
+    for (const worker of this.#workers)
+      worker.kill();
+    await Promise.all([...this.#workers].map((worker) => worker.close()));
+    await this.#queue.onIdle();
+  }
+};
+async function settled(outcome) {
+  const result = await outcome.wait();
+  if (result.status === "rejected")
+    throw result.reason;
+  return result.value;
+}
+
+// ../elt/packages/sources/apple/macos/dist/vision.js
+import { resolve } from "node:path";
+
+// ../elt/node_modules/@zukhruf/coprocess/dist/coprocess.js
+import { createInterface } from "node:readline";
+
+// ../elt/node_modules/is-plain-obj/index.js
+function isPlainObject(value) {
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+  const prototype = Object.getPrototypeOf(value);
+  return (prototype === null || prototype === Object.prototype || Object.getPrototypeOf(prototype) === null) && !(Symbol.toStringTag in value) && !(Symbol.iterator in value);
+}
+
+// ../elt/node_modules/execa/lib/arguments/file-url.js
+import { fileURLToPath } from "node:url";
+var safeNormalizeFileUrl = (file2, name5) => {
+  const fileString = normalizeFileUrl(normalizeDenoExecPath(file2));
+  if (typeof fileString !== "string") {
+    throw new TypeError(`${name5} must be a string or a file URL: ${fileString}.`);
+  }
+  return fileString;
+};
+var normalizeDenoExecPath = (file2) => isDenoExecPath(file2) ? file2.toString() : file2;
+var isDenoExecPath = (file2) => typeof file2 !== "string" && file2 && Object.getPrototypeOf(file2) === String.prototype;
+var normalizeFileUrl = (file2) => file2 instanceof URL ? fileURLToPath(file2) : file2;
+
+// ../elt/node_modules/execa/lib/methods/parameters.js
+var normalizeParameters = (rawFile, rawArguments = [], rawOptions, ...rawExtraArguments) => {
+  if (rawExtraArguments.length > 0) {
+    throw new TypeError("Execa accepts at most three arguments: file, arguments, options.");
+  }
+  if (rawOptions !== void 0 && isPlainObject(rawArguments)) {
+    throw new TypeError("Execa accepts at most one options object. Please merge the second and third arguments.");
+  }
+  const filePath = safeNormalizeFileUrl(rawFile, "First argument");
+  const [commandArguments, options = {}] = isPlainObject(rawArguments) ? [[], rawArguments] : [rawArguments, rawOptions];
+  if (!Array.isArray(commandArguments)) {
+    throw new TypeError(`Second argument must be either an array of arguments or an options object: ${commandArguments}`);
+  }
+  if (commandArguments.some((commandArgument) => typeof commandArgument === "object" && commandArgument !== null)) {
+    throw new TypeError(`Second argument must be an array of strings: ${commandArguments}`);
+  }
+  const normalizedArguments = commandArguments.map(String);
+  const nullByteArgument = normalizedArguments.find((normalizedArgument) => normalizedArgument.includes("\0"));
+  if (nullByteArgument !== void 0) {
+    throw new TypeError(`Arguments cannot contain null bytes ("\\0"): ${nullByteArgument}`);
+  }
+  if (!isPlainObject(options)) {
+    throw new TypeError(`Last argument must be an options object: ${options}`);
+  }
+  return [filePath, normalizedArguments, { __proto__: null, ...options }];
+};
+
+// ../elt/node_modules/execa/lib/methods/template.js
+import { ChildProcess } from "node:child_process";
+
+// ../elt/node_modules/execa/lib/arguments/escape.js
+import { platform } from "node:process";
+import { stripVTControlCharacters } from "node:util";
+var joinCommand = (filePath, rawArguments, shell) => {
+  const fileAndArguments = [filePath, ...rawArguments];
+  const command = fileAndArguments.join(" ");
+  const escapedCommand = shell ? escapeControlCharacters(command) : fileAndArguments.map((fileAndArgument) => quoteString(escapeControlCharacters(fileAndArgument))).join(" ");
+  return { command, escapedCommand };
+};
+var escapeLines = (lines) => stripVTControlCharacters(lines).split("\n").map((line) => escapeControlCharacters(line)).join("\n");
+var escapeControlCharacters = (line) => line.replaceAll(SPECIAL_CHAR_REGEXP, (character) => escapeControlCharacter(character));
+var escapeControlCharacter = (character) => {
+  const commonEscape = COMMON_ESCAPES[character];
+  if (commonEscape !== void 0) {
+    return commonEscape;
+  }
+  const codepoint = character.codePointAt(0);
+  const codepointHex = codepoint.toString(16);
+  return codepoint <= ASTRAL_START ? `\\u${codepointHex.padStart(4, "0")}` : `\\U${codepointHex}`;
+};
+var getSpecialCharRegExp = () => {
+  try {
+    return new RegExp("\\p{Separator}|\\p{Other}", "gu");
+  } catch {
+    return /[\s\u0000-\u001F\u007F-\u009F\u00AD]/g;
+  }
+};
+var SPECIAL_CHAR_REGEXP = getSpecialCharRegExp();
+var COMMON_ESCAPES = {
+  " ": " ",
+  "\b": "\\b",
+  "\f": "\\f",
+  "\n": "\\n",
+  "\r": "\\r",
+  "	": "\\t"
+};
+var ASTRAL_START = 65535;
+var quoteString = (escapedArgument) => {
+  if (NO_ESCAPE_REGEXP.test(escapedArgument)) {
+    return escapedArgument;
+  }
+  return platform === "win32" ? `"${escapedArgument.replaceAll('"', '""')}"` : `'${escapedArgument.replaceAll("'", "'\\''")}'`;
+};
+var NO_ESCAPE_REGEXP = /^[\w\-./]+$/;
+
+// ../elt/node_modules/execa/lib/utils/uint-array.js
+import { StringDecoder } from "node:string_decoder";
+var { toString: objectToString } = Object.prototype;
+var isArrayBuffer = (value) => objectToString.call(value) === "[object ArrayBuffer]";
+var isUint8Array = (value) => objectToString.call(value) === "[object Uint8Array]";
+var bufferToUint8Array = (buffer) => new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+var textEncoder = new TextEncoder();
+var stringToUint8Array = (string5) => textEncoder.encode(string5);
+var textDecoder = new TextDecoder();
+var uint8ArrayToString = (uint8Array) => textDecoder.decode(uint8Array);
+var joinToString = (uint8ArraysOrStrings, encoding) => {
+  const strings = uint8ArraysToStrings(uint8ArraysOrStrings, encoding);
+  return strings.join("");
+};
+var uint8ArraysToStrings = (uint8ArraysOrStrings, encoding) => {
+  if (encoding === "utf8" && uint8ArraysOrStrings.every((uint8ArrayOrString) => typeof uint8ArrayOrString === "string")) {
+    return uint8ArraysOrStrings;
+  }
+  const decoder = new StringDecoder(encoding);
+  const strings = uint8ArraysOrStrings.map((uint8ArrayOrString) => typeof uint8ArrayOrString === "string" ? stringToUint8Array(uint8ArrayOrString) : uint8ArrayOrString).map((uint8Array) => decoder.write(uint8Array));
+  const finalString = decoder.end();
+  return finalString === "" ? strings : [...strings, finalString];
+};
+var joinToUint8Array = (uint8ArraysOrStrings) => uint8ArraysOrStrings.length === 1 && isUint8Array(uint8ArraysOrStrings[0]) ? uint8ArraysOrStrings[0] : concatUint8Arrays(stringsToUint8Arrays(uint8ArraysOrStrings));
+var stringsToUint8Arrays = (uint8ArraysOrStrings) => uint8ArraysOrStrings.map((uint8ArrayOrString) => typeof uint8ArrayOrString === "string" ? stringToUint8Array(uint8ArrayOrString) : uint8ArrayOrString);
+var concatUint8Arrays = (uint8Arrays) => {
+  const result = new Uint8Array(getJoinLength(uint8Arrays));
+  let index = 0;
+  for (const uint8Array of uint8Arrays) {
+    result.set(uint8Array, index);
+    index += uint8Array.length;
+  }
+  return result;
+};
+var getJoinLength = (uint8Arrays) => {
+  let joinLength = 0;
+  for (const uint8Array of uint8Arrays) {
+    joinLength += uint8Array.length;
+  }
+  return joinLength;
+};
+
+// ../elt/node_modules/execa/lib/return/final-error.js
+var getFinalError = (originalError, message, isSync) => {
+  const ErrorClass = isSync ? ExecaSyncError : ExecaError;
+  const options = originalError instanceof DiscardedError ? {} : { cause: originalError };
+  return new ErrorClass(message, options);
+};
+var DiscardedError = class extends Error {
+};
+var setErrorName = (ErrorClass, value) => {
+  Object.defineProperties(ErrorClass.prototype, {
+    name: {
+      value,
+      writable: true,
+      enumerable: false,
+      configurable: true
+    },
+    [execaErrorSymbol]: {
+      value: true,
+      writable: false,
+      enumerable: false,
+      configurable: false
+    }
+  });
+};
+var isExecaError = (error62) => isErrorInstance(error62) && execaErrorSymbol in error62;
+var execaErrorSymbol = /* @__PURE__ */ Symbol("isExecaError");
+var isErrorInstance = (value) => value instanceof Error || Object.prototype.toString.call(value) === "[object Error]";
+var ExecaError = class extends Error {
+};
+setErrorName(ExecaError, ExecaError.name);
+var ExecaSyncError = class extends Error {
+};
+setErrorName(ExecaSyncError, ExecaSyncError.name);
+
+// ../elt/node_modules/execa/lib/utils/type-name.js
+var getTypeName = (value) => value === null ? "null" : typeof value;
+
+// ../elt/node_modules/execa/lib/methods/template.js
+var isTemplateString = (templates) => Array.isArray(templates) && Array.isArray(templates.raw);
+var parseTemplates = (templates, expressions) => {
+  let tokens = [];
+  let isSeparated = false;
+  for (const [index, template] of templates.entries()) {
+    ({ tokens, isSeparated } = parseTemplate({
+      templates,
+      expressions,
+      tokens,
+      isSeparated,
+      index,
+      template
+    }));
+  }
+  if (tokens.length === 0) {
+    throw new TypeError("Template script must not be empty");
+  }
+  const [file2, ...commandArguments] = tokens;
+  return [file2, commandArguments, {}];
+};
+var parseTemplate = ({ templates, expressions, tokens, isSeparated, index, template }) => {
+  if (template === void 0) {
+    throw new TypeError(`Invalid backslash sequence: ${templates.raw[index]}`);
+  }
+  const { nextTokens, leadingWhitespaces, trailingWhitespaces } = splitByWhitespaces(template, templates.raw[index]);
+  const newTokens = concatTokens(tokens, nextTokens, isSeparated || leadingWhitespaces);
+  const isTemplateSeparated = trailingWhitespaces || nextTokens.length === 0 && isSeparated;
+  if (index === expressions.length) {
+    return { tokens: newTokens, isSeparated: isTemplateSeparated };
+  }
+  const expression = expressions[index];
+  const expressionTokens = Array.isArray(expression) ? expression.map((expression2) => parseExpression(expression2)) : [parseExpression(expression)];
+  return {
+    tokens: concatTokens(newTokens, expressionTokens, isTemplateSeparated),
+    isSeparated: expressionTokens.length === 0 && isTemplateSeparated
+  };
+};
+var splitByWhitespaces = (template, rawTemplate) => {
+  if (template.length === 0) {
+    return { nextTokens: [], leadingWhitespaces: false, trailingWhitespaces: false };
+  }
+  const nextTokens = [];
+  let templateStart = 0;
+  let isLeadingWhitespaces = false;
+  for (let templateIndex = 0, rawIndex = 0; templateIndex < template.length; templateIndex += 1, rawIndex += 1) {
+    const rawCharacter = rawTemplate[rawIndex];
+    if (DELIMITERS.has(rawCharacter)) {
+      if (templateIndex === 0) {
+        isLeadingWhitespaces = true;
+      }
+      if (templateStart !== templateIndex) {
+        nextTokens.push(template.slice(templateStart, templateIndex));
+      }
+      templateStart = templateIndex + 1;
+    } else if (rawCharacter === "\\") {
+      const nextRawCharacter = rawTemplate[rawIndex + 1];
+      if (nextRawCharacter === "\n") {
+        templateIndex -= 1;
+        rawIndex += 1;
+      } else if (nextRawCharacter === "u" && rawTemplate[rawIndex + 2] === "{") {
+        const closingBraceIndex = rawTemplate.indexOf("}", rawIndex + 3);
+        if (isAstralEscape(rawTemplate.slice(rawIndex + 3, closingBraceIndex))) {
+          templateIndex += 1;
+        }
+        rawIndex = closingBraceIndex;
+      } else {
+        rawIndex += ESCAPE_LENGTH[nextRawCharacter] ?? 1;
+      }
+    }
+  }
+  const isTrailingWhitespaces = templateStart === template.length;
+  if (!isTrailingWhitespaces) {
+    nextTokens.push(template.slice(templateStart));
+  }
+  return { nextTokens, leadingWhitespaces: isLeadingWhitespaces, trailingWhitespaces: isTrailingWhitespaces };
+};
+var isAstralEscape = (codePointHex) => Number.parseInt(codePointHex, 16) > ASTRAL_START;
+var DELIMITERS = /* @__PURE__ */ new Set([" ", "	", "\r", "\n"]);
+var ESCAPE_LENGTH = { x: 3, u: 5 };
+var concatTokens = (tokens, nextTokens, isSeparated) => isSeparated || tokens.length === 0 || nextTokens.length === 0 ? [...tokens, ...nextTokens] : [
+  ...tokens.slice(0, -1),
+  `${tokens.at(-1)}${nextTokens[0]}`,
+  ...nextTokens.slice(1)
+];
+var parseExpression = (expression) => {
+  const typeOfExpression = getTypeName(expression);
+  if (typeOfExpression === "string") {
+    return expression;
+  }
+  if (typeOfExpression === "number") {
+    return String(expression);
+  }
+  if ((isPlainObject(expression) || isExecaError(expression)) && (Object.hasOwn(expression, "stdout") || Object.hasOwn(expression, "isMaxBuffer"))) {
+    return getSubprocessResult(expression);
+  }
+  if (expression instanceof ChildProcess || Object.prototype.toString.call(expression) === "[object Promise]") {
+    throw new TypeError("Unexpected subprocess in template expression. Please use ${await subprocess} instead of ${subprocess}.");
+  }
+  throw new TypeError(`Unexpected "${typeOfExpression}" in template expression`);
+};
+var getSubprocessResult = (result) => {
+  const stdout = Object.hasOwn(result, "stdout") ? result.stdout : void 0;
+  if (typeof stdout === "string") {
+    return stdout;
+  }
+  if (isUint8Array(stdout)) {
+    return uint8ArrayToString(stdout);
+  }
+  if (stdout === void 0) {
+    throw new TypeError(`Missing result.stdout in template expression. This is probably due to the previous subprocess' "stdout" option.`);
+  }
+  throw new TypeError(`Unexpected "${getTypeName(stdout)}" stdout in template expression`);
+};
+
+// ../elt/node_modules/execa/lib/methods/main-sync.js
+import { spawnSync } from "node:child_process";
+
+// ../elt/node_modules/execa/lib/arguments/specific.js
+import { debuglog } from "node:util";
+
+// ../elt/node_modules/execa/lib/utils/standard-stream.js
+import process2 from "node:process";
+var isStandardStream = (stream) => STANDARD_STREAMS.includes(stream);
+var STANDARD_STREAMS = [process2.stdin, process2.stdout, process2.stderr];
+var STANDARD_STREAMS_ALIASES = ["stdin", "stdout", "stderr"];
+var getStreamName = (fdNumber) => STANDARD_STREAMS_ALIASES[fdNumber] ?? `stdio[${fdNumber}]`;
+var allStreamSymbol = /* @__PURE__ */ Symbol("execa.allStream");
+var setAllStream = (stream) => Object.assign(stream, { [allStreamSymbol]: true });
+var isAllStream = (stream) => stream?.[allStreamSymbol] === true;
+
+// ../elt/node_modules/execa/lib/utils/options.js
+var copyOptions = (options = {}) => {
+  if (options === null) {
+    throw new TypeError("The options must be an object, not `null`.");
+  }
+  return { __proto__: null, ...options };
+};
+var checkBooleanOption = (value, optionName) => {
+  if (value !== void 0 && typeof value !== "boolean") {
+    throw new TypeError(`The \`${optionName}\` option must use a boolean.`);
+  }
+};
+
+// ../elt/node_modules/execa/lib/arguments/specific.js
+var normalizeFdSpecificOptions = (options) => {
+  const optionsCopy = { __proto__: null, ...options };
+  for (const optionName of FD_SPECIFIC_OPTIONS) {
+    optionsCopy[optionName] = normalizeFdSpecificOption(options, optionName);
+  }
+  return optionsCopy;
+};
+var normalizeFdSpecificOption = (options, optionName) => {
+  const stdioLength = getStdioLength(options);
+  const optionBaseArray = Array.from({ length: stdioLength + 1 });
+  const optionArray = normalizeFdSpecificValue(options[optionName], optionBaseArray, optionName, stdioLength);
+  return addDefaultValue(optionArray, optionName);
+};
+var getStdioLength = ({ stdio }) => Array.isArray(stdio) ? Math.max(stdio.length, STANDARD_STREAMS_ALIASES.length) : STANDARD_STREAMS_ALIASES.length;
+var normalizeFdSpecificValue = (optionValue, optionArray, optionName, stdioLength) => {
+  if (isPlainObject(optionValue)) {
+    return normalizeOptionObject(optionValue, optionArray, optionName, stdioLength);
+  }
+  validateFdSpecificValue(optionValue, optionName);
+  return optionArray.fill(optionValue);
+};
+var normalizeOptionObject = (optionValue, optionArray, optionName, stdioLength) => {
+  for (const fdName of Object.keys(optionValue).sort(compareFdName)) {
+    validateFdSpecificValue(optionValue[fdName], optionName, `${optionName}.${fdName}`);
+    for (const fdNumber of parseFdName(fdName, optionName, stdioLength)) {
+      optionArray[fdNumber] = optionValue[fdName];
+    }
+  }
+  return optionArray;
+};
+var compareFdName = (fdNameA, fdNameB) => getFdNameOrder(fdNameA) < getFdNameOrder(fdNameB) ? 1 : -1;
+var getFdNameOrder = (fdName) => {
+  if (fdName === "stdout" || fdName === "stderr") {
+    return 0;
+  }
+  return fdName === "all" ? 2 : 1;
+};
+var parseFdName = (fdName, optionName, stdioLength) => {
+  if (fdName === "ipc") {
+    return [stdioLength];
+  }
+  const fdNumber = parseFd(fdName);
+  if (fdNumber === void 0 || fdNumber === 0) {
+    throw new TypeError(`"${optionName}.${fdName}" is invalid.
+It must be "${optionName}.stdout", "${optionName}.stderr", "${optionName}.all", "${optionName}.ipc", or "${optionName}.fd3", "${optionName}.fd4" (and so on).`);
+  }
+  if (fdNumber !== "all" && fdNumber >= stdioLength) {
+    throw new TypeError(`"${optionName}.${fdName}" is invalid: that file descriptor does not exist.
+Please set the "stdio" option to ensure that file descriptor exists.`);
+  }
+  return fdNumber === "all" ? [1, 2] : [fdNumber];
+};
+var parseFd = (fdName) => {
+  if (fdName === "all") {
+    return fdName;
+  }
+  if (STANDARD_STREAMS_ALIASES.includes(fdName)) {
+    return STANDARD_STREAMS_ALIASES.indexOf(fdName);
+  }
+  const regexpResult = FD_REGEXP.exec(fdName);
+  if (regexpResult !== null) {
+    return Number(regexpResult.groups.fdNumber);
+  }
+};
+var FD_REGEXP = /^fd(?<fdNumber>\d+)$/;
+var addDefaultValue = (optionArray, optionName) => optionArray.map((optionValue) => optionValue === void 0 ? DEFAULT_OPTIONS[optionName] : optionValue);
+var BOOLEAN_FD_SPECIFIC_OPTIONS = /* @__PURE__ */ new Set(["lines", "buffer", "stripFinalNewline"]);
+var validateFdSpecificValue = (optionValue, optionName, fullOptionName = optionName) => {
+  if (BOOLEAN_FD_SPECIFIC_OPTIONS.has(optionName)) {
+    checkBooleanOption(optionValue, fullOptionName);
+  } else if (optionName === "maxBuffer" && optionValue !== void 0 && (typeof optionValue !== "number" || Number.isNaN(optionValue))) {
+    throw new TypeError(`The \`${fullOptionName}\` option must use a number.`);
+  }
+};
+var verboseDefault = debuglog("execa").enabled ? "full" : "none";
+var DEFAULT_OPTIONS = {
+  lines: false,
+  buffer: true,
+  maxBuffer: 1e3 * 1e3 * 100,
+  verbose: verboseDefault,
+  stripFinalNewline: true
+};
+var FD_SPECIFIC_OPTIONS = ["lines", "buffer", "maxBuffer", "verbose", "stripFinalNewline"];
+var getFdSpecificValue = (optionArray, fdNumber) => fdNumber === "ipc" ? optionArray.at(-1) : optionArray[fdNumber];
+
+// ../elt/node_modules/execa/lib/verbose/values.js
+var isVerbose = ({ verbose }, fdNumber) => getFdVerbose(verbose, fdNumber) !== "none";
+var isFullVerbose = ({ verbose }, fdNumber) => !["none", "short"].includes(getFdVerbose(verbose, fdNumber));
+var getVerboseFunction = ({ verbose }, fdNumber) => {
+  const fdVerbose = getFdVerbose(verbose, fdNumber);
+  return isVerboseFunction(fdVerbose) ? fdVerbose : void 0;
+};
+var getFdVerbose = (verbose, fdNumber) => fdNumber === void 0 ? getFdGenericVerbose(verbose) : getFdSpecificValue(verbose, fdNumber);
+var getFdGenericVerbose = (verbose) => verbose.find((fdVerbose) => isVerboseFunction(fdVerbose)) ?? VERBOSE_VALUES.findLast((fdVerbose) => verbose.includes(fdVerbose));
+var isVerboseFunction = (fdVerbose) => typeof fdVerbose === "function";
+var VERBOSE_VALUES = ["none", "short", "full"];
+
+// ../elt/node_modules/execa/lib/verbose/log.js
+import { inspect } from "node:util";
+
+// ../elt/node_modules/execa/lib/verbose/default.js
+import process4 from "node:process";
+
+// ../elt/node_modules/execa/node_modules/is-unicode-supported/index.js
+import process3 from "node:process";
+function isUnicodeSupported() {
+  const { env } = process3;
+  const { TERM, TERM_PROGRAM } = env;
+  if (process3.platform !== "win32") {
+    return TERM !== "linux";
+  }
+  return Boolean(env.WT_SESSION) || Boolean(env.TERMINUS_SUBLIME) || env.ConEmuTask === "{cmd::Cmder}" || TERM_PROGRAM === "Terminus-Sublime" || TERM_PROGRAM === "vscode" || TERM === "xterm-256color" || TERM === "alacritty" || TERM === "rxvt-unicode" || TERM === "rxvt-unicode-256color" || env.TERMINAL_EMULATOR === "JetBrains-JediTerm";
+}
+
+// ../elt/node_modules/execa/node_modules/figures/index.js
+var common = {
+  circleQuestionMark: "(?)",
+  questionMarkPrefix: "(?)",
+  square: "\u2588",
+  squareDarkShade: "\u2593",
+  squareMediumShade: "\u2592",
+  squareLightShade: "\u2591",
+  squareTop: "\u2580",
+  squareBottom: "\u2584",
+  squareLeft: "\u258C",
+  squareRight: "\u2590",
+  squareCenter: "\u25A0",
+  bullet: "\u25CF",
+  dot: "\u2024",
+  ellipsis: "\u2026",
+  pointerSmall: "\u203A",
+  triangleUp: "\u25B2",
+  triangleUpSmall: "\u25B4",
+  triangleDown: "\u25BC",
+  triangleDownSmall: "\u25BE",
+  triangleLeftSmall: "\u25C2",
+  triangleRightSmall: "\u25B8",
+  home: "\u2302",
+  heart: "\u2665",
+  musicNote: "\u266A",
+  musicNoteBeamed: "\u266B",
+  arrowUp: "\u2191",
+  arrowDown: "\u2193",
+  arrowLeft: "\u2190",
+  arrowRight: "\u2192",
+  arrowLeftRight: "\u2194",
+  arrowUpDown: "\u2195",
+  almostEqual: "\u2248",
+  notEqual: "\u2260",
+  lessOrEqual: "\u2264",
+  greaterOrEqual: "\u2265",
+  identical: "\u2261",
+  infinity: "\u221E",
+  subscriptZero: "\u2080",
+  subscriptOne: "\u2081",
+  subscriptTwo: "\u2082",
+  subscriptThree: "\u2083",
+  subscriptFour: "\u2084",
+  subscriptFive: "\u2085",
+  subscriptSix: "\u2086",
+  subscriptSeven: "\u2087",
+  subscriptEight: "\u2088",
+  subscriptNine: "\u2089",
+  oneHalf: "\xBD",
+  oneThird: "\u2153",
+  oneQuarter: "\xBC",
+  oneFifth: "\u2155",
+  oneSixth: "\u2159",
+  oneEighth: "\u215B",
+  twoThirds: "\u2154",
+  twoFifths: "\u2156",
+  threeQuarters: "\xBE",
+  threeFifths: "\u2157",
+  threeEighths: "\u215C",
+  fourFifths: "\u2158",
+  fiveSixths: "\u215A",
+  fiveEighths: "\u215D",
+  sevenEighths: "\u215E",
+  line: "\u2500",
+  lineBold: "\u2501",
+  lineDouble: "\u2550",
+  lineDashed0: "\u2504",
+  lineDashed1: "\u2505",
+  lineDashed2: "\u2508",
+  lineDashed3: "\u2509",
+  lineDashed4: "\u254C",
+  lineDashed5: "\u254D",
+  lineDashed6: "\u2574",
+  lineDashed7: "\u2576",
+  lineDashed8: "\u2578",
+  lineDashed9: "\u257A",
+  lineDashed10: "\u257C",
+  lineDashed11: "\u257E",
+  lineDashed12: "\u2212",
+  lineDashed13: "\u2013",
+  lineDashed14: "\u2010",
+  lineDashed15: "\u2043",
+  lineVertical: "\u2502",
+  lineVerticalBold: "\u2503",
+  lineVerticalDouble: "\u2551",
+  lineVerticalDashed0: "\u2506",
+  lineVerticalDashed1: "\u2507",
+  lineVerticalDashed2: "\u250A",
+  lineVerticalDashed3: "\u250B",
+  lineVerticalDashed4: "\u254E",
+  lineVerticalDashed5: "\u254F",
+  lineVerticalDashed6: "\u2575",
+  lineVerticalDashed7: "\u2577",
+  lineVerticalDashed8: "\u2579",
+  lineVerticalDashed9: "\u257B",
+  lineVerticalDashed10: "\u257D",
+  lineVerticalDashed11: "\u257F",
+  lineDownLeft: "\u2510",
+  lineDownLeftArc: "\u256E",
+  lineDownBoldLeftBold: "\u2513",
+  lineDownBoldLeft: "\u2512",
+  lineDownLeftBold: "\u2511",
+  lineDownDoubleLeftDouble: "\u2557",
+  lineDownDoubleLeft: "\u2556",
+  lineDownLeftDouble: "\u2555",
+  lineDownRight: "\u250C",
+  lineDownRightArc: "\u256D",
+  lineDownBoldRightBold: "\u250F",
+  lineDownBoldRight: "\u250E",
+  lineDownRightBold: "\u250D",
+  lineDownDoubleRightDouble: "\u2554",
+  lineDownDoubleRight: "\u2553",
+  lineDownRightDouble: "\u2552",
+  lineUpLeft: "\u2518",
+  lineUpLeftArc: "\u256F",
+  lineUpBoldLeftBold: "\u251B",
+  lineUpBoldLeft: "\u251A",
+  lineUpLeftBold: "\u2519",
+  lineUpDoubleLeftDouble: "\u255D",
+  lineUpDoubleLeft: "\u255C",
+  lineUpLeftDouble: "\u255B",
+  lineUpRight: "\u2514",
+  lineUpRightArc: "\u2570",
+  lineUpBoldRightBold: "\u2517",
+  lineUpBoldRight: "\u2516",
+  lineUpRightBold: "\u2515",
+  lineUpDoubleRightDouble: "\u255A",
+  lineUpDoubleRight: "\u2559",
+  lineUpRightDouble: "\u2558",
+  lineUpDownLeft: "\u2524",
+  lineUpBoldDownBoldLeftBold: "\u252B",
+  lineUpBoldDownBoldLeft: "\u2528",
+  lineUpDownLeftBold: "\u2525",
+  lineUpBoldDownLeftBold: "\u2529",
+  lineUpDownBoldLeftBold: "\u252A",
+  lineUpDownBoldLeft: "\u2527",
+  lineUpBoldDownLeft: "\u2526",
+  lineUpDoubleDownDoubleLeftDouble: "\u2563",
+  lineUpDoubleDownDoubleLeft: "\u2562",
+  lineUpDownLeftDouble: "\u2561",
+  lineUpDownRight: "\u251C",
+  lineUpBoldDownBoldRightBold: "\u2523",
+  lineUpBoldDownBoldRight: "\u2520",
+  lineUpDownRightBold: "\u251D",
+  lineUpBoldDownRightBold: "\u2521",
+  lineUpDownBoldRightBold: "\u2522",
+  lineUpDownBoldRight: "\u251F",
+  lineUpBoldDownRight: "\u251E",
+  lineUpDoubleDownDoubleRightDouble: "\u2560",
+  lineUpDoubleDownDoubleRight: "\u255F",
+  lineUpDownRightDouble: "\u255E",
+  lineDownLeftRight: "\u252C",
+  lineDownBoldLeftBoldRightBold: "\u2533",
+  lineDownLeftBoldRightBold: "\u252F",
+  lineDownBoldLeftRight: "\u2530",
+  lineDownBoldLeftBoldRight: "\u2531",
+  lineDownBoldLeftRightBold: "\u2532",
+  lineDownLeftRightBold: "\u252E",
+  lineDownLeftBoldRight: "\u252D",
+  lineDownDoubleLeftDoubleRightDouble: "\u2566",
+  lineDownDoubleLeftRight: "\u2565",
+  lineDownLeftDoubleRightDouble: "\u2564",
+  lineUpLeftRight: "\u2534",
+  lineUpBoldLeftBoldRightBold: "\u253B",
+  lineUpLeftBoldRightBold: "\u2537",
+  lineUpBoldLeftRight: "\u2538",
+  lineUpBoldLeftBoldRight: "\u2539",
+  lineUpBoldLeftRightBold: "\u253A",
+  lineUpLeftRightBold: "\u2536",
+  lineUpLeftBoldRight: "\u2535",
+  lineUpDoubleLeftDoubleRightDouble: "\u2569",
+  lineUpDoubleLeftRight: "\u2568",
+  lineUpLeftDoubleRightDouble: "\u2567",
+  lineUpDownLeftRight: "\u253C",
+  lineUpBoldDownBoldLeftBoldRightBold: "\u254B",
+  lineUpDownBoldLeftBoldRightBold: "\u2548",
+  lineUpBoldDownLeftBoldRightBold: "\u2547",
+  lineUpBoldDownBoldLeftRightBold: "\u254A",
+  lineUpBoldDownBoldLeftBoldRight: "\u2549",
+  lineUpBoldDownLeftRight: "\u2540",
+  lineUpDownBoldLeftRight: "\u2541",
+  lineUpDownLeftBoldRight: "\u253D",
+  lineUpDownLeftRightBold: "\u253E",
+  lineUpBoldDownBoldLeftRight: "\u2542",
+  lineUpDownLeftBoldRightBold: "\u253F",
+  lineUpBoldDownLeftBoldRight: "\u2543",
+  lineUpBoldDownLeftRightBold: "\u2544",
+  lineUpDownBoldLeftBoldRight: "\u2545",
+  lineUpDownBoldLeftRightBold: "\u2546",
+  lineUpDoubleDownDoubleLeftDoubleRightDouble: "\u256C",
+  lineUpDoubleDownDoubleLeftRight: "\u256B",
+  lineUpDownLeftDoubleRightDouble: "\u256A",
+  lineCross: "\u2573",
+  lineBackslash: "\u2572",
+  lineSlash: "\u2571"
+};
+var specialMainSymbols = {
+  tick: "\u2714",
+  info: "\u2139",
+  warning: "\u26A0",
+  cross: "\u2718",
+  squareSmall: "\u25FB",
+  squareSmallFilled: "\u25FC",
+  circle: "\u25EF",
+  circleFilled: "\u25C9",
+  circleDotted: "\u25CC",
+  circleDouble: "\u25CE",
+  circleCircle: "\u24DE",
+  circleCross: "\u24E7",
+  circlePipe: "\u24BE",
+  radioOn: "\u25C9",
+  radioOff: "\u25EF",
+  checkboxOn: "\u2612",
+  checkboxOff: "\u2610",
+  checkboxCircleOn: "\u24E7",
+  checkboxCircleOff: "\u24BE",
+  pointer: "\u276F",
+  triangleUpOutline: "\u25B3",
+  triangleLeft: "\u25C0",
+  triangleRight: "\u25B6",
+  lozenge: "\u25C6",
+  lozengeOutline: "\u25C7",
+  hamburger: "\u2630",
+  smiley: "\u32E1",
+  mustache: "\u0DF4",
+  star: "\u2605",
+  play: "\u25B6",
+  nodejs: "\u2B22",
+  oneSeventh: "\u2150",
+  oneNinth: "\u2151",
+  oneTenth: "\u2152"
+};
+var specialFallbackSymbols = {
+  tick: "\u221A",
+  info: "i",
+  warning: "\u203C",
+  cross: "\xD7",
+  squareSmall: "\u25A1",
+  squareSmallFilled: "\u25A0",
+  circle: "( )",
+  circleFilled: "(*)",
+  circleDotted: "( )",
+  circleDouble: "( )",
+  circleCircle: "(\u25CB)",
+  circleCross: "(\xD7)",
+  circlePipe: "(\u2502)",
+  radioOn: "(*)",
+  radioOff: "( )",
+  checkboxOn: "[\xD7]",
+  checkboxOff: "[ ]",
+  checkboxCircleOn: "(\xD7)",
+  checkboxCircleOff: "( )",
+  pointer: ">",
+  triangleUpOutline: "\u2206",
+  triangleLeft: "\u25C4",
+  triangleRight: "\u25BA",
+  lozenge: "\u2666",
+  lozengeOutline: "\u25CA",
+  hamburger: "\u2261",
+  smiley: "\u263A",
+  mustache: "\u250C\u2500\u2510",
+  star: "\u2736",
+  play: "\u25BA",
+  nodejs: "\u2666",
+  oneSeventh: "1/7",
+  oneNinth: "1/9",
+  oneTenth: "1/10"
+};
+var mainSymbols = { ...common, ...specialMainSymbols };
+var fallbackSymbols = { ...common, ...specialFallbackSymbols };
+var shouldUseMain = isUnicodeSupported();
+var figures = shouldUseMain ? mainSymbols : fallbackSymbols;
+var figures_default = figures;
+var replacements = Object.entries(specialMainSymbols);
+
+// ../elt/node_modules/yoctocolors/base.js
+import tty from "node:tty";
+var hasColors = tty?.WriteStream?.prototype?.hasColors?.() ?? false;
+var format = (open5, close) => {
+  if (!hasColors) {
+    return (input2) => input2;
+  }
+  const openCode = `\x1B[${open5}m`;
+  const closeCode = `\x1B[${close}m`;
+  return (input2) => {
+    const string5 = input2 + "";
+    let index = string5.indexOf(closeCode);
+    if (index === -1) {
+      return openCode + string5 + closeCode;
+    }
+    let result = openCode;
+    let lastIndex = 0;
+    const reopenOnNestedClose = close === 22;
+    const replaceCode = (reopenOnNestedClose ? closeCode : "") + openCode;
+    while (index !== -1) {
+      result += string5.slice(lastIndex, index) + replaceCode;
+      lastIndex = index + closeCode.length;
+      index = string5.indexOf(closeCode, lastIndex);
+    }
+    result += string5.slice(lastIndex) + closeCode;
+    return result;
+  };
+};
+var reset = format(0, 0);
+var bold = format(1, 22);
+var dim = format(2, 22);
+var italic = format(3, 23);
+var underline = format(4, 24);
+var underlineDouble = format("4:2", 24);
+var underlineCurly = format("4:3", 24);
+var underlineDotted = format("4:4", 24);
+var underlineDashed = format("4:5", 24);
+var overline = format(53, 55);
+var inverse = format(7, 27);
+var hidden = format(8, 28);
+var strikethrough = format(9, 29);
+var black = format(30, 39);
+var red = format(31, 39);
+var green = format(32, 39);
+var yellow = format(33, 39);
+var blue = format(34, 39);
+var magenta = format(35, 39);
+var cyan = format(36, 39);
+var white = format(37, 39);
+var gray = format(90, 39);
+var bgBlack = format(40, 49);
+var bgRed = format(41, 49);
+var bgGreen = format(42, 49);
+var bgYellow = format(43, 49);
+var bgBlue = format(44, 49);
+var bgMagenta = format(45, 49);
+var bgCyan = format(46, 49);
+var bgWhite = format(47, 49);
+var bgGray = format(100, 49);
+var redBright = format(91, 39);
+var greenBright = format(92, 39);
+var yellowBright = format(93, 39);
+var blueBright = format(94, 39);
+var magentaBright = format(95, 39);
+var cyanBright = format(96, 39);
+var whiteBright = format(97, 39);
+var bgRedBright = format(101, 49);
+var bgGreenBright = format(102, 49);
+var bgYellowBright = format(103, 49);
+var bgBlueBright = format(104, 49);
+var bgMagentaBright = format(105, 49);
+var bgCyanBright = format(106, 49);
+var bgWhiteBright = format(107, 49);
+var underlineBlack = format("58;5;0", 59);
+var underlineRed = format("58;5;1", 59);
+var underlineGreen = format("58;5;2", 59);
+var underlineYellow = format("58;5;3", 59);
+var underlineBlue = format("58;5;4", 59);
+var underlineMagenta = format("58;5;5", 59);
+var underlineCyan = format("58;5;6", 59);
+var underlineWhite = format("58;5;7", 59);
+var underlineGray = format("58;5;8", 59);
+var underlineRedBright = format("58;5;9", 59);
+var underlineGreenBright = format("58;5;10", 59);
+var underlineYellowBright = format("58;5;11", 59);
+var underlineBlueBright = format("58;5;12", 59);
+var underlineMagentaBright = format("58;5;13", 59);
+var underlineCyanBright = format("58;5;14", 59);
+var underlineWhiteBright = format("58;5;15", 59);
+
+// ../elt/node_modules/execa/lib/verbose/default.js
+var hasColors2 = process4.env.FORCE_COLOR !== void 0 || process4.stderr.isTTY === true;
+var identity = (string5) => string5;
+var getColor = (color) => hasColors2 ? color : identity;
+var gray2 = getColor(gray);
+var bold2 = getColor(bold);
+var redBright2 = getColor(redBright);
+var yellowBright2 = getColor(yellowBright);
+var defaultVerboseFunction = ({
+  type,
+  message,
+  timestamp,
+  piped,
+  commandId,
+  result: { failed = false } = {},
+  options: { reject = true }
+}) => {
+  const timestampString = serializeTimestamp(timestamp);
+  const icon = ICONS[type]({ failed, reject, piped });
+  const color = COLORS[type]({ reject });
+  return `${gray2(`[${timestampString}]`)} ${gray2(`[${commandId}]`)} ${color(icon)} ${color(message)}`;
+};
+var serializeTimestamp = (timestamp) => `${padField(timestamp.getHours(), 2)}:${padField(timestamp.getMinutes(), 2)}:${padField(timestamp.getSeconds(), 2)}.${padField(timestamp.getMilliseconds(), 3)}`;
+var padField = (field, padding) => String(field).padStart(padding, "0");
+var getFinalIcon = ({ failed, reject }) => {
+  if (!failed) {
+    return figures_default.tick;
+  }
+  return reject ? figures_default.cross : figures_default.warning;
+};
+var ICONS = {
+  command: ({ piped }) => piped ? "|" : "$",
+  output: () => " ",
+  ipc: () => "*",
+  error: getFinalIcon,
+  duration: getFinalIcon
+};
+var COLORS = {
+  command: () => bold2,
+  output: () => identity,
+  ipc: () => identity,
+  error: ({ reject }) => reject ? redBright2 : yellowBright2,
+  duration: () => gray2
+};
+
+// ../elt/node_modules/execa/lib/verbose/custom.js
+var applyVerboseOnLines = (printedLines, verboseInfo, fdNumber) => {
+  const verboseFunction = getVerboseFunction(verboseInfo, fdNumber);
+  return printedLines.map(({ verboseLine, verboseObject }) => applyVerboseFunction(verboseLine, verboseObject, verboseFunction)).filter((printedLine) => printedLine !== void 0).map((printedLine) => appendNewline(printedLine)).join("");
+};
+var applyVerboseFunction = (verboseLine, verboseObject, verboseFunction) => {
+  if (verboseFunction === void 0) {
+    return verboseLine;
+  }
+  const printedLine = verboseFunction(verboseLine, verboseObject);
+  if (typeof printedLine === "string") {
+    return printedLine;
+  }
+};
+var appendNewline = (printedLine) => printedLine.endsWith("\n") ? printedLine : `${printedLine}
+`;
+
+// ../elt/node_modules/execa/lib/verbose/log.js
+var verboseLog = ({ type, verboseMessage, fdNumber, verboseInfo, result }) => {
+  const verboseObject = getVerboseObject({ type, result, verboseInfo });
+  const printedLines = getPrintedLines(verboseMessage, verboseObject);
+  const finalLines = applyVerboseOnLines(printedLines, verboseInfo, fdNumber);
+  if (finalLines !== "") {
+    console.warn(finalLines.slice(0, -1));
+  }
+};
+var getVerboseObject = ({ type, result, verboseInfo }) => {
+  const { escapedCommand, commandId, rawOptions } = verboseInfo;
+  const { piped = false, ...options } = rawOptions;
+  return {
+    type,
+    escapedCommand,
+    commandId: `${commandId}`,
+    timestamp: /* @__PURE__ */ new Date(),
+    piped,
+    result,
+    options
+  };
+};
+var getPrintedLines = (verboseMessage, verboseObject) => verboseMessage.split("\n").map((message) => getPrintedLine({ ...verboseObject, message }));
+var getPrintedLine = (verboseObject) => {
+  const verboseLine = defaultVerboseFunction(verboseObject);
+  return { verboseLine, verboseObject };
+};
+var serializeVerboseMessage = (message) => {
+  const messageString = typeof message === "string" ? message : inspect(message);
+  return escapeLines(messageString);
+};
+
+// ../elt/node_modules/execa/lib/verbose/start.js
+var logCommand = (escapedCommand, verboseInfo) => {
+  if (!isVerbose(verboseInfo)) {
+    return;
+  }
+  verboseLog({
+    type: "command",
+    verboseMessage: escapedCommand,
+    verboseInfo
+  });
+};
+
+// ../elt/node_modules/execa/lib/verbose/info.js
+var getVerboseInfo = (verbose, escapedCommand, rawOptions) => {
+  validateVerbose(verbose);
+  const commandId = getCommandId(verbose);
+  return {
+    verbose,
+    escapedCommand,
+    commandId,
+    rawOptions
+  };
+};
+var getCommandId = (verbose) => isVerbose({ verbose }) ? COMMAND_ID++ : void 0;
+var COMMAND_ID = 0n;
+var validateVerbose = (verbose) => {
+  for (const fdVerbose of verbose) {
+    if (fdVerbose === false) {
+      throw new TypeError(`The "verbose: false" option was renamed to "verbose: 'none'".`);
+    }
+    if (fdVerbose === true) {
+      throw new TypeError(`The "verbose: true" option was renamed to "verbose: 'short'".`);
+    }
+    if (!VERBOSE_VALUES.includes(fdVerbose) && !isVerboseFunction(fdVerbose)) {
+      const allowedValues = VERBOSE_VALUES.map((allowedValue) => `'${allowedValue}'`).join(", ");
+      throw new TypeError(`The "verbose" option must not be ${fdVerbose}. Allowed values are: ${allowedValues} or a function.`);
+    }
+  }
+};
+
+// ../elt/node_modules/execa/lib/return/duration.js
+import { hrtime } from "node:process";
+var getStartTime = () => hrtime.bigint();
+var getDurationMs = (startTime) => Number(hrtime.bigint() - startTime) / 1e6;
+
+// ../elt/node_modules/execa/lib/arguments/command.js
+var handleCommand = (filePath, rawArguments, rawOptions) => {
+  const startTime = getStartTime();
+  const { command, escapedCommand } = joinCommand(filePath, rawArguments, rawOptions.shell && !rawOptions.node);
+  const verbose = normalizeFdSpecificOption(rawOptions, "verbose");
+  const verboseInfo = getVerboseInfo(verbose, escapedCommand, { __proto__: null, ...rawOptions });
+  logCommand(escapedCommand, verboseInfo);
+  return {
+    command,
+    escapedCommand,
+    startTime,
+    verboseInfo
+  };
+};
+
+// ../elt/node_modules/execa/lib/arguments/options.js
+import path7 from "node:path";
+import process9 from "node:process";
+
+// ../elt/node_modules/execa/node_modules/npm-run-path/index.js
+import process5 from "node:process";
+import path2 from "node:path";
+
+// ../elt/node_modules/execa/node_modules/path-key/index.js
+function pathKey(options = {}) {
+  const {
+    env = process.env,
+    platform: platform2 = process.platform
+  } = options;
+  if (platform2 !== "win32") {
+    return "PATH";
+  }
+  return Object.keys(env).reverse().find((key) => key.toUpperCase() === "PATH") || "Path";
+}
+
+// ../elt/node_modules/unicorn-magic/node.js
+import { promisify } from "node:util";
+import { execFile as execFileCallback, execFileSync as execFileSyncOriginal } from "node:child_process";
+import path from "node:path";
 import { fileURLToPath as fileURLToPath2 } from "node:url";
+var execFileOriginal = promisify(execFileCallback);
+function toPath(urlOrPath) {
+  return urlOrPath instanceof URL ? fileURLToPath2(urlOrPath) : urlOrPath;
+}
+function traversePathUp(startPath) {
+  return {
+    *[Symbol.iterator]() {
+      let currentPath = path.resolve(toPath(startPath));
+      let previousPath;
+      while (previousPath !== currentPath) {
+        yield currentPath;
+        previousPath = currentPath;
+        currentPath = path.resolve(currentPath, "..");
+      }
+    }
+  };
+}
+var TEN_MEGABYTES_IN_BYTES = 10 * 1024 * 1024;
+
+// ../elt/node_modules/execa/node_modules/npm-run-path/index.js
+var npmRunPath = ({
+  cwd = process5.cwd(),
+  path: pathOption = process5.env[pathKey()],
+  preferLocal = true,
+  execPath: execPath2 = process5.execPath,
+  addExecPath = true
+} = {}) => {
+  const cwdPath = path2.resolve(toPath(cwd));
+  const result = [];
+  const pathParts = pathOption.split(path2.delimiter);
+  if (preferLocal) {
+    applyPreferLocal(result, pathParts, cwdPath);
+  }
+  if (addExecPath) {
+    applyExecPath(result, pathParts, execPath2, cwdPath);
+  }
+  return pathOption === "" || pathOption === path2.delimiter ? `${result.join(path2.delimiter)}${pathOption}` : [...result, pathOption].join(path2.delimiter);
+};
+var applyPreferLocal = (result, pathParts, cwdPath) => {
+  for (const directory of traversePathUp(cwdPath)) {
+    const pathPart = path2.join(directory, "node_modules/.bin");
+    if (!pathParts.includes(pathPart)) {
+      result.push(pathPart);
+    }
+  }
+};
+var applyExecPath = (result, pathParts, execPath2, cwdPath) => {
+  const pathPart = path2.resolve(cwdPath, toPath(execPath2), "..");
+  if (!pathParts.includes(pathPart)) {
+    result.push(pathPart);
+  }
+};
+var npmRunPathEnv = ({ env = process5.env, ...options } = {}) => {
+  env = { ...env };
+  const pathName = pathKey({ env });
+  options.path = env[pathName];
+  env[pathName] = npmRunPath(options);
+  return env;
+};
+
+// ../elt/node_modules/execa/lib/terminate/kill.js
+import { setTimeout as setTimeout3 } from "node:timers/promises";
+
+// ../elt/node_modules/execa/lib/terminate/signal.js
+import { constants as constants3 } from "node:os";
+
+// ../elt/node_modules/human-signals/build/src/main.js
+import { constants as constants2 } from "node:os";
+
+// ../elt/node_modules/human-signals/build/src/realtime.js
+var getRealtimeSignals = () => {
+  const length2 = SIGRTMAX - SIGRTMIN + 1;
+  return Array.from({ length: length2 }, getRealtimeSignal);
+};
+var getRealtimeSignal = (value, index) => ({
+  name: `SIGRT${index + 1}`,
+  number: SIGRTMIN + index,
+  action: "terminate",
+  description: "Application-specific signal (realtime)",
+  standard: "posix"
+});
+var SIGRTMIN = 34;
+var SIGRTMAX = 64;
+
+// ../elt/node_modules/human-signals/build/src/signals.js
+import { constants } from "node:os";
+
+// ../elt/node_modules/human-signals/build/src/core.js
+var SIGNALS = [
+  {
+    name: "SIGHUP",
+    number: 1,
+    action: "terminate",
+    description: "Terminal closed",
+    standard: "posix"
+  },
+  {
+    name: "SIGINT",
+    number: 2,
+    action: "terminate",
+    description: "User interruption with CTRL-C",
+    standard: "ansi"
+  },
+  {
+    name: "SIGQUIT",
+    number: 3,
+    action: "core",
+    description: "User interruption with CTRL-\\",
+    standard: "posix"
+  },
+  {
+    name: "SIGILL",
+    number: 4,
+    action: "core",
+    description: "Invalid machine instruction",
+    standard: "ansi"
+  },
+  {
+    name: "SIGTRAP",
+    number: 5,
+    action: "core",
+    description: "Debugger breakpoint",
+    standard: "posix"
+  },
+  {
+    name: "SIGABRT",
+    number: 6,
+    action: "core",
+    description: "Aborted",
+    standard: "ansi"
+  },
+  {
+    name: "SIGIOT",
+    number: 6,
+    action: "core",
+    description: "Aborted",
+    standard: "bsd"
+  },
+  {
+    name: "SIGBUS",
+    number: 7,
+    action: "core",
+    description: "Bus error due to misaligned, non-existing address or paging error",
+    standard: "bsd"
+  },
+  {
+    name: "SIGEMT",
+    number: 7,
+    action: "terminate",
+    description: "Command should be emulated but is not implemented",
+    standard: "other"
+  },
+  {
+    name: "SIGFPE",
+    number: 8,
+    action: "core",
+    description: "Floating point arithmetic error",
+    standard: "ansi"
+  },
+  {
+    name: "SIGKILL",
+    number: 9,
+    action: "terminate",
+    description: "Forced termination",
+    standard: "posix",
+    forced: true
+  },
+  {
+    name: "SIGUSR1",
+    number: 10,
+    action: "terminate",
+    description: "Application-specific signal",
+    standard: "posix"
+  },
+  {
+    name: "SIGSEGV",
+    number: 11,
+    action: "core",
+    description: "Segmentation fault",
+    standard: "ansi"
+  },
+  {
+    name: "SIGUSR2",
+    number: 12,
+    action: "terminate",
+    description: "Application-specific signal",
+    standard: "posix"
+  },
+  {
+    name: "SIGPIPE",
+    number: 13,
+    action: "terminate",
+    description: "Broken pipe or socket",
+    standard: "posix"
+  },
+  {
+    name: "SIGALRM",
+    number: 14,
+    action: "terminate",
+    description: "Timeout or timer",
+    standard: "posix"
+  },
+  {
+    name: "SIGTERM",
+    number: 15,
+    action: "terminate",
+    description: "Termination",
+    standard: "ansi"
+  },
+  {
+    name: "SIGSTKFLT",
+    number: 16,
+    action: "terminate",
+    description: "Stack is empty or overflowed",
+    standard: "other"
+  },
+  {
+    name: "SIGCHLD",
+    number: 17,
+    action: "ignore",
+    description: "Child process terminated, paused or unpaused",
+    standard: "posix"
+  },
+  {
+    name: "SIGCLD",
+    number: 17,
+    action: "ignore",
+    description: "Child process terminated, paused or unpaused",
+    standard: "other"
+  },
+  {
+    name: "SIGCONT",
+    number: 18,
+    action: "unpause",
+    description: "Unpaused",
+    standard: "posix",
+    forced: true
+  },
+  {
+    name: "SIGSTOP",
+    number: 19,
+    action: "pause",
+    description: "Paused",
+    standard: "posix",
+    forced: true
+  },
+  {
+    name: "SIGTSTP",
+    number: 20,
+    action: "pause",
+    description: 'Paused using CTRL-Z or "suspend"',
+    standard: "posix"
+  },
+  {
+    name: "SIGTTIN",
+    number: 21,
+    action: "pause",
+    description: "Background process cannot read terminal input",
+    standard: "posix"
+  },
+  {
+    name: "SIGBREAK",
+    number: 21,
+    action: "terminate",
+    description: "User interruption with CTRL-BREAK",
+    standard: "other"
+  },
+  {
+    name: "SIGTTOU",
+    number: 22,
+    action: "pause",
+    description: "Background process cannot write to terminal output",
+    standard: "posix"
+  },
+  {
+    name: "SIGURG",
+    number: 23,
+    action: "ignore",
+    description: "Socket received out-of-band data",
+    standard: "bsd"
+  },
+  {
+    name: "SIGXCPU",
+    number: 24,
+    action: "core",
+    description: "Process timed out",
+    standard: "bsd"
+  },
+  {
+    name: "SIGXFSZ",
+    number: 25,
+    action: "core",
+    description: "File too big",
+    standard: "bsd"
+  },
+  {
+    name: "SIGVTALRM",
+    number: 26,
+    action: "terminate",
+    description: "Timeout or timer",
+    standard: "bsd"
+  },
+  {
+    name: "SIGPROF",
+    number: 27,
+    action: "terminate",
+    description: "Timeout or timer",
+    standard: "bsd"
+  },
+  {
+    name: "SIGWINCH",
+    number: 28,
+    action: "ignore",
+    description: "Terminal window size changed",
+    standard: "bsd"
+  },
+  {
+    name: "SIGIO",
+    number: 29,
+    action: "terminate",
+    description: "I/O is available",
+    standard: "other"
+  },
+  {
+    name: "SIGPOLL",
+    number: 29,
+    action: "terminate",
+    description: "Watched event",
+    standard: "other"
+  },
+  {
+    name: "SIGINFO",
+    number: 29,
+    action: "ignore",
+    description: "Request for process information",
+    standard: "other"
+  },
+  {
+    name: "SIGPWR",
+    number: 30,
+    action: "terminate",
+    description: "Device running out of power",
+    standard: "systemv"
+  },
+  {
+    name: "SIGSYS",
+    number: 31,
+    action: "core",
+    description: "Invalid system call",
+    standard: "other"
+  },
+  {
+    name: "SIGUNUSED",
+    number: 31,
+    action: "terminate",
+    description: "Invalid system call",
+    standard: "other"
+  }
+];
+
+// ../elt/node_modules/human-signals/build/src/signals.js
+var getSignals = () => {
+  const realtimeSignals = getRealtimeSignals();
+  const signals2 = [...SIGNALS, ...realtimeSignals].map(normalizeSignal);
+  return signals2;
+};
+var normalizeSignal = ({
+  name: name5,
+  number: defaultNumber,
+  description,
+  action,
+  forced = false,
+  standard
+}) => {
+  const {
+    signals: { [name5]: constantSignal }
+  } = constants;
+  const supported = constantSignal !== void 0;
+  const number5 = supported ? constantSignal : defaultNumber;
+  return { name: name5, number: number5, description, supported, action, forced, standard };
+};
+
+// ../elt/node_modules/human-signals/build/src/main.js
+var getSignalsByName = () => {
+  const signals2 = getSignals();
+  return Object.fromEntries(signals2.map(getSignalByName));
+};
+var getSignalByName = ({
+  name: name5,
+  number: number5,
+  description,
+  supported,
+  action,
+  forced,
+  standard
+}) => [name5, { name: name5, number: number5, description, supported, action, forced, standard }];
+var signalsByName = getSignalsByName();
+var getSignalsByNumber = () => {
+  const signals2 = getSignals();
+  const length2 = SIGRTMAX + 1;
+  const signalsA = Array.from(
+    { length: length2 },
+    (value, number5) => getSignalByNumber(number5, signals2)
+  );
+  return Object.assign({}, ...signalsA);
+};
+var getSignalByNumber = (number5, signals2) => {
+  const signal = findSignalByNumber(number5, signals2);
+  if (signal === void 0) {
+    return {};
+  }
+  const { name: name5, description, supported, action, forced, standard } = signal;
+  return {
+    [number5]: {
+      name: name5,
+      number: number5,
+      description,
+      supported,
+      action,
+      forced,
+      standard
+    }
+  };
+};
+var findSignalByNumber = (number5, signals2) => {
+  const signal = signals2.find(({ name: name5 }) => constants2.signals[name5] === number5);
+  if (signal !== void 0) {
+    return signal;
+  }
+  return signals2.find((signalA) => signalA.number === number5);
+};
+var signalsByNumber = getSignalsByNumber();
+
+// ../elt/node_modules/execa/lib/terminate/signal.js
+var normalizeKillSignal = (killSignal) => {
+  const optionName = "option `killSignal`";
+  if (killSignal === 0) {
+    throw new TypeError(`Invalid ${optionName}: 0 cannot be used.`);
+  }
+  return normalizeSignal2(killSignal, optionName);
+};
+var normalizeSignalArgument = (signal) => signal === 0 ? signal : normalizeSignal2(signal, "`subprocess.kill()`'s argument");
+var normalizeSignal2 = (signalNameOrInteger, optionName) => {
+  if (Number.isInteger(signalNameOrInteger)) {
+    return normalizeSignalInteger(signalNameOrInteger, optionName);
+  }
+  if (typeof signalNameOrInteger === "string") {
+    return normalizeSignalName(signalNameOrInteger, optionName);
+  }
+  throw new TypeError(`Invalid ${optionName} ${String(signalNameOrInteger)}: it must be a string or an integer.
+${getAvailableSignals()}`);
+};
+var normalizeSignalInteger = (signalInteger, optionName) => {
+  if (signalsIntegerToName.has(signalInteger)) {
+    return signalsIntegerToName.get(signalInteger);
+  }
+  throw new TypeError(`Invalid ${optionName} ${signalInteger}: this signal integer does not exist.
+${getAvailableSignals()}`);
+};
+var getSignalsIntegerToName = () => new Map(Object.entries(constants3.signals).reverse().map(([signalName, signalInteger]) => [signalInteger, signalName]));
+var signalsIntegerToName = getSignalsIntegerToName();
+var normalizeSignalName = (signalName, optionName) => {
+  if (signalName in constants3.signals) {
+    return signalName;
+  }
+  if (signalName.toUpperCase() in constants3.signals) {
+    throw new TypeError(`Invalid ${optionName} '${signalName}': please rename it to '${signalName.toUpperCase()}'.`);
+  }
+  throw new TypeError(`Invalid ${optionName} '${signalName}': this signal name does not exist.
+${getAvailableSignals()}`);
+};
+var getAvailableSignals = () => `Available signal names: ${getAvailableSignalNames()}.
+Available signal numbers: ${getAvailableSignalIntegers()}.`;
+var getAvailableSignalNames = () => Object.keys(constants3.signals).sort().map((signalName) => `'${signalName}'`).join(", ");
+var getAvailableSignalIntegers = () => [...new Set(Object.values(constants3.signals).sort((signalInteger, signalIntegerTwo) => signalInteger - signalIntegerTwo))].join(", ");
+var getSignalDescription = (signal) => signalsByName[signal].description;
+
+// ../elt/node_modules/execa/lib/terminate/timeout.js
+import { setTimeout as setTimeout2 } from "node:timers/promises";
+var validateTimeout2 = ({ timeout }) => {
+  if (timeout !== void 0) {
+    validateDelay(timeout, "timeout");
+  }
+};
+var validateDelay = (delay5, optionName) => {
+  if (!Number.isInteger(delay5) || delay5 < 0 || delay5 > MAX_DELAY) {
+    throw new TypeError(`Expected the \`${optionName}\` option to be a non-negative integer up to ${MAX_DELAY}, got \`${delay5}\` (${getTypeName(delay5)})`);
+  }
+};
+var MAX_DELAY = 2 ** 31 - 1;
+var throwOnTimeout = (kill, timeout, context, controller) => timeout === 0 || timeout === void 0 ? [] : [killAfterTimeout(kill, timeout, context, controller)];
+var killAfterTimeout = async (kill, timeout, context, { signal }) => {
+  await setTimeout2(timeout, void 0, { signal });
+  context.terminationReason ??= "timeout";
+  kill();
+  throw new DiscardedError();
+};
+
+// ../elt/node_modules/execa/lib/terminate/kill.js
+var normalizeForceKillAfterDelay = (forceKillAfterDelay) => {
+  if (forceKillAfterDelay === false) {
+    return forceKillAfterDelay;
+  }
+  if (forceKillAfterDelay === true) {
+    return DEFAULT_FORCE_KILL_TIMEOUT;
+  }
+  validateDelay(forceKillAfterDelay, "forceKillAfterDelay");
+  return forceKillAfterDelay;
+};
+var DEFAULT_FORCE_KILL_TIMEOUT = 1e3 * 5;
+var subprocessKill = ({ kill, options: { forceKillAfterDelay, killSignal }, onInternalError, context, controller }, signalOrError, errorArgument) => {
+  const { signal, error: error62 } = parseKillArguments(signalOrError, errorArgument, killSignal);
+  emitKillError(error62, onInternalError);
+  const killResult = kill(signal);
+  setKillTimeout({
+    kill,
+    signal,
+    forceKillAfterDelay,
+    killSignal,
+    killResult,
+    context,
+    controller
+  });
+  return killResult;
+};
+var parseKillArguments = (signalOrError, errorArgument, killSignal) => {
+  const [signal = killSignal, error62] = isErrorInstance(signalOrError) ? [void 0, signalOrError] : [signalOrError, errorArgument];
+  if (typeof signal !== "string" && !Number.isInteger(signal)) {
+    throw new TypeError(`The first argument must be an error instance or a signal name string/integer: ${String(signal)}`);
+  }
+  if (error62 !== void 0 && !isErrorInstance(error62)) {
+    throw new TypeError(`The second argument is optional. If specified, it must be an error instance: ${error62}`);
+  }
+  return { signal: normalizeSignalArgument(signal), error: error62 };
+};
+var emitKillError = (error62, onInternalError) => {
+  if (error62 !== void 0) {
+    onInternalError.reject(error62);
+  }
+};
+var setKillTimeout = async ({ kill, signal, forceKillAfterDelay, killSignal, killResult, context, controller }) => {
+  if (signal === killSignal && killResult) {
+    killOnTimeout({
+      kill,
+      forceKillAfterDelay,
+      context,
+      controllerSignal: controller.signal
+    });
+  }
+};
+var killOnTimeout = async ({ kill, forceKillAfterDelay, context, controllerSignal }) => {
+  if (forceKillAfterDelay === false) {
+    return;
+  }
+  try {
+    await setTimeout3(forceKillAfterDelay, void 0, { signal: controllerSignal });
+    if (kill("SIGKILL")) {
+      context.isForcefullyTerminated ??= true;
+    }
+  } catch {
+  }
+};
+
+// ../elt/node_modules/execa/lib/utils/abort-signal.js
+import { once } from "node:events";
+var onAbortedSignal = async (mainSignal, stopSignal) => {
+  if (!mainSignal.aborted) {
+    await once(mainSignal, "abort", { signal: stopSignal });
+  }
+};
+var validateAbortSignal = (signal, optionName) => {
+  if (signal !== void 0 && Object.prototype.toString.call(signal) !== "[object AbortSignal]") {
+    throw new TypeError(`The \`${optionName}\` option must be an AbortSignal: ${String(signal)}.`);
+  }
+};
+
+// ../elt/node_modules/execa/lib/terminate/cancel.js
+var validateCancelSignal = ({ cancelSignal }) => {
+  validateAbortSignal(cancelSignal, "cancelSignal");
+};
+var validateRenamedSignalOption = ({ signal }) => {
+  if (signal !== void 0) {
+    throw new TypeError('The "signal" option has been renamed to "cancelSignal" instead.');
+  }
+};
+var throwOnCancel = ({ kill, cancelSignal, gracefulCancel, context, controller }) => cancelSignal === void 0 || gracefulCancel ? [] : [terminateOnCancel(kill, cancelSignal, context, controller)];
+var terminateOnCancel = async (kill, cancelSignal, context, { signal }) => {
+  await onAbortedSignal(cancelSignal, signal);
+  context.terminationReason ??= "cancel";
+  kill();
+  throw cancelSignal.reason;
+};
+
+// ../elt/node_modules/execa/lib/ipc/graceful.js
+import { scheduler as scheduler2 } from "node:timers/promises";
+
+// ../elt/node_modules/execa/lib/ipc/send.js
+import { promisify as promisify2 } from "node:util";
+
+// ../elt/node_modules/execa/lib/ipc/validation.js
+import { inspect as inspect2 } from "node:util";
+var validateIpcMethod = ({ methodName, isSubprocess, ipc, isConnected: isConnected2 }) => {
+  validateIpcOption(methodName, isSubprocess, ipc);
+  validateConnection(methodName, isSubprocess, isConnected2);
+};
+var validateIpcOption = (methodName, isSubprocess, ipc) => {
+  if (!ipc) {
+    throw new Error(`${getMethodName(methodName, isSubprocess)} can only be used if the \`ipc\` option is \`true\`.`);
+  }
+};
+var validateConnection = (methodName, isSubprocess, isConnected2) => {
+  if (!isConnected2) {
+    throw new Error(`${getMethodName(methodName, isSubprocess)} cannot be used: the ${getOtherProcessName(isSubprocess)} has already exited or disconnected.`);
+  }
+};
+var throwOnEarlyDisconnect = (isSubprocess) => {
+  throw new Error(`${getMethodName("getOneMessage", isSubprocess)} could not complete: the ${getOtherProcessName(isSubprocess)} exited or disconnected.`);
+};
+var throwOnStrictDeadlockError = (isSubprocess) => {
+  throw new Error(`${getMethodName("sendMessage", isSubprocess)} failed: the ${getOtherProcessName(isSubprocess)} is sending a message too, instead of listening to incoming messages.
+This can be fixed by both sending a message and listening to incoming messages at the same time:
+
+const [receivedMessage] = await Promise.all([
+	${getMethodName("getOneMessage", isSubprocess)},
+	${getMethodName("sendMessage", isSubprocess, "message, {strict: true}")},
+]);`);
+};
+var getStrictResponseError = (error62, isSubprocess) => new Error(`${getMethodName("sendMessage", isSubprocess)} failed when sending an acknowledgment response to the ${getOtherProcessName(isSubprocess)}.`, { cause: error62 });
+var throwOnMissingStrict = (isSubprocess) => {
+  throw new Error(`${getMethodName("sendMessage", isSubprocess)} failed: the ${getOtherProcessName(isSubprocess)} is not listening to incoming messages.`);
+};
+var throwOnStrictDisconnect = (isSubprocess) => {
+  throw new Error(`${getMethodName("sendMessage", isSubprocess)} failed: the ${getOtherProcessName(isSubprocess)} exited without listening to incoming messages.`);
+};
+var getAbortDisconnectError = () => new Error(`\`cancelSignal\` aborted: the ${getOtherProcessName(true)} disconnected.`);
+var throwOnMissingParent = () => {
+  throw new Error("`getCancelSignal()` cannot be used without setting the `gracefulCancel` option to `true`.");
+};
+var handleEpipeError = ({ error: error62, methodName, isSubprocess }) => {
+  if (error62.code === "EPIPE") {
+    throw new Error(`${getMethodName(methodName, isSubprocess)} cannot be used: the ${getOtherProcessName(isSubprocess)} is disconnecting.`, { cause: error62 });
+  }
+};
+var handleSerializationError = ({ error: error62, methodName, isSubprocess, message }) => {
+  if (isSerializationError(error62)) {
+    throw new Error(`${getMethodName(methodName, isSubprocess)}'s argument type is invalid: the message cannot be serialized: ${serializeInvalidMessage(message)}.`, { cause: error62 });
+  }
+};
+var serializeInvalidMessage = (message) => {
+  try {
+    return String(message);
+  } catch {
+    return inspect2(message);
+  }
+};
+var isSerializationError = ({ code, message }) => SERIALIZATION_ERROR_CODES.has(code) || SERIALIZATION_ERROR_MESSAGES.some((serializationErrorMessage) => message.includes(serializationErrorMessage));
+var SERIALIZATION_ERROR_CODES = /* @__PURE__ */ new Set([
+  // Message is `undefined`
+  "ERR_MISSING_ARGS",
+  // Message is a function, a bigint, a symbol
+  "ERR_INVALID_ARG_TYPE"
+]);
+var SERIALIZATION_ERROR_MESSAGES = [
+  // Message is a promise or a proxy, with `serialization: 'advanced'`
+  "could not be cloned",
+  // Message has cycles, with `serialization: 'json'`
+  "circular structure",
+  // Message has cycles inside toJSON(), with `serialization: 'json'`
+  "call stack size exceeded"
+];
+var getMethodName = (methodName, isSubprocess, parameters = "") => methodName === "cancelSignal" ? "`cancelSignal`'s `controller.abort()`" : `${getNamespaceName(isSubprocess)}${methodName}(${parameters})`;
+var getNamespaceName = (isSubprocess) => isSubprocess ? "" : "subprocess.";
+var getOtherProcessName = (isSubprocess) => isSubprocess ? "parent process" : "subprocess";
+var disconnect = (anyProcess) => {
+  if (anyProcess.connected) {
+    anyProcess.disconnect();
+  }
+};
+
+// ../elt/node_modules/execa/lib/utils/deferred.js
+var createDeferred = () => {
+  const methods = {};
+  const promise2 = new Promise((resolve8, reject) => {
+    Object.assign(methods, { resolve: resolve8, reject });
+  });
+  return Object.assign(promise2, methods);
+};
+
+// ../elt/node_modules/execa/lib/ipc/strict.js
+import { once as once3 } from "node:events";
+
+// ../elt/node_modules/execa/lib/utils/max-listeners.js
+import { addAbortListener as addAbortListener2 } from "node:events";
+var incrementMaxListeners = (eventEmitter, maxListenersIncrement, signal) => {
+  const maxListeners = eventEmitter.getMaxListeners();
+  if (maxListeners === 0 || maxListeners === Infinity) {
+    return;
+  }
+  eventEmitter.setMaxListeners(maxListeners + maxListenersIncrement);
+  addAbortListener2(signal, () => {
+    eventEmitter.setMaxListeners(eventEmitter.getMaxListeners() - maxListenersIncrement);
+  });
+};
+
+// ../elt/node_modules/execa/lib/ipc/forward.js
+import { EventEmitter } from "node:events";
+
+// ../elt/node_modules/execa/lib/ipc/incoming.js
+import { once as once2 } from "node:events";
+import { scheduler } from "node:timers/promises";
+
+// ../elt/node_modules/execa/lib/ipc/reference.js
+var addReference = (channel, reference) => {
+  if (reference) {
+    addReferenceCount(channel);
+  }
+};
+var addReferenceCount = (channel) => {
+  channel.refCounted();
+};
+var removeReference = (channel, reference) => {
+  if (reference) {
+    removeReferenceCount(channel);
+  }
+};
+var removeReferenceCount = (channel) => {
+  channel.unrefCounted();
+};
+var undoAddedReferences = (channel, isSubprocess) => {
+  if (!isSubprocess) {
+    return;
+  }
+  removeReferenceCount(channel);
+  removeReferenceCount(channel);
+};
+var redoAddedReferences = (channel, isSubprocess) => {
+  if (!isSubprocess) {
+    return;
+  }
+  addReferenceCount(channel);
+  addReferenceCount(channel);
+};
+
+// ../elt/node_modules/execa/lib/ipc/incoming.js
+var onMessage = async ({ anyProcess, channel, isSubprocess, ipcEmitter }, wrappedMessage) => {
+  if (handleStrictResponse(wrappedMessage, anyProcess) || isSubprocess && handleAbort(wrappedMessage)) {
+    return;
+  }
+  if (!INCOMING_MESSAGES.has(anyProcess)) {
+    INCOMING_MESSAGES.set(anyProcess, []);
+  }
+  const incomingMessages = INCOMING_MESSAGES.get(anyProcess);
+  incomingMessages.push(wrappedMessage);
+  if (incomingMessages.length > 1) {
+    return;
+  }
+  while (incomingMessages.length > 0) {
+    await waitForOutgoingMessages(anyProcess, ipcEmitter, incomingMessages[0]);
+    await scheduler.yield();
+    const message = await handleStrictRequest({
+      wrappedMessage: incomingMessages[0],
+      anyProcess,
+      channel,
+      isSubprocess,
+      ipcEmitter
+    });
+    incomingMessages.shift();
+    ipcEmitter.emit("message", message);
+    ipcEmitter.emit("message:done");
+  }
+};
+var onDisconnect = async ({ anyProcess, channel, isSubprocess, ipcEmitter, boundOnMessage }) => {
+  if (isSubprocess) {
+    abortOnDisconnect();
+  }
+  const incomingMessages = INCOMING_MESSAGES.get(anyProcess);
+  while (incomingMessages?.length > 0) {
+    await once2(ipcEmitter, "message:done");
+  }
+  anyProcess.removeListener("message", boundOnMessage);
+  redoAddedReferences(channel, isSubprocess);
+  ipcEmitter.connected = false;
+  ipcEmitter.emit("disconnect");
+};
+var INCOMING_MESSAGES = /* @__PURE__ */ new WeakMap();
+
+// ../elt/node_modules/execa/lib/ipc/forward.js
+var getIpcEmitter = (anyProcess, channel, isSubprocess) => {
+  if (IPC_EMITTERS.has(anyProcess)) {
+    return IPC_EMITTERS.get(anyProcess);
+  }
+  const ipcEmitter = new EventEmitter();
+  ipcEmitter.setMaxListeners(0);
+  ipcEmitter.connected = true;
+  IPC_EMITTERS.set(anyProcess, ipcEmitter);
+  forwardEvents({
+    ipcEmitter,
+    anyProcess,
+    channel,
+    isSubprocess
+  });
+  return ipcEmitter;
+};
+var IPC_EMITTERS = /* @__PURE__ */ new WeakMap();
+var forwardEvents = ({ ipcEmitter, anyProcess, channel, isSubprocess }) => {
+  const boundOnMessage = onMessage.bind(void 0, {
+    anyProcess,
+    channel,
+    isSubprocess,
+    ipcEmitter
+  });
+  anyProcess.on("message", boundOnMessage);
+  anyProcess.once("disconnect", onDisconnect.bind(void 0, {
+    anyProcess,
+    channel,
+    isSubprocess,
+    ipcEmitter,
+    boundOnMessage
+  }));
+  undoAddedReferences(channel, isSubprocess);
+};
+var isConnected = (anyProcess) => {
+  const ipcEmitter = IPC_EMITTERS.get(anyProcess);
+  return ipcEmitter === void 0 ? anyProcess.channel !== void 0 && anyProcess.channel !== null : ipcEmitter.connected;
+};
+
+// ../elt/node_modules/execa/lib/ipc/strict.js
+var handleSendStrict = ({ anyProcess, channel, isSubprocess, message, strict }) => {
+  if (!strict) {
+    return message;
+  }
+  const ipcEmitter = getIpcEmitter(anyProcess, channel, isSubprocess);
+  const hasListeners = hasMessageListeners(anyProcess, ipcEmitter);
+  return {
+    id: count++,
+    type: REQUEST_TYPE,
+    message,
+    hasListeners
+  };
+};
+var count = 0;
+var validateStrictDeadlock = (outgoingMessages, wrappedMessage) => {
+  if (!isStrictRequest(wrappedMessage) || wrappedMessage.hasListeners) {
+    return;
+  }
+  for (const { id } of outgoingMessages) {
+    if (id !== void 0) {
+      STRICT_RESPONSES[id].deferred.resolve({ isDeadlock: true, hasListeners: false });
+    }
+  }
+};
+var handleStrictRequest = async ({ wrappedMessage, anyProcess, channel, isSubprocess, ipcEmitter }) => {
+  if (!isStrictRequest(wrappedMessage)) {
+    return wrappedMessage;
+  }
+  const { id, message } = wrappedMessage;
+  if (!anyProcess.connected) {
+    return message;
+  }
+  const response2 = { id, type: RESPONSE_TYPE, message: hasMessageListeners(anyProcess, ipcEmitter) };
+  try {
+    await sendMessage({
+      anyProcess,
+      channel,
+      isSubprocess,
+      ipc: true
+    }, response2);
+  } catch (error62) {
+    if (error62.cause?.code !== "EPIPE") {
+      ipcEmitter.emit("strict:error", error62);
+    }
+  }
+  return message;
+};
+var handleStrictResponse = (wrappedMessage, anyProcess) => {
+  if (wrappedMessage?.type !== RESPONSE_TYPE) {
+    return false;
+  }
+  const { id, message: hasListeners } = wrappedMessage;
+  const strictResponse = STRICT_RESPONSES[id];
+  if (strictResponse?.anyProcess === anyProcess) {
+    strictResponse.deferred.resolve({ isDeadlock: false, hasListeners });
+  }
+  return true;
+};
+var waitForStrictResponse = async (wrappedMessage, anyProcess, isSubprocess) => {
+  const deferred = createDeferred();
+  STRICT_RESPONSES[wrappedMessage.id] = { deferred, anyProcess };
+  const controller = new AbortController();
+  try {
+    const { isDeadlock, hasListeners } = await Promise.race([
+      deferred,
+      throwOnDisconnect(anyProcess, isSubprocess, controller)
+    ]);
+    if (isDeadlock) {
+      throwOnStrictDeadlockError(isSubprocess);
+    }
+    if (!hasListeners) {
+      throwOnMissingStrict(isSubprocess);
+    }
+  } finally {
+    controller.abort();
+    delete STRICT_RESPONSES[wrappedMessage.id];
+  }
+};
+var STRICT_RESPONSES = { __proto__: null };
+var throwOnDisconnect = async (anyProcess, isSubprocess, { signal }) => {
+  incrementMaxListeners(anyProcess, 1, signal);
+  await once3(anyProcess, "disconnect", { signal });
+  throwOnStrictDisconnect(isSubprocess);
+};
+var REQUEST_TYPE = "execa:ipc:request";
+var RESPONSE_TYPE = "execa:ipc:response";
+var isStrictRequest = (wrappedMessage) => wrappedMessage?.type === REQUEST_TYPE && Number.isInteger(wrappedMessage.id) && typeof wrappedMessage.hasListeners === "boolean";
+
+// ../elt/node_modules/execa/lib/ipc/outgoing.js
+var startSendMessage = (anyProcess, wrappedMessage, strict) => {
+  if (!OUTGOING_MESSAGES.has(anyProcess)) {
+    OUTGOING_MESSAGES.set(anyProcess, /* @__PURE__ */ new Set());
+  }
+  const outgoingMessages = OUTGOING_MESSAGES.get(anyProcess);
+  const onMessageSent = createDeferred();
+  const id = strict ? wrappedMessage.id : void 0;
+  const outgoingMessage = { onMessageSent, id };
+  outgoingMessages.add(outgoingMessage);
+  return { outgoingMessages, outgoingMessage };
+};
+var endSendMessage = ({ outgoingMessages, outgoingMessage }) => {
+  outgoingMessages.delete(outgoingMessage);
+  outgoingMessage.onMessageSent.resolve();
+};
+var waitForOutgoingMessages = async (anyProcess, ipcEmitter, wrappedMessage) => {
+  while (!hasMessageListeners(anyProcess, ipcEmitter) && OUTGOING_MESSAGES.get(anyProcess)?.size > 0) {
+    const outgoingMessages = [...OUTGOING_MESSAGES.get(anyProcess)];
+    validateStrictDeadlock(outgoingMessages, wrappedMessage);
+    await Promise.all(outgoingMessages.map(({ onMessageSent }) => onMessageSent));
+  }
+};
+var OUTGOING_MESSAGES = /* @__PURE__ */ new WeakMap();
+var IPC_SUBPROCESS_OPTIONS = /* @__PURE__ */ new WeakMap();
+var setIpcSubprocessOptions = (subprocess, options) => {
+  IPC_SUBPROCESS_OPTIONS.set(subprocess, options);
+};
+var hasMessageListeners = (anyProcess, ipcEmitter) => ipcEmitter.listenerCount("message") > getMinListenerCount(anyProcess);
+var getMinListenerCount = (anyProcess) => getOptions(anyProcess) !== void 0 && !getFdSpecificValue(getOptions(anyProcess).buffer, "ipc") ? 1 : 0;
+var getOptions = (anyProcess) => IPC_SUBPROCESS_OPTIONS.get(anyProcess);
+
+// ../elt/node_modules/execa/lib/ipc/send.js
+var sendMessage = ({ anyProcess, channel, isSubprocess, ipc }, message, options) => {
+  const { strict = false } = copyOptions(options);
+  checkBooleanOption(strict, "strict");
+  const methodName = "sendMessage";
+  validateIpcMethod({
+    methodName,
+    isSubprocess,
+    ipc,
+    isConnected: anyProcess.connected
+  });
+  return sendMessageAsync({
+    anyProcess,
+    channel,
+    methodName,
+    isSubprocess,
+    message,
+    strict
+  });
+};
+var sendMessageAsync = async ({ anyProcess, channel, methodName, isSubprocess, message, strict }) => {
+  const wrappedMessage = handleSendStrict({
+    anyProcess,
+    channel,
+    isSubprocess,
+    message,
+    strict
+  });
+  const outgoingMessagesState = startSendMessage(anyProcess, wrappedMessage, strict);
+  try {
+    await sendOneMessage({
+      anyProcess,
+      methodName,
+      isSubprocess,
+      wrappedMessage,
+      message,
+      strict
+    });
+  } catch (error62) {
+    disconnect(anyProcess);
+    throw error62;
+  } finally {
+    endSendMessage(outgoingMessagesState);
+  }
+};
+var sendOneMessage = async ({ anyProcess, methodName, isSubprocess, wrappedMessage, message, strict = false }) => {
+  const sendMethod = getSendMethod(anyProcess);
+  try {
+    await Promise.all([
+      // Only messages sent with the `strict` option wait for an acknowledgment response
+      strict ? waitForStrictResponse(wrappedMessage, anyProcess, isSubprocess) : void 0,
+      sendMethod(wrappedMessage)
+    ]);
+  } catch (error62) {
+    handleEpipeError({ error: error62, methodName, isSubprocess });
+    handleSerializationError({
+      error: error62,
+      methodName,
+      isSubprocess,
+      message
+    });
+    throw error62;
+  }
+};
+var getSendMethod = (anyProcess) => {
+  if (PROCESS_SEND_METHODS.has(anyProcess)) {
+    return PROCESS_SEND_METHODS.get(anyProcess);
+  }
+  const sendMethod = promisify2(anyProcess.send.bind(anyProcess));
+  PROCESS_SEND_METHODS.set(anyProcess, sendMethod);
+  return sendMethod;
+};
+var PROCESS_SEND_METHODS = /* @__PURE__ */ new WeakMap();
+
+// ../elt/node_modules/execa/lib/ipc/graceful.js
+var sendAbort = (subprocess, message) => {
+  const methodName = "cancelSignal";
+  validateConnection(methodName, false, subprocess.connected);
+  return sendOneMessage({
+    anyProcess: subprocess,
+    methodName,
+    isSubprocess: false,
+    wrappedMessage: { type: GRACEFUL_CANCEL_TYPE, message },
+    message
+  });
+};
+var getCancelSignal = async ({ anyProcess, channel, isSubprocess, ipc }) => {
+  await startIpc({
+    anyProcess,
+    channel,
+    isSubprocess,
+    ipc
+  });
+  return cancelController.signal;
+};
+var startIpc = async ({ anyProcess, channel, isSubprocess, ipc }) => {
+  if (isCancelListening) {
+    return;
+  }
+  if (!ipc) {
+    throwOnMissingParent();
+    return;
+  }
+  isCancelListening = true;
+  if (!anyProcess.connected) {
+    abortOnDisconnect();
+    return;
+  }
+  getIpcEmitter(anyProcess, channel, isSubprocess);
+  await scheduler2.yield();
+};
+var isCancelListening = false;
+var handleAbort = (wrappedMessage) => {
+  if (wrappedMessage?.type !== GRACEFUL_CANCEL_TYPE) {
+    return false;
+  }
+  cancelController.abort(wrappedMessage.message);
+  return true;
+};
+var GRACEFUL_CANCEL_TYPE = "execa:ipc:cancel";
+var abortOnDisconnect = () => {
+  cancelController.abort(getAbortDisconnectError());
+};
+var cancelController = new AbortController();
+
+// ../elt/node_modules/execa/lib/terminate/graceful.js
+var validateGracefulCancel = ({ gracefulCancel, cancelSignal, ipc, serialization }) => {
+  if (!gracefulCancel) {
+    return;
+  }
+  if (cancelSignal === void 0) {
+    throw new Error("The `cancelSignal` option must be defined when setting the `gracefulCancel` option.");
+  }
+  if (!ipc) {
+    throw new Error("The `ipc` option cannot be false when setting the `gracefulCancel` option.");
+  }
+  if (serialization === "json") {
+    throw new Error("The `serialization` option cannot be 'json' when setting the `gracefulCancel` option.");
+  }
+};
+var throwOnGracefulCancel = ({
+  subprocess,
+  kill,
+  cancelSignal,
+  gracefulCancel,
+  forceKillAfterDelay,
+  context,
+  controller
+}) => gracefulCancel ? [sendOnAbort({
+  subprocess,
+  kill,
+  cancelSignal,
+  forceKillAfterDelay,
+  context,
+  controller
+})] : [];
+var sendOnAbort = async ({ subprocess, kill, cancelSignal, forceKillAfterDelay, context, controller: { signal } }) => {
+  await onAbortedSignal(cancelSignal, signal);
+  const reason = getReason(cancelSignal);
+  await sendAbort(subprocess, reason);
+  killOnTimeout({
+    kill,
+    forceKillAfterDelay,
+    context,
+    controllerSignal: signal
+  });
+  context.terminationReason ??= "gracefulCancel";
+  throw cancelSignal.reason;
+};
+var getReason = ({ reason }) => {
+  if (!(reason instanceof DOMException)) {
+    return reason;
+  }
+  const error62 = new Error(reason.message);
+  Object.defineProperty(error62, "stack", {
+    value: reason.stack,
+    enumerable: false,
+    configurable: true,
+    writable: true
+  });
+  return error62;
+};
+
+// ../elt/node_modules/execa/lib/methods/node.js
+import { execPath, execArgv } from "node:process";
+import path3 from "node:path";
+var mapNode = ({ options }) => {
+  if (options.node === false) {
+    throw new TypeError('The "node" option cannot be false with `execaNode()`.');
+  }
+  return { options: { __proto__: null, ...options, node: true } };
+};
+var getDefaultNodeOptions = () => {
+  const nodeOptions = [];
+  for (let index = 0; index < execArgv.length; index += 1) {
+    const nodeOption = execArgv[index];
+    if (REMOVED_OPTIONS_WITH_VALUE.has(nodeOption)) {
+      if (!execArgv[index + 1]?.startsWith("-")) {
+        index += 1;
+      }
+    } else if (!IGNORED_OPTIONS_REGEXP.test(nodeOption)) {
+      nodeOptions.push(nodeOption);
+    }
+  }
+  return nodeOptions;
+};
+var REMOVED_OPTIONS_WITH_VALUE = /* @__PURE__ */ new Set(["-e", "--eval", "-p", "--print", "-pe", "--input-type", "--inspect-port"]);
+var IGNORED_OPTIONS_REGEXP = /^--(?:inspect|eval=|print=|input-type=)/;
+var handleNodeOption = (file2, commandArguments, {
+  node: shouldHandleNode = false,
+  nodePath = execPath,
+  nodeOptions = getDefaultNodeOptions(),
+  cwd,
+  execPath: formerNodePath,
+  ...options
+}) => {
+  if (formerNodePath !== void 0) {
+    throw new TypeError('The "execPath" option has been removed. Please use the "nodePath" option instead.');
+  }
+  if (!Array.isArray(nodeOptions) || nodeOptions.some((nodeOption) => typeof nodeOption !== "string")) {
+    throw new TypeError('The "nodeOptions" option must be an array of strings.');
+  }
+  const normalizedNodePath = safeNormalizeFileUrl(nodePath, 'The "nodePath" option');
+  const resolvedNodePath = path3.resolve(cwd, normalizedNodePath);
+  const newOptions = {
+    __proto__: null,
+    shell: false,
+    ...options,
+    nodePath: resolvedNodePath,
+    node: shouldHandleNode,
+    cwd
+  };
+  if (!shouldHandleNode) {
+    return [file2, commandArguments, newOptions];
+  }
+  if (path3.basename(file2, ".exe") === "node") {
+    throw new TypeError('When the "node" option is true, the first argument does not need to be "node".');
+  }
+  return [
+    resolvedNodePath,
+    [
+      ...nodeOptions,
+      file2,
+      ...commandArguments
+    ],
+    {
+      __proto__: null,
+      ...newOptions,
+      // Like other options, `undefined` uses the default value
+      ipc: newOptions.ipc === void 0 ? true : newOptions.ipc,
+      shell: false
+    }
+  ];
+};
+
+// ../elt/node_modules/execa/lib/ipc/ipc-input.js
+import { serialize } from "node:v8";
+var validateIpcInputOption = ({ ipcInput, ipc, serialization }) => {
+  if (ipcInput === void 0) {
+    return;
+  }
+  if (!ipc) {
+    throw new Error("The `ipcInput` option cannot be set unless the `ipc` option is `true`.");
+  }
+  validateIpcInput[serialization]?.(ipcInput);
+};
+var validateAdvancedInput = (ipcInput) => {
+  try {
+    serialize(ipcInput);
+  } catch (error62) {
+    throw new Error("The `ipcInput` option is not serializable with a structured clone.", { cause: error62 });
+  }
+};
+var validateJsonInput = (ipcInput) => {
+  try {
+    if (JSON.stringify(ipcInput) === void 0) {
+      throw new TypeError("The value cannot be represented as JSON.");
+    }
+  } catch (error62) {
+    throw new Error("The `ipcInput` option is not serializable with JSON.", { cause: error62 });
+  }
+};
+var validateIpcInput = {
+  __proto__: null,
+  advanced: validateAdvancedInput,
+  json: validateJsonInput
+};
+var sendIpcInput = async (subprocess, ipcInput, ipc) => {
+  if (ipcInput === void 0) {
+    return;
+  }
+  await sendMessage({
+    anyProcess: subprocess,
+    channel: subprocess.channel,
+    isSubprocess: false,
+    ipc
+  }, ipcInput);
+};
+
+// ../elt/node_modules/execa/lib/arguments/encoding-option.js
+var validateEncoding = ({ encoding }) => {
+  if (ENCODINGS.has(encoding)) {
+    return;
+  }
+  const correctEncoding = getCorrectEncoding(encoding);
+  if (correctEncoding !== void 0) {
+    throw new TypeError(`Invalid option \`encoding: ${serializeEncoding(encoding)}\`.
+Please rename it to ${serializeEncoding(correctEncoding)}.`);
+  }
+  const correctEncodings = [...ENCODINGS].map((correctEncoding2) => serializeEncoding(correctEncoding2)).join(", ");
+  throw new TypeError(`Invalid option \`encoding: ${serializeEncoding(encoding)}\`.
+Please rename it to one of: ${correctEncodings}.`);
+};
+var TEXT_ENCODINGS = /* @__PURE__ */ new Set(["utf8", "utf16le"]);
+var BINARY_ENCODINGS = /* @__PURE__ */ new Set(["buffer", "hex", "base64", "base64url", "latin1", "ascii"]);
+var ENCODINGS = TEXT_ENCODINGS.union(BINARY_ENCODINGS);
+var getStringEncoding = (binary, encoding) => binary || !TEXT_ENCODINGS.has(encoding) ? "utf8" : encoding;
+var getInputEncoding = (encoding) => TEXT_ENCODINGS.has(encoding) ? "utf8" : encoding;
+var getCorrectEncoding = (encoding) => {
+  if (encoding === null) {
+    return "buffer";
+  }
+  if (typeof encoding !== "string") {
+    return;
+  }
+  const lowerEncoding = encoding.toLowerCase();
+  if (lowerEncoding in ENCODING_ALIASES) {
+    return ENCODING_ALIASES[lowerEncoding];
+  }
+  if (ENCODINGS.has(lowerEncoding)) {
+    return lowerEncoding;
+  }
+};
+var ENCODING_ALIASES = {
+  __proto__: null,
+  // eslint-disable-next-line unicorn/text-encoding-identifier-case
+  "utf-8": "utf8",
+  "utf-16le": "utf16le",
+  "ucs-2": "utf16le",
+  ucs2: "utf16le",
+  binary: "latin1"
+};
+var serializeEncoding = (encoding) => typeof encoding === "string" ? `"${encoding}"` : String(encoding);
+
+// ../elt/node_modules/execa/lib/arguments/command-file.js
+import { openSync, readSync, closeSync } from "node:fs";
+import { Buffer as Buffer2 } from "node:buffer";
+import path5 from "node:path";
+import process7 from "node:process";
+
+// ../elt/node_modules/which-command/index.js
+import fs from "node:fs";
+import path4 from "node:path";
+import process6 from "node:process";
+var isWindows = process6.platform === "win32";
+var separatorPattern = isWindows ? new RegExp("[\\/\\\\]", "v") : new RegExp("\\/", "v");
+var defaultPathExt = ".COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC";
+function resolveOptions(command, options) {
+  if (typeof command !== "string" || command.length === 0) {
+    throw new TypeError("Expected a non-empty string.");
+  }
+  const {
+    cwd = process6.cwd(),
+    // On Windows, `process.env.PATH` can be undefined in some contexts (for example, worker threads), where it's only exposed as `Path`.
+    path: searchPath = process6.env.PATH ?? (isWindows ? process6.env.Path : void 0) ?? "",
+    // `||` (not `??`) so an empty `PATHEXT` falls back to the default instead of disabling all lookup on Windows.
+    pathExt = process6.env.PATHEXT || defaultPathExt
+  } = options;
+  return { cwd, searchPath, pathExt };
+}
+function windowsExtensions(command, pathExt) {
+  const extensions2 = pathExt.split(path4.delimiter).filter(Boolean);
+  const commandExtension = path4.extname(command).toLowerCase();
+  if (commandExtension !== "" && extensions2.some((extension) => extension.toLowerCase() === commandExtension)) {
+    return ["", ...extensions2];
+  }
+  return extensions2;
+}
+function* candidatePaths(command, { cwd, searchPath, pathExt }) {
+  const extensions2 = isWindows ? windowsExtensions(command, pathExt) : [""];
+  if (separatorPattern.test(command)) {
+    const base = path4.resolve(cwd, command);
+    for (const extension of extensions2) {
+      yield base + extension;
+    }
+    return;
+  }
+  const directories = [
+    // Windows searches the current directory before `PATH`.
+    ...isWindows ? [cwd] : [],
+    ...searchPath.split(path4.delimiter)
+  ];
+  for (const directory of directories) {
+    const unquoted = isWindows && directory.length > 1 && directory.startsWith('"') && directory.endsWith('"') ? directory.slice(1, -1) : directory;
+    if (unquoted === "") {
+      continue;
+    }
+    const base = path4.resolve(cwd, unquoted, command);
+    for (const extension of extensions2) {
+      yield base + extension;
+    }
+  }
+}
+function isExecutableSync(filePath) {
+  let stats;
+  try {
+    stats = fs.statSync(filePath);
+  } catch (error62) {
+    return isWindows && error62.code === "EACCES";
+  }
+  if (!stats.isFile()) {
+    return false;
+  }
+  if (isWindows) {
+    return true;
+  }
+  try {
+    fs.accessSync(filePath, fs.constants.X_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+function whichCommandSync(command, options = {}) {
+  const resolved = resolveOptions(command, options);
+  for (const candidate of candidatePaths(command, resolved)) {
+    if (isExecutableSync(candidate)) {
+      return candidate;
+    }
+  }
+  return void 0;
+}
+
+// ../elt/node_modules/execa/lib/arguments/command-file.js
+var parseCommandFile = (file2, commandArguments, options) => {
+  const parsed = { file: file2, commandArguments: [...commandArguments], options };
+  return options.shell || process7.platform !== "win32" ? parsed : escapeWindowsCommand(parsed);
+};
+var directlyExecutableRegExp = /\.(?:com|exe)$/i;
+var escapeWindowsCommand = (parsed) => {
+  const resolvedFile = resolveWithShebang(parsed);
+  if (resolvedFile !== void 0 && directlyExecutableRegExp.test(resolvedFile)) {
+    if (parsed.options.argv0 === void 0) {
+      parsed.options.argv0 = parsed.file;
+    }
+    parsed.file = resolvedFile;
+    return parsed;
+  }
+  for (const value of [parsed.file, ...parsed.commandArguments]) {
+    assertNoLineBreak(value);
+  }
+  const escapedFile = escapeMetaChars(path5.normalize(resolvedFile ?? parsed.file));
+  const escapedArguments = parsed.commandArguments.map((argument) => escapeArgument(argument));
+  const commandLine = `"${[escapedFile, ...escapedArguments].join(" ")}"`;
+  parsed.options.windowsVerbatimArguments = true;
+  return {
+    file: process7.env.comspec || "cmd.exe",
+    // `/e:on` enables the command extensions the `%` escaping relies on, and `/v:off` disables delayed expansion so `!` is literal, even when the registry changes either default
+    commandArguments: ["/d", "/e:on", "/v:off", "/s", "/c", commandLine],
+    options: parsed.options
+  };
+};
+var resolveWithShebang = (parsed) => {
+  const resolvedFile = resolvePath(parsed);
+  const interpreter = resolvedFile !== void 0 && readShebang(resolvedFile);
+  if (!interpreter) {
+    return resolvedFile;
+  }
+  parsed.commandArguments.unshift(resolvedFile);
+  parsed.file = interpreter;
+  return resolvePath(parsed);
+};
+var resolvePath = (parsed) => {
+  const environment = parsed.options.env || process7.env;
+  const cwd = parsed.options.cwd ?? process7.cwd();
+  const environmentPathExt = getWindowsEnvironmentValue(environment, "PATHEXT");
+  const commandExtension = path5.extname(parsed.file);
+  const pathExt = commandExtension === "" ? environmentPathExt : `${commandExtension}${path5.delimiter}${environmentPathExt ?? ""}`;
+  if (hasWindowsPathSeparator(parsed.file)) {
+    return whichCommandSync(path5.resolve(cwd, parsed.file), { cwd, pathExt });
+  }
+  const searchPath = getWindowsEnvironmentValue(environment, "PATH") ?? getWindowsEnvironmentValue(process7.env, "PATH") ?? "";
+  const resolveOptions2 = {
+    cwd,
+    path: searchPath,
+    pathExt
+  };
+  return shouldSearchCurrentDirectory(environment) ? whichCommandSync(parsed.file, resolveOptions2) : resolvePathDirectories(parsed.file, resolveOptions2);
+};
+var hasWindowsPathSeparator = (file2) => file2.includes("/") || file2.includes("\\") || file2.includes(":");
+var shouldSearchCurrentDirectory = (environment) => getWindowsEnvironmentValue(process7.env, "NODEFAULTCURRENTDIRECTORYINEXEPATH") === void 0 && getWindowsEnvironmentValue(environment, "NODEFAULTCURRENTDIRECTORYINEXEPATH") === void 0;
+var resolvePathDirectories = (file2, { cwd, path: searchPath, pathExt }) => {
+  for (const directory of searchPath.split(path5.delimiter)) {
+    const unquotedDirectory = directory.length > 1 && directory.startsWith('"') && directory.endsWith('"') ? directory.slice(1, -1) : directory;
+    if (unquotedDirectory === "") {
+      continue;
+    }
+    const resolvedFile = whichCommandSync(path5.resolve(cwd, unquotedDirectory, file2), { cwd, pathExt });
+    if (resolvedFile !== void 0) {
+      return resolvedFile;
+    }
+  }
+};
+var getWindowsEnvironmentValue = (environment, name5) => {
+  const environmentKey = Object.keys(environment).sort().find((key) => key.toUpperCase() === name5);
+  return environmentKey === void 0 ? void 0 : environment[environmentKey];
+};
+var SHEBANG_BYTE_LENGTH = 150;
+var readShebang = (file2) => {
+  const buffer = Buffer2.alloc(SHEBANG_BYTE_LENGTH);
+  let bytesRead = 0;
+  try {
+    const fileDescriptor = openSync(file2, "r");
+    try {
+      bytesRead = readSync(fileDescriptor, buffer, 0, SHEBANG_BYTE_LENGTH, 0);
+    } finally {
+      closeSync(fileDescriptor);
+    }
+  } catch {
+    return void 0;
+  }
+  return parseShebang(buffer.toString("utf8", 0, bytesRead));
+};
+var shebangRegExp = /^#!(?<line>.*)/;
+var parseShebang = (contents) => {
+  const shebangLine = contents.match(shebangRegExp)?.groups.line.trim();
+  if (!shebangLine) {
+    return void 0;
+  }
+  const [interpreterPath, argument] = shebangLine.split(" ", 2);
+  const interpreter = interpreterPath.split("/").at(-1);
+  if (interpreter === "env") {
+    return argument;
+  }
+  return argument ? `${interpreter} ${argument}` : interpreter;
+};
+var lineBreakRegExp = /[\n\r]/;
+var assertNoLineBreak = (value) => {
+  if (lineBreakRegExp.test(value)) {
+    throw new TypeError(`The command and its arguments cannot contain a line break on Windows without a shell.
+This would allow a command injection with \`cmd.exe\`.
+Invalid value: ${JSON.stringify(`${value}`)}`);
+  }
+};
+var metaCharsRegExp = /[()\][%!^"`<>&|;, *?]/g;
+var escapeMetaChars = (value) => value.replaceAll(metaCharsRegExp, "^$&");
+var backslashRunRegExp = /\\+/g;
+var quotedCharacterRegExp = new RegExp("[^\\w#$*+\\-./:?@\\\\\\u{80}-\\u{10FFFF}]|\\p{Control}", "u");
+var escapeArgument = (rawArgument) => {
+  const argument = `${rawArgument}`;
+  if (!shouldQuoteArgument(argument)) {
+    return argument;
+  }
+  const escapedArgument = argument.replaceAll(backslashRunRegExp, (backslashes, offset, string5) => {
+    const nextCharacter = string5[offset + backslashes.length];
+    const isPrecedesDoubleQuote = nextCharacter === '"' || nextCharacter === void 0;
+    return isPrecedesDoubleQuote ? backslashes.repeat(2) : backslashes;
+  }).replaceAll('"', '""').replaceAll("%", "%%cd:~,%");
+  return `"${escapedArgument}"`;
+};
+var shouldQuoteArgument = (argument) => argument === "" || argument.endsWith("\\") || quotedCharacterRegExp.test(argument);
+
+// ../elt/node_modules/execa/lib/arguments/cwd.js
+import { statSync } from "node:fs";
+import path6 from "node:path";
+import process8 from "node:process";
+var normalizeCwd = (cwd = getDefaultCwd()) => {
+  const cwdString = safeNormalizeFileUrl(cwd, 'The "cwd" option');
+  return path6.resolve(cwdString);
+};
+var getDefaultCwd = () => {
+  try {
+    return process8.cwd();
+  } catch (error62) {
+    error62.message = `The current directory does not exist.
+${error62.message}`;
+    throw error62;
+  }
+};
+var getCurrentCwd = () => {
+  try {
+    return process8.cwd();
+  } catch {
+  }
+};
+var fixCwdError = (originalMessage, cwd) => {
+  if (cwd === getCurrentCwd()) {
+    return originalMessage;
+  }
+  let cwdStat;
+  try {
+    cwdStat = statSync(cwd);
+  } catch (error62) {
+    return `The "cwd" option is invalid: ${cwd}.
+${error62.message}
+${originalMessage}`;
+  }
+  return cwdStat.isDirectory() ? originalMessage : `The "cwd" option is not a directory: ${cwd}.
+${originalMessage}`;
+};
+
+// ../elt/node_modules/execa/lib/arguments/options.js
+var cmdExeRegExp = /^cmd(?:\.exe)?$/i;
+var normalizeOptions = (filePath, rawArguments, rawOptions) => {
+  const sanitizedOptions = { __proto__: null, ...rawOptions };
+  sanitizedOptions.cwd = normalizeCwd(sanitizedOptions.cwd);
+  const [processedFile, processedArguments, processedOptions] = handleNodeOption(filePath, rawArguments, sanitizedOptions);
+  const fdOptions = normalizeFdSpecificOptions(processedOptions);
+  const options = addDefaultOptions(fdOptions);
+  validateBooleanOptions(options);
+  validateEnv(options);
+  options.env = getEnv(options);
+  const { file: file2, commandArguments } = parseCommandFile(processedFile, processedArguments, options);
+  validateTimeout2(options);
+  validateEncoding(options);
+  validateIpcInputOption(options);
+  validateCancelSignal(options);
+  validateRenamedSignalOption(options);
+  validateGracefulCancel(options);
+  options.shell = normalizeFileUrl(options.shell);
+  options.killSignal = normalizeKillSignal(options.killSignal);
+  options.forceKillAfterDelay = normalizeForceKillAfterDelay(options.forceKillAfterDelay);
+  options.lines = options.lines.map((lines, fdNumber) => lines && !BINARY_ENCODINGS.has(options.encoding) && options.buffer[fdNumber]);
+  if (process9.platform === "win32" && cmdExeRegExp.test(path7.basename(file2))) {
+    commandArguments.unshift("/q");
+  }
+  return { file: file2, commandArguments, options };
+};
+var BOOLEAN_OPTIONS = [
+  "extendEnv",
+  "preferLocal",
+  "reject",
+  "cleanup",
+  "killDescendants",
+  "all",
+  "gracefulCancel",
+  "ipc",
+  "node"
+];
+var validateBooleanOptions = (options) => {
+  for (const optionName of BOOLEAN_OPTIONS) {
+    checkBooleanOption(options[optionName], optionName);
+  }
+};
+var validateEnv = ({ env }) => {
+  if (env !== void 0 && (typeof env !== "object" || env === null || Array.isArray(env))) {
+    throw new TypeError(`The \`env\` option must be an object: ${String(env)}.`);
+  }
+};
+var addDefaultOptions = ({
+  extendEnv = true,
+  preferLocal = false,
+  cwd,
+  localDir: localDirectory = cwd,
+  encoding = "utf8",
+  reject = true,
+  cleanup = true,
+  killDescendants = false,
+  all = false,
+  windowsHide = true,
+  killSignal = "SIGTERM",
+  forceKillAfterDelay = true,
+  gracefulCancel = false,
+  ipcInput,
+  ipc = ipcInput !== void 0 || gracefulCancel,
+  serialization = "advanced",
+  ...options
+}) => ({
+  __proto__: null,
+  ...options,
+  extendEnv,
+  preferLocal,
+  cwd,
+  localDirectory,
+  encoding,
+  reject,
+  cleanup,
+  killDescendants,
+  all,
+  windowsHide,
+  killSignal,
+  forceKillAfterDelay,
+  gracefulCancel,
+  ipcInput,
+  ipc,
+  serialization
+});
+var getEnv = (options) => ({ __proto__: null, ...computeEnv(options) });
+var computeEnv = ({ env: envOption, extendEnv, preferLocal, node: node2, localDirectory, nodePath }) => {
+  const env = { __proto__: null, ...extendEnv && process9.env, ...envOption };
+  if (preferLocal || node2) {
+    return npmRunPathEnv({
+      env,
+      cwd: localDirectory,
+      execPath: nodePath,
+      preferLocal,
+      addExecPath: node2
+    });
+  }
+  return env;
+};
+
+// ../elt/node_modules/execa/lib/arguments/shell.js
+var concatenateShell = (file2, commandArguments, options) => options.shell && commandArguments.length > 0 ? [[file2, ...commandArguments].join(" "), [], options] : [file2, commandArguments, options];
+
+// ../elt/node_modules/execa/lib/resolve/all-sync.js
+import { Buffer as Buffer3 } from "node:buffer";
+
+// ../elt/node_modules/execa/lib/transform/split.js
+var getSplitLinesGenerator = (binary, preserveNewlines, skipped, state) => binary || skipped ? void 0 : initializeSplitLines(preserveNewlines, state);
+var splitLinesSync = (chunk, preserveNewlines, objectMode) => objectMode ? chunk.flatMap((item) => splitLinesItemSync(item, preserveNewlines)) : splitLinesItemSync(chunk, preserveNewlines);
+var splitLinesItemSync = (chunk, preserveNewlines) => {
+  const { transform: transform2, final } = initializeSplitLines(preserveNewlines, {});
+  return [...transform2(chunk), ...final()];
+};
+var initializeSplitLines = (preserveNewlines, state) => {
+  state.previousChunks = "";
+  return {
+    transform: splitGenerator.bind(void 0, state, preserveNewlines),
+    final: linesFinal.bind(void 0, state)
+  };
+};
+var splitGenerator = function* (state, preserveNewlines, chunk) {
+  if (typeof chunk !== "string") {
+    yield chunk;
+    return;
+  }
+  let { previousChunks } = state;
+  let start = -1;
+  for (let end = 0; end < chunk.length; end += 1) {
+    if (chunk[end] !== "\n") {
+      continue;
+    }
+    let line = chunk.slice(start + 1, preserveNewlines ? end + 1 : end);
+    if (previousChunks.length > 0) {
+      line = concatString(previousChunks, line);
+      previousChunks = "";
+    }
+    yield preserveNewlines ? line : stripCarriageReturn(line, state);
+    start = end;
+  }
+  if (start !== chunk.length - 1) {
+    previousChunks = concatString(previousChunks, chunk.slice(start + 1));
+  }
+  state.previousChunks = previousChunks;
+};
+var stripCarriageReturn = (line, state) => {
+  state.isWindowsNewline = line.endsWith("\r");
+  return state.isWindowsNewline ? line.slice(0, -1) : line;
+};
+var linesFinal = function* ({ previousChunks }) {
+  if (previousChunks.length > 0) {
+    yield previousChunks;
+  }
+};
+var getAppendNewlineGenerator = ({ binary, preserveNewlines, readableObjectMode, state, encoding }) => binary || preserveNewlines || readableObjectMode ? void 0 : { transform: appendNewlineGenerator.bind(void 0, state, getStringEncoding(binary, encoding)) };
+var appendNewlineGenerator = function* ({ isWindowsNewline = false }, stringEncoding, chunk) {
+  const { unixNewline, windowsNewline, concat } = typeof chunk === "string" ? linesStringInfo : LINES_BYTES_INFO[stringEncoding];
+  if (endsWithNewline(chunk, unixNewline)) {
+    yield chunk;
+    return;
+  }
+  const newline = isWindowsNewline ? windowsNewline : unixNewline;
+  yield concat(chunk, newline);
+};
+var endsWithNewline = (chunk, unixNewline) => typeof chunk === "string" ? chunk.endsWith(unixNewline) : chunk.length >= unixNewline.length && chunk.subarray(-unixNewline.length).every((byte, index) => byte === unixNewline[index]);
+var concatString = (firstChunk, secondChunk) => `${firstChunk}${secondChunk}`;
+var linesStringInfo = {
+  windowsNewline: "\r\n",
+  unixNewline: "\n",
+  concat: concatString
+};
+var concatUint8Array = (firstChunk, secondChunk) => {
+  const chunk = new Uint8Array(firstChunk.length + secondChunk.length);
+  chunk.set(firstChunk, 0);
+  chunk.set(secondChunk, firstChunk.length);
+  return chunk;
+};
+var LINES_BYTES_INFO = {
+  __proto__: null,
+  utf8: {
+    windowsNewline: new Uint8Array([13, 10]),
+    unixNewline: new Uint8Array([10]),
+    concat: concatUint8Array
+  },
+  utf16le: {
+    windowsNewline: new Uint8Array([13, 0, 10, 0]),
+    unixNewline: new Uint8Array([10, 0]),
+    concat: concatUint8Array
+  }
+};
+
+// ../elt/node_modules/strip-final-newline/index.js
+function stripFinalNewline(input2) {
+  if (typeof input2 === "string") {
+    return stripFinalNewlineString(input2);
+  }
+  if (!(ArrayBuffer.isView(input2) && input2.BYTES_PER_ELEMENT === 1)) {
+    throw new Error("Input must be a string or a Uint8Array");
+  }
+  return stripFinalNewlineBinary(input2);
+}
+var stripFinalNewlineString = (input2) => input2.at(-1) === LF ? input2.slice(0, input2.at(-2) === CR ? -2 : -1) : input2;
+var stripFinalNewlineBinary = (input2) => input2.at(-1) === LF_BINARY ? input2.subarray(0, input2.at(-2) === CR_BINARY ? -2 : -1) : input2;
+var LF = "\n";
+var LF_BINARY = LF.codePointAt(0);
+var CR = "\r";
+var CR_BINARY = CR.codePointAt(0);
+
+// ../elt/node_modules/execa/lib/io/strip-newline.js
+var stripNewline = (value, { stripFinalNewline: stripFinalNewline2 }, fdNumber, allFds) => value !== void 0 && !Array.isArray(value) && getStripFinalNewline(stripFinalNewline2, fdNumber, allFds) ? stripFinalNewline(value) : value;
+var getStripFinalNewline = (stripFinalNewline2, fdNumber, allFds) => fdNumber === "all" ? allFds.some((allFd) => stripFinalNewline2[allFd]) : stripFinalNewline2[fdNumber];
+
+// ../elt/node_modules/execa/lib/resolve/all-sync.js
+var getAllSyncFds = ([, stdout, stderr]) => [
+  ...stdout === void 0 ? [] : [1],
+  ...stderr === void 0 ? [] : [2]
+];
+var getAllSync = ([, stdout, stderr], allFds, options) => {
+  if (!options.all) {
+    return;
+  }
+  if (stdout === void 0) {
+    return splitAllLines(stderr, allFds, options);
+  }
+  if (stderr === void 0) {
+    return splitAllLines(stdout, allFds, options);
+  }
+  if (hasLines(options)) {
+    return [splitAllLines(stdout, allFds, options), splitAllLines(stderr, allFds, options)].flat();
+  }
+  if (Array.isArray(stdout) || Array.isArray(stderr)) {
+    return [stdout, stderr].filter((value) => value.length > 0).flat();
+  }
+  if (isUint8Array(stdout) && isUint8Array(stderr)) {
+    return concatUint8Arrays([stdout, stderr]);
+  }
+  return BASE64_ENCODINGS.has(options.encoding) ? concatBase64(stdout, stderr, options.encoding) : `${stdout}${stderr}`;
+};
+var concatBase64 = (stdout, stderr, encoding) => Buffer3.concat([Buffer3.from(stdout, encoding), Buffer3.from(stderr, encoding)]).toString(encoding);
+var BASE64_ENCODINGS = /* @__PURE__ */ new Set(["base64", "base64url"]);
+var hasLines = ({ lines }) => Boolean(lines[1] || lines[2]);
+var splitAllLines = (value, allFds, options) => value === void 0 || Array.isArray(value) || !hasLines(options) ? value : splitLinesSync(value, !getStripFinalNewline(options.stripFinalNewline, "all", allFds), false);
+
+// ../elt/node_modules/execa/lib/return/message.js
+import { inspect as inspect3 } from "node:util";
+
+// ../elt/node_modules/get-stream/source/index.js
+import { on } from "node:events";
+import { finished } from "node:stream/promises";
+
+// ../elt/node_modules/is-stream/index.js
+function isStream(stream, { checkOpen = true } = {}) {
+  return stream !== null && typeof stream === "object" && (stream.writable || stream.readable || !checkOpen || stream.writable === void 0 && stream.readable === void 0) && typeof stream.pipe === "function";
+}
+function isWritableStream(stream, { checkOpen = true } = {}) {
+  return isStream(stream, { checkOpen }) && (stream.writable || !checkOpen) && typeof stream.write === "function" && typeof stream.end === "function" && typeof stream.writable === "boolean" && typeof stream.writableObjectMode === "boolean" && typeof stream.destroy === "function" && typeof stream.destroyed === "boolean";
+}
+function isReadableStream(stream, { checkOpen = true } = {}) {
+  return isStream(stream, { checkOpen }) && (stream.readable || !checkOpen) && typeof stream.read === "function" && typeof stream.readable === "boolean" && typeof stream.readableObjectMode === "boolean" && typeof stream.destroy === "function" && typeof stream.destroyed === "boolean";
+}
+function isDuplexStream(stream, options) {
+  return isWritableStream(stream, options) && isReadableStream(stream, options);
+}
+
+// ../elt/node_modules/@sec-ant/readable-stream/dist/ponyfill/asyncIterator.js
+var a = Object.getPrototypeOf(
+  Object.getPrototypeOf(
+    /* istanbul ignore next */
+    async function* () {
+    }
+  ).prototype
+);
+var c = class {
+  #t;
+  #n;
+  #r = false;
+  #e = void 0;
+  constructor(e, t) {
+    this.#t = e, this.#n = t;
+  }
+  next() {
+    const e = () => this.#s();
+    return this.#e = this.#e ? this.#e.then(e, e) : e(), this.#e;
+  }
+  return(e) {
+    const t = () => this.#i(e);
+    return this.#e ? this.#e.then(t, t) : t();
+  }
+  async #s() {
+    if (this.#r)
+      return {
+        done: true,
+        value: void 0
+      };
+    let e;
+    try {
+      e = await this.#t.read();
+    } catch (t) {
+      throw this.#e = void 0, this.#r = true, this.#t.releaseLock(), t;
+    }
+    return e.done && (this.#e = void 0, this.#r = true, this.#t.releaseLock()), e;
+  }
+  async #i(e) {
+    if (this.#r)
+      return {
+        done: true,
+        value: e
+      };
+    if (this.#r = true, !this.#n) {
+      const t = this.#t.cancel(e);
+      return this.#t.releaseLock(), await t, {
+        done: true,
+        value: e
+      };
+    }
+    return this.#t.releaseLock(), {
+      done: true,
+      value: e
+    };
+  }
+};
+var n = /* @__PURE__ */ Symbol();
+function i() {
+  return this[n].next();
+}
+Object.defineProperty(i, "name", { value: "next" });
+function o(r) {
+  return this[n].return(r);
+}
+Object.defineProperty(o, "name", { value: "return" });
+var u = Object.create(a, {
+  next: {
+    enumerable: true,
+    configurable: true,
+    writable: true,
+    value: i
+  },
+  return: {
+    enumerable: true,
+    configurable: true,
+    writable: true,
+    value: o
+  }
+});
+function h({ preventCancel: r = false } = {}) {
+  const e = this.getReader(), t = new c(
+    e,
+    r
+  ), s = Object.create(u);
+  return s[n] = t, s;
+}
+
+// ../elt/node_modules/get-stream/source/stream.js
+var getAsyncIterable = (stream) => {
+  if (isReadableStream(stream, { checkOpen: false }) && nodeImports.on !== void 0) {
+    return getStreamIterable(stream);
+  }
+  if (typeof stream?.[Symbol.asyncIterator] === "function") {
+    return stream;
+  }
+  if (toString.call(stream) === "[object ReadableStream]") {
+    return h.call(stream);
+  }
+  throw new TypeError("The first argument must be a Readable, a ReadableStream, or an async iterable.");
+};
+var { toString } = Object.prototype;
+var getStreamIterable = async function* (stream) {
+  const controller = new AbortController();
+  const state = {};
+  handleStreamEnd(stream, controller, state);
+  try {
+    for await (const [chunk] of nodeImports.on(stream, "data", { signal: controller.signal })) {
+      yield chunk;
+    }
+  } catch (error62) {
+    if (state.error !== void 0) {
+      throw state.error;
+    } else if (!controller.signal.aborted) {
+      throw error62;
+    }
+  } finally {
+    stream.destroy();
+  }
+};
+var handleStreamEnd = async (stream, controller, state) => {
+  try {
+    await nodeImports.finished(stream, {
+      cleanup: true,
+      readable: true,
+      writable: false,
+      error: false
+    });
+  } catch (error62) {
+    state.error = error62;
+  } finally {
+    controller.abort();
+  }
+};
+var nodeImports = {};
+
+// ../elt/node_modules/get-stream/source/contents.js
+var getStreamContents = async (stream, { init, convertChunk, getSize, truncateChunk, addChunk, getFinalChunk, finalize: finalize2 }, { maxBuffer = Number.POSITIVE_INFINITY } = {}) => {
+  const asyncIterable = getAsyncIterable(stream);
+  const state = init();
+  state.length = 0;
+  try {
+    for await (const chunk of asyncIterable) {
+      const chunkType = getChunkType(chunk);
+      const convertedChunk = convertChunk[chunkType](chunk, state);
+      appendChunk({
+        convertedChunk,
+        state,
+        getSize,
+        truncateChunk,
+        addChunk,
+        maxBuffer
+      });
+    }
+    appendFinalChunk({
+      state,
+      convertChunk,
+      getSize,
+      truncateChunk,
+      addChunk,
+      getFinalChunk,
+      maxBuffer
+    });
+    return finalize2(state);
+  } catch (error62) {
+    const normalizedError = typeof error62 === "object" && error62 !== null ? error62 : new Error(error62);
+    normalizedError.bufferedData = finalize2(state);
+    throw normalizedError;
+  }
+};
+var appendFinalChunk = ({ state, getSize, truncateChunk, addChunk, getFinalChunk, maxBuffer }) => {
+  const convertedChunk = getFinalChunk(state);
+  if (convertedChunk !== void 0) {
+    appendChunk({
+      convertedChunk,
+      state,
+      getSize,
+      truncateChunk,
+      addChunk,
+      maxBuffer
+    });
+  }
+};
+var appendChunk = ({ convertedChunk, state, getSize, truncateChunk, addChunk, maxBuffer }) => {
+  const chunkSize = getSize(convertedChunk);
+  const newLength = state.length + chunkSize;
+  if (newLength <= maxBuffer) {
+    addNewChunk(convertedChunk, state, addChunk, newLength);
+    return;
+  }
+  const truncatedChunk = truncateChunk(convertedChunk, maxBuffer - state.length);
+  if (truncatedChunk !== void 0) {
+    addNewChunk(truncatedChunk, state, addChunk, maxBuffer);
+  }
+  throw new MaxBufferError();
+};
+var addNewChunk = (convertedChunk, state, addChunk, newLength) => {
+  state.contents = addChunk(convertedChunk, state, newLength);
+  state.length = newLength;
+};
+var getChunkType = (chunk) => {
+  const typeOfChunk = typeof chunk;
+  if (typeOfChunk === "string") {
+    return "string";
+  }
+  if (typeOfChunk !== "object" || chunk === null) {
+    return "others";
+  }
+  if (globalThis.Buffer?.isBuffer(chunk)) {
+    return "buffer";
+  }
+  const prototypeName = objectToString2.call(chunk);
+  if (prototypeName === "[object ArrayBuffer]") {
+    return "arrayBuffer";
+  }
+  if (prototypeName === "[object DataView]") {
+    return "dataView";
+  }
+  if (Number.isInteger(chunk.byteLength) && Number.isInteger(chunk.byteOffset) && objectToString2.call(chunk.buffer) === "[object ArrayBuffer]") {
+    return "typedArray";
+  }
+  return "others";
+};
+var { toString: objectToString2 } = Object.prototype;
+var MaxBufferError = class extends Error {
+  name = "MaxBufferError";
+  constructor() {
+    super("maxBuffer exceeded");
+  }
+};
+
+// ../elt/node_modules/get-stream/source/utils.js
+var identity2 = (value) => value;
+var noop = () => void 0;
+var getContentsProperty = ({ contents }) => contents;
+var throwObjectStream = (chunk) => {
+  throw new Error(`Streams in object mode are not supported: ${String(chunk)}`);
+};
+var getLengthProperty = (convertedChunk) => convertedChunk.length;
+
+// ../elt/node_modules/get-stream/source/array.js
+async function getStreamAsArray(stream, options) {
+  return getStreamContents(stream, arrayMethods, options);
+}
+var initArray = () => ({ contents: [] });
+var increment = () => 1;
+var addArrayChunk = (convertedChunk, { contents }) => {
+  contents.push(convertedChunk);
+  return contents;
+};
+var arrayMethods = {
+  init: initArray,
+  convertChunk: {
+    string: identity2,
+    buffer: identity2,
+    arrayBuffer: identity2,
+    dataView: identity2,
+    typedArray: identity2,
+    others: identity2
+  },
+  getSize: increment,
+  truncateChunk: noop,
+  addChunk: addArrayChunk,
+  getFinalChunk: noop,
+  finalize: getContentsProperty
+};
+
+// ../elt/node_modules/get-stream/source/array-buffer.js
+async function getStreamAsArrayBuffer(stream, options) {
+  return getStreamContents(stream, arrayBufferMethods, options);
+}
+var initArrayBuffer = () => ({ contents: new ArrayBuffer(0) });
+var useTextEncoder = (chunk) => textEncoder2.encode(chunk);
+var textEncoder2 = new TextEncoder();
+var useUint8Array = (chunk) => new Uint8Array(chunk);
+var useUint8ArrayWithOffset = (chunk) => new Uint8Array(chunk.buffer, chunk.byteOffset, chunk.byteLength);
+var truncateArrayBufferChunk = (convertedChunk, chunkSize) => convertedChunk.slice(0, chunkSize);
+var addArrayBufferChunk = (convertedChunk, { contents, length: previousLength }, length2) => {
+  const newContents = hasArrayBufferResize() ? resizeArrayBuffer(contents, length2) : resizeArrayBufferSlow(contents, length2);
+  new Uint8Array(newContents).set(convertedChunk, previousLength);
+  return newContents;
+};
+var resizeArrayBufferSlow = (contents, length2) => {
+  if (length2 <= contents.byteLength) {
+    return contents;
+  }
+  const arrayBuffer = new ArrayBuffer(getNewContentsLength(length2));
+  new Uint8Array(arrayBuffer).set(new Uint8Array(contents), 0);
+  return arrayBuffer;
+};
+var resizeArrayBuffer = (contents, length2) => {
+  if (length2 <= contents.maxByteLength) {
+    contents.resize(length2);
+    return contents;
+  }
+  const arrayBuffer = new ArrayBuffer(length2, { maxByteLength: getNewContentsLength(length2) });
+  new Uint8Array(arrayBuffer).set(new Uint8Array(contents), 0);
+  return arrayBuffer;
+};
+var getNewContentsLength = (length2) => SCALE_FACTOR ** Math.ceil(Math.log(length2) / Math.log(SCALE_FACTOR));
+var SCALE_FACTOR = 2;
+var finalizeArrayBuffer = ({ contents, length: length2 }) => hasArrayBufferResize() ? contents : contents.slice(0, length2);
+var hasArrayBufferResize = () => "resize" in ArrayBuffer.prototype;
+var arrayBufferMethods = {
+  init: initArrayBuffer,
+  convertChunk: {
+    string: useTextEncoder,
+    buffer: useUint8Array,
+    arrayBuffer: useUint8Array,
+    dataView: useUint8ArrayWithOffset,
+    typedArray: useUint8ArrayWithOffset,
+    others: throwObjectStream
+  },
+  getSize: getLengthProperty,
+  truncateChunk: truncateArrayBufferChunk,
+  addChunk: addArrayBufferChunk,
+  getFinalChunk: noop,
+  finalize: finalizeArrayBuffer
+};
+
+// ../elt/node_modules/get-stream/source/string.js
+async function getStreamAsString(stream, options) {
+  return getStreamContents(stream, stringMethods, options);
+}
+var initString = () => ({ contents: "", textDecoder: new TextDecoder() });
+var useTextDecoder = (chunk, { textDecoder: textDecoder3 }) => textDecoder3.decode(chunk, { stream: true });
+var addStringChunk = (convertedChunk, { contents }) => contents + convertedChunk;
+var truncateStringChunk = (convertedChunk, chunkSize) => convertedChunk.slice(0, chunkSize);
+var getFinalStringChunk = ({ textDecoder: textDecoder3 }) => {
+  const finalChunk = textDecoder3.decode();
+  return finalChunk === "" ? void 0 : finalChunk;
+};
+var stringMethods = {
+  init: initString,
+  convertChunk: {
+    string: identity2,
+    buffer: useTextDecoder,
+    arrayBuffer: useTextDecoder,
+    dataView: useTextDecoder,
+    typedArray: useTextDecoder,
+    others: throwObjectStream
+  },
+  getSize: getLengthProperty,
+  truncateChunk: truncateStringChunk,
+  addChunk: addStringChunk,
+  getFinalChunk: getFinalStringChunk,
+  finalize: getContentsProperty
+};
+
+// ../elt/node_modules/get-stream/source/index.js
+Object.assign(nodeImports, { on, finished });
+
+// ../elt/node_modules/execa/lib/io/max-buffer.js
+var handleMaxBuffer = ({ error: error62, stream, readableObjectMode, lines, encoding, fdNumber }) => {
+  if (!(error62 instanceof MaxBufferError)) {
+    throw error62;
+  }
+  if (fdNumber === "all") {
+    return error62;
+  }
+  const unit = getMaxBufferUnit(readableObjectMode, lines, encoding);
+  error62.maxBufferInfo = { fdNumber, unit };
+  stream.destroy();
+  throw error62;
+};
+var getMaxBufferUnit = (readableObjectMode, lines, encoding) => {
+  if (readableObjectMode) {
+    return "objects";
+  }
+  if (lines) {
+    return "lines";
+  }
+  return encoding === "buffer" ? "bytes" : "characters";
+};
+var checkIpcMaxBuffer = (ipcOutput, maxBuffer) => {
+  if (ipcOutput.length + 1 <= maxBuffer) {
+    return;
+  }
+  const error62 = new MaxBufferError();
+  error62.maxBufferInfo = { fdNumber: "ipc" };
+  throw error62;
+};
+var getMaxBufferMessage = (error62, maxBuffer) => {
+  const { streamName, threshold, unit } = getMaxBufferInfo(error62, maxBuffer);
+  return `Command's ${streamName} was larger than ${threshold} ${unit}`;
+};
+var getMaxBufferInfo = (error62, maxBuffer) => {
+  if (error62?.maxBufferInfo === void 0) {
+    return { streamName: "output", threshold: maxBuffer[1], unit: "bytes" };
+  }
+  const { maxBufferInfo: { fdNumber, unit, threshold = getFdSpecificValue(maxBuffer, fdNumber) } } = error62;
+  delete error62.maxBufferInfo;
+  return fdNumber === "ipc" ? { streamName: "IPC output", threshold, unit: "messages" } : { streamName: getStreamName(fdNumber), threshold, unit };
+};
+var getMaxBufferSync = ([, stdoutMaxBuffer]) => stdoutMaxBuffer === 0 ? Number.MIN_VALUE : stdoutMaxBuffer;
+var handleMaxBufferSync = ({ resultError, output: output2, maxBuffer, buffer }) => {
+  const fdNumber = findMaxBufferSync(output2, maxBuffer, buffer);
+  if (fdNumber === void 0) {
+    return { resultError, isMaxBuffer: resultError?.code === "ENOBUFS" };
+  }
+  const threshold = getMaxBufferValueSync(maxBuffer, fdNumber);
+  const error62 = resultError ?? Object.assign(new MaxBufferError(), { code: "ENOBUFS" });
+  error62.maxBufferInfo = { fdNumber, unit: "bytes", threshold };
+  return { resultError: error62, isMaxBuffer: true };
+};
+var findMaxBufferSync = (output2, maxBuffer, buffer) => {
+  if (output2 === null) {
+    return;
+  }
+  const fdNumber = output2.findIndex((result, index) => result !== null && buffer[index] && result.length > getMaxBufferValueSync(maxBuffer, index));
+  return fdNumber === -1 ? void 0 : fdNumber;
+};
+var getMaxBufferValueSync = (maxBuffer, fdNumber) => Math.min(maxBuffer[1], maxBuffer[fdNumber]);
+var truncateMaxBufferSync = (result, fdNumber, { maxBuffer, buffer }) => {
+  const maxBufferValue = getMaxBufferValueSync(maxBuffer, fdNumber);
+  return buffer[fdNumber] && result.length > maxBufferValue ? result.slice(0, maxBufferValue) : result;
+};
+
+// ../elt/node_modules/execa/lib/return/message.js
+var createMessages = ({
+  stdio,
+  all,
+  ipcOutput,
+  originalError,
+  signal,
+  signalDescription,
+  exitCode,
+  escapedCommand,
+  timedOut,
+  isCanceled,
+  isGracefullyCanceled,
+  isMaxBuffer,
+  isForcefullyTerminated,
+  forceKillAfterDelay,
+  killSignal,
+  maxBuffer,
+  timeout,
+  cwd
+}) => {
+  const errorCode = getErrorCode(originalError);
+  const prefix = getErrorPrefix({
+    originalError,
+    timedOut,
+    timeout,
+    isMaxBuffer,
+    maxBuffer,
+    errorCode,
+    signal,
+    signalDescription,
+    exitCode,
+    isCanceled,
+    isGracefullyCanceled,
+    isForcefullyTerminated,
+    forceKillAfterDelay,
+    killSignal
+  });
+  const originalMessage = getOriginalMessage(originalError, cwd);
+  const suffix = originalMessage === void 0 ? "" : `
+${originalMessage}`;
+  const shortMessage = `${prefix}: ${escapedCommand}${suffix}`;
+  const messageStdio = all === void 0 ? [stdio[2], stdio[1]] : [all];
+  const message = [
+    shortMessage,
+    ...messageStdio,
+    ...stdio.slice(3),
+    ipcOutput.map((ipcMessage) => serializeIpcMessage(ipcMessage)).join("\n")
+  ].map((messagePart) => escapeLines(stripFinalNewline(serializeMessagePart(messagePart)))).filter(Boolean).join("\n\n");
+  return { originalMessage, shortMessage, message };
+};
+var getErrorCode = (error62) => typeof error62?.code === "string" ? error62.code : void 0;
+var getErrorPrefix = ({
+  originalError,
+  timedOut,
+  timeout,
+  isMaxBuffer,
+  maxBuffer,
+  errorCode,
+  signal,
+  signalDescription,
+  exitCode,
+  isCanceled,
+  isGracefullyCanceled,
+  isForcefullyTerminated,
+  forceKillAfterDelay,
+  killSignal
+}) => {
+  const forcefulSuffix = getForcefulSuffix(isForcefullyTerminated, forceKillAfterDelay);
+  if (timedOut) {
+    return `Command timed out after ${timeout} milliseconds${forcefulSuffix}`;
+  }
+  if (isGracefullyCanceled) {
+    if (signal === void 0) {
+      return `Command was gracefully canceled with exit code ${exitCode}`;
+    }
+    return isForcefullyTerminated ? `Command was gracefully canceled${forcefulSuffix}` : `Command was gracefully canceled with ${signal} (${signalDescription})`;
+  }
+  if (isCanceled) {
+    return `Command was canceled${forcefulSuffix}`;
+  }
+  if (isMaxBuffer) {
+    return `${getMaxBufferMessage(originalError, maxBuffer)}${forcefulSuffix}`;
+  }
+  if (errorCode !== void 0) {
+    return `Command failed with ${errorCode}${forcefulSuffix}`;
+  }
+  if (isForcefullyTerminated) {
+    return `Command was killed with ${killSignal} (${getSignalDescription(killSignal)})${forcefulSuffix}`;
+  }
+  if (signal !== void 0) {
+    return `Command was killed with ${signal} (${signalDescription})`;
+  }
+  return exitCode === void 0 ? "Command failed" : `Command failed with exit code ${exitCode}`;
+};
+var getForcefulSuffix = (isForcefullyTerminated, forceKillAfterDelay) => isForcefullyTerminated ? ` and was forcefully terminated after ${forceKillAfterDelay} milliseconds` : "";
+var getOriginalMessage = (originalError, cwd) => {
+  if (originalError instanceof DiscardedError) {
+    return;
+  }
+  const originalMessage = isExecaError(originalError) ? originalError.originalMessage ?? "" : String(originalError?.message ?? originalError);
+  const escapedOriginalMessage = escapeLines(fixCwdError(originalMessage, cwd));
+  return escapedOriginalMessage === "" ? void 0 : escapedOriginalMessage;
+};
+var serializeIpcMessage = (ipcMessage) => typeof ipcMessage === "string" ? ipcMessage : inspect3(ipcMessage);
+var serializeMessagePart = (messagePart) => Array.isArray(messagePart) ? messagePart.filter((messageItem) => isTextItem(messageItem)).map((messageItem) => stripFinalNewline(serializeMessageItem(messageItem))).join("\n") : serializeMessageItem(messagePart);
+var isTextItem = (messageItem) => typeof messageItem === "string" || isUint8Array(messageItem);
+var serializeMessageItem = (messageItem) => {
+  if (typeof messageItem === "string") {
+    return messageItem;
+  }
+  return isUint8Array(messageItem) ? uint8ArrayToString(messageItem) : "";
+};
+
+// ../elt/node_modules/execa/lib/return/result.js
+var makeSuccessResult = ({
+  command,
+  escapedCommand,
+  stdio,
+  all,
+  ipcOutput,
+  options: { cwd },
+  startTime
+}) => omitUndefinedProperties({
+  command,
+  escapedCommand,
+  cwd,
+  durationMs: getDurationMs(startTime),
+  failed: false,
+  timedOut: false,
+  isCanceled: false,
+  isGracefullyCanceled: false,
+  isTerminated: false,
+  isMaxBuffer: false,
+  isForcefullyTerminated: false,
+  exitCode: 0,
+  stdout: stdio[1],
+  stderr: stdio[2],
+  all,
+  stdio,
+  ipcOutput,
+  pipedFrom: []
+});
+var makeEarlyError = ({
+  error: error62,
+  command,
+  escapedCommand,
+  fileDescriptors,
+  options,
+  startTime,
+  isSync,
+  stdio = Array.from({ length: fileDescriptors.length }),
+  all
+}) => makeError({
+  error: error62,
+  command,
+  escapedCommand,
+  startTime,
+  timedOut: false,
+  isCanceled: false,
+  isGracefullyCanceled: false,
+  isMaxBuffer: false,
+  isForcefullyTerminated: false,
+  stdio,
+  all,
+  ipcOutput: [],
+  options,
+  isSync
+});
+var getEarlyErrorOutput = (fileDescriptors, options) => {
+  const stdio = fileDescriptors.map((fileDescriptor, fdNumber) => getEmptyOutput(fileDescriptor, fdNumber, options));
+  return { stdio, all: getAllSync(stdio, getAllSyncFds(stdio), options) };
+};
+var getEmptyOutput = ({ direction, objectMode }, fdNumber, { stdio, buffer, lines, encoding }) => {
+  if (direction === "input" || !PIPED_STDIO.has(stdio[fdNumber]) || !buffer[fdNumber]) {
+    return;
+  }
+  if (objectMode || lines[fdNumber]) {
+    return [];
+  }
+  return encoding === "buffer" ? new Uint8Array() : "";
+};
+var PIPED_STDIO = /* @__PURE__ */ new Set(["pipe", "overlapped"]);
+var makeError = ({
+  error: originalError,
+  command,
+  escapedCommand,
+  startTime,
+  timedOut,
+  isCanceled,
+  isGracefullyCanceled,
+  isMaxBuffer,
+  isForcefullyTerminated,
+  exitCode: rawExitCode,
+  signal: rawSignal,
+  stdio,
+  all,
+  ipcOutput,
+  options: {
+    timeoutDuration,
+    timeout = timeoutDuration,
+    forceKillAfterDelay,
+    killSignal,
+    cwd,
+    maxBuffer
+  },
+  isSync
+}) => {
+  const { exitCode, signal, signalDescription } = normalizeExitPayload(rawExitCode, rawSignal);
+  const { originalMessage, shortMessage, message } = createMessages({
+    stdio,
+    all,
+    ipcOutput,
+    originalError,
+    signal,
+    signalDescription,
+    exitCode,
+    escapedCommand,
+    timedOut,
+    isCanceled,
+    isGracefullyCanceled,
+    isMaxBuffer,
+    isForcefullyTerminated,
+    forceKillAfterDelay,
+    killSignal,
+    maxBuffer,
+    timeout,
+    cwd
+  });
+  const error62 = getFinalError(originalError, message, isSync);
+  Object.assign(error62, getErrorProperties({
+    error: error62,
+    command,
+    escapedCommand,
+    startTime,
+    timedOut,
+    isCanceled,
+    isGracefullyCanceled,
+    isMaxBuffer,
+    isForcefullyTerminated,
+    exitCode,
+    signal,
+    signalDescription,
+    stdio,
+    all,
+    ipcOutput,
+    cwd,
+    originalMessage,
+    shortMessage
+  }));
+  return error62;
+};
+var getErrorProperties = ({
+  error: error62,
+  command,
+  escapedCommand,
+  startTime,
+  timedOut,
+  isCanceled,
+  isGracefullyCanceled,
+  isMaxBuffer,
+  isForcefullyTerminated,
+  exitCode,
+  signal,
+  signalDescription,
+  stdio,
+  all,
+  ipcOutput,
+  cwd,
+  originalMessage,
+  shortMessage
+}) => omitUndefinedProperties({
+  shortMessage,
+  originalMessage,
+  command,
+  escapedCommand,
+  cwd,
+  durationMs: getDurationMs(startTime),
+  failed: true,
+  timedOut,
+  isCanceled,
+  isGracefullyCanceled,
+  isTerminated: signal !== void 0,
+  isMaxBuffer,
+  isForcefullyTerminated,
+  exitCode,
+  signal,
+  signalDescription,
+  code: getErrorCode(error62.cause),
+  stdout: stdio[1],
+  stderr: stdio[2],
+  all,
+  stdio,
+  ipcOutput,
+  pipedFrom: []
+});
+var omitUndefinedProperties = (result) => Object.fromEntries(Object.entries(result).filter(([, value]) => value !== void 0));
+var normalizeExitPayload = (rawExitCode, rawSignal) => {
+  const exitCode = rawExitCode === null ? void 0 : rawExitCode;
+  const signal = rawSignal === null ? void 0 : rawSignal;
+  const signalDescription = signal === void 0 ? void 0 : getSignalDescription(rawSignal);
+  return { exitCode, signal, signalDescription };
+};
+
+// ../elt/node_modules/parse-ms/index.js
+var toZeroIfInfinity = (value) => Number.isFinite(value) ? value : 0;
+function parseNumber(milliseconds) {
+  return {
+    days: Math.trunc(milliseconds / 864e5),
+    hours: Math.trunc(milliseconds / 36e5 % 24),
+    minutes: Math.trunc(milliseconds / 6e4 % 60),
+    seconds: Math.trunc(milliseconds / 1e3 % 60),
+    milliseconds: Math.trunc(milliseconds % 1e3),
+    microseconds: Math.trunc(toZeroIfInfinity(milliseconds * 1e3) % 1e3),
+    nanoseconds: Math.trunc(toZeroIfInfinity(milliseconds * 1e6) % 1e3)
+  };
+}
+function parseBigint(milliseconds) {
+  return {
+    days: milliseconds / 86400000n,
+    hours: milliseconds / 3600000n % 24n,
+    minutes: milliseconds / 60000n % 60n,
+    seconds: milliseconds / 1000n % 60n,
+    milliseconds: milliseconds % 1000n,
+    microseconds: 0n,
+    nanoseconds: 0n
+  };
+}
+function parseMilliseconds(milliseconds) {
+  switch (typeof milliseconds) {
+    case "number": {
+      if (Number.isFinite(milliseconds)) {
+        return parseNumber(milliseconds);
+      }
+      break;
+    }
+    case "bigint": {
+      return parseBigint(milliseconds);
+    }
+  }
+  throw new TypeError("Expected a finite number or bigint");
+}
+
+// ../elt/node_modules/pretty-ms/index.js
+var isZero = (value) => value === 0 || value === 0n;
+var pluralize = (word, count2) => count2 === 1 || count2 === 1n ? word : `${word}s`;
+var SECOND_ROUNDING_EPSILON = 1e-7;
+var ONE_DAY_IN_MILLISECONDS = 24n * 60n * 60n * 1000n;
+function prettyMilliseconds(milliseconds, options) {
+  const isBigInt = typeof milliseconds === "bigint";
+  if (!isBigInt && !Number.isFinite(milliseconds)) {
+    throw new TypeError("Expected a finite number or bigint");
+  }
+  options = { ...options };
+  const sign = milliseconds < 0 ? "-" : "";
+  milliseconds = milliseconds < 0 ? -milliseconds : milliseconds;
+  if (options.colonNotation) {
+    options.compact = false;
+    options.formatSubMilliseconds = false;
+    options.separateMilliseconds = false;
+    options.verbose = false;
+  }
+  if (options.compact) {
+    options.unitCount = 1;
+    options.secondsDecimalDigits = 0;
+    options.millisecondsDecimalDigits = 0;
+  }
+  let result = [];
+  const floorDecimals = (value, decimalDigits) => {
+    const flooredInterimValue = Math.floor(value * 10 ** decimalDigits + SECOND_ROUNDING_EPSILON);
+    const flooredValue = Math.round(flooredInterimValue) / 10 ** decimalDigits;
+    return flooredValue.toFixed(decimalDigits);
+  };
+  const add = (value, long, short, valueString) => {
+    if ((result.length === 0 || !options.colonNotation) && isZero(value) && !(options.colonNotation && short === "m")) {
+      return;
+    }
+    valueString ??= String(value);
+    if (options.colonNotation) {
+      const wholeDigits = valueString.includes(".") ? valueString.split(".")[0].length : valueString.length;
+      const minLength = result.length > 0 ? 2 : 1;
+      valueString = "0".repeat(Math.max(0, minLength - wholeDigits)) + valueString;
+    } else {
+      valueString += options.verbose ? " " + pluralize(long, value) : short;
+    }
+    result.push(valueString);
+  };
+  const parsed = parseMilliseconds(milliseconds);
+  const days = BigInt(parsed.days);
+  if (options.hideYearAndDays) {
+    add(BigInt(days) * 24n + BigInt(parsed.hours), "hour", "h");
+  } else {
+    if (options.hideYear) {
+      add(days, "day", "d");
+    } else {
+      add(days / 365n, "year", "y");
+      add(days % 365n, "day", "d");
+    }
+    add(Number(parsed.hours), "hour", "h");
+  }
+  add(Number(parsed.minutes), "minute", "m");
+  if (!options.hideSeconds) {
+    if (options.separateMilliseconds || options.formatSubMilliseconds || !options.colonNotation && milliseconds < 1e3 && !options.subSecondsAsDecimals) {
+      const seconds = Number(parsed.seconds);
+      const milliseconds2 = Number(parsed.milliseconds);
+      const microseconds = Number(parsed.microseconds);
+      const nanoseconds = Number(parsed.nanoseconds);
+      add(seconds, "second", "s");
+      if (options.formatSubMilliseconds) {
+        add(milliseconds2, "millisecond", "ms");
+        add(microseconds, "microsecond", "\xB5s");
+        add(nanoseconds, "nanosecond", "ns");
+      } else {
+        const millisecondsAndBelow = milliseconds2 + microseconds / 1e3 + nanoseconds / 1e6;
+        const millisecondsDecimalDigits = typeof options.millisecondsDecimalDigits === "number" ? options.millisecondsDecimalDigits : 0;
+        const roundedMilliseconds = millisecondsAndBelow >= 1 ? Math.round(millisecondsAndBelow) : Math.ceil(millisecondsAndBelow);
+        const maximumMilliseconds = 1e3 - 10 ** -millisecondsDecimalDigits;
+        const millisecondsString = millisecondsDecimalDigits ? Math.min(millisecondsAndBelow, maximumMilliseconds).toFixed(millisecondsDecimalDigits) : Math.min(roundedMilliseconds, maximumMilliseconds);
+        add(
+          Number.parseFloat(millisecondsString),
+          "millisecond",
+          "ms",
+          millisecondsString
+        );
+      }
+    } else {
+      const seconds = (isBigInt ? Number(milliseconds % ONE_DAY_IN_MILLISECONDS) : milliseconds) / 1e3 % 60;
+      const secondsDecimalDigits = typeof options.secondsDecimalDigits === "number" ? options.secondsDecimalDigits : 1;
+      const secondsFixed = floorDecimals(seconds, secondsDecimalDigits);
+      const secondsString = options.keepDecimalsOnWholeSeconds ? secondsFixed : secondsFixed.replace(/\.0+$/, "");
+      add(Number.parseFloat(secondsString), "second", "s", secondsString);
+    }
+  }
+  if (result.length === 0) {
+    return sign + "0" + (options.verbose ? " milliseconds" : "ms");
+  }
+  const separator = options.colonNotation ? ":" : " ";
+  if (typeof options.unitCount === "number") {
+    result = result.slice(0, Math.max(options.unitCount, 1));
+  }
+  return sign + result.join(separator);
+}
+
+// ../elt/node_modules/execa/lib/verbose/error.js
+var logError = (result, verboseInfo) => {
+  if (result.failed) {
+    verboseLog({
+      type: "error",
+      verboseMessage: result.shortMessage,
+      verboseInfo,
+      result
+    });
+  }
+};
+
+// ../elt/node_modules/execa/lib/verbose/complete.js
+var logResult = (result, verboseInfo) => {
+  if (!isVerbose(verboseInfo)) {
+    return;
+  }
+  logError(result, verboseInfo);
+  logDuration(result, verboseInfo);
+};
+var logDuration = (result, verboseInfo) => {
+  const verboseMessage = `(done in ${prettyMilliseconds(result.durationMs)})`;
+  verboseLog({
+    type: "duration",
+    verboseMessage,
+    verboseInfo,
+    result
+  });
+};
+
+// ../elt/node_modules/execa/lib/return/reject.js
+var handleResult = (result, verboseInfo, { reject }) => {
+  logResult(result, verboseInfo);
+  if (reject && result.failed) {
+    throw result;
+  }
+  return result;
+};
+
+// ../elt/node_modules/execa/lib/stdio/handle-sync.js
+import { readFileSync as readFileSync2 } from "node:fs";
+
+// ../elt/node_modules/execa/lib/stdio/type.js
+var getStdioItemType = (value, optionName) => {
+  if (isAsyncGenerator(value)) {
+    return "asyncGenerator";
+  }
+  if (isSyncGenerator(value)) {
+    return "generator";
+  }
+  if (isUrl(value)) {
+    return "fileUrl";
+  }
+  if (isFilePathObject(value)) {
+    return "filePath";
+  }
+  if (isWebStream(value)) {
+    return "webStream";
+  }
+  if (isStream(value, { checkOpen: false })) {
+    return "native";
+  }
+  if (isUint8Array(value)) {
+    return "uint8Array";
+  }
+  if (isAsyncIterableObject(value)) {
+    return "asyncIterable";
+  }
+  if (isIterableObject(value)) {
+    return "iterable";
+  }
+  if (isTransformStream(value)) {
+    return getTransformStreamType({ transform: value }, optionName);
+  }
+  return isTransformOptions(value) ? getTransformObjectType(value, optionName) : "native";
+};
+var getTransformObjectType = (value, optionName) => {
+  if (isDuplexStream(value.transform, { checkOpen: false })) {
+    return getDuplexType(value, optionName);
+  }
+  return isTransformStream(value.transform) ? getTransformStreamType(value, optionName) : getGeneratorObjectType(value, optionName);
+};
+var getDuplexType = (value, optionName) => {
+  validateNonGeneratorType(value, optionName, "Duplex stream");
+  return "duplex";
+};
+var getTransformStreamType = (value, optionName) => {
+  validateNonGeneratorType(value, optionName, "web TransformStream");
+  return "webTransform";
+};
+var validateNonGeneratorType = ({ final, binary, objectMode }, optionName, typeName) => {
+  checkUndefinedOption(final, `${optionName}.final`, typeName);
+  checkUndefinedOption(binary, `${optionName}.binary`, typeName);
+  checkBooleanOption(objectMode, `${optionName}.objectMode`);
+};
+var checkUndefinedOption = (value, optionName, typeName) => {
+  if (value !== void 0) {
+    throw new TypeError(`The \`${optionName}\` option can only be defined when using a generator, not a ${typeName}.`);
+  }
+};
+var getGeneratorObjectType = ({ transform: transform2, final, binary, objectMode }, optionName) => {
+  if (transform2 !== void 0 && !isGenerator(transform2)) {
+    throw new TypeError(`The \`${optionName}.transform\` option must be a generator, a Duplex stream or a web TransformStream.`);
+  }
+  if (isDuplexStream(final, { checkOpen: false })) {
+    throw new TypeError(`The \`${optionName}.final\` option must not be a Duplex stream.`);
+  }
+  if (isTransformStream(final)) {
+    throw new TypeError(`The \`${optionName}.final\` option must not be a web TransformStream.`);
+  }
+  if (final !== void 0 && !isGenerator(final)) {
+    throw new TypeError(`The \`${optionName}.final\` option must be a generator.`);
+  }
+  checkBooleanOption(binary, `${optionName}.binary`);
+  checkBooleanOption(objectMode, `${optionName}.objectMode`);
+  return isAsyncGenerator(transform2) || isAsyncGenerator(final) ? "asyncGenerator" : "generator";
+};
+var isGenerator = (value) => isAsyncGenerator(value) || isSyncGenerator(value);
+var isAsyncGenerator = (value) => Object.prototype.toString.call(value) === "[object AsyncGeneratorFunction]";
+var isSyncGenerator = (value) => Object.prototype.toString.call(value) === "[object GeneratorFunction]";
+var isTransformOptions = (value) => isPlainObject(value) && (value.transform !== void 0 || value.final !== void 0);
+var isUrl = (value) => Object.prototype.toString.call(value) === "[object URL]";
+var isRegularUrl = (value) => isUrl(value) && value.protocol !== "file:";
+var isFilePathObject = (value) => isPlainObject(value) && Object.keys(value).length > 0 && Object.keys(value).every((key) => FILE_PATH_KEYS.has(key)) && isFilePathString(value.file);
+var FILE_PATH_KEYS = /* @__PURE__ */ new Set(["file", "append"]);
+var isFilePathString = (file2) => typeof file2 === "string";
+var isStdioValueObject = (value) => isPlainObject(value) && Object.keys(value).length > 0 && Object.keys(value).every((key) => STDIO_VALUE_KEYS.has(key)) && "value" in value;
+var STDIO_VALUE_KEYS = /* @__PURE__ */ new Set(["value", "input"]);
+var isUnknownStdioString = (type, value) => type === "native" && typeof value === "string" && !KNOWN_STDIO_STRINGS.has(value);
+var KNOWN_STDIO_STRINGS = /* @__PURE__ */ new Set(["ipc", "ignore", "inherit", "overlapped", "pipe"]);
+var isReadableStream2 = (value) => Object.prototype.toString.call(value) === "[object ReadableStream]";
+var isWritableStream2 = (value) => Object.prototype.toString.call(value) === "[object WritableStream]";
+var isWebStream = (value) => isReadableStream2(value) || isWritableStream2(value);
+var isTransformStream = (value) => isReadableStream2(value?.readable) && isWritableStream2(value?.writable);
+var isAsyncIterableObject = (value) => isObject(value) && typeof value[Symbol.asyncIterator] === "function";
+var isIterableObject = (value) => isObject(value) && typeof value[Symbol.iterator] === "function";
+var isObject = (value) => typeof value === "object" && value !== null;
+var TRANSFORM_TYPES = /* @__PURE__ */ new Set(["generator", "asyncGenerator", "duplex", "webTransform"]);
+var FILE_TYPES = /* @__PURE__ */ new Set(["fileUrl", "filePath", "fileNumber"]);
+var SPECIAL_DUPLICATE_TYPES_SYNC = /* @__PURE__ */ new Set(["fileUrl", "filePath"]);
+var SPECIAL_DUPLICATE_TYPES = /* @__PURE__ */ new Set([...SPECIAL_DUPLICATE_TYPES_SYNC, "webStream", "nodeStream"]);
+var FORBID_DUPLICATE_TYPES = /* @__PURE__ */ new Set(["webTransform", "duplex"]);
+var TYPE_TO_MESSAGE = {
+  generator: "a generator",
+  asyncGenerator: "an async generator",
+  fileUrl: "a file URL",
+  filePath: "a file path string",
+  fileNumber: "a file descriptor number",
+  webStream: "a web stream",
+  nodeStream: "a Node.js stream",
+  webTransform: "a web TransformStream",
+  duplex: "a Duplex stream",
+  native: "any value",
+  iterable: "an iterable",
+  asyncIterable: "an async iterable",
+  string: "a string",
+  uint8Array: "a Uint8Array"
+};
+
+// ../elt/node_modules/execa/lib/transform/object-mode.js
+var getTransformObjectModes = (objectMode, index, newTransforms, direction) => direction === "output" ? getOutputObjectModes(objectMode, index, newTransforms) : getInputObjectModes(objectMode, index, newTransforms);
+var getOutputObjectModes = (objectMode, index, newTransforms) => {
+  const writableObjectMode = index !== 0 && newTransforms[index - 1].value.readableObjectMode;
+  const readableObjectMode = objectMode ?? writableObjectMode;
+  return { writableObjectMode, readableObjectMode };
+};
+var getInputObjectModes = (objectMode, index, newTransforms) => {
+  const writableObjectMode = index === 0 ? objectMode === true : newTransforms[index - 1].value.readableObjectMode;
+  const readableObjectMode = index !== newTransforms.length - 1 && (objectMode ?? writableObjectMode);
+  return { writableObjectMode, readableObjectMode };
+};
+var getFdObjectMode = (stdioItems, direction) => {
+  const lastTransform = stdioItems.findLast(({ type }) => TRANSFORM_TYPES.has(type));
+  if (lastTransform === void 0) {
+    return false;
+  }
+  return direction === "input" ? lastTransform.value.writableObjectMode : lastTransform.value.readableObjectMode;
+};
+
+// ../elt/node_modules/execa/lib/transform/normalize.js
+var normalizeTransforms = (stdioItems, optionName, direction, options) => [
+  ...stdioItems.filter(({ type }) => !TRANSFORM_TYPES.has(type)),
+  ...getTransforms(stdioItems, optionName, direction, options)
+];
+var getTransforms = (stdioItems, optionName, direction, { encoding }) => {
+  const transforms = stdioItems.filter(({ type }) => TRANSFORM_TYPES.has(type));
+  const newTransforms = Array.from({ length: transforms.length });
+  for (const [index, stdioItem] of Object.entries(transforms)) {
+    newTransforms[index] = normalizeTransform({
+      stdioItem,
+      index: Number(index),
+      newTransforms,
+      optionName,
+      direction,
+      encoding
+    });
+  }
+  return sortTransforms(newTransforms, direction);
+};
+var normalizeTransform = ({ stdioItem, stdioItem: { type }, index, newTransforms, optionName, direction, encoding }) => {
+  if (type === "duplex") {
+    return normalizeDuplex({ stdioItem, optionName });
+  }
+  if (type === "webTransform") {
+    return normalizeTransformStream({
+      stdioItem,
+      index,
+      newTransforms,
+      direction
+    });
+  }
+  return normalizeGenerator({
+    stdioItem,
+    index,
+    newTransforms,
+    direction,
+    encoding
+  });
+};
+var normalizeDuplex = ({ stdioItem, optionName }) => {
+  const { value } = stdioItem;
+  const { transform: transform2 } = value;
+  const { writableObjectMode, readableObjectMode } = transform2;
+  const { objectMode = readableObjectMode } = value;
+  if (objectMode && !readableObjectMode) {
+    throw new TypeError(`The \`${optionName}.objectMode\` option can only be \`true\` if \`new Duplex({objectMode: true})\` is used.`);
+  }
+  if (!objectMode && readableObjectMode) {
+    throw new TypeError(`The \`${optionName}.objectMode\` option cannot be \`false\` if \`new Duplex({objectMode: true})\` is used.`);
+  }
+  return {
+    ...stdioItem,
+    value: { transform: transform2, writableObjectMode, readableObjectMode }
+  };
+};
+var normalizeTransformStream = ({ stdioItem, stdioItem: { value }, index, newTransforms, direction }) => {
+  const { transform: transform2, objectMode } = isPlainObject(value) ? value : { transform: value };
+  const { writableObjectMode, readableObjectMode } = getTransformObjectModes(objectMode, index, newTransforms, direction);
+  return {
+    ...stdioItem,
+    value: { transform: transform2, writableObjectMode, readableObjectMode }
+  };
+};
+var normalizeGenerator = ({ stdioItem, stdioItem: { value }, index, newTransforms, direction, encoding }) => {
+  const {
+    transform: transform2,
+    final,
+    binary: binaryOption = false,
+    preserveNewlines = false,
+    objectMode
+  } = isPlainObject(value) ? value : { transform: value };
+  const binary = binaryOption || BINARY_ENCODINGS.has(encoding);
+  const { writableObjectMode, readableObjectMode } = getTransformObjectModes(objectMode, index, newTransforms, direction);
+  return {
+    ...stdioItem,
+    value: {
+      transform: transform2,
+      final,
+      binary,
+      preserveNewlines,
+      writableObjectMode,
+      readableObjectMode
+    }
+  };
+};
+var sortTransforms = (newTransforms, direction) => direction === "input" ? newTransforms.reverse() : newTransforms;
+
+// ../elt/node_modules/execa/lib/stdio/direction.js
+import process10 from "node:process";
+var getStreamDirection = ({ stdioItems, isStdioArray, fdNumber, optionName }) => {
+  const directions = stdioItems.map((stdioItem) => getStdioItemDirection(stdioItem, fdNumber, isStdioArray));
+  if (directions.includes("input") && directions.includes("output")) {
+    throw new TypeError(`The \`${optionName}\` option must not be an array of both readable and writable values.`);
+  }
+  return directions.find(Boolean) ?? DEFAULT_DIRECTION;
+};
+var getStdioItemDirection = (stdioItem, fdNumber, isStdioArray) => {
+  const knownDirection = KNOWN_DIRECTIONS[fdNumber];
+  const direction = getRequestedDirection(stdioItem);
+  if (knownDirection === void 0) {
+    return direction;
+  }
+  validateKnownDirection(stdioItem, knownDirection, isStdioArray);
+  return knownDirection;
+};
+var getRequestedDirection = ({ type, value, direction, optionName }) => {
+  const guessedDirection = guessStreamDirection[type](value);
+  if (direction === "input" && guessedDirection === "output") {
+    throw new TypeError(`The \`${optionName}\` option is invalid: \`input: true\` cannot be used with a writable value, which is always an output.`);
+  }
+  return direction ?? guessedDirection;
+};
+var validateKnownDirection = ({ type, value, optionName }, knownDirection, isStdioArray) => {
+  if (!STREAM_TYPES.has(type) || !isStdioArray && getStandardStreamDirection(value) !== void 0) {
+    return;
+  }
+  const guessedDirection = guessStreamDirection[type](value);
+  if (guessedDirection === void 0 || guessedDirection === knownDirection) {
+    return;
+  }
+  const valueName = guessedDirection === "input" ? "readable" : "writable";
+  throw new TypeError(`The \`${optionName}\` option is invalid: a ${valueName} value is always an ${guessedDirection}, but \`${optionName}\` is an ${knownDirection}.`);
+};
+var STREAM_TYPES = /* @__PURE__ */ new Set(["native", "nodeStream", "webStream"]);
+var KNOWN_DIRECTIONS = ["input", "output", "output"];
+var anyDirection = () => void 0;
+var alwaysInput = () => "input";
+var guessStreamDirection = {
+  generator: anyDirection,
+  asyncGenerator: anyDirection,
+  fileUrl: anyDirection,
+  filePath: anyDirection,
+  iterable: alwaysInput,
+  asyncIterable: alwaysInput,
+  uint8Array: alwaysInput,
+  string: alwaysInput,
+  webStream: (value) => isWritableStream2(value) ? "output" : "input",
+  nodeStream(value) {
+    if (!isReadableStream(value, { checkOpen: false })) {
+      return "output";
+    }
+    return isWritableStream(value, { checkOpen: false }) ? void 0 : "input";
+  },
+  webTransform: anyDirection,
+  duplex: anyDirection,
+  native(value) {
+    const standardStreamDirection = getStandardStreamDirection(value);
+    if (standardStreamDirection !== void 0) {
+      return standardStreamDirection;
+    }
+    if (isStream(value, { checkOpen: false })) {
+      return guessStreamDirection.nodeStream(value);
+    }
+  }
+};
+var getStandardStreamDirection = (value) => {
+  if ([0, process10.stdin].includes(value)) {
+    return "input";
+  }
+  if ([1, 2, process10.stdout, process10.stderr].includes(value)) {
+    return "output";
+  }
+};
+var DEFAULT_DIRECTION = "output";
+
+// ../elt/node_modules/execa/lib/ipc/array.js
+var normalizeIpcStdioArray = (stdioArray, ipc) => ipc ? [...stdioArray, "ipc"] : stdioArray;
+
+// ../elt/node_modules/execa/lib/stdio/stdio-option.js
+var normalizeStdioOption = (options, verboseInfo, isSync) => {
+  const { stdio, ipc, buffer } = options;
+  const stdioArray = getStdioArray(stdio, options).map((stdioOption, fdNumber) => addDefaultValue2(stdioOption, fdNumber));
+  validateIpcStdioOption(stdioArray);
+  return isSync ? normalizeStdioSync(stdioArray, buffer, verboseInfo) : normalizeIpcStdioArray(stdioArray, ipc);
+};
+var validateIpcStdioOption = (stdioArray) => {
+  if (stdioArray.some((stdioOption) => hasIpcStdioOption(stdioOption))) {
+    throw new Error("The `ipc: true` option must be used instead of `stdio: 'ipc'`.");
+  }
+};
+var hasIpcStdioOption = (stdioOption) => Array.isArray(stdioOption) ? stdioOption.some((item) => hasIpcStdioItem(item)) : hasIpcStdioItem(stdioOption);
+var hasIpcStdioItem = (stdioOption) => isStdioValueObject(stdioOption) ? stdioOption.value === "ipc" : stdioOption === "ipc";
+var getStdioArray = (stdio, options) => {
+  if (stdio === void 0) {
+    return STANDARD_STREAMS_ALIASES.map((alias) => options[alias]);
+  }
+  if (hasAlias(options)) {
+    throw new Error(`It's not possible to provide \`stdio\` in combination with one of ${STANDARD_STREAMS_ALIASES.map((alias) => `\`${alias}\``).join(", ")}`);
+  }
+  if (typeof stdio === "string") {
+    return [stdio, stdio, stdio];
+  }
+  if (!Array.isArray(stdio)) {
+    throw new TypeError(`Expected \`stdio\` to be of type \`string\` or \`Array\`, got \`${getTypeName(stdio)}\``);
+  }
+  const length2 = Math.max(stdio.length, STANDARD_STREAMS_ALIASES.length);
+  return Array.from({ length: length2 }, (_, fdNumber) => stdio[fdNumber]);
+};
+var hasAlias = (options) => STANDARD_STREAMS_ALIASES.some((alias) => options[alias] !== void 0);
+var addDefaultValue2 = (stdioOption, fdNumber) => {
+  if (Array.isArray(stdioOption)) {
+    return stdioOption.map((item) => addDefaultValue2(item, fdNumber));
+  }
+  if (stdioOption === null || stdioOption === void 0) {
+    return fdNumber >= STANDARD_STREAMS_ALIASES.length ? "ignore" : "pipe";
+  }
+  return stdioOption;
+};
+var normalizeStdioSync = (stdioArray, buffer, verboseInfo) => stdioArray.map((stdioOption, fdNumber) => !buffer[fdNumber] && isStandardOutputFd(fdNumber) && !isFullVerbose(verboseInfo, fdNumber) && isOutputPipeOnly(stdioOption, fdNumber) ? "ignore" : stdioOption);
+var isOutputPipeOnly = (stdioOption, fdNumber) => isOutputPipe(stdioOption, fdNumber) || Array.isArray(stdioOption) && stdioOption.length > 0 && stdioOption.every((item) => isOutputPipe(item, fdNumber));
+var isOutputPipe = (stdioOption, fdNumber) => stdioOption === "pipe" || isOutputPipeObject(stdioOption, fdNumber);
+var isOutputPipeObject = (stdioOption, fdNumber) => isStdioValueObject(stdioOption) && stdioOption.value === "pipe" && (stdioOption.input === void 0 || stdioOption.input === false || isFixedOutputPipe(fdNumber, stdioOption.input));
+var isFixedOutputPipe = (fdNumber, input2) => input2 === true && isStandardOutputFd(fdNumber);
+var isStandardOutputFd = (fdNumber) => fdNumber === 1 || fdNumber === 2;
+
+// ../elt/node_modules/execa/lib/stdio/native.js
+import { readFileSync } from "node:fs";
+import tty2 from "node:tty";
+
+// ../elt/node_modules/execa/lib/arguments/fd-options.js
+var getToStream = (destination, to = "stdin") => {
+  const isWritable = true;
+  const { options, fileDescriptors } = SUBPROCESS_OPTIONS.get(destination);
+  const fdNumber = getFdNumber(fileDescriptors, to, isWritable);
+  const destinationStream = destination.stdio[fdNumber];
+  if (destinationStream === null) {
+    throw new TypeError(getInvalidStdioOptionMessage(fdNumber, to, options, isWritable));
+  }
+  return destinationStream;
+};
+var getFromStream = (source, from = "stdout") => {
+  const isWritable = false;
+  const { options, fileDescriptors } = SUBPROCESS_OPTIONS.get(source);
+  const fdNumber = getFdNumber(fileDescriptors, from, isWritable);
+  const sourceStream = fdNumber === "all" ? source.all : source.stdio[fdNumber];
+  if (sourceStream === null || sourceStream === void 0) {
+    throw new TypeError(getInvalidStdioOptionMessage(fdNumber, from, options, isWritable));
+  }
+  return sourceStream;
+};
+var SUBPROCESS_OPTIONS = /* @__PURE__ */ new WeakMap();
+var getFdNumber = (fileDescriptors, fdName, isWritable) => {
+  const fdNumber = parseFdNumber(fdName, isWritable);
+  validateFdNumber(fdNumber, fdName, isWritable, fileDescriptors);
+  return fdNumber;
+};
+var parseFdNumber = (fdName, isWritable) => {
+  const fdNumber = parseFd(fdName);
+  if (fdNumber !== void 0) {
+    return fdNumber;
+  }
+  const { validOptions, defaultValue } = isWritable ? { validOptions: '"stdin"', defaultValue: "stdin" } : { validOptions: '"stdout", "stderr", "all"', defaultValue: "stdout" };
+  throw new TypeError(`"${getOptionName(isWritable)}" must not be "${fdName}".
+It must be ${validOptions} or "fd3", "fd4" (and so on).
+It is optional and defaults to "${defaultValue}".`);
+};
+var validateFdNumber = (fdNumber, fdName, isWritable, fileDescriptors) => {
+  const fileDescriptor = fileDescriptors[getUsedDescriptor(fdNumber)];
+  if (fileDescriptor === void 0) {
+    throw new TypeError(`"${getOptionName(isWritable)}" must not be ${fdName}. That file descriptor does not exist.
+Please set the "stdio" option to ensure that file descriptor exists.`);
+  }
+  if (!isWritable && fileDescriptor.direction === "input") {
+    throw new TypeError(`"${getOptionName(isWritable)}" must not be ${fdName}. It must be a readable stream, not writable.`);
+  }
+  if (isWritable && fileDescriptor.direction !== "input") {
+    throw new TypeError(`"${getOptionName(isWritable)}" must not be ${fdName}. It must be a writable stream, not readable.
+If you meant to use it as input, please set its "stdio" option to \`{value: 'pipe', input: true}\`.`);
+  }
+};
+var getInvalidStdioOptionMessage = (fdNumber, fdName, options, isWritable) => {
+  if (fdNumber === "all" && !options.all) {
+    return `The "all" option must be true to use "from: 'all'".`;
+  }
+  const { optionName, optionValue } = getInvalidStdioOption(fdNumber, options);
+  return `The "${optionName}: ${serializeOptionValue(optionValue)}" option is incompatible with using "${getOptionName(isWritable)}: ${serializeOptionValue(fdName)}".
+Please set this option with "pipe" instead.`;
+};
+var getInvalidStdioOption = (fdNumber, { stdin, stdout, stderr, stdio }) => {
+  const usedDescriptor = getUsedDescriptor(fdNumber);
+  if (usedDescriptor === 0 && stdin !== void 0) {
+    return { optionName: "stdin", optionValue: stdin };
+  }
+  if (usedDescriptor === 1 && stdout !== void 0) {
+    return { optionName: "stdout", optionValue: stdout };
+  }
+  return usedDescriptor === 2 && stderr !== void 0 ? { optionName: "stderr", optionValue: stderr } : { optionName: `stdio[${usedDescriptor}]`, optionValue: stdio[usedDescriptor] };
+};
+var getUsedDescriptor = (fdNumber) => fdNumber === "all" ? 1 : fdNumber;
+var getOptionName = (isWritable) => isWritable ? "to" : "from";
+var serializeOptionValue = (value) => {
+  if (typeof value === "string") {
+    return `'${value}'`;
+  }
+  return typeof value === "number" ? `${value}` : "Stream";
+};
+
+// ../elt/node_modules/execa/lib/stdio/native.js
+var handleNativeStream = ({ stdioItem, stdioItem: { type }, isStdioArray, fdNumber, direction, isSync }) => {
+  if (!isStdioArray || type !== "native") {
+    return stdioItem;
+  }
+  return isSync ? handleNativeStreamSync({ stdioItem, fdNumber, direction }) : handleNativeStreamAsync({ stdioItem, fdNumber });
+};
+var handleNativeStreamSync = ({ stdioItem, stdioItem: { value, optionName }, fdNumber, direction }) => {
+  const targetFd = getTargetFd({
+    value,
+    optionName,
+    fdNumber,
+    direction
+  });
+  if (targetFd !== void 0) {
+    return targetFd;
+  }
+  if (isStream(value, { checkOpen: false })) {
+    throw new TypeError(`The \`${optionName}: Stream\` option cannot both be an array and include a stream with synchronous methods.`);
+  }
+  return stdioItem;
+};
+var getTargetFd = ({ value, optionName, fdNumber, direction }) => {
+  const targetFdNumber = getTargetFdNumber(value, fdNumber);
+  if (targetFdNumber === void 0) {
+    return;
+  }
+  if (direction === "output") {
+    return { type: "fileNumber", value: targetFdNumber, optionName };
+  }
+  if (tty2.isatty(targetFdNumber)) {
+    throw new TypeError(`The \`${optionName}: ${serializeOptionValue(value)}\` option is invalid: it cannot be a TTY with synchronous methods.`);
+  }
+  return { type: "uint8Array", contents: () => [bufferToUint8Array(readFileSync(targetFdNumber))], optionName };
+};
+var getTargetFdNumber = (value, fdNumber) => {
+  if (value === "inherit") {
+    return fdNumber;
+  }
+  if (typeof value === "number") {
+    return value;
+  }
+  const standardStreamIndex = STANDARD_STREAMS.indexOf(value);
+  if (standardStreamIndex !== -1) {
+    return standardStreamIndex;
+  }
+};
+var handleNativeStreamAsync = ({ stdioItem, stdioItem: { value, optionName }, fdNumber }) => {
+  if (value === "inherit") {
+    return { type: "nodeStream", value: getStandardStream(fdNumber, value, optionName), optionName };
+  }
+  if (typeof value === "number") {
+    return { type: "nodeStream", value: getStandardStream(value, value, optionName), optionName };
+  }
+  return isStream(value, { checkOpen: false }) ? { type: "nodeStream", value, optionName } : stdioItem;
+};
+var getStandardStream = (fdNumber, value, optionName) => {
+  const standardStream = STANDARD_STREAMS[fdNumber];
+  if (standardStream === void 0) {
+    throw new TypeError(`The \`${optionName}: ${value}\` option is invalid: no such standard stream.`);
+  }
+  return standardStream;
+};
+
+// ../elt/node_modules/execa/lib/stdio/input-option.js
+var handleInputOptions = ({ input: input2, inputFile }, fdNumber) => fdNumber === 0 ? [
+  ...handleInputOption(input2),
+  ...handleInputFileOption(inputFile)
+] : [];
+var handleInputOption = (input2) => input2 === void 0 ? [] : [{
+  type: getInputType(input2),
+  value: input2,
+  optionName: "input"
+}];
+var getInputType = (input2) => {
+  if (isReadableStream(input2, { checkOpen: false })) {
+    return "nodeStream";
+  }
+  if (typeof input2 === "string") {
+    return "string";
+  }
+  if (isUint8Array(input2)) {
+    return "uint8Array";
+  }
+  throw new Error("The `input` option must be a string, a Uint8Array or a Node.js Readable stream.");
+};
+var handleInputFileOption = (inputFile) => inputFile === void 0 ? [] : [{
+  ...getInputFileType(inputFile),
+  optionName: "inputFile"
+}];
+var getInputFileType = (inputFile) => {
+  if (isUrl(inputFile)) {
+    return { type: "fileUrl", value: inputFile };
+  }
+  if (isFilePathString(inputFile)) {
+    return { type: "filePath", value: { file: inputFile } };
+  }
+  throw new Error("The `inputFile` option must be a file path string or a file URL.");
+};
+
+// ../elt/node_modules/execa/lib/stdio/duplicate.js
+import path8 from "node:path";
+import { fileURLToPath as fileURLToPath3 } from "node:url";
+var isFileType = (type) => SPECIAL_DUPLICATE_TYPES_SYNC.has(type);
+var getFileTarget = ({ type, value }) => type === "filePath" ? path8.resolve(value.file) : fileURLToPath3(value);
+var filterDuplicates = (stdioItems) => stdioItems.filter((stdioItemOne, indexOne) => stdioItems.every((stdioItemTwo, indexTwo) => !hasSameValueAndDirection(stdioItemOne, stdioItemTwo) || indexOne >= indexTwo || stdioItemOne.type === "generator" || stdioItemOne.type === "asyncGenerator"));
+var hasSameValueAndDirection = (stdioItemOne, stdioItemTwo) => stdioItemOne.value === stdioItemTwo.value && stdioItemOne.direction === stdioItemTwo.direction;
+var getDuplicateStream = ({ stdioItem: { type, value, optionName }, direction, fileDescriptors, isSync }) => {
+  const otherStdioItems = getOtherStdioItems(fileDescriptors, type);
+  if (otherStdioItems.length === 0) {
+    return;
+  }
+  if (isSync) {
+    validateDuplicateStreamSync({
+      otherStdioItems,
+      type,
+      value,
+      optionName,
+      direction
+    });
+    return;
+  }
+  if (SPECIAL_DUPLICATE_TYPES.has(type)) {
+    return getDuplicateStreamInstance({
+      otherStdioItems,
+      type,
+      value,
+      optionName,
+      direction
+    });
+  }
+  if (FORBID_DUPLICATE_TYPES.has(type)) {
+    validateDuplicateTransform({
+      otherStdioItems,
+      type,
+      value,
+      optionName
+    });
+  }
+};
+var getOtherStdioItems = (fileDescriptors, type) => fileDescriptors.flatMap(
+  ({ direction, stdioItems }) => stdioItems.map((stdioItem) => ({ ...stdioItem, direction }))
+).filter((stdioItem) => isSameDuplicateType(stdioItem.type, type));
+var isSameDuplicateType = (otherType, type) => otherType === type || isFileType(otherType) && isFileType(type);
+var validateDuplicateStreamSync = ({ otherStdioItems, type, value, optionName, direction }) => {
+  if (SPECIAL_DUPLICATE_TYPES_SYNC.has(type)) {
+    getDuplicateStreamInstance({
+      otherStdioItems,
+      type,
+      value,
+      optionName,
+      direction
+    });
+  }
+};
+var getDuplicateStreamInstance = ({ otherStdioItems, type, value, optionName, direction }) => {
+  const duplicateStdioItems = otherStdioItems.filter((stdioItem) => hasSameValue(stdioItem, type, value));
+  if (duplicateStdioItems.length === 0) {
+    return;
+  }
+  const differentStdioItem = duplicateStdioItems.find((stdioItem) => stdioItem.direction !== direction);
+  throwOnDuplicateStream(differentStdioItem, optionName, type);
+  return direction === "output" || type === "webStream" ? duplicateStdioItems[0].stream : void 0;
+};
+var hasSameValue = (otherStdioItem, type, value) => isFileType(otherStdioItem.type) ? getFileTarget(otherStdioItem) === getFileTarget({ type, value }) : otherStdioItem.value === value;
+var validateDuplicateTransform = ({ otherStdioItems, type, value, optionName }) => {
+  const duplicateStdioItem = otherStdioItems.find(({ value: { transform: transform2 } }) => transform2 === value.transform);
+  throwOnDuplicateStream(duplicateStdioItem, optionName, type);
+};
+var throwOnDuplicateStream = (stdioItem, optionName, type) => {
+  if (stdioItem !== void 0) {
+    throw new TypeError(`The \`${stdioItem.optionName}\` and \`${optionName}\` options must not target ${TYPE_TO_MESSAGE[type]} that is the same.`);
+  }
+};
+
+// ../elt/node_modules/execa/lib/stdio/handle.js
+var handleStdio = (addProperties3, options, verboseInfo, isSync) => {
+  const stdio = normalizeStdioOption(options, verboseInfo, isSync);
+  const initialFileDescriptors = stdio.map((stdioOption, fdNumber) => getFileDescriptor({
+    stdioOption,
+    fdNumber,
+    options,
+    isSync
+  }));
+  const fileDescriptors = getFinalFileDescriptors({
+    initialFileDescriptors,
+    addProperties: addProperties3,
+    options,
+    isSync
+  });
+  options.stdio = fileDescriptors.map(({ stdioItems }) => forwardStdio(stdioItems));
+  return fileDescriptors;
+};
+var getFileDescriptor = ({ stdioOption, fdNumber, options, isSync }) => {
+  const optionName = getStreamName(fdNumber);
+  const { stdioItems: initialStdioItems, isStdioArray } = initializeStdioItems({
+    stdioOption,
+    fdNumber,
+    options,
+    optionName
+  });
+  const direction = getStreamDirection({
+    stdioItems: initialStdioItems,
+    isStdioArray,
+    fdNumber,
+    optionName
+  });
+  const stdioItems = initialStdioItems.map((stdioItem) => handleNativeStream({
+    stdioItem,
+    isStdioArray,
+    fdNumber,
+    direction,
+    isSync
+  }));
+  const normalizedStdioItems = normalizeTransforms(stdioItems, optionName, direction, options);
+  const objectMode = getFdObjectMode(normalizedStdioItems, direction);
+  validateFileObjectMode(normalizedStdioItems, objectMode);
+  return { direction, objectMode, stdioItems: normalizedStdioItems };
+};
+var initializeStdioItems = ({ stdioOption, fdNumber, options, optionName }) => {
+  const values = Array.isArray(stdioOption) ? stdioOption : [stdioOption];
+  const inputStdioItems = handleInputOptions(options, fdNumber);
+  const initialStdioItems = [
+    ...omitInheritedStdin(values.map((value) => initializeStdioItem(value, optionName)), inputStdioItems),
+    ...inputStdioItems
+  ];
+  const stdioItems = filterDuplicates(initialStdioItems);
+  const isStdioArray = stdioItems.length > 1;
+  validateStdioArray(stdioItems, isStdioArray, optionName);
+  validateStreams(stdioItems, isStdioArray);
+  return { stdioItems, isStdioArray };
+};
+var omitInheritedStdin = (stdioItems, inputStdioItems) => inputStdioItems.length > 0 && isInheritedStdinOnly(stdioItems) ? [] : stdioItems;
+var isInheritedStdinOnly = (stdioItems) => stdioItems.length === 1 && stdioItems[0].type === "native" && stdioItems[0].value === "inherit";
+var initializeStdioItem = (value, optionName) => {
+  if (isStdioValueObject(value)) {
+    return initializeStdioValueObject(value, optionName);
+  }
+  return {
+    type: getStdioItemType(value, optionName),
+    value,
+    optionName
+  };
+};
+var initializeStdioValueObject = ({ value, input: input2 }, optionName) => {
+  checkBooleanOption(input2, `${optionName}.input`);
+  return {
+    type: getStdioItemType(value, optionName),
+    value,
+    direction: input2 ? "input" : void 0,
+    optionName
+  };
+};
+var validateStdioArray = (stdioItems, isStdioArray, optionName) => {
+  if (stdioItems.length === 0) {
+    throw new TypeError(`The \`${optionName}\` option must not be an empty array.`);
+  }
+  if (!isStdioArray) {
+    return;
+  }
+  for (const { value, optionName: optionName2 } of stdioItems) {
+    if (INVALID_STDIO_ARRAY_OPTIONS.has(value)) {
+      throw new Error(`The \`${optionName2}\` option must not include \`${value}\`.`);
+    }
+  }
+};
+var INVALID_STDIO_ARRAY_OPTIONS = /* @__PURE__ */ new Set(["ignore"]);
+var validateStreams = (stdioItems, isStdioArray) => {
+  for (const stdioItem of stdioItems) {
+    validateFileStdio(stdioItem);
+    validateFileDescriptorStdio(stdioItem);
+    validateNativeStdio(stdioItem, isStdioArray);
+  }
+};
+var validateFileDescriptorStdio = ({ type, value, optionName }) => {
+  if (type !== "native") {
+    return;
+  }
+  const fileDescriptor = typeof value === "number" ? value : value?.fd;
+  if (typeof fileDescriptor === "number" && (!Number.isInteger(fileDescriptor) || fileDescriptor < 0 || fileDescriptor > MAX_FILE_DESCRIPTOR)) {
+    throw new TypeError(`The \`${optionName}\` option must be a non-negative 32-bit integer: got ${fileDescriptor}.`);
+  }
+};
+var MAX_FILE_DESCRIPTOR = 2 ** 31 - 1;
+var validateNativeStdio = ({ type, value, optionName }, isStdioArray) => {
+  if (type !== "native") {
+    return;
+  }
+  if (isFileHandle(value)) {
+    if (isStdioArray) {
+      throw new TypeError(`The \`${optionName}\` option cannot combine file handles with other values.`);
+    }
+    return;
+  }
+  if (typeof value !== "string" && typeof value !== "number" && !isStream(value, { checkOpen: false })) {
+    throw new TypeError(`The \`${optionName}\` option is invalid: ${String(value)} (${typeof value}).`);
+  }
+};
+var isFileHandle = (value) => typeof value?.fd === "number" && !isStream(value, { checkOpen: false });
+var validateFileStdio = ({ type, value, optionName }) => {
+  if (isRegularUrl(value)) {
+    throw new TypeError(`The \`${optionName}: URL\` option must use the \`file:\` scheme.
+For example, you can use the \`pathToFileURL()\` method of the \`url\` core module.`);
+  }
+  if (isUnknownStdioString(type, value)) {
+    throw new TypeError(`The \`${optionName}: { file: '...' }\` option must be used instead of \`${optionName}: '...'\`.`);
+  }
+};
+var validateFileObjectMode = (stdioItems, objectMode) => {
+  if (!objectMode) {
+    return;
+  }
+  const fileStdioItem = stdioItems.find(({ type }) => FILE_TYPES.has(type));
+  if (fileStdioItem !== void 0) {
+    throw new TypeError(`The \`${fileStdioItem.optionName}\` option cannot use both files and transforms in objectMode.`);
+  }
+};
+var getFinalFileDescriptors = ({ initialFileDescriptors, addProperties: addProperties3, options, isSync }) => {
+  const fileDescriptors = [];
+  try {
+    for (const fileDescriptor of initialFileDescriptors) {
+      addFinalFileDescriptor({
+        fileDescriptor,
+        fileDescriptors,
+        addProperties: addProperties3,
+        options,
+        isSync
+      });
+    }
+    return fileDescriptors;
+  } catch (error62) {
+    cleanupCustomStreams(fileDescriptors);
+    throw error62;
+  }
+};
+var addFinalFileDescriptor = ({ fileDescriptor, fileDescriptors, addProperties: addProperties3, options, isSync }) => {
+  const { direction, objectMode, stdioItems } = fileDescriptor;
+  const finalFileDescriptor = { direction, objectMode, stdioItems: [] };
+  fileDescriptors.push(finalFileDescriptor);
+  for (const stdioItem of stdioItems) {
+    finalFileDescriptor.stdioItems.push(addStreamProperties({
+      stdioItem,
+      addProperties: addProperties3,
+      direction,
+      objectMode,
+      options,
+      fileDescriptors,
+      isSync
+    }));
+  }
+};
+var addStreamProperties = ({ stdioItem, addProperties: addProperties3, direction, objectMode, options, fileDescriptors, isSync }) => {
+  const duplicateStream = getDuplicateStream({
+    stdioItem,
+    direction,
+    fileDescriptors,
+    isSync
+  });
+  if (duplicateStream !== void 0) {
+    return { ...stdioItem, stream: duplicateStream };
+  }
+  return {
+    ...stdioItem,
+    ...addProperties3[direction][stdioItem.type](stdioItem, options, objectMode)
+  };
+};
+var cleanupCustomStreams = (fileDescriptors) => {
+  for (const { stream } of fileDescriptors.flatMap(({ stdioItems }) => stdioItems)) {
+    if (stream === void 0 || isStandardStream(stream)) {
+      continue;
+    }
+    stream.on("error", () => {
+    });
+    stream.destroy();
+  }
+};
+var forwardStdio = (stdioItems) => {
+  if (stdioItems.length > 1) {
+    return stdioItems.some(({ value: value2 }) => value2 === "overlapped") ? "overlapped" : "pipe";
+  }
+  const [{ type, value }] = stdioItems;
+  return type === "native" ? value : "pipe";
+};
+
+// ../elt/node_modules/execa/lib/stdio/handle-sync.js
+var handleStdioSync = (options, verboseInfo) => handleStdio(addPropertiesSync, options, verboseInfo, true);
+var forbiddenIfSync = ({ type, optionName }) => {
+  throwInvalidSyncValue(optionName, TYPE_TO_MESSAGE[type]);
+};
+var forbiddenNativeIfSync = ({ optionName, value }) => {
+  if (value === "overlapped") {
+    throwInvalidSyncValue(optionName, `"${value}"`);
+  }
+  return {};
+};
+var forbiddenNativeInputIfSync = (stdioItem) => {
+  const { optionName, value } = stdioItem;
+  if (value === "pipe" && optionName !== "stdin") {
+    throw new TypeError(`Only the \`stdin\` option, not \`${optionName}\`, can be an input pipe with synchronous methods.`);
+  }
+  return forbiddenNativeIfSync(stdioItem);
+};
+var forbiddenInputTransformIfSync = ({ optionName }) => {
+  if (optionName !== "stdin") {
+    throw new TypeError(`Only the \`stdin\` option, not \`${optionName}\`, can be an input transform with synchronous methods.`);
+  }
+};
+var throwInvalidSyncValue = (optionName, value) => {
+  throw new TypeError(`The \`${optionName}\` option cannot be ${value} with synchronous methods.`);
+};
+var addProperties = {
+  generator() {
+  },
+  asyncGenerator: forbiddenIfSync,
+  webStream: forbiddenIfSync,
+  nodeStream: forbiddenIfSync,
+  webTransform: forbiddenIfSync,
+  duplex: forbiddenIfSync,
+  asyncIterable: forbiddenIfSync,
+  native: forbiddenNativeIfSync
+};
+var addPropertiesSync = {
+  input: {
+    ...addProperties,
+    generator: forbiddenInputTransformIfSync,
+    native: forbiddenNativeInputIfSync,
+    // Files and iterables are read lazily, so that a file which cannot be read, or an iterable which throws, is reported like any other early error, instead of being thrown as a raw error
+    fileUrl: ({ value }) => ({ contents: () => [bufferToUint8Array(readFileSync2(value))] }),
+    filePath: ({ value: { file: file2 } }) => ({ contents: () => [bufferToUint8Array(readFileSync2(file2))] }),
+    fileNumber: forbiddenIfSync,
+    iterable: ({ value }) => ({ contents: () => [...value] }),
+    string: ({ value }) => ({ contents: [value] }),
+    // `contents` is already set when reading from a file descriptor
+    uint8Array: ({ value, contents = [value] }) => ({ contents })
+  },
+  output: {
+    ...addProperties,
+    fileUrl: ({ value }) => ({ path: value }),
+    filePath: ({ value: { file: file2, append } }) => ({ path: file2, append }),
+    fileNumber: ({ value }) => ({ path: value }),
+    iterable: forbiddenIfSync,
+    string: forbiddenIfSync,
+    uint8Array: forbiddenIfSync
+  }
+};
+
+// ../elt/node_modules/execa/lib/transform/generator.js
+import { Transform, getDefaultHighWaterMark } from "node:stream";
+import { Buffer as Buffer6 } from "node:buffer";
+
+// ../elt/node_modules/execa/lib/transform/validate.js
+import { Buffer as Buffer4 } from "node:buffer";
+var getValidateTransformInput = (writableObjectMode, optionName) => writableObjectMode ? void 0 : validateStringTransformInput.bind(void 0, optionName);
+var validateStringTransformInput = function* (optionName, chunk) {
+  if (typeof chunk !== "string" && !isUint8Array(chunk) && !Buffer4.isBuffer(chunk)) {
+    throw new TypeError(`The \`${optionName}\` option's transform must use "objectMode: true" to receive as input: ${typeof chunk}.`);
+  }
+  yield chunk;
+};
+var getValidateTransformReturn = (readableObjectMode, optionName) => readableObjectMode ? validateObjectTransformReturn.bind(void 0, optionName) : validateStringTransformReturn.bind(void 0, optionName);
+var validateObjectTransformReturn = function* (optionName, chunk) {
+  validateEmptyReturn(optionName, chunk);
+  yield chunk;
+};
+var validateStringTransformReturn = function* (optionName, chunk) {
+  validateEmptyReturn(optionName, chunk);
+  if (typeof chunk !== "string" && !isUint8Array(chunk)) {
+    throw new TypeError(`The \`${optionName}\` option's function must yield a string or an Uint8Array, not ${typeof chunk}.`);
+  }
+  yield chunk;
+};
+var validateEmptyReturn = (optionName, chunk) => {
+  if (chunk === null || chunk === void 0) {
+    throw new TypeError(`The \`${optionName}\` option's function must not call \`yield ${chunk}\`.
+Instead, \`yield\` should either be called with a value, or not be called at all. For example:
+  if (condition) { yield value; }`);
+  }
+};
+
+// ../elt/node_modules/execa/lib/transform/encoding-transform.js
+import { Buffer as Buffer5 } from "node:buffer";
+import { StringDecoder as StringDecoder2 } from "node:string_decoder";
+var getEncodingTransformGenerator = (binary, encoding, skipped) => {
+  if (skipped) {
+    return;
+  }
+  if (binary) {
+    return { transform: encodingUint8ArrayGenerator.bind(void 0, new TextEncoder()) };
+  }
+  const stringDecoder = new StringDecoder2(encoding);
+  return {
+    transform: encodingStringGenerator.bind(void 0, stringDecoder),
+    final: encodingStringFinal.bind(void 0, stringDecoder)
+  };
+};
+var encodingUint8ArrayGenerator = function* (textEncoder4, chunk) {
+  if (Buffer5.isBuffer(chunk)) {
+    yield bufferToUint8Array(chunk);
+  } else if (typeof chunk === "string") {
+    yield textEncoder4.encode(chunk);
+  } else {
+    yield chunk;
+  }
+};
+var encodingStringGenerator = function* (stringDecoder, chunk) {
+  yield isUint8Array(chunk) ? stringDecoder.write(chunk) : chunk;
+};
+var encodingStringFinal = function* (stringDecoder) {
+  const lastChunk = stringDecoder.end();
+  if (lastChunk !== "") {
+    yield lastChunk;
+  }
+};
+var getStringToBytesGenerator = (binary, encoding, skipped) => skipped || encoding === "utf8" ? void 0 : { transform: stringToBytesGenerator.bind(void 0, getStringEncoding(binary, encoding)) };
+var stringToBytesGenerator = function* (stringEncoding, chunk) {
+  yield typeof chunk === "string" ? bufferToUint8Array(Buffer5.from(chunk, stringEncoding)) : chunk;
+};
+
+// ../elt/node_modules/execa/lib/transform/run-async.js
+import { callbackify } from "node:util";
+var pushChunks = callbackify(async (getChunks2, state, getChunksArguments, transformStream) => {
+  state.currentIterable = getChunks2(...getChunksArguments);
+  try {
+    for await (const chunk of state.currentIterable) {
+      transformStream.push(chunk);
+    }
+  } finally {
+    delete state.currentIterable;
+  }
+});
+var transformChunk = async function* (chunk, generators, index) {
+  if (index === generators.length) {
+    yield chunk;
+    return;
+  }
+  const { transform: transform2 = identityGenerator } = generators[index];
+  for await (const transformedChunk of transform2(chunk)) {
+    yield* transformChunk(transformedChunk, generators, index + 1);
+  }
+};
+var finalChunks = async function* (generators) {
+  for (const [index, { final }] of Object.entries(generators)) {
+    yield* generatorFinalChunks(final, Number(index), generators);
+  }
+};
+var generatorFinalChunks = async function* (final, index, generators) {
+  if (final === void 0) {
+    return;
+  }
+  for await (const finalChunk of final()) {
+    yield* transformChunk(finalChunk, generators, index + 1);
+  }
+};
+var destroyTransform = callbackify(async ({ currentIterable }, error62) => {
+  if (currentIterable !== void 0) {
+    await (error62 ? currentIterable.throw(error62) : currentIterable.return());
+    return;
+  }
+  if (error62) {
+    throw error62;
+  }
+});
+var identityGenerator = function* (chunk) {
+  yield chunk;
+};
+
+// ../elt/node_modules/execa/lib/transform/run-sync.js
+var pushChunksSync = (getChunksSync, getChunksArguments, transformStream, done) => {
+  try {
+    for (const chunk of getChunksSync(...getChunksArguments)) {
+      transformStream.push(chunk);
+    }
+    done();
+  } catch (error62) {
+    done(normalizeTransformError(error62));
+  }
+};
+var normalizeTransformError = (error62) => error62 || Object.assign(new Error("Promise was rejected with falsy value"), {
+  code: "ERR_FALSY_VALUE_REJECTION",
+  reason: error62
+});
+var runTransformSync = (generators, chunks) => {
+  try {
+    return [
+      ...chunks.flatMap((chunk) => [...transformChunkSync(chunk, generators, 0)]),
+      ...finalChunksSync(generators)
+    ];
+  } catch (error62) {
+    throw normalizeTransformError(error62);
+  }
+};
+var transformChunkSync = function* (chunk, generators, index) {
+  if (index === generators.length) {
+    yield chunk;
+    return;
+  }
+  const { transform: transform2 = identityGenerator2 } = generators[index];
+  for (const transformedChunk of transform2(chunk)) {
+    yield* transformChunkSync(transformedChunk, generators, index + 1);
+  }
+};
+var finalChunksSync = function* (generators) {
+  for (const [index, { final }] of Object.entries(generators)) {
+    yield* generatorFinalChunksSync(final, Number(index), generators);
+  }
+};
+var generatorFinalChunksSync = function* (final, index, generators) {
+  if (final === void 0) {
+    return;
+  }
+  for (const finalChunk of final()) {
+    yield* transformChunkSync(finalChunk, generators, index + 1);
+  }
+};
+var identityGenerator2 = function* (chunk) {
+  yield chunk;
+};
+
+// ../elt/node_modules/execa/lib/transform/generator.js
+var generatorToStream = ({
+  value,
+  value: {
+    transform: transform2,
+    final,
+    binary,
+    writableObjectMode,
+    readableObjectMode
+  },
+  optionName
+}, { encoding }) => {
+  const state = {};
+  const generators = addInternalGenerators(value, encoding, optionName);
+  const transformAsync = isAsyncGenerator(transform2);
+  const finalAsync = isAsyncGenerator(final);
+  const transformMethod = transformAsync ? pushChunks.bind(void 0, transformChunk, state) : pushChunksSync.bind(void 0, transformChunkSync);
+  const finalMethod = transformAsync || finalAsync ? pushChunks.bind(void 0, finalChunks, state) : pushChunksSync.bind(void 0, finalChunksSync);
+  const destroyMethod = transformAsync || finalAsync ? destroyTransform.bind(void 0, state) : void 0;
+  const stream = new Transform({
+    writableObjectMode,
+    writableHighWaterMark: getDefaultHighWaterMark(writableObjectMode),
+    readableObjectMode,
+    readableHighWaterMark: getDefaultHighWaterMark(readableObjectMode),
+    // A string written to the stream is converted to bytes with this encoding, which `getEncodingTransformGenerator()` then decodes with the `encoding` option
+    defaultEncoding: getStringEncoding(binary, encoding),
+    transform(chunk, encoding2, done) {
+      transformMethod([chunk, generators, 0], this, done);
+    },
+    flush(done) {
+      finalMethod([generators], this, done);
+    },
+    destroy: destroyMethod
+  });
+  return { stream };
+};
+var runGeneratorsSync = (chunks, stdioItems, encoding, isInput) => {
+  const generators = stdioItems.filter(({ type }) => type === "generator");
+  const reversedGenerators = isInput ? generators.reverse() : generators;
+  for (const { value, optionName } of reversedGenerators) {
+    if (!value.writableObjectMode) {
+      const stringEncoding = getStringEncoding(value.binary, encoding);
+      chunks = chunks.map((chunk) => typeof chunk === "string" ? Buffer6.from(chunk, stringEncoding) : chunk);
+    }
+    const generators2 = addInternalGenerators(value, encoding, optionName);
+    chunks = runTransformSync(generators2, chunks);
+  }
+  return chunks;
+};
+var addInternalGenerators = ({ transform: transform2, final, binary, writableObjectMode, readableObjectMode, preserveNewlines }, encoding, optionName) => {
+  const state = {};
+  return [
+    { transform: getValidateTransformInput(writableObjectMode, optionName) },
+    getEncodingTransformGenerator(binary, encoding, writableObjectMode),
+    getSplitLinesGenerator(binary, preserveNewlines, writableObjectMode, state),
+    { transform: transform2, final },
+    { transform: getValidateTransformReturn(readableObjectMode, optionName) },
+    getAppendNewlineGenerator({
+      binary,
+      preserveNewlines,
+      readableObjectMode,
+      state,
+      encoding
+    }),
+    getStringToBytesGenerator(binary, encoding, readableObjectMode)
+  ].filter(Boolean);
+};
+
+// ../elt/node_modules/execa/lib/io/input-sync.js
+var addInputOptionsSync = (fileDescriptors, options) => {
+  for (const fdNumber of getInputFdNumbers(fileDescriptors)) {
+    addInputOptionSync(fileDescriptors, fdNumber, options);
+  }
+};
+var getInputFdNumbers = (fileDescriptors) => new Set(Object.entries(fileDescriptors).filter(([, { direction }]) => direction === "input").map(([fdNumber]) => Number(fdNumber)));
+var addInputOptionSync = (fileDescriptors, fdNumber, options) => {
+  const { stdioItems } = fileDescriptors[fdNumber];
+  const allStdioItems = stdioItems.filter(({ contents }) => contents !== void 0);
+  if (allStdioItems.length === 0 && stdioItems.every(({ type }) => type !== "generator")) {
+    return;
+  }
+  if (fdNumber !== 0) {
+    const [{ type, optionName }] = allStdioItems;
+    throw new TypeError(`Only the \`stdin\` option, not \`${optionName}\`, can be ${TYPE_TO_MESSAGE[type]} with synchronous methods.`);
+  }
+  const chunks = allStdioItems.flatMap(({ type, contents }) => getChunks(type, typeof contents === "function" ? contents() : contents));
+  options.input = applyInputGeneratorsSync(chunks, stdioItems, options.encoding);
+};
+var getChunks = (type, chunks) => type === "iterable" ? chunks : chunks.filter((chunk) => chunk.length > 0);
+var applyInputGeneratorsSync = (chunks, stdioItems, encoding) => {
+  const newContents = runGeneratorsSync(chunks, stdioItems, getInputEncoding(encoding), true);
+  validateSerializable(newContents);
+  return joinToUint8Array(newContents);
+};
+var validateSerializable = (newContents) => {
+  const invalidItem = newContents.find((item) => !isSerializableInput(item));
+  if (invalidItem !== void 0) {
+    throwOnSerializableInput("stdin", invalidItem);
+  }
+};
+var isSerializableInput = (item) => typeof item === "string" || isUint8Array(item);
+var throwOnSerializableInput = (optionName, invalidItem) => {
+  throw new TypeError(`The \`${optionName}\` option is invalid: when passing objects as input, a transform must be used to serialize them to strings or Uint8Arrays: ${invalidItem}.`);
+};
+
+// ../elt/node_modules/execa/lib/io/output-sync.js
+import { writeFileSync, appendFileSync } from "node:fs";
+
+// ../elt/node_modules/execa/lib/verbose/output.js
+var shouldLogOutput = ({ stdioItems, encoding, verboseInfo, fdNumber }) => fdNumber !== "all" && isFullVerbose(verboseInfo, fdNumber) && !BINARY_ENCODINGS.has(encoding) && isFdVerbose(fdNumber) && (stdioItems.some(({ type, value }) => type === "native" && PIPED_STDIO_VALUES.has(value)) || stdioItems.every(({ type }) => TRANSFORM_TYPES.has(type)));
+var isFdVerbose = (fdNumber) => fdNumber === 1 || fdNumber === 2;
+var PIPED_STDIO_VALUES = /* @__PURE__ */ new Set(["pipe", "overlapped"]);
+var logLines = async (linesIterable, stream, fdNumber, verboseInfo) => {
+  for await (const line of linesIterable) {
+    if (!isPipingStream(stream)) {
+      logLine(line, fdNumber, verboseInfo);
+    }
+  }
+};
+var logLinesSync = (linesArray, fdNumber, verboseInfo) => {
+  for (const line of linesArray) {
+    logLine(line, fdNumber, verboseInfo);
+  }
+};
+var isPipingStream = (stream) => stream._readableState.pipes.some((pipe2) => !isAllStream(pipe2) || isPipingStream(pipe2));
+var logLine = (line, fdNumber, verboseInfo) => {
+  const verboseMessage = serializeVerboseMessage(line);
+  verboseLog({
+    type: "output",
+    verboseMessage,
+    fdNumber,
+    verboseInfo
+  });
+};
+
+// ../elt/node_modules/execa/lib/io/output-sync.js
+var transformOutputSync = ({ fileDescriptors, syncResult, options, verboseInfo }) => {
+  const output2 = syncResult.output ?? getSpawnFailureOutput(options);
+  const outputFiles = /* @__PURE__ */ new Set();
+  const errors = [];
+  const transformedOutput = output2.map((result, fdNumber) => transformOutputResultSync({
+    result,
+    fileDescriptors,
+    fdNumber,
+    errors,
+    outputFiles,
+    verboseInfo
+  }, options));
+  return { output: transformedOutput, error: errors.find((error62) => error62 !== void 0) };
+};
+var getSpawnFailureOutput = ({ stdio }) => stdio.map((stdioOption, fdNumber) => fdNumber !== 0 && stdioOption === "pipe" ? new Uint8Array() : null);
+var transformOutputResultSync = ({ result, fileDescriptors, fdNumber, errors, outputFiles, verboseInfo }, { buffer, encoding, lines, stripFinalNewline: stripFinalNewline2, maxBuffer }) => {
+  if (result === null) {
+    return;
+  }
+  const truncatedResult = truncateMaxBufferSync(result, fdNumber, { maxBuffer, buffer });
+  const uint8ArrayResult = bufferToUint8Array(truncatedResult);
+  const { stdioItems, objectMode } = fileDescriptors[fdNumber];
+  const { chunks, error: transformError } = runOutputGeneratorsSync(uint8ArrayResult.length === 0 ? [] : [uint8ArrayResult], stdioItems, encoding);
+  const { serializedResult, finalResult } = serializeChunks({
+    chunks,
+    objectMode,
+    encoding,
+    lines,
+    stripFinalNewline: stripFinalNewline2,
+    fdNumber
+  });
+  const logError2 = logOutputSync({
+    serializedResult,
+    fdNumber,
+    verboseInfo,
+    encoding,
+    stdioItems,
+    objectMode
+  });
+  const error62 = transformError ?? logError2;
+  errors.push(error62);
+  const returnedResult = buffer[fdNumber] ? finalResult : void 0;
+  try {
+    if (error62 === void 0) {
+      writeToFiles(chunks, stdioItems, outputFiles);
+    }
+    return returnedResult;
+  } catch (writeError) {
+    errors.push(writeError);
+    return returnedResult;
+  }
+};
+var runOutputGeneratorsSync = (chunks, stdioItems, encoding) => {
+  try {
+    return { chunks: runGeneratorsSync(chunks, stdioItems, encoding, false), error: void 0 };
+  } catch (error62) {
+    return { chunks: [], error: error62 };
+  }
+};
+var serializeChunks = ({ chunks, objectMode, encoding, lines, stripFinalNewline: stripFinalNewline2, fdNumber }) => {
+  if (objectMode) {
+    return { serializedResult: chunks, finalResult: chunks };
+  }
+  if (encoding === "buffer") {
+    const serializedResult2 = joinToUint8Array(chunks);
+    return { serializedResult: serializedResult2, finalResult: serializedResult2 };
+  }
+  const serializedResult = joinToString(chunks, encoding);
+  const finalResult = lines[fdNumber] ? splitLinesSync(serializedResult, !stripFinalNewline2[fdNumber], objectMode) : serializedResult;
+  return { serializedResult, finalResult };
+};
+var logOutputSync = ({ serializedResult, fdNumber, verboseInfo, encoding, stdioItems, objectMode }) => {
+  if (!shouldLogOutput({
+    stdioItems,
+    encoding,
+    verboseInfo,
+    fdNumber
+  })) {
+    return;
+  }
+  const linesArray = splitLinesSync(serializedResult, false, objectMode);
+  try {
+    logLinesSync(linesArray, fdNumber, verboseInfo);
+  } catch (error62) {
+    return error62;
+  }
+};
+var writeToFiles = (chunks, stdioItems, outputFiles) => {
+  const fileItems = stdioItems.filter(({ type }) => FILE_TYPES.has(type));
+  if (fileItems.length === 0) {
+    return;
+  }
+  const contents = joinToUint8Array(chunks);
+  const writtenPaths = /* @__PURE__ */ new Set();
+  for (const stdioItem of fileItems) {
+    const { type, append } = stdioItem;
+    const path10 = type === "fileNumber" ? stdioItem.path : getFileTarget(stdioItem);
+    if (writtenPaths.has(path10)) {
+      continue;
+    }
+    writtenPaths.add(path10);
+    if (append || outputFiles.has(path10)) {
+      appendFileSync(path10, contents);
+    } else {
+      writeFileSync(path10, contents);
+    }
+    outputFiles.add(path10);
+  }
+};
+
+// ../elt/node_modules/execa/lib/resolve/exit-async.js
+import { once as once4 } from "node:events";
+var waitForExit = async (subprocess, context) => {
+  const [exitCode, signal] = await waitForExitOrError(subprocess);
+  context.isForcefullyTerminated ??= false;
+  return [exitCode, signal];
+};
+var waitForExitOrError = async (subprocess) => {
+  const [spawnPayload, exitPayload] = await Promise.allSettled([
+    once4(subprocess, "spawn"),
+    once4(subprocess, "exit")
+  ]);
+  if (spawnPayload.status === "rejected") {
+    return [];
+  }
+  return exitPayload.status === "rejected" ? waitForSubprocessExit(subprocess) : exitPayload.value;
+};
+var waitForSubprocessExit = async (subprocess) => {
+  try {
+    return await once4(subprocess, "exit");
+  } catch {
+    return waitForSubprocessExit(subprocess);
+  }
+};
+var waitForSuccessfulExit = async (exitPromise) => {
+  const [exitCode, signal] = await exitPromise;
+  if (!isSubprocessErrorExit(exitCode, signal) && isFailedExit(exitCode, signal)) {
+    throw new DiscardedError();
+  }
+  return [exitCode, signal];
+};
+var isSubprocessErrorExit = (exitCode, signal) => exitCode === void 0 && signal === void 0;
+var isFailedExit = (exitCode, signal) => exitCode !== 0 || signal !== null;
+
+// ../elt/node_modules/execa/lib/resolve/exit-sync.js
+var getExitResultSync = ({ error: error62, status: exitCode, signal, output: output2 }, { maxBuffer, buffer }) => {
+  const initialError = getResultError(error62, exitCode, signal);
+  const isTimedOut = initialError?.code === "ETIMEDOUT";
+  const { resultError, isMaxBuffer } = isTimedOut ? { resultError: initialError, isMaxBuffer: false } : handleMaxBufferSync({
+    resultError: initialError,
+    output: output2,
+    maxBuffer,
+    buffer
+  });
+  return {
+    resultError,
+    exitCode,
+    signal,
+    timedOut: isTimedOut,
+    isMaxBuffer
+  };
+};
+var getResultError = (error62, exitCode, signal) => {
+  if (error62 !== void 0) {
+    return error62;
+  }
+  return isFailedExit(exitCode, signal) ? new DiscardedError() : void 0;
+};
+
+// ../elt/node_modules/execa/lib/methods/main-sync.js
+var execaCoreSync = (rawFile, rawArguments, rawOptions) => {
+  const { file: file2, commandArguments, command, escapedCommand, startTime, verboseInfo, options, fileDescriptors } = handleSyncArguments(rawFile, rawArguments, rawOptions);
+  const result = spawnSubprocessSync({
+    file: file2,
+    commandArguments,
+    options,
+    command,
+    escapedCommand,
+    verboseInfo,
+    fileDescriptors,
+    startTime
+  });
+  return handleResult(result, verboseInfo, options);
+};
+var handleSyncArguments = (rawFile, rawArguments, rawOptions) => {
+  const { command, escapedCommand, startTime, verboseInfo } = handleCommand(rawFile, rawArguments, rawOptions);
+  const syncOptions = normalizeSyncOptions(rawOptions);
+  const { file: file2, commandArguments, options } = normalizeOptions(rawFile, rawArguments, syncOptions);
+  validateSyncOptions(options);
+  const fileDescriptors = handleStdioSync(options, verboseInfo);
+  return {
+    file: file2,
+    commandArguments,
+    command,
+    escapedCommand,
+    startTime,
+    verboseInfo,
+    options,
+    fileDescriptors
+  };
+};
+var normalizeSyncOptions = (options) => options.node && !options.ipc ? { ...options, ipc: false } : options;
+var validateSyncOptions = ({ ipc, ipcInput, detached, cancelSignal, killDescendants }) => {
+  if (ipcInput !== void 0) {
+    throwInvalidSyncOption("ipcInput");
+  }
+  if (ipc) {
+    throwInvalidSyncOption("ipc: true");
+  }
+  if (detached) {
+    throwInvalidSyncOption("detached: true");
+  }
+  if (killDescendants) {
+    throwInvalidSyncOption("killDescendants: true");
+  }
+  if (cancelSignal) {
+    throwInvalidSyncOption("cancelSignal");
+  }
+};
+var throwInvalidSyncOption = (value) => {
+  throw new TypeError(`The "${value}" option cannot be used with synchronous methods.`);
+};
+var spawnSubprocessSync = ({ file: file2, commandArguments, options, command, escapedCommand, verboseInfo, fileDescriptors, startTime }) => {
+  const syncResult = runSubprocessSync({
+    file: file2,
+    commandArguments,
+    options,
+    command,
+    escapedCommand,
+    fileDescriptors,
+    startTime
+  });
+  if (syncResult.failed) {
+    return syncResult;
+  }
+  const { resultError, exitCode, signal, timedOut, isMaxBuffer } = getExitResultSync(syncResult, options);
+  const { output: output2, error: error62 = resultError } = transformOutputSync({
+    fileDescriptors,
+    syncResult,
+    options,
+    verboseInfo
+  });
+  const stdio = output2.map((stdioOutput, fdNumber) => stripNewline(stdioOutput, options, fdNumber));
+  const allFds = getAllSyncFds(output2);
+  const all = stripNewline(getAllSync(output2, allFds, options), options, "all", allFds);
+  return getSyncResult({
+    error: error62,
+    exitCode,
+    signal,
+    timedOut,
+    isMaxBuffer,
+    stdio,
+    all,
+    options,
+    command,
+    escapedCommand,
+    startTime
+  });
+};
+var runSubprocessSync = ({ file: file2, commandArguments, options, command, escapedCommand, fileDescriptors, startTime }) => {
+  try {
+    addInputOptionsSync(fileDescriptors, options);
+    const normalizedOptions = normalizeSpawnSyncOptions(options);
+    return { __proto__: null, ...spawnSync(...concatenateShell(file2, commandArguments, normalizedOptions)) };
+  } catch (error62) {
+    return makeEarlyError({
+      error: error62,
+      command,
+      escapedCommand,
+      fileDescriptors,
+      options,
+      startTime,
+      isSync: true,
+      ...getEarlyErrorOutput(fileDescriptors, options)
+    });
+  }
+};
+var normalizeSpawnSyncOptions = ({ encoding, maxBuffer, ...options }) => ({ ...options, encoding: "buffer", maxBuffer: getMaxBufferSync(maxBuffer) });
+var getSyncResult = ({ error: error62, exitCode, signal, timedOut, isMaxBuffer, stdio, all, options, command, escapedCommand, startTime }) => error62 === void 0 ? makeSuccessResult({
+  command,
+  escapedCommand,
+  stdio,
+  all,
+  ipcOutput: [],
+  options,
+  startTime
+}) : makeError({
+  error: error62,
+  command,
+  escapedCommand,
+  timedOut,
+  isCanceled: false,
+  isGracefullyCanceled: false,
+  isMaxBuffer,
+  isForcefullyTerminated: false,
+  exitCode,
+  signal,
+  stdio,
+  all,
+  ipcOutput: [],
+  options,
+  startTime,
+  isSync: true
+});
+
+// ../elt/node_modules/execa/lib/methods/main-async.js
+import { setMaxListeners, once as once9 } from "node:events";
+import { spawn } from "node:child_process";
+
+// ../elt/node_modules/execa/lib/ipc/methods.js
+import process11 from "node:process";
+
+// ../elt/node_modules/execa/lib/ipc/get-one.js
+import { once as once5, on as on2 } from "node:events";
+var internalGetOneMessageOptions = /* @__PURE__ */ Symbol("internalGetOneMessageOptions");
+var getOneMessage = ({ anyProcess, channel, isSubprocess, ipc }, rawOptions) => {
+  const options = copyOptions(rawOptions);
+  const { reference = true, filter: filter2 } = options;
+  const { signal } = options[internalGetOneMessageOptions] ?? {};
+  validateIpcMethod({
+    methodName: "getOneMessage",
+    isSubprocess,
+    ipc,
+    isConnected: isConnected(anyProcess)
+  });
+  return getOneMessageAsync({
+    anyProcess,
+    channel,
+    isSubprocess,
+    filter: filter2,
+    reference,
+    signal
+  });
+};
+var getOneMessageAsync = async ({ anyProcess, channel, isSubprocess, filter: filter2, reference, signal }) => {
+  addReference(channel, reference);
+  const ipcEmitter = getIpcEmitter(anyProcess, channel, isSubprocess);
+  const controller = new AbortController();
+  stopOnAbort(signal, controller);
+  try {
+    return await Promise.race([
+      getMessage(ipcEmitter, filter2, controller),
+      throwOnDisconnect2(ipcEmitter, isSubprocess, controller),
+      throwOnStrictError(ipcEmitter, isSubprocess, controller)
+    ]);
+  } catch (error62) {
+    if (!signal?.aborted) {
+      disconnect(anyProcess);
+    }
+    throw error62;
+  } finally {
+    controller.abort();
+    removeReference(channel, reference);
+  }
+};
+var stopOnAbort = (signal, controller) => {
+  if (signal === void 0) {
+    return;
+  }
+  if (signal.aborted) {
+    controller.abort();
+    return;
+  }
+  signal.addEventListener("abort", () => {
+    controller.abort();
+  }, { once: true, signal: controller.signal });
+};
+var getMessage = async (ipcEmitter, filter2, { signal }) => {
+  if (filter2 === void 0) {
+    const [message] = await once5(ipcEmitter, "message", { signal });
+    return message;
+  }
+  for await (const [message] of on2(ipcEmitter, "message", { signal })) {
+    if (filter2(message)) {
+      return message;
+    }
+  }
+};
+var throwOnDisconnect2 = async (ipcEmitter, isSubprocess, { signal }) => {
+  await once5(ipcEmitter, "disconnect", { signal });
+  throwOnEarlyDisconnect(isSubprocess);
+};
+var throwOnStrictError = async (ipcEmitter, isSubprocess, { signal }) => {
+  const [error62] = await once5(ipcEmitter, "strict:error", { signal });
+  throw getStrictResponseError(error62, isSubprocess);
+};
+
+// ../elt/node_modules/execa/lib/ipc/get-each.js
+import { once as once6, on as on3 } from "node:events";
+var internalGetEachMessageOptions = /* @__PURE__ */ Symbol("internalGetEachMessageOptions");
+var getEachMessage = (subprocessInfo, rawOptions) => {
+  const options = copyOptions(rawOptions);
+  const { reference = true } = options;
+  const { signal, shouldAwait = !subprocessInfo.isSubprocess } = options[internalGetEachMessageOptions] ?? {};
+  return loopOnMessages({
+    ...subprocessInfo,
+    shouldAwait,
+    reference,
+    signal
+  });
+};
+var loopOnMessages = ({ anyProcess, waitProcess = anyProcess, channel, isSubprocess, ipc, shouldAwait, reference, signal }) => {
+  validateIpcMethod({
+    methodName: "getEachMessage",
+    isSubprocess,
+    ipc,
+    isConnected: isConnected(anyProcess)
+  });
+  addReference(channel, reference);
+  const ipcEmitter = getIpcEmitter(anyProcess, channel, isSubprocess);
+  const controller = new AbortController();
+  const state = {};
+  stopOnAbort2(signal, controller);
+  stopOnDisconnect(anyProcess, ipcEmitter, controller);
+  abortOnStrictError({
+    ipcEmitter,
+    isSubprocess,
+    controller,
+    state
+  });
+  return iterateOnMessages({
+    anyProcess,
+    waitProcess,
+    channel,
+    ipcEmitter,
+    isSubprocess,
+    shouldAwait,
+    controller,
+    state,
+    reference,
+    signal
+  });
+};
+var stopOnAbort2 = (signal, controller) => {
+  if (signal === void 0) {
+    return;
+  }
+  if (signal.aborted) {
+    controller.abort();
+    return;
+  }
+  signal.addEventListener("abort", () => {
+    controller.abort();
+  }, { once: true, signal: controller.signal });
+};
+var stopOnDisconnect = async (anyProcess, ipcEmitter, controller) => {
+  try {
+    await once6(ipcEmitter, "disconnect", { signal: controller.signal });
+    controller.abort();
+  } catch {
+  }
+};
+var abortOnStrictError = async ({ ipcEmitter, isSubprocess, controller, state }) => {
+  try {
+    const [error62] = await once6(ipcEmitter, "strict:error", { signal: controller.signal });
+    state.error = getStrictResponseError(error62, isSubprocess);
+    controller.abort();
+  } catch {
+  }
+};
+var iterateOnMessages = async function* ({ anyProcess, waitProcess, channel, ipcEmitter, isSubprocess, shouldAwait, controller, state, reference, signal }) {
+  try {
+    for await (const [message] of on3(ipcEmitter, "message", { signal: controller.signal })) {
+      throwIfStrictError(state);
+      yield message;
+    }
+  } catch {
+    throwIfStrictError(state);
+  } finally {
+    controller.abort();
+    removeReference(channel, reference);
+    if (!isSubprocess && !signal?.aborted) {
+      disconnect(anyProcess);
+    }
+    if (shouldAwait) {
+      await waitProcess;
+    }
+  }
+};
+var throwIfStrictError = ({ error: error62 }) => {
+  if (error62) {
+    throw error62;
+  }
+};
+
+// ../elt/node_modules/execa/lib/ipc/methods.js
+var addIpcMethods = (target, subprocess, { ipc }) => {
+  Object.assign(target, getIpcMethods(subprocess, false, ipc, target));
+};
+var getIpcExport = () => {
+  const anyProcess = process11;
+  const isSubprocess = true;
+  const isIpc = process11.channel !== void 0;
+  return {
+    ...getIpcMethods(anyProcess, isSubprocess, isIpc),
+    getCancelSignal: getCancelSignal.bind(void 0, {
+      anyProcess,
+      channel: anyProcess.channel,
+      isSubprocess,
+      ipc: isIpc
+    })
+  };
+};
+var getIpcMethods = (anyProcess, isSubprocess, ipc, waitProcess = anyProcess) => ({
+  sendMessage: sendMessage.bind(void 0, {
+    anyProcess,
+    channel: anyProcess.channel,
+    isSubprocess,
+    ipc
+  }),
+  getOneMessage: getOneMessage.bind(void 0, {
+    anyProcess,
+    channel: anyProcess.channel,
+    isSubprocess,
+    ipc
+  }),
+  getEachMessage: getEachMessage.bind(void 0, {
+    anyProcess,
+    channel: anyProcess.channel,
+    isSubprocess,
+    ipc,
+    waitProcess
+  })
+});
+
+// ../elt/node_modules/execa/lib/return/early-error.js
+import { ChildProcess as ChildProcess2 } from "node:child_process";
+import { callbackify as callbackify2 } from "node:util";
+import {
+  PassThrough,
+  Readable,
+  Writable,
+  Duplex
+} from "node:stream";
+var handleEarlyError = ({ error: error62, command, escapedCommand, fileDescriptors, options, startTime, verboseInfo }) => {
+  cleanupCustomStreams(fileDescriptors);
+  const subprocess = new ChildProcess2();
+  subprocess.kill = () => false;
+  const all = createDummyStreams(subprocess, fileDescriptors);
+  const promise2 = handleDummyPromise({
+    error: error62,
+    command,
+    escapedCommand,
+    fileDescriptors,
+    options,
+    startTime,
+    verboseInfo
+  });
+  return {
+    subprocess,
+    promise: promise2,
+    all: options.all ? all : void 0,
+    convertedStreams: getConvertedStreams(promise2)
+  };
+};
+var createDummyStreams = (subprocess, fileDescriptors) => {
+  const stdin = createDummyStream();
+  const stdout = createDummyStream();
+  const stderr = createDummyStream();
+  const extraStdio = Array.from({ length: fileDescriptors.length - 3 }, createDummyStream);
+  const all = createDummyStream();
+  const stdio = [stdin, stdout, stderr, ...extraStdio];
+  Object.assign(subprocess, {
+    stdin,
+    stdout,
+    stderr,
+    stdio
+  });
+  return all;
+};
+var createDummyStream = () => {
+  const stream = new PassThrough();
+  stream.on("error", () => {
+  });
+  stream.end();
+  return stream;
+};
+var getConvertedStreams = (promise2) => {
+  const waitForPromise = async () => {
+    await promise2;
+  };
+  const endReadable = function() {
+    callbackify2(waitForPromise)((error62) => {
+      if (error62) {
+        this.destroy(error62);
+      } else {
+        this.push(null);
+      }
+    });
+  };
+  const endWritable = callbackify2(waitForPromise);
+  const writeWritable = (chunk, encoding, done) => {
+    endWritable(done);
+  };
+  const readable = () => new Readable({ read: endReadable });
+  const writable = () => new Writable({ write: writeWritable, final: endWritable });
+  const duplex = () => new Duplex({ read: endReadable, write: writeWritable, final: endWritable });
+  const iterable = () => readable()[Symbol.asyncIterator]();
+  return {
+    readable,
+    writable,
+    duplex,
+    readableStream: () => Readable.toWeb(readable()),
+    writableStream: () => Writable.toWeb(writable()),
+    transformStream: () => Duplex.toWeb(duplex()),
+    iterable,
+    [Symbol.asyncIterator]: iterable
+  };
+};
+var handleDummyPromise = async ({ error: error62, command, escapedCommand, fileDescriptors, options, startTime, verboseInfo }) => {
+  const earlyError = makeEarlyError({
+    error: await error62,
+    command,
+    escapedCommand,
+    fileDescriptors,
+    options,
+    startTime,
+    isSync: false,
+    ...getEarlyErrorOutput(fileDescriptors, options)
+  });
+  return handleResult(earlyError, verboseInfo, options);
+};
+
+// ../elt/node_modules/execa/lib/stdio/handle-async.js
+import { createReadStream, createWriteStream } from "node:fs";
+import { Buffer as Buffer7 } from "node:buffer";
+import { Readable as Readable2, Writable as Writable2, Duplex as Duplex2 } from "node:stream";
+var handleStdioAsync = (options, verboseInfo) => handleStdio(addPropertiesAsync, options, verboseInfo, false);
+var forbiddenIfAsync = ({ type, optionName }) => {
+  throw new TypeError(`The \`${optionName}\` option cannot be ${TYPE_TO_MESSAGE[type]}.`);
+};
+var addProperties2 = {
+  fileNumber: forbiddenIfAsync,
+  generator: generatorToStream,
+  asyncGenerator: generatorToStream,
+  nodeStream: ({ value }) => ({ stream: value }),
+  // `Duplex.fromWeb()` uses the same `objectMode` for both sides
+  webTransform: ({ value: { transform: transform2, writableObjectMode, readableObjectMode } }) => ({
+    stream: Duplex2.from({
+      writable: Writable2.fromWeb(transform2.writable, { objectMode: writableObjectMode }),
+      readable: Readable2.fromWeb(transform2.readable, { objectMode: readableObjectMode })
+    })
+  }),
+  duplex: ({ value: { transform: transform2 } }) => ({ stream: transform2 }),
+  native() {
+  }
+};
+var validateIterable = function* (iterable, optionName) {
+  for (const value of iterable) {
+    validateIterableValue(value, optionName);
+    yield value;
+  }
+};
+var validateAsyncIterable = async function* (iterable, optionName) {
+  for await (const value of iterable) {
+    validateIterableValue(value, optionName);
+    yield value;
+  }
+};
+var validateIterableValue = (value, optionName) => {
+  if (!isSerializableInput(value)) {
+    throwOnSerializableInput(optionName, value);
+  }
+};
+var readableFromChunk = (chunk) => Readable2.from(chunk.length === 0 ? [] : [chunk]);
+var generatorToInputStream = (stdioItem, { encoding }) => generatorToStream(stdioItem, { encoding: getInputEncoding(encoding) });
+var addPropertiesAsync = {
+  input: {
+    ...addProperties2,
+    generator: generatorToInputStream,
+    asyncGenerator: generatorToInputStream,
+    fileUrl: ({ value }) => ({ stream: createReadStream(value) }),
+    filePath: ({ value: { file: file2 } }) => ({ stream: createReadStream(file2) }),
+    webStream: ({ value }, options, objectMode) => ({ stream: Readable2.fromWeb(value, { objectMode }) }),
+    iterable: ({ value, optionName }, options, objectMode) => ({ stream: Readable2.from(objectMode ? value : validateIterable(value, optionName)) }),
+    asyncIterable: ({ value, optionName }, options, objectMode) => ({ stream: Readable2.from(objectMode ? value : validateAsyncIterable(value, optionName)) }),
+    string: ({ value }) => ({ stream: readableFromChunk(value) }),
+    uint8Array: ({ value }) => ({ stream: readableFromChunk(Buffer7.from(value)) })
+  },
+  output: {
+    ...addProperties2,
+    fileUrl: ({ value }) => ({ stream: createWriteStream(value) }),
+    filePath: ({ value: { file: file2, append } }) => ({ stream: createWriteStream(file2, append ? { flags: "a" } : {}) }),
+    // Web writers accept arbitrary chunks, including when a shared writer receives both bytes and objects.
+    webStream: ({ value }) => ({ stream: Writable2.fromWeb(value, { objectMode: true }) }),
+    iterable: forbiddenIfAsync,
+    asyncIterable: forbiddenIfAsync,
+    string: forbiddenIfAsync,
+    uint8Array: forbiddenIfAsync
+  }
+};
+
+// ../elt/node_modules/@sindresorhus/merge-streams/index.js
+import { on as on4, once as once7 } from "node:events";
+import { PassThrough as PassThroughStream, getDefaultHighWaterMark as getDefaultHighWaterMark2 } from "node:stream";
+import { finished as finished2 } from "node:stream/promises";
+function mergeStreams(streams) {
+  if (!Array.isArray(streams)) {
+    throw new TypeError(`Expected an array, got \`${typeof streams}\`.`);
+  }
+  for (const stream of streams) {
+    validateStream(stream);
+  }
+  const objectMode = streams.some(({ readableObjectMode }) => readableObjectMode);
+  const highWaterMark = getHighWaterMark(streams, objectMode);
+  const passThroughStream = new MergedStream({
+    objectMode,
+    writableHighWaterMark: highWaterMark,
+    readableHighWaterMark: highWaterMark
+  });
+  for (const stream of streams) {
+    passThroughStream.add(stream);
+  }
+  return passThroughStream;
+}
+var getHighWaterMark = (streams, objectMode) => {
+  if (streams.length === 0) {
+    return getDefaultHighWaterMark2(objectMode);
+  }
+  const highWaterMarks = streams.filter(({ readableObjectMode }) => readableObjectMode === objectMode).map(({ readableHighWaterMark }) => readableHighWaterMark);
+  return Math.max(...highWaterMarks);
+};
+var MergedStream = class extends PassThroughStream {
+  #streams = /* @__PURE__ */ new Set([]);
+  #ended = /* @__PURE__ */ new Set([]);
+  #aborted = /* @__PURE__ */ new Set([]);
+  #onFinished;
+  #unpipeEvent = /* @__PURE__ */ Symbol("unpipe");
+  #streamPromises = /* @__PURE__ */ new WeakMap();
+  add(stream) {
+    validateStream(stream);
+    if (this.#streams.has(stream)) {
+      return;
+    }
+    this.#streams.add(stream);
+    this.#onFinished ??= onMergedStreamFinished(this, this.#streams, this.#unpipeEvent);
+    const streamPromise = endWhenStreamsDone({
+      passThroughStream: this,
+      stream,
+      streams: this.#streams,
+      ended: this.#ended,
+      aborted: this.#aborted,
+      onFinished: this.#onFinished,
+      unpipeEvent: this.#unpipeEvent
+    });
+    this.#streamPromises.set(stream, streamPromise);
+    stream.pipe(this, { end: false });
+  }
+  async remove(stream) {
+    validateStream(stream);
+    if (!this.#streams.has(stream)) {
+      return false;
+    }
+    const streamPromise = this.#streamPromises.get(stream);
+    if (streamPromise === void 0) {
+      return false;
+    }
+    this.#streamPromises.delete(stream);
+    stream.unpipe(this);
+    await streamPromise;
+    return true;
+  }
+};
+var onMergedStreamFinished = async (passThroughStream, streams, unpipeEvent) => {
+  updateMaxListeners(passThroughStream, PASSTHROUGH_LISTENERS_COUNT);
+  const controller = new AbortController();
+  try {
+    await Promise.race([
+      onMergedStreamEnd(passThroughStream, controller),
+      onInputStreamsUnpipe(passThroughStream, streams, unpipeEvent, controller)
+    ]);
+  } finally {
+    controller.abort();
+    updateMaxListeners(passThroughStream, -PASSTHROUGH_LISTENERS_COUNT);
+  }
+};
+var onMergedStreamEnd = async (passThroughStream, { signal }) => {
+  try {
+    await finished2(passThroughStream, { signal, cleanup: true });
+  } catch (error62) {
+    errorOrAbortStream(passThroughStream, error62);
+    throw error62;
+  }
+};
+var onInputStreamsUnpipe = async (passThroughStream, streams, unpipeEvent, { signal }) => {
+  for await (const [unpipedStream] of on4(passThroughStream, "unpipe", { signal })) {
+    if (streams.has(unpipedStream)) {
+      unpipedStream.emit(unpipeEvent);
+    }
+  }
+};
+var validateStream = (stream) => {
+  if (typeof stream?.pipe !== "function") {
+    throw new TypeError(`Expected a readable stream, got: \`${typeof stream}\`.`);
+  }
+};
+var endWhenStreamsDone = async ({ passThroughStream, stream, streams, ended, aborted: aborted3, onFinished, unpipeEvent }) => {
+  updateMaxListeners(passThroughStream, PASSTHROUGH_LISTENERS_PER_STREAM);
+  const controller = new AbortController();
+  try {
+    await Promise.race([
+      afterMergedStreamFinished(onFinished, stream, controller),
+      onInputStreamEnd({
+        passThroughStream,
+        stream,
+        streams,
+        ended,
+        aborted: aborted3,
+        controller
+      }),
+      onInputStreamUnpipe({
+        stream,
+        streams,
+        ended,
+        aborted: aborted3,
+        unpipeEvent,
+        controller
+      })
+    ]);
+  } finally {
+    controller.abort();
+    updateMaxListeners(passThroughStream, -PASSTHROUGH_LISTENERS_PER_STREAM);
+  }
+  if (streams.size > 0 && streams.size === ended.size + aborted3.size) {
+    if (ended.size === 0 && aborted3.size > 0) {
+      abortStream(passThroughStream);
+    } else {
+      endStream(passThroughStream);
+    }
+  }
+};
+var afterMergedStreamFinished = async (onFinished, stream, { signal }) => {
+  try {
+    await onFinished;
+    if (!signal.aborted) {
+      abortStream(stream);
+    }
+  } catch (error62) {
+    if (!signal.aborted) {
+      errorOrAbortStream(stream, error62);
+    }
+  }
+};
+var onInputStreamEnd = async ({ passThroughStream, stream, streams, ended, aborted: aborted3, controller: { signal } }) => {
+  try {
+    await finished2(stream, {
+      signal,
+      cleanup: true,
+      readable: true,
+      writable: false
+    });
+    if (streams.has(stream)) {
+      ended.add(stream);
+    }
+  } catch (error62) {
+    if (signal.aborted || !streams.has(stream)) {
+      return;
+    }
+    if (isAbortError(error62)) {
+      aborted3.add(stream);
+    } else {
+      errorStream(passThroughStream, error62);
+    }
+  }
+};
+var onInputStreamUnpipe = async ({ stream, streams, ended, aborted: aborted3, unpipeEvent, controller: { signal } }) => {
+  await once7(stream, unpipeEvent, { signal });
+  if (!stream.readable) {
+    return once7(signal, "abort", { signal });
+  }
+  streams.delete(stream);
+  ended.delete(stream);
+  aborted3.delete(stream);
+};
+var endStream = (stream) => {
+  if (stream.writable) {
+    stream.end();
+  }
+};
+var errorOrAbortStream = (stream, error62) => {
+  if (isAbortError(error62)) {
+    abortStream(stream);
+  } else {
+    errorStream(stream, error62);
+  }
+};
+var isAbortError = (error62) => error62?.code === "ERR_STREAM_PREMATURE_CLOSE";
+var abortStream = (stream) => {
+  if (stream.readable || stream.writable) {
+    stream.destroy();
+  }
+};
+var errorStream = (stream, error62) => {
+  if (!stream.destroyed) {
+    stream.once("error", noop2);
+    stream.destroy(error62);
+  }
+};
+var noop2 = () => {
+};
+var updateMaxListeners = (passThroughStream, increment2) => {
+  const maxListeners = passThroughStream.getMaxListeners();
+  if (maxListeners !== 0 && maxListeners !== Number.POSITIVE_INFINITY) {
+    passThroughStream.setMaxListeners(maxListeners + increment2);
+  }
+};
+var PASSTHROUGH_LISTENERS_COUNT = 2;
+var PASSTHROUGH_LISTENERS_PER_STREAM = 1;
+
+// ../elt/node_modules/execa/lib/io/pipeline.js
+import { finished as finished3 } from "node:stream/promises";
+var pipeStreams = (source, destination, onDestinationEnd) => {
+  source.pipe(destination);
+  onSourceFinish(source, destination);
+  onDestinationFinish(source, destination, onDestinationEnd);
+};
+var onSourceFinish = async (source, destination) => {
+  if (isStandardStream(source) || isStandardStream(destination)) {
+    return;
+  }
+  try {
+    await finished3(source, { cleanup: true, readable: true, writable: false });
+  } catch {
+  }
+  endDestinationStream(destination);
+};
+var endDestinationStream = (destination) => {
+  if (destination.writable) {
+    destination.end();
+  }
+};
+var onDestinationFinish = async (source, destination, onDestinationEnd) => {
+  if (isStandardStream(source) || isStandardStream(destination)) {
+    return;
+  }
+  try {
+    await finished3(destination, { cleanup: true, readable: false, writable: true });
+  } catch {
+  }
+  if (onDestinationEnd !== void 0) {
+    await onDestinationEnd();
+  }
+  abortSourceStream(source);
+};
+var abortSourceStream = (source) => {
+  if (source.readable) {
+    source.destroy();
+  }
+};
+
+// ../elt/node_modules/execa/lib/io/output-async.js
+var pipeOutputAsync = (subprocess, fileDescriptors, controller) => {
+  const pipeGroups = /* @__PURE__ */ new Map();
+  for (const [fdNumber, { stdioItems, direction }] of Object.entries(fileDescriptors)) {
+    const transformItems = stdioItems.filter(({ type }) => TRANSFORM_TYPES.has(type));
+    for (const { stream } of transformItems) {
+      pipeTransform(subprocess, stream, direction, fdNumber);
+    }
+    const nonTransformItems = stdioItems.filter(({ type }) => !TRANSFORM_TYPES.has(type));
+    for (const { stream } of nonTransformItems) {
+      pipeStdioItem({
+        subprocess,
+        stream,
+        direction,
+        fdNumber,
+        pipeGroups,
+        controller
+      });
+    }
+  }
+  for (const [outputStream, inputStreams] of pipeGroups) {
+    const inputStream = inputStreams.length === 1 ? inputStreams[0] : mergeStreams(inputStreams);
+    pipeStreams(inputStream, outputStream);
+  }
+};
+var pipeTransform = (subprocess, stream, direction, fdNumber) => {
+  if (direction === "output") {
+    pipeStreams(subprocess.stdio[fdNumber], stream);
+  } else {
+    pipeStreams(stream, subprocess.stdio[fdNumber]);
+  }
+  const streamProperty = SUBPROCESS_STREAM_PROPERTIES[fdNumber];
+  if (streamProperty !== void 0) {
+    subprocess[streamProperty] = stream;
+  }
+  subprocess.stdio[fdNumber] = stream;
+};
+var SUBPROCESS_STREAM_PROPERTIES = ["stdin", "stdout", "stderr"];
+var pipeStdioItem = ({ subprocess, stream, direction, fdNumber, pipeGroups, controller }) => {
+  if (stream === void 0) {
+    return;
+  }
+  setStandardStreamMaxListeners(stream, controller);
+  const [inputStream, outputStream] = direction === "output" ? [stream, subprocess.stdio[fdNumber]] : [subprocess.stdio[fdNumber], stream];
+  const outputStreams = pipeGroups.get(inputStream) ?? [];
+  pipeGroups.set(inputStream, [...outputStreams, outputStream]);
+};
+var setStandardStreamMaxListeners = (stream, { signal }) => {
+  if (isStandardStream(stream)) {
+    incrementMaxListeners(stream, MAX_LISTENERS_INCREMENT, signal);
+  }
+};
+var MAX_LISTENERS_INCREMENT = 2;
+
+// ../elt/node_modules/execa/lib/terminate/kill-descendants.js
+import process12 from "node:process";
+import { execFile } from "node:child_process";
+import path9 from "node:path/win32";
+var isWindows2 = process12.platform === "win32";
+var getSpawnOptions = (options) => !isWindows2 && options.killDescendants ? { ...options, detached: true } : options;
+var getKillFunction = (subprocess, { killDescendants }) => {
+  if (!killDescendants) {
+    const killSubprocess = subprocess.kill.bind(subprocess);
+    return (...arguments_) => subprocess.pid === void 0 ? false : killSubprocess(...arguments_);
+  }
+  const killDescendantsFunction = isWindows2 ? killDescendantsWindows : killDescendantsUnix;
+  return killDescendantsFunction.bind(void 0, subprocess);
+};
+var isAbandoned = (subprocess) => subprocess.pid === void 0 || isWindows2 && hasExited(subprocess);
+var hasExited = ({ exitCode, signalCode }) => exitCode !== null || signalCode !== null;
+var killDescendantsUnix = (subprocess, signal) => {
+  if (isAbandoned(subprocess)) {
+    return false;
+  }
+  try {
+    return process12.kill(-subprocess.pid, signal);
+  } catch {
+    return subprocess.kill(signal);
+  }
+};
+var killDescendantsWindows = (subprocess, signal) => {
+  if (isAbandoned(subprocess)) {
+    return false;
+  }
+  const taskkillFile = getTaskkillFile();
+  if (taskkillFile === void 0) {
+    return subprocess.kill(signal);
+  }
+  execFile(taskkillFile, ["/pid", `${subprocess.pid}`, "/T", "/F"], (error62) => {
+    if (error62) {
+      subprocess.kill(signal);
+    }
+  });
+  return true;
+};
+var getTaskkillFile = () => {
+  const windowsDirectory = [process12.env.SystemRoot, process12.env.windir].find((directory) => directory && isWindowsDriveAbsolutePath(directory));
+  return windowsDirectory === void 0 ? void 0 : path9.join(windowsDirectory, "System32", "taskkill.exe");
+};
+var isWindowsDriveAbsolutePath = (directory) => {
+  const { root } = path9.parse(directory);
+  return /^[a-z]:[/\\]/i.test(root);
+};
+
+// ../elt/node_modules/execa/lib/terminate/cleanup.js
+import { addAbortListener as addAbortListener3 } from "node:events";
+
+// ../elt/node_modules/execa/node_modules/signal-exit/dist/mjs/signals.js
+var signals = [];
+signals.push("SIGHUP", "SIGINT", "SIGTERM");
+if (process.platform !== "win32") {
+  signals.push(
+    "SIGALRM",
+    "SIGABRT",
+    "SIGVTALRM",
+    "SIGXCPU",
+    "SIGXFSZ",
+    "SIGUSR2",
+    "SIGTRAP",
+    "SIGSYS",
+    "SIGQUIT",
+    "SIGIOT"
+    // should detect profiler and enable/disable accordingly.
+    // see #21
+    // 'SIGPROF'
+  );
+}
+if (process.platform === "linux") {
+  signals.push("SIGIO", "SIGPOLL", "SIGPWR", "SIGSTKFLT");
+}
+
+// ../elt/node_modules/execa/node_modules/signal-exit/dist/mjs/index.js
+var processOk = (process15) => !!process15 && typeof process15 === "object" && typeof process15.removeListener === "function" && typeof process15.emit === "function" && typeof process15.reallyExit === "function" && typeof process15.listeners === "function" && typeof process15.kill === "function" && typeof process15.pid === "number" && typeof process15.on === "function";
+var kExitEmitter = /* @__PURE__ */ Symbol.for("signal-exit emitter");
+var global = globalThis;
+var ObjectDefineProperty = Object.defineProperty.bind(Object);
+var Emitter = class {
+  emitted = {
+    afterExit: false,
+    exit: false
+  };
+  listeners = {
+    afterExit: [],
+    exit: []
+  };
+  count = 0;
+  id = Math.random();
+  constructor() {
+    if (global[kExitEmitter]) {
+      return global[kExitEmitter];
+    }
+    ObjectDefineProperty(global, kExitEmitter, {
+      value: this,
+      writable: false,
+      enumerable: false,
+      configurable: false
+    });
+  }
+  on(ev, fn) {
+    this.listeners[ev].push(fn);
+  }
+  removeListener(ev, fn) {
+    const list = this.listeners[ev];
+    const i2 = list.indexOf(fn);
+    if (i2 === -1) {
+      return;
+    }
+    if (i2 === 0 && list.length === 1) {
+      list.length = 0;
+    } else {
+      list.splice(i2, 1);
+    }
+  }
+  emit(ev, code, signal) {
+    if (this.emitted[ev]) {
+      return false;
+    }
+    this.emitted[ev] = true;
+    let ret = false;
+    for (const fn of this.listeners[ev]) {
+      ret = fn(code, signal) === true || ret;
+    }
+    if (ev === "exit") {
+      ret = this.emit("afterExit", code, signal) || ret;
+    }
+    return ret;
+  }
+};
+var SignalExitBase = class {
+};
+var signalExitWrap = (handler) => {
+  return {
+    onExit(cb, opts) {
+      return handler.onExit(cb, opts);
+    },
+    load() {
+      return handler.load();
+    },
+    unload() {
+      return handler.unload();
+    }
+  };
+};
+var SignalExitFallback = class extends SignalExitBase {
+  onExit() {
+    return () => {
+    };
+  }
+  load() {
+  }
+  unload() {
+  }
+};
+var SignalExit = class extends SignalExitBase {
+  // "SIGHUP" throws an `ENOSYS` error on Windows,
+  // so use a supported signal instead
+  /* c8 ignore start */
+  #hupSig = process13.platform === "win32" ? "SIGINT" : "SIGHUP";
+  /* c8 ignore stop */
+  #emitter = new Emitter();
+  #process;
+  #originalProcessEmit;
+  #originalProcessReallyExit;
+  #sigListeners = {};
+  #loaded = false;
+  constructor(process15) {
+    super();
+    this.#process = process15;
+    this.#sigListeners = {};
+    for (const sig of signals) {
+      this.#sigListeners[sig] = () => {
+        const listeners = this.#process.listeners(sig);
+        let { count: count2 } = this.#emitter;
+        const p = process15;
+        if (typeof p.__signal_exit_emitter__ === "object" && typeof p.__signal_exit_emitter__.count === "number") {
+          count2 += p.__signal_exit_emitter__.count;
+        }
+        if (listeners.length === count2) {
+          this.unload();
+          const ret = this.#emitter.emit("exit", null, sig);
+          const s = sig === "SIGHUP" ? this.#hupSig : sig;
+          if (!ret)
+            process15.kill(process15.pid, s);
+        }
+      };
+    }
+    this.#originalProcessReallyExit = process15.reallyExit;
+    this.#originalProcessEmit = process15.emit;
+  }
+  onExit(cb, opts) {
+    if (!processOk(this.#process)) {
+      return () => {
+      };
+    }
+    if (this.#loaded === false) {
+      this.load();
+    }
+    const ev = opts?.alwaysLast ? "afterExit" : "exit";
+    this.#emitter.on(ev, cb);
+    return () => {
+      this.#emitter.removeListener(ev, cb);
+      if (this.#emitter.listeners["exit"].length === 0 && this.#emitter.listeners["afterExit"].length === 0) {
+        this.unload();
+      }
+    };
+  }
+  load() {
+    if (this.#loaded) {
+      return;
+    }
+    this.#loaded = true;
+    this.#emitter.count += 1;
+    for (const sig of signals) {
+      try {
+        const fn = this.#sigListeners[sig];
+        if (fn)
+          this.#process.on(sig, fn);
+      } catch (_) {
+      }
+    }
+    this.#process.emit = (ev, ...a2) => {
+      return this.#processEmit(ev, ...a2);
+    };
+    this.#process.reallyExit = (code) => {
+      return this.#processReallyExit(code);
+    };
+  }
+  unload() {
+    if (!this.#loaded) {
+      return;
+    }
+    this.#loaded = false;
+    signals.forEach((sig) => {
+      const listener = this.#sigListeners[sig];
+      if (!listener) {
+        throw new Error("Listener not defined for signal: " + sig);
+      }
+      try {
+        this.#process.removeListener(sig, listener);
+      } catch (_) {
+      }
+    });
+    this.#process.emit = this.#originalProcessEmit;
+    this.#process.reallyExit = this.#originalProcessReallyExit;
+    this.#emitter.count -= 1;
+  }
+  #processReallyExit(code) {
+    if (!processOk(this.#process)) {
+      return 0;
+    }
+    this.#process.exitCode = code || 0;
+    this.#emitter.emit("exit", this.#process.exitCode, null);
+    return this.#originalProcessReallyExit.call(this.#process, this.#process.exitCode);
+  }
+  #processEmit(ev, ...args) {
+    const og = this.#originalProcessEmit;
+    if (ev === "exit" && processOk(this.#process)) {
+      if (typeof args[0] === "number") {
+        this.#process.exitCode = args[0];
+      }
+      const ret = og.call(this.#process, ev, ...args);
+      this.#emitter.emit("exit", this.#process.exitCode, null);
+      return ret;
+    } else {
+      return og.call(this.#process, ev, ...args);
+    }
+  }
+};
+var process13 = globalThis.process;
+var {
+  /**
+   * Called when the process is exiting, whether via signal, explicit
+   * exit, or running out of stuff to do.
+   *
+   * If the global process object is not suitable for instrumentation,
+   * then this will be a no-op.
+   *
+   * Returns a function that may be used to unload signal-exit.
+   */
+  onExit,
+  /**
+   * Load the listeners.  Likely you never need to call this, unless
+   * doing a rather deep integration with signal-exit functionality.
+   * Mostly exposed for the benefit of testing.
+   *
+   * @internal
+   */
+  load,
+  /**
+   * Unload the listeners.  Likely you never need to call this, unless
+   * doing a rather deep integration with signal-exit functionality.
+   * Mostly exposed for the benefit of testing.
+   *
+   * @internal
+   */
+  unload
+} = signalExitWrap(processOk(process13) ? new SignalExit(process13) : new SignalExitFallback());
+
+// ../elt/node_modules/execa/lib/terminate/cleanup.js
+var cleanupOnExit = (kill, { cleanup, detached }, { signal }) => {
+  if (!cleanup || detached) {
+    return;
+  }
+  const removeExitHandler = onExit(() => {
+    kill();
+  });
+  addAbortListener3(signal, () => {
+    removeExitHandler();
+  });
+};
+
+// ../elt/node_modules/execa/lib/convert/concurrent.js
+var initializeConcurrentStreams = () => ({
+  readableDestroy: /* @__PURE__ */ new WeakMap(),
+  writableFinal: /* @__PURE__ */ new WeakMap(),
+  writableDestroy: /* @__PURE__ */ new WeakMap()
+});
+var addConcurrentStream = (concurrentStreams, stream, waitName) => {
+  const weakMap = concurrentStreams[waitName];
+  if (!weakMap.has(stream)) {
+    weakMap.set(stream, []);
+  }
+  const promises = weakMap.get(stream);
+  const promise2 = createDeferred();
+  promises.push(promise2);
+  const resolve8 = promise2.resolve.bind(promise2);
+  return { resolve: resolve8, promises };
+};
+var waitForConcurrentStreams = async ({ resolve: resolve8, promises }, subprocess) => {
+  resolve8();
+  const [isSubprocessExit] = await Promise.race([
+    Promise.allSettled([true, subprocess]),
+    Promise.all([false, ...promises])
+  ]);
+  return !isSubprocessExit;
+};
+
+// ../elt/node_modules/execa/lib/io/iterate.js
+import { on as on5 } from "node:events";
+import { getDefaultHighWaterMark as getDefaultHighWaterMark3 } from "node:stream";
+var iterateOnSubprocessStream = ({ subprocessStdout, subprocess, binary, shouldEncode, encoding, preserveNewlines }) => {
+  const controller = new AbortController();
+  stopReadingOnExit(subprocess, controller);
+  return iterateOnStream({
+    stream: subprocessStdout,
+    controller,
+    binary,
+    shouldEncode: !subprocessStdout.readableObjectMode && shouldEncode,
+    encoding,
+    shouldSplit: !subprocessStdout.readableObjectMode,
+    preserveNewlines
+  });
+};
+var stopReadingOnExit = async (subprocess, controller) => {
+  try {
+    await subprocess;
+  } catch {
+  } finally {
+    controller.abort();
+  }
+};
+var iterateForResult = ({ stream, onStreamEnd, lines, encoding, stripFinalNewline: stripFinalNewline2, allMixed }) => {
+  const controller = new AbortController();
+  stopReadingOnStreamEnd(onStreamEnd, controller, stream);
+  const objectMode = stream.readableObjectMode && !allMixed;
+  return iterateOnStream({
+    stream,
+    controller,
+    binary: encoding === "buffer",
+    shouldEncode: !objectMode,
+    encoding,
+    shouldSplit: !objectMode && lines,
+    preserveNewlines: !stripFinalNewline2
+  });
+};
+var stopReadingOnStreamEnd = async (onStreamEnd, controller, stream) => {
+  try {
+    await onStreamEnd;
+  } catch {
+    stream.destroy();
+  } finally {
+    controller.abort();
+  }
+};
+var iterateOnStream = ({ stream, controller, binary, shouldEncode, encoding, shouldSplit, preserveNewlines }) => {
+  const onStdoutChunk = on5(stream, "data", {
+    signal: controller.signal,
+    highWaterMark: HIGH_WATER_MARK,
+    // Backward compatibility with older name for this option
+    // See https://github.com/nodejs/node/pull/52080#discussion_r1525227861
+    // @todo Remove after removing support for Node 21
+    highWatermark: HIGH_WATER_MARK
+  });
+  return iterateOnData({
+    onStdoutChunk,
+    controller,
+    binary,
+    shouldEncode,
+    encoding,
+    shouldSplit,
+    preserveNewlines
+  });
+};
+var DEFAULT_OBJECT_HIGH_WATER_MARK = getDefaultHighWaterMark3(true);
+var HIGH_WATER_MARK = DEFAULT_OBJECT_HIGH_WATER_MARK;
+var iterateOnData = async function* ({ onStdoutChunk, controller, binary, shouldEncode, encoding, shouldSplit, preserveNewlines }) {
+  const generators = getGenerators({
+    binary,
+    shouldEncode,
+    encoding,
+    shouldSplit,
+    preserveNewlines
+  });
+  try {
+    for await (const [chunk] of onStdoutChunk) {
+      yield* transformChunkSync(chunk, generators, 0);
+    }
+  } catch (error62) {
+    if (!controller.signal.aborted) {
+      throw error62;
+    }
+  } finally {
+    yield* finalChunksSync(generators);
+  }
+};
+var getGenerators = ({ binary, shouldEncode, encoding, shouldSplit, preserveNewlines }) => [
+  getEncodingTransformGenerator(binary, encoding, !shouldEncode),
+  getSplitLinesGenerator(binary, preserveNewlines, !shouldSplit, {})
+].filter(Boolean);
+
+// ../elt/node_modules/execa/lib/convert/iterable.js
+var createIterable = (subprocess, encoding, options) => {
+  const { from, binary: binaryOption = false, preserveNewlines = false } = copyOptions(options);
+  checkBooleanOption(binaryOption, "binary");
+  checkBooleanOption(preserveNewlines, "preserveNewlines");
+  const binary = binaryOption || BINARY_ENCODINGS.has(encoding);
+  const subprocessStdout = getFromStream(subprocess, from);
+  const onStdoutData = iterateOnSubprocessStream({
+    subprocessStdout,
+    subprocess,
+    binary,
+    shouldEncode: true,
+    encoding,
+    preserveNewlines
+  });
+  return iterateOnStdoutData(onStdoutData, subprocessStdout, subprocess);
+};
+var iterateOnStdoutData = async function* (onStdoutData, subprocessStdout, subprocess) {
+  try {
+    yield* onStdoutData;
+  } finally {
+    if (subprocessStdout.readable) {
+      subprocessStdout.destroy();
+    }
+    await subprocess;
+  }
+};
+
+// ../elt/node_modules/execa/lib/convert/readable.js
+import { Readable as Readable3 } from "node:stream";
+import { callbackify as callbackify3 } from "node:util";
+
+// ../elt/node_modules/execa/lib/convert/shared.js
+import { finished as finished5 } from "node:stream/promises";
+
+// ../elt/node_modules/execa/lib/resolve/wait-stream.js
+import { finished as finished4 } from "node:stream/promises";
+var waitForStream = async (stream, fdNumber, streamInfo, {
+  isSameDirection,
+  stopOnExit = false,
+  readable = true,
+  writable = true
+} = {}) => {
+  const state = handleStdinDestroy(stream, streamInfo);
+  const abortController = new AbortController();
+  try {
+    await Promise.race([
+      ...stopOnExit ? [streamInfo.exitPromise] : [],
+      finished4(stream, {
+        cleanup: true,
+        signal: abortController.signal,
+        readable,
+        writable
+      })
+    ]);
+  } catch (error62) {
+    if (!state.stdinCleanedUp && !isInputTransformAbort(stream, fdNumber, streamInfo, error62)) {
+      handleStreamError(error62, fdNumber, streamInfo, isSameDirection);
+    }
+  } finally {
+    abortController.abort();
+  }
+};
+var handleStdinDestroy = (stream, { originalStreams, subprocess }) => {
+  const [originalStdin] = originalStreams;
+  const state = { stdinCleanedUp: false };
+  if (stream === originalStdin || stream === subprocess.stdin) {
+    spyOnStdinDestroy(stream, subprocess, state);
+  }
+  return state;
+};
+var spyOnStdinDestroy = (subprocessStdin, subprocess, state) => {
+  const { _destroy } = subprocessStdin;
+  subprocessStdin._destroy = (...destroyArguments) => {
+    setStdinCleanedUp(subprocess, state);
+    _destroy.call(subprocessStdin, ...destroyArguments);
+  };
+};
+var setStdinCleanedUp = ({ exitCode, signalCode }, state) => {
+  if (exitCode !== null || signalCode !== null) {
+    state.stdinCleanedUp = true;
+  }
+};
+var isInputTransformAbort = (stream, fdNumber, streamInfo, error62) => {
+  const originalStream = streamInfo.originalStreams[fdNumber];
+  return stream !== originalStream && isInputFileDescriptor(streamInfo, fdNumber) && originalStream?.destroyed === true && (isStreamAbort(error62) || error62?.code === "ABORT_ERR");
+};
+var handleStreamError = (error62, fdNumber, streamInfo, isSameDirection) => {
+  if (!shouldIgnoreStreamError(error62, fdNumber, streamInfo, isSameDirection)) {
+    throw error62;
+  }
+};
+var shouldIgnoreStreamError = (error62, fdNumber, streamInfo, isSameDirection = true) => {
+  if (streamInfo.propagating) {
+    return isStreamEpipe(error62) || isStreamAbort(error62);
+  }
+  streamInfo.propagating = true;
+  return isInputFileDescriptor(streamInfo, fdNumber) === isSameDirection ? isStreamEpipe(error62) : isStreamAbort(error62);
+};
+var isInputFileDescriptor = ({ fileDescriptors }, fdNumber) => fdNumber !== "all" && fileDescriptors[fdNumber].direction === "input";
+var isStreamAbort = (error62) => error62?.code === "ERR_STREAM_PREMATURE_CLOSE";
+var isStreamEpipe = (error62) => error62?.code === "EPIPE";
+
+// ../elt/node_modules/execa/lib/convert/shared.js
+var safeWaitForSubprocessStdin = async (subprocessStdin) => {
+  if (subprocessStdin === void 0) {
+    return;
+  }
+  try {
+    await waitForSubprocessStdin(subprocessStdin);
+  } catch {
+  }
+};
+var safeWaitForSubprocessStdout = async (subprocessStdout) => {
+  if (subprocessStdout === void 0) {
+    return;
+  }
+  try {
+    await waitForSubprocessStdout(subprocessStdout);
+  } catch {
+  }
+};
+var waitForSubprocessStdin = async (subprocessStdin) => {
+  await finished5(subprocessStdin, { cleanup: true, readable: false, writable: true });
+};
+var waitForSubprocessStdout = async (subprocessStdout) => {
+  await finished5(subprocessStdout, { cleanup: true, readable: true, writable: false });
+};
+var throwDestroyError = (error62) => {
+  if (error62) {
+    throw error62;
+  }
+};
+var destroyOtherStream = (stream, isOpen, error62) => {
+  if (error62 && !isStreamAbort(error62)) {
+    stream.destroy(error62);
+  } else if (isOpen) {
+    stream.destroy();
+  }
+};
+
+// ../elt/node_modules/execa/lib/convert/readable.js
+var createReadable = ({ subprocess, concurrentStreams, encoding }, options) => {
+  const { from, binary: binaryOption = true, preserveNewlines = true } = copyOptions(options);
+  checkBooleanOption(binaryOption, "binary");
+  checkBooleanOption(preserveNewlines, "preserveNewlines");
+  const binary = binaryOption || BINARY_ENCODINGS.has(encoding);
+  const subprocessStdout = getFromStream(subprocess, from);
+  const waitReadableDestroy = addConcurrentStream(concurrentStreams, subprocessStdout, "readableDestroy");
+  const { readableEncoding, readableObjectMode, readableHighWaterMark } = getReadableOptions(subprocessStdout, binary);
+  const { read: read3, onStdoutDataDone } = getReadableMethods({
+    subprocessStdout,
+    subprocess,
+    binary,
+    encoding,
+    preserveNewlines
+  });
+  const readable = new Readable3({
+    read: read3,
+    destroy: callbackify3(onReadableDestroy.bind(void 0, { subprocessStdout, subprocess, waitReadableDestroy })),
+    highWaterMark: readableHighWaterMark,
+    objectMode: readableObjectMode,
+    encoding: readableEncoding
+  });
+  onStdoutFinished({
+    subprocessStdout,
+    onStdoutDataDone,
+    readable,
+    subprocess
+  });
+  return readable;
+};
+var getReadableOptions = ({ readableEncoding, readableObjectMode, readableHighWaterMark }, binary) => binary ? { readableEncoding, readableObjectMode, readableHighWaterMark } : { readableEncoding, readableObjectMode: true, readableHighWaterMark: DEFAULT_OBJECT_HIGH_WATER_MARK };
+var getReadableMethods = ({ subprocessStdout, subprocess, binary, encoding, preserveNewlines }) => {
+  const onStdoutDataDone = createDeferred();
+  const onStdoutData = iterateOnSubprocessStream({
+    subprocessStdout,
+    subprocess,
+    binary,
+    shouldEncode: !binary,
+    encoding,
+    preserveNewlines
+  });
+  return {
+    read() {
+      onRead(this, onStdoutData, onStdoutDataDone);
+    },
+    onStdoutDataDone
+  };
+};
+var onRead = async (readable, onStdoutData, onStdoutDataDone) => {
+  try {
+    const { value, done } = await onStdoutData.next();
+    if (done) {
+      onStdoutDataDone.resolve();
+    } else {
+      readable.push(value);
+    }
+  } catch {
+  }
+};
+var onStdoutFinished = async ({ subprocessStdout, onStdoutDataDone, readable, subprocess, subprocessStdin }) => {
+  try {
+    await waitForSubprocessStdout(subprocessStdout);
+    await subprocess;
+    await safeWaitForSubprocessStdin(subprocessStdin);
+    await onStdoutDataDone;
+    if (readable.readable) {
+      readable.push(null);
+    }
+  } catch (error62) {
+    await safeWaitForSubprocessStdin(subprocessStdin);
+    destroyOtherReadable(readable, await getPrematureCloseError(subprocess, error62));
+  }
+};
+var getPrematureCloseError = async (subprocess, error62) => {
+  if (error62.code !== "ERR_STREAM_PREMATURE_CLOSE") {
+    return error62;
+  }
+  try {
+    await subprocess;
+  } catch (subprocessError) {
+    return subprocessError;
+  }
+  return error62;
+};
+var onReadableDestroy = async ({ subprocessStdout, subprocess, waitReadableDestroy }, error62) => {
+  if (await waitForConcurrentStreams(waitReadableDestroy, subprocess)) {
+    destroyOtherReadable(subprocessStdout, error62?.code === "ABORT_ERR" ? void 0 : error62);
+    await subprocess;
+  }
+  throwDestroyError(error62);
+};
+var destroyOtherReadable = (stream, error62) => {
+  destroyOtherStream(stream, stream.readable, error62);
+};
+
+// ../elt/node_modules/execa/lib/convert/web.js
+import { Readable as Readable4, Writable as Writable3, Duplex as Duplex3 } from "node:stream";
+var createReadableStream = (subprocess, readableOptions) => Readable4.toWeb(subprocess.readable(readableOptions));
+var createWritableStream = (subprocess, writableOptions) => Writable3.toWeb(subprocess.writable(writableOptions));
+var createTransformStream = (subprocess, duplexOptions) => Duplex3.toWeb(subprocess.duplex(duplexOptions));
+
+// ../elt/node_modules/execa/lib/pipe/pipe-arguments.js
+var normalizePipeArguments = ({ source, sourcePromise, boundOptions, createNested }, ...pipeArguments) => {
+  const startTime = getStartTime();
+  const {
+    destination,
+    destinationStream,
+    destinationError,
+    from,
+    unpipeSignal
+  } = getDestinationStream(boundOptions, createNested, pipeArguments);
+  const { sourceStream, sourceError } = getSourceStream(source, from);
+  const { options: sourceOptions, fileDescriptors } = SUBPROCESS_OPTIONS.get(source);
+  return {
+    source,
+    sourcePromise,
+    sourceStream,
+    sourceOptions,
+    sourceError,
+    destination,
+    destinationStream,
+    destinationError,
+    unpipeSignal,
+    fileDescriptors,
+    startTime
+  };
+};
+var getDestinationStream = (boundOptions, createNested, pipeArguments) => {
+  let destinationInfo;
+  try {
+    destinationInfo = getDestination(boundOptions, createNested, ...pipeArguments);
+  } catch (error62) {
+    return { destinationError: error62 };
+  }
+  const { destination, pipeOptions } = destinationInfo;
+  try {
+    const { from, to, unpipeSignal } = copyOptions(pipeOptions);
+    validateAbortSignal(unpipeSignal, "unpipeSignal");
+    const destinationStream = getToStream(destination, to);
+    return {
+      destination,
+      destinationStream,
+      from,
+      unpipeSignal
+    };
+  } catch (error62) {
+    abortDestination(destination, pipeArguments[0]);
+    return { destinationError: error62 };
+  }
+};
+var abortDestination = (destination, firstArgument) => {
+  if (destination !== firstArgument) {
+    destination.kill();
+  }
+  destination.catch(() => {
+  });
+};
+var getDestination = (boundOptions, createNested, firstArgument, ...pipeArguments) => {
+  if (Array.isArray(firstArgument)) {
+    const destination = createNested(mapDestinationArguments, boundOptions)(firstArgument, ...pipeArguments);
+    return { destination, pipeOptions: boundOptions };
+  }
+  if (typeof firstArgument === "string" || firstArgument instanceof URL || isDenoExecPath(firstArgument)) {
+    if (Object.keys(boundOptions).length > 0) {
+      throw new TypeError('Please use .pipe("file", ..., options) or .pipe(execa("file", ..., options)) instead of .pipe(options)("file", ...).');
+    }
+    const [rawFile, rawArguments, rawOptions] = normalizeParameters(firstArgument, ...pipeArguments);
+    const destination = createNested(mapDestinationArguments)(rawFile, rawArguments, rawOptions);
+    return { destination, pipeOptions: rawOptions };
+  }
+  if (SUBPROCESS_OPTIONS.has(firstArgument)) {
+    if (Object.keys(boundOptions).length > 0) {
+      throw new TypeError("Please use .pipe(options)`command` or .pipe($(options)`command`) instead of .pipe(options)($`command`).");
+    }
+    return { destination: firstArgument, pipeOptions: pipeArguments[0] };
+  }
+  throw new TypeError(`The first argument must be a template string, an options object, or an Execa subprocess: ${firstArgument}`);
+};
+var mapDestinationArguments = ({ options }) => ({
+  options: {
+    __proto__: null,
+    ...options,
+    // Piping writes to the destination's `stdin`, which is forced even if the user set another value.
+    // However, `stdin` cannot be combined with `stdio`, which is needed for `to: 'fd3'` and higher.
+    ...options.stdio === void 0 && { stdin: "pipe" },
+    piped: true
+  }
+});
+var getSourceStream = (source, from) => {
+  try {
+    const sourceStream = getFromStream(source, from);
+    return { sourceStream };
+  } catch (error62) {
+    return { sourceError: error62 };
+  }
+};
+
+// ../elt/node_modules/execa/lib/pipe/throw.js
+var handlePipeArgumentsError = ({
+  sourceStream,
+  sourceError,
+  destinationStream,
+  destinationError,
+  fileDescriptors,
+  sourceOptions,
+  startTime
+}) => {
+  const error62 = getPipeArgumentsError({
+    sourceStream,
+    sourceError,
+    destinationStream,
+    destinationError
+  });
+  if (error62 !== void 0) {
+    throw createNonCommandError({
+      error: error62,
+      fileDescriptors,
+      sourceOptions,
+      startTime
+    });
+  }
+};
+var getPipeArgumentsError = ({ sourceStream, sourceError, destinationStream, destinationError }) => {
+  if (sourceError !== void 0 && destinationError !== void 0) {
+    return destinationError;
+  }
+  if (destinationError !== void 0) {
+    abortSourceStream(sourceStream);
+    return destinationError;
+  }
+  if (sourceError === void 0) {
+    return;
+  }
+  endDestinationStream(destinationStream);
+  return sourceError;
+};
+var createNonCommandError = ({ error: error62, fileDescriptors, sourceOptions, startTime }) => makeEarlyError({
+  error: error62,
+  command: PIPE_COMMAND_MESSAGE,
+  escapedCommand: PIPE_COMMAND_MESSAGE,
+  fileDescriptors,
+  options: sourceOptions,
+  startTime,
+  isSync: false
+});
+var PIPE_COMMAND_MESSAGE = "source.pipe(destination)";
+
+// ../elt/node_modules/execa/lib/pipe/sequence.js
+var waitForBothSubprocesses = async (subprocessPromises) => {
+  const [
+    { status: sourceStatus, reason: sourceReason, value: sourceResult = sourceReason },
+    { status: destinationStatus, reason: destinationReason, value: destinationResult = destinationReason },
+    { reason: pipedFromReason, value: pipedFromResult = pipedFromReason }
+  ] = await subprocessPromises;
+  if (!destinationResult.pipedFrom.includes(pipedFromResult)) {
+    destinationResult.pipedFrom.push(pipedFromResult);
+  }
+  if (destinationStatus === "rejected") {
+    throw destinationResult;
+  }
+  if (sourceStatus === "rejected") {
+    throw sourceResult;
+  }
+  return destinationResult;
+};
+
+// ../elt/node_modules/execa/lib/pipe/streaming.js
+import { finished as finished6 } from "node:stream/promises";
+var pipeSubprocessStream = (sourceStream, destinationStream, maxListenersController) => {
+  const mergedStream = MERGED_STREAMS.has(destinationStream) ? pipeMoreSubprocessStream(sourceStream, destinationStream) : pipeFirstSubprocessStream(sourceStream, destinationStream);
+  incrementMaxListeners(sourceStream, SOURCE_LISTENERS_PER_PIPE, maxListenersController.signal);
+  incrementMaxListeners(destinationStream, DESTINATION_LISTENERS_PER_PIPE, maxListenersController.signal);
+  cleanupMergedStreamsMap(destinationStream);
+  return mergedStream;
+};
+var pipeFirstSubprocessStream = (sourceStream, destinationStream) => {
+  const mergedStream = mergeStreams([sourceStream]);
+  addMergeSource(mergedStream, sourceStream);
+  pipeStreams(mergedStream, destinationStream, () => unpipeSourcesOnDestinationEnd(mergedStream));
+  MERGED_STREAMS.set(destinationStream, mergedStream);
+  return mergedStream;
+};
+var pipeMoreSubprocessStream = (sourceStream, destinationStream) => {
+  const mergedStream = MERGED_STREAMS.get(destinationStream);
+  mergedStream.add(sourceStream);
+  addMergeSource(mergedStream, sourceStream);
+  return mergedStream;
+};
+var MERGE_SOURCES = /* @__PURE__ */ new WeakMap();
+var SOURCE_MERGES = /* @__PURE__ */ new WeakMap();
+var addMergeSource = (mergedStream, sourceStream) => {
+  addToSetMap(MERGE_SOURCES, mergedStream, sourceStream);
+  addToSetMap(SOURCE_MERGES, sourceStream, mergedStream);
+};
+var addToSetMap = (map2, key, value) => {
+  if (!map2.has(key)) {
+    map2.set(key, /* @__PURE__ */ new Set());
+  }
+  map2.get(key).add(value);
+};
+var unpipeSubprocessStream = async (mergedStream, sourceStream) => {
+  MERGE_SOURCES.get(mergedStream)?.delete(sourceStream);
+  SOURCE_MERGES.get(sourceStream)?.delete(mergedStream);
+  await mergedStream.remove(sourceStream);
+};
+var unpipeSourcesOnDestinationEnd = async (mergedStream) => {
+  for (const sourceStream of MERGE_SOURCES.get(mergedStream)) {
+    const mergedStreams = SOURCE_MERGES.get(sourceStream);
+    mergedStreams.delete(mergedStream);
+    if (mergedStreams.size > 0) {
+      await mergedStream.remove(sourceStream);
+    }
+  }
+};
+var cleanupMergedStreamsMap = async (destinationStream) => {
+  try {
+    await finished6(destinationStream, { cleanup: true, readable: false, writable: true });
+  } catch {
+  }
+  MERGED_STREAMS.delete(destinationStream);
+};
+var MERGED_STREAMS = /* @__PURE__ */ new WeakMap();
+var SOURCE_LISTENERS_PER_PIPE = 2;
+var DESTINATION_LISTENERS_PER_PIPE = 1;
+
+// ../elt/node_modules/execa/lib/pipe/abort.js
+import { aborted } from "node:util";
+var unpipeOnAbort = (unpipeSignal, unpipeContext) => unpipeSignal === void 0 ? [] : [unpipeOnSignalAbort(unpipeSignal, unpipeContext)];
+var unpipeOnSignalAbort = async (unpipeSignal, { sourceStream, mergedStream, fileDescriptors, sourceOptions, startTime }) => {
+  await aborted(unpipeSignal, sourceStream);
+  await unpipeSubprocessStream(mergedStream, sourceStream);
+  const error62 = new Error("Pipe canceled by `unpipeSignal` option.");
+  throw createNonCommandError({
+    error: error62,
+    fileDescriptors,
+    sourceOptions,
+    startTime
+  });
+};
+
+// ../elt/node_modules/execa/lib/pipe/setup.js
+var pipeToSubprocess = (sourceInfo, ...pipeArguments) => {
+  if (isPlainObject(pipeArguments[0])) {
+    return pipeToSubprocess.bind(void 0, {
+      ...sourceInfo,
+      boundOptions: { ...sourceInfo.boundOptions, ...pipeArguments[0] }
+    });
+  }
+  if (sourceInfo.source === void 0) {
+    return sourceInfo.sourcePromise;
+  }
+  const { destination, ...normalizedInfo } = normalizePipeArguments(sourceInfo, ...pipeArguments);
+  const pipeFailureController = new AbortController();
+  const promise2 = handlePipePromise({ ...normalizedInfo, destination, pipeFailureController });
+  promise2.pipe = pipeToSubprocess.bind(void 0, {
+    ...sourceInfo,
+    source: destination,
+    sourcePromise: promise2,
+    boundOptions: {}
+  });
+  forwardDestinationMethods(promise2, destination, pipeFailureController.signal);
+  return promise2;
+};
+var forwardDestinationMethods = (promise2, destination, pipeFailureSignal) => {
+  if (destination === void 0) {
+    return;
+  }
+  forwardReadableMethods(promise2, destination);
+  forwardIpcMethods(promise2, destination, pipeFailureSignal);
+};
+var forwardReadableMethods = (promise2, destination) => {
+  const subprocessOptions = SUBPROCESS_OPTIONS.get(destination);
+  SUBPROCESS_OPTIONS.set(promise2, subprocessOptions);
+  promise2.stdio = destination.stdio;
+  promise2.all = destination.all;
+  const { options: { encoding } } = subprocessOptions;
+  const concurrentStreams = initializeConcurrentStreams();
+  promise2[Symbol.asyncIterator] = createIterable.bind(void 0, promise2, encoding, {});
+  promise2.iterable = createIterable.bind(void 0, promise2, encoding);
+  promise2.readable = createPipeReadable.bind(void 0, promise2, {
+    subprocess: promise2,
+    concurrentStreams,
+    encoding
+  });
+  promise2.readableStream = createReadableStream.bind(void 0, promise2);
+  forwardAll(promise2, destination);
+};
+var forwardAll = (promise2, destination) => {
+  if (destination.all === void 0) {
+    promise2.all = void 0;
+    return;
+  }
+  Object.defineProperty(promise2, "all", {
+    get() {
+      setAllProperty(promise2, destination.all);
+      const all = promise2.readable({ from: "all" });
+      all.on("error", () => {
+      });
+      setAllProperty(promise2, all);
+      return all;
+    },
+    enumerable: true,
+    configurable: true
+  });
+};
+var setAllProperty = (promise2, value) => {
+  Object.defineProperty(promise2, "all", {
+    value,
+    writable: true,
+    enumerable: true,
+    configurable: true
+  });
+};
+var createPipeReadable = (promise2, readableOptions, ...arguments_) => {
+  const readable = createReadable(readableOptions, ...arguments_);
+  destroyOnPipeFailure(promise2, readable);
+  return readable;
+};
+var destroyOnPipeFailure = async (promise2, readable) => {
+  try {
+    await promise2;
+  } catch (error62) {
+    readable.destroy(error62);
+  }
+};
+var forwardIpcMethods = (promise2, destination, pipeFailureSignal) => {
+  promise2.sendMessage = destination.sendMessage;
+  promise2.getOneMessage = getOnePipeMessage.bind(void 0, destination, pipeFailureSignal);
+  promise2.getEachMessage = getEachPipeMessage.bind(void 0, promise2, destination, pipeFailureSignal);
+};
+var getOnePipeMessage = (destination, pipeFailureSignal, ...arguments_) => {
+  const controller = new AbortController();
+  const messagePromise = destination.getOneMessage(...addPipeOptions(arguments_, controller.signal, internalGetOneMessageOptions));
+  return waitForOnePipeMessage(pipeFailureSignal, messagePromise, controller);
+};
+var waitForOnePipeMessage = async (pipeFailureSignal, messagePromise, controller) => {
+  try {
+    return await Promise.race([messagePromise, getSignalRejection(pipeFailureSignal, controller.signal)]);
+  } finally {
+    controller.abort();
+  }
+};
+var getSignalRejection = (signal, listenerSignal) => new Promise((_, reject) => {
+  if (signal.aborted) {
+    reject(signal.reason);
+    return;
+  }
+  signal.addEventListener("abort", () => {
+    reject(signal.reason);
+  }, { once: true, signal: listenerSignal });
+});
+var getEachPipeMessage = (promise2, destination, pipeFailureSignal, ...arguments_) => {
+  const controller = new AbortController();
+  const iterator = destination.getEachMessage(...addPipeOptions(arguments_, controller.signal, internalGetEachMessageOptions));
+  abortOnSignal(pipeFailureSignal, controller);
+  return iterateOnPipeMessages(promise2, iterator, controller);
+};
+var iterateOnPipeMessages = async function* (promise2, iterator, controller) {
+  try {
+    yield* iterator;
+  } finally {
+    controller.abort();
+    await promise2;
+  }
+};
+var addPipeOptions = (arguments_, signal, internalOptionsSymbol) => {
+  if (arguments_[0] === null) {
+    return arguments_;
+  }
+  const [options] = arguments_;
+  return [{ ...options, [internalOptionsSymbol]: { signal, shouldAwait: false } }];
+};
+var abortOnSignal = (signal, controller) => {
+  if (signal.aborted) {
+    controller.abort();
+    return;
+  }
+  signal.addEventListener("abort", () => {
+    controller.abort();
+  }, { once: true, signal: controller.signal });
+};
+var handlePipePromise = async ({
+  source,
+  sourcePromise,
+  sourceStream,
+  sourceOptions,
+  sourceError,
+  destination,
+  destinationStream,
+  destinationError,
+  unpipeSignal,
+  fileDescriptors,
+  startTime,
+  pipeFailureController
+}) => {
+  const maxListenersController = new AbortController();
+  try {
+    const subprocessPromises = getSubprocessPromises(sourcePromise, destination, source);
+    handlePipeArgumentsError({
+      sourceStream,
+      sourceError,
+      destinationStream,
+      destinationError,
+      fileDescriptors,
+      sourceOptions,
+      startTime
+    });
+    const mergedStream = pipeSubprocessStream(sourceStream, destinationStream, maxListenersController);
+    return await Promise.race([
+      waitForBothSubprocesses(subprocessPromises),
+      ...unpipeOnAbort(unpipeSignal, {
+        sourceStream,
+        mergedStream,
+        sourceOptions,
+        fileDescriptors,
+        startTime
+      })
+    ]);
+  } catch (error62) {
+    pipeFailureController.abort(error62);
+    throw error62;
+  } finally {
+    maxListenersController.abort();
+  }
+};
+var getSubprocessPromises = (sourcePromise, destination, source) => Promise.allSettled([sourcePromise, destination, source]);
+
+// ../elt/node_modules/execa/lib/io/contents.js
+import { setImmediate } from "node:timers/promises";
+var getStreamOutput = async ({ stream, onStreamEnd, fdNumber, encoding, buffer, maxBuffer, lines, allMixed, stripFinalNewline: stripFinalNewline2, allFds, verboseInfo, streamInfo }) => {
+  const logPromise = logOutputAsync({
+    stream,
+    onStreamEnd,
+    fdNumber,
+    encoding,
+    allMixed,
+    verboseInfo,
+    streamInfo
+  });
+  if (!buffer) {
+    await Promise.all([resumeStream(stream), logPromise]);
+    return;
+  }
+  const stripFinalNewlineValue = getStripFinalNewline(stripFinalNewline2, fdNumber, allFds);
+  const iterable = iterateForResult({
+    stream,
+    onStreamEnd,
+    lines,
+    encoding,
+    stripFinalNewline: stripFinalNewlineValue,
+    allMixed
+  });
+  const [output2] = await Promise.all([
+    getStreamContents2({
+      stream,
+      iterable,
+      fdNumber,
+      encoding,
+      maxBuffer,
+      lines
+    }),
+    logPromise
+  ]);
+  return output2;
+};
+var logOutputAsync = async ({ stream, onStreamEnd, fdNumber, encoding, allMixed, verboseInfo, streamInfo: { fileDescriptors } }) => {
+  if (!shouldLogOutput({
+    stdioItems: fileDescriptors[fdNumber]?.stdioItems,
+    encoding,
+    verboseInfo,
+    fdNumber
+  })) {
+    return;
+  }
+  const linesIterable = iterateForResult({
+    stream,
+    onStreamEnd,
+    lines: true,
+    encoding,
+    stripFinalNewline: true,
+    allMixed
+  });
+  await logLines(linesIterable, stream, fdNumber, verboseInfo);
+};
+var resumeStream = async (stream) => {
+  await setImmediate();
+  if (stream.readableFlowing === null) {
+    stream.resume();
+  }
+};
+var getStreamContents2 = async ({ stream, stream: { readableObjectMode }, iterable, fdNumber, encoding, maxBuffer, lines }) => {
+  try {
+    if (readableObjectMode || lines) {
+      return await getStreamAsArray(iterable, { maxBuffer });
+    }
+    return encoding === "buffer" ? new Uint8Array(await getStreamAsArrayBuffer(iterable, { maxBuffer })) : await getStreamAsString(iterable, { maxBuffer });
+  } catch (error62) {
+    return handleBufferedData(handleMaxBuffer({
+      error: error62,
+      stream,
+      readableObjectMode,
+      lines,
+      encoding,
+      fdNumber
+    }));
+  }
+};
+var getBufferedData = async (streamPromise) => {
+  try {
+    return await streamPromise;
+  } catch (error62) {
+    return handleBufferedData(error62);
+  }
+};
+var handleBufferedData = (error62) => isArrayBuffer(error62?.bufferedData) ? new Uint8Array(error62.bufferedData) : error62?.bufferedData;
+
+// ../elt/node_modules/execa/lib/resolve/stdio.js
+var waitForStdioStreams = ({ subprocess, encoding, buffer, maxBuffer, lines, stripFinalNewline: stripFinalNewline2, verboseInfo, streamInfo }) => subprocess.stdio.map((stream, fdNumber) => waitForSubprocessStream({
+  stream,
+  fdNumber,
+  encoding,
+  buffer: buffer[fdNumber],
+  maxBuffer: maxBuffer[fdNumber],
+  lines: lines[fdNumber],
+  allMixed: false,
+  stripFinalNewline: stripFinalNewline2,
+  verboseInfo,
+  streamInfo
+}));
+var waitForSubprocessStream = async ({ stream, fdNumber, encoding, buffer, maxBuffer, lines, allMixed, stripFinalNewline: stripFinalNewline2, allFds, verboseInfo, streamInfo }) => {
+  if (!stream) {
+    return;
+  }
+  const onStreamEnd = waitForStream(stream, fdNumber, streamInfo);
+  if (isInputFileDescriptor(streamInfo, fdNumber)) {
+    await onStreamEnd;
+    return;
+  }
+  const [output2] = await Promise.all([
+    getStreamOutput({
+      stream,
+      onStreamEnd,
+      fdNumber,
+      encoding,
+      buffer,
+      maxBuffer,
+      lines,
+      allMixed,
+      stripFinalNewline: stripFinalNewline2,
+      allFds,
+      verboseInfo,
+      streamInfo
+    }),
+    onStreamEnd
+  ]);
+  return output2;
+};
+
+// ../elt/node_modules/execa/lib/resolve/all-async.js
+var makeAllStream = ({ stdout, stderr }, { all }) => {
+  if (!all) {
+    return;
+  }
+  const fileDescriptors = [[stdout, 1], [stderr, 2]].filter(([stream]) => stream);
+  return fileDescriptors.length === 0 ? void 0 : setAllStream(mergeStreams(fileDescriptors.map(([stream]) => stream)));
+};
+var getAllFds = ({ stdout, stderr }, [, bufferStdout, bufferStderr]) => [
+  ...stdout !== null && bufferStdout ? [1] : [],
+  ...stderr !== null && bufferStderr ? [2] : []
+];
+var waitForAllStream = ({ subprocess, all, encoding, buffer, maxBuffer, lines, stripFinalNewline: stripFinalNewline2, verboseInfo, streamInfo }) => {
+  const { stream, buffer: bufferAll, drainedStream } = getAllStream(subprocess, all, buffer);
+  return Promise.all([
+    waitForSubprocessStream({
+      stream,
+      buffer: bufferAll,
+      fdNumber: "all",
+      encoding,
+      maxBuffer: maxBuffer[1] + maxBuffer[2],
+      lines: lines[1] || lines[2],
+      allFds: getAllFds(subprocess, buffer),
+      // A single buffered descriptor keeps its own object mode, even when the merged stream has mixed modes.
+      allMixed: stream === all && getAllMixed(subprocess, all),
+      stripFinalNewline: stripFinalNewline2,
+      verboseInfo,
+      streamInfo
+    }),
+    // When only one of the two file descriptors is buffered, its stream is read instead of the merged one.
+    // The merged one is then drained, otherwise it would apply backpressure on that file descriptor and hang the subprocess.
+    drainedStream === void 0 ? void 0 : resumeStream(drainedStream)
+  ]).then(([output2]) => output2);
+};
+var getAllStream = ({ stdout, stderr }, all, [, bufferStdout, bufferStderr]) => {
+  const buffer = bufferStdout || bufferStderr;
+  if (!buffer) {
+    return { stream: all, buffer };
+  }
+  if (!all) {
+    return { stream: void 0, buffer };
+  }
+  if (!bufferStdout) {
+    return { stream: stderr, buffer, drainedStream: all };
+  }
+  return bufferStderr ? { stream: all, buffer } : { stream: stdout, buffer, drainedStream: all };
+};
+var getAllMixed = ({ stdout, stderr }, all) => all && stdout && stderr && stdout.readableObjectMode !== stderr.readableObjectMode;
+
+// ../elt/node_modules/execa/lib/resolve/wait-subprocess.js
+import { once as once8 } from "node:events";
+
+// ../elt/node_modules/execa/lib/verbose/ipc.js
+var shouldLogIpc = (verboseInfo) => isFullVerbose(verboseInfo, "ipc");
+var logIpcOutput = (message, verboseInfo) => {
+  const verboseMessage = serializeVerboseMessage(message);
+  verboseLog({
+    type: "ipc",
+    verboseMessage,
+    fdNumber: "ipc",
+    verboseInfo
+  });
+};
+
+// ../elt/node_modules/execa/lib/ipc/buffer-messages.js
+var waitForIpcOutput = async ({
+  subprocess,
+  buffer: bufferArray,
+  maxBuffer: maxBufferArray,
+  ipc,
+  ipcOutput,
+  verboseInfo
+}) => {
+  if (!ipc) {
+    return ipcOutput;
+  }
+  const isVerbose2 = shouldLogIpc(verboseInfo);
+  const buffer = getFdSpecificValue(bufferArray, "ipc");
+  const maxBuffer = getFdSpecificValue(maxBufferArray, "ipc");
+  const logErrors = [];
+  for await (const message of loopOnMessages({
+    anyProcess: subprocess,
+    channel: subprocess.channel,
+    isSubprocess: false,
+    ipc,
+    shouldAwait: false,
+    reference: true
+  })) {
+    if (buffer) {
+      checkIpcMaxBuffer(ipcOutput, maxBuffer);
+      ipcOutput.push(message);
+    }
+    if (isVerbose2) {
+      try {
+        logIpcOutput(message, verboseInfo);
+      } catch (error62) {
+        logErrors.push(error62);
+      }
+    }
+  }
+  if (logErrors.length > 0) {
+    throw logErrors[0];
+  }
+  return ipcOutput;
+};
+var getBufferedIpcOutput = async (ipcOutputPromise, ipcOutput) => {
+  await Promise.allSettled([ipcOutputPromise]);
+  return ipcOutput;
+};
+
+// ../elt/node_modules/execa/lib/resolve/wait-subprocess.js
+var waitForSubprocessResult = async ({
+  subprocess,
+  kill,
+  all,
+  options: {
+    encoding,
+    buffer,
+    maxBuffer,
+    lines,
+    timeoutDuration: timeout,
+    cancelSignal,
+    gracefulCancel,
+    forceKillAfterDelay,
+    stripFinalNewline: stripFinalNewline2,
+    ipc,
+    ipcInput
+  },
+  context,
+  verboseInfo,
+  fileDescriptors,
+  originalStreams,
+  onInternalError,
+  controller
+}) => {
+  const exitPromise = waitForExit(subprocess, context);
+  const streamInfo = {
+    originalStreams,
+    fileDescriptors,
+    subprocess,
+    exitPromise,
+    propagating: false
+  };
+  const stdioPromises = waitForStdioStreams({
+    subprocess,
+    encoding,
+    buffer,
+    maxBuffer,
+    lines,
+    stripFinalNewline: stripFinalNewline2,
+    verboseInfo,
+    streamInfo
+  });
+  const allPromise = waitForAllStream({
+    subprocess,
+    all,
+    encoding,
+    buffer,
+    maxBuffer,
+    lines,
+    stripFinalNewline: stripFinalNewline2,
+    verboseInfo,
+    streamInfo
+  });
+  const ipcOutput = [];
+  const ipcOutputPromise = waitForIpcOutput({
+    subprocess,
+    buffer,
+    maxBuffer,
+    ipc,
+    ipcOutput,
+    verboseInfo
+  });
+  const originalPromises = waitForOriginalStreams(originalStreams, subprocess, streamInfo);
+  const customStreamsEndPromises = waitForCustomStreamsEnd(fileDescriptors, streamInfo);
+  try {
+    return await Promise.race([
+      Promise.all([
+        {},
+        waitForSuccessfulExit(exitPromise),
+        Promise.all(stdioPromises),
+        allPromise,
+        ipcOutputPromise,
+        sendIpcInput(subprocess, ipcInput, ipc),
+        ...originalPromises,
+        ...customStreamsEndPromises
+      ]),
+      onInternalError,
+      throwOnSubprocessError(subprocess, controller),
+      ...throwOnTimeout(kill, timeout, context, controller),
+      ...throwOnCancel({
+        kill,
+        cancelSignal,
+        gracefulCancel,
+        context,
+        controller
+      }),
+      ...throwOnGracefulCancel({
+        subprocess,
+        kill,
+        cancelSignal,
+        gracefulCancel,
+        forceKillAfterDelay,
+        context,
+        controller
+      })
+    ]);
+  } catch (error62) {
+    context.terminationReason ??= "other";
+    if (error62 instanceof MaxBufferError) {
+      kill();
+    }
+    return Promise.all([
+      { error: error62 },
+      exitPromise,
+      Promise.all(stdioPromises.map((stdioPromise) => getBufferedData(stdioPromise))),
+      getBufferedData(allPromise),
+      getBufferedIpcOutput(ipcOutputPromise, ipcOutput),
+      Promise.allSettled(originalPromises),
+      Promise.allSettled(customStreamsEndPromises)
+    ]);
+  }
+};
+var waitForOriginalStreams = (originalStreams, subprocess, streamInfo) => originalStreams.map((stream, fdNumber) => stream === subprocess.stdio[fdNumber] ? void 0 : waitForStream(stream, fdNumber, streamInfo));
+var waitForCustomStreamsEnd = (fileDescriptors, streamInfo) => fileDescriptors.flatMap(({ stdioItems, direction }, fdNumber) => stdioItems.filter(({ value, stream = value }) => isStream(stream, { checkOpen: false }) && !isStandardStream(stream)).map(({ type, value, stream = value }) => waitForStream(stream, fdNumber, streamInfo, {
+  isSameDirection: TRANSFORM_TYPES.has(type),
+  stopOnExit: type === "native",
+  // Output streams are destinations which are handed back to the user: waiting for their readable side would mean waiting for the user to consume them.
+  readable: direction !== "output" || TRANSFORM_TYPES.has(type)
+})));
+var throwOnSubprocessError = async (subprocess, { signal }) => {
+  const [error62] = await once8(subprocess, "error", { signal });
+  throw error62;
+};
+
+// ../elt/node_modules/execa/lib/convert/writable.js
+import { Writable as Writable4 } from "node:stream";
+import { callbackify as callbackify4 } from "node:util";
+var createWritable = ({ subprocess, concurrentStreams }, options) => {
+  const { to } = copyOptions(options);
+  const subprocessStdin = getToStream(subprocess, to);
+  const { waitWritableFinal, waitWritableDestroy } = addWritableConcurrentStreams(concurrentStreams, subprocessStdin);
+  const writable = new Writable4({
+    ...getWritableMethods(subprocessStdin, subprocess, waitWritableFinal),
+    destroy: callbackify4(onWritableDestroy.bind(void 0, {
+      subprocessStdin,
+      subprocess,
+      waitWritableFinal,
+      waitWritableDestroy
+    })),
+    highWaterMark: subprocessStdin.writableHighWaterMark,
+    objectMode: subprocessStdin.writableObjectMode
+  });
+  onStdinFinished(subprocessStdin, writable, void 0, subprocess);
+  return writable;
+};
+var addWritableConcurrentStreams = (concurrentStreams, subprocessStdin) => {
+  const waitWritableFinal = addConcurrentStream(concurrentStreams, subprocessStdin, "writableFinal");
+  const waitWritableDestroy = addConcurrentStream(concurrentStreams, subprocessStdin, "writableDestroy");
+  return { waitWritableFinal, waitWritableDestroy };
+};
+var getWritableMethods = (subprocessStdin, subprocess, waitWritableFinal) => ({
+  write: onWrite.bind(void 0, subprocessStdin),
+  final: callbackify4(onWritableFinal.bind(void 0, subprocessStdin, subprocess, waitWritableFinal))
+});
+var onWrite = (subprocessStdin, chunk, encoding, done) => {
+  if (subprocessStdin.write(chunk, encoding)) {
+    done();
+  } else {
+    subprocessStdin.once("drain", done);
+  }
+};
+var onWritableFinal = async (subprocessStdin, subprocess, waitWritableFinal) => {
+  if (!await waitForConcurrentStreams(waitWritableFinal, subprocess)) {
+    return;
+  }
+  if (subprocessStdin.writable) {
+    subprocessStdin.end();
+  }
+  await subprocess;
+};
+var onStdinFinished = async (subprocessStdin, writable, subprocessStdout, subprocess) => {
+  try {
+    await waitForSubprocessStdin(subprocessStdin);
+    await subprocess;
+    if (writable.writable) {
+      writable.end();
+    }
+  } catch (error62) {
+    await safeWaitForSubprocessStdout(subprocessStdout);
+    destroyOtherStream(writable, !writable.writableFinished, await getSubprocessError(subprocess, error62));
+  }
+};
+var getSubprocessError = async (subprocess, error62) => {
+  if (!shouldUseSubprocessError(error62)) {
+    return error62;
+  }
+  try {
+    await subprocess;
+  } catch (subprocessError) {
+    return subprocessError;
+  }
+  return error62;
+};
+var shouldUseSubprocessError = (error62) => error62 === void 0 || isStreamAbort(error62) || error62.code === "EPIPE";
+var onWritableDestroy = async ({ subprocessStdin, subprocess, waitWritableFinal, waitWritableDestroy }, error62) => {
+  await waitForConcurrentStreams(waitWritableFinal, subprocess);
+  if (await waitForConcurrentStreams(waitWritableDestroy, subprocess)) {
+    destroyOtherWritable(subprocessStdin, error62);
+    await subprocess;
+  }
+  throwDestroyError(error62);
+};
+var destroyOtherWritable = (stream, error62) => {
+  destroyOtherStream(stream, stream.writable, error62);
+};
+
+// ../elt/node_modules/execa/lib/convert/duplex.js
+import { Duplex as Duplex4 } from "node:stream";
+import { callbackify as callbackify5 } from "node:util";
+var createDuplex = ({ subprocess, concurrentStreams, encoding }, options) => {
+  const { from, to, binary: binaryOption = true, preserveNewlines = true } = copyOptions(options);
+  checkBooleanOption(binaryOption, "binary");
+  checkBooleanOption(preserveNewlines, "preserveNewlines");
+  const binary = binaryOption || BINARY_ENCODINGS.has(encoding);
+  const subprocessStdout = getFromStream(subprocess, from);
+  const subprocessStdin = getToStream(subprocess, to);
+  const waitReadableDestroy = addConcurrentStream(concurrentStreams, subprocessStdout, "readableDestroy");
+  const { waitWritableFinal, waitWritableDestroy } = addWritableConcurrentStreams(concurrentStreams, subprocessStdin);
+  const { readableEncoding, readableObjectMode, readableHighWaterMark } = getReadableOptions(subprocessStdout, binary);
+  const { read: read3, onStdoutDataDone } = getReadableMethods({
+    subprocessStdout,
+    subprocess,
+    binary,
+    encoding,
+    preserveNewlines
+  });
+  const duplex = new Duplex4({
+    read: read3,
+    ...getWritableMethods(subprocessStdin, subprocess, waitWritableFinal),
+    destroy: callbackify5(onDuplexDestroy.bind(void 0, {
+      subprocessStdout,
+      subprocessStdin,
+      subprocess,
+      waitReadableDestroy,
+      waitWritableFinal,
+      waitWritableDestroy
+    })),
+    readableHighWaterMark,
+    writableHighWaterMark: subprocessStdin.writableHighWaterMark,
+    readableObjectMode,
+    writableObjectMode: subprocessStdin.writableObjectMode,
+    encoding: readableEncoding
+  });
+  onStdoutFinished({
+    subprocessStdout,
+    onStdoutDataDone,
+    readable: duplex,
+    subprocess,
+    subprocessStdin
+  });
+  onStdinFinished(subprocessStdin, duplex, subprocessStdout, subprocess);
+  return duplex;
+};
+var onDuplexDestroy = async ({ subprocessStdout, subprocessStdin, subprocess, waitReadableDestroy, waitWritableFinal, waitWritableDestroy }, error62) => {
+  await Promise.all([
+    onReadableDestroy({ subprocessStdout, subprocess, waitReadableDestroy }, error62),
+    onWritableDestroy({
+      subprocessStdin,
+      subprocess,
+      waitWritableFinal,
+      waitWritableDestroy
+    }, error62)
+  ]);
+};
+
+// ../elt/node_modules/execa/lib/convert/add.js
+var addConvertedStreams = (subprocess, { encoding }) => {
+  const concurrentStreams = initializeConcurrentStreams();
+  subprocess.readable = createReadable.bind(void 0, { subprocess, concurrentStreams, encoding });
+  subprocess.writable = createWritable.bind(void 0, { subprocess, concurrentStreams });
+  subprocess.duplex = createDuplex.bind(void 0, { subprocess, concurrentStreams, encoding });
+  subprocess.readableStream = createReadableStream.bind(void 0, subprocess);
+  subprocess.writableStream = createWritableStream.bind(void 0, subprocess);
+  subprocess.transformStream = createTransformStream.bind(void 0, subprocess);
+  subprocess.iterable = createIterable.bind(void 0, subprocess, encoding);
+  subprocess[Symbol.asyncIterator] = createIterable.bind(void 0, subprocess, encoding, {});
+};
+
+// ../elt/node_modules/execa/lib/methods/promise.js
+var mergePromise = (promise2, properties) => Object.assign(promise2, properties);
+
+// ../elt/node_modules/execa/lib/methods/main-async.js
+var execaCoreAsync = (rawFile, rawArguments, rawOptions, createNested) => {
+  const { file: file2, commandArguments, command, escapedCommand, startTime, verboseInfo, options, fileDescriptors } = handleAsyncArguments(rawFile, rawArguments, rawOptions);
+  const { subprocess: nodeChildProcess, promise: promise2, kill, all, convertedStreams } = spawnSubprocessAsync({
+    file: file2,
+    commandArguments,
+    options,
+    startTime,
+    verboseInfo,
+    command,
+    escapedCommand,
+    fileDescriptors
+  });
+  const subprocess = getSubprocessPromise({
+    promise: promise2,
+    nodeChildProcess,
+    kill,
+    all,
+    convertedStreams,
+    options
+  });
+  subprocess.pipe = pipeToSubprocess.bind(void 0, {
+    source: subprocess,
+    sourcePromise: promise2,
+    boundOptions: {},
+    createNested
+  });
+  SUBPROCESS_OPTIONS.set(subprocess, { options, fileDescriptors });
+  return subprocess;
+};
+var handleAsyncArguments = (rawFile, rawArguments, rawOptions) => {
+  const { command, escapedCommand, startTime, verboseInfo } = handleCommand(rawFile, rawArguments, rawOptions);
+  const { file: file2, commandArguments, options: normalizedOptions } = normalizeOptions(rawFile, rawArguments, rawOptions);
+  const options = handleAsyncOptions(normalizedOptions);
+  const fileDescriptors = handleStdioAsync(options, verboseInfo);
+  return {
+    file: file2,
+    commandArguments,
+    command,
+    escapedCommand,
+    startTime,
+    verboseInfo,
+    options,
+    fileDescriptors
+  };
+};
+var handleAsyncOptions = ({ timeout, signal, ...options }) => ({ __proto__: null, ...options, timeoutDuration: timeout });
+var spawnSubprocessAsync = ({ file: file2, commandArguments, options, startTime, verboseInfo, command, escapedCommand, fileDescriptors }) => {
+  let subprocess;
+  try {
+    subprocess = spawn(...concatenateShell(file2, commandArguments, getSpawnOptions(options)));
+  } catch (error62) {
+    return handleEarlyError({
+      error: error62,
+      command,
+      escapedCommand,
+      fileDescriptors,
+      options,
+      startTime,
+      verboseInfo
+    });
+  }
+  if (subprocess.stdio === void 0) {
+    return handleEarlyError({
+      error: once9(subprocess, "error").then(([error62]) => error62),
+      command,
+      escapedCommand,
+      fileDescriptors,
+      options,
+      startTime,
+      verboseInfo
+    });
+  }
+  const controller = new AbortController();
+  setMaxListeners(Infinity, controller.signal);
+  const originalStreams = [...subprocess.stdio];
+  pipeOutputAsync(subprocess, fileDescriptors, controller);
+  setIpcSubprocessOptions(subprocess, options);
+  const context = {};
+  const onInternalError = createDeferred();
+  const kill = subprocessKill.bind(void 0, {
+    kill: getKillFunction(subprocess, options),
+    options,
+    onInternalError,
+    context,
+    controller
+  });
+  cleanupOnExit(kill, options, controller);
+  const all = makeAllStream(subprocess, options);
+  const promise2 = handlePromise({
+    subprocess,
+    kill,
+    all,
+    options,
+    startTime,
+    verboseInfo,
+    fileDescriptors,
+    originalStreams,
+    command,
+    escapedCommand,
+    context,
+    onInternalError,
+    controller
+  });
+  return {
+    subprocess,
+    promise: promise2,
+    kill,
+    all
+  };
+};
+var getSubprocessPromise = ({ promise: promise2, nodeChildProcess, kill, all, convertedStreams, options }) => {
+  const subprocess = mergePromise(promise2, getSubprocessProperties(nodeChildProcess, all));
+  subprocess.kill = kill ?? subprocess.kill;
+  if (convertedStreams === void 0) {
+    addConvertedStreams(subprocess, options);
+  } else {
+    Object.assign(subprocess, convertedStreams);
+  }
+  addIpcMethods(subprocess, nodeChildProcess, options);
+  return subprocess;
+};
+var getSubprocessProperties = (nodeChildProcess, all) => ({
+  nodeChildProcess,
+  pid: nodeChildProcess.pid,
+  stdin: nodeChildProcess.stdin,
+  stdout: nodeChildProcess.stdout,
+  stderr: nodeChildProcess.stderr,
+  stdio: nodeChildProcess.stdio,
+  all,
+  kill: nodeChildProcess.kill.bind(nodeChildProcess)
+});
+var handlePromise = async ({ subprocess, kill, all: allStream, options, startTime, verboseInfo, fileDescriptors, originalStreams, command, escapedCommand, context, onInternalError, controller }) => {
+  const [
+    errorInfo,
+    [exitCode, signal],
+    stdioResults,
+    allResult,
+    ipcOutput
+  ] = await waitForSubprocessResult({
+    subprocess,
+    kill,
+    all: allStream,
+    options,
+    context,
+    verboseInfo,
+    fileDescriptors,
+    originalStreams,
+    onInternalError,
+    controller
+  });
+  controller.abort();
+  onInternalError.resolve();
+  const stdio = stdioResults.map((stdioResult, fdNumber) => stripNewline(stdioResult, options, fdNumber));
+  const all = stripNewline(allResult, options, "all", getAllFds(subprocess, options.buffer));
+  const result = getAsyncResult({
+    errorInfo,
+    exitCode,
+    signal,
+    stdio,
+    all,
+    ipcOutput,
+    context,
+    options,
+    command,
+    escapedCommand,
+    startTime
+  });
+  return handleResult(result, verboseInfo, options);
+};
+var getAsyncResult = ({ errorInfo, exitCode, signal, stdio, all, ipcOutput, context, options, command, escapedCommand, startTime }) => Object.hasOwn(errorInfo, "error") ? makeError({
+  error: errorInfo.error,
+  command,
+  escapedCommand,
+  timedOut: context.terminationReason === "timeout",
+  isCanceled: context.terminationReason === "cancel" || context.terminationReason === "gracefulCancel",
+  isGracefullyCanceled: context.terminationReason === "gracefulCancel",
+  isMaxBuffer: errorInfo.error instanceof MaxBufferError,
+  isForcefullyTerminated: context.isForcefullyTerminated,
+  exitCode,
+  signal,
+  stdio,
+  all,
+  ipcOutput,
+  options,
+  startTime,
+  isSync: false
+}) : makeSuccessResult({
+  command,
+  escapedCommand,
+  stdio,
+  all,
+  ipcOutput,
+  options,
+  startTime
+});
+
+// ../elt/node_modules/execa/lib/methods/bind.js
+var mergeOptions = (boundOptions, options) => {
+  const safeBoundOptions = { __proto__: null, ...boundOptions };
+  const mergedOptions = Object.fromEntries(Object.entries(options).map(([optionName, optionValue]) => [
+    optionName,
+    mergeOption(optionName, safeBoundOptions[optionName], optionValue)
+  ]));
+  return { __proto__: null, ...safeBoundOptions, ...mergedOptions };
+};
+var mergeOption = (optionName, boundOptionValue, optionValue) => DEEP_OPTIONS.has(optionName) && isPlainObject(boundOptionValue) && isPlainObject(optionValue) ? { ...boundOptionValue, ...optionValue } : optionValue;
+var DEEP_OPTIONS = /* @__PURE__ */ new Set(["env", ...FD_SPECIFIC_OPTIONS]);
+
+// ../elt/node_modules/execa/lib/methods/create.js
+var createExeca = (mapArguments, boundOptions, deepOptions, setBoundExeca) => {
+  const createNested = (mapArguments2, boundOptions2, setBoundExeca2) => createExeca(mapArguments2, boundOptions2, deepOptions, setBoundExeca2);
+  const boundExeca = (...execaArguments) => callBoundExeca({
+    mapArguments,
+    deepOptions,
+    boundOptions,
+    setBoundExeca,
+    createNested
+  }, ...execaArguments);
+  if (setBoundExeca !== void 0) {
+    setBoundExeca(boundExeca, createNested, boundOptions);
+  }
+  return boundExeca;
+};
+var callBoundExeca = ({ mapArguments, deepOptions = {}, boundOptions = {}, setBoundExeca, createNested }, firstArgument, ...nextArguments) => {
+  if (isPlainObject(firstArgument)) {
+    return createNested(mapArguments, mergeOptions(boundOptions, firstArgument), setBoundExeca);
+  }
+  const { file: file2, commandArguments, options, isSync } = parseArguments({
+    mapArguments,
+    firstArgument,
+    nextArguments,
+    deepOptions,
+    boundOptions
+  });
+  return isSync ? execaCoreSync(file2, commandArguments, options) : execaCoreAsync(file2, commandArguments, options, createNested);
+};
+var parseArguments = ({ mapArguments, firstArgument, nextArguments, deepOptions, boundOptions }) => {
+  const callArguments = isTemplateString(firstArgument) ? parseTemplates(firstArgument, nextArguments) : [firstArgument, ...nextArguments];
+  const [initialFile, initialArguments, initialOptions] = normalizeParameters(...callArguments);
+  const mergedOptions = mergeOptions(mergeOptions(deepOptions, boundOptions), initialOptions);
+  for (const [optionName, optionValue] of Object.entries(deepOptions)) {
+    if (mergedOptions[optionName] === void 0) {
+      mergedOptions[optionName] = optionValue;
+    }
+  }
+  const {
+    options = mergedOptions,
+    isSync = false
+  } = { __proto__: null, ...mapArguments({ options: mergedOptions }) };
+  return {
+    file: initialFile,
+    commandArguments: initialArguments,
+    options,
+    isSync
+  };
+};
+
+// ../elt/node_modules/execa/lib/methods/script.js
+var setScriptSync = (boundExeca, createNested, boundOptions) => {
+  boundExeca.sync = createNested(mapScriptSync, boundOptions);
+  boundExeca.s = boundExeca.sync;
+};
+var mapScriptAsync = ({ options }) => getScriptOptions(options);
+var mapScriptSync = ({ options }) => ({ ...getScriptOptions(options), isSync: true });
+var getScriptOptions = (options) => ({ options: { __proto__: null, ...options, ...getScriptStdinOption(options) } });
+var getScriptStdinOption = ({ stdin = "inherit", input: input2, inputFile, stdio }) => input2 === void 0 && inputFile === void 0 && stdio === void 0 ? { stdin } : {};
+var deepScriptOptions = { preferLocal: true };
+
+// ../elt/node_modules/execa/index.js
+var execa = createExeca(() => ({}));
+var execaSync = createExeca(() => ({ isSync: true }));
+var execaNode = createExeca(mapNode);
+var $ = createExeca(mapScriptAsync, {}, deepScriptOptions, setScriptSync);
+var {
+  sendMessage: sendMessage2,
+  getOneMessage: getOneMessage2,
+  getEachMessage: getEachMessage2,
+  getCancelSignal: getCancelSignal2
+} = getIpcExport();
+
+// ../elt/node_modules/@zukhruf/coprocess/dist/coprocess.js
+var tail = 16384;
+var Coprocess = class {
+  #name;
+  #stdin;
+  #lines;
+  #kill;
+  #exit = new Latch();
+  #stderr = "";
+  constructor(file2, args, options) {
+    const { name: name5, ...spawning } = options;
+    this.#name = name5;
+    const subprocess = execa(file2, args, { ...spawning, buffer: false });
+    this.#stdin = subprocess.stdin;
+    this.#kill = () => subprocess.kill();
+    this.#lines = createInterface({ input: subprocess.stdout })[Symbol.asyncIterator]();
+    subprocess.stderr.on("data", (chunk) => {
+      this.#stderr = (this.#stderr + chunk.toString()).slice(-tail);
+    });
+    subprocess.stdin.on("error", () => void 0);
+    subprocess.then(({ exitCode }) => this.#exit.open(this.#exited(exitCode)), (error62) => this.#exit.open(error62.exitCode === void 0 && error62.signal === void 0 ? new Error(`${name5} could not start`, { cause: error62 }) : this.#exited(error62.signal ?? error62.exitCode)));
+  }
+  // Settles with the error that receives get, once the process ended.
+  exited() {
+    return this.#exit.wait();
+  }
+  send(value) {
+    this.#stdin.write(`${JSON.stringify(value)}
+`);
+  }
+  // The next value the process gives. Rejects when the process exits first,
+  // or when the line is not JSON.
+  async receive() {
+    const next = await Promise.race([
+      this.#lines.next(),
+      this.#exit.wait().then((error62) => {
+        throw error62;
+      })
+    ]);
+    if (next.done)
+      throw await this.#exit.wait();
+    try {
+      return JSON.parse(next.value);
+    } catch (error62) {
+      throw new Error(`${this.#name} gave a line that is not JSON`, {
+        cause: error62
+      });
+    }
+  }
+  // Sends a value and receives the one that answers it.
+  request(value) {
+    this.send(value);
+    return this.receive();
+  }
+  kill() {
+    this.#kill();
+  }
+  // Ends stdin, which asks the process to finish, and waits for its exit.
+  async close() {
+    this.#stdin.end();
+    await this.#exit.wait();
+  }
+  #exited(status2) {
+    return new Error(`${this.#name} exited (${status2}): ${this.#stderr.trim()}`);
+  }
+};
+
+// ../elt/packages/sources/apple/macos/dist/vision.js
+var response = external_exports.union([
+  external_exports.object({ text: external_exports.string().nullable() }),
+  external_exports.object({ error: external_exports.string() })
+]);
+var VisionWorker = class extends Coprocess {
+  // The memory a host sizes its pool by: a worker's own and the allocations
+  // Vision makes for it outside the process, with headroom for the imports.
+  static memory = 2 * 1024 ** 3;
+  constructor(helper) {
+    super(helper, [], { name: "Vision worker" });
+  }
+  // The helper says it is ready once its models are compiled. The pool asks
+  // once, before it lends the worker.
+  async ready() {
+    external_exports.object({ ready: external_exports.literal(true) }).parse(await this.receive());
+  }
+  // A pool lends only a ready worker, so the deadline times recognition, not
+  // model compilation, which can take longer.
+  async read(path10) {
+    const deadline = setTimeout(() => this.kill(), 12e4);
+    try {
+      const result = response.parse(await this.request({ path: resolve(path10) }));
+      if ("error" in result)
+        throw new Error(result.error);
+      return result.text;
+    } finally {
+      clearTimeout(deadline);
+    }
+  }
+};
+
+// apps/server/src/startup.ts
+var ocr = new Pool({
+  size: new HillClimbing({ memoryPerWorker: VisionWorker.memory }),
+  startup: new LeaderFirst(),
+  create: () => new VisionWorker(fileURLToPath4(new URL("vision-worker", import.meta.url)))
+});
+
+// apps/server/src/main.ts
+import { readFileSync as readFileSync5 } from "node:fs";
+import { homedir as homedir3 } from "node:os";
+import { join as join10 } from "node:path";
+import { fileURLToPath as fileURLToPath5 } from "node:url";
 
 // node_modules/zod/v3/helpers/util.js
 var util;
@@ -13392,14 +22727,14 @@ var ZodError = class _ZodError extends Error {
           fieldErrors._errors.push(mapper(issue2));
         } else {
           let curr = fieldErrors;
-          let i = 0;
-          while (i < issue2.path.length) {
-            const el = issue2.path[i];
-            const terminal = i === issue2.path.length - 1;
+          let i2 = 0;
+          while (i2 < issue2.path.length) {
+            const el = issue2.path[i2];
+            const terminal = i2 === issue2.path.length - 1;
             if (el === "_errors") {
               if (terminal)
                 curr._errors.push(mapper(issue2));
-              i++;
+              i2++;
               continue;
             }
             if (!Object.prototype.hasOwnProperty.call(curr, el)) {
@@ -13418,7 +22753,7 @@ var ZodError = class _ZodError extends Error {
             if (terminal) {
               curr._errors.push(mapper(issue2));
             }
-            i++;
+            i2++;
           }
         }
       }
@@ -13574,8 +22909,8 @@ function getErrorMap() {
 
 // node_modules/zod/v3/helpers/parseUtil.js
 var makeIssue = (params) => {
-  const { data, path, errorMaps, issueData } = params;
-  const fullPath = [...path, ...issueData.path || []];
+  const { data, path: path10, errorMaps, issueData } = params;
+  const fullPath = [...path10, ...issueData.path || []];
   const fullIssue = {
     ...issueData,
     path: fullPath
@@ -13690,11 +23025,11 @@ var errorUtil;
 
 // node_modules/zod/v3/types.js
 var ParseInputLazyPath = class {
-  constructor(parent, value, path, key) {
+  constructor(parent, value, path10, key) {
     this._cachedPath = [];
     this.parent = parent;
     this.data = value;
-    this._path = path;
+    this._path = path10;
     this._key = key;
   }
   get path() {
@@ -13708,7 +23043,7 @@ var ParseInputLazyPath = class {
     return this._cachedPath;
   }
 };
-var handleResult = (ctx, result) => {
+var handleResult2 = (ctx, result) => {
   if (isValid(result)) {
     return { success: true, data: result.value };
   } else {
@@ -13811,7 +23146,7 @@ var ZodType = class {
       parsedType: getParsedType(data)
     };
     const result = this._parseSync({ data, path: ctx.path, parent: ctx });
-    return handleResult(ctx, result);
+    return handleResult2(ctx, result);
   }
   "~validate"(data) {
     const ctx = {
@@ -13870,7 +23205,7 @@ var ZodType = class {
     };
     const maybeAsyncResult = this._parse({ data, path: ctx.path, parent: ctx });
     const result = await (isAsync(maybeAsyncResult) ? maybeAsyncResult : Promise.resolve(maybeAsyncResult));
-    return handleResult(ctx, result);
+    return handleResult2(ctx, result);
   }
   refine(check2, message) {
     const getIssueProperties = (val) => {
@@ -15391,14 +24726,14 @@ var ZodArray = class _ZodArray extends ZodType {
       }
     }
     if (ctx.common.async) {
-      return Promise.all([...ctx.data].map((item, i) => {
-        return def.type._parseAsync(new ParseInputLazyPath(ctx, item, ctx.path, i));
+      return Promise.all([...ctx.data].map((item, i2) => {
+        return def.type._parseAsync(new ParseInputLazyPath(ctx, item, ctx.path, i2));
       })).then((result2) => {
         return ParseStatus.mergeArray(status2, result2);
       });
     }
-    const result = [...ctx.data].map((item, i) => {
-      return def.type._parseSync(new ParseInputLazyPath(ctx, item, ctx.path, i));
+    const result = [...ctx.data].map((item, i2) => {
+      return def.type._parseSync(new ParseInputLazyPath(ctx, item, ctx.path, i2));
     });
     return ParseStatus.mergeArray(status2, result);
   }
@@ -15999,21 +25334,21 @@ var ZodDiscriminatedUnion = class _ZodDiscriminatedUnion extends ZodType {
     });
   }
 };
-function mergeValues(a, b) {
-  const aType = getParsedType(a);
+function mergeValues(a2, b) {
+  const aType = getParsedType(a2);
   const bType = getParsedType(b);
-  if (a === b) {
-    return { valid: true, data: a };
+  if (a2 === b) {
+    return { valid: true, data: a2 };
   } else if (aType === ZodParsedType.object && bType === ZodParsedType.object) {
     const bKeys = util.objectKeys(b);
-    const sharedKeys = util.objectKeys(a).filter((key) => bKeys.indexOf(key) !== -1);
-    const newObj = { ...a, ...b };
+    const sharedKeys = util.objectKeys(a2).filter((key) => bKeys.indexOf(key) !== -1);
+    const newObj = { ...a2, ...b };
     if (Object.prototype.hasOwnProperty.call(newObj, "__proto__"))
       delete newObj.__proto__;
     for (const key of sharedKeys) {
       if (key === "__proto__")
         continue;
-      const sharedValue = mergeValues(a[key], b[key]);
+      const sharedValue = mergeValues(a2[key], b[key]);
       if (!sharedValue.valid) {
         return { valid: false };
       }
@@ -16021,12 +25356,12 @@ function mergeValues(a, b) {
     }
     return { valid: true, data: newObj };
   } else if (aType === ZodParsedType.array && bType === ZodParsedType.array) {
-    if (a.length !== b.length) {
+    if (a2.length !== b.length) {
       return { valid: false };
     }
     const newArray = [];
-    for (let index = 0; index < a.length; index++) {
-      const itemA = a[index];
+    for (let index = 0; index < a2.length; index++) {
+      const itemA = a2[index];
       const itemB = b[index];
       const sharedValue = mergeValues(itemA, itemB);
       if (!sharedValue.valid) {
@@ -16035,8 +25370,8 @@ function mergeValues(a, b) {
       newArray.push(sharedValue.data);
     }
     return { valid: true, data: newArray };
-  } else if (aType === ZodParsedType.date && bType === ZodParsedType.date && +a === +b) {
-    return { valid: true, data: a };
+  } else if (aType === ZodParsedType.date && bType === ZodParsedType.date && +a2 === +b) {
+    return { valid: true, data: a2 };
   } else {
     return { valid: false };
   }
@@ -16330,7 +25665,7 @@ var ZodSet = class _ZodSet extends ZodType {
       }
       return { status: status2.value, value: parsedSet };
     }
-    const elements = [...ctx.data.values()].map((item, i) => valueType._parse(new ParseInputLazyPath(ctx, item, ctx.path, i)));
+    const elements = [...ctx.data.values()].map((item, i2) => valueType._parse(new ParseInputLazyPath(ctx, item, ctx.path, i2)));
     if (ctx.common.async) {
       return Promise.all(elements).then((elements2) => finalizeSet(elements2));
     } else {
@@ -16988,9 +26323,9 @@ var ZodPipeline = class _ZodPipeline extends ZodType {
       }
     }
   }
-  static create(a, b) {
+  static create(a2, b) {
     return new _ZodPipeline({
-      in: a,
+      in: a2,
       out: b,
       typeName: ZodFirstPartyTypeKind.ZodPipeline
     });
@@ -17419,7 +26754,7 @@ __export(util_exports, {
   CONSTANT_CATCH: () => CONSTANT_CATCH,
   Class: () => Class,
   NUMBER_FORMAT_RANGES: () => NUMBER_FORMAT_RANGES,
-  aborted: () => aborted,
+  aborted: () => aborted2,
   allowsEval: () => allowsEval,
   assert: () => assert,
   assertEqual: () => assertEqual,
@@ -17456,8 +26791,8 @@ __export(util_exports, {
   hexToUint8Array: () => hexToUint8Array,
   hide: () => hide,
   installLazyProp: () => installLazyProp,
-  isObject: () => isObject,
-  isPlainObject: () => isPlainObject,
+  isObject: () => isObject2,
+  isPlainObject: () => isPlainObject2,
   issue: () => issue,
   joinValues: () => joinValues,
   jsonStringifyReplacer: () => jsonStringifyReplacer,
@@ -17648,18 +26983,18 @@ function mergeDefs(...defs) {
 function cloneDef(schema) {
   return mergeDefs(schema._zod.def);
 }
-function getElementAtPath(obj, path) {
-  if (!path)
+function getElementAtPath(obj, path10) {
+  if (!path10)
     return obj;
-  return path.reduce((acc, key) => acc?.[key], obj);
+  return path10.reduce((acc, key) => acc?.[key], obj);
 }
 function promiseAllObject(promisesObj) {
   const keys = Object.keys(promisesObj);
   const promises = keys.map((key) => promisesObj[key]);
   return Promise.all(promises).then((results) => {
     const resolvedObj = {};
-    for (let i = 0; i < keys.length; i++) {
-      resolvedObj[keys[i]] = results[i];
+    for (let i2 = 0; i2 < keys.length; i2++) {
+      resolvedObj[keys[i2]] = results[i2];
     }
     return resolvedObj;
   });
@@ -17667,7 +27002,7 @@ function promiseAllObject(promisesObj) {
 function randomString(length2 = 10) {
   const chars = "abcdefghijklmnopqrstuvwxyz";
   let str = "";
-  for (let i = 0; i < length2; i++) {
+  for (let i2 = 0; i2 < length2; i2++) {
     str += chars[Math.floor(Math.random() * chars.length)];
   }
   return str;
@@ -17680,7 +27015,7 @@ function slugify(input2) {
 }
 var captureStackTrace = "captureStackTrace" in Error ? Error.captureStackTrace : (..._args) => {
 };
-function isObject(data) {
+function isObject2(data) {
   return typeof data === "object" && data !== null && !Array.isArray(data);
 }
 var allowsEval = /* @__PURE__ */ cached(() => {
@@ -17698,32 +27033,32 @@ var allowsEval = /* @__PURE__ */ cached(() => {
     return false;
   }
 });
-function isPlainObject(o) {
-  if (isObject(o) === false)
+function isPlainObject2(o2) {
+  if (isObject2(o2) === false)
     return false;
-  const ctor = o.constructor;
+  const ctor = o2.constructor;
   if (ctor === void 0)
     return true;
   if (typeof ctor !== "function")
     return true;
   const prot = ctor.prototype;
-  if (isObject(prot) === false)
+  if (isObject2(prot) === false)
     return false;
   if (Object.prototype.hasOwnProperty.call(prot, "isPrototypeOf") === false) {
     return false;
   }
   return true;
 }
-function shallowClone(o) {
-  if (isPlainObject(o))
-    return { ...o };
-  if (Array.isArray(o))
-    return [...o];
-  if (o instanceof Map)
-    return new Map(o);
-  if (o instanceof Set)
-    return new Set(o);
-  return o;
+function shallowClone(o2) {
+  if (isPlainObject2(o2))
+    return { ...o2 };
+  if (Array.isArray(o2))
+    return [...o2];
+  if (o2 instanceof Map)
+    return new Map(o2);
+  if (o2 instanceof Set)
+    return new Set(o2);
+  return o2;
 }
 function numKeys(data) {
   let keyCount = 0;
@@ -17904,7 +27239,7 @@ function omit(schema, mask) {
   return clone(schema, mergeDefs(currDef, { shape: newShape, checks: [] }));
 }
 function extend(schema, shape) {
-  if (!isPlainObject(shape)) {
+  if (!isPlainObject2(shape)) {
     throw new Error("Invalid input to extend: expected a plain object");
   }
   const checks = schema._zod.def.checks;
@@ -17926,29 +27261,29 @@ function extended(schema, shape) {
   return newShape;
 }
 function safeExtend(schema, shape) {
-  if (!isPlainObject(shape)) {
+  if (!isPlainObject2(shape)) {
     throw new Error("Invalid input to safeExtend: expected a plain object");
   }
   return clone(schema, mergeDefs(schema._zod.def, { shape: extended(schema, shape) }));
 }
-function merge(a, b) {
+function merge(a2, b) {
   if (!b?._zod?.def) {
     throw new Error("Invalid input to merge: expected an object schema. To merge a plain shape, use `.extend()`.");
   }
-  if (a._zod.def.checks?.length) {
+  if (a2._zod.def.checks?.length) {
     throw new Error(".merge() cannot be used on object schemas containing refinements. Use .safeExtend() instead.");
   }
   const newShape = {};
-  mirrorShape(newShape, a, Reflect.ownKeys(sourceShape(a)));
+  mirrorShape(newShape, a2, Reflect.ownKeys(sourceShape(a2)));
   mirrorShape(newShape, b, Reflect.ownKeys(sourceShape(b)));
-  const def = mergeDefs(a._zod.def, {
+  const def = mergeDefs(a2._zod.def, {
     shape: newShape,
     get catchall() {
       return b._zod.def.catchall;
     },
     checks: b._zod.def.checks ?? []
   });
-  return clone(a, def);
+  return clone(a2, def);
 }
 function partial(Class2, schema, mask, name5 = "partial") {
   const currDef = schema._zod.def;
@@ -17971,11 +27306,11 @@ function required(Class2, schema, mask) {
   ));
   return clone(schema, mergeDefs(schema._zod.def, { shape: newShape }));
 }
-function aborted(x, startIndex = 0) {
+function aborted2(x, startIndex = 0) {
   if (x.aborted === true)
     return true;
-  for (let i = startIndex; i < x.issues.length; i++) {
-    if (x.issues[i]?.continue !== true) {
+  for (let i2 = startIndex; i2 < x.issues.length; i2++) {
+    if (x.issues[i2]?.continue !== true) {
       return true;
     }
   }
@@ -17984,18 +27319,18 @@ function aborted(x, startIndex = 0) {
 function explicitlyAborted(x, startIndex = 0) {
   if (x.aborted === true)
     return true;
-  for (let i = startIndex; i < x.issues.length; i++) {
-    if (x.issues[i]?.continue === false) {
+  for (let i2 = startIndex; i2 < x.issues.length; i2++) {
+    if (x.issues[i2]?.continue === false) {
       return true;
     }
   }
   return false;
 }
-function prefixIssues(path, issues) {
+function prefixIssues(path10, issues) {
   return issues.map((iss) => {
     var _a3;
     (_a3 = iss).path ?? (_a3.path = []);
-    iss.path.unshift(path);
+    iss.path.unshift(path10);
     return iss;
   });
 }
@@ -18004,8 +27339,8 @@ function unwrapMessage(message) {
 }
 function attachSchema(issues, start, inst) {
   var _a3;
-  for (let i = start; i < issues.length; i++) {
-    (_a3 = issues[i]).schema ?? (_a3.schema = inst);
+  for (let i2 = start; i2 < issues.length; i2++) {
+    (_a3 = issues[i2]).schema ?? (_a3.schema = inst);
   }
 }
 function finalizeIssue(iss, ctx, config2) {
@@ -18046,14 +27381,14 @@ function codePointLength(str) {
   const units = str.length;
   if (!highSurrogate.test(str))
     return units;
-  let count = units;
-  for (let i = 0; i < units - 1; i++) {
-    if ((str.charCodeAt(i) & 64512) === 55296 && (str.charCodeAt(i + 1) & 64512) === 56320) {
-      count--;
-      i++;
+  let count2 = units;
+  for (let i2 = 0; i2 < units - 1; i2++) {
+    if ((str.charCodeAt(i2) & 64512) === 55296 && (str.charCodeAt(i2 + 1) & 64512) === 56320) {
+      count2--;
+      i2++;
     }
   }
-  return count;
+  return count2;
 }
 function getLengthableOrigin(input2) {
   if (Array.isArray(input2))
@@ -18103,15 +27438,15 @@ function cleanEnum(obj) {
 function base64ToUint8Array(base643) {
   const binaryString = atob(base643);
   const bytes = new Uint8Array(binaryString.length);
-  for (let i = 0; i < binaryString.length; i++) {
-    bytes[i] = binaryString.charCodeAt(i);
+  for (let i2 = 0; i2 < binaryString.length; i2++) {
+    bytes[i2] = binaryString.charCodeAt(i2);
   }
   return bytes;
 }
 function uint8ArrayToBase64(bytes) {
   let binaryString = "";
-  for (let i = 0; i < bytes.length; i++) {
-    binaryString += String.fromCharCode(bytes[i]);
+  for (let i2 = 0; i2 < bytes.length; i2++) {
+    binaryString += String.fromCharCode(bytes[i2]);
   }
   return btoa(binaryString);
 }
@@ -18129,8 +27464,8 @@ function hexToUint8Array(hex3) {
     throw new Error("Invalid hex string length");
   }
   const bytes = new Uint8Array(cleanHex.length / 2);
-  for (let i = 0; i < cleanHex.length; i += 2) {
-    bytes[i / 2] = Number.parseInt(cleanHex.slice(i, i + 2), 16);
+  for (let i2 = 0; i2 < cleanHex.length; i2 += 2) {
+    bytes[i2 / 2] = Number.parseInt(cleanHex.slice(i2, i2 + 2), 16);
   }
   return bytes;
 }
@@ -18445,28 +27780,28 @@ function flattenError(error62, mapper = (issue2) => issue2.message) {
 }
 function formatError(error62, mapper = (issue2) => issue2.message) {
   const fieldErrors = { _errors: [] };
-  const processError = (error63, path = []) => {
+  const processError = (error63, path10 = []) => {
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path10, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path10, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path10, ...issue2.path]);
       } else {
-        const fullpath = [...path, ...issue2.path];
+        const fullpath = [...path10, ...issue2.path];
         if (fullpath.length === 0) {
           fieldErrors._errors.push(mapper(issue2));
         } else {
           let curr = fieldErrors;
-          let i = 0;
-          while (i < fullpath.length) {
-            const el = fullpath[i];
-            const terminal = i === fullpath.length - 1;
+          let i2 = 0;
+          while (i2 < fullpath.length) {
+            const el = fullpath[i2];
+            const terminal = i2 === fullpath.length - 1;
             if (el === "_errors") {
               if (terminal)
                 curr._errors.push(mapper(issue2));
-              i++;
+              i2++;
               continue;
             }
             if (!Object.prototype.hasOwnProperty.call(curr, el)) {
@@ -18482,7 +27817,7 @@ function formatError(error62, mapper = (issue2) => issue2.message) {
               node2._errors.push(mapper(issue2));
             }
             curr = node2;
-            i++;
+            i2++;
           }
         }
       }
@@ -18493,26 +27828,26 @@ function formatError(error62, mapper = (issue2) => issue2.message) {
 }
 function treeifyError(error62, mapper = (issue2) => issue2.message) {
   const result = { errors: [] };
-  const processError = (error63, path = []) => {
+  const processError = (error63, path10 = []) => {
     var _a3;
     for (const issue2 of error63.issues) {
       if (issue2.code === "invalid_union" && issue2.errors.length) {
-        issue2.errors.map((issues) => processError({ issues }, [...path, ...issue2.path]));
+        issue2.errors.map((issues) => processError({ issues }, [...path10, ...issue2.path]));
       } else if (issue2.code === "invalid_key") {
-        processError({ issues: issue2.issues }, [...path, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path10, ...issue2.path]);
       } else if (issue2.code === "invalid_element") {
-        processError({ issues: issue2.issues }, [...path, ...issue2.path]);
+        processError({ issues: issue2.issues }, [...path10, ...issue2.path]);
       } else {
-        const fullpath = [...path, ...issue2.path];
+        const fullpath = [...path10, ...issue2.path];
         if (fullpath.length === 0) {
           result.errors.push(mapper(issue2));
           continue;
         }
         let curr = result;
-        let i = 0;
-        while (i < fullpath.length) {
-          const el = fullpath[i];
-          const terminal = i === fullpath.length - 1;
+        let i2 = 0;
+        while (i2 < fullpath.length) {
+          const el = fullpath[i2];
+          const terminal = i2 === fullpath.length - 1;
           if (typeof el === "string") {
             curr.properties ?? (curr.properties = {});
             if (!Object.prototype.hasOwnProperty.call(curr.properties, el)) {
@@ -18532,7 +27867,7 @@ function treeifyError(error62, mapper = (issue2) => issue2.message) {
           if (terminal) {
             curr.errors.push(mapper(issue2));
           }
-          i++;
+          i2++;
         }
       }
     }
@@ -18542,8 +27877,8 @@ function treeifyError(error62, mapper = (issue2) => issue2.message) {
 }
 function toDotPath(_path) {
   const segs = [];
-  const path = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
-  for (const seg of path) {
+  const path10 = _path.map((seg) => typeof seg === "object" ? seg.key : seg);
+  for (const seg of path10) {
     if (typeof seg === "number")
       segs.push(`[${seg}]`);
     else if (typeof seg === "symbol")
@@ -18560,7 +27895,7 @@ function toDotPath(_path) {
 }
 function prettifyError(error62) {
   const lines = [];
-  const issues = [...error62.issues].sort((a, b) => (a.path ?? []).length - (b.path ?? []).length);
+  const issues = [...error62.issues].sort((a2, b) => (a2.path ?? []).length - (b.path ?? []).length);
   for (const issue2 of issues) {
     lines.push(`\u2716 ${issue2.message}`);
     if (issue2.path?.length)
@@ -19448,7 +28783,7 @@ var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def) => {
     const runChecks = (payload, checks2, ctx) => {
       if (payload.memo)
         return payload;
-      let isAborted2 = aborted(payload);
+      let isAborted2 = aborted2(payload);
       let asyncResult;
       for (const ch of checks2) {
         if (ch._zod.def.when) {
@@ -19473,7 +28808,7 @@ var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def) => {
               return;
             attachSchema(payload.issues, currLen, inst);
             if (!isAborted2)
-              isAborted2 = aborted(payload, currLen);
+              isAborted2 = aborted2(payload, currLen);
           });
         } else {
           const nextLen = payload.issues.length;
@@ -19481,7 +28816,7 @@ var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def) => {
             continue;
           attachSchema(payload.issues, currLen, inst);
           if (!isAborted2)
-            isAborted2 = aborted(payload, currLen);
+            isAborted2 = aborted2(payload, currLen);
         }
       }
       if (asyncResult) {
@@ -19492,7 +28827,7 @@ var $ZodType = /* @__PURE__ */ $constructor("$ZodType", (inst, def) => {
       return payload;
     };
     const handleCanaryResult = (canary, payload, ctx) => {
-      if (aborted(canary)) {
+      if (aborted2(canary)) {
         canary.aborted = true;
         return canary;
       }
@@ -19861,7 +29196,7 @@ var base64urlCharset = /^[A-Za-z0-9_-]*$/;
 function isValidBase64URL(data) {
   if (!base64urlCharset.test(data))
     return false;
-  const base643 = data.replace(/[-_]/g, (c) => c === "-" ? "+" : "/");
+  const base643 = data.replace(/[-_]/g, (c3) => c3 === "-" ? "+" : "/");
   const padded = base643.padEnd(Math.ceil(base643.length / 4) * 4, "=");
   return isValidBase64(padded);
 }
@@ -19919,12 +29254,12 @@ var $ZodCreditCard = /* @__PURE__ */ $constructor("$ZodCreditCard", (inst, def) 
 function isIso7064Mod97(iban3) {
   let remainder = 0;
   const len = iban3.length;
-  for (let i = 4; i < len; i++) {
-    const code = iban3.charCodeAt(i);
+  for (let i2 = 4; i2 < len; i2++) {
+    const code = iban3.charCodeAt(i2);
     remainder = (code >= 65 ? remainder * 100 + (code - 55) : remainder * 10 + (code - 48)) % 97;
   }
-  for (let i = 0; i < 4; i++) {
-    const code = iban3.charCodeAt(i);
+  for (let i2 = 0; i2 < 4; i2++) {
+    const code = iban3.charCodeAt(i2);
     remainder = (code >= 65 ? remainder * 100 + (code - 55) : remainder * 10 + (code - 48)) % 97;
   }
   return remainder === 1;
@@ -20202,17 +29537,17 @@ var $ZodArray = /* @__PURE__ */ $constructor("$ZodArray", (inst, def) => {
     payload.value = memo2 ? memo2.alloc(inst, payload, Array(input2.length), ctx) : Array(input2.length);
     const proms = [];
     const abortEarly = ctx?.abortEarly;
-    for (let i = 0; i < input2.length; i++) {
-      const item = input2[i];
+    for (let i2 = 0; i2 < input2.length; i2++) {
+      const item = input2[i2];
       const result = def.element._zod.run({
         value: item,
         issues: []
       }, ctx);
       if (result instanceof Promise) {
-        proms.push(result.then((result2) => handleArrayResult(result2, payload, i)));
+        proms.push(result.then((result2) => handleArrayResult(result2, payload, i2)));
       } else {
-        handleArrayResult(result, payload, i);
-        if (abortEarly && result.issues.length !== 0 && aborted(result))
+        handleArrayResult(result, payload, i2);
+        if (abortEarly && result.issues.length !== 0 && aborted2(result))
           break;
       }
     }
@@ -20285,7 +29620,7 @@ function handleCatchall(proms, input2, payload, ctx, def, inst, abortEarly) {
   let seen = 0;
   for (const key in input2) {
     if (abortEarly && payload.issues.length !== seen) {
-      if (aborted(payload, seen))
+      if (aborted2(payload, seen))
         break;
       seen = payload.issues.length;
     }
@@ -20355,7 +29690,7 @@ var $ZodObject = /* @__PURE__ */ $constructor("$ZodObject", (inst, def) => {
     }
     return propValues;
   });
-  const isObject2 = isObject;
+  const isObject3 = isObject2;
   const catchall = def.catchall;
   let value;
   const memo2 = globalConfig.memoizer;
@@ -20363,7 +29698,7 @@ var $ZodObject = /* @__PURE__ */ $constructor("$ZodObject", (inst, def) => {
   inst._zod.parse = (payload, ctx) => {
     value ?? (value = _normalized.value);
     const input2 = payload.value;
-    if (!isObject2(input2)) {
+    if (!isObject3(input2)) {
       payload.issues.push({
         expected: "object",
         code: "invalid_type",
@@ -20379,7 +29714,7 @@ var $ZodObject = /* @__PURE__ */ $constructor("$ZodObject", (inst, def) => {
     let seen = payload.issues.length;
     for (const key of value.allKeys) {
       if (abortEarly && payload.issues.length !== seen) {
-        if (aborted(payload, seen))
+        if (aborted2(payload, seen))
           break;
         seen = payload.issues.length;
       }
@@ -20499,7 +29834,7 @@ var $ZodObjectJIT = /* @__PURE__ */ $constructor("$ZodObjectJIT", (inst, def) =>
     return doc.compile();
   };
   let fastpass;
-  const isObject2 = isObject;
+  const isObject3 = isObject2;
   const jit = !globalConfig.jitless;
   const allowsEval2 = allowsEval;
   const fastEnabled = jit && allowsEval2.value;
@@ -20508,7 +29843,7 @@ var $ZodObjectJIT = /* @__PURE__ */ $constructor("$ZodObjectJIT", (inst, def) =>
   inst._zod.parse = (payload, ctx) => {
     value ?? (value = _normalized.value);
     const input2 = payload.value;
-    if (!isObject2(input2)) {
+    if (!isObject3(input2)) {
       payload.issues.push({
         expected: "object",
         code: "invalid_type",
@@ -20535,7 +29870,7 @@ function handleUnionResults(results, final, inst, ctx) {
       return final;
     }
   }
-  const nonaborted = results.filter((r) => !aborted(r));
+  const nonaborted = results.filter((r) => !aborted2(r));
   if (nonaborted.length === 1) {
     final.value = nonaborted[0].value;
     return nonaborted[0];
@@ -20550,17 +29885,17 @@ function handleUnionResults(results, final, inst, ctx) {
 }
 var $ZodUnion = /* @__PURE__ */ $constructor("$ZodUnion", (inst, def) => {
   $ZodType.init(inst, def);
-  defineLazyInternal(inst, "optin", (zod) => zod.def.options.some((o) => o._zod.optin === "defaulted") ? "defaulted" : zod.def.options.some((o) => o._zod.optin !== void 0) ? "optional" : void 0);
-  defineLazyInternal(inst, "optout", (zod) => zod.def.options.some((o) => o._zod.optout === "optional") ? "optional" : void 0);
+  defineLazyInternal(inst, "optin", (zod) => zod.def.options.some((o2) => o2._zod.optin === "defaulted") ? "defaulted" : zod.def.options.some((o2) => o2._zod.optin !== void 0) ? "optional" : void 0);
+  defineLazyInternal(inst, "optout", (zod) => zod.def.options.some((o2) => o2._zod.optout === "optional") ? "optional" : void 0);
   defineLazyInternal(inst, "values", (zod) => {
-    if (zod.def.options.every((o) => o._zod.values)) {
+    if (zod.def.options.every((o2) => o2._zod.values)) {
       return new Set(zod.def.options.flatMap((option) => Array.from(option._zod.values)));
     }
     return void 0;
   });
   defineLazyInternal(inst, "pattern", (zod) => {
-    if (zod.def.options.every((o) => o._zod.pattern)) {
-      const patterns = zod.def.options.map((o) => o._zod.pattern);
+    if (zod.def.options.every((o2) => o2._zod.pattern)) {
+      const patterns = zod.def.options.map((o2) => o2._zod.pattern);
       return new RegExp(`^(${patterns.map((p) => cleanRegex(p.source)).join("|")})$`);
     }
     return void 0;
@@ -20595,9 +29930,9 @@ var $ZodUnion = /* @__PURE__ */ $constructor("$ZodUnion", (inst, def) => {
 });
 function handleExclusiveUnionResults(results, final, inst, ctx) {
   const matches = [];
-  for (let i = 0; i < results.length; i++) {
-    if (results[i].issues.length === 0)
-      matches.push(i);
+  for (let i2 = 0; i2 < results.length; i2++) {
+    if (results[i2].issues.length === 0)
+      matches.push(i2);
   }
   if (matches.length === 1) {
     final.value = results[matches[0]].value;
@@ -20707,16 +30042,16 @@ var $ZodDiscriminatedUnion = /* @__PURE__ */ $constructor("$ZodDiscriminatedUnio
       propValues[zod.def.discriminator]?.delete(void 0);
     return propValues;
   });
-  def.options.forEach((option, i) => {
+  def.options.forEach((option, i2) => {
     const propShape = rawShape(option._zod.def);
     if (propShape && !Object.prototype.hasOwnProperty.call(propShape, def.discriminator)) {
-      throw new Error(`Invalid discriminated union option at index "${i}"`);
+      throw new Error(`Invalid discriminated union option at index "${i2}"`);
     }
   });
   const disc = cached(() => discriminatorMap(def));
   inst._zod.parse = (payload, ctx) => {
     const input2 = payload.value;
-    if (!isObject(input2)) {
+    if (!isObject2(input2)) {
       payload.issues.push({
         code: "invalid_type",
         expected: "object",
@@ -20761,23 +30096,23 @@ var $ZodIntersection = /* @__PURE__ */ $constructor("$ZodIntersection", (inst, d
     return handleIntersectionResults(payload, left, right);
   };
 });
-function mergeValues2(a, b) {
-  if (a === b) {
-    return { valid: true, data: a };
+function mergeValues2(a2, b) {
+  if (a2 === b) {
+    return { valid: true, data: a2 };
   }
-  if (a instanceof Date && b instanceof Date && +a === +b) {
-    return { valid: true, data: a };
+  if (a2 instanceof Date && b instanceof Date && +a2 === +b) {
+    return { valid: true, data: a2 };
   }
-  if (isPlainObject(a) && isPlainObject(b)) {
+  if (isPlainObject2(a2) && isPlainObject2(b)) {
     const bKeys = Object.keys(b);
-    const sharedKeys = Object.keys(a).filter((key) => bKeys.indexOf(key) !== -1);
-    const newObj = { ...a, ...b };
+    const sharedKeys = Object.keys(a2).filter((key) => bKeys.indexOf(key) !== -1);
+    const newObj = { ...a2, ...b };
     if (Object.prototype.hasOwnProperty.call(newObj, "__proto__"))
       delete newObj.__proto__;
     for (const key of sharedKeys) {
       if (key === "__proto__")
         continue;
-      const sharedValue = mergeValues2(a[key], b[key]);
+      const sharedValue = mergeValues2(a2[key], b[key]);
       if (!sharedValue.valid) {
         return {
           valid: false,
@@ -20788,13 +30123,13 @@ function mergeValues2(a, b) {
     }
     return { valid: true, data: newObj };
   }
-  if (Array.isArray(a) && Array.isArray(b)) {
-    if (a.length !== b.length) {
+  if (Array.isArray(a2) && Array.isArray(b)) {
+    if (a2.length !== b.length) {
       return { valid: false, mergeErrorPath: [] };
     }
     const newArray = [];
-    for (let index = 0; index < a.length; index++) {
-      const itemA = a[index];
+    for (let index = 0; index < a2.length; index++) {
+      const itemA = a2[index];
       const itemB = b[index];
       const sharedValue = mergeValues2(itemA, itemB);
       if (!sharedValue.valid) {
@@ -20853,7 +30188,7 @@ function handleIntersectionResults(result, left, right) {
   }
   const merged = mergeValues2(left.value, right.value);
   if (!merged.valid) {
-    if (aborted(result))
+    if (aborted2(result))
       return result;
     throw new Error(`Unmergable intersection. Error path: ${JSON.stringify(merged.mergeErrorPath)}`);
   }
@@ -20906,34 +30241,34 @@ var $ZodTuple = /* @__PURE__ */ $constructor("$ZodTuple", (inst, def) => {
     const itemResults = new Array(items.length);
     const abortEarly = def.rest ? ctx?.abortEarly : void 0;
     let itemAborted = false;
-    for (let i = 0; i < items.length; i++) {
-      const r = items[i]._zod.run({ value: input2[i], issues: [] }, ctx);
+    for (let i2 = 0; i2 < items.length; i2++) {
+      const r = items[i2]._zod.run({ value: input2[i2], issues: [] }, ctx);
       if (r instanceof Promise) {
         proms.push(r.then((rr) => {
-          itemResults[i] = rr;
+          itemResults[i2] = rr;
         }));
       } else {
-        itemResults[i] = r;
+        itemResults[i2] = r;
         if (abortEarly && !itemAborted && r.issues.length)
-          itemAborted = aborted(r);
+          itemAborted = aborted2(r);
       }
     }
     if (def.rest && !itemAborted) {
-      let i = items.length - 1;
+      let i2 = items.length - 1;
       const rest = input2.slice(items.length);
       let seen = payload.issues.length;
       for (const el of rest) {
         if (abortEarly && payload.issues.length !== seen) {
-          if (aborted(payload, seen))
+          if (aborted2(payload, seen))
             break;
           seen = payload.issues.length;
         }
-        i++;
+        i2++;
         const result = def.rest._zod.run({ value: el, issues: [] }, ctx);
         if (result instanceof Promise) {
-          proms.push(result.then((r) => handleTupleResult(r, payload, i)));
+          proms.push(result.then((r) => handleTupleResult(r, payload, i2)));
         } else {
-          handleTupleResult(result, payload, i);
+          handleTupleResult(result, payload, i2);
         }
       }
     }
@@ -20944,10 +30279,10 @@ var $ZodTuple = /* @__PURE__ */ $constructor("$ZodTuple", (inst, def) => {
   };
 });
 function getTupleOptStart(items, key) {
-  for (let i = items.length - 1; i >= 0; i--) {
-    const omittable = key === "optin" ? items[i]._zod.optin !== void 0 : items[i]._zod.optout === "optional";
+  for (let i2 = items.length - 1; i2 >= 0; i2--) {
+    const omittable = key === "optin" ? items[i2]._zod.optin !== void 0 : items[i2]._zod.optout === "optional";
     if (!omittable)
-      return i + 1;
+      return i2 + 1;
   }
   return 0;
 }
@@ -20958,25 +30293,25 @@ function handleTupleResult(result, final, index) {
   final.value[index] = result.value;
 }
 function handleTupleResults(itemResults, final, items, input2, optoutStart) {
-  for (let i = 0; i < items.length; i++) {
-    const r = itemResults[i];
-    const isPresent = i < input2.length;
-    if (!isPresent && i >= optoutStart && items[i]._zod.optin === "optional") {
-      final.value.length = i;
+  for (let i2 = 0; i2 < items.length; i2++) {
+    const r = itemResults[i2];
+    const isPresent = i2 < input2.length;
+    if (!isPresent && i2 >= optoutStart && items[i2]._zod.optin === "optional") {
+      final.value.length = i2;
       break;
     }
     if (r.issues.length) {
-      if (!isPresent && i >= optoutStart) {
-        final.value.length = i;
+      if (!isPresent && i2 >= optoutStart) {
+        final.value.length = i2;
         break;
       }
-      final.issues.push(...prefixIssues(i, r.issues));
+      final.issues.push(...prefixIssues(i2, r.issues));
     }
-    final.value[i] = r.value;
+    final.value[i2] = r.value;
   }
-  for (let i = final.value.length - 1; i >= input2.length; i--) {
-    if (items[i]._zod.optout === "optional" && final.value[i] === void 0) {
-      final.value.length = i;
+  for (let i2 = final.value.length - 1; i2 >= input2.length; i2--) {
+    if (items[i2]._zod.optout === "optional" && final.value[i2] === void 0) {
+      final.value.length = i2;
     } else {
       break;
     }
@@ -20989,7 +30324,7 @@ var $ZodRecord = /* @__PURE__ */ $constructor("$ZodRecord", (inst, def) => {
   memo2?.attach(inst);
   inst._zod.parse = (payload, ctx) => {
     const input2 = payload.value;
-    if (!isPlainObject(input2)) {
+    if (!isPlainObject2(input2)) {
       payload.issues.push({
         expected: "record",
         code: "invalid_type",
@@ -21159,7 +30494,7 @@ var $ZodMap = /* @__PURE__ */ $constructor("$ZodMap", (inst, def) => {
     let seen = payload.issues.length;
     for (const [key, value] of input2) {
       if (abortEarly && payload.issues.length !== seen) {
-        if (aborted(payload, seen))
+        if (aborted2(payload, seen))
           break;
         seen = payload.issues.length;
       }
@@ -21229,7 +30564,7 @@ var $ZodSet = /* @__PURE__ */ $constructor("$ZodSet", (inst, def) => {
     let seen = payload.issues.length;
     for (const item of input2) {
       if (abortEarly && payload.issues.length !== seen) {
-        if (aborted(payload, seen))
+        if (aborted2(payload, seen))
           break;
         seen = payload.issues.length;
       }
@@ -21257,7 +30592,7 @@ var $ZodEnum = /* @__PURE__ */ $constructor("$ZodEnum", (inst, def) => {
   inst._zod.values = valuesSet;
   defineLazyInternal(inst, "pattern", (zod) => {
     const patternValues = getEnumValues(zod.def.entries).filter((k) => propertyKeyTypes.has(typeof k));
-    return new RegExp(patternValues.length ? `^(${patternValues.map((o) => escapeRegex(o.toString())).join("|")})$` : "^[^\\s\\S]$");
+    return new RegExp(patternValues.length ? `^(${patternValues.map((o2) => escapeRegex(o2.toString())).join("|")})$` : "^[^\\s\\S]$");
   });
   inst._zod.parse = (payload, _ctx) => {
     const input2 = payload.value;
@@ -21279,7 +30614,7 @@ var $ZodLiteral = /* @__PURE__ */ $constructor("$ZodLiteral", (inst, def) => {
   inst._zod.values = values;
   defineLazyInternal(inst, "pattern", (zod) => {
     const vals = zod.def.values;
-    return new RegExp(vals.length ? `^(${vals.map((o) => typeof o === "string" ? escapeRegex(o) : o ? escapeRegex(o.toString()) : String(o)).join("|")})$` : "^[^\\s\\S]$");
+    return new RegExp(vals.length ? `^(${vals.map((o2) => typeof o2 === "string" ? escapeRegex(o2) : o2 ? escapeRegex(o2.toString()) : String(o2)).join("|")})$` : "^[^\\s\\S]$");
   });
   inst._zod.parse = (payload, _ctx) => {
     const input2 = payload.value;
@@ -22408,8 +31743,8 @@ function az_default() {
 }
 
 // node_modules/zod/v4/locales/be.js
-function getBelarusianPlural(count, one, few, many) {
-  const absCount = Math.abs(count);
+function getBelarusianPlural(count2, one, few, many) {
+  const absCount = Math.abs(count2);
   const lastDigit = absCount % 10;
   const lastTwoDigits = absCount % 100;
   if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
@@ -22799,7 +32134,7 @@ var error5 = () => {
         return `${issue2.origin} \u098F \u0985\u09AC\u09C8\u09A7 \u0995\u09C0`;
       case "invalid_union":
         if (issue2.options && Array.isArray(issue2.options) && issue2.options.length > 0) {
-          const opts = issue2.options.map((o) => `'${o}'`).join(" | ");
+          const opts = issue2.options.map((o2) => `'${o2}'`).join(" | ");
           return `\u0985\u09AC\u09C8\u09A7 \u09A1\u09BF\u09B8\u0995\u09CD\u09B0\u09BF\u09AE\u09BF\u09A8\u09C7\u099F\u09B0 \u09AE\u09BE\u09A8\u0964 \u09AA\u09CD\u09B0\u09A4\u09CD\u09AF\u09BE\u09B6\u09BF\u09A4 ${opts}`;
         }
         return "\u0985\u09AC\u09C8\u09A7 \u0987\u09A8\u09AA\u09C1\u099F";
@@ -23046,7 +32381,7 @@ var error7 = () => {
         return `\u06A9\u0644\u06CC\u0644\u06CC \u0646\u0627\u062F\u0631\u0648\u0633\u062A \u0644\u06D5 ${issue2.origin}`;
       case "invalid_union":
         if (issue2.options && Array.isArray(issue2.options) && issue2.options.length > 0) {
-          const opts = issue2.options.map((o) => `'${o}'`).join(" | ");
+          const opts = issue2.options.map((o2) => `'${o2}'`).join(" | ");
           return `\u0628\u06D5\u0647\u0627\u06CC \u0646\u06D5\u0646\u0627\u0633\u0631\u0627\u0648 \u0647\u06D5\u06CC\u06D5. \u0628\u06D5\u0647\u0627\u06CC \u0686\u0627\u0648\u06D5\u0695\u0648\u0627\u0646\u06A9\u0631\u0627\u0648: ${opts}`;
         }
         return "\u06CC\u06D5\u06A9\u06AF\u0631\u062A\u0646\u06CC \u0646\u0627\u062F\u0631\u0648\u0633\u062A";
@@ -23579,7 +32914,7 @@ var error12 = () => {
     nan: "NaN"
     // All other type names omitted - they fall back to raw values via ?? operator
   };
-  function getTypeName(type, input2) {
+  function getTypeName2(type, input2) {
     if (type === "number" && typeof input2 === "number" && !Number.isFinite(input2)) {
       return String(input2);
     }
@@ -23588,9 +32923,9 @@ var error12 = () => {
   return (issue2) => {
     switch (issue2.code) {
       case "invalid_type": {
-        const expected = getTypeName(issue2.expected);
+        const expected = getTypeName2(issue2.expected);
         const receivedType = parsedType(issue2.input);
-        const received = getTypeName(receivedType, issue2.input);
+        const received = getTypeName2(receivedType, issue2.input);
         return `Invalid input: expected ${expected}, received ${received}`;
       }
       case "invalid_value":
@@ -23633,7 +32968,7 @@ var error12 = () => {
         return `Invalid key in ${issue2.origin}`;
       case "invalid_union":
         if (issue2.options && Array.isArray(issue2.options) && issue2.options.length > 0) {
-          const opts = issue2.options.map((o) => `'${o}'`).join(" | ");
+          const opts = issue2.options.map((o2) => `'${o2}'`).join(" | ");
           return `Invalid discriminator value. Expected ${opts}`;
         }
         if (issue2.inclusive === false) {
@@ -24483,7 +33818,7 @@ var error19 = () => {
         return `${issue2.origin} \u0AAE\u0ABE\u0A82 \u0A85\u0AAE\u0ABE\u0AA8\u0ACD\u0AAF \u0A95\u0AC0`;
       case "invalid_union":
         if (issue2.options && Array.isArray(issue2.options) && issue2.options.length > 0) {
-          const opts = issue2.options.map((o) => `'${o}'`).join(" | ");
+          const opts = issue2.options.map((o2) => `'${o2}'`).join(" | ");
           return `\u0A85\u0AAE\u0ABE\u0AA8\u0ACD\u0AAF \u0AA1\u0ABF\u0AB8\u0ACD\u0A95\u0ACD\u0AB0\u0ABF\u0AAE\u0ABF\u0AA8\u0AC7\u0A9F\u0AB0 \u0AAE\u0AC2\u0AB2\u0ACD\u0AAF. \u0A85\u0AAA\u0AC7\u0A95\u0ACD\u0AB7\u0ABF\u0AA4 ${opts}`;
         }
         return "\u0A85\u0AAE\u0ABE\u0AA8\u0ACD\u0AAF \u0A87\u0AA8\u0AAA\u0AC1\u0A9F";
@@ -24797,7 +34132,7 @@ var error21 = () => {
         return `\u0905\u092E\u093E\u0928\u094D\u092F \u0915\u0941\u0902\u091C\u0940: ${issue2.origin} \u092E\u0947\u0902`;
       case "invalid_union":
         if (issue2.options && Array.isArray(issue2.options) && issue2.options.length > 0) {
-          const opts = issue2.options.map((o) => `'${o}'`).join(" | ");
+          const opts = issue2.options.map((o2) => `'${o2}'`).join(" | ");
           return `\u0905\u092E\u093E\u0928\u094D\u092F \u0921\u093F\u0938\u094D\u0915\u094D\u0930\u093F\u092E\u093F\u0928\u0947\u091F\u0930 \u092E\u093E\u0928: \u0905\u092A\u0947\u0915\u094D\u0937\u093F\u0924 ${opts}`;
         }
         return "\u0905\u092E\u093E\u0928\u094D\u092F \u0907\u0928\u092A\u0941\u091F";
@@ -25056,8 +34391,8 @@ function hu_default() {
 }
 
 // node_modules/zod/v4/locales/hy.js
-function getArmenianPlural(count, one, many) {
-  return Math.abs(count) === 1 ? one : many;
+function getArmenianPlural(count2, one, many) {
+  return Math.abs(count2) === 1 ? one : many;
 }
 function withDefiniteArticle(word) {
   if (!word)
@@ -26006,7 +35341,7 @@ var error31 = () => {
         return `\u0C85\u0CAE\u0CBE\u0CA8\u0CCD\u0CAF\u0CB5\u0CBE\u0CA6 \u0C95\u0CC0 \u0C87\u0CA8\u0CCD ${issue2.origin}`;
       case "invalid_union":
         if (issue2.options && Array.isArray(issue2.options) && issue2.options.length > 0) {
-          const opts = issue2.options.map((o) => `'${o}'`).join(" | ");
+          const opts = issue2.options.map((o2) => `'${o2}'`).join(" | ");
           return `\u0C85\u0CAE\u0CBE\u0CA8\u0CCD\u0CAF \u0CA4\u0CBE\u0CB0\u0CA4\u0CAE\u0CCD\u0CAF \u0CAE\u0CCC\u0CB2\u0CCD\u0CAF. \u0CA8\u0CBF\u0CB0\u0CC0\u0C95\u0CCD\u0CB7\u0CBF\u0CB8\u0CB2\u0CBE\u0C97\u0CBF\u0CA6\u0CC6 ${opts}`;
         }
         return "\u0C85\u0CAE\u0CBE\u0CA8\u0CCD\u0CAF \u0C87\u0CA8\u0CCD\u200C\u0CAA\u0CC1\u0C9F\u0CCD";
@@ -26671,7 +36006,7 @@ var error36 = () => {
         return `\u0905\u092E\u093E\u0928\u094D\u092F \u0915\u0941\u091E\u094D\u091C\u0940: ${issue2.origin} \u092E\u093E`;
       case "invalid_union":
         if (issue2.options && Array.isArray(issue2.options) && issue2.options.length > 0) {
-          const opts = issue2.options.map((o) => `'${o}'`).join(" | ");
+          const opts = issue2.options.map((o2) => `'${o2}'`).join(" | ");
           return `\u0905\u092E\u093E\u0928\u094D\u092F \u0921\u093F\u0938\u094D\u0915\u094D\u0930\u093F\u092E\u093F\u0928\u0947\u091F\u0930 \u092E\u093E\u0928: \u0905\u092A\u0947\u0915\u094D\u0937\u093F\u0924 ${opts}`;
         }
         return "\u0905\u092E\u093E\u0928\u094D\u092F \u0907\u0928\u092A\u0941\u091F";
@@ -27509,7 +36844,7 @@ var error43 = () => {
         return `Entrada inv\xE1lida n${translateOriginWithArticle(issue2.origin, "definite")}`;
       case "invalid_union":
         if (issue2.options && Array.isArray(issue2.options) && issue2.options.length > 0) {
-          const opts = issue2.options.map((o) => `'${o}'`).join(" | ");
+          const opts = issue2.options.map((o2) => `'${o2}'`).join(" | ");
           return `Valor de discrimina\xE7\xE3o inv\xE1lido. Esperava ${opts}`;
         }
         return "Entrada inv\xE1lida";
@@ -27654,7 +36989,7 @@ var error44 = () => {
         return `Entrada inv\xE1lida n${translateOriginWithArticle(issue2.origin, "definite")}`;
       case "invalid_union":
         if (issue2.options && Array.isArray(issue2.options) && issue2.options.length > 0) {
-          const opts = issue2.options.map((o) => `'${o}'`).join(" | ");
+          const opts = issue2.options.map((o2) => `'${o2}'`).join(" | ");
           return `Valor de discrimina\xE7\xE3o inv\xE1lido. Esperava ${opts}`;
         }
         return "Entrada inv\xE1lida";
@@ -27795,8 +37130,8 @@ function ro_default() {
 }
 
 // node_modules/zod/v4/locales/ru.js
-function getRussianPlural(count, one, few, many) {
-  const absCount = Math.abs(count);
+function getRussianPlural(count2, one, few, many) {
+  const absCount = Math.abs(count2);
   const lastDigit = absCount % 10;
   const lastTwoDigits = absCount % 100;
   if (lastTwoDigits >= 11 && lastTwoDigits <= 19) {
@@ -28527,7 +37862,7 @@ var error51 = () => {
         return `\u041A\u0430\u043B\u0438\u0434\u0438 \u043D\u043E\u0434\u0443\u0440\u0443\u0441\u0442 \u0434\u0430\u0440 ${issue2.origin}`;
       case "invalid_union":
         if (issue2.options && Array.isArray(issue2.options) && issue2.options.length > 0) {
-          const opts = issue2.options.map((o) => `'${o}'`).join(" | ");
+          const opts = issue2.options.map((o2) => `'${o2}'`).join(" | ");
           return `\u049A\u0438\u043C\u0430\u0442\u0438 \u043D\u043E\u0434\u0443\u0440\u0443\u0441\u0442\u0438 \u0434\u0438\u0441\u043A\u0440\u0438\u043C\u0438\u043D\u0430\u0442\u043E\u0440: ${opts} \u0438\u043D\u0442\u0438\u0437\u043E\u0440 \u043C\u0435\u0440\u0430\u0444\u0442`;
         }
         return "\u0412\u0443\u0440\u0443\u0434\u0438 \u043D\u043E\u0434\u0443\u0440\u0443\u0441\u0442";
@@ -30053,8 +39388,8 @@ function generateMultipleOfCheck(doc, ctx, def, accessor) {
   }
 }
 function generateNumberFormatCheck(doc, def, accessor) {
-  const format = def.format;
-  switch (format) {
+  const format2 = def.format;
+  switch (format2) {
     case "safeint":
       doc.write(`if (!Number.isSafeInteger(${accessor})) return INVALID;`);
       break;
@@ -30071,16 +39406,16 @@ function generateNumberFormatCheck(doc, def, accessor) {
       doc.write(`if (!Number.isFinite(${accessor})) return INVALID;`);
       break;
     default: {
-      void format;
-      throw new ZodCompileUnsupportedError(`number format ${format}`);
+      void format2;
+      throw new ZodCompileUnsupportedError(`number format ${format2}`);
     }
   }
 }
 function generateBigIntFormatCheck(doc, def, accessor) {
-  const format = def.format;
-  if (!format)
+  const format2 = def.format;
+  if (!format2)
     return;
-  switch (format) {
+  switch (format2) {
     case "int64":
       doc.write(`if (${accessor} < -9223372036854775808n || ${accessor} > 9223372036854775807n) return INVALID;`);
       break;
@@ -30088,8 +39423,8 @@ function generateBigIntFormatCheck(doc, def, accessor) {
       doc.write(`if (${accessor} < 0n || ${accessor} > 18446744073709551615n) return INVALID;`);
       break;
     default: {
-      void format;
-      throw new ZodCompileUnsupportedError(`bigint format ${format}`);
+      void format2;
+      throw new ZodCompileUnsupportedError(`bigint format ${format2}`);
     }
   }
 }
@@ -30270,8 +39605,8 @@ function generateStringFormatCheck(doc, ctx, def, accessor, needsValue = true) {
     doc.write(`if (!${patternConst}.test(${accessor})) return INVALID;`);
     return accessor;
   }
-  const format = def.format;
-  switch (format) {
+  const format2 = def.format;
+  switch (format2) {
     case "regex":
       throw new ZodCompileUnsupportedError("regex format without a pattern");
     case "lowercase":
@@ -30294,8 +39629,8 @@ function generateStringFormatCheck(doc, ctx, def, accessor, needsValue = true) {
       break;
     }
     default: {
-      void format;
-      throw new ZodCompileUnsupportedError(`string format ${format}`);
+      void format2;
+      throw new ZodCompileUnsupportedError(`string format ${format2}`);
     }
   }
   return accessor;
@@ -30895,22 +40230,22 @@ function generateTupleCheck(doc, ctx, schema, accessor) {
   }
   const outputVar = newVar(ctx);
   doc.write(`const ${outputVar} = [];`);
-  for (let i = 0; i < items.length; i++) {
-    const itemSchema = items[i];
-    if (i >= optoutStart) {
-      doc.write(`if (${outputVar}.length === ${i}) {`);
+  for (let i2 = 0; i2 < items.length; i2++) {
+    const itemSchema = items[i2];
+    if (i2 >= optoutStart) {
+      doc.write(`if (${outputVar}.length === ${i2}) {`);
       doc.indented((d) => {
-        d.write(`if (${i} < ${accessor}.length) {`);
+        d.write(`if (${i2} < ${accessor}.length) {`);
         d.indented((d2) => {
           const elemVar = newVar(ctx);
-          d2.write(`const ${elemVar} = ${accessor}[${i}];`);
+          d2.write(`const ${elemVar} = ${accessor}[${i2}];`);
           const elemOutput = compileChild(d2, ctx, itemSchema, elemVar);
-          d2.write(`${outputVar}[${i}] = ${elemOutput};`);
+          d2.write(`${outputVar}[${i2}] = ${elemOutput};`);
         });
         d.write(`} else {`);
         d.indented((d2) => {
           if (dropsWhenAbsent(itemSchema)) {
-            d2.write(`${outputVar}.length = ${i};`);
+            d2.write(`${outputVar}.length = ${i2};`);
             return;
           }
           const elemVar = newVar(ctx);
@@ -30922,17 +40257,17 @@ function generateTupleCheck(doc, ctx, schema, accessor) {
             d3.write(`return ${elemOutput};`);
           });
           d2.write(`})();`);
-          d2.write(`if (${branchVar} === INVALID || ${branchVar} === undefined) ${outputVar}.length = ${i};`);
-          d2.write(`else ${outputVar}[${i}] = ${branchVar};`);
+          d2.write(`if (${branchVar} === INVALID || ${branchVar} === undefined) ${outputVar}.length = ${i2};`);
+          d2.write(`else ${outputVar}[${i2}] = ${branchVar};`);
         });
         d.write(`}`);
       });
       doc.write(`}`);
     } else {
       const elemVar = newVar(ctx);
-      doc.write(`const ${elemVar} = ${accessor}[${i}];`);
+      doc.write(`const ${elemVar} = ${accessor}[${i2}];`);
       const elemOutput = compileChild(doc, ctx, itemSchema, elemVar);
-      doc.write(`${outputVar}[${i}] = ${elemOutput};`);
+      doc.write(`${outputVar}[${i2}] = ${elemOutput};`);
     }
   }
   if (rest) {
@@ -30949,10 +40284,10 @@ function generateTupleCheck(doc, ctx, schema, accessor) {
   return outputVar;
 }
 function getTupleOptStart2(items, key) {
-  for (let i = items.length - 1; i >= 0; i--) {
-    const omittable = key === "optin" ? items[i]._zod.optin !== void 0 : items[i]._zod.optout === "optional";
+  for (let i2 = items.length - 1; i2 >= 0; i2--) {
+    const omittable = key === "optin" ? items[i2]._zod.optin !== void 0 : items[i2]._zod.optout === "optional";
     if (!omittable)
-      return i + 1;
+      return i2 + 1;
   }
   return 0;
 }
@@ -30981,9 +40316,9 @@ function generateUnionCheck(doc, ctx, schema, accessor) {
   }
   const outputVar = newVar(ctx);
   doc.write(`let ${outputVar};`);
-  for (let i = 0; i < options.length; i++) {
-    const opt = options[i];
-    if (i === 0) {
+  for (let i2 = 0; i2 < options.length; i2++) {
+    const opt = options[i2];
+    if (i2 === 0) {
       doc.write(`${outputVar} = (() => {`);
     } else {
       doc.write(`if (${outputVar} === INVALID) ${outputVar} = (() => {`);
@@ -31070,7 +40405,7 @@ function generateIntersectionCheck(doc, ctx, schema, accessor) {
 }
 function generateRecordCheck(doc, ctx, schema, accessor) {
   const def = schema._zod.def;
-  const isPlainObjectConst = addConstant(ctx, isPlainObject);
+  const isPlainObjectConst = addConstant(ctx, isPlainObject2);
   doc.write(`if (!${isPlainObjectConst}(${accessor})) return INVALID;`);
   const outputVar = newVar(ctx);
   const kVar = newVar(ctx);
@@ -32378,12 +41713,12 @@ function _stringbool(Classes, _params) {
   return codec2;
 }
 // @__NO_SIDE_EFFECTS__
-function _stringFormat(Class2, format, fnOrRegex, _params = {}) {
+function _stringFormat(Class2, format2, fnOrRegex, _params = {}) {
   const params = normalizeParams(_params);
   const def = {
     check: "string_format",
     type: "string",
-    format,
+    format: format2,
     fn: typeof fnOrRegex === "function" ? fnOrRegex : (val) => fnOrRegex.test(val),
     ...params
   };
@@ -32949,9 +42284,9 @@ var addPattern = (agg, pattern) => {
 var intersectMime = (agg, mime) => {
   agg.mime = agg.mime ? agg.mime.filter((m) => mime.includes(m)) : [...mime];
 };
-var setFormat = (agg, format) => {
-  agg.format = format;
-  if (format.includes("int"))
+var setFormat = (agg, format2) => {
+  agg.format = format2;
+  if (format2.includes("int"))
     agg.isInt = true;
 };
 var minContributor = (agg, def) => narrowMin(agg, "minimum", def.minimum);
@@ -33029,16 +42364,16 @@ var exactPattern = (p) => exactPatterns.get(p) ?? p;
 var stringProcessor = (schema, ctx, _json, _params) => {
   const json3 = _json;
   json3.type = "string";
-  const { minimum, maximum, format, patterns, contentEncoding, laxFormat } = aggregateChecks(schema);
+  const { minimum, maximum, format: format2, patterns, contentEncoding, laxFormat } = aggregateChecks(schema);
   if (typeof minimum === "number")
     json3.minLength = minimum;
   if (typeof maximum === "number")
     json3.maxLength = maximum;
-  if (format) {
-    json3.format = formatMap[format] ?? format;
+  if (format2) {
+    json3.format = formatMap[format2] ?? format2;
     if (json3.format === "")
       delete json3.format;
-    if (format === "time" || laxFormat) {
+    if (format2 === "time" || laxFormat) {
       delete json3.format;
     }
   }
@@ -33300,9 +42635,9 @@ var objectProcessor = (schema, ctx, _json, params) => {
 var unionProcessor = (schema, ctx, json3, params) => {
   const def = schema._zod.def;
   const isExclusive = def.inclusive === false;
-  const options = def.options.map((x, i) => processSchema(x, ctx, {
+  const options = def.options.map((x, i2) => processSchema(x, ctx, {
     ...params,
-    path: [...params.path, isExclusive ? "oneOf" : "anyOf", i]
+    path: [...params.path, isExclusive ? "oneOf" : "anyOf", i2]
   }));
   if (isExclusive) {
     json3.oneOf = options;
@@ -33312,7 +42647,7 @@ var unionProcessor = (schema, ctx, json3, params) => {
 };
 var intersectionProcessor = (schema, ctx, json3, params) => {
   const def = schema._zod.def;
-  const a = processSchema(def.left, ctx, {
+  const a2 = processSchema(def.left, ctx, {
     ...params,
     path: [...params.path, "allOf", 0]
   });
@@ -33322,7 +42657,7 @@ var intersectionProcessor = (schema, ctx, json3, params) => {
   });
   const isSimpleIntersection = (val) => "allOf" in val && Object.keys(val).length === 1;
   const allOf = [
-    ...isSimpleIntersection(a) ? a.allOf : [a],
+    ...isSimpleIntersection(a2) ? a2.allOf : [a2],
     ...isSimpleIntersection(b) ? b.allOf : [b]
   ];
   json3.allOf = allOf;
@@ -33334,9 +42669,9 @@ var tupleProcessor = (schema, ctx, _json, params) => {
   json3.type = "array";
   const prefixPath = ctx.target === "draft-2020-12" ? "prefixItems" : "items";
   const restPath = ctx.target === "draft-2020-12" ? "items" : ctx.target === "openapi-3.0" ? "items" : "additionalItems";
-  const prefixItems = def.items.map((x, i) => processSchema(x, ctx, {
+  const prefixItems = def.items.map((x, i2) => processSchema(x, ctx, {
     ...params,
-    path: [...params.path, prefixPath, i]
+    path: [...params.path, prefixPath, i2]
   }));
   const rest = def.rest ? processSchema(def.rest, ctx, {
     ...params,
@@ -33408,7 +42743,7 @@ function stringifyKeyNames(bySchema, json3, visited) {
     if (!Array.isArray(branches))
       continue;
     const mapped = branches.map((branch) => stringifyKeyNames(bySchema, branch, visited));
-    if (mapped.some((branch, i) => branch !== branches[i]))
+    if (mapped.some((branch, i2) => branch !== branches[i2]))
       json3 = { ...json3, [keyword]: mapped };
   }
   const types = Array.isArray(json3.type) ? json3.type : [json3.type];
@@ -33416,7 +42751,7 @@ function stringifyKeyNames(bySchema, json3, visited) {
   const values = json3.enum ?? (json3.const !== void 0 ? [json3.const] : void 0);
   if (!numericType && !values?.some((v) => typeof v === "number"))
     return json3;
-  const { minimum, maximum, exclusiveMinimum, exclusiveMaximum, multipleOf, format, id, ...rest } = json3;
+  const { minimum, maximum, exclusiveMinimum, exclusiveMaximum, multipleOf, format: format2, id, ...rest } = json3;
   if (rest.enum)
     rest.enum = rest.enum.map((v) => typeof v === "number" ? String(v) : v);
   else if (typeof rest.const === "number")
@@ -33823,8 +43158,8 @@ function object2(shape, params) {
 var RESOLVING = /* @__PURE__ */ Symbol("z.visit/resolving");
 function visit(schema, fnOrHandlers) {
   const fn = typeof fnOrHandlers === "function" ? fnOrHandlers : (node2, rewritten) => {
-    const h = fnOrHandlers[node2._zod.def.type];
-    return h ? h(node2, rewritten) : node2;
+    const h2 = fnOrHandlers[node2._zod.def.type];
+    return h2 ? h2(node2, rewritten) : node2;
   };
   const cache = /* @__PURE__ */ new Map();
   function run(s) {
@@ -34058,11 +43393,11 @@ function normalizeObjectSchema(schema) {
   }
   return void 0;
 }
-function getDotPath(path) {
-  if (path.length === 0) {
+function getDotPath(path10) {
+  if (path10.length === 0) {
     return "object root";
   }
-  return path.reduce((acc, seg, index) => {
+  return path10.reduce((acc, seg, index) => {
     if (index === 0) {
       return String(seg);
     }
@@ -34075,11 +43410,11 @@ function getDotPath(path) {
 function getParseErrorMessage(error62) {
   if (error62 && typeof error62 === "object") {
     if ("issues" in error62 && Array.isArray(error62.issues) && error62.issues.length > 0) {
-      return error62.issues.map((i) => {
-        if (!i.path?.length) {
-          return i.message;
+      return error62.issues.map((i2) => {
+        if (!i2.path?.length) {
+          return i2.message;
         }
-        return `${i.message} at ${getDotPath(i.path)}`;
+        return `${i2.message} at ${getDotPath(i2.path)}`;
       }).join("\n");
     }
     if ("message" in error62 && typeof error62.message === "string") {
@@ -35196,8 +44531,8 @@ var ZodCustomStringFormat = /* @__PURE__ */ $constructor("ZodCustomStringFormat"
   $ZodCustomStringFormat.init(inst, def);
   ZodStringFormat.init(inst, def);
 });
-function stringFormat(format, fnOrRegex, _params = {}) {
-  return _stringFormat(ZodCustomStringFormat, format, fnOrRegex, _params);
+function stringFormat(format2, fnOrRegex, _params = {}) {
+  return _stringFormat(ZodCustomStringFormat, format2, fnOrRegex, _params);
 }
 function hostname2(_params) {
   return _stringFormat(ZodCustomStringFormat, "hostname", hostname, _params);
@@ -35210,11 +44545,11 @@ function currencyCode2(_params) {
 }
 function hash(alg, params) {
   const enc = params?.enc ?? "hex";
-  const format = `${alg}_${enc}`;
-  const regex = regexes_exports[format];
+  const format2 = `${alg}_${enc}`;
+  const regex = regexes_exports[format2];
   if (!regex)
-    throw new Error(`Unrecognized hash format: ${format}`);
-  return _stringFormat(ZodCustomStringFormat, format, regex, params);
+    throw new Error(`Unrecognized hash format: ${format2}`);
+  return _stringFormat(ZodCustomStringFormat, format2, regex, params);
 }
 var ZodNumber2 = /* @__PURE__ */ $constructor(
   "ZodNumber",
@@ -35462,17 +44797,17 @@ var ZodArray2 = /* @__PURE__ */ $constructor("ZodArray", (inst, def) => {
   inst._zod.processJSONSchema = (ctx, json3, params) => arrayProcessor(inst, ctx, json3, params);
   inst.element = def.element;
 }, {
-  min(n, params) {
-    return this.check(_minLength(n, params));
+  min(n2, params) {
+    return this.check(_minLength(n2, params));
   },
   nonempty(params) {
     return this.check(_minLength(1, params));
   },
-  max(n, params) {
-    return this.check(_maxLength(n, params));
+  max(n2, params) {
+    return this.check(_maxLength(n2, params));
   },
-  length(n, params) {
-    return this.check(_length(n, params));
+  length(n2, params) {
+    return this.check(_length(n2, params));
   },
   unwrap() {
     return this.element;
@@ -36289,13 +45624,13 @@ function resolveRef(ref, ctx) {
   if (!ref.startsWith("#")) {
     throw new Error("External $ref is not supported, only local refs (#/...) are allowed");
   }
-  const path = ref.slice(1).split("/").filter(Boolean);
-  if (path.length === 0) {
+  const path10 = ref.slice(1).split("/").filter(Boolean);
+  if (path10.length === 0) {
     return ctx.rootSchema;
   }
   const defsKey = ctx.version === "draft-2020-12" ? "$defs" : "definitions";
-  if (path[0] === defsKey) {
-    const key = path[1] === void 0 ? void 0 : decodeJSONPointerSegment(path[1]);
+  if (path10[0] === defsKey) {
+    const key = path10[1] === void 0 ? void 0 : decodeJSONPointerSegment(path10[1]);
     if (!key || !ctx.defs[key]) {
       throw new Error(`Reference not found: ${ref}`);
     }
@@ -36429,8 +45764,8 @@ function containsRef(value) {
     return Object.values(sub).some(containsRef);
   });
 }
-function plural(n) {
-  return n === 1 ? "element" : "elements";
+function plural(n2) {
+  return n2 === 1 ? "element" : "elements";
 }
 function checkArrayGuards(arraySchema, guards) {
   const guard = z.transform((value) => value).check((payload) => {
@@ -36439,20 +45774,20 @@ function checkArrayGuards(arraySchema, guards) {
       return;
     if (guards.uniqueItems === true) {
       const firstSeen = /* @__PURE__ */ new Map();
-      for (let i = 0; i < items.length; i++) {
-        const key = canonicalKey(items[i], /* @__PURE__ */ new Set());
+      for (let i2 = 0; i2 < items.length; i2++) {
+        const key = canonicalKey(items[i2], /* @__PURE__ */ new Set());
         if (key === null)
           continue;
         const first = firstSeen.get(key);
         if (first === void 0) {
-          firstSeen.set(key, i);
+          firstSeen.set(key, i2);
           continue;
         }
         payload.issues.push({
           code: "custom",
-          message: `Array items must be unique: element at index ${i} duplicates the one at index ${first}`,
+          message: `Array items must be unique: element at index ${i2} duplicates the one at index ${first}`,
           input: items,
-          path: [i],
+          path: [i2],
           continue: true
         });
       }
@@ -36579,58 +45914,58 @@ function convertBaseSchema(schema, ctx) {
     case "string": {
       let stringSchema = z.string();
       if (schema.format) {
-        const format = schema.format;
-        if (format === "email") {
+        const format2 = schema.format;
+        if (format2 === "email") {
           stringSchema = stringSchema.check(z.email());
-        } else if (format === "uri" || format === "uri-reference") {
+        } else if (format2 === "uri" || format2 === "uri-reference") {
           stringSchema = stringSchema.check(z.url());
-        } else if (format === "uuid" || format === "guid") {
+        } else if (format2 === "uuid" || format2 === "guid") {
           stringSchema = stringSchema.check(z.uuid());
-        } else if (format === "date-time") {
+        } else if (format2 === "date-time") {
           stringSchema = stringSchema.check(z.iso.datetime({ offset: true }));
-        } else if (format === "date") {
+        } else if (format2 === "date") {
           stringSchema = stringSchema.check(z.iso.date());
-        } else if (format === "time") {
+        } else if (format2 === "time") {
           stringSchema = stringSchema.check(z.regex(fullTime));
-        } else if (format === "duration") {
+        } else if (format2 === "duration") {
           stringSchema = stringSchema.check(z.iso.duration());
-        } else if (format === "hostname") {
+        } else if (format2 === "hostname") {
           stringSchema = stringSchema.check(z.hostname());
-        } else if (format === "ipv4") {
+        } else if (format2 === "ipv4") {
           stringSchema = stringSchema.check(z.ipv4());
-        } else if (format === "ipv6") {
+        } else if (format2 === "ipv6") {
           stringSchema = stringSchema.check(z.ipv6());
-        } else if (format === "mac") {
+        } else if (format2 === "mac") {
           stringSchema = stringSchema.check(z.mac());
-        } else if (format === "cidr") {
+        } else if (format2 === "cidr") {
           stringSchema = stringSchema.check(z.cidrv4());
-        } else if (format === "cidr-v6") {
+        } else if (format2 === "cidr-v6") {
           stringSchema = stringSchema.check(z.cidrv6());
-        } else if (format === "base64") {
+        } else if (format2 === "base64") {
           stringSchema = stringSchema.check(z.base64());
-        } else if (format === "base64url") {
+        } else if (format2 === "base64url") {
           stringSchema = stringSchema.check(z.base64url());
-        } else if (format === "e164") {
+        } else if (format2 === "e164") {
           stringSchema = stringSchema.check(z.e164());
-        } else if (format === "credit_card") {
+        } else if (format2 === "credit_card") {
           stringSchema = stringSchema.check(z.creditCard());
-        } else if (format === "iban") {
+        } else if (format2 === "iban") {
           stringSchema = stringSchema.check(z.iban());
-        } else if (format === "jwt") {
+        } else if (format2 === "jwt") {
           stringSchema = stringSchema.check(z.jwt());
-        } else if (format === "emoji") {
+        } else if (format2 === "emoji") {
           stringSchema = stringSchema.check(z.emoji());
-        } else if (format === "nanoid") {
+        } else if (format2 === "nanoid") {
           stringSchema = stringSchema.check(z.nanoid());
-        } else if (format === "cuid") {
+        } else if (format2 === "cuid") {
           stringSchema = stringSchema.check(z.cuid());
-        } else if (format === "cuid2") {
+        } else if (format2 === "cuid2") {
           stringSchema = stringSchema.check(z.cuid2());
-        } else if (format === "ulid") {
+        } else if (format2 === "ulid") {
           stringSchema = stringSchema.check(z.ulid());
-        } else if (format === "xid") {
+        } else if (format2 === "xid") {
           stringSchema = stringSchema.check(z.xid());
-        } else if (format === "ksuid") {
+        } else if (format2 === "ksuid") {
           stringSchema = stringSchema.check(z.ksuid());
         }
       }
@@ -36708,8 +46043,8 @@ function convertBaseSchema(schema, ctx) {
           zodSchema2 = schemasToIntersect[0];
         } else {
           let result = z.intersection(schemasToIntersect[0], schemasToIntersect[1]);
-          for (let i = 2; i < schemasToIntersect.length; i++) {
-            result = z.intersection(result, schemasToIntersect[i]);
+          for (let i2 = 2; i2 < schemasToIntersect.length; i2++) {
+            result = z.intersection(result, schemasToIntersect[i2]);
           }
           zodSchema2 = result;
         }
@@ -36718,7 +46053,7 @@ function convertBaseSchema(schema, ctx) {
           const patterns = patternKeys.map((p) => new RegExp(p));
           const basePatternSchema = zodSchema2;
           zodSchema2 = zodSchema2.check((payload) => {
-            if (!isPlainObject(payload.value))
+            if (!isPlainObject2(payload.value))
               return;
             const unrecognized = [];
             for (const key of Object.keys(payload.value)) {
@@ -36840,8 +46175,8 @@ function convertSchema(schema, ctx) {
     } else {
       let result = hasExplicitType ? baseSchema : convertSchema(schema.allOf[0], ctx);
       const startIdx = hasExplicitType ? 0 : 1;
-      for (let i = startIdx; i < schema.allOf.length; i++) {
-        result = z.intersection(result, convertSchema(schema.allOf[i], ctx));
+      for (let i2 = startIdx; i2 < schema.allOf.length; i2++) {
+        result = z.intersection(result, convertSchema(schema.allOf[i2], ctx));
       }
       baseSchema = result;
     }
@@ -38598,12 +47933,12 @@ function setResponseValueAndErrors(res, key, value, errorMessage, refs) {
 
 // node_modules/zod-to-json-schema/dist/esm/getRelativePath.js
 var getRelativePath = (pathA, pathB) => {
-  let i = 0;
-  for (; i < pathA.length && i < pathB.length; i++) {
-    if (pathA[i] !== pathB[i])
+  let i2 = 0;
+  for (; i2 < pathA.length && i2 < pathB.length; i2++) {
+    if (pathA[i2] !== pathB[i2])
       break;
   }
-  return [(pathA.length - i).toString(), ...pathB.slice(i)].join("/");
+  return [(pathA.length - i2).toString(), ...pathB.slice(i2)].join("/");
 };
 
 // node_modules/zod-to-json-schema/dist/esm/parsers/any.js
@@ -38714,7 +48049,7 @@ function parseDateDef(def, refs, overrideDateStrategy) {
   const strategy = overrideDateStrategy ?? refs.dateStrategy;
   if (Array.isArray(strategy)) {
     return {
-      anyOf: strategy.map((item, i) => parseDateDef(def, refs, item))
+      anyOf: strategy.map((item, i2) => parseDateDef(def, refs, item))
     };
   }
   switch (strategy) {
@@ -39036,11 +48371,11 @@ function escapeLiteralCheckValue(literal3, refs) {
 var ALPHA_NUMERIC = new Set("ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvxyz0123456789");
 function escapeNonAlphaNumeric(source) {
   let result = "";
-  for (let i = 0; i < source.length; i++) {
-    if (!ALPHA_NUMERIC.has(source[i])) {
+  for (let i2 = 0; i2 < source.length; i2++) {
+    if (!ALPHA_NUMERIC.has(source[i2])) {
       result += "\\";
     }
-    result += source[i];
+    result += source[i2];
   }
   return result;
 }
@@ -39115,55 +48450,55 @@ function stringifyRegExpWithFlags(regex, refs) {
   let isEscaped = false;
   let inCharGroup = false;
   let inCharRange = false;
-  for (let i = 0; i < source.length; i++) {
+  for (let i2 = 0; i2 < source.length; i2++) {
     if (isEscaped) {
-      pattern += source[i];
+      pattern += source[i2];
       isEscaped = false;
       continue;
     }
     if (flags.i) {
       if (inCharGroup) {
-        if (source[i].match(/[a-z]/)) {
+        if (source[i2].match(/[a-z]/)) {
           if (inCharRange) {
-            pattern += source[i];
-            pattern += `${source[i - 2]}-${source[i]}`.toUpperCase();
+            pattern += source[i2];
+            pattern += `${source[i2 - 2]}-${source[i2]}`.toUpperCase();
             inCharRange = false;
-          } else if (source[i + 1] === "-" && source[i + 2]?.match(/[a-z]/)) {
-            pattern += source[i];
+          } else if (source[i2 + 1] === "-" && source[i2 + 2]?.match(/[a-z]/)) {
+            pattern += source[i2];
             inCharRange = true;
           } else {
-            pattern += `${source[i]}${source[i].toUpperCase()}`;
+            pattern += `${source[i2]}${source[i2].toUpperCase()}`;
           }
           continue;
         }
-      } else if (source[i].match(/[a-z]/)) {
-        pattern += `[${source[i]}${source[i].toUpperCase()}]`;
+      } else if (source[i2].match(/[a-z]/)) {
+        pattern += `[${source[i2]}${source[i2].toUpperCase()}]`;
         continue;
       }
     }
     if (flags.m) {
-      if (source[i] === "^") {
+      if (source[i2] === "^") {
         pattern += `(^|(?<=[\r
 ]))`;
         continue;
-      } else if (source[i] === "$") {
+      } else if (source[i2] === "$") {
         pattern += `($|(?=[\r
 ]))`;
         continue;
       }
     }
-    if (flags.s && source[i] === ".") {
-      pattern += inCharGroup ? `${source[i]}\r
-` : `[${source[i]}\r
+    if (flags.s && source[i2] === ".") {
+      pattern += inCharGroup ? `${source[i2]}\r
+` : `[${source[i2]}\r
 ]`;
       continue;
     }
-    pattern += source[i];
-    if (source[i] === "\\") {
+    pattern += source[i2];
+    if (source[i2] === "\\") {
       isEscaped = true;
-    } else if (inCharGroup && source[i] === "]") {
+    } else if (inCharGroup && source[i2] === "]") {
       inCharGroup = false;
-    } else if (!inCharGroup && source[i] === "[") {
+    } else if (!inCharGroup && source[i2] === "[") {
       inCharGroup = true;
     }
   }
@@ -39328,7 +48663,7 @@ function parseUnionDef(def, refs) {
       }
     }, []);
     if (types.length === options.length) {
-      const uniqueTypes = types.filter((x, i, a) => a.indexOf(x) === i);
+      const uniqueTypes = types.filter((x, i2, a2) => a2.indexOf(x) === i2);
       return {
         type: uniqueTypes.length > 1 ? uniqueTypes : uniqueTypes[0],
         enum: options.reduce((acc, x) => {
@@ -39348,9 +48683,9 @@ function parseUnionDef(def, refs) {
   return asAnyOf(def, refs);
 }
 var asAnyOf = (def, refs) => {
-  const anyOf = (def.options instanceof Map ? Array.from(def.options.values()) : def.options).map((x, i) => parseDef(x._def, {
+  const anyOf = (def.options instanceof Map ? Array.from(def.options.values()) : def.options).map((x, i2) => parseDef(x._def, {
     ...refs,
-    currentPath: [...refs.currentPath, "anyOf", `${i}`]
+    currentPath: [...refs.currentPath, "anyOf", `${i2}`]
   })).filter((x) => !!x && (!refs.strictUnions || typeof x === "object" && Object.keys(x).length > 0));
   return anyOf.length ? { anyOf } : void 0;
 };
@@ -39532,16 +48867,16 @@ var parsePipelineDef = (def, refs) => {
   } else if (refs.pipeStrategy === "output") {
     return parseDef(def.out._def, refs);
   }
-  const a = parseDef(def.in._def, {
+  const a2 = parseDef(def.in._def, {
     ...refs,
     currentPath: [...refs.currentPath, "allOf", "0"]
   });
   const b = parseDef(def.out._def, {
     ...refs,
-    currentPath: [...refs.currentPath, "allOf", a ? "1" : "0"]
+    currentPath: [...refs.currentPath, "allOf", a2 ? "1" : "0"]
   });
   return {
-    allOf: [a, b].filter((x) => x !== void 0)
+    allOf: [a2, b].filter((x) => x !== void 0)
   };
 };
 
@@ -39576,9 +48911,9 @@ function parseTupleDef(def, refs) {
     return {
       type: "array",
       minItems: def.items.length,
-      items: def.items.map((x, i) => parseDef(x._def, {
+      items: def.items.map((x, i2) => parseDef(x._def, {
         ...refs,
-        currentPath: [...refs.currentPath, "items", `${i}`]
+        currentPath: [...refs.currentPath, "items", `${i2}`]
       })).reduce((acc, x) => x === void 0 ? acc : [...acc, x], []),
       additionalItems: parseDef(def.rest._def, {
         ...refs,
@@ -39590,9 +48925,9 @@ function parseTupleDef(def, refs) {
       type: "array",
       minItems: def.items.length,
       maxItems: def.items.length,
-      items: def.items.map((x, i) => parseDef(x._def, {
+      items: def.items.map((x, i2) => parseDef(x._def, {
         ...refs,
-        currentPath: [...refs.currentPath, "items", `${i}`]
+        currentPath: [...refs.currentPath, "items", `${i2}`]
       })).reduce((acc, x) => x === void 0 ? acc : [...acc, x], [])
     };
   }
@@ -40160,7 +49495,7 @@ var Protocol = class {
       if (abortController.signal.aborted) {
         return;
       }
-      const response = {
+      const response2 = {
         result,
         jsonrpc: "2.0",
         id: request.id
@@ -40168,11 +49503,11 @@ var Protocol = class {
       if (relatedTaskId && this._taskMessageQueue) {
         await this._enqueueTaskMessage(relatedTaskId, {
           type: "response",
-          message: response,
+          message: response2,
           timestamp: Date.now()
         }, capturedTransport?.sessionId);
       } else {
-        await capturedTransport?.send(response);
+        await capturedTransport?.send(response2);
       }
     }, async (error62) => {
       if (abortController.signal.aborted) {
@@ -40225,29 +49560,29 @@ var Protocol = class {
     }
     handler(params);
   }
-  _onresponse(response) {
-    const messageId = Number(response.id);
+  _onresponse(response2) {
+    const messageId = Number(response2.id);
     const resolver = this._requestResolvers.get(messageId);
     if (resolver) {
       this._requestResolvers.delete(messageId);
-      if (isJSONRPCResultResponse(response)) {
-        resolver(response);
+      if (isJSONRPCResultResponse(response2)) {
+        resolver(response2);
       } else {
-        const error62 = new McpError(response.error.code, response.error.message, response.error.data);
+        const error62 = new McpError(response2.error.code, response2.error.message, response2.error.data);
         resolver(error62);
       }
       return;
     }
     const handler = this._responseHandlers.get(messageId);
     if (handler === void 0) {
-      this._onerror(new Error(`Received a response for an unknown message ID: ${JSON.stringify(response)}`));
+      this._onerror(new Error(`Received a response for an unknown message ID: ${JSON.stringify(response2)}`));
       return;
     }
     this._responseHandlers.delete(messageId);
     this._cleanupTimeout(messageId);
     let isTaskResponse = false;
-    if (isJSONRPCResultResponse(response) && response.result && typeof response.result === "object") {
-      const result = response.result;
+    if (isJSONRPCResultResponse(response2) && response2.result && typeof response2.result === "object") {
+      const result = response2.result;
       if (result.task && typeof result.task === "object") {
         const task = result.task;
         if (typeof task.taskId === "string") {
@@ -40259,10 +49594,10 @@ var Protocol = class {
     if (!isTaskResponse) {
       this._progressHandlers.delete(messageId);
     }
-    if (isJSONRPCResultResponse(response)) {
-      handler(response);
+    if (isJSONRPCResultResponse(response2)) {
+      handler(response2);
     } else {
-      const error62 = McpError.fromError(response.error.code, response.error.message, response.error.data);
+      const error62 = McpError.fromError(response2.error.code, response2.error.message, response2.error.data);
       handler(error62);
     }
   }
@@ -40434,15 +49769,15 @@ var Protocol = class {
         const error62 = reason instanceof McpError ? reason : new McpError(ErrorCode.RequestTimeout, String(reason));
         reject(error62);
       };
-      this._responseHandlers.set(messageId, (response) => {
+      this._responseHandlers.set(messageId, (response2) => {
         if (options?.signal?.aborted) {
           return;
         }
-        if (response instanceof Error) {
-          return reject(response);
+        if (response2 instanceof Error) {
+          return reject(response2);
         }
         try {
-          const parseResult = safeParse2(resultSchema, response.result);
+          const parseResult = safeParse2(resultSchema, response2.result);
           if (!parseResult.success) {
             reject(parseResult.error);
           } else {
@@ -40460,10 +49795,10 @@ var Protocol = class {
       this._setupTimeout(messageId, timeout, options?.maxTotalTimeout, timeoutHandler, options?.resetTimeoutOnProgress ?? false);
       const relatedTaskId = relatedTask?.taskId;
       if (relatedTaskId) {
-        const responseResolver = (response) => {
+        const responseResolver = (response2) => {
           const handler = this._responseHandlers.get(messageId);
           if (handler) {
-            handler(response);
+            handler(response2);
           } else {
             this._onerror(new Error(`Response handler missing for side-channeled request ${messageId}`));
           }
@@ -40676,8 +50011,8 @@ var Protocol = class {
    */
   async _clearTaskQueue(taskId, sessionId) {
     if (this._taskMessageQueue) {
-      const messages = await this._taskMessageQueue.dequeueAll(taskId, sessionId);
-      for (const message of messages) {
+      const messages2 = await this._taskMessageQueue.dequeueAll(taskId, sessionId);
+      for (const message of messages2) {
         if (message.type === "request" && isJSONRPCRequest(message.message)) {
           const requestId = message.message.id;
           const resolver = this._requestResolvers.get(requestId);
@@ -40785,7 +50120,7 @@ var Protocol = class {
     };
   }
 };
-function isPlainObject2(value) {
+function isPlainObject3(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 function mergeCapabilities(base, additional) {
@@ -40796,7 +50131,7 @@ function mergeCapabilities(base, additional) {
     if (addValue === void 0)
       continue;
     const baseValue = result[k];
-    if (isPlainObject2(baseValue) && isPlainObject2(addValue)) {
+    if (isPlainObject3(baseValue) && isPlainObject3(addValue)) {
       result[k] = { ...baseValue, ...addValue };
     } else {
       result[k] = addValue;
@@ -40946,12 +50281,12 @@ var ExperimentalServerTasks = class {
     if (params.messages.length > 0) {
       const lastMessage = params.messages[params.messages.length - 1];
       const lastContent = Array.isArray(lastMessage.content) ? lastMessage.content : [lastMessage.content];
-      const hasToolResults = lastContent.some((c) => c.type === "tool_result");
+      const hasToolResults = lastContent.some((c3) => c3.type === "tool_result");
       const previousMessage = params.messages.length > 1 ? params.messages[params.messages.length - 2] : void 0;
       const previousContent = previousMessage ? Array.isArray(previousMessage.content) ? previousMessage.content : [previousMessage.content] : [];
-      const hasPreviousToolUse = previousContent.some((c) => c.type === "tool_use");
+      const hasPreviousToolUse = previousContent.some((c3) => c3.type === "tool_use");
       if (hasToolResults) {
-        if (lastContent.some((c) => c.type !== "tool_result")) {
+        if (lastContent.some((c3) => c3.type !== "tool_result")) {
           throw new Error("The last message must contain only tool_result content if any is present");
         }
         if (!hasPreviousToolUse) {
@@ -40959,8 +50294,8 @@ var ExperimentalServerTasks = class {
         }
       }
       if (hasPreviousToolUse) {
-        const toolUseIds = new Set(previousContent.filter((c) => c.type === "tool_use").map((c) => c.id));
-        const toolResultIds = new Set(lastContent.filter((c) => c.type === "tool_result").map((c) => c.toolUseId));
+        const toolUseIds = new Set(previousContent.filter((c3) => c3.type === "tool_use").map((c3) => c3.id));
+        const toolResultIds = new Set(lastContent.filter((c3) => c3.type === "tool_result").map((c3) => c3.toolUseId));
         if (toolUseIds.size !== toolResultIds.size || ![...toolUseIds].every((id) => toolResultIds.has(id))) {
           throw new Error("ids of tool_result blocks and tool_use blocks from previous message do not match");
         }
@@ -41371,12 +50706,12 @@ var Server = class extends Protocol {
     if (params.messages.length > 0) {
       const lastMessage = params.messages[params.messages.length - 1];
       const lastContent = Array.isArray(lastMessage.content) ? lastMessage.content : [lastMessage.content];
-      const hasToolResults = lastContent.some((c) => c.type === "tool_result");
+      const hasToolResults = lastContent.some((c3) => c3.type === "tool_result");
       const previousMessage = params.messages.length > 1 ? params.messages[params.messages.length - 2] : void 0;
       const previousContent = previousMessage ? Array.isArray(previousMessage.content) ? previousMessage.content : [previousMessage.content] : [];
-      const hasPreviousToolUse = previousContent.some((c) => c.type === "tool_use");
+      const hasPreviousToolUse = previousContent.some((c3) => c3.type === "tool_use");
       if (hasToolResults) {
-        if (lastContent.some((c) => c.type !== "tool_result")) {
+        if (lastContent.some((c3) => c3.type !== "tool_result")) {
           throw new Error("The last message must contain only tool_result content if any is present");
         }
         if (!hasPreviousToolUse) {
@@ -41384,8 +50719,8 @@ var Server = class extends Protocol {
         }
       }
       if (hasPreviousToolUse) {
-        const toolUseIds = new Set(previousContent.filter((c) => c.type === "tool_use").map((c) => c.id));
-        const toolResultIds = new Set(lastContent.filter((c) => c.type === "tool_result").map((c) => c.toolUseId));
+        const toolUseIds = new Set(previousContent.filter((c3) => c3.type === "tool_use").map((c3) => c3.id));
+        const toolResultIds = new Set(lastContent.filter((c3) => c3.type === "tool_result").map((c3) => c3.toolUseId));
         if (toolUseIds.size !== toolResultIds.size || ![...toolUseIds].every((id) => toolResultIds.has(id))) {
           throw new Error("ids of tool_result blocks and tool_use blocks from previous message do not match");
         }
@@ -41536,7 +50871,7 @@ function validateToolName(name5) {
   }
   if (!TOOL_NAME_REGEX.test(name5)) {
     const invalidChars = name5.split("").filter((char) => !/[A-Za-z0-9._-]/.test(char)).filter((char, index, arr) => arr.indexOf(char) === index);
-    warnings.push(`Tool name contains invalid characters: ${invalidChars.map((c) => `"${c}"`).join(", ")}`, "Allowed characters are: A-Z, a-z, 0-9, underscore (_), dash (-), and dot (.)");
+    warnings.push(`Tool name contains invalid characters: ${invalidChars.map((c3) => `"${c3}"`).join(", ")}`, "Allowed characters are: A-Z, a-z, 0-9, underscore (_), dash (-), and dot (.)");
     return {
       isValid: false,
       warnings
@@ -42372,7 +51707,7 @@ var EMPTY_COMPLETION_RESULT = {
 };
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
-import process2 from "node:process";
+import process14 from "node:process";
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
 var STDIO_DEFAULT_MAX_BUFFER_SIZE = 10 * 1024 * 1024;
@@ -42413,7 +51748,7 @@ function serializeMessage(message) {
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
 var StdioServerTransport = class {
-  constructor(_stdin = process2.stdin, _stdout = process2.stdout, options) {
+  constructor(_stdin = process14.stdin, _stdout = process14.stdout, options) {
     this._stdin = _stdin;
     this._stdout = _stdout;
     this._started = false;
@@ -42483,16 +51818,16 @@ import { existsSync as existsSync2, readdirSync } from "node:fs";
 import { join as join2 } from "node:path";
 
 // packages/connectors/manifest/dist/connector-manifest.js
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readFileSync as readFileSync3, statSync as statSync2 } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-var __rewriteRelativeImportExtension = function(path, preserveJsx) {
-  if (typeof path === "string" && /^\.\.?\//.test(path)) {
-    return path.replace(/\.(tsx)$|((?:\.d)?)((?:\.[^./]+?)?)\.([cm]?)ts$/i, function(m, tsx, d, ext, cm) {
+var __rewriteRelativeImportExtension = function(path10, preserveJsx) {
+  if (typeof path10 === "string" && /^\.\.?\//.test(path10)) {
+    return path10.replace(/\.(tsx)$|((?:\.d)?)((?:\.[^./]+?)?)\.([cm]?)ts$/i, function(m, tsx, d, ext, cm) {
       return tsx ? preserveJsx ? ".jsx" : ".js" : d && (!ext || !cm) ? m : d + ext + "." + cm.toLowerCase() + "js";
     });
   }
-  return path;
+  return path10;
 };
 var manifestSchema = external_exports2.object({
   type: external_exports2.literal("module"),
@@ -42516,10 +51851,10 @@ var ConnectorManifest = class _ConnectorManifest {
   // The folder's manifest; undefined when the folder holds no package.json
   // that declares a connector.
   static read(folder) {
-    const path = join(folder, "package.json");
-    if (!existsSync(path))
+    const path10 = join(folder, "package.json");
+    if (!existsSync(path10))
       return void 0;
-    const json3 = external_exports2.record(external_exports2.string(), external_exports2.unknown()).parse(JSON.parse(readFileSync(path, "utf8")));
+    const json3 = external_exports2.record(external_exports2.string(), external_exports2.unknown()).parse(JSON.parse(readFileSync3(path10, "utf8")));
     if (!("contextCompiler" in json3))
       return void 0;
     return new _ConnectorManifest(folder, manifestSchema.parse(json3));
@@ -42530,7 +51865,7 @@ var ConnectorManifest = class _ConnectorManifest {
   // imports load once.
   async load(host) {
     const entry = pathToFileURL(this.entry);
-    entry.searchParams.set("modified", String(statSync(this.entry).mtimeMs));
+    entry.searchParams.set("modified", String(statSync2(this.entry).mtimeMs));
     const { default: Exported } = await import(__rewriteRelativeImportExtension(entry.href));
     if (!isConnectorClass(Exported))
       throw new TypeError(`${this.entry} does not export a Connector class by default.`);
@@ -42832,17 +52167,17 @@ var ParseError = class extends Error {
     super(message), this.name = "ParseError", this.type = options.type, this.field = options.field, this.value = options.value, this.line = options.line;
   }
 };
-var LF = 10;
-var CR = 13;
+var LF2 = 10;
+var CR2 = 13;
 var SPACE = 32;
-function noop(_arg) {
+function noop3(_arg) {
 }
 function createParser(config2) {
   if (typeof config2 == "function")
     throw new TypeError(
       "`config` must be an object, got a function instead. Did you mean `createParser({onEvent: fn})`?"
     );
-  const { onEvent = noop, onError = noop, onRetry = noop, onComment, maxBufferSize } = config2, pendingFragments = [];
+  const { onEvent = noop3, onError = noop3, onRetry = noop3, onComment, maxBufferSize } = config2, pendingFragments = [];
   let pendingFragmentsLength = 0, isFirstChunk = true, id, data = "", dataLines = 0, eventType, terminated = false;
   function feed(chunk) {
     if (terminated)
@@ -42886,7 +52221,7 @@ function createParser(config2) {
         const firstCharCode = chunk.charCodeAt(searchIndex);
         if (isDataPrefix(chunk, searchIndex, firstCharCode)) {
           const valueStart = chunk.charCodeAt(searchIndex + 5) === SPACE ? searchIndex + 6 : searchIndex + 5, value = chunk.slice(valueStart, lfIndex);
-          if (dataLines === 0 && chunk.charCodeAt(lfIndex + 1) === LF) {
+          if (dataLines === 0 && chunk.charCodeAt(lfIndex + 1) === LF2) {
             onEvent({ id, event: eventType, data: value }), id = void 0, data = "", eventType = void 0, searchIndex = lfIndex + 2, lfIndex = chunk.indexOf(`
 `, searchIndex);
             continue;
@@ -42908,7 +52243,7 @@ ${value}`, dataLines++;
       let lineEnd = -1;
       if (crIndex !== -1 && lfIndex !== -1 ? lineEnd = crIndex < lfIndex ? crIndex : lfIndex : crIndex !== -1 ? crIndex === chunk.length - 1 ? lineEnd = -1 : lineEnd = crIndex : lfIndex !== -1 && (lineEnd = lfIndex), lineEnd === -1)
         break;
-      parseLine(chunk, searchIndex, lineEnd), searchIndex = lineEnd + 1, chunk.charCodeAt(searchIndex - 1) === CR && chunk.charCodeAt(searchIndex) === LF && searchIndex++;
+      parseLine(chunk, searchIndex, lineEnd), searchIndex = lineEnd + 1, chunk.charCodeAt(searchIndex - 1) === CR2 && chunk.charCodeAt(searchIndex) === LF2 && searchIndex++;
     }
     return chunk.slice(searchIndex);
   }
@@ -42986,20 +52321,20 @@ ${value}`, dataLines++;
       data
     }), id = void 0, data = "", dataLines = 0, eventType = void 0;
   }
-  function reset(options = {}) {
+  function reset2(options = {}) {
     if (options.consume && pendingFragments.length > 0) {
       const incompleteLine = pendingFragments.join("");
       parseLine(incompleteLine, 0, incompleteLine.length);
     }
     isFirstChunk = true, id = void 0, data = "", dataLines = 0, eventType = void 0, pendingFragments.length = 0, pendingFragmentsLength = 0, terminated = false;
   }
-  return { feed, reset };
+  return { feed, reset: reset2 };
 }
-function isDataPrefix(chunk, i, firstCharCode) {
-  return firstCharCode === 100 && chunk.charCodeAt(i + 1) === 97 && chunk.charCodeAt(i + 2) === 116 && chunk.charCodeAt(i + 3) === 97 && chunk.charCodeAt(i + 4) === 58;
+function isDataPrefix(chunk, i2, firstCharCode) {
+  return firstCharCode === 100 && chunk.charCodeAt(i2 + 1) === 97 && chunk.charCodeAt(i2 + 2) === 116 && chunk.charCodeAt(i2 + 3) === 97 && chunk.charCodeAt(i2 + 4) === 58;
 }
-function isEventPrefix(chunk, i, firstCharCode) {
-  return firstCharCode === 101 && chunk.charCodeAt(i + 1) === 118 && chunk.charCodeAt(i + 2) === 101 && chunk.charCodeAt(i + 3) === 110 && chunk.charCodeAt(i + 4) === 116 && chunk.charCodeAt(i + 5) === 58;
+function isEventPrefix(chunk, i2, firstCharCode) {
+  return firstCharCode === 101 && chunk.charCodeAt(i2 + 1) === 118 && chunk.charCodeAt(i2 + 2) === 101 && chunk.charCodeAt(i2 + 3) === 110 && chunk.charCodeAt(i2 + 4) === 116 && chunk.charCodeAt(i2 + 5) === 58;
 }
 
 // ../elt/node_modules/eventsource-parser/dist/stream.js
@@ -43044,7 +52379,7 @@ function combineHeaders(...headers) {
 function removeUndefinedEntries(record3) {
   return Object.fromEntries(Object.entries(record3).filter(([_key, value]) => value != null));
 }
-async function delay(delayInMs, options) {
+async function delay2(delayInMs, options) {
   if (delayInMs == null) return;
   const signal = options?.abortSignal;
   return new Promise((resolve8, reject) => {
@@ -43087,7 +52422,7 @@ var WEBSOCKET_OPEN_STATE = 1;
 async function waitForWebSocketBufferDrain(socket, { highWaterMark = 1048576, pollIntervalMs = 20, abortSignal } = {}) {
   while (socket.readyState === WEBSOCKET_OPEN_STATE && (socket.bufferedAmount ?? 0) > highWaterMark) {
     if (abortSignal?.aborted === true) return;
-    await delay(pollIntervalMs);
+    await delay2(pollIntervalMs);
   }
 }
 function connectToWebSocket({ url: url2, protocols, headers, webSocket, abortSignal, onOpen, onMessageText, onProcessingError, onSocketError, onClose, onAbort }) {
@@ -43131,18 +52466,18 @@ function connectToWebSocket({ url: url2, protocols, headers, webSocket, abortSig
       onProcessingError(error62);
     }
   };
-  let tail = Promise.resolve();
+  let tail2 = Promise.resolve();
   socket.onmessage = (event) => {
-    tail = tail.then(() => readWebSocketMessageText(event.data)).then((text) => onMessageText(text)).catch(onProcessingError);
+    tail2 = tail2.then(() => readWebSocketMessageText(event.data)).then((text) => onMessageText(text)).catch(onProcessingError);
   };
   socket.onerror = () => {
-    tail = tail.then(() => onSocketError?.()).catch(onProcessingError);
+    tail2 = tail2.then(() => onSocketError?.()).catch(onProcessingError);
   };
   socket.onclose = (event) => {
     const closeEvent = event;
     const code = typeof closeEvent?.code === "number" ? closeEvent.code : void 0;
     const reason = typeof closeEvent?.reason === "string" ? closeEvent.reason : void 0;
-    tail = tail.then(() => onClose?.({
+    tail2 = tail2.then(() => onClose?.({
       code,
       reason
     })).catch(onProcessingError);
@@ -43192,11 +52527,11 @@ function convertBase64ToUint8Array(base64String) {
 function convertUint8ArrayToBase64(array3) {
   const chunks = [];
   const chunkSize = 4096;
-  for (let i = 0; i < array3.length; i += chunkSize) chunks.push(String.fromCodePoint(...array3.subarray(i, i + chunkSize)));
+  for (let i2 = 0; i2 < array3.length; i2 += chunkSize) chunks.push(String.fromCodePoint(...array3.subarray(i2, i2 + chunkSize)));
   return btoa2(chunks.join(""));
 }
-function extractResponseHeaders(response) {
-  return Object.fromEntries([...response.headers]);
+function extractResponseHeaders(response2) {
+  return Object.fromEntries([...response2.headers]);
 }
 function getRuntimeEnvironmentUserAgent(globalThisAny = globalThis) {
   if (globalThisAny.navigator?.userAgent) return globalThisAny.navigator.userAgent.toLowerCase();
@@ -43204,7 +52539,7 @@ function getRuntimeEnvironmentUserAgent(globalThisAny = globalThis) {
   if (globalThisAny.EdgeRuntime) return "vercel-edge";
   return "";
 }
-function isAbortError(error62) {
+function isAbortError2(error62) {
   return (error62 instanceof Error || typeof DOMException === "function" && error62 instanceof DOMException) && (error62.name === "AbortError" || error62.name === "ResponseAborted" || error62.name === "TimeoutError");
 }
 var FETCH_FAILED_ERROR_MESSAGES = ["fetch failed", "failed to fetch"];
@@ -43232,7 +52567,7 @@ function findNetworkError(error62) {
   }
 }
 function handleFetchError({ error: error62, url: url2, requestBodyValues }) {
-  if (isAbortError(error62)) return error62;
+  if (isAbortError2(error62)) return error62;
   if (error62 instanceof TypeError && FETCH_FAILED_ERROR_MESSAGES.includes(error62.message.toLowerCase())) {
     const cause = error62.cause;
     if (cause != null) return new APICallError({
@@ -43614,9 +52949,9 @@ function detectMediaType({ data, topLevelType }) {
     signatures
   });
 }
-async function cancelResponseBody(response) {
+async function cancelResponseBody(response2) {
   try {
-    await response.body?.cancel();
+    await response2.body?.cancel();
   } catch {
   }
 }
@@ -43702,20 +53037,20 @@ function isIPv4(hostname3) {
   });
 }
 function isPrivateIPv4(ip) {
-  const [a, b, c] = ip.split(".").map(Number);
-  if (a === 0) return true;
-  if (a === 10) return true;
-  if (a === 100 && b >= 64 && b <= 127) return true;
-  if (a === 127) return true;
-  if (a === 169 && b === 254) return true;
-  if (a === 172 && b >= 16 && b <= 31) return true;
-  if (a === 192 && b === 0 && c === 0) return true;
-  if (a === 192 && b === 0 && c === 2) return true;
-  if (a === 192 && b === 168) return true;
-  if (a === 198 && (b === 18 || b === 19)) return true;
-  if (a === 198 && b === 51 && c === 100) return true;
-  if (a === 203 && b === 0 && c === 113) return true;
-  if (a >= 224) return true;
+  const [a2, b, c3] = ip.split(".").map(Number);
+  if (a2 === 0) return true;
+  if (a2 === 10) return true;
+  if (a2 === 100 && b >= 64 && b <= 127) return true;
+  if (a2 === 127) return true;
+  if (a2 === 169 && b === 254) return true;
+  if (a2 === 172 && b >= 16 && b <= 31) return true;
+  if (a2 === 192 && b === 0 && c3 === 0) return true;
+  if (a2 === 192 && b === 0 && c3 === 2) return true;
+  if (a2 === 192 && b === 168) return true;
+  if (a2 === 198 && (b === 18 || b === 19)) return true;
+  if (a2 === 198 && b === 51 && c3 === 100) return true;
+  if (a2 === 203 && b === 0 && c3 === 113) return true;
+  if (a2 >= 224) return true;
   return false;
 }
 function parseIPv6(ip) {
@@ -43728,12 +53063,12 @@ function parseIPv6(ip) {
     if (segment === "") return [];
     const groups = [];
     const parts = segment.split(":");
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i];
+    for (let i2 = 0; i2 < parts.length; i2++) {
+      const part = parts[i2];
       if (part.includes(".")) {
-        if (i !== parts.length - 1 || !isIPv4(part)) return null;
-        const [a, b, c, d] = part.split(".").map(Number);
-        groups.push(a << 8 | b, c << 8 | d);
+        if (i2 !== parts.length - 1 || !isIPv4(part)) return null;
+        const [a2, b, c3, d] = part.split(".").map(Number);
+        groups.push(a2 << 8 | b, c3 << 8 | d);
         continue;
       }
       if (!/^[0-9a-f]{1,4}$/.test(part)) return null;
@@ -43744,14 +53079,14 @@ function parseIPv6(ip) {
   const head = toGroups(halves[0]);
   if (head === null) return null;
   if (halves.length === 2) {
-    const tail = toGroups(halves[1]);
-    if (tail === null) return null;
-    const fill = 8 - head.length - tail.length;
+    const tail2 = toGroups(halves[1]);
+    if (tail2 === null) return null;
+    const fill = 8 - head.length - tail2.length;
     if (fill < 0) return null;
     return [
       ...head,
       ...new Array(fill).fill(0),
-      ...tail
+      ...tail2
     ];
   }
   return head.length === 8 ? head : null;
@@ -43759,7 +53094,7 @@ function parseIPv6(ip) {
 function isPrivateIPv6(ip) {
   const groups = parseIPv6(ip);
   if (groups === null) return true;
-  const topZero = (count) => groups.slice(0, count).every((group) => group === 0);
+  const topZero = (count2) => groups.slice(0, count2).every((group) => group === 0);
   if (topZero(7) && (groups[7] === 0 || groups[7] === 1)) return true;
   if ((groups[0] & 65024) === 64512) return true;
   if ((groups[0] & 65472) === 65152) return true;
@@ -43887,17 +53222,17 @@ async function fetchWithValidatedRedirects({ url: url2, headers, abortSignal, ma
     const isTrustedHop = trustedOrigin !== void 0 && isSameOrigin(currentUrl, trustedOrigin);
     if (!isTrustedHop) validateDownloadUrl(currentUrl);
     const fetch2 = isTrustedHop && customFetch != null ? customFetch : isTrustedHop ? globalThis.fetch : await getValidatedFetch(customFetch);
-    const response = await fetch2(currentUrl, perHopInit("manual"));
-    if (response.type === "opaqueredirect") {
+    const response2 = await fetch2(currentUrl, perHopInit("manual"));
+    if (response2.type === "opaqueredirect") {
       if (!isBrowserRuntime()) throw new DownloadError({
         url: url2,
         message: `Redirect from ${currentUrl} could not be validated and was blocked`
       });
       return await fetch2(currentUrl, perHopInit("follow"));
     }
-    const location = response.headers?.get("location");
-    if (REDIRECT_STATUS_CODES.has(response.status) && location) {
-      cancelResponseBody(response);
+    const location = response2.headers?.get("location");
+    if (REDIRECT_STATUS_CODES.has(response2.status) && location) {
+      cancelResponseBody(response2);
       const nextUrl = new URL(location, currentUrl).toString();
       if (currentHeaders !== void 0 && !isSameOrigin(nextUrl, currentUrl)) {
         const userAgent = currentHeaders.get("user-agent");
@@ -43906,7 +53241,7 @@ async function fetchWithValidatedRedirects({ url: url2, headers, abortSignal, ma
       currentUrl = nextUrl;
       continue;
     }
-    return response;
+    return response2;
   }
   throw new DownloadError({
     url: url2,
@@ -43948,19 +53283,19 @@ async function fetchUntrustedUrl({ headers, credentialedOrigin, untrustedFirstHo
   });
 }
 var DEFAULT_MAX_DOWNLOAD_SIZE = 2147483648;
-async function readResponseWithSizeLimit({ response, url: url2, maxBytes = DEFAULT_MAX_DOWNLOAD_SIZE }) {
-  const contentLength = response.headers.get("content-length");
+async function readResponseWithSizeLimit({ response: response2, url: url2, maxBytes = DEFAULT_MAX_DOWNLOAD_SIZE }) {
+  const contentLength = response2.headers.get("content-length");
   if (contentLength != null) {
     const length2 = parseInt(contentLength, 10);
     if (!isNaN(length2) && length2 > maxBytes) {
-      await cancelResponseBody(response);
+      await cancelResponseBody(response2);
       throw new DownloadError({
         url: url2,
         message: `Download of ${url2} exceeded maximum size of ${maxBytes} bytes (Content-Length: ${length2}).`
       });
     }
   }
-  const body = response.body;
+  const body = response2.body;
   if (body == null) return /* @__PURE__ */ new Uint8Array(0);
   const reader = body.getReader();
   const chunks = [];
@@ -43996,7 +53331,7 @@ var createIdGenerator = ({ prefix, size = 16, alphabet = "0123456789ABCDEFGHIJKL
   const generator = () => {
     const alphabetLength = alphabet.length;
     const chars = new Array(size);
-    for (let i = 0; i < size; i++) chars[i] = alphabet[Math.random() * alphabetLength | 0];
+    for (let i2 = 0; i2 < size; i2++) chars[i2] = alphabet[Math.random() * alphabetLength | 0];
     return chars.join("");
   };
   if (prefix == null) return generator;
@@ -44012,7 +53347,7 @@ var getFromApi = async ({ url: url2, headers = {}, successfulResponseHandler, fa
   try {
     const requestFetch = fetch2 ?? getOriginalFetch$2();
     const requestHeaders = withUserAgentSuffix(credentialedOrigin !== void 0 && !isSameOrigin(url2, credentialedOrigin) ? {} : headers, `ai-sdk-provider-utils/${VERSION}`, getRuntimeEnvironmentUserAgent());
-    const response = validateUrl ? await fetchWithValidatedRedirects({
+    const response2 = validateUrl ? await fetchWithValidatedRedirects({
       url: url2,
       headers: requestHeaders,
       abortSignal,
@@ -44023,21 +53358,21 @@ var getFromApi = async ({ url: url2, headers = {}, successfulResponseHandler, fa
       headers: requestHeaders,
       signal: abortSignal
     });
-    const responseHeaders = extractResponseHeaders(response);
-    if (!response.ok) {
+    const responseHeaders = extractResponseHeaders(response2);
+    if (!response2.ok) {
       let errorInformation;
       try {
         errorInformation = await failedResponseHandler({
-          response,
+          response: response2,
           url: url2,
           requestBodyValues: {}
         });
       } catch (error62) {
-        if (isAbortError(error62) || APICallError.isInstance(error62)) throw error62;
+        if (isAbortError2(error62) || APICallError.isInstance(error62)) throw error62;
         throw new APICallError({
           message: "Failed to process error response",
           cause: error62,
-          statusCode: response.status,
+          statusCode: response2.status,
           url: url2,
           responseHeaders,
           requestBodyValues: {}
@@ -44047,18 +53382,18 @@ var getFromApi = async ({ url: url2, headers = {}, successfulResponseHandler, fa
     }
     try {
       return await successfulResponseHandler({
-        response,
+        response: response2,
         url: url2,
         requestBodyValues: {}
       });
     } catch (error62) {
       if (error62 instanceof Error) {
-        if (isAbortError(error62) || APICallError.isInstance(error62)) throw error62;
+        if (isAbortError2(error62) || APICallError.isInstance(error62)) throw error62;
       }
       throw new APICallError({
         message: "Failed to process successful response",
         cause: error62,
-        statusCode: response.status,
+        statusCode: response2.status,
         url: url2,
         responseHeaders,
         requestBodyValues: {}
@@ -44467,9 +53802,9 @@ function escapeLiteralCheckValue2(literal3, refs) {
 var ALPHA_NUMERIC2 = /* @__PURE__ */ new Set("ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvxyz0123456789");
 function escapeNonAlphaNumeric2(source) {
   let result = "";
-  for (let i = 0; i < source.length; i++) {
-    if (!ALPHA_NUMERIC2.has(source[i])) result += "\\";
-    result += source[i];
+  for (let i2 = 0; i2 < source.length; i2++) {
+    if (!ALPHA_NUMERIC2.has(source[i2])) result += "\\";
+    result += source[i2];
   }
   return result;
 }
@@ -44511,51 +53846,51 @@ function stringifyRegExpWithFlags2(regex, refs) {
   let isEscaped = false;
   let inCharGroup = false;
   let inCharRange = false;
-  for (let i = 0; i < source.length; i++) {
+  for (let i2 = 0; i2 < source.length; i2++) {
     if (isEscaped) {
-      pattern += source[i];
+      pattern += source[i2];
       isEscaped = false;
       continue;
     }
     if (flags.i) {
       if (inCharGroup) {
-        if (source[i].match(/[a-z]/)) {
+        if (source[i2].match(/[a-z]/)) {
           if (inCharRange) {
-            pattern += source[i];
-            pattern += `${source[i - 2]}-${source[i]}`.toUpperCase();
+            pattern += source[i2];
+            pattern += `${source[i2 - 2]}-${source[i2]}`.toUpperCase();
             inCharRange = false;
-          } else if (source[i + 1] === "-" && source[i + 2]?.match(/[a-z]/)) {
-            pattern += source[i];
+          } else if (source[i2 + 1] === "-" && source[i2 + 2]?.match(/[a-z]/)) {
+            pattern += source[i2];
             inCharRange = true;
-          } else pattern += `${source[i]}${source[i].toUpperCase()}`;
+          } else pattern += `${source[i2]}${source[i2].toUpperCase()}`;
           continue;
         }
-      } else if (source[i].match(/[a-z]/)) {
-        pattern += `[${source[i]}${source[i].toUpperCase()}]`;
+      } else if (source[i2].match(/[a-z]/)) {
+        pattern += `[${source[i2]}${source[i2].toUpperCase()}]`;
         continue;
       }
     }
     if (flags.m) {
-      if (source[i] === "^") {
+      if (source[i2] === "^") {
         pattern += `(^|(?<=[\r
 ]))`;
         continue;
-      } else if (source[i] === "$") {
+      } else if (source[i2] === "$") {
         pattern += `($|(?=[\r
 ]))`;
         continue;
       }
     }
-    if (flags.s && source[i] === ".") {
-      pattern += inCharGroup ? `${source[i]}\r
-` : `[${source[i]}\r
+    if (flags.s && source[i2] === ".") {
+      pattern += inCharGroup ? `${source[i2]}\r
+` : `[${source[i2]}\r
 ]`;
       continue;
     }
-    pattern += source[i];
-    if (source[i] === "\\") isEscaped = true;
-    else if (inCharGroup && source[i] === "]") inCharGroup = false;
-    else if (!inCharGroup && source[i] === "[") inCharGroup = true;
+    pattern += source[i2];
+    if (source[i2] === "\\") isEscaped = true;
+    else if (inCharGroup && source[i2] === "]") inCharGroup = false;
+    else if (!inCharGroup && source[i2] === "[") inCharGroup = true;
   }
   try {
     new RegExp(pattern);
@@ -44670,7 +54005,7 @@ function parseUnionDef2(def, refs) {
       }
     }, []);
     if (types.length === options.length) {
-      const uniqueTypes = types.filter((x, i, a) => a.indexOf(x) === i);
+      const uniqueTypes = types.filter((x, i2, a2) => a2.indexOf(x) === i2);
       return {
         type: uniqueTypes.length > 1 ? uniqueTypes : uniqueTypes[0],
         enum: options.reduce((acc, x) => {
@@ -44685,12 +54020,12 @@ function parseUnionDef2(def, refs) {
   return asAnyOf2(def, refs);
 }
 var asAnyOf2 = (def, refs) => {
-  const anyOf = (def.options instanceof Map ? Array.from(def.options.values()) : def.options).map((x, i) => parseDef2(x._def, {
+  const anyOf = (def.options instanceof Map ? Array.from(def.options.values()) : def.options).map((x, i2) => parseDef2(x._def, {
     ...refs,
     currentPath: [
       ...refs.currentPath,
       "anyOf",
-      `${i}`
+      `${i2}`
     ]
   })).filter((x) => !!x && (!refs.strictUnions || typeof x === "object" && Object.keys(x).length > 0));
   return anyOf.length ? { anyOf } : void 0;
@@ -44839,12 +54174,12 @@ function parseTupleDef2(def, refs) {
   if (def.rest) return {
     type: "array",
     minItems: def.items.length,
-    items: def.items.map((x, i) => parseDef2(x._def, {
+    items: def.items.map((x, i2) => parseDef2(x._def, {
       ...refs,
       currentPath: [
         ...refs.currentPath,
         "items",
-        `${i}`
+        `${i2}`
       ]
     })).reduce((acc, x) => x === void 0 ? acc : [...acc, x], []),
     additionalItems: parseDef2(def.rest._def, {
@@ -44856,12 +54191,12 @@ function parseTupleDef2(def, refs) {
     type: "array",
     minItems: def.items.length,
     maxItems: def.items.length,
-    items: def.items.map((x, i) => parseDef2(x._def, {
+    items: def.items.map((x, i2) => parseDef2(x._def, {
       ...refs,
       currentPath: [
         ...refs.currentPath,
         "items",
-        `${i}`
+        `${i2}`
       ]
     })).reduce((acc, x) => x === void 0 ? acc : [...acc, x], [])
   };
@@ -44950,9 +54285,9 @@ var selectParser2 = (def, typeName, refs) => {
   }
 };
 var getRelativePath2 = (pathA, pathB) => {
-  let i = 0;
-  for (; i < pathA.length && i < pathB.length; i++) if (pathA[i] !== pathB[i]) break;
-  return [(pathA.length - i).toString(), ...pathB.slice(i)].join("/");
+  let i2 = 0;
+  for (; i2 < pathA.length && i2 < pathB.length; i2++) if (pathA[i2] !== pathB[i2]) break;
+  return [(pathA.length - i2).toString(), ...pathB.slice(i2)].join("/");
 };
 function parseDef2(def, refs, forceResolution = false) {
   const seenItem = refs.seen.get(def);
@@ -45277,27 +54612,27 @@ var postJsonToApi = async ({ url: url2, headers, body, failedResponseHandler, su
 });
 var postToApi = async ({ url: url2, headers = {}, body, successfulResponseHandler, failedResponseHandler, abortSignal, fetch: fetch2 = getOriginalFetch() }) => {
   try {
-    const response = await fetch2(url2, {
+    const response2 = await fetch2(url2, {
       method: "POST",
       headers: withUserAgentSuffix(headers, `ai-sdk-provider-utils/${VERSION}`, getRuntimeEnvironmentUserAgent()),
       body: body.content,
       signal: abortSignal
     });
-    const responseHeaders = extractResponseHeaders(response);
-    if (!response.ok) {
+    const responseHeaders = extractResponseHeaders(response2);
+    if (!response2.ok) {
       let errorInformation;
       try {
         errorInformation = await failedResponseHandler({
-          response,
+          response: response2,
           url: url2,
           requestBodyValues: body.values
         });
       } catch (error62) {
-        if (isAbortError(error62) || APICallError.isInstance(error62)) throw error62;
+        if (isAbortError2(error62) || APICallError.isInstance(error62)) throw error62;
         throw new APICallError({
           message: "Failed to process error response",
           cause: error62,
-          statusCode: response.status,
+          statusCode: response2.status,
           url: url2,
           responseHeaders,
           requestBodyValues: body.values
@@ -45307,18 +54642,18 @@ var postToApi = async ({ url: url2, headers = {}, body, successfulResponseHandle
     }
     try {
       return await successfulResponseHandler({
-        response,
+        response: response2,
         url: url2,
         requestBodyValues: body.values
       });
     } catch (error62) {
       if (error62 instanceof Error) {
-        if (isAbortError(error62) || APICallError.isInstance(error62)) throw error62;
+        if (isAbortError2(error62) || APICallError.isInstance(error62)) throw error62;
       }
       throw new APICallError({
         message: "Failed to process successful response",
         cause: error62,
-        statusCode: response.status,
+        statusCode: response2.status,
         url: url2,
         responseHeaders,
         requestBodyValues: body.values
@@ -45349,7 +54684,7 @@ function createProviderExecutedToolFactory({ id, inputSchema, outputSchema: outp
     supportsDeferredResults
   });
 }
-async function resolve(value) {
+async function resolve2(value) {
   if (typeof value === "function") value = value();
   return value;
 }
@@ -45366,7 +54701,7 @@ async function retryWithExponentialBackoffInternal(f, { maxRetries, delayInMs, b
   try {
     return await f();
   } catch (error62) {
-    if (isAbortError(error62)) throw error62;
+    if (isAbortError2(error62)) throw error62;
     if (maxRetries === 0) throw error62;
     const errorMessage = getErrorMessage(error62);
     const newErrors = [...errors, error62];
@@ -45377,7 +54712,7 @@ async function retryWithExponentialBackoffInternal(f, { maxRetries, delayInMs, b
       errors: newErrors
     });
     if (await shouldRetry(error62) && tryNumber <= maxRetries) {
-      await delay(getDelayInMs({
+      await delay2(getDelayInMs({
         error: error62,
         exponentialBackoffDelay: delayInMs
       }), { abortSignal });
@@ -45399,7 +54734,7 @@ async function retryWithExponentialBackoffInternal(f, { maxRetries, delayInMs, b
     });
   }
 }
-var textDecoder = new TextDecoder();
+var textDecoder2 = new TextDecoder();
 var DEFAULT_MAX_JSON_LINE_BYTES = 67108864;
 function wrapResponseBodyStream({ stream, url: url2, requestBodyValues, statusCode, responseHeaders }) {
   const reader = stream.getReader();
@@ -45420,7 +54755,7 @@ function wrapResponseBodyStream({ stream, url: url2, requestBodyValues, statusCo
         } else controller.enqueue(value);
       } catch (error62) {
         releaseReader();
-        if (isAbortError(error62)) {
+        if (isAbortError2(error62)) {
           controller.error(error62);
           return;
         }
@@ -45447,28 +54782,28 @@ function wrapResponseBodyStream({ stream, url: url2, requestBodyValues, statusCo
     }
   });
 }
-async function readResponseBodyAsText({ response, url: url2 }) {
-  return textDecoder.decode(await readResponseWithSizeLimit({
-    response,
+async function readResponseBodyAsText({ response: response2, url: url2 }) {
+  return textDecoder2.decode(await readResponseWithSizeLimit({
+    response: response2,
     url: url2
   }));
 }
-var createJsonErrorResponseHandler = ({ errorSchema, errorToMessage, isRetryable }) => async ({ response, url: url2, requestBodyValues }) => {
+var createJsonErrorResponseHandler = ({ errorSchema, errorToMessage, isRetryable }) => async ({ response: response2, url: url2, requestBodyValues }) => {
   const responseBody = await readResponseBodyAsText({
-    response,
+    response: response2,
     url: url2
   });
-  const responseHeaders = extractResponseHeaders(response);
+  const responseHeaders = extractResponseHeaders(response2);
   if (responseBody.trim() === "") return {
     responseHeaders,
     value: new APICallError({
-      message: response.statusText,
+      message: response2.statusText,
       url: url2,
       requestBodyValues,
-      statusCode: response.status,
+      statusCode: response2.status,
       responseHeaders,
       responseBody,
-      isRetryable: isRetryable?.(response)
+      isRetryable: isRetryable?.(response2)
     })
   };
   try {
@@ -45482,59 +54817,59 @@ var createJsonErrorResponseHandler = ({ errorSchema, errorToMessage, isRetryable
         message: errorToMessage(parsedError),
         url: url2,
         requestBodyValues,
-        statusCode: response.status,
+        statusCode: response2.status,
         responseHeaders,
         responseBody,
         data: parsedError,
-        isRetryable: isRetryable?.(response, parsedError)
+        isRetryable: isRetryable?.(response2, parsedError)
       })
     };
   } catch {
     return {
       responseHeaders,
       value: new APICallError({
-        message: response.statusText,
+        message: response2.statusText,
         url: url2,
         requestBodyValues,
-        statusCode: response.status,
+        statusCode: response2.status,
         responseHeaders,
         responseBody,
-        isRetryable: isRetryable?.(response)
+        isRetryable: isRetryable?.(response2)
       })
     };
   }
 };
-var createEventSourceResponseHandler = (chunkSchema) => async ({ response, url: url2, requestBodyValues }) => {
-  const responseHeaders = extractResponseHeaders(response);
-  if (response.body == null) throw new EmptyResponseBodyError({});
+var createEventSourceResponseHandler = (chunkSchema) => async ({ response: response2, url: url2, requestBodyValues }) => {
+  const responseHeaders = extractResponseHeaders(response2);
+  if (response2.body == null) throw new EmptyResponseBodyError({});
   return {
     responseHeaders,
     value: parseJsonEventStream({
       stream: wrapResponseBodyStream({
-        stream: response.body,
+        stream: response2.body,
         url: url2,
         requestBodyValues,
-        statusCode: response.status,
+        statusCode: response2.status,
         responseHeaders
       }),
       schema: chunkSchema
     })
   };
 };
-var createJsonResponseHandler = (responseSchema) => async ({ response, url: url2, requestBodyValues }) => {
+var createJsonResponseHandler = (responseSchema) => async ({ response: response2, url: url2, requestBodyValues }) => {
   const responseBody = await readResponseBodyAsText({
-    response,
+    response: response2,
     url: url2
   });
   const parsedResult = await safeParseJSON({
     text: responseBody,
     schema: responseSchema
   });
-  const responseHeaders = extractResponseHeaders(response);
+  const responseHeaders = extractResponseHeaders(response2);
   if (!parsedResult.success) throw new APICallError({
     message: "Invalid JSON response",
     cause: parsedResult.error,
-    statusCode: response.status,
+    statusCode: response2.status,
     responseHeaders,
     responseBody,
     url: url2,
@@ -45551,13 +54886,13 @@ var createJsonLinesResponseHandler = (responseSchema, { maxLineBytes = DEFAULT_M
     argument: "maxLineBytes",
     message: "maxLineBytes must be a positive safe integer."
   });
-  return async ({ response, url: url2 }) => {
-    const responseHeaders = extractResponseHeaders(response);
-    if (response.body == null) throw new EmptyResponseBodyError({});
+  return async ({ response: response2, url: url2 }) => {
+    const responseHeaders = extractResponseHeaders(response2);
+    if (response2.body == null) throw new EmptyResponseBodyError({});
     return {
       responseHeaders,
       value: parseJsonLines({
-        stream: response.body,
+        stream: response2.body,
         schema: responseSchema,
         url: url2,
         maxLineBytes
@@ -45570,12 +54905,12 @@ async function* parseJsonLines({ stream, schema, url: url2, maxLineBytes }) {
   const decoder = new TextDecoder();
   let buffer = "";
   let lineBytes = 0;
-  let finished = false;
+  let finished7 = false;
   try {
     while (true) {
       const { done, value } = await reader.read();
       if (done) {
-        finished = true;
+        finished7 = true;
         buffer += decoder.decode();
         break;
       }
@@ -45607,7 +54942,7 @@ async function* parseJsonLines({ stream, schema, url: url2, maxLineBytes }) {
       schema
     });
   } finally {
-    if (!finished) await reader.cancel().catch(() => {
+    if (!finished7) await reader.cancel().catch(() => {
     });
     reader.releaseLock();
   }
@@ -45971,7 +55306,7 @@ var name$17 = "GatewayResponseError";
 var marker$18 = `vercel.ai.gateway.error.${name$17}`;
 var symbol$18 = Symbol.for(marker$18);
 var GatewayResponseError = class extends GatewayError {
-  constructor({ message = "Invalid response from Gateway", statusCode = 502, response, validationError, cause, generationId, isRetryable } = {}) {
+  constructor({ message = "Invalid response from Gateway", statusCode = 502, response: response2, validationError, cause, generationId, isRetryable } = {}) {
     super({
       message,
       statusCode,
@@ -45982,24 +55317,24 @@ var GatewayResponseError = class extends GatewayError {
     this[symbol$18] = true;
     this.name = name$17;
     this.type = "response_error";
-    this.response = response;
+    this.response = response2;
     this.validationError = validationError;
   }
   static isInstance(error62) {
     return GatewayError.hasMarker(error62) && symbol$18 in error62;
   }
 };
-async function createGatewayErrorFromResponse({ response, statusCode, defaultMessage = "Gateway request failed", cause, authMethod, isRetryable }) {
+async function createGatewayErrorFromResponse({ response: response2, statusCode, defaultMessage = "Gateway request failed", cause, authMethod, isRetryable }) {
   const parseResult = await safeValidateTypes({
-    value: response,
+    value: response2,
     schema: gatewayErrorResponseSchema
   });
   if (!parseResult.success) {
-    const rawGenerationId = typeof response === "object" && response !== null && "generationId" in response ? response.generationId : void 0;
+    const rawGenerationId = typeof response2 === "object" && response2 !== null && "generationId" in response2 ? response2.generationId : void 0;
     return new GatewayResponseError({
       message: `Invalid error response format: ${defaultMessage}`,
       statusCode,
-      response,
+      response: response2,
       validationError: parseResult.error,
       cause,
       generationId: rawGenerationId,
@@ -46209,7 +55544,7 @@ var GatewayFetchMetadata = class {
       const { value } = await getFromApi({
         url: `${this.config.baseURL}/config`,
         validateUrl: false,
-        headers: this.config.headers ? await resolve(this.config.headers) : void 0,
+        headers: this.config.headers ? await resolve2(this.config.headers) : void 0,
         successfulResponseHandler: createJsonResponseHandler(gatewayAvailableModelsResponseSchema),
         failedResponseHandler: createJsonErrorResponseHandler({
           errorSchema: z2.any(),
@@ -46225,7 +55560,7 @@ var GatewayFetchMetadata = class {
   async getCredits() {
     try {
       const baseUrl = new URL(this.config.baseURL);
-      const headers = this.config.headers ? await resolve(this.config.headers) : void 0;
+      const headers = this.config.headers ? await resolve2(this.config.headers) : void 0;
       const url2 = new URL("/v1/credits", baseUrl.origin);
       const teamIdOrSlug = getTeamIdOrSlug(headers);
       if (teamIdOrSlug) url2.searchParams.set(teamIdOrSlug.startsWith("team_") ? "teamId" : "slug", teamIdOrSlug);
@@ -46299,7 +55634,7 @@ var GatewaySpendReport = class {
       const { value } = await getFromApi({
         url: `${baseUrl.origin}/v1/report?${searchParams.toString()}`,
         validateUrl: false,
-        headers: this.config.headers ? await resolve(this.config.headers) : void 0,
+        headers: this.config.headers ? await resolve2(this.config.headers) : void 0,
         successfulResponseHandler: createJsonResponseHandler(gatewaySpendReportResponseSchema),
         failedResponseHandler: createJsonErrorResponseHandler({
           errorSchema: z2.any(),
@@ -46351,7 +55686,7 @@ var GatewayGenerationInfoFetcher = class {
       const { value } = await getFromApi({
         url: `${baseUrl.origin}/v1/generation?id=${encodeURIComponent(params.id)}`,
         validateUrl: false,
-        headers: this.config.headers ? await resolve(this.config.headers) : void 0,
+        headers: this.config.headers ? await resolve2(this.config.headers) : void 0,
         successfulResponseHandler: createJsonResponseHandler(gatewayGenerationInfoResponseSchema),
         failedResponseHandler: createJsonErrorResponseHandler({
           errorSchema: z2.any(),
@@ -46417,13 +55752,13 @@ var GatewayBatch = class {
   async doStartBatch({ requests, providerOptions, headers, abortSignal, webhookUrl }) {
     assertTextBatchRequests(requests);
     const modelId = validateSingleModel(requests);
-    const resolvedHeaders = this.config.headers ? await resolve(this.config.headers) : void 0;
+    const resolvedHeaders = this.config.headers ? await resolve2(this.config.headers) : void 0;
     const idempotencyKey = getGatewayBatchIdempotencyKey(providerOptions);
     const forwardedProviderOptions = omitGatewayIdempotencyKey(providerOptions);
     try {
       const { value: responseBody } = await postJsonToApi({
         url: this.getBatchUrl("start"),
-        headers: combineHeaders(resolvedHeaders, headers, { "ai-model-id": modelId }, await resolve(this.config.o11yHeaders), idempotencyKey != null ? { "idempotency-key": idempotencyKey } : void 0),
+        headers: combineHeaders(resolvedHeaders, headers, { "ai-model-id": modelId }, await resolve2(this.config.o11yHeaders), idempotencyKey != null ? { "idempotency-key": idempotencyKey } : void 0),
         body: {
           ...webhookUrl != null && { callbackUrl: webhookUrl },
           requests: requests.map((request) => ({
@@ -46457,11 +55792,11 @@ var GatewayBatch = class {
   * (`POST {baseURL}/batch/status`).
   */
   async doGetBatchStatus({ batchId, headers, abortSignal }) {
-    const resolvedHeaders = this.config.headers ? await resolve(this.config.headers) : void 0;
+    const resolvedHeaders = this.config.headers ? await resolve2(this.config.headers) : void 0;
     try {
       const { value: responseBody } = await postJsonToApi({
         url: this.getBatchUrl("status"),
-        headers: combineHeaders(resolvedHeaders, headers, await resolve(this.config.o11yHeaders)),
+        headers: combineHeaders(resolvedHeaders, headers, await resolve2(this.config.o11yHeaders)),
         body: { batchId },
         successfulResponseHandler: createJsonResponseHandler(gatewayBatchStatusResponseSchema),
         failedResponseHandler: createJsonErrorResponseHandler({
@@ -46485,11 +55820,11 @@ var GatewayBatch = class {
   * server-side. The route responds 400 while the batch is non-terminal.
   */
   async doGetBatchResults({ batchId, headers, abortSignal }) {
-    const resolvedHeaders = this.config.headers ? await resolve(this.config.headers) : void 0;
+    const resolvedHeaders = this.config.headers ? await resolve2(this.config.headers) : void 0;
     try {
       const { value: lines } = await postJsonToApi({
         url: this.getBatchUrl("results"),
-        headers: combineHeaders(resolvedHeaders, headers, await resolve(this.config.o11yHeaders)),
+        headers: combineHeaders(resolvedHeaders, headers, await resolve2(this.config.o11yHeaders)),
         body: { batchId },
         successfulResponseHandler: createJsonLinesResponseHandler(gatewayBatchItemResultLineSchema, { maxLineBytes: this.config.maxLineBytes }),
         failedResponseHandler: createJsonErrorResponseHandler({
@@ -46507,11 +55842,11 @@ var GatewayBatch = class {
   }
   /** Requests cancellation; status and partial results remain separate reads. */
   async doCancelBatch({ batchId, headers, abortSignal }) {
-    const resolvedHeaders = this.config.headers ? await resolve(this.config.headers) : void 0;
+    const resolvedHeaders = this.config.headers ? await resolve2(this.config.headers) : void 0;
     try {
       const { value: responseBody } = await postJsonToApi({
         url: this.getBatchUrl("cancel"),
-        headers: combineHeaders(resolvedHeaders, headers, await resolve(this.config.o11yHeaders)),
+        headers: combineHeaders(resolvedHeaders, headers, await resolve2(this.config.o11yHeaders)),
         body: { batchId },
         successfulResponseHandler: createJsonResponseHandler(gatewayBatchStatusResponseSchema),
         failedResponseHandler: createJsonErrorResponseHandler({
@@ -46527,8 +55862,8 @@ var GatewayBatch = class {
       throw await asGatewayError(error62, await parseAuthMethod(resolvedHeaders ?? {}));
     }
   }
-  getBatchUrl(path) {
-    return `${this.config.baseURL}/batch/${path}`;
+  getBatchUrl(path10) {
+    return `${this.config.baseURL}/batch/${path10}`;
   }
 };
 function maybeEncodeBatchFileParts(options) {
@@ -46618,8 +55953,8 @@ async function* convertGatewayBatchResultLines(lines) {
   for await (const line of lines) {
     const item = line;
     if (item.status === "succeeded") {
-      const response = item.result?.response;
-      if (response !== void 0 && typeof response.timestamp === "string") response.timestamp = new Date(response.timestamp);
+      const response2 = item.result?.response;
+      if (response2 !== void 0 && typeof response2.timestamp === "string") response2.timestamp = new Date(response2.timestamp);
     }
     yield item;
   }
@@ -46697,11 +56032,11 @@ var GatewayLanguageModel = class GatewayLanguageModel2 {
   async doGenerate(options) {
     const { args, warnings } = await this.getArgs(options);
     const { abortSignal } = options;
-    const resolvedHeaders = this.config.headers ? await resolve(this.config.headers) : void 0;
+    const resolvedHeaders = this.config.headers ? await resolve2(this.config.headers) : void 0;
     try {
       const { responseHeaders, value: responseBody, rawValue: rawResponse } = await postJsonToApi({
         url: this.getUrl(),
-        headers: combineHeaders(resolvedHeaders, options.headers, this.getModelConfigHeaders(this.modelId, false), await resolve(this.config.o11yHeaders)),
+        headers: combineHeaders(resolvedHeaders, options.headers, this.getModelConfigHeaders(this.modelId, false), await resolve2(this.config.o11yHeaders)),
         body: args,
         successfulResponseHandler: createJsonResponseHandler(z2.any()),
         failedResponseHandler: createJsonErrorResponseHandler({
@@ -46727,11 +56062,11 @@ var GatewayLanguageModel = class GatewayLanguageModel2 {
   async doStream(options) {
     const { args, warnings } = await this.getArgs(options);
     const { abortSignal } = options;
-    const resolvedHeaders = this.config.headers ? await resolve(this.config.headers) : void 0;
+    const resolvedHeaders = this.config.headers ? await resolve2(this.config.headers) : void 0;
     try {
-      const { value: response, responseHeaders } = await postJsonToApi({
+      const { value: response2, responseHeaders } = await postJsonToApi({
         url: this.getUrl(),
-        headers: combineHeaders(resolvedHeaders, options.headers, this.getModelConfigHeaders(this.modelId, true), await resolve(this.config.o11yHeaders)),
+        headers: combineHeaders(resolvedHeaders, options.headers, this.getModelConfigHeaders(this.modelId, true), await resolve2(this.config.o11yHeaders)),
         body: args,
         successfulResponseHandler: createEventSourceResponseHandler(z2.any()),
         failedResponseHandler: createJsonErrorResponseHandler({
@@ -46742,7 +56077,7 @@ var GatewayLanguageModel = class GatewayLanguageModel2 {
         fetch: this.config.fetch
       });
       return {
-        stream: response.pipeThrough(new TransformStream({
+        stream: response2.pipeThrough(new TransformStream({
           start(controller) {
             if (warnings.length > 0) controller.enqueue({
               type: "stream-start",
@@ -46822,11 +56157,11 @@ var GatewayEmbeddingModel = class GatewayEmbeddingModel2 {
     return this.config.provider;
   }
   async doEmbed({ values, dimensions, headers, abortSignal, providerOptions }) {
-    const resolvedHeaders = this.config.headers ? await resolve(this.config.headers) : void 0;
+    const resolvedHeaders = this.config.headers ? await resolve2(this.config.headers) : void 0;
     try {
       const { responseHeaders, value: responseBody, rawValue } = await postJsonToApi({
         url: this.getUrl(),
-        headers: combineHeaders(resolvedHeaders, headers ?? {}, this.getModelConfigHeaders(), await resolve(this.config.o11yHeaders)),
+        headers: combineHeaders(resolvedHeaders, headers ?? {}, this.getModelConfigHeaders(), await resolve2(this.config.o11yHeaders)),
         body: {
           values,
           dimensions,
@@ -46910,15 +56245,15 @@ var GatewayImageModel = class GatewayImageModel2 {
   get provider() {
     return this.config.provider;
   }
-  async doGenerate({ prompt, n, size, aspectRatio, seed, files, mask, providerOptions, headers, abortSignal }) {
-    const resolvedHeaders = this.config.headers ? await resolve(this.config.headers) : void 0;
+  async doGenerate({ prompt, n: n2, size, aspectRatio, seed, files, mask, providerOptions, headers, abortSignal }) {
+    const resolvedHeaders = this.config.headers ? await resolve2(this.config.headers) : void 0;
     try {
       const { responseHeaders, value: responseBody } = await postJsonToApi({
         url: this.getUrl(),
-        headers: combineHeaders(resolvedHeaders, headers ?? {}, this.getModelConfigHeaders(), await resolve(this.config.o11yHeaders)),
+        headers: combineHeaders(resolvedHeaders, headers ?? {}, this.getModelConfigHeaders(), await resolve2(this.config.o11yHeaders)),
         body: {
           prompt,
-          n,
+          n: n2,
           ...size && { size },
           ...aspectRatio && { aspectRatio },
           ...seed && { seed },
@@ -47017,21 +56352,21 @@ var GatewayVideoModel = class {
   }
   async doGenerate(options) {
     const { headers, abortSignal } = options;
-    const resolvedHeaders = this.config.headers ? await resolve(this.config.headers) : void 0;
+    const resolvedHeaders = this.config.headers ? await resolve2(this.config.headers) : void 0;
     try {
       const { responseHeaders, value: responseBody } = await postJsonToApi({
         url: this.getUrl(),
-        headers: combineHeaders(resolvedHeaders, headers ?? {}, this.getModelConfigHeaders(), await resolve(this.config.o11yHeaders), { accept: "text/event-stream" }),
+        headers: combineHeaders(resolvedHeaders, headers ?? {}, this.getModelConfigHeaders(), await resolve2(this.config.o11yHeaders), { accept: "text/event-stream" }),
         body: this.buildRequestBody(options),
-        successfulResponseHandler: async ({ response, url: url2, requestBodyValues }) => {
-          if (response.body == null) throw new APICallError({
+        successfulResponseHandler: async ({ response: response2, url: url2, requestBodyValues }) => {
+          if (response2.body == null) throw new APICallError({
             message: "SSE response body is empty",
             url: url2,
             requestBodyValues,
-            statusCode: response.status
+            statusCode: response2.status
           });
           const reader = parseJsonEventStream({
-            stream: response.body,
+            stream: response2.body,
             schema: gatewayVideoEventSchema
           }).getReader();
           const { done, value: parseResult } = await reader.read();
@@ -47040,14 +56375,14 @@ var GatewayVideoModel = class {
             message: "SSE stream ended without a data event",
             url: url2,
             requestBodyValues,
-            statusCode: response.status
+            statusCode: response2.status
           });
           if (!parseResult.success) throw new APICallError({
             message: "Failed to parse video SSE event",
             cause: parseResult.error,
             url: url2,
             requestBodyValues,
-            statusCode: response.status
+            statusCode: response2.status
           });
           const event = parseResult.value;
           if (event.type === "error") throw new APICallError({
@@ -47055,7 +56390,7 @@ var GatewayVideoModel = class {
             statusCode: event.statusCode,
             url: url2,
             requestBodyValues,
-            responseHeaders: Object.fromEntries([...response.headers]),
+            responseHeaders: Object.fromEntries([...response2.headers]),
             responseBody: JSON.stringify(event),
             data: { error: {
               message: event.message,
@@ -47069,7 +56404,7 @@ var GatewayVideoModel = class {
               warnings: event.warnings,
               providerMetadata: event.providerMetadata
             },
-            responseHeaders: Object.fromEntries([...response.headers])
+            responseHeaders: Object.fromEntries([...response2.headers])
           };
         },
         failedResponseHandler: createJsonErrorResponseHandler({
@@ -47102,11 +56437,11 @@ var GatewayVideoModel = class {
   }
   async doStart(options) {
     const { headers, abortSignal, webhookUrl } = options;
-    const resolvedHeaders = this.config.headers ? await resolve(this.config.headers) : void 0;
+    const resolvedHeaders = this.config.headers ? await resolve2(this.config.headers) : void 0;
     try {
       const { responseHeaders, value: responseBody } = await postJsonToApi({
         url: this.getStartUrl(),
-        headers: combineHeaders(resolvedHeaders, headers ?? {}, this.getModelConfigHeaders(), await resolve(this.config.o11yHeaders)),
+        headers: combineHeaders(resolvedHeaders, headers ?? {}, this.getModelConfigHeaders(), await resolve2(this.config.o11yHeaders)),
         body: {
           ...this.buildRequestBody(options),
           ...webhookUrl && { callbackUrl: webhookUrl }
@@ -47134,11 +56469,11 @@ var GatewayVideoModel = class {
     }
   }
   async doStatus({ operation, abortSignal, headers }) {
-    const resolvedHeaders = this.config.headers ? await resolve(this.config.headers) : void 0;
+    const resolvedHeaders = this.config.headers ? await resolve2(this.config.headers) : void 0;
     try {
       const { responseHeaders, value: responseBody } = await postJsonToApi({
         url: this.getStatusUrl(),
-        headers: combineHeaders(resolvedHeaders, headers ?? {}, this.getModelConfigHeaders(), await resolve(this.config.o11yHeaders)),
+        headers: combineHeaders(resolvedHeaders, headers ?? {}, this.getModelConfigHeaders(), await resolve2(this.config.o11yHeaders)),
         body: { operation },
         successfulResponseHandler: createJsonResponseHandler(gatewayVideoStatusResponseSchema),
         failedResponseHandler: createJsonErrorResponseHandler({
@@ -47148,7 +56483,7 @@ var GatewayVideoModel = class {
         ...abortSignal && { abortSignal },
         fetch: this.config.fetch
       });
-      const response = {
+      const response2 = {
         timestamp: /* @__PURE__ */ new Date(),
         modelId: this.modelId,
         headers: responseHeaders
@@ -47158,34 +56493,34 @@ var GatewayVideoModel = class {
         videos: responseBody.videos,
         warnings: responseBody.warnings ?? [],
         providerMetadata: responseBody.providerMetadata ?? void 0,
-        response
+        response: response2
       };
       if (responseBody.status === "error") return {
         status: "error",
         error: responseBody.error,
         providerMetadata: responseBody.providerMetadata ?? void 0,
-        response
+        response: response2
       };
       if (responseBody.status === "cancelled") return {
         status: "error",
         error: "Video generation was cancelled.",
         providerMetadata: responseBody.providerMetadata ?? void 0,
-        response
+        response: response2
       };
       return {
         status: "pending",
         warnings: responseBody.warnings ?? [],
         providerMetadata: responseBody.providerMetadata ?? void 0,
-        response
+        response: response2
       };
     } catch (error62) {
       throw await asGatewayError(error62, await parseAuthMethod(resolvedHeaders ?? {}));
     }
   }
-  buildRequestBody({ prompt, n, aspectRatio, resolution, duration: duration3, fps, seed, generateAudio, image, frameImages, inputReferences, providerOptions }) {
+  buildRequestBody({ prompt, n: n2, aspectRatio, resolution, duration: duration3, fps, seed, generateAudio, image, frameImages, inputReferences, providerOptions }) {
     return {
       prompt,
-      n,
+      n: n2,
       ...aspectRatio && { aspectRatio },
       ...resolution && { resolution },
       ...duration3 && { duration: duration3 },
@@ -47341,7 +56676,7 @@ function conditionSchema(depth) {
     z2.object({ atLeast: z2.object({
       count: z2.number().int().min(1),
       conditions: conditionListSchema
-    }).strict().refine(({ count, conditions }) => count <= conditions.length, {
+    }).strict().refine(({ count: count2, conditions }) => count2 <= conditions.length, {
       message: "atLeast count cannot exceed the number of conditions",
       path: ["count"]
     }) }).strict()
@@ -47376,11 +56711,11 @@ var GatewayDecisionModel = class {
       ...providerOptions,
       gateway: gatewayOptions
     };
-    const resolvedHeaders = this.config.headers ? await resolve(this.config.headers) : void 0;
+    const resolvedHeaders = this.config.headers ? await resolve2(this.config.headers) : void 0;
     try {
       const { responseHeaders, value: responseBody, rawValue } = await postJsonToApi({
         url: this.getUrl(),
-        headers: combineHeaders(resolvedHeaders, headers ?? {}, this.getModelConfigHeaders(), await resolve(this.config.o11yHeaders)),
+        headers: combineHeaders(resolvedHeaders, headers ?? {}, this.getModelConfigHeaders(), await resolve2(this.config.o11yHeaders)),
         body: {
           stateParts,
           questions,
@@ -47498,11 +56833,11 @@ var GatewayRerankingModel = class {
     return this.config.provider;
   }
   async doRerank({ documents, query, topN, headers, abortSignal, providerOptions }) {
-    const resolvedHeaders = this.config.headers ? await resolve(this.config.headers) : void 0;
+    const resolvedHeaders = this.config.headers ? await resolve2(this.config.headers) : void 0;
     try {
       const { responseHeaders, value: responseBody, rawValue } = await postJsonToApi({
         url: this.getUrl(),
-        headers: combineHeaders(resolvedHeaders, headers ?? {}, this.getModelConfigHeaders(), await resolve(this.config.o11yHeaders)),
+        headers: combineHeaders(resolvedHeaders, headers ?? {}, this.getModelConfigHeaders(), await resolve2(this.config.o11yHeaders)),
         body: {
           documents,
           query,
@@ -47579,11 +56914,11 @@ var GatewaySpeechModel = class {
     return this.config.provider;
   }
   async doGenerate({ text, voice, outputFormat, instructions, speed, language, providerOptions, headers, abortSignal }) {
-    const resolvedHeaders = this.config.headers ? await resolve(this.config.headers) : void 0;
+    const resolvedHeaders = this.config.headers ? await resolve2(this.config.headers) : void 0;
     try {
       const { responseHeaders, value: responseBody, rawValue } = await postJsonToApi({
         url: this.getUrl(),
-        headers: combineHeaders(resolvedHeaders, headers ?? {}, this.getModelConfigHeaders(), await resolve(this.config.o11yHeaders)),
+        headers: combineHeaders(resolvedHeaders, headers ?? {}, this.getModelConfigHeaders(), await resolve2(this.config.o11yHeaders)),
         body: {
           text,
           ...voice && { voice },
@@ -47665,11 +57000,11 @@ var GatewayTranscriptionModel = class {
     return this.config.provider;
   }
   async doGenerate({ audio, mediaType, providerOptions, headers, abortSignal }) {
-    const resolvedHeaders = this.config.headers ? await resolve(this.config.headers) : void 0;
+    const resolvedHeaders = this.config.headers ? await resolve2(this.config.headers) : void 0;
     try {
       const { responseHeaders, value: responseBody, rawValue } = await postJsonToApi({
         url: this.getUrl(),
-        headers: combineHeaders(resolvedHeaders, headers ?? {}, this.getModelConfigHeaders(), await resolve(this.config.o11yHeaders)),
+        headers: combineHeaders(resolvedHeaders, headers ?? {}, this.getModelConfigHeaders(), await resolve2(this.config.o11yHeaders)),
         body: {
           audio: audio instanceof Uint8Array ? convertUint8ArrayToBase64(audio) : audio,
           mediaType,
@@ -47710,7 +57045,7 @@ var GatewayTranscriptionModel = class {
   }
   async doStream(options) {
     const currentDate = this.config._internal?.currentDate?.() ?? /* @__PURE__ */ new Date();
-    const headers = combineHeaders(await resolve(this.config.headers ?? {}), options.headers ?? {}, this.getModelConfigHeaders(), await resolve(this.config.o11yHeaders));
+    const headers = combineHeaders(await resolve2(this.config.headers ?? {}), options.headers ?? {}, this.getModelConfigHeaders(), await resolve2(this.config.o11yHeaders));
     const authMethod = await parseAuthMethod(headers);
     const startFrame = {
       type: TRANSCRIPTION_STREAM_START_FRAME_TYPE,
@@ -47770,7 +57105,7 @@ function getProtocolsFromHeaders(headers) {
 }
 var MAX_AUDIO_FRAME_BYTES = 65536;
 function createGatewayTranscriptionStream({ webSocket, url: url2, protocols, headers, startFrame, audio, abortSignal, authMethod }) {
-  let finished = false;
+  let finished7 = false;
   let cleanup = () => {
   };
   return new ReadableStream({
@@ -47797,8 +57132,8 @@ function createGatewayTranscriptionStream({ webSocket, url: url2, protocols, hea
         });
       };
       const finishWithError = (error62) => {
-        if (finished) return;
-        finished = true;
+        if (finished7) return;
+        finished7 = true;
         cleanup();
         errorControllerWithGatewayError(controller, error62, authMethod);
       };
@@ -47808,10 +57143,10 @@ function createGatewayTranscriptionStream({ webSocket, url: url2, protocols, hea
         try {
           while (true) {
             const { done, value } = await reader.read();
-            if (done || finished) break;
+            if (done || finished7) break;
             const bytes = typeof value === "string" ? convertBase64ToUint8Array(value) : value;
             for (let offset = 0; offset < bytes.length; offset += MAX_AUDIO_FRAME_BYTES) {
-              if (finished) break;
+              if (finished7) break;
               socket.send(bytes.subarray(offset, offset + MAX_AUDIO_FRAME_BYTES));
               await waitForWebSocketBufferDrain(socket);
             }
@@ -47820,7 +57155,7 @@ function createGatewayTranscriptionStream({ webSocket, url: url2, protocols, hea
           reader.releaseLock();
           if (audioReader === reader) audioReader = void 0;
         }
-        if (!finished && !audioStopped) socket.send(JSON.stringify({ type: TRANSCRIPTION_STREAM_AUDIO_DONE_FRAME_TYPE }));
+        if (!finished7 && !audioStopped) socket.send(JSON.stringify({ type: TRANSCRIPTION_STREAM_AUDIO_DONE_FRAME_TYPE }));
       };
       connection = connectToWebSocket({
         url: url2,
@@ -47829,8 +57164,8 @@ function createGatewayTranscriptionStream({ webSocket, url: url2, protocols, hea
         webSocket,
         abortSignal,
         onAbort: (reason) => {
-          if (finished) return;
-          finished = true;
+          if (finished7) return;
+          finished7 = true;
           cleanup();
           controller.error(reason);
         },
@@ -47840,11 +57175,11 @@ function createGatewayTranscriptionStream({ webSocket, url: url2, protocols, hea
           sendAudio(socket).catch(finishWithError);
         },
         onMessageText: (text) => {
-          if (finished) return;
+          if (finished7) return;
           const part = parseTranscriptionStreamPart(text);
           if (part == null) return;
           if (part.type === "finish") {
-            finished = true;
+            finished7 = true;
             controller.enqueue(part);
             controller.close();
             cleanup(1e3);
@@ -47862,7 +57197,7 @@ function createGatewayTranscriptionStream({ webSocket, url: url2, protocols, hea
         },
         onClose: () => {
           if (hasServerErrorPart) {
-            if (finished) return;
+            if (finished7) return;
             createErrorFromServerErrorPart(lastServerError, authMethod).then(finishWithError);
             return;
           }
@@ -47871,8 +57206,8 @@ function createGatewayTranscriptionStream({ webSocket, url: url2, protocols, hea
       });
     },
     cancel: () => {
-      if (finished) return;
-      finished = true;
+      if (finished7) return;
+      finished7 = true;
       cleanup();
     }
   });
@@ -49374,26 +58709,26 @@ var download = async ({ url: url2, maxBytes, abortSignal }) => {
   const urlText = url2.toString();
   try {
     const headers = withUserAgentSuffix({}, `ai-sdk/${VERSION3}`, getRuntimeEnvironmentUserAgent());
-    const response = await fetchUntrustedUrl({
+    const response2 = await fetchUntrustedUrl({
       url: urlText,
       headers,
       abortSignal
     });
-    if (!response.ok) {
-      await cancelResponseBody(response);
+    if (!response2.ok) {
+      await cancelResponseBody(response2);
       throw new DownloadError({
         url: urlText,
-        statusCode: response.status,
-        statusText: response.statusText
+        statusCode: response2.status,
+        statusText: response2.statusText
       });
     }
     return {
       data: await readResponseWithSizeLimit({
-        response,
+        response: response2,
         url: urlText,
         maxBytes: maxBytes ?? DEFAULT_MAX_DOWNLOAD_SIZE
       }),
-      mediaType: response.headers.get("content-type") ?? void 0
+      mediaType: response2.headers.get("content-type") ?? void 0
     };
   } catch (error62) {
     if (DownloadError.isInstance(error62)) throw error62;
@@ -49780,9 +59115,9 @@ function loadBuiltinModule2(id) {
     return;
   }
 }
-async function runWithTracingChannelSpan(message, execute5) {
+async function runWithTracingChannelSpan(message, execute6) {
   const tracingChannel = (await loadDiagnosticsChannel())?.tracingChannel?.(AI_SDK_TELEMETRY_TRACING_CHANNEL);
-  if (tracingChannel == null || tracingChannel.hasSubscribers === false) return await execute5();
+  if (tracingChannel == null || tracingChannel.hasSubscribers === false) return await execute6();
   let executePromise;
   let executionResult;
   let executionError;
@@ -49790,7 +59125,7 @@ async function runWithTracingChannelSpan(message, execute5) {
   let hasExecutionError = false;
   const tracedExecute = () => {
     try {
-      executePromise = Promise.resolve(execute5());
+      executePromise = Promise.resolve(execute6());
     } catch (error62) {
       executePromise = Promise.reject(error62);
     }
@@ -49811,7 +59146,7 @@ async function runWithTracingChannelSpan(message, execute5) {
     if (hasExecutionError) throw executionError;
     if (hasExecutionResult) return executionResult;
     if (executePromise != null) return await executePromise;
-    return await execute5();
+    return await execute6();
   }
 }
 function openTelemetryChannelSpanContext({ message, completion }) {
@@ -49854,7 +59189,7 @@ function openTelemetryChannelSpanContext({ message, completion }) {
   });
   safePublish(() => tracingChannel.end.publish(context));
   Promise.resolve(completion).then((result) => publishAsyncEnd({ result }), (error62) => publishAsyncEnd({ error: error62 }));
-  return { run: (execute5) => asyncResource == null ? execute5() : asyncResource.runInAsyncScope(execute5) };
+  return { run: (execute6) => asyncResource == null ? execute6() : asyncResource.runInAsyncScope(execute6) };
 }
 function getGlobalTelemetryIntegrations() {
   return globalThis.AI_SDK_TELEMETRY_INTEGRATIONS ?? [];
@@ -49909,10 +59244,10 @@ function createTelemetryDispatcher({ telemetry }) {
   const executeLanguageModelCallWrappers = integrations.map((integration) => integration.executeLanguageModelCall?.bind(integration)).filter(Boolean);
   const executeToolWrappers = integrations.map((integration) => integration.executeTool?.bind(integration)).filter(Boolean);
   return {
-    runInTracingChannelSpan: async ({ type, event, execute: execute5 }) => await runWithTracingChannelSpan({
+    runInTracingChannelSpan: async ({ type, event, execute: execute6 }) => await runWithTracingChannelSpan({
       type,
       event: augmentEvent(event, telemetryMetadata, true)
-    }, execute5),
+    }, execute6),
     startTracingChannelContext: ({ type, event, completion }) => openTelemetryChannelSpanContext({
       message: {
         type,
@@ -49946,9 +59281,9 @@ function createTelemetryDispatcher({ telemetry }) {
     * Runs provider calls inside integration-specific context so
     * auto-instrumented provider requests can be associated with model work.
     */
-    executeLanguageModelCall: async ({ execute: execute5, ...event }) => {
+    executeLanguageModelCall: async ({ execute: execute6, ...event }) => {
       const augmentedEvent = augmentEvent(event, telemetryMetadata);
-      let wrappedExecute = execute5;
+      let wrappedExecute = execute6;
       for (const executeWrapper of executeLanguageModelCallWrappers) {
         const innerExecute = wrappedExecute;
         wrappedExecute = () => executeWrapper({
@@ -49967,9 +59302,9 @@ function createTelemetryDispatcher({ telemetry }) {
     * the chain, so integrations can establish nested telemetry context before
     * delegating to the underlying tool.
     */
-    executeTool: async ({ execute: execute5, ...event }) => {
+    executeTool: async ({ execute: execute6, ...event }) => {
       const augmentedEvent = augmentEvent(event, telemetryMetadata);
-      let wrappedExecute = execute5;
+      let wrappedExecute = execute6;
       for (const executeWrapper of executeToolWrappers) {
         const innerExecute = wrappedExecute;
         wrappedExecute = () => executeWrapper({
@@ -50553,7 +59888,7 @@ var originalGenerateCallId$5 = createIdGenerator({
   prefix: "call",
   size: 24
 });
-var textEncoder = new TextEncoder();
+var textEncoder3 = new TextEncoder();
 var originalGenerateCallId$4 = createIdGenerator({
   prefix: "call",
   size: 24
@@ -50619,7 +59954,7 @@ async function transcribe({ model, audio, providerOptions = {}, maxRetries: maxR
   const headersWithUserAgent = withUserAgentSuffix(headers ?? {}, `ai/${VERSION3}`);
   const callId = generateCallId();
   const telemetryDispatcher = createTelemetryDispatcher({ telemetry });
-  const runInTracingChannelSpan = telemetryDispatcher.runInTracingChannelSpan ?? (async ({ execute: execute5 }) => await execute5());
+  const runInTracingChannelSpan = telemetryDispatcher.runInTracingChannelSpan ?? (async ({ execute: execute6 }) => await execute6());
   const createStartEvent = ({ byteLength, mediaType: mediaType2 }) => ({
     callId,
     operationId: "ai.transcribe",
@@ -50634,7 +59969,7 @@ async function transcribe({ model, audio, providerOptions = {}, maxRetries: maxR
     headers,
     providerOptions
   });
-  const executeWithStartEvent = async ({ startEvent: startEvent2, execute: execute5 }) => await runInTracingChannelSpan({
+  const executeWithStartEvent = async ({ startEvent: startEvent2, execute: execute6 }) => await runInTracingChannelSpan({
     type: "transcribe",
     event: startEvent2,
     execute: async () => {
@@ -50642,7 +59977,7 @@ async function transcribe({ model, audio, providerOptions = {}, maxRetries: maxR
         event: startEvent2,
         callbacks: [telemetryDispatcher.onStart]
       });
-      return await execute5();
+      return await execute6();
     }
   });
   let preparationError;
@@ -50853,77 +60188,77 @@ function pushCodePoint(parts, chunk, cp) {
 function decodeUTF8(bytes) {
   const parts = [];
   const chunk = [];
-  let i = 0;
+  let i2 = 0;
   if (bytes.length >= 3 && bytes[0] === 239 && bytes[1] === 187 && bytes[2] === 191) {
-    i = 3;
+    i2 = 3;
   }
-  while (i < bytes.length) {
-    const b1 = bytes[i];
+  while (i2 < bytes.length) {
+    const b1 = bytes[i2];
     if (b1 <= 127) {
       pushCodeUnit(parts, chunk, b1);
-      i++;
+      i2++;
       continue;
     }
     if (b1 < 194 || b1 > 244) {
       pushCodeUnit(parts, chunk, REPLACEMENT);
-      i++;
+      i2++;
       continue;
     }
     if (b1 <= 223) {
-      if (i + 1 >= bytes.length) {
+      if (i2 + 1 >= bytes.length) {
         pushCodeUnit(parts, chunk, REPLACEMENT);
-        i++;
+        i2++;
         continue;
       }
-      const b22 = bytes[i + 1];
+      const b22 = bytes[i2 + 1];
       if ((b22 & 192) !== 128) {
         pushCodeUnit(parts, chunk, REPLACEMENT);
-        i++;
+        i2++;
         continue;
       }
       const cp2 = (b1 & 31) << 6 | b22 & 63;
       pushCodeUnit(parts, chunk, cp2);
-      i += 2;
+      i2 += 2;
       continue;
     }
     if (b1 <= 239) {
-      if (i + 2 >= bytes.length) {
+      if (i2 + 2 >= bytes.length) {
         pushCodeUnit(parts, chunk, REPLACEMENT);
-        i++;
+        i2++;
         continue;
       }
-      const b22 = bytes[i + 1];
-      const b32 = bytes[i + 2];
+      const b22 = bytes[i2 + 1];
+      const b32 = bytes[i2 + 2];
       const valid2 = (b22 & 192) === 128 && (b32 & 192) === 128 && !(b1 === 224 && b22 < 160) && // overlong
       !(b1 === 237 && b22 >= 160);
       if (!valid2) {
         pushCodeUnit(parts, chunk, REPLACEMENT);
-        i++;
+        i2++;
         continue;
       }
       const cp2 = (b1 & 15) << 12 | (b22 & 63) << 6 | b32 & 63;
       pushCodeUnit(parts, chunk, cp2);
-      i += 3;
+      i2 += 3;
       continue;
     }
-    if (i + 3 >= bytes.length) {
+    if (i2 + 3 >= bytes.length) {
       pushCodeUnit(parts, chunk, REPLACEMENT);
-      i++;
+      i2++;
       continue;
     }
-    const b2 = bytes[i + 1];
-    const b3 = bytes[i + 2];
-    const b4 = bytes[i + 3];
+    const b2 = bytes[i2 + 1];
+    const b3 = bytes[i2 + 2];
+    const b4 = bytes[i2 + 3];
     const valid = (b2 & 192) === 128 && (b3 & 192) === 128 && (b4 & 192) === 128 && !(b1 === 240 && b2 < 144) && // overlong
     !(b1 === 244 && b2 > 143);
     if (!valid) {
       pushCodeUnit(parts, chunk, REPLACEMENT);
-      i++;
+      i2++;
       continue;
     }
     const cp = (b1 & 7) << 18 | (b2 & 63) << 12 | (b3 & 63) << 6 | b4 & 63;
     pushCodePoint(parts, chunk, cp);
-    i += 4;
+    i2 += 4;
   }
   flushChunk(parts, chunk);
   return parts.join("");
@@ -50932,17 +60267,17 @@ function decodeUTF16LE(bytes) {
   const parts = [];
   const chunk = [];
   const len = bytes.length;
-  let i = 0;
-  while (i + 1 < len) {
-    const u1 = bytes[i] | bytes[i + 1] << 8;
-    i += 2;
+  let i2 = 0;
+  while (i2 + 1 < len) {
+    const u1 = bytes[i2] | bytes[i2 + 1] << 8;
+    i2 += 2;
     if (u1 >= 55296 && u1 <= 56319) {
-      if (i + 1 < len) {
-        const u2 = bytes[i] | bytes[i + 1] << 8;
+      if (i2 + 1 < len) {
+        const u2 = bytes[i2] | bytes[i2 + 1] << 8;
         if (u2 >= 56320 && u2 <= 57343) {
           pushCodeUnit(parts, chunk, u1);
           pushCodeUnit(parts, chunk, u2);
-          i += 2;
+          i2 += 2;
         } else {
           pushCodeUnit(parts, chunk, REPLACEMENT);
         }
@@ -50957,7 +60292,7 @@ function decodeUTF16LE(bytes) {
     }
     pushCodeUnit(parts, chunk, u1);
   }
-  if (i < len) {
+  if (i2 < len) {
     pushCodeUnit(parts, chunk, REPLACEMENT);
   }
   flushChunk(parts, chunk);
@@ -50965,10 +60300,10 @@ function decodeUTF16LE(bytes) {
 }
 function decodeASCII(bytes) {
   const parts = [];
-  for (let i = 0; i < bytes.length; i += CHUNK) {
-    const end = Math.min(bytes.length, i + CHUNK);
-    const codes = new Array(end - i);
-    for (let j = i, k = 0; j < end; j++, k++) {
+  for (let i2 = 0; i2 < bytes.length; i2 += CHUNK) {
+    const end = Math.min(bytes.length, i2 + CHUNK);
+    const codes = new Array(end - i2);
+    for (let j = i2, k = 0; j < end; j++, k++) {
       codes[k] = bytes[j] & 127;
     }
     parts.push(String.fromCharCode.apply(null, codes));
@@ -50977,10 +60312,10 @@ function decodeASCII(bytes) {
 }
 function decodeLatin1(bytes) {
   const parts = [];
-  for (let i = 0; i < bytes.length; i += CHUNK) {
-    const end = Math.min(bytes.length, i + CHUNK);
-    const codes = new Array(end - i);
-    for (let j = i, k = 0; j < end; j++, k++) {
+  for (let i2 = 0; i2 < bytes.length; i2 += CHUNK) {
+    const end = Math.min(bytes.length, i2 + CHUNK);
+    const codes = new Array(end - i2);
+    for (let j = i2, k = 0; j < end; j++, k++) {
       codes[k] = bytes[j];
     }
     parts.push(String.fromCharCode.apply(null, codes));
@@ -50990,8 +60325,8 @@ function decodeLatin1(bytes) {
 function decodeWindows1252(bytes) {
   const parts = [];
   let out = "";
-  for (let i = 0; i < bytes.length; i++) {
-    const b = bytes[i];
+  for (let i2 = 0; i2 < bytes.length; i2++) {
+    const b = bytes[i2];
     const extra = b >= 128 && b <= 159 ? WINDOWS_1252_EXTRA[b] : void 0;
     out += extra !== null && extra !== void 0 ? extra : String.fromCharCode(b);
     if (out.length >= CHUNK) {
@@ -51647,10 +60982,10 @@ var ReadStreamTokenizer = class extends AbstractTokenizer {
     let bytesRead = 0;
     while (bytesRead < normOptions.length) {
       const chunkLength = Math.min(this.maxBufferSize, normOptions.length - bytesRead);
-      const count = await this.streamReader.read(uint8Array.subarray(bytesRead, bytesRead + chunkLength), true);
-      bytesRead += count;
-      this.position += count;
-      if (count < chunkLength) {
+      const count2 = await this.streamReader.read(uint8Array.subarray(bytesRead, bytesRead + chunkLength), true);
+      bytesRead += count2;
+      this.position += count2;
+      if (count2 < chunkLength) {
         break;
       }
     }
@@ -51905,9 +61240,9 @@ var ZipHandler = class {
     const chunkLength = Math.min(16 * 1024, randomReadTokenizer.fileInfo.size);
     const buffer = this.syncBuffer.subarray(0, chunkLength);
     await this.tokenizer.readBuffer(buffer, { position: randomReadTokenizer.fileInfo.size - chunkLength });
-    for (let i = buffer.length - 4; i >= 0; i--) {
-      if (buffer[i] === eocdSignatureBytes[0] && buffer[i + 1] === eocdSignatureBytes[1] && buffer[i + 2] === eocdSignatureBytes[2] && buffer[i + 3] === eocdSignatureBytes[3]) {
-        return randomReadTokenizer.fileInfo.size - chunkLength + i;
+    for (let i2 = buffer.length - 4; i2 >= 0; i2--) {
+      if (buffer[i2] === eocdSignatureBytes[0] && buffer[i2 + 1] === eocdSignatureBytes[1] && buffer[i2 + 2] === eocdSignatureBytes[2] && buffer[i2 + 3] === eocdSignatureBytes[3]) {
+        return randomReadTokenizer.fileInfo.size - chunkLength + i2;
       }
     }
     return -1;
@@ -51925,7 +61260,7 @@ var ZipHandler = class {
       const eocdHeader = await this.tokenizer.readToken(EndOfCentralDirectoryRecordToken, offset);
       const files = [];
       this.tokenizer.setPosition(eocdHeader.offsetOfStartOfCd);
-      for (let n = 0; n < eocdHeader.nrOfEntriesOfSize; ++n) {
+      for (let n2 = 0; n2 < eocdHeader.nrOfEntriesOfSize; ++n2) {
         const entry = await this.tokenizer.readToken(FileHeader);
         if (entry.signature !== Signature.CentralFileHeader) {
           throw new Error("Expected Central-File-Header signature");
@@ -51934,7 +61269,7 @@ var ZipHandler = class {
         await this.tokenizer.ignore(entry.extraFieldLength);
         await this.tokenizer.ignore(entry.fileCommentLength);
         files.push(entry);
-        debug(`Add central-directory file-entry: n=${n + 1}/${files.length}: filename=${files[n].filename}`);
+        debug(`Add central-directory file-entry: n=${n2 + 1}/${files.length}: filename=${files[n2].filename}`);
       }
       this.tokenizer.setPosition(pos);
       return files;
@@ -52109,16 +61444,16 @@ function indexOf(buffer, portion) {
   if (portionLength > bufferLength) {
     return -1;
   }
-  for (let i = 0; i <= bufferLength - portionLength; i++) {
+  for (let i2 = 0; i2 <= bufferLength - portionLength; i2++) {
     let found = true;
     for (let j = 0; j < portionLength; j++) {
-      if (buffer[i + j] !== portion[j]) {
+      if (buffer[i2 + j] !== portion[j]) {
         found = false;
         break;
       }
     }
     if (found) {
-      return i;
+      return i2;
     }
   }
   return -1;
@@ -52135,7 +61470,7 @@ function mergeArrays(chunks) {
 }
 
 // ../elt/node_modules/uint8array-extras/index.js
-var objectToString = Object.prototype.toString;
+var objectToString3 = Object.prototype.toString;
 var uint8ArrayStringified = "[object Uint8Array]";
 var arrayBufferStringified = "[object ArrayBuffer]";
 function isType(value, typeConstructor, typeStringified) {
@@ -52145,26 +61480,26 @@ function isType(value, typeConstructor, typeStringified) {
   if (value.constructor === typeConstructor) {
     return true;
   }
-  return objectToString.call(value) === typeStringified;
+  return objectToString3.call(value) === typeStringified;
 }
-function isUint8Array(value) {
+function isUint8Array2(value) {
   return isType(value, Uint8Array, uint8ArrayStringified);
 }
-function isArrayBuffer(value) {
+function isArrayBuffer2(value) {
   return isType(value, ArrayBuffer, arrayBufferStringified);
 }
 function isUint8ArrayOrArrayBuffer(value) {
-  return isUint8Array(value) || isArrayBuffer(value);
+  return isUint8Array2(value) || isArrayBuffer2(value);
 }
 function toUint8ArrayIfArrayBuffer(value) {
-  return isArrayBuffer(value) ? new Uint8Array(value) : value;
+  return isArrayBuffer2(value) ? new Uint8Array(value) : value;
 }
 function assertUint8ArrayOrArrayBuffer(value) {
   if (!isUint8ArrayOrArrayBuffer(value)) {
     throw new TypeError(`Expected \`Uint8Array\` or \`ArrayBuffer\`, got \`${typeof value}\``);
   }
 }
-function concatUint8Arrays(arrays, totalLength) {
+function concatUint8Arrays2(arrays, totalLength) {
   if (arrays.length === 0) {
     return new Uint8Array(0);
   }
@@ -53563,12 +62898,12 @@ var FileTypeParser = class _FileTypeParser {
     const tokenizer = this.createTokenizerFromWebStream(stream);
     return this.fromTokenizer(tokenizer);
   }
-  async fromFile(path) {
+  async fromFile(path10) {
     this.options.signal?.throwIfAborted();
     const { fromFile, NotRegularFileError } = await importAtRuntime("strtok3");
     let tokenizer;
     try {
-      tokenizer = await fromFile(path, {
+      tokenizer = await fromFile(path10, {
         ...this.getTokenizerOptions(),
         regularFileOnly: true
       });
@@ -53611,7 +62946,7 @@ var FileTypeParser = class _FileTypeParser {
       reader.releaseLock();
     }
     if (totalSize > 0) {
-      const sample = chunks.length === 1 ? chunks[0] : concatUint8Arrays(chunks);
+      const sample = chunks.length === 1 ? chunks[0] : concatUint8Arrays2(chunks);
       try {
         detectedFileType = await this.fromBuffer(sample.subarray(0, sampleSize));
       } catch (error62) {
@@ -54742,7 +64077,7 @@ var FileTypeParser = class _FileTypeParser {
     if (hasUnknownFileSize(this.tokenizer) && 2 + numberOfTags * 12 > maximumTiffIfdOffsetInBytes) {
       return;
     }
-    for (let n = 0; n < numberOfTags; ++n) {
+    for (let n2 = 0; n2 < numberOfTags; ++n2) {
       const fileType = await this.readTiffTag(isBigEndian);
       if (fileType) {
         return fileType;
@@ -54890,64 +64225,18 @@ var AudioFormat = class extends DocumentFormat {
     const type = await fileTypeFromBuffer(head.bytes);
     return type !== void 0 && this.extensions.includes(type.ext);
   }
-  async text(path, signal) {
+  async text(path10, signal) {
     const result = await transcribe({
       model: this.#model,
-      audio: await readFile(path, { signal }),
+      audio: await readFile(path10, { signal }),
       abortSignal: signal,
-      // AttachmentText already schedules failed files for the next pass.
+      // A computed dataset already reads a failed file again at its next
+      // refresh.
       maxRetries: 0
     });
     return result.text.trim() || null;
   }
 };
-
-// ../elt/packages/sources/apple/macos/dist/macos-document-parser.js
-import { extname as extname2 } from "node:path";
-
-// ../elt/packages/sources/apple/macos/dist/document-formats/file-head.js
-import { open as open2 } from "node:fs/promises";
-var length = 4100;
-var FileHead = class _FileHead {
-  bytes;
-  ascii;
-  constructor(bytes) {
-    this.bytes = bytes;
-    this.ascii = new TextDecoder("latin1").decode(bytes);
-  }
-  static async read(path) {
-    var _stack = [];
-    try {
-      const file2 = __using(_stack, await open2(path), true);
-      const bytes = new Uint8Array(length);
-      const { bytesRead } = await file2.read(bytes, 0, length, 0);
-      return new _FileHead(bytes.subarray(0, bytesRead));
-    } catch (_) {
-      var _error = _, _hasError = true;
-    } finally {
-      var _promise2 = __callDispose(_stack, _error, _hasError);
-      _promise2 && await _promise2;
-    }
-  }
-  startsWith(...bytes) {
-    return bytes.every((byte, index) => this.bytes[index] === byte);
-  }
-};
-
-// ../elt/packages/sources/apple/macos/dist/document-formats/image-format.js
-import { resolve as resolve2 } from "node:path";
-
-// ../elt/packages/sources/apple/macos/dist/osa.js
-import { execFile } from "node:child_process";
-import { promisify } from "node:util";
-var execute = promisify(execFile);
-var OSA = class {
-  async execute(script) {
-    const { stdout } = await execute("/usr/bin/osascript", ["-l", "JavaScript", "-e", script], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024, timeout: 12e4 });
-    return stdout;
-  }
-};
-var osa_default = new OSA();
 
 // ../elt/packages/sources/apple/macos/dist/document-formats/image-format.js
 var heifBrands = ["heic", "heix", "hevc", "mif1", "msf1", "avif"];
@@ -54971,56 +64260,75 @@ var ImageFormat = class extends DocumentFormat {
     const { ascii } = head;
     return head.startsWith(255, 216, 255) || head.startsWith(137, 80, 78, 71) || ascii.startsWith("GIF87a") || ascii.startsWith("GIF89a") || ascii.startsWith("II*\0") || ascii.startsWith("MM\0*") || head.startsWith(0, 0, 1, 0) || ascii.startsWith("BM") && ascii.slice(6, 10) === "\0\0\0\0" && bitmapHeaderSizes.includes(ascii.charCodeAt(14)) && ascii[15] === "\0" || ascii.startsWith("RIFF") && ascii.slice(8, 12) === "WEBP" || ascii.slice(4, 8) === "ftyp" && heifBrands.includes(ascii.slice(8, 12));
   }
-  // Vision's accurate text recognition, one line per observation.
-  async text(path) {
-    const content = JSON.parse(await osa_default.execute(`
-        ObjC.import('Vision');
-        ObjC.import('ImageIO');
-        function recognize() {
-        const path = ${JSON.stringify(resolve2(path))};
-        const image = $.CGImageSourceCreateWithURL($.NSURL.fileURLWithPath(path), null);
-        const properties = ObjC.castRefToObject($.CGImageSourceCopyPropertiesAtIndex(image, 0, null));
-        if (properties.isNil()) throw new Error('Cannot read image');
-        // Vision crashes on 1px and 2px images (macOS 26.6.2 and 27.0).
-        for (const key of [$.kCGImagePropertyPixelWidth, $.kCGImagePropertyPixelHeight])
-          if (Number(ObjC.unwrap(properties.objectForKey(ObjC.castRefToObject(key)))) < 3) return null;
-        const handler = $.VNImageRequestHandler.alloc.initWithURLOptions(
-          $.NSURL.fileURLWithPath(path), $()
-        );
-        const request = $.VNRecognizeTextRequest.alloc.init;
-        request.recognitionLevel = $.VNRequestTextRecognitionLevelAccurate;
-        request.automaticallyDetectsLanguage = true;
-        // Reading Vision's NSError through a JXA Ref crashes osascript (macOS
-        // 27.0), so the failure carries no reason.
-        if (!handler.performRequestsError($([request]), null))
-          throw new Error('Cannot read image: Vision failed');
-        const lines = [];
-        const results = request.results;
-        for (let index = 0; index < results.count; index++)
-          lines.push(ObjC.unwrap(results.objectAtIndex(index).topCandidates(1).objectAtIndex(0).string));
-        return lines.length > 0 ? lines.join('\\n') : null;
-        }
-        JSON.stringify(recognize());
-      `));
-    if (content !== null && typeof content !== "string")
-      throw new TypeError("Vision returned unexpected content");
-    return content;
+  #ocr;
+  constructor(ocr2) {
+    super();
+    this.#ocr = ocr2;
+  }
+  text(path10, signal) {
+    return this.#ocr.use((worker) => worker.read(path10), signal);
+  }
+};
+
+// ../elt/packages/sources/apple/macos/dist/macos-document-parser.js
+import { extname as extname2 } from "node:path";
+
+// ../elt/packages/sources/apple/macos/dist/document-formats/file-head.js
+import { open as open2 } from "node:fs/promises";
+var length = 4100;
+var FileHead = class _FileHead {
+  bytes;
+  ascii;
+  constructor(bytes) {
+    this.bytes = bytes;
+    this.ascii = new TextDecoder("latin1").decode(bytes);
+  }
+  static async read(path10) {
+    var _stack = [];
+    try {
+      const file2 = __using(_stack, await open2(path10), true);
+      const bytes = new Uint8Array(length);
+      const { bytesRead } = await file2.read(bytes, 0, length, 0);
+      return new _FileHead(bytes.subarray(0, bytesRead));
+    } catch (_) {
+      var _error = _, _hasError = true;
+    } finally {
+      var _promise2 = __callDispose(_stack, _error, _hasError);
+      _promise2 && await _promise2;
+    }
+  }
+  startsWith(...bytes) {
+    return bytes.every((byte, index) => this.bytes[index] === byte);
   }
 };
 
 // ../elt/packages/sources/apple/macos/dist/document-formats/pdf-format.js
 import { resolve as resolve3 } from "node:path";
+
+// ../elt/packages/sources/apple/macos/dist/osa.js
+import { execFile as execFile2 } from "node:child_process";
+import { promisify as promisify3 } from "node:util";
+var execute = promisify3(execFile2);
+var OSA = class {
+  async execute(script) {
+    const { stdout } = await execute("/usr/bin/osascript", ["-l", "JavaScript", "-e", script], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024, timeout: 12e4 });
+    return stdout;
+  }
+};
+var osa_default = new OSA();
+
+// ../elt/packages/sources/apple/macos/dist/document-formats/pdf-format.js
 var PdfFormat = class extends DocumentFormat {
   identity = "pdf-v1";
   extensions = ["pdf"];
   hasSignature(head) {
     return head.ascii.startsWith("%PDF-");
   }
-  async text(path) {
+  async text(path10) {
     const content = JSON.parse(await osa_default.execute(`
         ObjC.import('PDFKit');
         const document = $.PDFDocument.alloc.initWithURL(
-          $.NSURL.fileURLWithPath(${JSON.stringify(resolve3(path))})
+          $.NSURL.fileURLWithPath(${JSON.stringify(resolve3(path10))})
         );
         if (document.isNil()) throw new Error('Cannot read PDF');
         const content = document.isLocked ? null : ObjC.unwrap(document.string);
@@ -55033,10 +64341,10 @@ var PdfFormat = class extends DocumentFormat {
 };
 
 // ../elt/packages/sources/apple/macos/dist/document-formats/text-format.js
-import { execFile as execFile2 } from "node:child_process";
+import { execFile as execFile3 } from "node:child_process";
 import { extname, resolve as resolve4 } from "node:path";
-import { promisify as promisify2 } from "node:util";
-var execute2 = promisify2(execFile2);
+import { promisify as promisify4 } from "node:util";
+var execute2 = promisify4(execFile3);
 var textutilFormats = ["txt", "rtf", "html", "doc", "docx", "odt", "wordml"];
 var TextFormat = class extends DocumentFormat {
   identity = "text-v1";
@@ -55045,25 +64353,25 @@ var TextFormat = class extends DocumentFormat {
   hasSignature(head) {
     return head.ascii.startsWith("{\\rtf");
   }
-  async text(path) {
+  async text(path10) {
     const { stdout, stderr } = await execute2("/usr/bin/textutil", [
       "-convert",
       "txt",
       "-format",
-      textutilFormat(path),
+      textutilFormat(path10),
       "-stdout",
       "-noload",
       "-nostore",
       "--",
-      resolve4(path)
+      resolve4(path10)
     ]);
     if (stderr)
       throw new Error(stderr.trim());
     return stdout;
   }
 };
-function textutilFormat(path) {
-  const extension = extname(path).slice(1).toLowerCase();
+function textutilFormat(path10) {
+  const extension = extname(path10).slice(1).toLowerCase();
   if (extension === "md")
     return "txt";
   return textutilFormats.includes(extension) ? extension : "rtf";
@@ -55077,8 +64385,8 @@ var VCardFormat = class extends DocumentFormat {
   hasSignature(head) {
     return head.ascii.startsWith("BEGIN:VCARD");
   }
-  text(path) {
-    return readFile2(path, "utf8");
+  text(path10) {
+    return readFile2(path10, "utf8");
   }
 };
 
@@ -55089,1135 +64397,45 @@ var MacOSDocumentParser = class extends DocumentParser {
     const formats = [
       new PdfFormat(),
       new TextFormat(),
-      new ImageFormat(),
       new VCardFormat(),
       ...additionalFormats
     ];
     super(JSON.stringify([
       "macos-document",
-      ...formats.map(({ identity }) => identity)
+      ...formats.map(({ identity: identity3 }) => identity3)
     ]));
     this.#formats = formats;
     Object.freeze(this);
   }
-  // Documents convert natively, images through Vision text recognition,
-  // contact cards as their text. Files no format recognizes, locked PDFs and
-  // files with no recognizable text load as null. Unreadable files throw.
-  async parse(path, signal) {
+  // Hosts supply ImageFormat with their OCR pool and AudioFormat with their
+  // speech model. Unrecognized files, locked PDFs and files without
+  // recognizable text return null. Unreadable files throw.
+  async parse(path10, signal) {
     signal?.throwIfAborted();
-    const format = await this.#format(path);
+    const format2 = await this.#format(path10);
     signal?.throwIfAborted();
-    return format === void 0 ? null : format.text(path, signal);
+    return format2 === void 0 ? null : format2.text(path10, signal);
   }
-  async identityFor(path) {
-    return (await this.#format(path))?.identity ?? null;
+  async identityFor(path10) {
+    return (await this.#format(path10))?.identity ?? null;
   }
-  async #format(path) {
-    const extension = extname2(path).slice(1).toLowerCase();
-    const head = await FileHead.read(path);
-    for (const format of this.#formats)
-      if (await format.supports(extension, head))
-        return format;
+  async #format(path10) {
+    const extension = extname2(path10).slice(1).toLowerCase();
+    const head = await FileHead.read(path10);
+    for (const format2 of this.#formats)
+      if (await format2.supports(extension, head))
+        return format2;
     return void 0;
   }
 };
 
 // ../elt/packages/transcription-local/dist/local-transcription-model.js
-import { execFile as execFile3 } from "node:child_process";
+import { execFile as execFile4 } from "node:child_process";
 import { mkdtempDisposable, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join as join4, resolve as resolve5 } from "node:path";
-import { fileURLToPath } from "node:url";
-import { promisify as promisify3 } from "node:util";
-
-// ../elt/node_modules/p-queue/dist/lower-bound.js
-function lowerBound(array3, value, comparator) {
-  let first = 0;
-  let count = array3.length;
-  while (count > 0) {
-    const step = Math.trunc(count / 2);
-    let it = first + step;
-    if (comparator(array3[it], value) <= 0) {
-      first = ++it;
-      count -= step + 1;
-    } else {
-      count = step;
-    }
-  }
-  return first;
-}
-
-// ../elt/node_modules/p-queue/dist/priority-queue.js
-var compactionThreshold = 100;
-var PriorityQueue = class {
-  // The slots before `#head` are `undefined`.
-  #queue = [];
-  // The queue is stored as a sorted array, but dequeued slots are left before `#head` until compaction. Only items from `#head` onward are live, which keeps repeated dequeues amortized O(1).
-  #head = 0;
-  #compact() {
-    if (this.#head === 0) {
-      return;
-    }
-    this.#queue.splice(0, this.#head);
-    this.#head = 0;
-  }
-  // Only the live items, because a dequeued item with the same id or function is no longer part of the queue.
-  #findIndex(isMatch) {
-    for (let index = this.#head; index < this.#queue.length; index++) {
-      if (isMatch(this.#queue[index])) {
-        return index;
-      }
-    }
-    return -1;
-  }
-  // Not `dequeue()`, which a subclass can override, because `remove()` also uses it.
-  #removeFirst() {
-    const item = this.#queue[this.#head];
-    this.#queue[this.#head] = void 0;
-    this.#head++;
-    if (this.#head === this.#queue.length) {
-      this.#queue.length = 0;
-      this.#head = 0;
-    } else if (this.#head > compactionThreshold && this.#head > this.#queue.length / 2) {
-      this.#compact();
-    }
-    return item.run;
-  }
-  enqueue(run, options) {
-    const { priority = 0, id } = options ?? {};
-    const { size } = this;
-    const element = {
-      priority,
-      id,
-      run
-    };
-    if (size === 0) {
-      this.#queue.length = 0;
-      this.#head = 0;
-      this.#queue.push(element);
-      return;
-    }
-    if (this.#queue.at(-1).priority >= priority) {
-      this.#queue.push(element);
-      return;
-    }
-    this.#compact();
-    const index = lowerBound(this.#queue, element, (a, b) => a.priority === b.priority ? 0 : b.priority - a.priority);
-    this.#queue.splice(index, 0, element);
-  }
-  setPriority(id, priority) {
-    const index = this.#findIndex((element) => element.id === id);
-    if (index === -1) {
-      throw new ReferenceError(`No promise function with the id "${id}" exists in the queue.`);
-    }
-    if (this.#queue[index].priority === priority) {
-      return;
-    }
-    const [item] = this.#queue.splice(index, 1);
-    this.enqueue(item.run, { priority, id });
-  }
-  remove(idOrRun) {
-    const index = this.#findIndex((element) => (typeof idOrRun === "string" ? element.id : element.run) === idOrRun);
-    if (index === this.#head) {
-      this.#removeFirst();
-    } else if (index !== -1) {
-      this.#queue.splice(index, 1);
-    }
-  }
-  dequeue() {
-    return this.#head === this.#queue.length ? void 0 : this.#removeFirst();
-  }
-  filter(options) {
-    const result = [];
-    for (let index = this.#head; index < this.#queue.length; index++) {
-      const element = this.#queue[index];
-      if (element.priority === options.priority) {
-        result.push(element.run);
-      }
-    }
-    return result;
-  }
-  get size() {
-    return this.#queue.length - this.#head;
-  }
-};
-
-// ../elt/node_modules/p-queue/dist/index.js
-var maximumTimerDelay = 2147483647;
-var asyncHooks = globalThis.process?.getBuiltinModule?.("node:async_hooks");
-var bindAsyncContext = (function_) => {
-  if (asyncHooks === void 0) {
-    return function_;
-  }
-  const asyncResource = new asyncHooks.AsyncResource("PQueueTask");
-  return () => asyncResource.runInAsyncScope(function_);
-};
-var validateTimeout = (timeout) => {
-  if (timeout !== void 0 && !(Number.isFinite(timeout) && timeout > 0 && timeout <= maximumTimerDelay)) {
-    throw new TypeError(`Expected \`timeout\` to be a positive finite number up to ${maximumTimerDelay}, got \`${timeout}\` (${typeof timeout})`);
-  }
-};
-var validateLimit = (name5, value) => {
-  if (!(typeof value === "number" && value >= 1 && (value === Infinity || Number.isInteger(value)))) {
-    throw new TypeError(`Expected \`${name5}\` to be an integer from 1 and up or \`Infinity\`, got \`${String(value)}\` (${typeof value})`);
-  }
-};
-var validateRateLimit = (interval, intervalCap, isStrict) => {
-  validateLimit("intervalCap", intervalCap);
-  if (!(Number.isFinite(interval) && interval >= 0)) {
-    throw new TypeError(`Expected \`interval\` to be a finite number >= 0, got \`${String(interval)}\` (${typeof interval})`);
-  }
-  if (intervalCap !== Infinity && interval > maximumTimerDelay) {
-    throw new TypeError(`Expected \`interval\` to be at most ${maximumTimerDelay} with an \`intervalCap\`, got \`${interval}\``);
-  }
-  if (isStrict && interval === 0) {
-    throw new TypeError("The `strict` option requires a non-zero `interval`");
-  }
-  if (isStrict && intervalCap === Infinity) {
-    throw new TypeError("The `strict` option requires a finite `intervalCap`");
-  }
-};
-var PQueue = class extends EventTarget {
-  #carryoverIntervalCount;
-  #isIntervalIgnored;
-  #intervalCount = 0;
-  #intervalCap;
-  #rateLimitedInInterval = false;
-  #rateLimitFlushScheduled = false;
-  #interval;
-  /*
-  Timestamp when the current interval window ends. Kept accurate at every window transition: `#initializeIntervalIfNeeded` sets it when a window starts and `#onInterval` advances it as the recurring timer rolls into each new window. This is the source of truth for whether a task added after the queue goes idle belongs to a fresh window, so it must not go stale.
-  */
-  #intervalEnd = 0;
-  // Recurring timer that drives windows while the queue is actively processing. Absent (`undefined`) once the queue goes idle.
-  #intervalId;
-  // One-shot timer used while idle to resume at the next window boundary, since `#intervalId` is cleared when idle.
-  #timeoutId;
-  #strict;
-  // Circular buffer implementation for better performance
-  #strictTicks = [];
-  #strictTicksStartIndex = 0;
-  #queue;
-  #queueClass;
-  #pending = 0;
-  // The `!` is needed because of https://github.com/microsoft/TypeScript/issues/32194
-  #concurrency;
-  #isPaused;
-  // Use to assign a unique identifier to a promise function, if not explicitly specified
-  #idAssigner = 1n;
-  // Track currently running tasks for debugging
-  #runningTasks = /* @__PURE__ */ new Set();
-  // The `abort` listener of each signal, with the callbacks of the tasks that use the signal.
-  #abortListeners = /* @__PURE__ */ new Map();
-  // The waiting tasks, so that `.clear()` can reject their promises.
-  #waitingTasks = /* @__PURE__ */ new Set();
-  #timeout;
-  constructor(options) {
-    super();
-    globalThis.process?.getBuiltinModule?.("node:events")?.setMaxListeners(Infinity, this);
-    const { carryoverIntervalCount = false, intervalCap = Infinity, interval = 0, concurrency = Infinity, autoStart = true, queueClass = PriorityQueue, strict = false, timeout } = options ?? {};
-    validateRateLimit(interval, intervalCap, strict);
-    this.#carryoverIntervalCount = carryoverIntervalCount;
-    this.#isIntervalIgnored = intervalCap === Infinity || interval === 0;
-    this.#intervalCap = intervalCap;
-    this.#interval = interval;
-    this.#strict = strict;
-    this.#queueClass = queueClass;
-    this.#queue = new this.#queueClass();
-    this.concurrency = concurrency;
-    this.timeout = timeout;
-    this.#isPaused = !autoStart;
-    this.#setupRateLimitTracking();
-  }
-  // Calls `callback` when `signal` aborts, and returns a function that stops it. The tasks that share a signal share one listener on it, because Node.js searches all the listeners of a signal to add or remove one, so a listener for each task takes O(n²) time with many tasks.
-  #onAbort(signal, callback) {
-    let listener = this.#abortListeners.get(signal);
-    if (!listener) {
-      const callbacks = /* @__PURE__ */ new Set();
-      const dispatch = () => {
-        this.#abortListeners.delete(signal);
-        for (const abortCallback of callbacks) {
-          abortCallback();
-        }
-      };
-      listener = { callbacks, dispatch };
-      this.#abortListeners.set(signal, listener);
-      signal.addEventListener("abort", dispatch, { once: true });
-    }
-    const currentListener = listener;
-    currentListener.callbacks.add(callback);
-    return () => {
-      currentListener.callbacks.delete(callback);
-      if (currentListener.callbacks.size > 0 || this.#abortListeners.get(signal) !== currentListener) {
-        return;
-      }
-      this.#abortListeners.delete(signal);
-      signal.removeEventListener("abort", currentListener.dispatch);
-    };
-  }
-  #emit(event, detail) {
-    this.dispatchEvent(new CustomEvent(event, { detail }));
-  }
-  async #onEvent(events, shouldHandle) {
-    const eventList = Array.isArray(events) ? events : [events];
-    return new Promise((resolve8) => {
-      const controller = new AbortController();
-      const listener = () => {
-        if (shouldHandle && !shouldHandle()) {
-          return;
-        }
-        controller.abort();
-        resolve8();
-      };
-      for (const event of eventList) {
-        this.addEventListener(event, listener, { signal: controller.signal });
-      }
-    });
-  }
-  // From the current state. `#rateLimitedInInterval` is what the events last reported, and it updates in a microtask.
-  get #isRateLimitedNow() {
-    if (this.#isIntervalIgnored || this.#queue.size === 0) {
-      return false;
-    }
-    const now2 = Date.now();
-    if (this.#strict) {
-      this.#cleanupStrictTicks(now2);
-      return this.#getActiveTicksCount() >= this.#intervalCap;
-    }
-    const isWindowOver = this.#intervalId === void 0 && this.#intervalEnd <= now2;
-    const count = isWindowOver ? this.#intervalCountAtWindowStart : this.#intervalCount;
-    return count >= this.#intervalCap;
-  }
-  // The tasks that still run count against the new window with `carryoverIntervalCount`.
-  get #intervalCountAtWindowStart() {
-    return this.#carryoverIntervalCount ? this.#pending : 0;
-  }
-  #updateRateLimitState() {
-    const shouldBeRateLimited = this.#isRateLimitedNow;
-    if (shouldBeRateLimited === this.#rateLimitedInInterval) {
-      return;
-    }
-    this.#rateLimitedInInterval = shouldBeRateLimited;
-    this.#emit(shouldBeRateLimited ? "rateLimit" : "rateLimitCleared");
-  }
-  #rollbackIntervalConsumption() {
-    if (this.#isIntervalIgnored) {
-      return;
-    }
-    this.#rollbackIntervalSlot();
-    this.#scheduleRateLimitUpdate();
-  }
-  #scheduleRateLimitUpdate() {
-    if (this.#isIntervalIgnored || this.#rateLimitFlushScheduled) {
-      return;
-    }
-    this.#rateLimitFlushScheduled = true;
-    queueMicrotask(() => {
-      this.#rateLimitFlushScheduled = false;
-      this.#updateRateLimitState();
-    });
-  }
-  #setupRateLimitTracking() {
-    if (this.#isIntervalIgnored) {
-      return;
-    }
-    this.addEventListener("add", () => {
-      if (this.#queue.size > 0) {
-        this.#scheduleRateLimitUpdate();
-      }
-    });
-    this.addEventListener("next", () => {
-      this.#scheduleRateLimitUpdate();
-    });
-  }
-  #cleanupStrictTicks(now2) {
-    while (this.#strictTicksStartIndex < this.#strictTicks.length) {
-      const oldestTick = this.#strictTicks[this.#strictTicksStartIndex];
-      if (oldestTick !== void 0 && now2 - oldestTick >= this.#interval) {
-        this.#strictTicksStartIndex++;
-      } else {
-        break;
-      }
-    }
-    const shouldCompact = this.#strictTicksStartIndex > 100 && this.#strictTicksStartIndex > this.#strictTicks.length / 2 || this.#strictTicksStartIndex === this.#strictTicks.length;
-    if (!shouldCompact) {
-      return;
-    }
-    this.#strictTicks = this.#strictTicks.slice(this.#strictTicksStartIndex);
-    this.#strictTicksStartIndex = 0;
-  }
-  // Helper methods for interval consumption
-  #consumeIntervalSlot(now2) {
-    if (this.#strict) {
-      this.#strictTicks.push(now2);
-    } else {
-      this.#intervalCount++;
-    }
-  }
-  #rollbackIntervalSlot() {
-    if (this.#strict) {
-      if (this.#strictTicks.length > this.#strictTicksStartIndex) {
-        this.#strictTicks.pop();
-      }
-      return;
-    }
-    if (this.#intervalCount > 0) {
-      this.#intervalCount--;
-    }
-  }
-  #getActiveTicksCount() {
-    return this.#strictTicks.length - this.#strictTicksStartIndex;
-  }
-  get #doesIntervalAllowAnother() {
-    if (this.#isIntervalIgnored) {
-      return true;
-    }
-    const count = this.#strict ? this.#getActiveTicksCount() : this.#intervalCount;
-    return count < this.#intervalCap;
-  }
-  get #doesConcurrentAllowAnother() {
-    return this.#pending < this.#concurrency;
-  }
-  #next() {
-    this.#pending--;
-    if (this.#pending === 0) {
-      this.#emit("pendingZero");
-    }
-    this.#processQueue();
-    this.#emit("next");
-  }
-  #onResumeInterval() {
-    this.#timeoutId = void 0;
-    this.#onInterval();
-    if (!this.#isPaused) {
-      this.#initializeIntervalIfNeeded();
-    }
-  }
-  #isIntervalPausedAt(now2) {
-    if (this.#strict) {
-      this.#cleanupStrictTicks(now2);
-      const activeTicksCount = this.#getActiveTicksCount();
-      if (activeTicksCount >= this.#intervalCap) {
-        const oldestTick = this.#strictTicks[this.#strictTicksStartIndex];
-        const delay5 = this.#interval - (now2 - oldestTick);
-        this.#createIntervalTimeout(delay5);
-        return true;
-      }
-      return false;
-    }
-    if (this.#intervalId === void 0) {
-      const delay5 = this.#intervalEnd - now2;
-      if (delay5 <= 0) {
-        this.#intervalCount = this.#intervalCountAtWindowStart;
-      } else {
-        this.#createIntervalTimeout(delay5);
-        return true;
-      }
-    }
-    return false;
-  }
-  #createIntervalTimeout(delay5) {
-    if (this.#timeoutId !== void 0) {
-      return;
-    }
-    this.#timeoutId = setTimeout(() => {
-      this.#onResumeInterval();
-    }, delay5);
-  }
-  #clearIntervalTimer() {
-    if (this.#intervalId === void 0) {
-      return;
-    }
-    clearInterval(this.#intervalId);
-    this.#intervalId = void 0;
-  }
-  #clearTimeoutTimer() {
-    if (this.#timeoutId === void 0) {
-      return;
-    }
-    clearTimeout(this.#timeoutId);
-    this.#timeoutId = void 0;
-  }
-  // Emits `empty`, and `idle` when no tasks run. For when the queue has no waiting tasks.
-  #emitEmptyAndIdle() {
-    this.#clearIntervalTimer();
-    this.#emit("empty");
-    if (this.#pending > 0 || this.#queue.size > 0) {
-      return;
-    }
-    this.#clearTimeoutTimer();
-    if (this.#strict) {
-      this.#cleanupStrictTicks(Date.now());
-    }
-    this.#emit("idle");
-  }
-  #tryToStartAnother() {
-    let isStarted;
-    do {
-      isStarted = this.#startNextTask();
-    } while (isStarted === void 0);
-    return isStarted;
-  }
-  // Returns `undefined` when it skipped a task whose signal aborted while it waited.
-  #startNextTask() {
-    if (this.#queue.size === 0) {
-      this.#emitEmptyAndIdle();
-      return false;
-    }
-    if (this.#isPaused) {
-      if (!this.#doesIntervalAllowAnother) {
-        this.#isIntervalPausedAt(Date.now());
-      }
-      return false;
-    }
-    const now2 = Date.now();
-    const canInitializeInterval = !this.#isIntervalPausedAt(now2);
-    if (this.#doesIntervalAllowAnother && this.#doesConcurrentAllowAnother) {
-      const job = this.#queue.dequeue();
-      if (!this.#isIntervalIgnored) {
-        this.#consumeIntervalSlot(now2);
-        this.#scheduleRateLimitUpdate();
-      }
-      if (canInitializeInterval) {
-        this.#initializeIntervalIfNeeded();
-      }
-      const pendingBefore = this.#pending;
-      job();
-      if (this.#pending === pendingBefore) {
-        this.#emit("next");
-        return;
-      }
-      this.#emit("active");
-      return true;
-    }
-    return false;
-  }
-  #initializeIntervalIfNeeded() {
-    if (this.#isIntervalIgnored || this.#intervalId !== void 0 || this.#strict) {
-      return;
-    }
-    this.#clearTimeoutTimer();
-    this.#intervalId = setInterval(() => {
-      this.#onInterval();
-    }, this.#interval);
-    this.#intervalEnd = Date.now() + this.#interval;
-  }
-  #onInterval() {
-    if (!this.#strict) {
-      if (this.#intervalId !== void 0) {
-        if (this.#intervalCount === 0 && this.#pending === 0) {
-          this.#clearIntervalTimer();
-        } else {
-          this.#intervalEnd = Date.now() + this.#interval;
-        }
-      }
-      this.#intervalCount = this.#intervalCountAtWindowStart;
-    }
-    this.#processQueue();
-    this.#scheduleRateLimitUpdate();
-  }
-  /**
-  Executes all queued functions until it reaches the limit.
-  */
-  #processQueue() {
-    while (this.#tryToStartAnother()) {
-    }
-  }
-  // On an empty queue, `#processQueue()` emits `empty` and `idle`. An `idle` listener that sets `concurrency` or calls `.start()` would then recurse without end.
-  #processWaitingTasks() {
-    if (this.#queue.size > 0) {
-      this.#processQueue();
-    }
-  }
-  async #add(function_, options, waitingTask) {
-    const id = options.id ?? (this.#idAssigner++).toString();
-    options = {
-      timeout: this.#timeout,
-      ...options,
-      id
-    };
-    validateTimeout(options.timeout);
-    if (options.priority !== void 0 && (typeof options.priority !== "number" || Number.isNaN(options.priority))) {
-      throw new TypeError(`Expected \`priority\` to be a number, got \`${String(options.priority)}\` (${typeof options.priority})`);
-    }
-    waitingTask.id = id;
-    waitingTask.priority = options.priority ?? 0;
-    return new Promise((resolve8, reject) => {
-      if (options.signal?.aborted) {
-        reject(options.signal.reason);
-        return;
-      }
-      const run = bindAsyncContext(async () => {
-        waitingTask.stopListeningForAbort?.();
-        this.#waitingTasks.delete(waitingTask);
-        if (options.signal?.aborted) {
-          this.#rollbackIntervalConsumption();
-          reject(options.signal.reason);
-          return;
-        }
-        this.#pending++;
-        const runningTask = {
-          id,
-          priority: waitingTask.priority,
-          startTime: Date.now(),
-          timeout: options.timeout
-        };
-        this.#runningTasks.add(runningTask);
-        let { signal } = options;
-        let stopListeningForAbort;
-        let stopForwardingAbort;
-        let timeoutId;
-        try {
-          if (options.timeout !== void 0) {
-            const { signal: userSignal, timeout } = options;
-            const taskController = new AbortController();
-            timeoutId = setTimeout(() => {
-              taskController.abort(new TimeoutError(`Task timed out after ${timeout}ms (queue has ${this.#pending} running, ${this.#queue.size} waiting)`));
-            }, timeout);
-            if (userSignal) {
-              stopForwardingAbort = this.#onAbort(userSignal, () => {
-                taskController.abort(userSignal.reason);
-              });
-            }
-            signal = taskController.signal;
-          }
-          let operation;
-          if (signal) {
-            const abortSignal = signal;
-            const abortPromise = new Promise((_resolve, rejectWithReason) => {
-              stopListeningForAbort = this.#onAbort(abortSignal, () => {
-                rejectWithReason(abortSignal.reason);
-              });
-            });
-            operation = Promise.race([abortPromise, (async () => function_({ signal }))()]);
-          } else {
-            try {
-              operation = function_({ signal });
-            } catch (error62) {
-              operation = Promise.reject(error62);
-            }
-          }
-          const result = await operation;
-          resolve8(result);
-          this.#emit("completed", result);
-        } catch (error62) {
-          reject(error62);
-          this.#emit("error", error62);
-        } finally {
-          clearTimeout(timeoutId);
-          stopListeningForAbort?.();
-          stopForwardingAbort?.();
-          this.#runningTasks.delete(runningTask);
-          queueMicrotask(() => {
-            this.#next();
-          });
-        }
-      });
-      const hasWaitingTasks = this.#queue.size > 0;
-      this.#queue.enqueue(run, options);
-      waitingTask.reject = reject;
-      this.#waitingTasks.add(waitingTask);
-      if (options.signal) {
-        const { signal } = options;
-        waitingTask.stopListeningForAbort = this.#onAbort(signal, () => {
-          this.#waitingTasks.delete(waitingTask);
-          if (this.#queue instanceof PriorityQueue) {
-            this.#queue.remove(run);
-          } else {
-            this.#queue.remove(id);
-          }
-          reject(signal.reason);
-          this.#processQueue();
-          this.#emit("next");
-        });
-      }
-      this.#emit("add");
-      if (hasWaitingTasks) {
-        this.#processQueue();
-      } else {
-        this.#tryToStartAnother();
-      }
-    });
-  }
-  /**
-      Get or set the default timeout. A change applies to tasks added after it.
-  
-      @example
-      ```
-      const queue = new PQueue({timeout: 5000});
-  
-      queue.timeout = 10000;
-      ```
-      */
-  get timeout() {
-    return this.#timeout;
-  }
-  // Validated here, not only in `.add()`, so that an invalid value throws where it is set, instead of making every later `.add()` reject.
-  set timeout(timeout) {
-    validateTimeout(timeout);
-    this.#timeout = timeout;
-  }
-  get concurrency() {
-    return this.#concurrency;
-  }
-  set concurrency(newConcurrency) {
-    validateLimit("concurrency", newConcurrency);
-    this.#concurrency = newConcurrency;
-    this.#processWaitingTasks();
-  }
-  /**
-      Changes the priority of a waiting task, found by its `id`. Throws a `ReferenceError` if no waiting task has that `id`, for example because it already started. Throws a `TypeError` if `priority` is not a finite number. Tasks only wait when the queue has a `concurrency` limit, is paused, or is rate-limited.
-  
-      @example
-      ```
-      // Raise the priority to run a task earlier
-      import PQueue from 'p-queue';
-  
-      const queue = new PQueue({concurrency: 1});
-  
-      queue.add(async () => '🦄', {priority: 1});
-      queue.add(async () => '🦀', {priority: 0, id: '🦀'});
-      queue.add(async () => '🦄', {priority: 1});
-      queue.add(async () => '🦄', {priority: 1});
-  
-      queue.setPriority('🦀', 2);
-      // '🦀' runs second
-      ```
-  
-      @example
-      ```
-      // Lower the priority to run a task later
-      import PQueue from 'p-queue';
-  
-      const queue = new PQueue({concurrency: 1});
-  
-      queue.add(async () => '🦄', {priority: 1});
-      queue.add(async () => '🦀', {priority: 1, id: '🦀'});
-      queue.add(async () => '🦄');
-      queue.add(async () => '🦄', {priority: 0});
-  
-      queue.setPriority('🦀', -1);
-      // '🦀' runs last
-      ```
-      */
-  setPriority(id, priority) {
-    if (typeof priority !== "number" || !Number.isFinite(priority)) {
-      throw new TypeError(`Expected \`priority\` to be a finite number, got \`${priority}\` (${typeof priority})`);
-    }
-    for (const waitingTask of this.#waitingTasks) {
-      if (waitingTask.id === id) {
-        this.#queue.setPriority(id, priority);
-        waitingTask.priority = priority;
-        return;
-      }
-    }
-    throw new ReferenceError(`No promise function with the id "${id}" exists in the queue.`);
-  }
-  /**
-      Adds a sync or async task to the queue.
-  
-      Returns a promise that settles with the result of `fn` when the task completes, not when it is added. The function gets `{signal}` as its first argument. The signal is set when the task has a `signal` or a `timeout`, and aborts when either one does. Pass it on, for example to `fetch()`, to stop the work. The function runs in the async context of the `.add()` call (in Node.js 22.3 and later, Deno, and Bun), so it sees the [`AsyncLocalStorage`](https://nodejs.org/api/async_context.html#class-asynclocalstorage) values of the caller, also when it starts later.
-  
-      If you `await` each `.add()` call before the next, the tasks run one after the other, whatever the `concurrency`.
-  
-      Handle rejections of the returned promise. Otherwise, they are unhandled rejections, which can make the process exit.
-      */
-  add(function_, options = {}) {
-    const waitingTask = {};
-    const promise2 = this.#add(function_, options, waitingTask);
-    waitingTask.promise = promise2;
-    if (waitingTask.isCleared) {
-      promise2.catch(() => void 0);
-    }
-    return promise2;
-  }
-  async addAll(functions, options) {
-    return Promise.all(functions.map(async (function_) => this.add(function_, options)));
-  }
-  /**
-      Starts (or resumes) running queued tasks. Only needed if the queue is paused, with `autoStart: false` or `.pause()`.
-  
-      @returns `this` (the instance).
-      */
-  start() {
-    if (!this.#isPaused) {
-      return this;
-    }
-    this.#isPaused = false;
-    this.#processWaitingTasks();
-    return this;
-  }
-  /**
-  Stops starting new tasks. Running tasks continue.
-  */
-  pause() {
-    this.#isPaused = true;
-  }
-  /**
-      Removes all waiting tasks. Running tasks continue.
-  
-      The promises returned by `.add()` for the removed tasks reject with an `AbortError`, which is a `DOMException`. The removed tasks do not run, and they do not emit the `error` event.
-  
-      If you ignore such a promise, its rejection is not reported as unhandled. This does not apply to a promise made from it, like the one from `queue.add(fn).then(…)` or from `.addAll()`, so handle the rejection of that promise.
-  
-      @example
-      ```
-      import PQueue from 'p-queue';
-  
-      const queue = new PQueue({concurrency: 1});
-  
-      queue.add(() => doWork());
-      const promise = queue.add(() => doWork());
-  
-      queue.clear();
-  
-      try {
-          await promise;
-      } catch (error) {
-          console.log(error.name);
-          //=> 'AbortError'
-      }
-      ```
-      */
-  clear() {
-    if (this.#queue.size === 0) {
-      return;
-    }
-    this.#queue = new this.#queueClass();
-    const error62 = new DOMException("The queue was cleared", "AbortError");
-    for (const waitingTask of this.#waitingTasks) {
-      waitingTask.stopListeningForAbort?.();
-      waitingTask.isCleared = true;
-      waitingTask.promise?.catch(() => void 0);
-      waitingTask.reject(error62);
-    }
-    this.#waitingTasks.clear();
-    this.#emitEmptyAndIdle();
-    this.#updateRateLimitState();
-    this.#emit("next");
-  }
-  /**
-      Returns a promise that resolves when the queue is empty. Tasks can still be running.
-  
-      The promise resolves once. Call `.onEmpty()` again to wait for the next time, or use the `empty` event to get every time.
-      */
-  async onEmpty() {
-    if (this.#queue.size === 0) {
-      return;
-    }
-    await this.#onEvent(["empty", "active"], () => this.#queue.size === 0);
-  }
-  /**
-      Returns a promise that resolves when `queue.size < limit`.
-  
-      Await it before you add a task, to keep the queue from growing beyond a size. It counts only waiting tasks, not running tasks.
-      */
-  async onSizeLessThan(limit) {
-    if (this.#queue.size < limit) {
-      return;
-    }
-    await this.#onEvent(["next", "active"], () => this.#queue.size < limit);
-  }
-  /**
-      Returns a promise that resolves when the queue is empty and all tasks have completed: `queue.size === 0 && queue.pending === 0`.
-  
-      Unlike `.onEmpty()`, it waits for running tasks to finish.
-  
-      The promise resolves once. Call `.onIdle()` again to wait for the next time, or use the `idle` event to get every time.
-      */
-  async onIdle() {
-    if (this.#pending === 0 && this.#queue.size === 0) {
-      return;
-    }
-    await this.#onEvent("idle");
-  }
-  /**
-      Returns a promise that resolves when no tasks are running: `queue.pending === 0`.
-  
-      Unlike `.onIdle()`, it ignores queued tasks. Use it to let running tasks finish before you change shared state. A task that timed out, or whose `signal` aborted while it ran, no longer counts, although its function can still run.
-  
-      @example
-      ```
-      queue.pause();
-      await queue.onPendingZero();
-      // No tasks are running, but the queue can still have tasks
-      ```
-      */
-  async onPendingZero() {
-    if (this.#pending === 0) {
-      return;
-    }
-    await this.#onEvent("pendingZero");
-  }
-  /**
-      Returns a promise that resolves when the queue becomes rate-limited by `intervalCap`. If the queue is already rate-limited, it resolves immediately.
-  
-      Useful for backpressure, when tasks are added faster than they run.
-  
-      @example
-      ```
-      const queue = new PQueue({intervalCap: 5, interval: 1000});
-  
-      for (let index = 0; index < 10; index++) {
-          queue.add(() => someTask());
-      }
-  
-      await queue.onRateLimit();
-      console.log('The queue is rate-limited');
-      ```
-      */
-  async onRateLimit() {
-    this.#updateRateLimitState();
-    if (this.isRateLimited) {
-      return;
-    }
-    await this.#onEvent("rateLimit");
-  }
-  /**
-      Returns a promise that resolves when the queue is no longer rate-limited. If the queue is not rate-limited, it resolves immediately.
-  
-      @example
-      ```
-      const queue = new PQueue({intervalCap: 5, interval: 1000});
-  
-      for (let index = 0; index < 10; index++) {
-          queue.add(() => someTask());
-      }
-  
-      await queue.onRateLimitCleared();
-      console.log('The rate limit is cleared');
-      ```
-      */
-  async onRateLimitCleared() {
-    this.#updateRateLimitState();
-    if (!this.isRateLimited) {
-      return;
-    }
-    await this.#onEvent("rateLimitCleared");
-  }
-  /**
-      Returns a promise that rejects when a task fails: it throws, times out, or its `signal` aborts while it runs. It rejects with the error of the task, or with `null` if the error is `undefined`, like the `error` event.
-  
-      Use `Promise.race([queue.onError(), queue.onIdle()])` to stop at the first error, and to resolve normally when the queue becomes idle. Each call adds an `error` listener that stays until a task fails, so to get every error, for example in a loop, use the `error` event instead.
-  
-      Important: The promises returned by `.add()` still reject. Handle each of them (for example with `.catch(() => {})`) to prevent unhandled rejections.
-  
-      @example
-      ```
-      import PQueue from 'p-queue';
-  
-      const queue = new PQueue({concurrency: 2});
-  
-      // Do not start the remaining tasks. Pause in an `error` listener, because it runs before the next task starts, and the code after `await` runs later.
-      queue.addEventListener('error', () => {
-          queue.pause();
-      }, {once: true});
-  
-      queue.add(() => fetchData(1)).catch(() => {});
-      queue.add(() => fetchData(2)).catch(() => {});
-      queue.add(() => fetchData(3)).catch(() => {});
-  
-      try {
-          await Promise.race([
-              queue.onError(),
-              queue.onIdle()
-          ]);
-      } catch (error) {
-          console.error('Queue failed:', error);
-      }
-      ```
-      */
-  // eslint-disable-next-line @typescript-eslint/promise-function-async
-  onError() {
-    return new Promise((_resolve, reject) => {
-      this.addEventListener("error", (event) => {
-        reject(event.detail);
-      }, { once: true });
-    });
-  }
-  /**
-  The number of tasks waiting to run.
-  */
-  get size() {
-    return this.#queue.size;
-  }
-  /**
-      The number of waiting tasks with the given `priority`.
-  
-      @example
-      ```
-      import PQueue from 'p-queue';
-  
-      const queue = new PQueue();
-  
-      // Paused, so the tasks stay queued. Without it they all start synchronously and the queue is empty by the time `sizeBy` reads it.
-      queue.pause();
-  
-      queue.add(async () => '🦄', {priority: 1});
-      queue.add(async () => '🦄', {priority: 0});
-      queue.add(async () => '🦄', {priority: 1});
-  
-      console.log(queue.sizeBy({priority: 1}));
-      //=> 2
-  
-      console.log(queue.sizeBy({priority: 0}));
-      //=> 1
-      ```
-      */
-  sizeBy(options) {
-    return this.#queue.filter(options).length;
-  }
-  /**
-  The number of running tasks.
-  */
-  get pending() {
-    return this.#pending;
-  }
-  /**
-  Whether the queue is paused.
-  */
-  get isPaused() {
-    return this.#isPaused;
-  }
-  /**
-  Whether the queue is rate-limited: the number of tasks started in the current interval, plus the tasks still running from earlier intervals with `carryoverIntervalCount`, has reached `intervalCap`, and tasks are waiting.
-  */
-  get isRateLimited() {
-    return this.#isRateLimitedNow;
-  }
-  /**
-      Whether tasks are waiting because all concurrency slots are in use, or because the queue is rate-limited.
-  
-      Useful to detect backpressure and tasks that hang.
-  
-      @example
-      ```
-      import PQueue from 'p-queue';
-  
-      const queue = new PQueue({concurrency: 2});
-  
-      // Backpressure
-      if (queue.isSaturated) {
-          await queue.onSizeLessThan(queue.concurrency);
-      }
-  
-      // Monitoring
-      setInterval(() => {
-          if (queue.isSaturated) {
-              console.warn(`Queue saturated: ${queue.pending} running, ${queue.size} waiting`);
-          }
-      }, 60000);
-      ```
-      */
-  get isSaturated() {
-    return this.#queue.size > 0 && (this.#pending >= this.#concurrency || this.isRateLimited);
-  }
-  /**
-      An array with the running tasks. Each task has its `id`, `priority`, `startTime`, `timeout`, and `timeoutRemaining` (the milliseconds until it times out). Without a timeout, `timeout` and `timeoutRemaining` are `undefined`.
-  
-      @example
-      ```
-      import PQueue from 'p-queue';
-  
-      const queue = new PQueue({concurrency: 2, timeout: 10000});
-  
-      queue.add(() => fetchUser(123), {id: 'user-123'});
-      queue.add(() => fetchPosts(456), {id: 'posts-456', priority: 1});
-  
-      console.log(queue.runningTasks);
-      // => [{
-      //   id: 'user-123',
-      //   priority: 0,
-      //   startTime: 1759253001716,
-      //   timeout: 10000,
-      //   timeoutRemaining: 10000
-      // }, {
-      //   id: 'posts-456',
-      //   priority: 1,
-      //   startTime: 1759253001716,
-      //   timeout: 10000,
-      //   timeoutRemaining: 10000
-      // }]
-      ```
-      */
-  get runningTasks() {
-    return Array.from(this.#runningTasks, (task) => ({
-      ...task,
-      timeoutRemaining: task.timeout === void 0 ? void 0 : Math.max(0, task.startTime + task.timeout - Date.now())
-    }));
-  }
-};
-var TimeoutError = class extends DOMException {
-  constructor(message) {
-    super(message, "TimeoutError");
-  }
-};
-
-// ../elt/packages/transcription-local/dist/transcription-worker.js
-import { spawn } from "node:child_process";
-import { createInterface } from "node:readline";
-var transcript = external_exports.union([
-  external_exports.object({ text: external_exports.string() }),
-  external_exports.object({ error: external_exports.string() })
-]);
-var TranscriptionWorker = class {
-  #child;
-  #lines;
-  #closed;
-  #stderr = "";
-  #dead = false;
-  constructor(helper, { path, language }) {
-    this.#child = spawn(helper, [
-      "--model",
-      path,
-      ...language === void 0 ? [] : ["--language", language]
-    ]);
-    this.#lines = createInterface({ input: this.#child.stdout })[Symbol.asyncIterator]();
-    this.#child.stderr.on("data", (chunk) => {
-      this.#stderr = (this.#stderr + chunk.toString()).slice(-16384);
-    });
-    this.#closed = new Promise((finish) => {
-      this.#child.once("error", (error62) => {
-        this.#dead = true;
-        finish(error62);
-      });
-      this.#child.once("close", (code, signal) => {
-        this.#dead = true;
-        finish(new Error(`Local transcription exited (${signal ?? code}): ${this.#stderr.trim()}`));
-      });
-    });
-    this.#child.stdin.on("error", () => void 0);
-  }
-  get dead() {
-    return this.#dead;
-  }
-  async read(path) {
-    this.#child.stdin.write(JSON.stringify({ path }) + "\n");
-    const next = await Promise.race([
-      this.#lines.next(),
-      this.#closed.then((error62) => {
-        throw error62;
-      })
-    ]);
-    if (next.done)
-      throw await this.#closed;
-    const result = transcript.parse(JSON.parse(next.value));
-    if ("error" in result)
-      throw new Error(result.error);
-    return result;
-  }
-  kill() {
-    this.#dead = true;
-    this.#child.kill("SIGKILL");
-  }
-  async close() {
-    this.#child.stdin.end();
-    await this.#closed;
-  }
-};
-
-// ../elt/packages/transcription-local/dist/local-transcription-model.js
-var execute3 = promisify3(execFile3);
+import { join as join4 } from "node:path";
+import { promisify as promisify5 } from "node:util";
+var execute3 = promisify5(execFile4);
 var configuration = external_exports.strictObject({
   name: external_exports.string().min(1),
   path: external_exports.string().min(1),
@@ -56227,89 +64445,74 @@ var LocalTranscriptionModel = class _LocalTranscriptionModel {
   specificationVersion = "v4";
   provider = "transcribe-cpp";
   modelId;
-  #configuration;
-  #helper;
-  #queue = new PQueue({ concurrency: 1 });
-  #stopped = new AbortController();
-  #worker;
-  constructor(options, helper = fileURLToPath(new URL("transcribe-local", import.meta.url))) {
-    this.#configuration = {
-      ..._LocalTranscriptionModel.parse(options),
-      path: resolve5(options.path)
-    };
-    this.#helper = helper;
-    this.modelId = JSON.stringify({
-      name: this.#configuration.name,
-      language: this.#configuration.language
-    });
+  #engines;
+  constructor(options, engines) {
+    const { name: name5, language } = _LocalTranscriptionModel.parse(options);
+    this.modelId = JSON.stringify({ name: name5, language });
+    this.#engines = engines;
   }
   static parse(value) {
     return configuration.parse(value);
   }
-  // Check dependencies before a host saves an enabled model, without loading
-  // its weights just to open settings.
-  async check() {
-    await execute3(this.#helper, ["--help"]);
+  async doGenerate(options) {
+    var _stack = [];
+    try {
+      const signal = options.abortSignal;
+      signal?.throwIfAborted();
+      const timestamp = /* @__PURE__ */ new Date();
+      const temporary = __using(_stack, await mkdtempDisposable(join4(tmpdir(), "transcribe-local-")), true);
+      const audio = join4(temporary.path, "input");
+      const wav = join4(temporary.path, "audio.wav");
+      await writeFile(audio, typeof options.audio === "string" ? Buffer.from(options.audio, "base64") : options.audio, { signal });
+      await execute3("/usr/bin/afconvert", [
+        ...["-f", "WAVE", "-d", "LEF32@16000", "-c", "1"],
+        ...["--src-complexity", "bats", audio, wav]
+      ], { signal });
+      const { text } = await this.#engines.use((engine) => engine.read(wav), signal);
+      return {
+        text,
+        segments: [],
+        language: void 0,
+        durationInSeconds: void 0,
+        warnings: [],
+        response: { timestamp, modelId: this.modelId }
+      };
+    } catch (_) {
+      var _error = _, _hasError = true;
+    } finally {
+      var _promise2 = __callDispose(_stack, _error, _hasError);
+      _promise2 && await _promise2;
+    }
   }
-  doGenerate(options) {
-    const signal = options.abortSignal === void 0 ? this.#stopped.signal : AbortSignal.any([this.#stopped.signal, options.abortSignal]);
-    return this.#queue.add(async () => {
-      var _stack = [];
-      try {
-        signal.throwIfAborted();
-        const timestamp = /* @__PURE__ */ new Date();
-        const temporary = __using(_stack, await mkdtempDisposable(join4(tmpdir(), "transcribe-local-")), true);
-        const audio = join4(temporary.path, "input");
-        const wav = join4(temporary.path, "audio.wav");
-        await writeFile(audio, typeof options.audio === "string" ? Buffer.from(options.audio, "base64") : options.audio, { signal });
-        await execute3("/usr/bin/afconvert", [
-          ...["-f", "WAVE", "-d", "LEF32@16000", "-c", "1"],
-          ...["--src-complexity", "bats", audio, wav]
-        ], { signal });
-        signal.throwIfAborted();
-        if (this.#worker?.dead) {
-          await this.#worker.close();
-          this.#worker = void 0;
-        }
-        this.#worker ??= new TranscriptionWorker(this.#helper, this.#configuration);
-        const worker = this.#worker;
-        const abort = () => worker.kill();
-        signal.addEventListener("abort", abort, { once: true });
-        try {
-          signal.throwIfAborted();
-          const { text } = await worker.read(wav);
-          signal.throwIfAborted();
-          return {
-            text,
-            segments: [],
-            language: void 0,
-            durationInSeconds: void 0,
-            warnings: [],
-            response: { timestamp, modelId: this.modelId }
-          };
-        } catch (error62) {
-          signal.throwIfAborted();
-          throw error62;
-        } finally {
-          signal.removeEventListener("abort", abort);
-          if (signal.aborted) {
-            worker.kill();
-            await worker.close();
-          }
-        }
-      } catch (_) {
-        var _error = _, _hasError = true;
-      } finally {
-        var _promise2 = __callDispose(_stack, _error, _hasError);
-        _promise2 && await _promise2;
-      }
-    });
+};
+
+// ../elt/packages/transcription-local/dist/transcription-worker.js
+import { execFile as execFile5 } from "node:child_process";
+import { resolve as resolve5 } from "node:path";
+import { promisify as promisify6 } from "node:util";
+var transcript = external_exports.union([
+  external_exports.object({ text: external_exports.string() }),
+  external_exports.object({ error: external_exports.string() })
+]);
+var execute4 = promisify6(execFile5);
+var TranscriptionWorker = class extends Coprocess {
+  constructor(helper, { path: path10, language }) {
+    super(helper, [
+      "--model",
+      resolve5(path10),
+      ...language === void 0 ? [] : ["--language", language]
+    ], { name: "Local transcription" });
   }
-  async [Symbol.asyncDispose]() {
-    this.#stopped.abort();
-    this.#worker?.kill();
-    await this.#worker?.close();
-    await this.#queue.onIdle();
+  // Checks that the engine runs on this Mac before a host saves an enabled
+  // model, without loading any weights.
+  static async check(helper) {
+    await execute4(helper, ["--help"]);
+  }
+  async read(path10) {
+    const result = transcript.parse(await this.request({ path: path10 }));
+    if ("error" in result)
+      throw new Error(result.error);
+    return result;
   }
 };
 
@@ -56321,12 +64524,15 @@ var Transcription = class {
   #loading = Promise.resolve();
   #helper;
   #chosen = null;
-  #model;
-  #parser = new MacOSDocumentParser();
-  constructor(directory, models, helper) {
+  #engines;
+  #image;
+  #parser;
+  constructor(directory, models, ocr2, helper) {
     this.#settings = new Settings(directory);
     this.#models = models;
     this.#helper = helper;
+    this.#image = new ImageFormat(ocr2);
+    this.#parser = new MacOSDocumentParser([this.#image]);
   }
   get parser() {
     this.#reload();
@@ -56358,9 +64564,19 @@ var Transcription = class {
     const configuration2 = chosen === null ? void 0 : (await this.#models.find(chosen))?.configuration;
     if (chosen !== this.#chosen)
       return;
-    const previous = this.#model;
-    this.#model = configuration2 === void 0 ? void 0 : new LocalTranscriptionModel(configuration2, this.#helper);
-    this.#parser = new MacOSDocumentParser(this.#model === void 0 ? [] : [new AudioFormat(this.#model)]);
+    const previous = this.#engines;
+    this.#engines = void 0;
+    const formats = [this.#image];
+    if (configuration2 !== void 0) {
+      const engines = new Pool({
+        size: new Fixed(1),
+        startup: new Parallel(),
+        create: () => new TranscriptionWorker(this.#helper, configuration2)
+      });
+      this.#engines = engines;
+      formats.push(new AudioFormat(new LocalTranscriptionModel(configuration2, engines)));
+    }
+    this.#parser = new MacOSDocumentParser(formats);
     if (previous !== void 0)
       this.#closing = Promise.all([
         this.#closing,
@@ -56371,20 +64587,10 @@ var Transcription = class {
   // transcribing.
   async configure(id) {
     if (id !== null) {
-      var _stack = [];
-      try {
-        const installed = await this.#models.list();
-        const model = installed.find((candidate2) => candidate2.id === id);
-        if (model === void 0)
-          throw new Error(`No speech model ${id} is installed on this Mac. Installed: ${installed.map((candidate2) => candidate2.id).join(", ") || "none"}.`);
-        const candidate = __using(_stack, new LocalTranscriptionModel(model.configuration, this.#helper), true);
-        await candidate.check();
-      } catch (_) {
-        var _error = _, _hasError = true;
-      } finally {
-        var _promise2 = __callDispose(_stack, _error, _hasError);
-        _promise2 && await _promise2;
-      }
+      const installed = await this.#models.list();
+      if (!installed.some((candidate) => candidate.id === id))
+        throw new Error(`No speech model ${id} is installed on this Mac. Installed: ${installed.map((candidate) => candidate.id).join(", ") || "none"}.`);
+      await TranscriptionWorker.check(this.#helper);
     }
     this.#settings.setTranscription(id);
     await this.refresh();
@@ -56400,7 +64606,10 @@ var Transcription = class {
   }
   async [Symbol.asyncDispose]() {
     try {
-      await Promise.all([this.#closing, this.#model?.[Symbol.asyncDispose]()]);
+      await Promise.all([
+        this.#closing,
+        this.#engines?.[Symbol.asyncDispose]()
+      ]);
     } finally {
       this.#settings[Symbol.dispose]();
     }
@@ -56408,11 +64617,11 @@ var Transcription = class {
 };
 
 // ../elt/packages/sdks/macos/speech-models/dist/speech-models.js
-import { execFile as execFile4 } from "node:child_process";
+import { execFile as execFile6 } from "node:child_process";
 import { glob } from "node:fs/promises";
 import { homedir as homedir2 } from "node:os";
 import { join as join5 } from "node:path";
-import { promisify as promisify4 } from "node:util";
+import { promisify as promisify7 } from "node:util";
 
 // ../elt/packages/sdks/macos/speech-models/dist/speech-model.js
 import { open as open3 } from "node:fs/promises";
@@ -61095,9 +69304,9 @@ function rankCatalogModels(models, preferredLanguages = [], isDownloaded = () =>
 }
 function compareEngineVersions(left, right) {
   const parse4 = (version3) => version3.trim().replace(/^v/, "").split(/[.+-]/, 3).map((part) => Number.parseInt(part, 10) || 0);
-  const [a, b] = [parse4(left), parse4(right)];
+  const [a2, b] = [parse4(left), parse4(right)];
   for (let index = 0; index < 3; index++) {
-    const difference = (a[index] ?? 0) - (b[index] ?? 0);
+    const difference = (a2[index] ?? 0) - (b[index] ?? 0);
     if (difference !== 0)
       return difference;
   }
@@ -65962,8 +74171,8 @@ function getModelInputSnippet(model, noWrap = false, noQuotes = false) {
 }
 
 // ../elt/node_modules/@huggingface/tasks/dist/esm/snippets/common.js
-function stringifyMessages(messages, opts) {
-  let messagesStr = JSON.stringify(messages, null, "	");
+function stringifyMessages(messages2, opts) {
+  let messagesStr = JSON.stringify(messages2, null, "	");
   if (opts?.indent) {
     messagesStr = messagesStr.replaceAll("\n", `
 ${opts.indent}`);
@@ -67118,12 +75327,12 @@ hf download ${modelId} --local-dir ${localDir}
 hf download google/gemma-3-12b-it-qat-q4_0-unquantized --local-dir ${_LTX_GEMMA3_ROOT}`;
 }
 function _ltx25Snippets(model, localDir, tags) {
-  const install2 = _ltxInstall(true);
+  const install = _ltxInstall(true);
   const loraArg = `--lora ${localDir}/<weights>.safetensors 1.0`;
   const basePaths = _ltx25BasePlaceholderPaths();
   if (tags.includes("ic-lora")) {
     return [
-      install2,
+      install,
       _ltx25Download(model.id, localDir, "adapter"),
       _ltxRun("ic_lora", [
         ..._ltx25SplitArgs(basePaths),
@@ -67136,7 +75345,7 @@ function _ltx25Snippets(model, localDir, tags) {
   }
   if (tags.includes("lora")) {
     return [
-      install2,
+      install,
       _ltx25Download(model.id, localDir, "adapter"),
       _ltxRun("distilled", [..._ltx25SplitArgs(basePaths), loraArg, `--prompt "your prompt here"`, "--output-path output.mp4"], "Text/image-to-video with the LoRA on the distilled LTX-2.5 pipeline", { hint: true })
     ];
@@ -67144,7 +75353,7 @@ function _ltx25Snippets(model, localDir, tags) {
   const { distilled, dfr } = _ltx25RepoPaths(localDir);
   const detailingDir = `models/${_LTX_DETAILING_LORA_REPO.split("/")[1]}`;
   return [
-    install2,
+    install,
     _ltx25Download(model.id, localDir, "base"),
     _ltxRun("distilled", [
       ..._ltx25SplitArgs(distilled),
@@ -67169,13 +75378,13 @@ function _ltx25Snippets(model, localDir, tags) {
   ];
 }
 function _ltx23Snippets(model, localDir, tags) {
-  const install2 = _ltxInstall(false);
+  const install = _ltxInstall(false);
   const download2 = _ltx23Download(model.id, localDir);
   const loraArg = `--lora ${localDir}/<weights>.safetensors 1.0`;
   const gemma = `--gemma-root ${_LTX_GEMMA3_ROOT}`;
   if (tags.includes("ic-lora")) {
     return [
-      install2,
+      install,
       download2,
       _ltxRun("ic_lora", [
         "--distilled-checkpoint-path path/to/distilled_checkpoint.safetensors",
@@ -67190,7 +75399,7 @@ function _ltx23Snippets(model, localDir, tags) {
   }
   if (tags.includes("lora")) {
     return [
-      install2,
+      install,
       download2,
       _ltxRun("ti2vid_two_stages_hq", [
         "--checkpoint-path path/to/checkpoint.safetensors",
@@ -67204,7 +75413,7 @@ function _ltx23Snippets(model, localDir, tags) {
     ];
   }
   return [
-    install2,
+    install,
     download2,
     _ltxRun("distilled", [
       `--distilled-checkpoint-path ${localDir}/<distilled-checkpoint>.safetensors`,
@@ -67273,9 +75482,9 @@ llm = Llama.from_pretrained(
 `
   ];
   if (model.tags.includes("conversational")) {
-    const messages = getModelInputSnippet(model);
+    const messages2 = getModelInputSnippet(model);
     snippets.push(`llm.create_chat_completion(
-	messages = ${stringifyMessages(messages, { attributeKeyQuotes: true, indent: "	" })}
+	messages = ${stringifyMessages(messages2, { attributeKeyQuotes: true, indent: "	" })}
 )`);
   } else {
     snippets.push(`output = llm(
@@ -71195,11 +79404,11 @@ var MAX_TENSOR_DIM = 2 ** 32;
 var MIN_BITS_PER_PARAMETER = 1;
 var MAX_ARRAY_RECURSION_DEPTH = 4;
 var MAX_CHUNK_FETCHES_PER_VALUE = 30;
-var GGML_PAD = (x, n) => x + n - 1 & ~(n - 1);
+var GGML_PAD = (x, n2) => x + n2 - 1 & ~(n2 - 1);
 var GGUF_MAGIC_NUMBER = new Uint8Array([71, 71, 85, 70]);
 var isVersion = (version3) => version3 === 1 || version3 === 2 || version3 === 3;
-function isGGUFValueType(n) {
-  return typeof GGUFValueType[n] === "string";
+function isGGUFValueType(n2) {
+  return typeof GGUFValueType[n2] === "string";
 }
 var HTTP_CHUNK_SIZE = 2 * 10 ** 6;
 var HTTP_DATA_LEEWAY = 5 * 10 ** 5;
@@ -71232,13 +79441,13 @@ var RangeView = class {
    */
   async fetchChunk() {
     const range = [this.chunk * HTTP_CHUNK_SIZE, (this.chunk + 1) * HTTP_CHUNK_SIZE - 1];
-    const response = await (this.params?.fetch ?? fetch)(this.uri, {
+    const response2 = await (this.params?.fetch ?? fetch)(this.uri, {
       headers: {
         ...this.params?.additionalFetchHeaders ?? {},
         Range: `bytes=${range[0]}-${range[1]}`
       }
     });
-    const contentRange = response.headers.get("content-range");
+    const contentRange = response2.headers.get("content-range");
     const total = contentRange?.match(/\/\s*(\d+)\s*$/)?.[1];
     if (total !== void 0) {
       const parsed = Number(total);
@@ -71246,7 +79455,7 @@ var RangeView = class {
         this.totalFileSize = parsed;
       }
     }
-    const buf = new Uint8Array(await response.arrayBuffer());
+    const buf = new Uint8Array(await response2.arrayBuffer());
     this.appendBuffer(buf);
     this.chunk += 1;
   }
@@ -71307,8 +79516,8 @@ function computeParameterCount(tensorInfos, fileSize) {
 function readVersionedSize(view, byteOffset, version3, littleEndian) {
   switch (version3) {
     case 1: {
-      const n = view.getUint32(byteOffset, littleEndian);
-      return { value: BigInt(n), length: 4 };
+      const n2 = view.getUint32(byteOffset, littleEndian);
+      return { value: BigInt(n2), length: 4 };
     }
     case 2:
     case 3: {
@@ -71361,7 +79570,7 @@ function readMetadataValue(view, type, offset, version3, littleEndian, depth = 0
       }
       let length2 = 4 + arrayLength.length;
       const arrayValues = [];
-      for (let i = 0; i < arrayLength.value; i++) {
+      for (let i2 = 0; i2 < arrayLength.value; i2++) {
         const metadataValue = readMetadataValue(view, arrayType2, offset + length2, version3, littleEndian, depth + 1);
         arrayValues.push(metadataValue.value);
         length2 += metadataValue.length;
@@ -71394,8 +79603,8 @@ async function gguf(uri, params) {
   }
   await r.fetchChunk();
   const checkBuffer = (buffer, header) => {
-    for (let i = 0; i < header.length; i++) {
-      if (header[i] !== buffer[i]) {
+    for (let i2 = 0; i2 < header.length; i2++) {
+      if (header[i2] !== buffer[i2]) {
         return false;
       }
     }
@@ -71451,7 +79660,7 @@ async function gguf(uri, params) {
       }
     };
   }
-  for (let i = 0; i < numKv.value; i++) {
+  for (let i2 = 0; i2 < numKv.value; i2++) {
     await r.fetchChunkIfNeeded(offset);
     const keyResult = readString(r.view, offset, version3, littleEndian);
     offset += keyResult.length;
@@ -71497,7 +79706,7 @@ async function gguf(uri, params) {
   }
   const tensorInfoStartOffset = offset;
   const tensorInfos = [];
-  for (let i = 0; i < tensorCount.value; i++) {
+  for (let i2 = 0; i2 < tensorCount.value; i2++) {
     await r.fetchChunkIfNeeded(offset);
     const keyResult = readString(r.view, offset, version3, littleEndian);
     offset += keyResult.length;
@@ -71507,11 +79716,11 @@ async function gguf(uri, params) {
     }
     offset += 4;
     const shape = [];
-    for (let dim = 0; dim < nDims; dim++) {
+    for (let dim2 = 0; dim2 < nDims; dim2++) {
       const shapeDim = readVersionedSize(r.view, offset, version3, littleEndian);
       if (shapeDim.value > BigInt(MAX_TENSOR_DIM)) {
         throw new Error(
-          `Tensor "${keyResult.value}" dimension ${dim} is ${shapeDim.value}, which exceeds the maximum allowed (${MAX_TENSOR_DIM})`
+          `Tensor "${keyResult.value}" dimension ${dim2} is ${shapeDim.value}, which exceeds the maximum allowed (${MAX_TENSOR_DIM})`
         );
       }
       shape.push(shapeDim.value);
@@ -71569,30 +79778,30 @@ var SpeechModel = class _SpeechModel {
   id;
   title;
   configuration;
-  constructor(path, title, language) {
-    this.id = basename(path);
+  constructor(path10, title, language) {
+    this.id = basename(path10);
     this.title = title;
     this.configuration = {
       name: this.id,
-      path,
+      path: path10,
       ...language === void 0 ? {} : { language }
     };
   }
   // A GGUF whose architecture transcribes, or a whisper.cpp model, whose file
   // starts with "lmgg". Any other file is not a speech model.
-  static async read(path) {
-    const stem = basename(path, extname3(path));
-    if (extname3(path) !== ".gguf")
-      return await startsWith(path, "lmgg") ? new _SpeechModel(path, stem) : void 0;
-    const { metadata } = await gguf(path, { allowLocalFile: true });
+  static async read(path10) {
+    const stem = basename(path10, extname3(path10));
+    if (extname3(path10) !== ".gguf")
+      return await startsWith(path10, "lmgg") ? new _SpeechModel(path10, stem) : void 0;
+    const { metadata } = await gguf(path10, { allowLocalFile: true });
     const architecture = metadata["general.architecture"];
     if (architecture === void 0 || !transcribing.has(architecture))
       return void 0;
     for (const model of ALL_MODELS)
       for (const [quant, file2] of Object.entries(model.files))
-        if (basename(file2.filename) === basename(path))
+        if (basename(file2.filename) === basename(path10))
           return new _SpeechModel(
-            path,
+            path10,
             quant === model.quant ? model.name : `${model.name} ${quant}`,
             // Told the speech is Arabic, this model still writes English words
             // and sentences as spoken, so one language covers mixed Arabic and
@@ -71600,13 +79809,13 @@ var SpeechModel = class _SpeechModel {
             // sentence on a mixed note.
             model.id === "cohere-transcribe-arabic-07-2026" ? "ar" : void 0
           );
-    return new _SpeechModel(path, metadata["general.name"] ?? stem);
+    return new _SpeechModel(path10, metadata["general.name"] ?? stem);
   }
 };
-async function startsWith(path, magic) {
+async function startsWith(path10, magic) {
   var _stack = [];
   try {
-    const file2 = __using(_stack, await open3(path), true);
+    const file2 = __using(_stack, await open3(path10), true);
     const { buffer, bytesRead } = await file2.read(Buffer.alloc(magic.length), 0, magic.length, 0);
     return buffer.toString("latin1", 0, bytesRead) === magic;
   } catch (_) {
@@ -71618,7 +79827,7 @@ async function startsWith(path, magic) {
 }
 
 // ../elt/packages/sdks/macos/speech-models/dist/speech-models.js
-var execute4 = promisify4(execFile4);
+var execute5 = promisify7(execFile6);
 var SpeechModels = class {
   #folders;
   constructor(folders = {
@@ -71644,10 +79853,10 @@ var SpeechModels = class {
     const paths = await Array.fromAsync(glob("models--*/snapshots/*/**/*.{gguf,bin}", {
       cwd: this.#folders.hub
     }));
-    return paths.sort().map((path) => join5(this.#folders.hub, path));
+    return paths.sort().map((path10) => join5(this.#folders.hub, path10));
   }
   async #indexed() {
-    const { stdout } = await execute4("/usr/bin/mdfind", [
+    const { stdout } = await execute5("/usr/bin/mdfind", [
       "-onlyin",
       this.#folders.home,
       'kMDItemFSName == "*.gguf"c || kMDItemFSName == "*.bin"c'
@@ -71655,14 +79864,11 @@ var SpeechModels = class {
     return stdout.split("\n").filter(Boolean);
   }
 };
-function read2(path) {
-  return SpeechModel.read(path).catch(() => void 0);
+function read2(path10) {
+  return SpeechModel.read(path10).catch(() => void 0);
 }
 
-// apps/plugin/src/chat-status.ts
-import { relative } from "node:path";
-
-// apps/plugin/src/page/contract.ts
+// packages/ui/dist/contract.js
 var scope = external_exports2.strictObject({
   accountIds: external_exports2.array(external_exports2.string()).readonly().optional(),
   collectionIds: external_exports2.array(external_exports2.string()).readonly().optional(),
@@ -71678,7 +79884,6 @@ var row = external_exports2.strictObject({
   title: external_exports2.string(),
   loaded: external_exports2.boolean(),
   selection: selection.nullable(),
-  // The user keeps it current: it loads each change while ChatGPT is open.
   watched: external_exports2.boolean(),
   status: external_exports2.strictObject({
     state: external_exports2.enum([
@@ -71692,7 +79897,7 @@ var row = external_exports2.strictObject({
     ]),
     text: external_exports2.string(),
     details: external_exports2.array(external_exports2.string()).readonly(),
-    // Granting ChatGPT Full Disk Access is the fix for this failure.
+    // Granting the host Full Disk Access is the fix for this failure.
     fullDiskAccess: external_exports2.boolean()
   }),
   narrowsBy: external_exports2.strictObject({
@@ -71713,35 +79918,36 @@ var monitorRow = external_exports2.strictObject({
     text: external_exports2.string()
   })
 });
-var monitorsResult = { monitors: external_exports2.array(monitorRow).readonly() };
+var monitorsResult = {
+  monitors: external_exports2.array(monitorRow).readonly().nullable()
+};
 var choicesResult = {
-  choices: external_exports2.array(
-    external_exports2.strictObject({
-      scope: external_exports2.enum(["accountIds", "collectionIds"]),
-      title: external_exports2.string(),
-      options: external_exports2.array(external_exports2.strictObject({ id: external_exports2.string(), label: external_exports2.string() })).readonly()
-    })
-  ).readonly(),
+  choices: external_exports2.array(external_exports2.strictObject({
+    scope: external_exports2.enum(["accountIds", "collectionIds"]),
+    title: external_exports2.string(),
+    options: external_exports2.array(external_exports2.strictObject({ id: external_exports2.string(), label: external_exports2.string() })).readonly()
+  })).readonly(),
   datedBy: external_exports2.string().nullable(),
   // What connecting imports when the user narrows nothing.
   defaultSelection: selection,
   note: external_exports2.string().optional()
 };
-var pageLink = "codex://plugins/context-compiler/app/page";
 var connectorPath = (connector) => `/connectors/${encodeURIComponent(connector)}`;
-var connectorLink = (connector) => `${pageLink}?path=${encodeURIComponent(connectorPath(connector))}`;
 var transcriptionResult = {
   selected: external_exports2.string().nullable(),
   models: external_exports2.array(external_exports2.strictObject({ id: external_exports2.string(), title: external_exports2.string() }))
 };
 
-// apps/plugin/src/pass-failure.ts
+// apps/server/src/chat-status.ts
+import { relative } from "node:path";
+
+// apps/server/src/pass-failure.ts
 var passFailure = ({
   error: error62,
   failureType
 }, permissions) => failureType === "config" ? `${error62} ${permissions}` : error62;
 
-// apps/plugin/src/chat-status.ts
+// apps/server/src/chat-status.ts
 var progress = (sync, guidance) => {
   if (sync === null) return "waiting for its first import";
   const since = sync.currentAsOf === null ? "not every stream has loaded completely yet; stream_status has each stream's current_as_of" : `data as of ${sync.currentAsOf}`;
@@ -71766,7 +79972,7 @@ var readiness = (sync) => {
   if (sync.lastSucceededAt === null) return "importing";
   return "readable";
 };
-function chatStatus(plugin2) {
+function chatStatus(plugin2, pageUri2) {
   const selected = plugin2.status().connectors;
   const broken = plugin2.broken.map(
     ({ title, error: error62 }) => `- ${title} could not be loaded: ${error62}`
@@ -71776,7 +79982,7 @@ function chatStatus(plugin2) {
     return {
       state: state([]),
       text: [
-        `Context Compiler: no connectors are set up. Use $setup when the user asks about their Mac apps; the user can also choose connectors on the Context Compiler page: ${pageLink}`,
+        `Context Compiler: no connectors are set up. Use $setup when the user asks about their Mac apps; the user can also choose connectors on the Context Compiler page: ${pageUri2}`,
         ...broken
       ].join("\n")
     };
@@ -71797,7 +80003,7 @@ function chatStatus(plugin2) {
       ])
     ),
     text: [
-      `Connectors the user set up, each imported into its own SQLite file under "${plugin2.directory}". Read them as $query describes. The user changes them on the Context Compiler page: ${pageLink}`,
+      `Connectors the user set up, each imported into its own SQLite file under "${plugin2.directory}". Read them as $query describes. The user changes them on the Context Compiler page: ${pageUri2}`,
       ...rows.map(
         ({
           connector,
@@ -71809,7 +80015,9 @@ function chatStatus(plugin2) {
           presets,
           content
         }) => {
-          const page2 = `Its Context Compiler page: ${connectorLink(connector)}`;
+          const link = new URL(pageUri2);
+          link.searchParams.set("path", connectorPath(connector));
+          const page2 = `Its Context Compiler page: ${link.href}`;
           if (loaded === void 0) return `- ${title}: ${permissions} ${page2}`;
           const where = database === null ? "No database yet." : `Database: ${relative(plugin2.directory, database)}`;
           const fix = needsTheUser(sync) ? ` ${page2}` : "";
@@ -71827,70 +80035,20 @@ function chatStatus(plugin2) {
     ].join("\n")
   };
 }
-function chatContext(plugin2) {
+function chatContext(plugin2, pageUri2) {
   let sent;
   return (event) => {
-    const status2 = chatStatus(plugin2);
+    const status2 = chatStatus(plugin2, pageUri2);
     if (event === "UserPromptSubmit" && status2.state === sent) return null;
     sent = status2.state;
     return status2.text;
   };
 }
 
-// apps/plugin/src/plugin.ts
+// apps/server/src/plugin.ts
 import { existsSync as existsSync4, rmSync } from "node:fs";
-import { join as join9, relative as relative2, sep } from "node:path";
+import { relative as relative2, sep } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
-
-// node_modules/@zukhruf/async/dist/latch.js
-var Latch = class {
-  /** Holds the value in a box, so it never adopts a promise and never rejects, whatever `T` is. */
-  // eslint-disable-next-line zukhruf/no-promise-field -- A latch never rejects and is never replaced, so no hazard of the rule applies; it is the primitive the rule recommends.
-  #opened = Promise.withResolvers();
-  /**
-   * A later open changes nothing. A type that names a promise is refused: a
-   * wait would adopt the promise, and could then reject.
-   */
-  open(value) {
-    this.#opened.resolve({ value });
-  }
-  wait() {
-    return this.#opened.promise.then(({ value }) => value);
-  }
-};
-
-// node_modules/@zukhruf/async/dist/poll.js
-import { setTimeout as delay2 } from "node:timers/promises";
-
-// node_modules/@zukhruf/async/dist/until-aborted.js
-import { addAbortListener } from "node:events";
-function untilAborted(promise2, signal) {
-  if (!signal)
-    return promise2;
-  return new Promise((resolve8, reject) => {
-    const listening = addAbortListener(signal, () => reject(signal.reason));
-    promise2.then((value) => {
-      listening[Symbol.dispose]();
-      resolve8(value);
-    }, (error62) => {
-      listening[Symbol.dispose]();
-      reject(error62);
-    });
-  });
-}
-
-// node_modules/@zukhruf/async/dist/poll.js
-async function poll(attempt, { interval, signal, deadline, ref }) {
-  for (; ; ) {
-    const value = await attempt();
-    if (value !== void 0)
-      return value;
-    if (deadline !== void 0 && performance.now() >= deadline) {
-      return void 0;
-    }
-    await untilAborted(delay2(interval, void 0, { signal, ref }), signal);
-  }
-}
 
 // node_modules/@zukhruf/lease/dist/lease-lost-error.js
 var LeaseLostError = class extends Error {
@@ -71946,7 +80104,7 @@ var Term = class {
   #lease = new LeaseController("leadership");
   /** Aborts once the term starts to end, by resign or by loss. */
   #ending = new AbortController();
-  #ended = new Latch();
+  #ended = new Latch2();
   #watching = new DisposableStack();
   constructor({ epoch, afterCleanShutdown }, steps) {
     this.epoch = epoch;
@@ -72085,7 +80243,7 @@ import { rm, writeFile as writeFile2 } from "node:fs/promises";
 
 // node_modules/@zukhruf/fs/dist/draft.js
 import { randomUUID } from "node:crypto";
-var draftOf = (path) => `${path}.${randomUUID()}.tmp`;
+var draftOf = (path10) => `${path10}.${randomUUID()}.tmp`;
 var draftSuffixLength = draftOf("").length;
 
 // node_modules/@zukhruf/fs/dist/replace-file.js
@@ -72118,16 +80276,16 @@ async function patiently(operation) {
 }
 
 // node_modules/@zukhruf/fs/dist/replace-file.js
-function replaceFile(draft, path) {
-  return patiently(() => rename(draft, path));
+function replaceFile(draft, path10) {
+  return patiently(() => rename(draft, path10));
 }
 
 // node_modules/@zukhruf/fs/dist/atomic-write.js
-async function atomicWrite(path, content) {
-  const draft = draftOf(path);
+async function atomicWrite(path10, content) {
+  const draft = draftOf(path10);
   try {
     await writeFile2(draft, content);
-    await replaceFile(draft, path);
+    await replaceFile(draft, path10);
   } catch (error62) {
     await rm(draft, { force: true });
     throw error62;
@@ -72137,21 +80295,21 @@ async function atomicWrite(path, content) {
 // node_modules/@zukhruf/fs/dist/durable-write.js
 import { open as open4, rm as rm2 } from "node:fs/promises";
 import { dirname } from "node:path";
-async function durableWrite(path, content) {
-  const draft = draftOf(path);
+async function durableWrite(path10, content) {
+  const draft = draftOf(path10);
   try {
     await writeSynced(draft, content);
-    await replaceFile(draft, path);
+    await replaceFile(draft, path10);
   } catch (error62) {
     await rm2(draft, { force: true });
     throw error62;
   }
-  await syncDirectory(dirname(path));
+  await syncDirectory(dirname(path10));
 }
-async function writeSynced(path, content) {
+async function writeSynced(path10, content) {
   var _stack = [];
   try {
-    const handle = __using(_stack, await open4(path, "wx"), true);
+    const handle = __using(_stack, await open4(path10, "wx"), true);
     await handle.writeFile(content);
     await handle.sync();
   } catch (_) {
@@ -72190,13 +80348,13 @@ var held = /* @__PURE__ */ new Set();
 var FileLock = class _FileLock {
   #path;
   #database;
-  constructor(path, database) {
-    this.#path = path;
+  constructor(path10, database) {
+    this.#path = path10;
     this.#database = database;
   }
   /** Opens the file, and creates it empty when it is absent. Takes no lock. */
-  static open(path) {
-    return new _FileLock(path, new DatabaseSync(path));
+  static open(path10) {
+    return new _FileLock(path10, new DatabaseSync(path10));
   }
   /**
    * Whether a handle holds the lock on the file at `path` now. It reads
@@ -72204,12 +80362,12 @@ var FileLock = class _FileLock {
    * shared lock, so a `tryLock` at that moment can return `false`. The answer
    * can be stale as soon as it returns.
    */
-  static check(path) {
+  static check(path10) {
     let database;
     try {
-      database = new DatabaseSync(path, { readOnly: true });
+      database = new DatabaseSync(path10, { readOnly: true });
     } catch (error62) {
-      if (hasResultCode(error62, SQLITE_CANTOPEN) && !existsSync3(path)) {
+      if (hasResultCode(error62, SQLITE_CANTOPEN) && !existsSync3(path10)) {
         return "missing";
       }
       throw error62;
@@ -72295,38 +80453,38 @@ var linuxNetworkFileSystems = /* @__PURE__ */ new Map([
 var local = { kind: "local" };
 var unknown3 = { kind: "unknown" };
 var judges = {
-  linux: (path) => statfsOfNearest(path).then(({ type }) => {
+  linux: (path10) => statfsOfNearest(path10).then(({ type }) => {
     const fileSystem = linuxNetworkFileSystems.get(BigInt.asUintN(32, type));
     return fileSystem ? { kind: "network", fileSystem } : local;
   }, () => unknown3),
-  win32: async (path) => isUncPath(path) ? { kind: "network", fileSystem: "UNC share" } : local
+  win32: async (path10) => isUncPath(path10) ? { kind: "network", fileSystem: "UNC share" } : local
 };
 var localDirectories = /* @__PURE__ */ new Set();
 async function assertLocalDirectory(directory) {
-  const path = resolve6(directory);
-  if (localDirectories.has(path))
+  const path10 = resolve6(directory);
+  if (localDirectories.has(path10))
     return;
-  const judgement = await judges[process.platform]?.(path) ?? local;
+  const judgement = await judges[process.platform]?.(path10) ?? local;
   if (judgement.kind === "network") {
     throw new NetworkDirectoryError(directory, judgement.fileSystem);
   }
   if (judgement.kind === "local")
-    localDirectories.add(path);
+    localDirectories.add(path10);
 }
-async function statfsOfNearest(path) {
+async function statfsOfNearest(path10) {
   try {
-    return await statfs(path, { bigint: true });
+    return await statfs(path10, { bigint: true });
   } catch (error62) {
-    const parent = dirname2(path);
-    if (!isErrno(error62, "ENOENT") || parent === path)
+    const parent = dirname2(path10);
+    if (!isErrno(error62, "ENOENT") || parent === path10)
       throw error62;
     return statfsOfNearest(parent);
   }
 }
-function isUncPath(path) {
-  if (/^\\\\[?.]\\/.test(path))
-    return /^\\\\[?.]\\UNC\\/i.test(path);
-  return path.startsWith("\\\\");
+function isUncPath(path10) {
+  if (/^\\\\[?.]\\/.test(path10))
+    return /^\\\\[?.]\\UNC\\/i.test(path10);
+  return path10.startsWith("\\\\");
 }
 
 // node_modules/@zukhruf/election/dist/sqlite/sqlite-election.js
@@ -72386,26 +80544,26 @@ var SqliteElection = class extends LeaderElection {
     claim2[Symbol.dispose]();
   }
 };
-async function readCleanShutdown(path) {
+async function readCleanShutdown(path10) {
   try {
-    return await readFile3(path, "utf8");
+    return await readFile3(path10, "utf8");
   } catch (error62) {
     if (isErrno(error62, "ENOENT"))
       return void 0;
     throw error62;
   }
 }
-async function readEpoch(path) {
+async function readEpoch(path10) {
   let text;
   try {
-    text = await readFile3(path, "utf8");
+    text = await readFile3(path10, "utf8");
   } catch (error62) {
     if (isErrno(error62, "ENOENT"))
       return 0n;
     throw error62;
   }
   if (!/^\d+$/.test(text))
-    throw new SyntaxError(`The epoch file ${path} holds ${JSON.stringify(text)}, not decimal digits.`);
+    throw new SyntaxError(`The epoch file ${path10} holds ${JSON.stringify(text)}, not decimal digits.`);
   return BigInt(text);
 }
 
@@ -72468,8 +80626,8 @@ var EpochTokenSource = class {
 
 // node_modules/@zukhruf/single-flight/dist/key-lock/key-hold.js
 var KeyHold = class {
-  #workEnded = new Latch();
-  #flightEnded = new Latch();
+  #workEnded = new Latch2();
+  #flightEnded = new Latch2();
   constructor(lock) {
     void Promise.all([this.#workEnded.wait(), this.#flightEnded.wait()]).then(() => lock[Symbol.dispose]());
   }
@@ -72711,49 +80869,49 @@ var FlightClient = class {
     for (const wake of waiting)
       wake();
   }
-  #receive(response) {
-    switch (response.op) {
+  #receive(response2) {
+    switch (response2.op) {
       case "lead": {
-        const pending = this.#pending.get(response.id);
+        const pending = this.#pending.get(response2.id);
         if (!pending)
           return;
         const stop = new AbortController();
         pending.delivery = { kind: "locking", stop };
-        void this.#lock(response.id, pending, FencingToken.parse(response.token), stop.signal);
+        void this.#lock(response2.id, pending, FencingToken.parse(response2.token), stop.signal);
         return;
       }
       case "joined": {
-        const pending = this.#pending.get(response.id);
+        const pending = this.#pending.get(response2.id);
         if (!pending)
           return;
         const first = pending.flight === void 0;
-        pending.flight = response.flight;
+        pending.flight = response2.flight;
         if (first)
-          this.#tellJoined(response.id, pending);
+          this.#tellJoined(response2.id, pending);
         return;
       }
       case "landed":
-        this.#take(response.id)?.resolve({
+        this.#take(response2.id)?.resolve({
           kind: "landed",
-          outcome: response.outcome
+          outcome: response2.outcome
         });
         return;
       case "interrupted":
-        this.#take(response.id)?.resolve({ kind: "interrupted" });
+        this.#take(response2.id)?.resolve({ kind: "interrupted" });
         return;
       case "ack": {
-        const held2 = this.#held.get(response.id);
+        const held2 = this.#held.get(response2.id);
         if (!held2?.landing)
           return;
-        this.#release(response.id);
+        this.#release(response2.id);
         held2.lease.end();
         return;
       }
       case "rejected":
-        this.#lose(response.id);
+        this.#lose(response2.id);
         return;
       case "unsupported":
-        this.#take(response.id)?.reject(new Error("The single flight's coordinator does not know a run."));
+        this.#take(response2.id)?.reject(new Error("The single flight's coordinator does not know a run."));
         return;
     }
   }
@@ -72820,8 +80978,8 @@ var FlightClient = class {
 };
 
 // node_modules/@zukhruf/single-flight/dist/connection/connection-supervisor.js
-import { EventEmitter } from "node:events";
-var ConnectionSupervisor = class extends EventEmitter {
+import { EventEmitter as EventEmitter2 } from "node:events";
+var ConnectionSupervisor = class extends EventEmitter2 {
   #supervision;
   constructor(connector) {
     super();
@@ -72897,7 +81055,7 @@ var Connecting = class {
   #supervision;
   #abort = new AbortController();
   /** Opens when the connect ends, so `close` can wait for it. */
-  #ended = new Latch();
+  #ended = new Latch2();
   constructor(supervision) {
     this.#supervision = supervision;
   }
@@ -73015,7 +81173,7 @@ var Closed = class {
 };
 
 // node_modules/@zukhruf/single-flight/dist/connection/electing-connector.js
-import { once } from "node:events";
+import { once as once10 } from "node:events";
 import { connect } from "node:net";
 import { setTimeout as delay4 } from "node:timers/promises";
 
@@ -73119,17 +81277,17 @@ var ProtocolVersionError = class extends Error {
 };
 
 // node_modules/@zukhruf/single-flight/dist/connection/socket-connection.js
-import { EventEmitter as EventEmitter2 } from "node:events";
+import { EventEmitter as EventEmitter3 } from "node:events";
 import { createInterface as createInterface2 } from "node:readline";
-import { promisify as promisify5 } from "node:util";
-var SocketConnection = class extends EventEmitter2 {
+import { promisify as promisify8 } from "node:util";
+var SocketConnection = class extends EventEmitter3 {
   #socket;
   /** A write after the socket closed reports the error through its callback. */
   #write;
   constructor(socket) {
     super();
     this.#socket = socket;
-    this.#write = promisify5(socket.write).bind(socket);
+    this.#write = promisify8(socket.write).bind(socket);
     leaveErrorsToClose(socket);
     const lines = createInterface2({ input: socket, crlfDelay: Infinity });
     lines.on("line", (line) => {
@@ -73270,7 +81428,7 @@ async function reachUnlessAborted(socketPath, signal) {
 async function reach(socketPath) {
   const socket = connect(socketPath);
   try {
-    await once(socket, "connect");
+    await once10(socket, "connect");
     return socket;
   } catch {
     socket.destroy();
@@ -73335,7 +81493,7 @@ function socketPathFor(directory) {
 }
 
 // node_modules/@zukhruf/single-flight/dist/coordinator/flight-server.js
-import { addAbortListener as addAbortListener2, once as once2 } from "node:events";
+import { addAbortListener as addAbortListener4, once as once11 } from "node:events";
 import { rm as rm4 } from "node:fs/promises";
 import { createServer } from "node:net";
 
@@ -73507,8 +81665,8 @@ var Session = class {
     });
     connection.once("close", () => this.#end());
   }
-  reply(response) {
-    this.#phase.reply(response);
+  reply(response2) {
+    this.#phase.reply(response2);
   }
   forget(id) {
     this.#parties.delete(id);
@@ -73576,8 +81734,8 @@ var Serving = class {
   constructor(connection) {
     this.#connection = connection;
   }
-  reply(response) {
-    this.#connection.send(response).catch(() => {
+  reply(response2) {
+    this.#connection.send(response2).catch(() => {
     });
   }
   close() {
@@ -73721,7 +81879,7 @@ var FlightServer = class _FlightServer {
     this.#connections = connections;
     this.#coordinator = coordinator;
     this.#term = term;
-    this.#closeOnLoss = addAbortListener2(term.signal, () => void this.close());
+    this.#closeOnLoss = addAbortListener4(term.signal, () => void this.close());
   }
   static async start(socketPath, term, { locks }) {
     if (process.platform !== "win32") {
@@ -73743,7 +81901,7 @@ var FlightServer = class _FlightServer {
       });
     });
     server.listen(socketPath);
-    await once2(server, "listening");
+    await once11(server, "listening");
     server.unref();
     const started = new _FlightServer(server, connections, coordinator, term);
     if (term.signal.aborted) {
@@ -73917,10 +82075,10 @@ var SingleFlight = class {
       case "interrupted":
         throw new FlightInterruptedError(key);
       case "lead": {
-        const settled = await untilAborted(this.#fly(key, work, answer.lead), signal);
-        if ("error" in settled)
-          throw settled.error;
-        return { value: settled.value, joined: false };
+        const settled2 = await untilAborted(this.#fly(key, work, answer.lead), signal);
+        if ("error" in settled2)
+          throw settled2.error;
+        return { value: settled2.value, joined: false };
       }
     }
   }
@@ -73961,7 +82119,7 @@ var SingleFlight = class {
   }
 };
 
-// apps/plugin/src/plugin.ts
+// apps/server/src/plugin.ts
 var ids = external_exports2.array(external_exports2.string().min(1).max(1024)).max(1e3);
 var followMs = 1e3;
 var connectorSchema = external_exports2.string().min(1).describe(
@@ -73994,13 +82152,12 @@ var configurationSchema = external_exports2.strictObject({
 var PluginUpdatedError = class extends Error {
   constructor() {
     super(
-      "Context Compiler was updated after this chat started. This chat runs the old version, so its Context Compiler tools and status are out of date: open a new chat to use Context Compiler."
+      "Context Compiler was updated after this started. Open a new chat, or reopen Context Compiler.app, to use the new version."
     );
   }
 };
 var Plugin = class {
-  // The installed plugin's folder. Installing another version deletes it.
-  install;
+  #versionFile;
   directory;
   #discovery;
   #host;
@@ -74008,10 +82165,10 @@ var Plugin = class {
   monitors;
   #connectors = [];
   #broken = [];
-  constructor(discovery, host, install2, directory, monitors) {
+  constructor(discovery, host, versionFile2, directory, monitors) {
     this.#discovery = discovery;
     this.#host = host;
-    this.install = install2;
+    this.#versionFile = versionFile2;
     this.directory = directory;
     this.monitors = monitors;
   }
@@ -74048,7 +82205,7 @@ var Plugin = class {
   // Whether another plugin version replaced this one, which deletes this
   // version's folder.
   get #replaced() {
-    return !existsSync4(join9(this.install, ".codex-plugin/plugin.json"));
+    return !existsSync4(this.#versionFile);
   }
   // The store, refused once another plugin version replaced this one.
   #open() {
@@ -74226,11 +82383,10 @@ var Plugin = class {
   async #check() {
     var _stack = [];
     try {
+      const monitors = this.monitors;
+      if (monitors === null) return;
       const flights = __using(_stack, this.flights(), true);
-      await flights.run(
-        "monitors",
-        () => this.monitors.check(() => this.#locate())
-      );
+      await flights.run("monitors", () => monitors.check(() => this.#locate()));
     } catch (_) {
       var _error = _, _hasError = true;
     } finally {
@@ -74343,6 +82499,10 @@ var Plugin = class {
   }
   // Registers a monitor for the chat that asked; see Monitors.add.
   async addMonitor(name5, thread) {
+    if (this.monitors === null)
+      throw new Error(
+        "This launcher does not provide chat delivery for monitors."
+      );
     await this.monitors.add(name5, thread, this.#locate());
   }
   // Where each selected connector's import is, for monitors that name it as a
@@ -74407,7 +82567,7 @@ function unchanged(name5, stored, requested) {
   };
 }
 
-// apps/plugin/src/connector-page.ts
+// apps/server/src/connector-page.ts
 var connectorSelectionSchema = configurationSchema.shape.connectors.element.omit({ connector: true });
 var relative3 = new Intl.RelativeTimeFormat("en", { numeric: "auto" });
 function ago(instant, now2) {
@@ -74513,7 +82673,7 @@ function connectorRows(plugin2) {
     datedBy: null
   }));
   return [
-    ...loaded.toSorted((a, b) => a.title.localeCompare(b.title)),
+    ...loaded.toSorted((a2, b) => a2.title.localeCompare(b.title)),
     ...missing
   ];
 }
@@ -74546,11 +82706,11 @@ async function connectorChoices(plugin2, name5) {
   };
 }
 
-// apps/plugin/src/full-disk-access.ts
-import { execFile as execFileCallback } from "node:child_process";
+// apps/server/src/full-disk-access.ts
+import { execFile as execFileCallback2 } from "node:child_process";
 import { readdir } from "node:fs/promises";
-import { promisify as promisify6 } from "node:util";
-var execFile5 = promisify6(execFileCallback);
+import { promisify as promisify9 } from "node:util";
+var execFile7 = promisify9(execFileCallback2);
 var protectedDirectory = "/Library/Application Support/com.apple.TCC";
 async function hasFullDiskAccess() {
   try {
@@ -74563,20 +82723,21 @@ async function hasFullDiskAccess() {
   }
 }
 async function openFullDiskAccessSettings() {
-  await execFile5("/usr/bin/open", [
+  await execFile7("/usr/bin/open", [
     "x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles"
   ]);
 }
 
-// apps/plugin/src/monitor-page.ts
-async function monitorRows(plugin2) {
+// apps/server/src/monitor-page.ts
+async function monitorRows(plugin2, chatUri2) {
+  if (plugin2.monitors === null) return null;
   const now2 = /* @__PURE__ */ new Date();
   return (await plugin2.monitors.status()).map((monitor) => ({
     name: monitor.name,
     title: monitor.title,
     description: monitor.description,
     instruction: monitor.instruction,
-    chat: monitor.state === "watching" ? `codex://threads/${encodeURIComponent(monitor.thread)}` : null,
+    chat: monitor.state === "watching" && chatUri2 !== null ? `${chatUri2}${encodeURIComponent(monitor.thread)}` : null,
     status: status(monitor, now2)
   }));
 }
@@ -74596,20 +82757,20 @@ function status(monitor, now2) {
   }
 }
 
-// apps/plugin/src/monitors.ts
-import { execFile as execFile6 } from "node:child_process";
+// apps/server/src/monitors.ts
+import { execFile as execFile8 } from "node:child_process";
 import {
   existsSync as existsSync5,
   mkdirSync as mkdirSync2,
-  readFileSync as readFileSync2,
+  readFileSync as readFileSync4,
   readdirSync as readdirSync2,
   rmSync as rmSync2,
-  statSync as statSync2
+  statSync as statSync3
 } from "node:fs";
-import { dirname as dirname3, join as join10 } from "node:path";
+import { dirname as dirname3, join as join9 } from "node:path";
 import { DatabaseSync as DatabaseSync3 } from "node:sqlite";
 import { pathToFileURL as pathToFileURL2 } from "node:url";
-import { promisify as promisify7 } from "node:util";
+import { promisify as promisify10 } from "node:util";
 
 // node_modules/@zukhruf/sqlite-federation/dist/federation.js
 import { DatabaseSync as DatabaseSync2 } from "node:sqlite";
@@ -74632,10 +82793,10 @@ var Federation = class {
   constructor({ main, locate, ...options }) {
     this.#locate = locate;
     if (typeof main !== "string") {
-      const path = locate(main.name);
-      if (path === void 0)
+      const path10 = locate(main.name);
+      if (path10 === void 0)
         throw new Error(`Unknown main database ${main.name}`);
-      main = path;
+      main = path10;
     }
     this.#connection = new DatabaseSync2(main, {
       ...options,
@@ -74688,13 +82849,13 @@ var Federation = class {
           const name5 = missingDatabase(error62);
           if (name5 === void 0 || attached.includes(name5))
             throw error62;
-          const path = this.#locate(name5);
-          if (path === void 0)
+          const path10 = this.#locate(name5);
+          if (path10 === void 0)
             throw error62;
           const { attach: limit } = this.#connection.limits;
           if (attached.length === limit)
             throw new TooManyDatabasesError(limit, [...attached, name5]);
-          this.#connection.prepare(`ATTACH DATABASE ? AS ${quoted(name5)}`).run(path);
+          this.#connection.prepare(`ATTACH DATABASE ? AS ${quoted(name5)}`).run(path10);
           attached.push(name5);
         }
       }
@@ -74775,7 +82936,7 @@ var Eca = class {
   }
 };
 
-// apps/plugin/src/monitors.ts
+// apps/server/src/monitors.ts
 var manifestSchema2 = external_exports2.object({
   type: external_exports2.literal("module"),
   exports: external_exports2.string().startsWith("./"),
@@ -74795,6 +82956,7 @@ var monitorTables = new Declaration(
   { rows: "replace" }
 );
 var now = () => (/* @__PURE__ */ new Date()).toISOString();
+var messageBytes = 256 * 1024;
 var messageOf = (error62) => error62 instanceof Error ? error62.message : String(error62);
 var Monitors = class {
   #root;
@@ -74817,7 +82979,7 @@ var Monitors = class {
           broken.get(name5) ?? `No monitor is named ${name5}. Write it in ${this.#root} first.`
         );
       const federation = __using(_stack, new Federation({ main: ":memory:", locate }));
-      const eca = new Eca({ warehouse: once3(federation.sql) });
+      const eca = new Eca({ warehouse: once12(federation.sql) });
       const rule = { condition: monitor.condition };
       await eca.add(rule);
       const store2 = __using(_stack, this.#open());
@@ -74838,8 +83000,9 @@ var Monitors = class {
     }
   }
   // Evaluates every registered monitor that loads, from the keys it saved.
-  // Each monitor's new matches go to its chat as one message that names their
-  // keys, sent before the keys are saved, so a stop in between sends them
+  // Each monitor's new matches go to its chat in messages that name their
+  // keys, as many as fit one command, each sent before its keys are saved, so
+  // a stop in between sends them
   // again and never loses them. A send that fails, as to a deleted chat, fails
   // only its monitor, whose matches come again at the next check. What
   // it writes afterwards goes to the registration it read, so a monitor
@@ -74865,7 +83028,7 @@ var Monitors = class {
         return;
       }
       const federation = __using(_stack, new Federation({ main: ":memory:", locate: where }));
-      const eca = new Eca({ warehouse: once3(federation.sql) });
+      const eca = new Eca({ warehouse: once12(federation.sql) });
       for (const [rule, { name: name5 }] of rules)
         await eca.add(rule, { keys: savedKeys(store2, name5) });
       const failed = /* @__PURE__ */ new Set();
@@ -74886,17 +83049,18 @@ var Monitors = class {
         const keys = unsent.get(rule);
         if (keys === void 0) continue;
         try {
-          await promisify7(execFile6)(this.#codex, [
-            "queue",
-            "--thread",
-            registered.thread,
-            "--message",
-            [
-              `Monitor "${registered.monitor.title}" triggered: ${registered.monitor.instruction}`,
-              "New matches:",
-              ...keys.map((key) => `- ${key}`)
-            ].join("\n")
-          ]);
+          let sent = 0;
+          for (const message of messages(registered.monitor, keys)) {
+            await promisify10(execFile8)(this.#codex, [
+              "queue",
+              "--thread",
+              registered.thread,
+              "--message",
+              message.text
+            ]);
+            sent += message.keys.length;
+            unsent.set(rule, keys.slice(sent));
+          }
         } catch (error62) {
           failed.add(registered.name);
           fail(
@@ -75014,22 +83178,22 @@ var Monitors = class {
     const broken = /* @__PURE__ */ new Map();
     if (existsSync5(this.#root))
       for (const folder of readdirSync2(this.#root).sort()) {
-        const path = join10(this.#root, folder);
-        const manifestPath = join10(path, "package.json");
+        const path10 = join9(this.#root, folder);
+        const manifestPath = join9(path10, "package.json");
         if (!existsSync5(manifestPath)) continue;
         let parsed;
         try {
           parsed = manifestSchema2.parse(
-            JSON.parse(readFileSync2(manifestPath, "utf8"))
+            JSON.parse(readFileSync4(manifestPath, "utf8"))
           );
         } catch (error62) {
           broken.set(folder, `Could not be loaded: ${messageOf(error62)}`);
           continue;
         }
-        const manifest = { ...parsed.contextCompiler, folder: path };
+        const manifest = { ...parsed.contextCompiler, folder: path10 };
         try {
-          const entry = pathToFileURL2(join10(path, parsed.exports));
-          entry.searchParams.set("modified", String(statSync2(entry).mtimeMs));
+          const entry = pathToFileURL2(join9(path10, parsed.exports));
+          entry.searchParams.set("modified", String(statSync3(entry).mtimeMs));
           const { default: exported } = await import(entry.href);
           loaded.set(manifest.name, {
             ...manifest,
@@ -75071,11 +83235,34 @@ function fail(store2, registered, failure2) {
     "UPDATE monitors SET failure = ?, failed_at = ? WHERE name = ? AND added_at = ?"
   ).run(failure2, now(), registered.name, registered.addedAt);
 }
+function messages(monitor, keys) {
+  const head = `Monitor "${monitor.title}" triggered: ${monitor.instruction}
+New matches:`;
+  const batches = [];
+  let batch = [];
+  let size = Buffer.byteLength(head);
+  for (const key of keys) {
+    const line = Buffer.byteLength(`
+- ${key}`);
+    if (batch.length > 0 && size + line > messageBytes) {
+      batches.push(batch);
+      batch = [];
+      size = Buffer.byteLength(head);
+    }
+    batch.push(key);
+    size += line;
+  }
+  if (batch.length > 0) batches.push(batch);
+  return batches.map((keys2) => ({
+    keys: keys2,
+    text: [head, ...keys2.map((key) => `- ${key}`)].join("\n")
+  }));
+}
 function reasonOf(error62) {
   const said = typeof error62 === "object" && error62 !== null && "stderr" in error62 ? String(error62.stderr).trim() : "";
   return said === "" ? messageOf(error62) : said;
 }
-function once3(sql) {
+function once12(sql) {
   return {
     sql,
     async *commits() {
@@ -75094,8 +83281,8 @@ function conditionOf(exported) {
   };
 }
 
-// apps/plugin/src/setup-forms.ts
-async function setUpWithForms(plugin2, ask) {
+// apps/server/src/setup-forms.ts
+async function setUpWithForms(plugin2, ask, grantee2) {
   const previous = new Map(
     plugin2.status().connectors.map(({ connector, scope: scope2, includeAttachments }) => [
       connector,
@@ -75104,7 +83291,7 @@ async function setUpWithForms(plugin2, ask) {
   );
   const picked = await ask({
     mode: "form",
-    message: "Choose the connectors Codex can read on this Mac. Each connector is imported in full; macOS may ask for access to each one.",
+    message: `Choose the connectors ${grantee2} can read on this Mac. Each connector is imported in full; macOS may ask for access to each one.`,
     requestedSchema: {
       type: "object",
       properties: {
@@ -75138,7 +83325,7 @@ async function setUpWithForms(plugin2, ask) {
     const loaded = plugin2.connector(connector);
     try {
       if (blocked.includes(connector))
-        throw new Error("ChatGPT does not have Full Disk Access.");
+        throw new Error(`${grantee2} does not have Full Disk Access.`);
       await plugin2.options(connector);
       configuration2.push(
         previous.get(connector) ?? {
@@ -75164,17 +83351,18 @@ async function setUpWithForms(plugin2, ask) {
     ...saved,
     openedFullDiskAccess: await offerFullDiskAccess(
       ask,
-      blocked.map((name5) => plugin2.connector(name5).title)
+      blocked.map((name5) => plugin2.connector(name5).title),
+      grantee2
     )
   };
 }
-async function offerFullDiskAccess(ask, titles) {
+async function offerFullDiskAccess(ask, titles, grantee2) {
   const listed = new Intl.ListFormat("en", { type: "conjunction" }).format(
     titles
   );
   const answer = await ask({
     mode: "form",
-    message: `${listed} ${titles.length === 1 ? "needs" : "need"} Full Disk Access, which macOS never asks for. Turn on ChatGPT in the list that opens, then quit and reopen ChatGPT and run Set up Context Compiler again.`,
+    message: `${listed} ${titles.length === 1 ? "needs" : "need"} Full Disk Access, which macOS never asks for. Turn on ${grantee2} in the list that opens, then quit and reopen ${grantee2} and run Set up Context Compiler again.`,
     requestedSchema: {
       type: "object",
       properties: {
@@ -75192,72 +83380,74 @@ async function offerFullDiskAccess(ask, titles) {
   return true;
 }
 
-// apps/plugin/src/main.ts
+// apps/server/src/main.ts
 if (process.platform !== "darwin")
-  throw new Error("Context Compiler requires Codex on a Mac.");
-var install = fileURLToPath2(new URL("..", import.meta.url));
+  throw new Error("Context Compiler requires macOS.");
+var grantee = process.env.CONTEXT_COMPILER_GRANTEE?.trim();
+if (!grantee)
+  throw new Error(
+    "Context Compiler requires CONTEXT_COMPILER_GRANTEE: set it to the name of the app receiving macOS permissions."
+  );
+var pageUri = process.env.CONTEXT_COMPILER_PAGE_URI?.trim() || null;
+var chatUri = process.env.CONTEXT_COMPILER_CHAT_URI?.trim() || null;
+var codex = process.env.CODEX_CLI_PATH?.trim();
+var versionFile = fileURLToPath5(new URL("version.json", import.meta.url));
+var { version: version2 } = external_exports2.object({ version: external_exports2.string().min(1) }).parse(JSON.parse(readFileSync5(versionFile, "utf8")));
 provideHostModules(
   ({ file: file2 }) => new URL(`modules/${file2}.mjs`, import.meta.url).href
 );
-var store = join11(
+var store = join10(
   homedir3(),
   "Library/Application Support/Context Compiler/Imports"
 );
 var transcription = new Transcription(
   store,
   new SpeechModels(),
-  fileURLToPath2(new URL("transcribe-local", import.meta.url))
+  ocr,
+  fileURLToPath5(new URL("transcribe-local", import.meta.url))
 );
 var plugin = new Plugin(
   new Connectors([
-    fileURLToPath2(new URL("connectors", import.meta.url)),
+    fileURLToPath5(new URL("connectors", import.meta.url)),
     userConnectors
   ]),
   {
-    grantee: "ChatGPT",
+    grantee,
     get documentParser() {
       return transcription.parser;
     },
-    eventKitHelper: fileURLToPath2(new URL("eventkit-helper", import.meta.url))
+    eventKitHelper: fileURLToPath5(new URL("eventkit-helper", import.meta.url))
   },
-  install,
+  versionFile,
   store,
-  new Monitors({
-    root: join11(
+  codex && chatUri !== null ? new Monitors({
+    root: join10(
       homedir3(),
       "Library/Application Support/Context Compiler/Monitors"
     ),
-    store: join11(store, "monitors.sqlite"),
-    // The desktop's own codex, which .mcp.json forwards: a monitor's match is
-    // queued into its chat through it, so the running app does the work.
-    codex: process.env.CODEX_CLI_PATH ?? "codex"
-  })
+    store: join10(store, "monitors.sqlite"),
+    codex
+  }) : null
 );
 async function refresh() {
   await transcription.refresh();
   await plugin.refresh();
 }
 await refresh();
-var { version: version2 } = external_exports2.object({ version: external_exports2.string() }).parse(
-  JSON.parse(
-    readFileSync3(join11(install, ".codex-plugin/plugin.json"), "utf8")
-  )
-);
 var mcpServer = new McpServer(
   {
     name: "context-compiler",
     version: version2,
-    // ChatGPT shows the server's icon beside the sidebar page.
     icons: [
       {
-        src: `data:image/png;base64,${readFileSync3(join11(install, "assets/composer-icon.png")).toString("base64")}`,
+        src: `data:image/png;base64,${readFileSync5(new URL("composer-icon.png", import.meta.url), "base64")}`,
         mimeType: "image/png",
         sizes: ["any"]
       }
     ]
   },
   {
-    instructions: `Context Compiler imports the ${new Intl.ListFormat("en", { type: "conjunction" }).format(plugin.connectors.map(({ title }) => title))} content the user chose into private SQLite files on this Mac when the user connects a connector or changes what it imports, and again when the user presses Sync on the Context Compiler page. A connector the user keeps current on its page also loads each change while ChatGPT is open. These tools only choose what is imported: set up with $setup, and answer questions about the content with $query, which reads those files with sqlite3.`
+    instructions: `Context Compiler imports the ${new Intl.ListFormat("en", { type: "conjunction" }).format(plugin.connectors.map(({ title }) => title))} content the user chose into private SQLite files on this Mac when the user connects a connector or changes what it imports, and again when the user presses Sync on the Context Compiler page. A connector the user keeps current on its page also loads each change while ${grantee} is open. These tools only choose what is imported: set up with $setup, and answer questions about the content with $query, which reads those files with sqlite3.`
   }
 );
 var structured = (value) => ({
@@ -75284,7 +83474,8 @@ mcpServer.registerTool(
       );
     const { newImports, ...saved } = await setUpWithForms(
       plugin,
-      (form) => mcpServer.server.elicitInput(form, { timeout: 18e5 })
+      (form) => mcpServer.server.elicitInput(form, { timeout: 18e5 }),
+      grantee
     );
     void plugin.import(newImports);
     return structured(saved);
@@ -75346,7 +83537,7 @@ mcpServer.registerTool(
         "This host did not say which chat called, so the monitor has no chat to send to."
       );
     await plugin.addMonitor(name5, thread.data);
-    return structured({ monitors: await monitorRows(plugin) });
+    return structured({ monitors: await monitorRows(plugin, chatUri) });
   }
 );
 var appOnly = { ui: { visibility: ["app"] } };
@@ -75361,7 +83552,7 @@ mcpServer.registerResource(
       {
         uri: page,
         mimeType,
-        text: readFileSync3(new URL("page.html", import.meta.url), "utf8")
+        text: readFileSync5(new URL("page.html", import.meta.url), "utf8")
       }
     ]
   })
@@ -75457,7 +83648,7 @@ mcpServer.registerTool(
     annotations: { readOnlyHint: true, openWorldHint: false },
     _meta: appOnly
   },
-  async () => structured({ monitors: await monitorRows(plugin) })
+  async () => structured({ monitors: await monitorRows(plugin, chatUri) })
 );
 mcpServer.registerTool(
   "monitor_remove",
@@ -75475,8 +83666,12 @@ mcpServer.registerTool(
     _meta: appOnly
   },
   async ({ name: name5 }) => {
+    if (plugin.monitors === null)
+      throw new Error(
+        "This launcher does not provide chat delivery for monitors."
+      );
     await plugin.monitors.remove(name5);
-    return structured({ monitors: await monitorRows(plugin) });
+    return structured({ monitors: await monitorRows(plugin, chatUri) });
   }
 );
 mcpServer.registerTool(
@@ -75527,7 +83722,7 @@ mcpServer.registerTool(
   "connector_watch",
   {
     title: "Keep one connector current",
-    description: "Switch one connected connector, from its page, to load each change while ChatGPT is open, or back to loading only at Sync.",
+    description: `Switch one connected connector, from its page, to load each change while ${grantee} is open, or back to loading only at Sync.`,
     inputSchema: { connector: connectorSchema, watched: external_exports2.boolean() },
     outputSchema: connectorsResult,
     annotations: {
@@ -75573,7 +83768,7 @@ mcpServer.registerTool(
   "open_full_disk_access",
   {
     title: "Open Full Disk Access",
-    description: "Open the Full Disk Access list in System Settings, where the user allows ChatGPT.",
+    description: `Open the Full Disk Access list in System Settings, where the user allows ${grantee}.`,
     inputSchema: {},
     annotations: { readOnlyHint: true, openWorldHint: false },
     _meta: appOnly
@@ -75583,7 +83778,7 @@ mcpServer.registerTool(
     return { content: [] };
   }
 );
-var contextFor = chatContext(plugin);
+var contextFor = pageUri === null ? null : chatContext(plugin, pageUri);
 mcpServer.registerTool(
   "context",
   {
@@ -75598,6 +83793,10 @@ mcpServer.registerTool(
       return {
         content: [{ type: "text", text: new PluginUpdatedError().message }]
       };
+    if (contextFor === null)
+      throw new Error(
+        "This launcher does not provide a page URI for chat context."
+      );
     await refresh();
     const text = contextFor(event);
     return { content: text === null ? [] : [{ type: "text", text }] };
@@ -75608,6 +83807,7 @@ void plugin.watch(watching.signal);
 mcpServer.server.onclose = () => {
   watching.abort();
   void transcription[Symbol.asyncDispose]();
+  void ocr[Symbol.asyncDispose]();
 };
 for (const signal of ["SIGINT", "SIGTERM"])
   process.once(signal, () => {

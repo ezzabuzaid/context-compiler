@@ -571,6 +571,14 @@ var FileTransfer = class {
     }
     return data;
   }
+  async flush() {
+    for (const read of this.reads) {
+      const storage = read.file.storage;
+      if (storage === void 0)
+        continue;
+      await storage.flush(this.scope(read));
+    }
+  }
   async reconcile(values) {
     for (const read of this.reads) {
       const storage = read.file.storage;
@@ -697,6 +705,85 @@ var Destination = class {
   }
 };
 
+// ../elt/packages/elt/dist/core/derived-dataset.js
+var DerivedDataset = class {
+  // Refuses, without I/O, a declaration the pipeline's copies cannot feed.
+  validate(_connections) {
+  }
+};
+
+// ../elt/packages/elt/dist/core/document-text.js
+import { lstat } from "node:fs/promises";
+import { availableParallelism } from "node:os";
+import { join } from "node:path";
+
+// ../elt/packages/elt/dist/core/rule.js
+var Rule = class {
+};
+
+// ../elt/packages/elt/dist/core/document-text.js
+var DocumentText = class extends Rule {
+  key = {
+    name: "ref",
+    description: "Path of the stored copy, relative to the import's files folder: the value of the file column of every row whose file it is. Join that column to it."
+  };
+  output = {
+    content: {
+      type: "text",
+      description: "The text the parser extracted. NULL unless status is computed."
+    }
+  };
+  // One file per call, as many at once as the Mac has cores; an image read
+  // beyond the OCR workers waits in the host's pool.
+  batch = 1;
+  concurrency = availableParallelism();
+  #parser;
+  #files;
+  #column;
+  // parser: asked once per refresh, so a host's changed choice, such as a
+  // speech model, applies from the next refresh. files: the folder the
+  // column's refs are relative to.
+  constructor({ parser, files, column }) {
+    super();
+    this.#parser = parser;
+    this.#files = files;
+    this.#column = column;
+    Object.freeze(this);
+  }
+  read(row) {
+    const ref = row[this.#column];
+    return typeof ref === "string" ? { key: ref, input: ref } : null;
+  }
+  identity(ref) {
+    return this.#parser().identityFor(join(this.#files, ref));
+  }
+  async compute(refs, signal) {
+    const parser = this.#parser();
+    return Promise.all(refs.map(async (ref) => {
+      const file = join(this.#files, ref);
+      try {
+        const content = await parser.parse(file, signal);
+        return content === null ? { empty: true } : { value: { content } };
+      } catch (failure) {
+        if (signal?.aborted || failure instanceof Error && failure.name === "AbortError")
+          return { gone: true };
+        if (await removed(file))
+          return { gone: true };
+        return {
+          error: failure instanceof Error ? failure.message : String(failure)
+        };
+      }
+    }));
+  }
+};
+async function removed(path) {
+  return lstat(path).then(() => false, (error) => {
+    if (error.code === "ENOENT")
+      return true;
+    throw error;
+  });
+}
+
 // ../elt/packages/elt/dist/core/file-extension.js
 import { extname } from "node:path";
 function fileExtension(name) {
@@ -746,6 +833,54 @@ var Identifiers = class {
 
 // ../elt/packages/elt/dist/core/pipeline.js
 import { setTimeout as sleep } from "node:timers/promises";
+
+// ../elt/packages/elt/dist/core/derived-refreshes.js
+var DerivedRefreshes = class {
+  #datasets;
+  #connections;
+  #signal;
+  #stop;
+  #running = null;
+  #again = false;
+  #failure;
+  constructor(datasets, connections, signal, stop) {
+    this.#datasets = datasets;
+    this.#connections = connections;
+    this.#signal = signal;
+    this.#stop = stop;
+  }
+  get failure() {
+    return this.#failure;
+  }
+  request() {
+    if (this.#datasets.length === 0)
+      return;
+    if (this.#running !== null) {
+      this.#again = true;
+      return;
+    }
+    this.#running = (async () => {
+      do {
+        this.#again = false;
+        for (const dataset of this.#datasets)
+          await dataset.refresh({
+            connections: this.#connections,
+            signal: this.#signal
+          });
+      } while (this.#again && !this.#signal.aborted);
+    })().catch((error) => {
+      if (this.#signal.aborted)
+        return;
+      this.#failure = { error };
+      this.#stop(error);
+    }).finally(() => {
+      this.#running = null;
+    });
+  }
+  async settled() {
+    await this.#running;
+  }
+};
 
 // ../elt/packages/elt/dist/core/interleave.js
 async function* interleave(generators, concurrency) {
@@ -869,11 +1004,15 @@ var Source = class {
   partitions(stream) {
     throw new TypeError(`Source must declare partitions for stream ${stream.name}`);
   }
-  // What kind of failure an error from this source is. Only the source knows
-  // which of its upstream's errors mean the user must act; any other error,
-  // a destination's included, is system.
-  failureType(_error) {
-    return "system";
+  // The error classes that mean the user must act, such as an SDK's access
+  // error. Only the source knows which of its upstream's errors those are.
+  configErrors = [];
+  // What kind of failure an error from this source is: config for an instance
+  // of a class in configErrors, and system for any other error, a
+  // destination's included. A source whose decision needs more than the
+  // class, such as an HTTP status, overrides it.
+  failureType(error) {
+    return this.configErrors.some((type) => error instanceof type) ? "config" : "system";
   }
   member(stream) {
     if (this.catalog.get(stream.name) !== stream)
@@ -1202,7 +1341,7 @@ async function transfer(source, destination, run, replications, signal) {
               }
               const stage = started(replication);
               if (!replication.failed && !replication.clean)
-                await commit(replication);
+                await commit(replication, signal);
               if (replication.failures.length === 0 && stage.reloading) {
                 await stage.complete();
                 if (incremental(replication)) {
@@ -1225,7 +1364,7 @@ async function transfer(source, destination, run, replications, signal) {
           if (operation.type === "STATE") {
             if (!incremental(replication))
               throw new TypeError(`Full refresh stream ${message2.stream} emitted a checkpoint`);
-            await commit(replication);
+            await commit(replication, signal);
             const { run: run2, id } = checkpoint(replication);
             await run2.save(id, operation.state, started(replication).reloading);
             replication.resumes = true;
@@ -1245,6 +1384,7 @@ async function transfer(source, destination, run, replications, signal) {
             replication.report();
           }
         } catch (error) {
+          replication.cancelled = cancelledBy(signal, error);
           await breakStage(replication, error);
         }
       }
@@ -1298,7 +1438,9 @@ function started(replication) {
     throw new TypeError(`Source sent ${replication.stream.name} a message before starting it`);
   return replication.stage;
 }
-async function commit(replication) {
+async function commit(replication, signal) {
+  await replication.files.flush();
+  signal?.throwIfAborted();
   await started(replication).commit();
   replication.clean = true;
   replication.failed = false;
@@ -1433,12 +1575,15 @@ var Pipeline = class {
   connections;
   history;
   observer;
-  constructor({ connections, history, observer }) {
+  // In declared order, which is the order they refresh in.
+  derived;
+  constructor({ connections, history, observer, derived }) {
     if (!connections.every((connection) => connection instanceof Connection))
       throw new TypeError("Pipeline connections must be Connection declarations");
     this.connections = Object.freeze([...connections]);
     this.history = history;
     this.observer = observer;
+    this.derived = Object.freeze([...derived ?? []]);
     Object.freeze(this);
   }
   // Airbyte's Clear for these copies: empties each target and removes its checkpoint.
@@ -1454,7 +1599,9 @@ var Pipeline = class {
     }
   }
   // Once signal aborts, each pass stops at its next message and is recorded as
-  // cancelled, and the run rejects with the signal's reason, as fetch does.
+  // cancelled, and the run rejects with the signal's reason, as fetch does. A
+  // stop that comes after the passes ended only stops the derived data
+  // catching up: the run ends as its passes did, and the next refresh goes on.
   async run(options) {
     const signal = options?.signal;
     await this.#declare();
@@ -1465,6 +1612,8 @@ var Pipeline = class {
     const results = passes.flatMap((pass) => pass.status === "fulfilled" ? pass.value.outcomes : []);
     if (results.some(({ cancelled }) => cancelled))
       throw signal?.reason;
+    for (const dataset of this.derived)
+      await dataset.refresh({ connections: this.connections, signal });
     if (results.some(({ failures }) => failures.length > 0))
       throw new PipelineError(results);
     return results.map(({ failures: _, cancelled: __, ...result }) => result);
@@ -1473,8 +1622,8 @@ var Pipeline = class {
   // A connection whose watcher fails stops alone, and its failure is recorded;
   // the rest keep watching. Once every connection stopped, or signal aborts,
   // the recorded failures are thrown together as a WatchError. An error the
-  // sync history could not record stops every connection and rejects as
-  // itself.
+  // sync history could not record, or a derived dataset's own failure, stops
+  // every connection and rejects as itself.
   async *watch({ signal }) {
     await this.#declare();
     if (signal.aborted)
@@ -1482,14 +1631,20 @@ var Pipeline = class {
     const controller = new AbortController();
     const watching = AbortSignal.any([signal, controller.signal]);
     const stopped = [];
+    const refreshes = new DerivedRefreshes(this.derived, this.connections, watching, (error) => controller.abort(error));
     const passes = interleave(this.connections.filter(({ steps }) => steps.length > 0).map((connection) => this.#watch(connection, watching, controller, stopped)), Number.POSITIVE_INFINITY);
     try {
-      for (let next = await passes.next(); !next.done; next = await passes.next())
+      for (let next = await passes.next(); !next.done; next = await passes.next()) {
+        refreshes.request();
         yield next.value;
+      }
     } finally {
       controller.abort();
       await passes.return(void 0);
+      await refreshes.settled();
     }
+    if (refreshes.failure !== void 0)
+      throw refreshes.failure.error;
     if (stopped.length > 0)
       throw new WatchError(stopped, stopped.map(message).join("; "));
   }
@@ -1657,11 +1812,13 @@ var Pipeline = class {
     advise(() => this.observer?.begin(connection).fail(failure, failureType));
   }
   // Every declaration is checked before any connection reads, so a wiring
-  // mistake stops the whole pipeline; the connection it belongs to records it.
+  // mistake stops the whole pipeline; the connection it belongs to records it,
+  // in a history installed first.
   async #declare() {
     this.#assertDistinct();
     for (const connection of this.connections)
       this.history.validate(connection);
+    await this.history.install(this.connections);
     for (const connection of this.connections)
       try {
         connection.validate();
@@ -1669,6 +1826,8 @@ var Pipeline = class {
         await this.#recordFailure(connection, error);
         throw error;
       }
+    for (const dataset of this.derived)
+      dataset.validate(this.connections);
   }
   #assertDistinct() {
     const names = this.connections.map(({ name }) => name);
@@ -1677,6 +1836,9 @@ var Pipeline = class {
     const ids = this.connections.flatMap(({ steps }) => steps.map(({ id }) => id)).filter((id) => id !== void 0);
     if (new Set(ids).size !== ids.length)
       throw new TypeError("Pipeline copy IDs must be distinct");
+    const derived = this.derived.map(({ name }) => name);
+    if (new Set(derived).size !== derived.length)
+      throw new TypeError("Pipeline derived dataset names must be distinct");
   }
 };
 function connectionError(connection, cause) {
@@ -2003,10 +2165,11 @@ var SnapshotDifferential = class {
     yield { type: "state", state: { snapshot: sorted(current) } };
   }
   // diff for a scan whose records come from inputs the source fingerprints
-  // cheaply. A group whose fingerprint matches the last committed scan keeps
-  // its records without reading them; every other group is read and diffed
-  // record by record. Vanished keys are judged over the complete scan.
-  // continues makes this call one part of a scan in parts, as for diff.
+  // cheaply. A group whose fingerprint matches the last committed scan, and a
+  // kept group, keep their records without reading them; every other group is
+  // read and diffed record by record. Vanished keys are judged over the
+  // complete scan. continues makes this call one part of a scan in parts, as
+  // for diff.
   async *diffGroups(groups, state, { continues = false } = {}) {
     const previous = readGroups(this.name, state);
     const saved = /* @__PURE__ */ new Map();
@@ -2021,7 +2184,9 @@ var SnapshotDifferential = class {
       if (current.has(group.key))
         throw new TypeError(`Snapshot ${this.name} returned group ${group.key} twice in one scan`);
       const before = previous.groups.get(group.key);
-      if (group.fingerprint !== null && before?.fingerprint === group.fingerprint) {
+      if ("kept" in group || group.fingerprint !== null && before?.fingerprint === group.fingerprint) {
+        if (before === void 0)
+          throw new TypeError(`Snapshot ${this.name} kept group ${group.key}, which its snapshot does not have`);
         for (const key of Object.keys(before.snapshot))
           this.#claimKey(seen, key);
         current.set(group.key, before);
@@ -2132,9 +2297,12 @@ async function* diffSnapshot({ stream, syncMode }, records, state, options) {
 async function* diffGroupedSnapshot({ stream, syncMode }, groups, state, options) {
   const differential = differentialOf(stream, options);
   if (syncMode !== "incremental") {
-    for await (const group of groups)
+    for await (const group of groups) {
+      if ("kept" in group)
+        throw new TypeError(`Stream ${stream.name} kept group ${group.key} in a full refresh, which reads every group`);
       for await (const data of group.records())
         yield { stream: stream.name, data };
+    }
     return;
   }
   for await (const change of differential.diffGroups(untilStopped(groups, options.signal), state, options))
@@ -2474,8 +2642,8 @@ var syncHistoryRelations = {
 
 // ../elt/packages/elt/dist/storage/local-files.js
 import { createHash as createHash3, randomUUID } from "node:crypto";
-import { link, lstat, mkdir, open as open2, readdir, rm } from "node:fs/promises";
-import { dirname, join, resolve } from "node:path";
+import { link, lstat as lstat2, mkdir, open as open2, readdir, rm } from "node:fs/promises";
+import { dirname, join as join2, resolve } from "node:path";
 async function syncDirectory(path) {
   var _stack = [];
   try {
@@ -2502,10 +2670,10 @@ var LocalFiles = class extends FileStorage {
   }
   // The scope's folder, relative to the storage folder.
   scopeFolder(scope) {
-    return join(".elt-files", createHash3("sha256").update(scope).digest("hex"));
+    return join2(".elt-files", createHash3("sha256").update(scope).digest("hex"));
   }
   async inspect(path) {
-    const info = await lstat(path).catch((error) => {
+    const info = await lstat2(path).catch((error) => {
       if (error.code !== "ENOENT")
         throw error;
       return void 0;
@@ -2518,7 +2686,7 @@ var LocalFiles = class extends FileStorage {
   }
   async save(scope, content) {
     const folder = this.scopeFolder(scope);
-    const directory = join(this.directory, folder);
+    const directory = join2(this.directory, folder);
     const created = await mkdir(directory, { recursive: true });
     for (const path of [this.directory, dirname(directory), directory])
       await this.inspect(path);
@@ -2530,7 +2698,7 @@ var LocalFiles = class extends FileStorage {
       }
       await syncDirectory(path);
     }
-    const temporary = join(directory, `.pending-${randomUUID()}`);
+    const temporary = join2(directory, `.pending-${randomUUID()}`);
     try {
       const hash2 = createHash3("sha256");
       {
@@ -2550,22 +2718,27 @@ var LocalFiles = class extends FileStorage {
         }
       }
       const name = hash2.digest("hex") + fileExtension(content.path);
-      const path = join(directory, name);
+      const path = join2(directory, name);
       await link(temporary, path).catch(async (error) => {
         if (error.code !== "EEXIST")
           throw error;
-        if (!(await lstat(path)).isFile())
+        if (!(await lstat2(path)).isFile())
           throw new TypeError(`Attachment reference is not a regular file: ${path}`);
       });
-      await syncDirectory(directory);
-      return join(folder, name);
+      return join2(folder, name);
     } finally {
       await rm(temporary, { force: true });
     }
   }
+  async flush(scope) {
+    await syncDirectory(join2(this.directory, this.scopeFolder(scope))).catch((error) => {
+      if (error.code !== "ENOENT")
+        throw error;
+    });
+  }
   async retain(scope, references) {
     const folder = this.scopeFolder(scope);
-    const directory = join(this.directory, folder);
+    const directory = join2(this.directory, folder);
     for (const path of [this.directory, dirname(directory), directory]) {
       if (await this.inspect(path))
         continue;
@@ -2576,10 +2749,10 @@ var LocalFiles = class extends FileStorage {
     const missing = new Set(references);
     const obsolete = [];
     for (const entry of await readdir(directory, { withFileTypes: true })) {
-      const path = join(directory, entry.name);
+      const path = join2(directory, entry.name);
       if (!entry.isFile())
         throw new TypeError(`Managed attachment is not a regular file: ${path}`);
-      const reference = join(folder, entry.name);
+      const reference = join2(folder, entry.name);
       if (references.has(reference))
         missing.delete(reference);
       else
@@ -2609,6 +2782,9 @@ export {
   Copy,
   Connection,
   Destination,
+  DerivedDataset,
+  Rule,
+  DocumentText,
   fileExtension,
   Identifiers,
   StreamStatus,

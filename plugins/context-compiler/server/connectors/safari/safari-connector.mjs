@@ -24,13 +24,11 @@ import {
   localAppleStoreCoverage
 } from "../../chunks/chunk-2EITIVUZ.mjs";
 import {
-  DataVersion,
-  Snapshot,
-  lastWrite
-} from "../../chunks/chunk-KSEJSZJO.mjs";
+  AppDatabase
+} from "../../chunks/chunk-ZPH77YA3.mjs";
 import {
   Connector
-} from "../../chunks/chunk-IARFH5EI.mjs";
+} from "../../chunks/chunk-C5RMD7F7.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -39,7 +37,7 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-UZWKSGGL.mjs";
+} from "../../chunks/chunk-C22NLYQC.mjs";
 import {
   __callDispose,
   __using
@@ -144,12 +142,11 @@ var SafariUnavailableError = class extends Error {
     super(`Safari data at ${path} cannot be read. Allow the process that runs the export Full Disk Access in System Settings > Privacy & Security; macOS attributes a child process to the app or launchd job that started it. Safari does not need to be open.`, { cause });
   }
 };
-var SafariSchemaError = class extends Error {
-  name = "SafariSchemaError";
-  constructor(path, missing) {
-    super(`The Safari store at ${path} has a layout this reader does not read (missing ${missing.join(", ")}).`);
-  }
-};
+
+// ../elt/packages/sdks/apple/safari/dist/app-database.js
+var appDatabase = new AppDatabase({
+  unavailable: SafariUnavailableError
+});
 
 // ../elt/packages/sdks/apple/safari/dist/cloud-tabs.js
 var cloudTabsColumns = {
@@ -185,8 +182,7 @@ var select = (table, order) => `SELECT ${cloudTabsColumns[table].join(", ")} FRO
 var CloudTabs = class {
   #database;
   constructor(path) {
-    this.#database = new Snapshot(path, SafariUnavailableError);
-    this.#database.requireColumns(cloudTabsColumns, SafariSchemaError);
+    this.#database = appDatabase.snapshot(path, cloudTabsColumns);
   }
   // Each read yields its rows as the caller iterates them.
   devices() {
@@ -410,8 +406,7 @@ var ProfileHistory = class {
   #database;
   constructor(path, profileId5) {
     this.profileId = profileId5;
-    this.#database = new Snapshot(path, SafariUnavailableError);
-    this.#database.requireColumns(historyColumns, SafariSchemaError);
+    this.#database = appDatabase.snapshot(path, historyColumns);
   }
   // Each read below yields its rows as the caller iterates them, so no read
   // holds a whole table: a history keeps tens of thousands of visits.
@@ -525,8 +520,7 @@ var tabsColumns = {
 };
 var select3 = (table, order) => `SELECT ${tabsColumns[table].join(", ")} FROM ${table} ORDER BY ${order}`;
 function tabsDatabase(path) {
-  const database = new Snapshot(path, SafariUnavailableError);
-  database.requireColumns(tabsColumns, SafariSchemaError);
+  const database = appDatabase.snapshot(path, tabsColumns);
   return database;
 }
 var folder = 1;
@@ -904,7 +898,7 @@ var SafariVersion = class {
   #version(path) {
     let version = this.#databases.get(path);
     if (version === void 0) {
-      version = new DataVersion(path, SafariUnavailableError);
+      version = appDatabase.version(path);
       this.#databases.set(path, version);
     }
     return version.current;
@@ -973,7 +967,7 @@ var Safari = class {
   // the latest write to any of them, which marks when Safari last ran.
   lastWrite(store) {
     const files = store === "history" ? this.#profiles().map(({ path }) => path) : [storeFiles(this.location).cloudTabs];
-    return new Date(Math.max(...files.map((file) => lastWrite(file, SafariUnavailableError).getTime())));
+    return new Date(Math.max(...files.map((file) => appDatabase.lastWrite(file).getTime())));
   }
   // Never empty: SafariTabs.db always lists the default profile.
   #profiles() {
@@ -2953,9 +2947,7 @@ var AppleSafariSource = class extends Source {
   open(streams) {
     return SafariScan.open(this.#safari, new Set(streams.map((stream) => readerOf(stream).store)), this.scope);
   }
-  failureType(error) {
-    return error instanceof SafariUnavailableError ? "config" : "system";
-  }
+  configErrors = [SafariUnavailableError];
   coverage(_stream) {
     return { ...localAppleStoreCoverage, selection: this.scope };
   }

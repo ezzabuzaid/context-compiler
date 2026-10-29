@@ -16,7 +16,7 @@ import {
 } from "../../chunks/chunk-2EITIVUZ.mjs";
 import {
   Connector
-} from "../../chunks/chunk-IARFH5EI.mjs";
+} from "../../chunks/chunk-C5RMD7F7.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -24,7 +24,7 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-UZWKSGGL.mjs";
+} from "../../chunks/chunk-C22NLYQC.mjs";
 import "../../chunks/chunk-ZGXE7NZW.mjs";
 
 // ../elt/packages/sources/apple/reminders/dist/reminders-scan.js
@@ -725,9 +725,7 @@ var AppleRemindersSource = class extends Source {
     this.scope = scope;
     Object.freeze(this);
   }
-  failureType(error) {
-    return error instanceof RemindersUnavailableError ? "config" : "system";
-  }
+  configErrors = [RemindersUnavailableError];
   coverage(_stream) {
     return { ...localAppleStoreCoverage, selection: this.scope };
   }

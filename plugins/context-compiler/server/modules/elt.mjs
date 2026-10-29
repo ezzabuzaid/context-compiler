@@ -5,8 +5,10 @@ import {
   Connection,
   Copy,
   CopyConfiguration,
+  DerivedDataset,
   Destination,
   DocumentParser,
+  DocumentText,
   FileContent,
   FileRead,
   FileReference,
@@ -15,6 +17,7 @@ import {
   LocalFiles,
   Pipeline,
   PipelineError,
+  Rule,
   Source,
   Stream,
   StreamChangeError,
@@ -40,7 +43,7 @@ import {
   reloadMode,
   syncHistoryRelations,
   validateRecords
-} from "../chunks/chunk-UZWKSGGL.mjs";
+} from "../chunks/chunk-C22NLYQC.mjs";
 import "../chunks/chunk-ZGXE7NZW.mjs";
 export {
   Catalog,
@@ -48,8 +51,10 @@ export {
   Connection,
   Copy,
   CopyConfiguration,
+  DerivedDataset,
   Destination,
   DocumentParser,
+  DocumentText,
   FileContent,
   FileRead,
   FileReference,
@@ -58,6 +63,7 @@ export {
   LocalFiles,
   Pipeline,
   PipelineError,
+  Rule,
   Source,
   Stream,
   StreamChangeError,

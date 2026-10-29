@@ -4,9 +4,9 @@ import {
   isDictionary
 } from "./chunk-6YWS5RU4.mjs";
 import {
-  DataVersion,
-  Snapshot
-} from "./chunk-KSEJSZJO.mjs";
+  AppDatabase,
+  MissingColumnsError
+} from "./chunk-ZPH77YA3.mjs";
 
 // ../elt/packages/sdks/apple/accounts/dist/accounts-store.js
 import { homedir } from "node:os";
@@ -192,6 +192,11 @@ var AccountsSchemaError = class extends Error {
   }
 };
 
+// ../elt/packages/sdks/apple/accounts/dist/app-database.js
+var appDatabase = new AppDatabase({
+  unavailable: AccountsUnavailableError
+});
+
 // ../elt/packages/sdks/apple/accounts/dist/accounts-snapshot.js
 var accountColumns = {
   ZACCOUNT: [
@@ -261,7 +266,7 @@ var instant = (column) => `strftime('%Y-%m-%dT%H:%M:%fZ', ${column} + 978307200,
 var AccountsSnapshot = class {
   #database;
   constructor(path) {
-    this.#database = new Snapshot(path, AccountsUnavailableError);
+    this.#database = appDatabase.snapshot(path);
   }
   accounts() {
     this.#require(accountColumns);
@@ -410,7 +415,7 @@ var AccountsSnapshot = class {
   #require(columns) {
     const missing = this.#database.missingColumns(columns);
     if (missing.length > 0)
-      throw new AccountsSchemaError(this.#database.path, missing);
+      throw new MissingColumnsError(this.#database.path, missing);
   }
   #dataclassNames() {
     return new Map(this.#database.all("SELECT Z_PK AS pk, ZNAME AS name FROM ZDATACLASS").map(({ pk, name }) => [Number(pk), String(decoded(name))]));
@@ -493,7 +498,7 @@ var AccountsStore = class {
   // A probe whose current value changes with each commit to the store, such
   // as accountsd saving an account.
   version() {
-    return new DataVersion(this.#path, AccountsUnavailableError);
+    return appDatabase.version(this.#path);
   }
 };
 

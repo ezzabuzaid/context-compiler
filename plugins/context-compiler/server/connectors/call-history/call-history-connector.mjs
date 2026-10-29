@@ -12,12 +12,11 @@ import {
   localAppleStoreCoverage
 } from "../../chunks/chunk-2EITIVUZ.mjs";
 import {
-  DataVersion,
-  Snapshot
-} from "../../chunks/chunk-KSEJSZJO.mjs";
+  AppDatabase
+} from "../../chunks/chunk-ZPH77YA3.mjs";
 import {
   Connector
-} from "../../chunks/chunk-IARFH5EI.mjs";
+} from "../../chunks/chunk-C5RMD7F7.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -25,7 +24,7 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-UZWKSGGL.mjs";
+} from "../../chunks/chunk-C22NLYQC.mjs";
 import {
   __callDispose,
   __using
@@ -33,6 +32,25 @@ import {
 
 // ../elt/packages/sources/apple/call-history/dist/apple-call-history-source.js
 import { setInterval } from "node:timers/promises";
+
+// ../elt/packages/sdks/apple/call-history/dist/errors.js
+var CallHistoryUnavailableError = class extends Error {
+  name = "CallHistoryUnavailableError";
+  constructor(path, cause) {
+    super(`The call history store at ${path} cannot be read. Allow the process that runs the export Full Disk Access in System Settings > Privacy & Security.`, { cause });
+  }
+};
+var CallHistorySchemaError = class extends Error {
+  name = "CallHistorySchemaError";
+  constructor(path, missing) {
+    super(`The call history store at ${path} has a layout this reader does not read (missing ${missing.join(", ")}).`);
+  }
+};
+
+// ../elt/packages/sdks/apple/call-history/dist/app-database.js
+var appDatabase = new AppDatabase({
+  unavailable: CallHistoryUnavailableError
+});
 
 // ../elt/packages/sdks/apple/call-history/dist/call.js
 var kinds = /* @__PURE__ */ new Map([
@@ -50,20 +68,6 @@ function callKind(code2) {
 function callCategory(code2) {
   return code2 === null ? null : categories.get(code2) ?? null;
 }
-
-// ../elt/packages/sdks/apple/call-history/dist/errors.js
-var CallHistoryUnavailableError = class extends Error {
-  name = "CallHistoryUnavailableError";
-  constructor(path, cause) {
-    super(`The call history store at ${path} cannot be read. Allow the process that runs the export Full Disk Access in System Settings > Privacy & Security.`, { cause });
-  }
-};
-var CallHistorySchemaError = class extends Error {
-  name = "CallHistorySchemaError";
-  constructor(path, missing) {
-    super(`The call history store at ${path} has a layout this reader does not read (missing ${missing.join(", ")}).`);
-  }
-};
 
 // ../elt/packages/sdks/apple/call-history/dist/call-history-snapshot.js
 var requiredColumns = {
@@ -134,8 +138,7 @@ var requiredColumns = {
 var CallHistorySnapshot = class {
   #database;
   constructor(path) {
-    this.#database = new Snapshot(path, CallHistoryUnavailableError);
-    this.#database.requireColumns(requiredColumns, CallHistorySchemaError);
+    this.#database = appDatabase.snapshot(path, requiredColumns);
   }
   // Read as the caller iterates, as every read below: a store keeps tens of
   // thousands of calls, so no read holds them all.
@@ -356,7 +359,7 @@ var CallHistoryStore = class {
   // A probe whose current value changes with each commit to the store, such
   // as callhistoryd recording a call or syncing one from iCloud.
   version() {
-    return new DataVersion(this.#path, CallHistoryUnavailableError);
+    return appDatabase.version(this.#path);
   }
 };
 
@@ -907,9 +910,7 @@ var AppleCallHistorySource = class extends Source {
   async open() {
     return new CallHistoryScan(this.#store.open(), this.scope);
   }
-  failureType(error) {
-    return error instanceof CallHistoryUnavailableError ? "config" : "system";
-  }
+  configErrors = [CallHistoryUnavailableError];
   coverage(_stream) {
     return { ...localAppleStoreCoverage, selection: this.scope };
   }

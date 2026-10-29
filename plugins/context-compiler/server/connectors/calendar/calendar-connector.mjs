@@ -14,7 +14,7 @@ import {
 } from "../../chunks/chunk-GIEVJ5T4.mjs";
 import {
   Connector
-} from "../../chunks/chunk-IARFH5EI.mjs";
+} from "../../chunks/chunk-C5RMD7F7.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -24,7 +24,7 @@ import {
   fileExtension,
   isTimestamp,
   validateRecords
-} from "../../chunks/chunk-UZWKSGGL.mjs";
+} from "../../chunks/chunk-C22NLYQC.mjs";
 import {
   __callDispose,
   __using
@@ -1260,9 +1260,7 @@ var AppleCalendarSource = class extends Source {
     this.scope = scope;
     Object.freeze(this);
   }
-  failureType(error) {
-    return error instanceof CalendarUnavailableError ? "config" : "system";
-  }
+  configErrors = [CalendarUnavailableError];
   coverage(stream) {
     if (!readerOf(stream).dated)
       return {

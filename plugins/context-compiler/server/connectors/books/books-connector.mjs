@@ -15,12 +15,11 @@ import {
   localAppleStoreCoverage
 } from "../../chunks/chunk-2EITIVUZ.mjs";
 import {
-  DataVersion,
-  Snapshot
-} from "../../chunks/chunk-KSEJSZJO.mjs";
+  AppDatabase
+} from "../../chunks/chunk-ZPH77YA3.mjs";
 import {
   Connector
-} from "../../chunks/chunk-IARFH5EI.mjs";
+} from "../../chunks/chunk-C5RMD7F7.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -28,7 +27,7 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-UZWKSGGL.mjs";
+} from "../../chunks/chunk-C22NLYQC.mjs";
 import {
   __callDispose,
   __using
@@ -39,18 +38,6 @@ import { mkdtempDisposable, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join as join4 } from "node:path";
 import { setInterval } from "node:timers/promises";
-
-// ../elt/packages/sdks/apple/books/dist/books-values.js
-var coreDataTime = (value) => typeof value === "number" && isWithinDistantDates(value) ? referenceDate(value) : null;
-var plistTime = (value) => value instanceof Date && value.getUTCFullYear() > 1 && value.getUTCFullYear() < 4001 ? value : null;
-var text = (value) => typeof value === "string" && value !== "" ? value : null;
-var stored = (value) => typeof value === "string" ? value : null;
-var integer = (value) => typeof value === "number" && Number.isSafeInteger(value) ? value : null;
-var number = (value) => typeof value === "number" && Number.isFinite(value) ? value : null;
-var flag = (value) => value === 1 || value === true;
-var nullableFlag = (value) => value === null || value === void 0 ? null : value === 1;
-var bytes = (value) => value instanceof Uint8Array && value.length > 0 ? value : null;
-var dictionary = (value) => isDictionary(value) ? value : {};
 
 // ../elt/packages/sdks/apple/books/dist/errors.js
 var BooksUnavailableError = class extends Error {
@@ -65,6 +52,23 @@ var BooksSchemaError = class extends Error {
     super(`The Books store at ${path} has a layout this reader does not read (missing ${missing.join(", ")}).`);
   }
 };
+
+// ../elt/packages/sdks/apple/books/dist/app-database.js
+var appDatabase = new AppDatabase({
+  unavailable: BooksUnavailableError
+});
+
+// ../elt/packages/sdks/apple/books/dist/books-values.js
+var coreDataTime = (value) => typeof value === "number" && isWithinDistantDates(value) ? referenceDate(value) : null;
+var plistTime = (value) => value instanceof Date && value.getUTCFullYear() > 1 && value.getUTCFullYear() < 4001 ? value : null;
+var text = (value) => typeof value === "string" && value !== "" ? value : null;
+var stored = (value) => typeof value === "string" ? value : null;
+var integer = (value) => typeof value === "number" && Number.isSafeInteger(value) ? value : null;
+var number = (value) => typeof value === "number" && Number.isFinite(value) ? value : null;
+var flag = (value) => value === 1 || value === true;
+var nullableFlag = (value) => value === null || value === void 0 ? null : value === 1;
+var bytes = (value) => value instanceof Uint8Array && value.length > 0 ? value : null;
+var dictionary = (value) => isDictionary(value) ? value : {};
 
 // ../elt/packages/sdks/apple/books/dist/book-asset-data.js
 var assetDataColumns = {
@@ -108,8 +112,7 @@ var assetDataColumns = {
 var BookAssetData = class {
   #database;
   constructor(path) {
-    this.#database = new Snapshot(path, BooksUnavailableError);
-    this.#database.requireColumns(assetDataColumns, BooksSchemaError);
+    this.#database = appDatabase.snapshot(path, assetDataColumns);
   }
   // Every read returns rows as the caller iterates, so none holds a table.
   details() {
@@ -431,8 +434,7 @@ var annotationKindsByCode = /* @__PURE__ */ new Map([
 var BooksAnnotations = class {
   #database;
   constructor(path) {
-    this.#database = new Snapshot(path, BooksUnavailableError);
-    this.#database.requireColumns(annotationsColumns, BooksSchemaError);
+    this.#database = appDatabase.snapshot(path, annotationsColumns);
   }
   // Read as the caller iterates: a library keeps tens of thousands of
   // annotations, so no read holds them all.
@@ -686,8 +688,7 @@ var libraryAsset = (row) => {
 var BooksLibrary = class {
   #database;
   constructor(path) {
-    this.#database = new Snapshot(path, BooksUnavailableError);
-    this.#database.requireColumns(libraryColumns, BooksSchemaError);
+    this.#database = appDatabase.snapshot(path, libraryColumns);
   }
   // Every read returns rows as the caller iterates, so none holds a table.
   assets() {
@@ -772,8 +773,7 @@ var purchasesColumns = {
 var BooksPurchases = class {
   #database;
   constructor(path) {
-    this.#database = new Snapshot(path, BooksUnavailableError);
-    this.#database.requireColumns(purchasesColumns, BooksSchemaError);
+    this.#database = appDatabase.snapshot(path, purchasesColumns);
   }
   // Read as the caller iterates, so no read holds the whole table.
   purchases() {
@@ -822,8 +822,7 @@ var themesColumns = {
 var BooksThemes = class {
   #database;
   constructor(path) {
-    this.#database = new Snapshot(path, BooksUnavailableError);
-    this.#database.requireColumns(themesColumns, BooksSchemaError);
+    this.#database = appDatabase.snapshot(path, themesColumns);
   }
   // Read as the caller iterates, so no read holds the whole table.
   themes() {
@@ -852,20 +851,28 @@ async function fingerprint(path) {
     return "missing";
   return `${stats.ino}:${stats.size}:${stats.mtimeMs}`;
 }
-var BooksVersion = class {
-  #location;
-  #database;
-  constructor(location, store) {
-    this.#location = location;
-    this.#database = store === "preferences" ? null : new DataVersion(storeFiles(location)[store], BooksUnavailableError);
+var BooksDatabaseVersion = class {
+  #version;
+  constructor(version) {
+    this.#version = version;
   }
   async current() {
-    if (this.#database !== null)
-      return String(this.#database.current);
-    return `${await fingerprint(storeFiles(this.#location).preferences)}|${await fingerprint(sharedPreferences(this.#location))}`;
+    return String(this.#version.current);
   }
   [Symbol.dispose]() {
-    this.#database?.[Symbol.dispose]();
+    this.#version[Symbol.dispose]();
+  }
+};
+var BooksPreferencesVersion = class {
+  #location;
+  constructor(location) {
+    this.#location = location;
+  }
+  async current() {
+    return `${await fingerprint(storeFiles(this.#location).preferences)}|${await fingerprint(sharedPreferences(this.#location))}`;
+  }
+  // A stat holds nothing open.
+  [Symbol.dispose]() {
   }
 };
 
@@ -1013,8 +1020,7 @@ var noHistory = { months: [], days: [], streaks: [] };
 function readingHistory(path) {
   var _stack = [];
   try {
-    const database = __using(_stack, new Snapshot(path, BooksUnavailableError));
-    database.requireColumns(readingHistoryColumns, BooksSchemaError);
+    const database = __using(_stack, appDatabase.snapshot(path, readingHistoryColumns));
     const rows = database.all("SELECT ZPROTODATA FROM ZCRDTMODELSYNCENTITY WHERE ZTYPE = 'ReadingHistoryModel' AND coalesce(ZDELETEDFLAG, 0) = 0");
     if (rows.length > 1)
       throw new BooksSchemaError(path, [
@@ -1062,7 +1068,7 @@ var Books = class {
   }
   // A probe whose current value changes when the store does.
   version(store) {
-    return new BooksVersion(this.location, store);
+    return store === "preferences" ? new BooksPreferencesVersion(this.location) : new BooksDatabaseVersion(appDatabase.version(storeFiles(this.location)[store]));
   }
 };
 
@@ -2378,9 +2384,7 @@ var AppleBooksSource = class extends Source {
   open(streams) {
     return BooksScan.open(this.#books, new Set(streams.map((stream) => readerOf(stream).store)));
   }
-  failureType(error) {
-    return error instanceof BooksUnavailableError ? "config" : "system";
-  }
+  configErrors = [BooksUnavailableError];
   coverage(_stream) {
     return localAppleStoreCoverage;
   }

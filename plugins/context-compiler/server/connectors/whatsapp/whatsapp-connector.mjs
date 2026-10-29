@@ -18,22 +18,21 @@ import {
   isDictionary
 } from "../../chunks/chunk-6YWS5RU4.mjs";
 import {
-  DataVersion,
-  Snapshot,
-  lastWrite
-} from "../../chunks/chunk-KSEJSZJO.mjs";
+  AppDatabase
+} from "../../chunks/chunk-ZPH77YA3.mjs";
 import {
   Connector
-} from "../../chunks/chunk-IARFH5EI.mjs";
+} from "../../chunks/chunk-C5RMD7F7.mjs";
 import {
   Catalog,
   ClosedWorld,
   Retention,
   Source,
   Stream,
+  diffGroupedSnapshot,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-UZWKSGGL.mjs";
+} from "../../chunks/chunk-C22NLYQC.mjs";
 import {
   __callDispose,
   __using
@@ -55,6 +54,11 @@ var WhatsAppSchemaError = class extends Error {
     super(`The WhatsApp store at ${path} has a layout this reader does not read (missing ${missing.join(", ")}).`);
   }
 };
+
+// ../elt/packages/sdks/whatsapp/desktop/dist/app-database.js
+var appDatabase = new AppDatabase({
+  unavailable: WhatsAppUnavailableError
+});
 
 // ../elt/packages/sdks/whatsapp/desktop/dist/values.js
 import { existsSync } from "node:fs";
@@ -178,8 +182,7 @@ function archivedProtobuf(value) {
 var BusinessesSnapshot = class {
   #database;
   constructor(path) {
-    this.#database = new Snapshot(path, WhatsAppUnavailableError);
-    this.#database.requireColumns(requiredColumns, WhatsAppSchemaError);
+    this.#database = appDatabase.snapshot(path, requiredColumns);
   }
   profiles() {
     return this.#database.iterate(`SELECT profile.ZJID AS jid,
@@ -387,8 +390,7 @@ var CallsSnapshot = class {
   #callLog;
   #participantLog;
   constructor(path) {
-    this.#database = new Snapshot(path, WhatsAppUnavailableError);
-    this.#database.requireColumns(requiredColumns2, WhatsAppSchemaError);
+    this.#database = appDatabase.snapshot(path, requiredColumns2);
     try {
       this.#callLog = this.#relationship("ZWACDCALLEVENT", "CALLEVENTS");
       this.#participantLog = this.#relationship("ZWACDCALLEVENTPARTICIPANT", "PARTICIPANTS");
@@ -468,6 +470,8 @@ var CallsSnapshot = class {
 };
 
 // ../elt/packages/sdks/whatsapp/desktop/dist/chat-storage.js
+import { createHash } from "node:crypto";
+import { statSync } from "node:fs";
 import { join } from "node:path";
 
 // ../elt/packages/sdks/whatsapp/desktop/dist/message-metadata.js
@@ -481,6 +485,7 @@ function quotedMessage(metadata) {
 
 // ../elt/packages/sdks/whatsapp/desktop/dist/chat-storage.js
 var requiredColumns3 = {
+  Z_METADATA: ["Z_UUID"],
   ZWACHATSESSION: [
     "Z_PK",
     "ZCONTACTJID",
@@ -516,6 +521,7 @@ var requiredColumns3 = {
   ],
   ZWAMESSAGE: [
     "Z_PK",
+    "Z_OPT",
     "ZCHATSESSION",
     "ZISFROMME",
     "ZSTANZAID",
@@ -543,6 +549,7 @@ var requiredColumns3 = {
   ],
   ZWAMEDIAITEM: [
     "Z_PK",
+    "Z_OPT",
     "ZMEDIALOCALPATH",
     "ZTHUMBNAILLOCALPATH",
     "ZMEDIAURL",
@@ -562,7 +569,7 @@ var requiredColumns3 = {
     "ZCLOUDSTATUS",
     "ZMETADATA"
   ],
-  ZWAMESSAGEINFO: ["Z_PK", "ZRECEIPTINFO"],
+  ZWAMESSAGEINFO: ["Z_PK", "Z_OPT", "ZRECEIPTINFO"],
   ZWAMESSAGEDATAITEM: [
     "ZMESSAGE",
     "ZINDEX",
@@ -625,10 +632,17 @@ var messageKey = `chat.ZCONTACTJID AS chatJid, message.ZISFROMME AS isFromMe,
 var ChatStorageSnapshot = class {
   #database;
   #container;
+  #fileIdentity;
   constructor(path, container) {
-    this.#database = new Snapshot(path, WhatsAppUnavailableError);
-    this.#database.requireColumns(requiredColumns3, WhatsAppSchemaError);
+    this.#database = appDatabase.snapshot(path, requiredColumns3);
     this.#container = container;
+    try {
+      const file = statSync(path, { bigint: true });
+      this.#fileIdentity = `${file.dev}:${file.ino}:${file.birthtimeNs}`;
+    } catch (error) {
+      this.#database[Symbol.dispose]();
+      throw error;
+    }
   }
   chats() {
     return this.#database.iterate(`SELECT chat.ZCONTACTJID AS jid, chat.ZSESSIONTYPE AS sessionType,
@@ -683,9 +697,42 @@ var ChatStorageSnapshot = class {
       }
     }));
   }
+  messageInputs() {
+    const store = requiredText(this.#database.all("SELECT Z_UUID AS uuid FROM Z_METADATA")[0]?.uuid, "A WhatsApp store has no UUID");
+    return this.#database.iterate(`
+      SELECT ${messageKey}, message.Z_PK AS id, message.Z_OPT AS version,
+             message.ZMESSAGEDATE AS messageDate,
+             media.Z_PK AS mediaId, media.Z_OPT AS mediaVersion,
+             media.ZMEDIALOCALPATH AS mediaLocalPath,
+             info.Z_PK AS infoId, info.Z_OPT AS infoVersion,
+             member.ZMEMBERJID AS memberJid, parent.ZSTANZAID AS parentStanzaId
+      FROM ZWAMESSAGE AS message
+      JOIN ZWACHATSESSION AS chat ON chat.Z_PK = message.ZCHATSESSION
+      LEFT JOIN ZWAMEDIAITEM AS media ON media.Z_PK = message.ZMEDIAITEM
+      LEFT JOIN ZWAMESSAGEINFO AS info ON info.Z_PK = message.ZMESSAGEINFO
+      LEFT JOIN ZWAGROUPMEMBER AS member ON member.Z_PK = message.ZGROUPMEMBER
+      LEFT JOIN ZWAMESSAGE AS parent ON parent.Z_PK = message.ZPARENTMESSAGE
+      ORDER BY message.Z_PK
+    `).map((row) => {
+      if (row.version === null || row.mediaId !== null && row.mediaVersion === null || row.infoId !== null && row.infoVersion === null)
+        throw new TypeError("A WhatsApp message input has no row version");
+      const path = text(row.mediaLocalPath);
+      return {
+        ...key(row),
+        id: requiredNumber(row.id, "A WhatsApp message has no row ID"),
+        messageDate: instant(row.messageDate),
+        fingerprint: createHash("sha256").update(JSON.stringify([
+          store,
+          this.#fileIdentity,
+          ...Object.values(row),
+          path !== null && onDisk(messageMediaFile(this.#container, path)) !== null
+        ])).digest("base64url")
+      };
+    });
+  }
   // Read as the caller iterates: a store keeps tens of thousands of
   // messages, so no read holds them all.
-  messages() {
+  messages(id) {
     return this.#database.iterate(`SELECT ${messageKey}, message.ZFROMJID AS fromJid,
                 message.ZTOJID AS toJid, member.ZMEMBERJID AS groupMemberJid,
                 message.ZPUSHNAME AS pushName,
@@ -724,7 +771,8 @@ var ChatStorageSnapshot = class {
          LEFT JOIN ZWAMESSAGE AS parent ON parent.Z_PK = message.ZPARENTMESSAGE
          LEFT JOIN ZWAMEDIAITEM AS media ON media.Z_PK = message.ZMEDIAITEM
          LEFT JOIN ZWAMESSAGEINFO AS info ON info.Z_PK = message.ZMESSAGEINFO
-         ORDER BY message.Z_PK`).map((row) => {
+         ${id === void 0 ? "" : "WHERE message.Z_PK = ?"}
+         ORDER BY message.Z_PK`, ...id === void 0 ? [] : [id]).map((row) => {
       const metadata = bytes(row.metadata);
       return {
         ...key(row),
@@ -919,8 +967,7 @@ var requiredColumns4 = {
 var ContactsSnapshot = class {
   #database;
   constructor(path) {
-    this.#database = new Snapshot(path, WhatsAppUnavailableError);
-    this.#database.requireColumns(requiredColumns4, WhatsAppSchemaError);
+    this.#database = appDatabase.snapshot(path, requiredColumns4);
   }
   contacts() {
     return this.#database.iterate(`SELECT ZUNIQUEID AS uniqueId, ZWHATSAPPID AS whatsappId, ZLID AS lid,
@@ -979,8 +1026,7 @@ var requiredColumns5 = {
 var KeyValueSnapshot = class {
   #database;
   constructor(path) {
-    this.#database = new Snapshot(path, WhatsAppUnavailableError);
-    this.#database.requireColumns(requiredColumns5, WhatsAppSchemaError);
+    this.#database = appDatabase.snapshot(path, requiredColumns5);
   }
   elements(namespace) {
     return this.#database.iterate(`SELECT ZKEY AS key, ZVALUE AS value, ZDATE AS date
@@ -1083,8 +1129,7 @@ var requiredColumns6 = {
 var MessageAssociationsSnapshot = class {
   #database;
   constructor(path) {
-    this.#database = new Snapshot(path, WhatsAppUnavailableError);
-    this.#database.requireColumns(requiredColumns6, WhatsAppSchemaError);
+    this.#database = appDatabase.snapshot(path, requiredColumns6);
   }
   associations() {
     return this.#database.iterate(`SELECT chat_jid AS chatJid, stanza_id AS stanzaId, type,
@@ -1156,6 +1201,23 @@ var ReceiptInfo = class {
         reactedAt: new Date(reactedAt).toISOString()
       };
     });
+    const outgoing = reactions?.message(2);
+    if (outgoing !== void 0) {
+      const stanzaId = outgoing.string(1);
+      const reactedAt = outgoing.uint(3);
+      if (stanzaId === void 0 || reactedAt === void 0)
+        throw new TypeError("A WhatsApp reaction lacks its ID or time");
+      this.reactions = [
+        ...this.reactions,
+        {
+          stanzaId,
+          senderJid: null,
+          isFromMe: true,
+          emoji: outgoing.string(2) ?? null,
+          reactedAt: new Date(reactedAt).toISOString()
+        }
+      ];
+    }
     this.reactionCounts = (reactions?.message(3)?.messages(1) ?? []).map((counted) => {
       const emoji = counted.string(1);
       const count = counted.uint(2);
@@ -1215,8 +1277,7 @@ var StatusesSnapshot = class {
   #database;
   #container;
   constructor(path, container) {
-    this.#database = new Snapshot(path, WhatsAppUnavailableError);
-    this.#database.requireColumns(requiredColumns7, WhatsAppSchemaError);
+    this.#database = appDatabase.snapshot(path, requiredColumns7);
     this.#container = container;
   }
   statuses() {
@@ -1330,8 +1391,7 @@ var StickersSnapshot = class {
   #store;
   constructor(path, container) {
     this.#container = container;
-    this.#database = new Snapshot(path, WhatsAppUnavailableError);
-    this.#database.requireColumns(requiredColumns8, WhatsAppSchemaError);
+    this.#database = appDatabase.snapshot(path, requiredColumns8);
     try {
       this.#tray = this.#entity("WACDStickerPack");
       this.#store = this.#entity("WACDStoreStickerPack");
@@ -1445,8 +1505,7 @@ var requiredColumns9 = {
 var UsersSnapshot = class {
   #database;
   constructor(path) {
-    this.#database = new Snapshot(path, WhatsAppUnavailableError);
-    this.#database.requireColumns(requiredColumns9, WhatsAppSchemaError);
+    this.#database = appDatabase.snapshot(path, requiredColumns9);
   }
   users() {
     return this.#database.iterate(`SELECT ZIDENTIFIER AS lid, ZPHONENUMBER AS phoneNumber,
@@ -1538,30 +1597,65 @@ var WhatsApp = class {
   // no chats or messages, and its notification extension writes only
   // LocalKeyValue.sqlite, so each store keeps its own time.
   lastWrite(store) {
-    return lastWrite(this.#file(store), WhatsAppUnavailableError);
+    return appDatabase.lastWrite(this.#file(store));
   }
   #file(store) {
     return join3(this.container, storeFiles[store]);
   }
 };
 var WhatsAppVersion = class {
+  #state;
+  constructor(path) {
+    this.#state = new MissingStore(path);
+  }
+  get current() {
+    const reading = this.#state.read();
+    this.#state = reading.state;
+    return reading.value;
+  }
+  [Symbol.dispose]() {
+    this.#state[Symbol.dispose]();
+  }
+};
+var MissingStore = class {
   #path;
-  #probe;
   constructor(path) {
     this.#path = path;
   }
-  get current() {
+  read() {
+    let version;
     try {
-      this.#probe ??= new DataVersion(this.#path, WhatsAppUnavailableError);
+      version = appDatabase.version(this.#path);
     } catch (error) {
       if (error instanceof WhatsAppUnavailableError)
-        return "missing";
+        return { value: "missing", state: this };
       throw error;
     }
-    return String(this.#probe.current);
+    return new OpenStore(this.#path, version).read();
+  }
+  // Nothing is open.
+  [Symbol.dispose]() {
+  }
+};
+var OpenStore = class {
+  #path;
+  #version;
+  constructor(path, version) {
+    this.#path = path;
+    this.#version = version;
+  }
+  read() {
+    try {
+      return { value: String(this.#version.current), state: this };
+    } catch (error) {
+      if (!(error instanceof WhatsAppUnavailableError))
+        throw error;
+      this.#version[Symbol.dispose]();
+      return { value: "missing", state: new MissingStore(this.#path) };
+    }
   }
   [Symbol.dispose]() {
-    this.#probe?.[Symbol.dispose]();
+    this.#version[Symbol.dispose]();
   }
 };
 
@@ -1599,7 +1693,17 @@ var WhatsAppStream = class {
   }
   // One record at a time, so a pass never holds a whole store's rows.
   *read(scan) {
-    for (const row of this.rows(scan))
+    yield* this.records(this.rows(scan));
+  }
+  changes(configuration, scan, state, signal) {
+    const horizon = this.horizon(scan);
+    return diffSnapshot(configuration, this.read(scan), state, {
+      policy: horizon === void 0 ? new ClosedWorld() : new Retention(horizon),
+      signal
+    });
+  }
+  *records(rows) {
+    for (const row of rows)
       yield* validateRecords(this, [this.record(row)], "WhatsApp");
   }
   // The instant WhatsApp keeps the stream's records from, for streams it
@@ -1707,6 +1811,8 @@ var BusinessCategoriesStream = class extends WhatsAppStream {
 };
 
 // ../elt/packages/sources/whatsapp/desktop/dist/chat-storage-records.js
+var groupBytes = 40;
+var groupsPerBlock = 4096;
 var messageId = ({ chatJid, isFromMe, stanzaId }) => JSON.stringify([chatJid, isFromMe, stanzaId]);
 function* unique(rows, key2) {
   const seen = /* @__PURE__ */ new Set();
@@ -1726,6 +1832,7 @@ var ChatStorageRecords = class {
   #chats;
   #messageIds;
   #stanzaIds;
+  #messageGroups;
   constructor(snapshot, scope) {
     this.#snapshot = snapshot;
     this.#scope = scope;
@@ -1737,23 +1844,41 @@ var ChatStorageRecords = class {
     ];
     return this.#chats;
   }
-  messages() {
-    return unique(this.#snapshot.messages().filter(({ chatJid, messageDate }) => this.#chat(chatJid) && withinDates(this.#scope, messageDate === null ? null : toMilliseconds(messageDate))), messageId);
+  messages(id) {
+    return this.#selected(this.#snapshot.messages(id));
   }
-  *receipts() {
-    for (const { message, item } of this.#decoded())
-      for (const receipt of item.receipts)
-        yield { message, item: receipt };
+  *messageGroups() {
+    if (this.#messageGroups !== void 0) {
+      for (const block2 of this.#messageGroups)
+        for (let offset2 = 0; offset2 < block2.length; offset2 += groupBytes)
+          yield {
+            id: block2.readDoubleLE(offset2),
+            fingerprint: block2.subarray(offset2 + 8, offset2 + groupBytes).toString("base64url")
+          };
+      return;
+    }
+    const blocks = [];
+    let block;
+    let offset = 0;
+    for (const { id, fingerprint } of this.#messageInputs()) {
+      block ??= Buffer.allocUnsafe(groupsPerBlock * groupBytes);
+      block.writeDoubleLE(id, offset);
+      if (fingerprint.length !== 43 || block.write(fingerprint, offset + 8, 32, "base64url") !== 32)
+        throw new TypeError("A WhatsApp message fingerprint must be a SHA-256 digest");
+      offset += groupBytes;
+      if (offset === block.length) {
+        blocks.push(block);
+        block = void 0;
+        offset = 0;
+      }
+      yield { id, fingerprint };
+    }
+    if (block !== void 0)
+      blocks.push(block.subarray(0, offset));
+    this.#messageGroups = blocks;
   }
-  *reactions() {
-    for (const { message, item } of this.#decoded())
-      for (const reaction of item.reactions)
-        yield { message, item: reaction };
-  }
-  *reactionCounts() {
-    for (const { message, item } of this.#decoded())
-      for (const count of item.reactionCounts)
-        yield { message, item: count };
+  #messageInputs() {
+    return this.#selected(this.#snapshot.messageInputs());
   }
   get dataItems() {
     return this.#snapshot.dataItems().filter((item) => this.message(item));
@@ -1783,23 +1908,21 @@ var ChatStorageRecords = class {
   message(key2) {
     if (!this.#narrowed)
       return true;
-    this.#messageIds ??= new Set(this.messages().map(messageId));
+    this.#messageIds ??= new Set(this.#messageInputs().map(messageId));
     return this.#messageIds.has(messageId(key2));
   }
   // The same for a record that names its message by chat and stanza ID only.
   stanza(chatJid, stanzaId) {
     if (!this.#narrowed)
       return true;
-    this.#stanzaIds ??= new Set(this.messages().map((kept) => JSON.stringify([kept.chatJid, kept.stanzaId])));
+    this.#stanzaIds ??= new Set(this.#messageInputs().map((kept) => JSON.stringify([kept.chatJid, kept.stanzaId])));
     return this.#stanzaIds.has(JSON.stringify([chatJid, stanzaId]));
   }
   #chat(jid23) {
     return selected(this.#scope.collectionIds, jid23);
   }
-  *#decoded() {
-    for (const message of this.messages())
-      if (message.receiptInfo !== null)
-        yield { message, item: new ReceiptInfo(message.receiptInfo) };
+  #selected(rows) {
+    return unique(rows.filter(({ chatJid, messageDate }) => this.#chat(chatJid) && withinDates(this.#scope, messageDate === null ? null : toMilliseconds(messageDate))), messageId);
   }
 };
 
@@ -2884,6 +3007,38 @@ var MessageDataItemsStream = class extends WhatsAppStream {
   }
 };
 
+// ../elt/packages/sources/whatsapp/desktop/dist/whatsapp-message-stream.js
+var WhatsAppMessageStream = class extends WhatsAppStream {
+  store = "chatStorage";
+  changes(configuration, scan, state, signal) {
+    return diffGroupedSnapshot(configuration, this.#groups(scan, state === null || configuration.syncMode !== "incremental"), state, {
+      policy: new ClosedWorld(),
+      signal
+    });
+  }
+  *rows(scan) {
+    for (const message of scan.chatStorage.messages())
+      yield* this.messageRows(message);
+  }
+  *#groups(scan, readAll) {
+    const messages = readAll ? scan.chatStorage.messages() : null;
+    try {
+      for (const input of scan.chatStorage.messageGroups()) {
+        const message = messages?.next();
+        if (message?.done)
+          throw new Error("WhatsApp message inputs outlasted their snapshot");
+        yield {
+          key: String(input.id),
+          fingerprint: input.fingerprint,
+          records: () => this.records(message === void 0 ? scan.chatStorage.messages(input.id).flatMap((row) => this.messageRows(row)) : this.messageRows(message.value))
+        };
+      }
+    } finally {
+      messages?.return(void 0);
+    }
+  }
+};
+
 // ../elt/packages/sources/whatsapp/desktop/dist/streams/message-reaction-counts-stream.js
 var { text: text14, integer: integer10 } = whatsappFields;
 var properties21 = {
@@ -2895,9 +3050,8 @@ var properties21 = {
     description: "How many people reacted with it."
   }
 };
-var MessageReactionCountsStream = class extends WhatsAppStream {
+var MessageReactionCountsStream = class extends WhatsAppMessageStream {
   name = "messageReactionCounts";
-  store = "chatStorage";
   primaryKey = [...messageKeyColumns, "emoji"];
   jsonSchema = {
     type: "object",
@@ -2905,8 +3059,10 @@ var MessageReactionCountsStream = class extends WhatsAppStream {
     properties: properties21,
     required: Object.keys(properties21)
   };
-  rows(scan) {
-    return scan.chatStorage.reactionCounts();
+  *messageRows(message) {
+    if (message.receiptInfo !== null)
+      for (const item of new ReceiptInfo(message.receiptInfo).reactionCounts)
+        yield { message, item };
   }
   record({ message, item }) {
     return { ...messageKeyRecord(message), ...item };
@@ -2940,9 +3096,8 @@ var properties22 = {
     description: "When the reaction was sent, UTC to the millisecond."
   }
 };
-var MessageReactionsStream = class extends WhatsAppStream {
+var MessageReactionsStream = class extends WhatsAppMessageStream {
   name = "messageReactions";
-  store = "chatStorage";
   primaryKey = [...messageKeyColumns, "reactionStanzaId"];
   jsonSchema = {
     type: "object",
@@ -2950,8 +3105,10 @@ var MessageReactionsStream = class extends WhatsAppStream {
     properties: properties22,
     required: Object.keys(properties22)
   };
-  rows(scan) {
-    return scan.chatStorage.reactions();
+  *messageRows(message) {
+    if (message.receiptInfo !== null)
+      for (const item of new ReceiptInfo(message.receiptInfo).reactions)
+        yield { message, item };
   }
   record({ message, item: { stanzaId, ...reaction } }) {
     return {
@@ -2985,9 +3142,8 @@ var properties23 = {
     description: "When the recipient played the voice note or video, UTC to the second; NULL until they have."
   }
 };
-var MessageReceiptsStream = class extends WhatsAppStream {
+var MessageReceiptsStream = class extends WhatsAppMessageStream {
   name = "messageReceipts";
-  store = "chatStorage";
   primaryKey = [...messageKeyColumns, "recipientJid"];
   jsonSchema = {
     type: "object",
@@ -2995,8 +3151,10 @@ var MessageReceiptsStream = class extends WhatsAppStream {
     properties: properties23,
     required: Object.keys(properties23)
   };
-  rows(scan) {
-    return scan.chatStorage.receipts();
+  *messageRows(message) {
+    if (message.receiptInfo !== null)
+      for (const item of new ReceiptInfo(message.receiptInfo).receipts)
+        yield { message, item };
   }
   record({ message, item }) {
     return { ...messageKeyRecord(message), ...item };
@@ -3190,9 +3348,8 @@ var properties24 = {
   }
 };
 var person = (jid23) => jid23 !== null && /@(s\.whatsapp\.net|lid)$/.test(jid23) ? jid23 : null;
-var MessagesStream = class extends WhatsAppStream {
+var MessagesStream = class extends WhatsAppMessageStream {
   name = "messages";
-  store = "chatStorage";
   primaryKey = ["chatJid", "isFromMe", "stanzaId"];
   supportsFileTransfer = true;
   jsonSchema = {
@@ -3201,8 +3358,8 @@ var MessagesStream = class extends WhatsAppStream {
     properties: properties24,
     required: Object.keys(properties24)
   };
-  rows(scan) {
-    return scan.chatStorage.messages();
+  *messageRows(message) {
+    yield message;
   }
   record({ media: item, quoted, receiptInfo, groupMemberJid, fromJid, ...message }) {
     return {
@@ -3950,9 +4107,7 @@ var WhatsAppDesktopSource = class extends Source {
   async open(streams) {
     return WhatsAppScan.open(this.#whatsapp, new Set(streams.map((stream) => readerOf(stream).store)), this.scope);
   }
-  failureType(error) {
-    return error instanceof WhatsAppUnavailableError ? "config" : "system";
-  }
+  configErrors = [WhatsAppUnavailableError];
   coverage(_stream) {
     return {
       description: "What WhatsApp for Mac keeps on this Mac: the chats and messages it has synced from the phone and received while running, with the files it downloaded. WhatsApp writes its chats and messages only while the app runs, and drops a contact\u2019s status a day after it is posted. An import\u2019s chats and dates narrow chats, messages and what hangs off them; the other streams are not narrowed.",
@@ -4001,11 +4156,7 @@ var WhatsAppDesktopSource = class extends Source {
   async *extract(configuration, state, _partition, scan, signal) {
     const { stream } = configuration;
     const reader = readerOf(stream);
-    const records = reader.read(scan);
-    const messages = diffSnapshot(configuration, records, state, {
-      policy: policyFor(reader.horizon(scan)),
-      signal
-    });
+    const messages = reader.changes(configuration, scan, state, signal);
     for await (const message of messages) {
       if ("type" in message || configuration.fileReads.length === 0)
         yield message;
@@ -4014,9 +4165,6 @@ var WhatsAppDesktopSource = class extends Source {
     }
   }
 };
-function policyFor(horizon) {
-  return horizon === void 0 ? new ClosedWorld() : new Retention(horizon);
-}
 
 // packages/connectors/whatsapp/dist/whatsapp-connector.js
 var WhatsAppConnector = class extends Connector {

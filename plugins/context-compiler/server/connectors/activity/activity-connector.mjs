@@ -10,12 +10,12 @@ import {
   plistJSON
 } from "../../chunks/chunk-6YWS5RU4.mjs";
 import {
-  DataVersion,
-  Snapshot
-} from "../../chunks/chunk-KSEJSZJO.mjs";
+  AppDatabase,
+  MissingColumnsError
+} from "../../chunks/chunk-ZPH77YA3.mjs";
 import {
   Connector
-} from "../../chunks/chunk-IARFH5EI.mjs";
+} from "../../chunks/chunk-C5RMD7F7.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -25,7 +25,7 @@ import {
   diffGroupedSnapshot,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-UZWKSGGL.mjs";
+} from "../../chunks/chunk-C22NLYQC.mjs";
 import {
   __callDispose,
   __using
@@ -38,6 +38,19 @@ import { setInterval } from "node:timers/promises";
 import { readdir as readdir2 } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join as join2 } from "node:path";
+
+// ../elt/packages/sdks/apple/biome/dist/errors.js
+var BiomeUnavailableError = class extends Error {
+  name = "BiomeUnavailableError";
+  constructor(path, cause) {
+    super(`Biome's store at ${path} cannot be read. Allow the process that reads it Full Disk Access in System Settings > Privacy & Security; macOS attributes a child process to the app or launchd job that started it.`, { cause });
+  }
+};
+
+// ../elt/packages/sdks/apple/biome/dist/app-database.js
+var appDatabase = new AppDatabase({
+  unavailable: BiomeUnavailableError
+});
 
 // ../elt/packages/sdks/apple/biome/dist/biome-segment.js
 import { readdir } from "node:fs/promises";
@@ -115,20 +128,6 @@ function slotCount(path, header, size) {
   return count;
 }
 
-// ../elt/packages/sdks/apple/biome/dist/errors.js
-var BiomeUnavailableError = class extends Error {
-  name = "BiomeUnavailableError";
-  constructor(path, cause) {
-    super(`Biome's store at ${path} cannot be read. Allow the process that reads it Full Disk Access in System Settings > Privacy & Security; macOS attributes a child process to the app or launchd job that started it.`, { cause });
-  }
-};
-var BiomeSchemaError = class extends Error {
-  name = "BiomeSchemaError";
-  constructor(path, missing) {
-    super(`Biome's device list at ${path} has a layout this reader does not read (missing ${missing.join(", ")}).`);
-  }
-};
-
 // ../elt/packages/sdks/apple/biome/dist/biome-segment.js
 var decodingVersion = 1;
 var BiomeSegment = class {
@@ -199,8 +198,7 @@ var text = (value) => typeof value === "string" && value !== "" ? value : void 0
 var BiomeSync = class {
   #database;
   constructor(path) {
-    this.#database = new Snapshot(path, BiomeUnavailableError);
-    this.#database.requireColumns(columns, BiomeSchemaError);
+    this.#database = appDatabase.snapshot(path, columns);
   }
   // Read as the caller iterates, like every read that feeds a stream.
   devices() {
@@ -257,7 +255,7 @@ var BiomeStore = class {
   }
   // Biome commits the device list through a WAL it keeps open.
   syncVersion() {
-    return new DataVersion(this.#sync, BiomeUnavailableError);
+    return appDatabase.version(this.#sync);
   }
 };
 
@@ -532,16 +530,15 @@ var KnowledgeUnavailableError = class extends Error {
     super(`knowledgeC at ${path} cannot be read. Allow the process that reads it Full Disk Access in System Settings > Privacy & Security; macOS attributes a child process to the app or launchd job that started it.`, { cause });
   }
 };
-var KnowledgeSchemaError = class extends Error {
-  name = "KnowledgeSchemaError";
-  constructor(path, missing) {
-    super(`knowledgeC at ${path} has a layout this reader does not read (missing ${missing.join(", ")}).`);
-  }
-};
 
 // ../elt/packages/sdks/apple/knowledge/dist/knowledge-store.js
 import { homedir as homedir2 } from "node:os";
 import { join as join3 } from "node:path";
+
+// ../elt/packages/sdks/apple/knowledge/dist/app-database.js
+var appDatabase2 = new AppDatabase({
+  unavailable: KnowledgeUnavailableError
+});
 
 // ../elt/packages/sdks/apple/knowledge/dist/knowledge-values.js
 var text2 = (value) => typeof value === "string" ? value : void 0;
@@ -576,7 +573,7 @@ var columnsOf = (sets, table) => sets.flatMap((set) => set[table] ?? []);
 var KnowledgeSnapshot = class {
   #database;
   constructor(path) {
-    this.#database = new Snapshot(path, KnowledgeUnavailableError);
+    this.#database = appDatabase2.snapshot(path);
   }
   // A stream's events in the order knowledgeC stored them, read as the caller
   // iterates: a stream keeps tens of thousands. Each read checks only the
@@ -587,7 +584,7 @@ var KnowledgeSnapshot = class {
       columnsOf([queryColumns, eventColumns, stream.columns], name)
     ])));
     if (missing.length > 0)
-      throw new KnowledgeSchemaError(this.#database.path, missing);
+      throw new MissingColumnsError(this.#database.path, missing);
     const selected = tables.flatMap(({ name, alias }) => columnsOf([eventColumns, stream.columns], name).map((column) => `${alias}.${column}`));
     return this.#database.iterate(`SELECT ${selected.join(", ")}
          FROM ZOBJECT o
@@ -616,7 +613,7 @@ var KnowledgeStore = class {
   }
   // knowledgeC commits through a WAL it keeps open.
   version() {
-    return new DataVersion(this.#path, KnowledgeUnavailableError);
+    return appDatabase2.version(this.#path);
   }
 };
 
@@ -1977,9 +1974,10 @@ var AppleActivitySource = class extends Source {
   open(streams) {
     return ActivityScan.open(this.location, new Set(streams.map((stream) => readerOf(stream).store)));
   }
-  failureType(error) {
-    return error instanceof BiomeUnavailableError || error instanceof KnowledgeUnavailableError ? "config" : "system";
-  }
+  configErrors = [
+    BiomeUnavailableError,
+    KnowledgeUnavailableError
+  ];
   coverage(stream) {
     const { retentionDays } = readerOf(stream);
     return {

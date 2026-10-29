@@ -24,13 +24,11 @@ import {
   localAppleStoreCoverage
 } from "../../chunks/chunk-2EITIVUZ.mjs";
 import {
-  DataVersion,
-  Snapshot,
-  lastWrite
-} from "../../chunks/chunk-KSEJSZJO.mjs";
+  AppDatabase
+} from "../../chunks/chunk-ZPH77YA3.mjs";
 import {
   Connector
-} from "../../chunks/chunk-IARFH5EI.mjs";
+} from "../../chunks/chunk-C5RMD7F7.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -38,7 +36,7 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-UZWKSGGL.mjs";
+} from "../../chunks/chunk-C22NLYQC.mjs";
 import {
   __callDispose,
   __using
@@ -52,12 +50,6 @@ var NotesUnavailableError = class extends Error {
   name = "NotesUnavailableError";
   constructor(path, cause) {
     super(`The Notes store at ${path} cannot be read. Allow the process that runs the export Full Disk Access in System Settings > Privacy & Security; macOS attributes a child process to the app or launchd job that started it. Notes.app does not need to be open.`, { cause });
-  }
-};
-var NotesSchemaError = class extends Error {
-  name = "NotesSchemaError";
-  constructor(path, missing) {
-    super(`The Notes store at ${path} has a layout this reader does not read (missing ${missing.join(", ")}).`);
   }
 };
 
@@ -227,6 +219,11 @@ function decodeTable(bytes) {
 import { homedir } from "node:os";
 import { join as join2 } from "node:path";
 
+// ../elt/packages/sdks/apple/notes/dist/app-database.js
+var appDatabase = new AppDatabase({
+  unavailable: NotesUnavailableError
+});
+
 // ../elt/packages/sdks/apple/notes/dist/note-store-snapshot.js
 import { access } from "node:fs/promises";
 import { dirname, join } from "node:path";
@@ -331,8 +328,7 @@ var NoteStoreSnapshot = class {
   #database;
   constructor(path) {
     this.#path = path;
-    this.#database = new Snapshot(path, NotesUnavailableError);
-    this.#database.requireColumns(requiredColumns, NotesSchemaError);
+    this.#database = appDatabase.snapshot(path, requiredColumns);
   }
   accounts() {
     return this.#database.all(accountsSql).map((row) => ({
@@ -444,12 +440,12 @@ var NotesStore = class {
   // Notes keeps NoteStore.sqlite and its WAL open while it runs; this probe
   // changes with each commit Notes makes.
   version() {
-    return new DataVersion(this.#path, NotesUnavailableError);
+    return appDatabase.version(this.#path);
   }
   // When Notes last wrote the store. Only Notes.app syncs iCloud notes, so
   // while it is closed the store stays as of then.
   lastWrite() {
-    return lastWrite(this.#path, NotesUnavailableError);
+    return appDatabase.lastWrite(this.#path);
   }
 };
 
@@ -1070,9 +1066,7 @@ var AppleNotesSource = class extends Source {
   async open() {
     return new NotesScan(this.#store.open(), this.scope);
   }
-  failureType(error) {
-    return error instanceof NotesUnavailableError ? "config" : "system";
-  }
+  configErrors = [NotesUnavailableError];
   coverage(_stream) {
     return { ...localAppleStoreCoverage, selection: this.scope };
   }

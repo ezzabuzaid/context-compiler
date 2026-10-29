@@ -19,12 +19,11 @@ import {
   localAppleStoreCoverage
 } from "../../chunks/chunk-2EITIVUZ.mjs";
 import {
-  DataVersion,
-  Snapshot
-} from "../../chunks/chunk-KSEJSZJO.mjs";
+  AppDatabase
+} from "../../chunks/chunk-ZPH77YA3.mjs";
 import {
   Connector
-} from "../../chunks/chunk-IARFH5EI.mjs";
+} from "../../chunks/chunk-C5RMD7F7.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -32,7 +31,7 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-UZWKSGGL.mjs";
+} from "../../chunks/chunk-C22NLYQC.mjs";
 import {
   __callDispose,
   __using
@@ -48,12 +47,11 @@ var NotificationCenterUnavailableError = class extends Error {
     super(`The Notification Center store at ${path} cannot be read. Allow the process that runs the export Full Disk Access in System Settings > Privacy & Security.`, { cause });
   }
 };
-var NotificationCenterSchemaError = class extends Error {
-  name = "NotificationCenterSchemaError";
-  constructor(path, missing) {
-    super(`The Notification Center store at ${path} has a layout this reader does not read (missing ${missing.join(", ")}).`);
-  }
-};
+
+// ../elt/packages/sdks/apple/notification-center/dist/app-database.js
+var appDatabase = new AppDatabase({
+  unavailable: NotificationCenterUnavailableError
+});
 
 // ../elt/packages/sdks/apple/notification-center/dist/notification.js
 var interruptionLevels = [
@@ -72,8 +70,7 @@ var requiredColumns = {
 var NotificationCenterSnapshot = class {
   #database;
   constructor(path) {
-    this.#database = new Snapshot(path, NotificationCenterUnavailableError);
-    this.#database.requireColumns(requiredColumns, NotificationCenterSchemaError);
+    this.#database = appDatabase.snapshot(path, requiredColumns);
   }
   // Read as the caller iterates: usernoted keeps every notification it has
   // not cleared, so no read holds them all.
@@ -205,7 +202,7 @@ var NotificationCenterStore = class {
   // A probe whose current value changes with each commit to the store, such
   // as usernoted delivering, withdrawing or badging.
   version() {
-    return new DataVersion(this.#path, NotificationCenterUnavailableError);
+    return appDatabase.version(this.#path);
   }
 };
 
@@ -555,9 +552,9 @@ var AppleNotificationCenterSource = class extends Source {
   async open() {
     return new NotificationCenterScan(this.#store.open(), this.scope);
   }
-  failureType(error) {
-    return error instanceof NotificationCenterUnavailableError ? "config" : "system";
-  }
+  configErrors = [
+    NotificationCenterUnavailableError
+  ];
   coverage(_stream) {
     return { ...localAppleStoreCoverage, selection: this.scope };
   }

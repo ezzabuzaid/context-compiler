@@ -14,12 +14,11 @@ import {
   localAppleStoreCoverage
 } from "../../chunks/chunk-2EITIVUZ.mjs";
 import {
-  DataVersion,
-  Snapshot
-} from "../../chunks/chunk-KSEJSZJO.mjs";
+  AppDatabase
+} from "../../chunks/chunk-ZPH77YA3.mjs";
 import {
   Connector
-} from "../../chunks/chunk-IARFH5EI.mjs";
+} from "../../chunks/chunk-C5RMD7F7.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -27,7 +26,7 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-UZWKSGGL.mjs";
+} from "../../chunks/chunk-C22NLYQC.mjs";
 import {
   __callDispose,
   __using
@@ -41,12 +40,6 @@ var WalletUnavailableError = class extends Error {
   name = "WalletUnavailableError";
   constructor(path, cause) {
     super(`The Wallet store at ${path} cannot be read.`, { cause });
-  }
-};
-var WalletSchemaError = class extends Error {
-  name = "WalletSchemaError";
-  constructor(path, missing) {
-    super(`The Wallet store at ${path} has a layout this reader does not read (missing ${missing.join(", ")}).`);
   }
 };
 var PassBundleError = class extends Error {
@@ -94,6 +87,11 @@ function passJson(value) {
 // ../elt/packages/sdks/apple/wallet/dist/wallet-store.js
 import { homedir } from "node:os";
 import { join as join2 } from "node:path";
+
+// ../elt/packages/sdks/apple/wallet/dist/app-database.js
+var appDatabase = new AppDatabase({
+  unavailable: WalletUnavailableError
+});
 
 // ../elt/packages/sdks/apple/wallet/dist/pass-bundle.js
 import { readFile } from "node:fs/promises";
@@ -402,8 +400,7 @@ var requiredColumns = {
 function lastPassesFetch(path) {
   var _stack = [];
   try {
-    const database = __using(_stack, new Snapshot(path, WalletUnavailableError));
-    database.requireColumns(requiredColumns, WalletSchemaError);
+    const database = __using(_stack, appDatabase.snapshot(path, requiredColumns));
     const fetched = database.all("SELECT fetch_timestamp FROM cloud_store_zone WHERE zone_name = 'passes' AND fetch_timestamp IS NOT NULL").map(({ fetch_timestamp }) => Number(fetch_timestamp));
     return fetched.length === 0 ? null : referenceDate(Math.min(...fetched));
   } catch (_) {
@@ -421,8 +418,7 @@ var requiredColumns2 = {
 function walletRecords(path) {
   var _stack = [];
   try {
-    const database = __using(_stack, new Snapshot(path, WalletUnavailableError));
-    database.requireColumns(requiredColumns2, WalletSchemaError);
+    const database = __using(_stack, appDatabase.snapshot(path, requiredColumns2));
     return database.all(`SELECT pass.unique_id AS id,
               pass.ingested_date AS addedAt,
               pass.modified_date AS updatedAt,
@@ -484,7 +480,7 @@ var WalletStore = class {
   // A probe whose current value changes with each commit to the database,
   // such as passd adding, updating, archiving or removing a pass.
   version() {
-    return new DataVersion(this.#database, WalletUnavailableError);
+    return appDatabase.version(this.#database);
   }
 };
 
@@ -1131,9 +1127,7 @@ var AppleWalletSource = class extends Source {
   async open() {
     return new WalletScan(await this.#store.passes());
   }
-  failureType(error) {
-    return error instanceof WalletUnavailableError ? "config" : "system";
-  }
+  configErrors = [WalletUnavailableError];
   coverage(_stream) {
     return localAppleStoreCoverage;
   }

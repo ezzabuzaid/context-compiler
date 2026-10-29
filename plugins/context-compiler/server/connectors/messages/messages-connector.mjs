@@ -16,12 +16,11 @@ import {
   localAppleStoreCoverage
 } from "../../chunks/chunk-2EITIVUZ.mjs";
 import {
-  DataVersion,
-  Snapshot
-} from "../../chunks/chunk-KSEJSZJO.mjs";
+  AppDatabase
+} from "../../chunks/chunk-ZPH77YA3.mjs";
 import {
   Connector
-} from "../../chunks/chunk-IARFH5EI.mjs";
+} from "../../chunks/chunk-C5RMD7F7.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -29,7 +28,7 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-UZWKSGGL.mjs";
+} from "../../chunks/chunk-C22NLYQC.mjs";
 import {
   __callDispose,
   __using
@@ -280,12 +279,9 @@ var MessagesUnavailableError = class extends Error {
     super(`Messages history at ${path} cannot be read. Allow the process that runs the export Full Disk Access in System Settings > Privacy & Security; macOS attributes a child process to the app or launchd job that started it. Messages.app does not need to be open.`, { cause });
   }
 };
-var MessagesSchemaError = class extends Error {
-  name = "MessagesSchemaError";
-  constructor(path, missing) {
-    super(`Messages history at ${path} has a layout this reader does not read (missing ${missing.join(", ")}).`);
-  }
-};
+var appDatabase = new AppDatabase({
+  unavailable: MessagesUnavailableError
+});
 var appleMilliseconds = (column) => `CASE WHEN ${column} IS NULL OR ${column} = 0 THEN NULL WHEN abs(${column}) > 100000000000 THEN ${column} / 1000000 ELSE ${column} * 1000 END`;
 var select = (table2, alias) => Object.entries(table2.columns).map(([column, kind]) => kind === "time" ? `${appleMilliseconds(`${alias}.${column}`)} AS "${column}"` : `${alias}.${column} AS "${column}"`).join(", ");
 function value(kind, stored) {
@@ -324,8 +320,7 @@ var required = Object.fromEntries(chatTables.map((table2) => [
 var ChatDatabase = class {
   #database;
   constructor(path) {
-    this.#database = new Snapshot(path, MessagesUnavailableError);
-    this.#database.requireColumns(required, MessagesSchemaError);
+    this.#database = appDatabase.snapshot(path, required);
   }
   chats() {
     return this.#database.iterate(`SELECT c.guid AS "@guid", ${select(chatTable, "c")} FROM chat c`).map((row) => ({
@@ -415,7 +410,7 @@ var MessagesStore = class {
     return new ChatDatabase(this.path);
   }
   version() {
-    return new DataVersion(this.path, MessagesUnavailableError);
+    return appDatabase.version(this.path);
   }
 };
 
@@ -1175,9 +1170,7 @@ var AppleMessagesSource = class extends Source {
   async open() {
     return new MessagesScan(this.#store.open(), this.scope);
   }
-  failureType(error) {
-    return error instanceof MessagesUnavailableError ? "config" : "system";
-  }
+  configErrors = [MessagesUnavailableError];
   coverage(_stream) {
     return { ...localAppleStoreCoverage, selection: this.scope };
   }

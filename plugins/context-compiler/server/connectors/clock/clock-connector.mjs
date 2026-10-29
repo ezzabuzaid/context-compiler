@@ -13,12 +13,11 @@ import {
   localAppleStoreCoverage
 } from "../../chunks/chunk-2EITIVUZ.mjs";
 import {
-  DataVersion,
-  Snapshot
-} from "../../chunks/chunk-KSEJSZJO.mjs";
+  AppDatabase
+} from "../../chunks/chunk-ZPH77YA3.mjs";
 import {
   Connector
-} from "../../chunks/chunk-IARFH5EI.mjs";
+} from "../../chunks/chunk-C5RMD7F7.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -26,7 +25,7 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-UZWKSGGL.mjs";
+} from "../../chunks/chunk-C22NLYQC.mjs";
 import {
   __callDispose,
   __using
@@ -47,12 +46,11 @@ var ClockUnavailableError = class extends Error {
     super(`The Clock store at ${path} cannot be read. Open Clock once. If macOS denies access, allow the process running the import Full Disk Access in System Settings > Privacy & Security.`, { cause });
   }
 };
-var ClockSchemaError = class extends Error {
-  name = "ClockSchemaError";
-  constructor(path, missing) {
-    super(`The Clock store at ${path} has an unsupported layout (missing ${missing.join(", ")}).`);
-  }
-};
+
+// ../elt/packages/sdks/apple/clock/dist/app-database.js
+var appDatabase = new AppDatabase({
+  unavailable: ClockUnavailableError
+});
 
 // ../elt/packages/sdks/apple/clock/dist/values.js
 function dictionary(value) {
@@ -206,8 +204,7 @@ var columns = {
 var ClockDatabase = class {
   #database;
   constructor(path) {
-    this.#database = new Snapshot(path, ClockUnavailableError);
-    this.#database.requireColumns(columns, ClockSchemaError);
+    this.#database = appDatabase.snapshot(path, columns);
   }
   alarms() {
     return this.#database.all(`SELECT ZMTID AS "id", ZTITLE AS "title", ZENABLED AS "enabled", ZHOUR AS "hour", ZMINUTE AS "minute", ZDAY AS "day", ZMONTH AS "month", ZYEAR AS "year", ZREPEATSCHEDULE AS "repeatSchedule", ZALLOWSSNOOZE AS "allowsSnooze", ZSNOOZEDURATION AS "snoozeMinutes", ZSLEEPALARM AS "sleepAlarm", ZSLEEPSCHEDULE AS "sleepSchedule", ZSILENTMODEOPTIONS AS "silentModeOptions", ZCOORDINATIONPOLICY AS "coordinationPolicy", ZDISMISSEDACTION AS "dismissedAction", ZDISMISSEDDATE AS "dismissedAt", ZFIREDDATE AS "firedAt", ZKEEPOFFUNTILDATE AS "keepOffUntil", ZLASTMODIFIEDDATE AS "modifiedAt", ZSNOOZEFIREDATE AS "snoozeFireAt", CAST(ZSOUND AS TEXT) AS "soundId", ZSIRICONTEXT AS "siriContext" FROM ZMTCDALARM ORDER BY Z_PK`).map((row) => ({
@@ -385,7 +382,8 @@ var ClockStore = class {
     return ClockSnapshot.open(this.#location, stores);
   }
   version(store) {
-    return new ClockVersion(this.#location[store], store);
+    const path = this.#location[store];
+    return store === "database" ? new ClockDatabaseVersion(appDatabase.version(path)) : new ClockPreferencesVersion(path);
   }
 };
 var ClockSnapshot = class _ClockSnapshot {
@@ -440,17 +438,24 @@ var ClockSnapshot = class _ClockSnapshot {
       throw this.#errors.get(store);
   }
 };
-var ClockVersion = class {
-  #path;
-  #database;
-  constructor(path, store) {
-    this.#path = path;
-    if (store === "database")
-      this.#database = new DataVersion(path, ClockUnavailableError);
+var ClockDatabaseVersion = class {
+  #version;
+  constructor(version) {
+    this.#version = version;
   }
   async current() {
-    if (this.#database)
-      return String(this.#database.current);
+    return String(this.#version.current);
+  }
+  [Symbol.dispose]() {
+    this.#version[Symbol.dispose]();
+  }
+};
+var ClockPreferencesVersion = class {
+  #path;
+  constructor(path) {
+    this.#path = path;
+  }
+  async current() {
     try {
       const stats = await stat(this.#path, {
         bigint: true,
@@ -463,8 +468,8 @@ var ClockVersion = class {
       throw new ClockUnavailableError(this.#path, cause);
     }
   }
+  // A stat holds nothing open.
   [Symbol.dispose]() {
-    this.#database?.[Symbol.dispose]();
   }
 };
 
@@ -1024,9 +1029,7 @@ var AppleClockSource = class extends Source {
   open(streams) {
     return this.#store.open(new Set(streams.map((stream) => readerOf(stream).store)));
   }
-  failureType(error) {
-    return error instanceof ClockUnavailableError ? "config" : "system";
-  }
+  configErrors = [ClockUnavailableError];
   coverage() {
     return localAppleStoreCoverage;
   }

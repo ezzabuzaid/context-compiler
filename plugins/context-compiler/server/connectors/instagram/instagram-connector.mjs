@@ -7,7 +7,7 @@ import {
 } from "../../chunks/chunk-KUQKM2Y4.mjs";
 import {
   Connector
-} from "../../chunks/chunk-IARFH5EI.mjs";
+} from "../../chunks/chunk-C5RMD7F7.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -18,7 +18,7 @@ import {
   diffSnapshot,
   isTimestamp,
   validateRecords
-} from "../../chunks/chunk-UZWKSGGL.mjs";
+} from "../../chunks/chunk-C22NLYQC.mjs";
 import {
   __callDispose,
   __using
@@ -2099,9 +2099,11 @@ var InstagramWebSource = class _InstagramWebSource extends Source {
   partitions() {
     return this.profileIds.map((profileId10) => ({ profileId: profileId10 }));
   }
-  failureType(error) {
-    return error instanceof BrowserSessionNotFoundError || error instanceof SafeStorageUnavailableError || error instanceof InstagramLoginError ? "config" : "system";
-  }
+  configErrors = [
+    BrowserSessionNotFoundError,
+    SafeStorageUnavailableError,
+    InstagramLoginError
+  ];
   coverage(_stream) {
     const selection = {
       profileIds: [...this.profileIds]

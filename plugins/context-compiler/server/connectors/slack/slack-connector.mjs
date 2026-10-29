@@ -13,7 +13,7 @@ import {
 } from "../../chunks/chunk-XGE73YOJ.mjs";
 import {
   Connector
-} from "../../chunks/chunk-IARFH5EI.mjs";
+} from "../../chunks/chunk-C5RMD7F7.mjs";
 import {
   Catalog,
   Coverage,
@@ -21,7 +21,7 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-UZWKSGGL.mjs";
+} from "../../chunks/chunk-C22NLYQC.mjs";
 import "../../chunks/chunk-ZGXE7NZW.mjs";
 
 // ../elt/packages/sources/slack/desktop/dist/slack-desktop-source.js
@@ -2052,9 +2052,7 @@ var SlackDesktopSource = class extends Source {
     ]);
     return new SlackDesktopScan(clients, downloads, this.scope);
   }
-  failureType(error) {
-    return error instanceof SlackDesktopUnavailableError ? "config" : "system";
-  }
+  configErrors = [SlackDesktopUnavailableError];
   coverage(_stream) {
     return {
       description: "What the Slack app keeps on this Mac for each signed-in workspace: its channels, members and apps, only the messages the app has loaded, and the files it downloaded. A workspace appears once the app has saved it, every few minutes while it is open and when it quits.",

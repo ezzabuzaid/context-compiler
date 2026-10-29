@@ -20,12 +20,11 @@ import {
   localAppleStoreCoverage
 } from "../../chunks/chunk-2EITIVUZ.mjs";
 import {
-  DataVersion,
-  Snapshot
-} from "../../chunks/chunk-KSEJSZJO.mjs";
+  AppDatabase
+} from "../../chunks/chunk-ZPH77YA3.mjs";
 import {
   Connector
-} from "../../chunks/chunk-IARFH5EI.mjs";
+} from "../../chunks/chunk-C5RMD7F7.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -33,7 +32,7 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-UZWKSGGL.mjs";
+} from "../../chunks/chunk-C22NLYQC.mjs";
 import {
   __callDispose,
   __using
@@ -52,6 +51,25 @@ import { join as join3 } from "node:path";
 
 // ../elt/packages/sdks/apple/contacts/dist/address-book-store.js
 import { join as join2 } from "node:path";
+
+// ../elt/packages/sdks/apple/contacts/dist/errors.js
+var ContactsUnavailableError = class extends Error {
+  name = "ContactsUnavailableError";
+  constructor(path, cause) {
+    super(`The Contacts store at ${path} cannot be read. Allow the process that runs the export Contacts access or Full Disk Access in System Settings > Privacy & Security; macOS attributes a child process to the app or launchd job that started it. Contacts.app does not need to be open.`, { cause });
+  }
+};
+var ContactsSchemaError = class extends Error {
+  name = "ContactsSchemaError";
+  constructor(path, missing) {
+    super(`The Contacts store at ${path} has a layout this reader does not read (missing ${missing.join(", ")}).`);
+  }
+};
+
+// ../elt/packages/sdks/apple/contacts/dist/app-database.js
+var appDatabase = new AppDatabase({
+  unavailable: ContactsUnavailableError
+});
 
 // ../elt/packages/sdks/apple/contacts/dist/contacts-tables.js
 var kinds = [
@@ -302,20 +320,6 @@ function storedData(path, directory, value) {
   throw new TypeError(`Contacts store ${path} holds data in an unknown encoding (first byte ${value[0]})`);
 }
 
-// ../elt/packages/sdks/apple/contacts/dist/errors.js
-var ContactsUnavailableError = class extends Error {
-  name = "ContactsUnavailableError";
-  constructor(path, cause) {
-    super(`The Contacts store at ${path} cannot be read. Allow the process that runs the export Contacts access or Full Disk Access in System Settings > Privacy & Security; macOS attributes a child process to the app or launchd job that started it. Contacts.app does not need to be open.`, { cause });
-  }
-};
-var ContactsSchemaError = class extends Error {
-  name = "ContactsSchemaError";
-  constructor(path, missing) {
-    super(`The Contacts store at ${path} has a layout this reader does not read (missing ${missing.join(", ")}).`);
-  }
-};
-
 // ../elt/packages/sdks/apple/contacts/dist/address-book-store.js
 var storeFile = "AddressBook-v22.abcddb";
 var appleEpoch = 978307200;
@@ -359,13 +363,13 @@ var AddressBookStore = class {
     this.source = source;
     this.directory = directory;
     this.path = join2(directory, storeFile);
-    this.#database = new Snapshot(this.path, ContactsUnavailableError);
+    this.#database = appDatabase.snapshot(this.path);
   }
   // Refuses a store without a column or entity a reader needs, and closes
   // it: a renamed entity would match no rows, and an account read as empty
   // loses its contacts from every target.
   requireLayout() {
-    this.#database.requireColumns(requiredColumns, ContactsSchemaError);
+    this.#database.requireColumns(requiredColumns);
     const entities = new Set(this.#database.all("SELECT Z_NAME FROM Z_PRIMARYKEY").map((entity) => entity.Z_NAME));
     const missing = requiredEntities.filter((entity) => !entities.has(entity)).map((entity) => `entity ${entity}`);
     if (missing.length === 0)
@@ -559,7 +563,7 @@ var AddressBookVersion = class {
     return JSON.stringify(paths.map((path) => {
       let version = this.#stores.get(path);
       if (version === void 0) {
-        version = new DataVersion(path, ContactsUnavailableError);
+        version = appDatabase.version(path);
         this.#stores.set(path, version);
       }
       return [path, version.current];
@@ -3959,9 +3963,7 @@ var AppleContactsSource = class extends Source {
     const region = await macRegion(this.#preferences);
     return new ContactsScan(await this.#store.open(), this.scope, region);
   }
-  failureType(error) {
-    return error instanceof ContactsUnavailableError ? "config" : "system";
-  }
+  configErrors = [ContactsUnavailableError];
   coverage(_stream) {
     return { ...localAppleStoreCoverage, selection: this.scope };
   }

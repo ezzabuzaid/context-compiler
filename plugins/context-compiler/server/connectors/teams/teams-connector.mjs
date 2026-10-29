@@ -13,7 +13,7 @@ import {
 } from "../../chunks/chunk-XGE73YOJ.mjs";
 import {
   Connector
-} from "../../chunks/chunk-IARFH5EI.mjs";
+} from "../../chunks/chunk-C5RMD7F7.mjs";
 import {
   Catalog,
   Coverage,
@@ -21,7 +21,7 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-UZWKSGGL.mjs";
+} from "../../chunks/chunk-C22NLYQC.mjs";
 import "../../chunks/chunk-ZGXE7NZW.mjs";
 
 // ../elt/packages/sources/microsoft/teams/dist/teams-source.js
@@ -484,7 +484,7 @@ function body(message) {
     cardsJson: properties22?.json("cards") ?? null,
     reactions: properties22?.list("emotions").flatMap(reactions) ?? [],
     mentions: properties22?.parsedList("mentions").map(mention) ?? [],
-    files: properties22?.parsedList("files").map(file) ?? [],
+    files: files(properties22),
     links: properties22?.parsedList("links").map(link) ?? [],
     quotes: properties22?.list("qtdMsgs").map(quote) ?? [],
     pinnedBy: pinnedAt === null ? null : pinned?.string("creatorId") ?? null,
@@ -506,6 +506,14 @@ function mention(mention2, index) {
     kind: mention2.string("mentionType"),
     displayName: mention2.string("displayName")
   };
+}
+function files(properties22) {
+  if (properties22 === null)
+    return [];
+  const entries = properties22.parsedList("files").map(file);
+  return [
+    ...new Map(entries.map((entry) => [JSON.stringify(entry), entry])).values()
+  ];
 }
 function file(file2) {
   const info = file2.object("fileInfo");
@@ -1533,8 +1541,8 @@ var MessageFilesStream = class extends MessageChildStream {
     properties: properties12,
     required: Object.keys(properties12)
   };
-  children({ files }) {
-    return files;
+  children({ files: files2 }) {
+    return files2;
   }
   records({ key: key2, child: { id: id23, ...file2 } }) {
     return [{ ...key2, fileId: id23, ...file2 }];
@@ -2083,9 +2091,7 @@ var TeamsSource = class extends Source {
   async open() {
     return new TeamsScan(await this.#store.clients(), this.scope);
   }
-  failureType(error) {
-    return error instanceof TeamsUnavailableError ? "config" : "system";
-  }
+  configErrors = [TeamsUnavailableError];
   coverage(_stream) {
     return {
       description: "What the Microsoft Teams app keeps on this Mac for each signed-in work or school account: all its conversations, members and folders; only the messages, call history and activity the app has loaded; the people it has looked up; and the meetings of a few weeks around today.",

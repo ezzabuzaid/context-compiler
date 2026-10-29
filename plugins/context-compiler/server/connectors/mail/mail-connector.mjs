@@ -4,7 +4,7 @@ import {
   AccountsUnavailableError,
   accountsStorePath,
   mailDataclass
-} from "../../chunks/chunk-2UK5YRTQ.mjs";
+} from "../../chunks/chunk-62XWILUV.mjs";
 import {
   accounts,
   byId
@@ -24,14 +24,13 @@ import {
   localAppleStoreCoverage
 } from "../../chunks/chunk-2EITIVUZ.mjs";
 import {
-  DataVersion,
-  Snapshot,
-  lastWrite
-} from "../../chunks/chunk-KSEJSZJO.mjs";
+  AppDatabase
+} from "../../chunks/chunk-ZPH77YA3.mjs";
 import {
   Connector,
+  View,
   readSQLite
-} from "../../chunks/chunk-IARFH5EI.mjs";
+} from "../../chunks/chunk-C5RMD7F7.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -41,7 +40,7 @@ import {
   diffSnapshot,
   fileExtension,
   validateRecords
-} from "../../chunks/chunk-UZWKSGGL.mjs";
+} from "../../chunks/chunk-C22NLYQC.mjs";
 import {
   __callDispose,
   __commonJS,
@@ -25638,14 +25637,14 @@ var MailUnavailableError = class extends Error {
 var MailSchemaError = class extends Error {
   name = "MailSchemaError";
 };
-var MailLayoutError = class extends MailSchemaError {
-  constructor(path, missing) {
-    super(`The Mail index at ${path} has a layout this reader does not read (missing ${missing.join(", ")}).`);
-  }
-};
 var MailChangingError = class extends Error {
   name = "MailChangingError";
 };
+
+// ../elt/packages/sdks/apple/mail/dist/app-database.js
+var appDatabase = new AppDatabase({
+  unavailable: MailUnavailableError
+});
 
 // ../elt/packages/sdks/apple/mail/dist/mail-tables.js
 var messagesTable = {
@@ -25998,8 +25997,7 @@ function isRow(table, row) {
 var EnvelopeIndex = class {
   #database;
   constructor(path) {
-    this.#database = new Snapshot(path, MailUnavailableError);
-    this.#database.requireColumns(required, MailLayoutError);
+    this.#database = appDatabase.snapshot(path, required);
   }
   *rows(table) {
     for (const values of this.#database.iterate(select(table))) {
@@ -26466,7 +26464,7 @@ var MailVersion = class {
     var _stack = [];
     try {
       const resources = __using(_stack, new DisposableStack());
-      this.#index = resources.use(new DataVersion(envelopeIndexPath(directory), MailUnavailableError));
+      this.#index = resources.use(appDatabase.version(envelopeIndexPath(directory)));
       const watcher = watch(root, { recursive: true }, () => {
         this.#events += 1;
       });
@@ -26529,7 +26527,7 @@ var MailStore = class {
   // daemon writes it while Mail.app is closed too.
   async lastWrite() {
     const directory = await mailVersionDirectory(this.root);
-    return lastWrite(envelopeIndexPath(directory), MailUnavailableError);
+    return appDatabase.lastWrite(envelopeIndexPath(directory));
   }
   // Full Disk Access covers the whole store, so an index this process cannot
   // open names the store's root.
@@ -28120,9 +28118,10 @@ var AppleMailSource = class extends Source {
   }
   // Full Disk Access opens both stores Mail reads: its own and the system's
   // Accounts store, which holds account settings.
-  failureType(error) {
-    return error instanceof MailUnavailableError || error instanceof AccountsUnavailableError ? "config" : "system";
-  }
+  configErrors = [
+    MailUnavailableError,
+    AccountsUnavailableError
+  ];
   coverage(_stream) {
     return { ...localAppleStoreCoverage, selection: this.scope };
   }
@@ -28185,18 +28184,20 @@ var AppleMailSource = class extends Source {
 };
 
 // packages/connectors/mail/dist/mail-content-status.js
-var mailContentStatus = {
-  name: "mail_content_status",
-  description: "One row describing content in this imported Mail selection. latest_received_at is an observed message date, not proof of cloud freshness. Counts reflect the currently imported streams; consult stream_status when a pass is partial. A missing text body can also be a message with no readable text, such as encrypted content.",
-  columns: {
-    message_count: "Number of message index rows in this import.",
-    latest_received_at: "Latest messages.dateReceived in this import, as a UTC timestamp; NULL for an empty import or messages without a received date. This does not establish when Mail last checked its server.",
-    missing_message_files: "Messages with no imported message_files row whose availableLocally is true. Their full message file was unavailable on this Mac at extraction.",
-    missing_text_bodies: "Messages without a nonempty, nonattachment text/plain or text/html part in message_parts. Includes messages not downloaded and messages with no readable text part.",
-    attachment_count: "Number of attachments belonging to messages in this imported selection.",
-    unavailable_attachments: "Attachments whose availableLocally is not true: their bytes were unavailable on this Mac. This is independent of whether attachment copying is enabled."
-  },
-  query: `WITH message_totals AS (
+function mailContentStatus(into) {
+  return new View({
+    into,
+    name: "mail_content_status",
+    description: "One row describing content in this imported Mail selection. latest_received_at is an observed message date, not proof of cloud freshness. Counts reflect the currently imported streams; consult stream_status when a pass is partial. A missing text body can also be a message with no readable text, such as encrypted content.",
+    columns: {
+      message_count: "Number of message index rows in this import.",
+      latest_received_at: "Latest messages.dateReceived in this import, as a UTC timestamp; NULL for an empty import or messages without a received date. This does not establish when Mail last checked its server.",
+      missing_message_files: "Messages with no imported message_files row whose availableLocally is true. Their full message file was unavailable on this Mac at extraction.",
+      missing_text_bodies: "Messages without a nonempty, nonattachment text/plain or text/html part in message_parts. Includes messages not downloaded and messages with no readable text part.",
+      attachment_count: "Number of attachments belonging to messages in this imported selection.",
+      unavailable_attachments: "Attachments whose availableLocally is not true: their bytes were unavailable on this Mac. This is independent of whether attachment copying is enabled."
+    },
+    sql: `WITH message_totals AS (
     SELECT count(*) AS message_count, max(m.dateReceived) AS latest_received_at,
       count(*) FILTER (WHERE m.id NOT IN (
         SELECT messageId FROM message_files WHERE availableLocally = 1
@@ -28213,7 +28214,8 @@ var mailContentStatus = {
     FROM attachments a JOIN messages m ON m.id = a.messageId
   )
   SELECT * FROM message_totals CROSS JOIN attachment_totals`
-};
+  });
+}
 
 // packages/connectors/mail/dist/mail-connector.js
 var accountName = (row) => String(JSON.parse(String(row.properties)).name);
@@ -28239,8 +28241,8 @@ var MailConnector = class extends Connector {
   unscoped = restrictedMailStreams;
   // Each message's raw .emlx; messageParts already holds its decoded text.
   storeCopies = ["messageFiles"];
-  views() {
-    return [mailContentStatus];
+  derived(destination) {
+    return [mailContentStatus(destination)];
   }
   contentStatus(path) {
     var _stack = [];

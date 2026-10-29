@@ -3,7 +3,7 @@ import {
   AccountsStore,
   AccountsUnavailableError,
   accountsStorePath
-} from "../../chunks/chunk-2UK5YRTQ.mjs";
+} from "../../chunks/chunk-62XWILUV.mjs";
 import {
   eventKitFields
 } from "../../chunks/chunk-GIEVJ5T4.mjs";
@@ -13,10 +13,10 @@ import {
 import {
   localAppleStoreCoverage
 } from "../../chunks/chunk-2EITIVUZ.mjs";
-import "../../chunks/chunk-KSEJSZJO.mjs";
+import "../../chunks/chunk-ZPH77YA3.mjs";
 import {
   Connector
-} from "../../chunks/chunk-IARFH5EI.mjs";
+} from "../../chunks/chunk-C5RMD7F7.mjs";
 import {
   Catalog,
   ClosedWorld,
@@ -24,7 +24,7 @@ import {
   Stream,
   diffSnapshot,
   validateRecords
-} from "../../chunks/chunk-UZWKSGGL.mjs";
+} from "../../chunks/chunk-C22NLYQC.mjs";
 import {
   __callDispose,
   __using
@@ -555,9 +555,7 @@ var AppleAccountsSource = class extends Source {
   async open() {
     return new AccountsScan(this.#store.open());
   }
-  failureType(error) {
-    return error instanceof AccountsUnavailableError ? "config" : "system";
-  }
+  configErrors = [AccountsUnavailableError];
   coverage(_stream) {
     return localAppleStoreCoverage;
   }
