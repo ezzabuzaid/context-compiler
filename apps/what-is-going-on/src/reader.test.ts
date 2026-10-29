@@ -19,6 +19,7 @@ process.env.XDG_DATA_HOME = data.path;
 const { default: app } = await import('./app.ts');
 const { default: pipeline } = await import('./pipeline.ts');
 const { startEmbeddingServer } = await import('./embedding-server.ts');
+const { default: reading } = await import('./reading.ts');
 
 const hoursAgo = (hours: number) =>
   new Date(Date.now() - hours * 3_600_000).toISOString();
@@ -98,11 +99,14 @@ const outletFeed = (name: string, origin: string): Source => ({
   posts: `${origin}/`,
 });
 
-function feed(items: { title: string; path: string; hours: number }[]) {
+function feed(
+  items: { title: string; path: string; hours: number }[],
+  name = 'Feed',
+) {
   return {
     type: 'application/rss+xml',
     body: (origin: string) =>
-      `<?xml version="1.0"?><rss version="2.0"><channel><title>Feed</title><link>${origin}/</link>${items
+      `<?xml version="1.0"?><rss version="2.0"><channel><title>${name}</title><link>${origin}/</link>${items
         .map(
           ({ title, path, hours }) =>
             `<item><title>${title}</title><link>${origin}${path}</link><pubDate>${new Date(Date.now() - hours * 3_600_000).toUTCString()}</pubDate></item>`,
@@ -463,4 +467,132 @@ await test('a followed event shows the reports that joined it after the follow a
     following,
     /<li><a [^>]+>Kite Labs solar drone Helio-2 stays aloft for 40 days<\/a> \[Sky Wire\] \[1h\]<\/li>/,
   );
+});
+
+async function addSite(origin: string, url: string, kind: 'lab' | 'outlet') {
+  return fetch(`${origin}/sources`, {
+    method: 'POST',
+    body: new URLSearchParams({ url, kind }),
+    redirect: 'manual',
+  });
+}
+
+// The app's reader watching its sources, as main.ts runs it: a site added
+// on Sources is read while it runs.
+async function watchSources() {
+  const embeddings = await startEmbeddingServer(await freePort());
+  reading.start({ sources: [], embeddings: embeddings.url });
+  return {
+    [Symbol.asyncDispose]: async () => {
+      await reading.stop();
+      await embeddings[Symbol.asyncDispose]();
+    },
+  };
+}
+
+// The page once it shows text, or as it is after a minute.
+async function whenShown(url: string, text: string) {
+  const deadline = Date.now() + 60_000;
+  let body = await page(url);
+  while (!body.includes(text) && Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    body = await page(url);
+  }
+  return body;
+}
+
+await test('a blog page added on Sources is read by the running reader through the posts it links to', async () => {
+  await using lab = await blog({
+    '/blog/loom': article(
+      'Loom Lab weaves a sensor into cotton thread',
+      hoursAgo(3),
+      [
+        'Loom Lab wove a strain sensor into ordinary cotton thread.',
+        'A shirt made of the thread measures breathing at 50 readings a second.',
+        'The thread survives 200 washes.',
+      ],
+    ),
+  });
+  await using reader = await serveApp();
+  await using _watch = await watchSources();
+
+  await addSite(reader.origin, `${lab.origin}/blog`, 'lab');
+  const unmatched = await whenShown(
+    `${reader.origin}/not-matched`,
+    'Loom Lab weaves a sensor into cotton thread',
+  );
+  const sources = await page(`${reader.origin}/sources`);
+
+  assert.match(
+    unmatched,
+    /Loom Lab weaves a sensor into cotton thread<\/a> \[[^\]]+\] \[3h\]/,
+  );
+  assert.match(
+    sources,
+    new RegExp(
+      `<a href="${RegExp.escape(`${lab.origin}/blog`)}">[^<]+</a> \\[blog page re-read \\(no feed\\)\\]`,
+    ),
+  );
+});
+
+await test('a page added on Sources that advertises a feed is read through that feed', async () => {
+  await using lab = await site({
+    '/': {
+      type: 'text/html',
+      body: (origin) =>
+        `<!doctype html><html><head><title>Pine Lab</title><link rel="alternate" type="application/rss+xml" href="${origin}/feed.xml"></head><body><p>Pine Lab news.</p></body></html>`,
+    },
+    '/feed.xml': feed(
+      [
+        {
+          title: 'Pine Lab grows a forest model',
+          path: '/posts/forest',
+          hours: 2,
+        },
+      ],
+      'Pine Lab',
+    ),
+    '/posts/forest': {
+      type: 'text/html',
+      body: () =>
+        article('Pine Lab grows a forest model', hoursAgo(2), [
+          'Pine Lab trained a model that predicts the growth of 2,000 tree species.',
+          'The model uses 40 years of forest surveys.',
+          'Foresters can try it online.',
+        ]),
+    },
+  });
+  await using reader = await serveApp();
+  await using _watch = await watchSources();
+
+  await addSite(reader.origin, `${lab.origin}/`, 'lab');
+  const unmatched = await whenShown(
+    `${reader.origin}/not-matched`,
+    'Pine Lab grows a forest model',
+  );
+  const sources = await page(`${reader.origin}/sources`);
+
+  assert.match(unmatched, /Pine Lab grows a forest model<\/a> \[Pine Lab\]/);
+  assert.match(
+    sources,
+    new RegExp(
+      `\\[<a href="${RegExp.escape(`${lab.origin}/feed.xml`)}">feed</a>\\]`,
+    ),
+  );
+});
+
+await test('an address that answers 404 is not added, and Sources says so', async () => {
+  await using gone = await site({});
+  await using reader = await serveApp();
+
+  const answer = await addSite(reader.origin, `${gone.origin}/blog`, 'lab');
+  const body = await answer.text();
+  const sources = await page(`${reader.origin}/sources`);
+
+  assert.equal(answer.status, 422);
+  assert.match(
+    body,
+    new RegExp(`${RegExp.escape(`${gone.origin}/blog`)} answered 404\\.`),
+  );
+  assert.doesNotMatch(sources, new RegExp(RegExp.escape(gone.origin)));
 });

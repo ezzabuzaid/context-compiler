@@ -5,6 +5,7 @@ import { Declaration } from '@zukhruf/sqlite-drift';
 import { z } from 'zod';
 
 import directory from './directory.ts';
+import type { Source } from './sources.ts';
 
 // What the user taught the reader. A pipeline run cannot rebuild it, so a
 // changed declaration keeps the rows.
@@ -24,6 +25,15 @@ const declaration = new Declaration(
       verdict TEXT NOT NULL CHECK (verdict IN ('yes', 'no')),
       answered_at INTEGER NOT NULL,
       PRIMARY KEY (interest, report)
+    ) STRICT`,
+    // A site the user added on the Sources page, and how it is read.
+    `CREATE TABLE site (
+      site TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      kind TEXT NOT NULL CHECK (kind IN ('lab', 'outlet')),
+      feed TEXT,
+      posts TEXT NOT NULL,
+      added_at INTEGER NOT NULL
     ) STRICT`,
     `CREATE TABLE follow (
       event INTEGER PRIMARY KEY,
@@ -52,7 +62,37 @@ const interestSchema = z.object({
     .transform((text) => z.array(z.string()).parse(JSON.parse(text))),
 });
 
+const siteSchema = z.object({
+  site: z.string(),
+  name: z.string(),
+  kind: z.enum(['lab', 'outlet']),
+  feed: z.string().nullable(),
+  posts: z.string(),
+});
+
 export default {
+  sites: (): Source[] =>
+    db
+      .prepare(
+        'SELECT site, name, kind, feed, posts FROM site ORDER BY added_at',
+      )
+      .all()
+      .map((row) => siteSchema.parse(row)),
+  // False when the site was added before.
+  addSite: (source: Source) =>
+    db
+      .prepare(
+        `INSERT INTO site (site, name, kind, feed, posts, added_at) VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT (site) DO NOTHING`,
+      )
+      .run(
+        source.site,
+        source.name,
+        source.kind,
+        source.feed,
+        source.posts,
+        Date.now(),
+      ).changes > 0,
   interests: (): Interest[] =>
     db
       .prepare(

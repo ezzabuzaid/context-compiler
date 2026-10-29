@@ -16,6 +16,8 @@
     "@zukhruf/sqlite-drift": "0.3.52",
     "@zukhruf/sqlite-transaction": "0.3.52",
     "ai": "7.0.156",
+    "feedscout": "2.2.1",
+    "feedsmith": "3.0.1",
     "hono": "4.13.14",
     "zod": "4.6.5"
   },

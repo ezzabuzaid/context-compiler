@@ -21,10 +21,11 @@ import { WebStream } from '@workspace/source-web-pages/web-stream';
 import directory from './directory.ts';
 import { NewestFeedItems } from './newest-feed-items.ts';
 import { Reports } from './reports.ts';
+import settings from './settings.ts';
 import type { Source } from './sources.ts';
 
 // The crawler's name, which robots.txt groups match (RFC 9309).
-const userAgent =
+export const userAgent =
   'WhatIsGoingOn/0.1 (+https://github.com/ezzabuzaid/what-is-going-on)';
 
 const destination = new SQLiteDestination({
@@ -83,13 +84,22 @@ async function connection(
   });
 }
 
+// Built from the sources the user added as they are now, as well as the
+// given ones, because a WebSource's inputs cannot change after construction.
 export default async function pipeline(options: {
   sources: readonly Source[];
   // The OpenAI-compatible URL of the EmbeddingGemma 2 server.
   embeddings: string;
 }) {
-  const feeds = options.sources.flatMap(({ feed }) => feed ?? []);
-  const blogs = options.sources.filter(({ feed }) => feed === null);
+  // One input is read once, under the first source that names it.
+  const sources = [
+    ...Map.groupBy(
+      [...options.sources, ...settings.sites()],
+      ({ site, feed }) => feed ?? site,
+    ).values(),
+  ].flatMap(([first]) => first ?? []);
+  const feeds = sources.flatMap(({ feed }) => feed ?? []);
+  const blogs = sources.filter(({ feed }) => feed === null);
   return new Pipeline({
     history,
     connections: [
@@ -124,7 +134,7 @@ export default async function pipeline(options: {
     derived: [
       new Reports({
         path: join(directory, 'app.sqlite'),
-        sources: options.sources,
+        sources,
         embeddings: options.embeddings,
       }),
     ],
