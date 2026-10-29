@@ -248,6 +248,25 @@ await test('a lab post whose page carries no date shows the date its feed gives'
   );
 });
 
+await test('a page that shows its date only as text under its title takes that date', async () => {
+  const shown = new Date(Date.now() - 10 * 86_400_000).toLocaleDateString(
+    'en-US',
+    { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' },
+  );
+  await using lab = await blog({
+    '/blog/reed-sensors': `<!doctype html><html><head><title>Reed Lab builds a moisture sensor from reeds</title></head><body><article><h1>Reed Lab builds a moisture sensor from reeds</h1><p>${shown}</p><p>Reed Lab built a soil moisture sensor from dried river reeds and copper wire.</p><p>Each sensor costs 30 cents and lasts two growing seasons.</p><p>Farmers in 12 villages are testing the first 500 sensors.</p></article></body></html>`,
+  });
+  await crawl([labBlog('Reed Lab', lab.origin)]);
+  await using reader = await serveApp();
+
+  const unmatched = await page(`${reader.origin}/not-matched?hours=720`);
+
+  assert.match(
+    unmatched,
+    /Reed Lab builds a moisture sensor from reeds<\/a> \[Reed Lab\] \[1[01]d\]/,
+  );
+});
+
 await test('a page that declares a publish date in the future shows [no date], not a fresh age', async () => {
   await using lab = await blog({
     '/blog/kiln-schedule': article(

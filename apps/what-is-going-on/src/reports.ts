@@ -48,6 +48,7 @@ const articleSchema = z.object({
   title: z.string(),
   publishedTime: z.string().nullable(),
   published: z.string().nullable(),
+  inferredPublished: z.string().nullable(),
   textContent: z.string(),
 });
 
@@ -136,8 +137,13 @@ export class Reports extends DerivedDataset<SQLiteTable> {
           );
         for (const { row, source } of rows) {
           if (reports.has(row.articleUrl)) continue;
-          // The page's own date first, then the date its feed gave.
-          const published = [row.publishedTime, row.published]
+          // The page's declared date first, then the date its feed gave,
+          // then the date the page shows as text near its title.
+          const published = [
+            row.publishedTime,
+            row.published,
+            row.inferredPublished,
+          ]
             .map((value) => Date.parse(value ?? ''))
             // A date in the future is wrong, as htmldate's max_date rule holds.
             .find((time) => !Number.isNaN(time) && time <= now);
@@ -218,7 +224,7 @@ function articles(connections: readonly Connection<SQLiteTable>[]) {
         return [];
       return database
         .prepare(
-          `SELECT inputUrl, articleUrl, title, publishedTime, published, textContent FROM "${relation}"
+          `SELECT inputUrl, articleUrl, title, publishedTime, published, inferredPublished, textContent FROM "${relation}"
           WHERE NOT list AND title IS NOT NULL`,
         )
         .all()
