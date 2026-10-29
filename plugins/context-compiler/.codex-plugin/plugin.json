@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "context-compiler",
-  "version": "0.31.0",
+  "version": "0.32.0",
   "description": "Choose connectors and ask Codex about the data they import on your Mac.",
   "author": { "name": "Ezz Abuzaid" },
   "repository": "https://github.com/ezzabuzaid/context-compiler",
