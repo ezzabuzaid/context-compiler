@@ -2333,7 +2333,7 @@ test('a connector whose watch ends stops alone and says so, while the others kee
   }
 });
 
-test('a connector whose watcher fails is reported failed with its error and stops alone, while the others keep loading what changes', async () => {
+test('a connector whose watcher fails for a system reason is reported failed with its error and watches again about ten seconds later, while the others keep loading what changes', async () => {
   await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
   const history = await withSafari(mac.path);
   await withConnectors(mac.path);
@@ -2363,6 +2363,9 @@ test('a connector whose watcher fails is reported failed with its error and stop
   );
   cli(mac.path, 'setup', '--connector', 'safari', '--connector', 'photos');
   const watch = started(mac.path, 'sync', 'watch', '--json');
+  const photosLines = () =>
+    watch.printed().filter(({ connector }) => connector === 'photos');
+  const statuses = () => photosLines().map(({ status }) => status);
   try {
     await watch.prints(
       ({ connector, status }) =>
@@ -2370,10 +2373,12 @@ test('a connector whose watcher fails is reported failed with its error and stop
     );
     await watch.prints(({ connector }) => connector === 'safari');
 
-    await rm(join(mac.path, 'Pictures/photos.json'));
-    await watch.prints(
-      ({ connector, status }) => connector === 'photos' && status === 'stopped',
-    );
+    const library = join(mac.path, 'Pictures/photos.json');
+    const listed = await readFile(library);
+    await rm(library);
+    await watch.prints(() => statuses().includes('failed'));
+    // The library is back before the watcher watches again.
+    await writeFile(library, listed);
     visit(history, '2026-04-03T00:00:00Z');
     await watch.prints(
       ({ connector, streams }) =>
@@ -2383,15 +2388,15 @@ test('a connector whose watcher fails is reported failed with its error and stop
           ({ stream, written }) => stream === 'historyVisits' && written === 1,
         ),
     );
-
-    const photosLines = watch
-      .printed()
-      .filter(({ connector }) => connector === 'photos');
-    assert.deepEqual(
-      photosLines.map(({ status }) => status),
-      ['succeeded', 'failed', 'stopped'],
+    await watch.prints(() =>
+      statuses().slice(statuses().indexOf('failed')).includes('succeeded'),
     );
-    assert.match(String(photosLines[1]?.error), /The photo library went away/);
+
+    assert.deepEqual(statuses(), ['succeeded', 'failed', 'succeeded']);
+    assert.match(
+      String(photosLines()[1]?.error),
+      /The photo library went away/,
+    );
     assert.equal(watch.child.exitCode, null, 'the watch stopped altogether');
   } finally {
     watch.child.kill('SIGKILL');
