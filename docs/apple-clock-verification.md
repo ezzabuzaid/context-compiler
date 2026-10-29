@@ -15,7 +15,7 @@ Checked 2026-10-11 in the shared checkout, with Node 26.10.0, macOS 27.0 (26A428
 | 7   | Plugin settings            | Clock appears as an initially unselected switch while other selections keep their behavior                                                                              | Existing real plugin host and temporary settings/pass records                                           | CAUGHT                             |
 | 8   | Manual native acceptance   | Both hosts load Clock; real CLI create/update/unchanged/delete behavior reaches reader views and checkpoints                                                            | Clock UI, native stores, CLI output, plugin host with temporary output                                  | Passed, with the live limits below |
 
-The detailed extraction and history boundaries are in [the Clock reference](https://github.com/ezzabuzaid/elt/blob/main/docs/reference.md#apple-clock). The failure-isolation test initially passed with the first implementation; a strict initial RED was not recorded for every test. Mutation proof supplies the independent observed-failure evidence instead of claiming a RED-first process that did not occur.
+The detailed extraction and history boundaries are in [the Clock README](https://github.com/ezzabuzaid/elt/blob/main/packages/sources/apple/clock/README.md). The failure-isolation test initially passed with the first implementation; a strict initial RED was not recorded for every test. Mutation proof supplies the independent observed-failure evidence instead of claiming a RED-first process that did not occur.
 
 ## Live acceptance
 

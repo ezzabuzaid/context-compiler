@@ -4,7 +4,7 @@
 
 Context Compiler is a Codex plugin and a terminal CLI that import what the apps on a Mac keep (Notes, Mail, Messages, Calendar, Reminders, Contacts, Safari, Books, Activity, Accounts, Call History, Clock, Notification Center, Wallet, Slack, Microsoft Teams, WhatsApp and Instagram) into one SQLite database per connector, and keep it current. The plugin's skills let the agent read those databases directly with `sqlite3 -readonly`. Everything stays on the Mac.
 
-The sources, the SQLite destination and the pipeline that loads them are the [elt](https://github.com/ezzabuzaid/elt) library. This repository holds the hosts: the plugin, the CLI, one connector package per app, and the settings they share. See elt's [stream reference](https://github.com/ezzabuzaid/elt/blob/main/docs/reference.md) for every stream, field and limit, for example [Mail streams](https://github.com/ezzabuzaid/elt/blob/main/docs/reference.md#apple-mail).
+The sources, the SQLite destination and the pipeline that loads them are the [elt](https://github.com/ezzabuzaid/elt) library. This repository holds the hosts: the plugin, the CLI, one connector package per app, and the settings they share. See the README of each [elt source package](https://github.com/ezzabuzaid/elt/tree/main/packages/sources) for its streams, fields and limits, for example [Mail streams](https://github.com/ezzabuzaid/elt/blob/main/packages/sources/apple/mail/README.md).
 
 [Codex plugin](#codex-plugin) · [CLI](#cli) · [Permissions](#permissions) · [Development](#development) · [Connectors and their hosts](docs/connectors-and-hosts.md)
 
@@ -57,7 +57,7 @@ npx nx run cli:start -- setup --connector clock --sync
 npx nx run cli:start -- sync --connector clock
 ```
 
-Clock reads saved alarms, timers and recent durations, world clocks, the current stopwatch and its laps, sounds and regional calendar records. Open Clock once to create its stores; it need not stay open. Unchanged records are skipped and removed objects disappear from the import. Resetting the stopwatch removes its laps; there is no recovered session history. Removing a recent timer can leave its stored duration marked invalid. See [Clock's ten streams, access requirements and live checks](https://github.com/ezzabuzaid/elt/blob/main/docs/reference.md#apple-clock).
+Clock reads saved alarms, timers and recent durations, world clocks, the current stopwatch and its laps, sounds and regional calendar records. Open Clock once to create its stores; it need not stay open. Unchanged records are skipped and removed objects disappear from the import. Resetting the stopwatch removes its laps; there is no recovered session history. Removing a recent timer can leave its stored duration marked invalid. See [Clock's ten streams, access requirements and live checks](https://github.com/ezzabuzaid/elt/blob/main/packages/sources/apple/clock/README.md).
 
 ### Reminders
 
@@ -66,7 +66,7 @@ npx nx run cli:start -- setup --connector reminders
 npx nx run cli:start -- sync --connector reminders
 ```
 
-Reminders reads through EventKit, so Reminders.app need not be open. Grant the terminal app full access in **System Settings → Privacy & Security → Reminders**. Each sync writes only changed reminders and deletes removed ones. Due and start dates are exported as raw date components, so date-only and floating reminders are never shifted into UTC. Apple exposes only the next incomplete occurrence of a recurring reminder. See [Reminders streams](https://github.com/ezzabuzaid/elt/blob/main/docs/reference.md#apple-reminders) for all eight streams and their limits.
+Reminders reads through EventKit, so Reminders.app need not be open. Grant the terminal app full access in **System Settings → Privacy & Security → Reminders**. Each sync writes only changed reminders and deletes removed ones. Due and start dates are exported as raw date components, so date-only and floating reminders are never shifted into UTC. Apple exposes only the next incomplete occurrence of a recurring reminder. See [Reminders streams](https://github.com/ezzabuzaid/elt/blob/main/packages/sources/apple/reminders/README.md) for all eight streams and their limits.
 
 ### Audio transcription
 
