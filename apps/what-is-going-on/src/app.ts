@@ -19,7 +19,7 @@ const app = new Hono();
 for (const route of [linesRoute, eventsRoute, interestsRoute, sourcesRoute]) {
   route(app);
 }
-app.onError((error, c) => {
+app.onError(async (error, c) => {
   const refused = refusedSchema.safeParse(
     error instanceof HTTPException ? error.cause : undefined,
   );
@@ -33,13 +33,13 @@ app.onError((error, c) => {
         }.`,
     );
     return c.html(
-      layout({
+      await layout({
         title: 'Not saved - What is going on',
         hours: controlsSchema.hours.parse(undefined),
         main: markup`<div class="about"><h3>Not saved</h3><ul>${problems.map(
           (problem) => markup`<li>${problem}</li>`,
         )}</ul><p><a href="${c.req.header('referer') ?? '/'}">Back</a></p></div>`,
-      }).toString(),
+      }),
       error.status,
     );
   }

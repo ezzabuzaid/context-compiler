@@ -20,6 +20,7 @@ const { default: app } = await import('./app.ts');
 const { default: pipeline } = await import('./pipeline.ts');
 const { startEmbeddingServer } = await import('./embedding-server.ts');
 const { default: reading } = await import('./reading.ts');
+const { default: ranking } = await import('./ranking.ts');
 
 const hoursAgo = (hours: number) =>
   new Date(Date.now() - hours * 3_600_000).toISOString();
@@ -127,7 +128,10 @@ async function crawl(sources: readonly Source[]) {
   await (await pipeline({ sources, embeddings: embeddings.url })).run();
 }
 
+// The app's server, ranking with a real embedding server as main.ts does.
 async function serveApp() {
+  const embeddings = await startEmbeddingServer(await freePort());
+  ranking.install({ embeddings: embeddings.url });
   const server = serve({ fetch: app.fetch, port: 0, hostname: '127.0.0.1' });
   await once(server, 'listening');
   const { port } = listening(server.address());
@@ -136,6 +140,7 @@ async function serveApp() {
     [Symbol.asyncDispose]: async () => {
       server.close();
       await once(server, 'close');
+      await embeddings[Symbol.asyncDispose]();
     },
   };
 }
@@ -169,12 +174,27 @@ async function click(
   });
 }
 
-async function addInterest(origin: string, name: string, keywords: string) {
+// Adds an interest through the form; disposing it deletes it through
+// [delete], so the next test starts without it.
+async function addInterest(
+  origin: string,
+  name: string,
+  keywords: string,
+  sentence = `About ${name}`,
+) {
   await fetch(`${origin}/interests`, {
     method: 'POST',
-    body: new URLSearchParams({ name, sentence: `About ${name}`, keywords }),
+    body: new URLSearchParams({ name, sentence, keywords }),
     redirect: 'manual',
   });
+  return {
+    [Symbol.asyncDispose]: async () => {
+      await fetch(`${origin}/interest/${encodeURIComponent(name)}/delete`, {
+        method: 'POST',
+        redirect: 'manual',
+      });
+    },
+  };
 }
 
 await test('a crawl of a lab blog makes its posts appear among the events no interest matches', async () => {
@@ -201,7 +221,7 @@ await test('a crawl of a lab blog makes its posts appear among the events no int
   await crawl([labBlog('Quill Lab', lab.origin)]);
   await using reader = await serveApp();
 
-  const unmatched = await page(`${reader.origin}/not-matched`);
+  const unmatched = await page(`${reader.origin}/not-matched?limit=50`);
 
   assert.match(
     unmatched,
@@ -240,7 +260,7 @@ await test('a lab post whose page carries no date shows the date its feed gives'
   ]);
   await using reader = await serveApp();
 
-  const unmatched = await page(`${reader.origin}/not-matched`);
+  const unmatched = await page(`${reader.origin}/not-matched?limit=50`);
 
   assert.match(
     unmatched,
@@ -259,7 +279,9 @@ await test('a page that shows its date only as text under its title takes that d
   await crawl([labBlog('Reed Lab', lab.origin)]);
   await using reader = await serveApp();
 
-  const unmatched = await page(`${reader.origin}/not-matched?hours=720`);
+  const unmatched = await page(
+    `${reader.origin}/not-matched?hours=720&limit=50`,
+  );
 
   assert.match(
     unmatched,
@@ -282,7 +304,7 @@ await test('a page that declares a publish date in the future shows [no date], n
   await crawl([labBlog('Kiln Lab', lab.origin)]);
   await using reader = await serveApp();
 
-  const unmatched = await page(`${reader.origin}/not-matched`);
+  const unmatched = await page(`${reader.origin}/not-matched?limit=50`);
 
   assert.match(
     unmatched,
@@ -330,7 +352,7 @@ await test("an outlet's report of a lab's announcement folds under the lab's lin
   ]);
   await using reader = await serveApp();
 
-  const unmatched = await page(`${reader.origin}/not-matched`);
+  const unmatched = await page(`${reader.origin}/not-matched?limit=50`);
   const event = unmatched.match(
     /Atlas Labs releases Atlas-7, a 70-billion-parameter model<\/a> \[Atlas Labs\] \[4h\] <a href="(\/event\/\d+)">\[\+1\]<\/a>/,
   );
@@ -348,11 +370,11 @@ await test("an outlet's report of a lab's announcement folds under the lab's lin
   );
 });
 
-await test('Today shows a column per interest with only the events whose lab report matches it', async () => {
+await test("Today shows a column per interest with the interest's best line first", async () => {
   await using lab = await blog({
     '/blog/yeast': article(
       'Fern Lab maps every protein in a yeast cell',
-      hoursAgo(3),
+      hoursAgo(20),
       [
         'Fern Lab published a map of 6,000 proteins inside a living yeast cell.',
         'The map shows which proteins touch during cell division.',
@@ -371,7 +393,11 @@ await test('Today shows a column per interest with only the events whose lab rep
   });
   await crawl([labBlog('Fern Lab', lab.origin)]);
   await using reader = await serveApp();
-  await addInterest(reader.origin, 'Biology', 'protein, cell biology');
+  await using _interest = await addInterest(
+    reader.origin,
+    'Biology',
+    'protein, cell biology',
+  );
 
   const today = await page(`${reader.origin}/`);
 
@@ -379,11 +405,13 @@ await test('Today shows a column per interest with only the events whose lab rep
     today,
     /<h3><a class="source" href="\/interest\/Biology">Biology<\/a><\/h3>/,
   );
-  assert.match(today, /Fern Lab maps every protein in a yeast cell<\/a>/);
-  assert.doesNotMatch(today, /Fern Lab tapes out its first inference chip/);
+  assert.match(
+    today,
+    /href="\/interest\/Biology">Biology<\/a><\/h3><ul><li><a href="[^"]+">Fern Lab maps every protein in a yeast cell<\/a>/,
+  );
 });
 
-await test('an interest added without keywords matches by its name', async () => {
+await test('an interest added without keywords ranks by its name', async () => {
   await using lab = await blog({
     '/blog/kelp': article('Kelp Lab farms seaweed for jet fuel', hoursAgo(3), [
       'Kelp Lab grew 40 tonnes of seaweed off the coast and turned it into jet fuel.',
@@ -393,7 +421,7 @@ await test('an interest added without keywords matches by its name', async () =>
   });
   await crawl([labBlog('Kelp Lab', lab.origin)]);
   await using reader = await serveApp();
-  await addInterest(reader.origin, 'Seaweed', '');
+  await using _interest = await addInterest(reader.origin, 'Seaweed', '');
 
   const today = await page(`${reader.origin}/`);
 
@@ -403,7 +431,7 @@ await test('an interest added without keywords matches by its name', async () =>
   );
 });
 
-await test('a keyword with a space matches the same words joined by a hyphen', async () => {
+await test('a keyword with a space ranks the same words joined by a hyphen first', async () => {
   await using lab = await blog({
     '/blog/kestrel-tuning': article(
       'Kestrel Lab: Fine-Tuning the pitch of its glass bells',
@@ -417,13 +445,46 @@ await test('a keyword with a space matches the same words joined by a hyphen', a
   });
   await crawl([labBlog('Kestrel Lab', lab.origin)]);
   await using reader = await serveApp();
-  await addInterest(reader.origin, 'Small tuning', 'fine tuning');
+  await using _interest = await addInterest(
+    reader.origin,
+    'Small tuning',
+    'fine tuning',
+  );
 
   const interest = await page(`${reader.origin}/interest/Small%20tuning`);
 
   assert.match(
     interest,
-    /Kestrel Lab: Fine-Tuning the pitch of its glass bells<\/a>/,
+    /<h3>Small tuning<\/h3><p>[^<]*<\/p><ul><li><a href="[^"]+">Kestrel Lab: Fine-Tuning the pitch of its glass bells<\/a>/,
+  );
+});
+
+await test("an interest's sentence ranks first a post that has none of its keywords", async () => {
+  await using lab = await blog({
+    '/blog/lark-satellite': article(
+      'Lark Lab sends a weather satellite to orbit on a small rocket',
+      hoursAgo(22),
+      [
+        'Lark Lab launched a 40-kilogram weather satellite into a 550-kilometre orbit on Tuesday.',
+        'The rocket lifted off from a coastal pad and released the satellite after nine minutes.',
+        'The satellite will measure clouds and sea temperature for three years.',
+      ],
+    ),
+  });
+  await crawl([labBlog('Lark Lab', lab.origin)]);
+  await using reader = await serveApp();
+  await using _interest = await addInterest(
+    reader.origin,
+    'Spaceflight',
+    'heliophysics',
+    'Rocket launches and satellites that go into orbit',
+  );
+
+  const interest = await page(`${reader.origin}/interest/Spaceflight`);
+
+  assert.match(
+    interest,
+    /<h3>Spaceflight<\/h3><p>[^<]*<\/p><ul><li><a href="[^"]+">Lark Lab sends a weather satellite to orbit on a small rocket<\/a>/,
   );
 });
 
@@ -458,7 +519,7 @@ await test("[x] on an interest's page removes the event from that interest's pag
   });
   await crawl([labBlog('Coral Lab', lab.origin)]);
   await using reader = await serveApp();
-  await addInterest(reader.origin, 'Oceans', 'ocean');
+  await using _interest = await addInterest(reader.origin, 'Oceans', 'ocean');
   const before = await page(`${reader.origin}/interest/Oceans`);
 
   await click(
@@ -473,7 +534,7 @@ await test("[x] on an interest's page removes the event from that interest's pag
   assert.doesNotMatch(after, /Coral Lab sends ocean robots to map a reef/);
 });
 
-await test('Not matched lists the events that no interest shows, and the menu counts them', async () => {
+await test("Not matched lists the lines that no interest's column shows, and the menu counts them", async () => {
   await using lab = await blog({
     '/blog/rail': article(
       'Birch Lab plans a railway timetable with a solver',
@@ -496,20 +557,35 @@ await test('Not matched lists the events that no interest shows, and the menu co
   });
   await crawl([labBlog('Birch Lab', lab.origin)]);
   await using reader = await serveApp();
-  await addInterest(reader.origin, 'Transport', 'railway');
-
-  const unmatched = await page(`${reader.origin}/not-matched`);
-
-  const count = Number(unmatched.match(/Not matched \((\d+)\)/)?.[1]);
-  const lines = (unmatched.split('</ul>')[0]?.split('<li>').length ?? 1) - 1;
-  assert.equal(count, lines);
-  assert.match(
-    unmatched,
-    /Birch Lab records a choir for its speech dataset<\/a>/,
+  await using _interest = await addInterest(
+    reader.origin,
+    'Transport',
+    'railway',
   );
-  assert.doesNotMatch(
-    unmatched,
-    /Birch Lab plans a railway timetable with a solver/,
+
+  const shown = await page(`${reader.origin}/interest/Transport?limit=5`);
+  const unmatched = await page(`${reader.origin}/not-matched?limit=5`);
+
+  const titles = (html: string) =>
+    new Set(
+      [
+        ...(html.split('<main')[1] ?? '').matchAll(
+          /<li><a href="[^"]+">([^<]+)<\/a>/g,
+        ),
+      ].map(([, title]) => title),
+    );
+  const count = Number(unmatched.match(/Not matched \((\d+)\)/)?.[1]);
+  assert.equal(titles(unmatched).size, Math.min(count, 5));
+  assert.ok(
+    titles(shown).has('Birch Lab plans a railway timetable with a solver'),
+  );
+  assert.deepEqual(
+    [...titles(unmatched)].filter((title) => titles(shown).has(title)),
+    [],
+  );
+  assert.ok(
+    titles(shown).has('Birch Lab records a choir for its speech dataset') ||
+      titles(unmatched).has('Birch Lab records a choir for its speech dataset'),
   );
 });
 
@@ -551,7 +627,7 @@ await test('a followed event shows the reports that joined it after the follow a
   await using reader = await serveApp();
   await click(
     reader.origin,
-    await page(`${reader.origin}/not-matched`),
+    await page(`${reader.origin}/not-matched?limit=50`),
     'Kite Labs flies a solar drone for 40 days',
     '[follow]',
   );
@@ -560,7 +636,7 @@ await test('a followed event shows the reports that joined it after the follow a
     labBlog('Kite Labs', lab.origin),
     outletFeed('Sky Wire', outlet.origin),
   ]);
-  const unmatched = await page(`${reader.origin}/not-matched`);
+  const unmatched = await page(`${reader.origin}/not-matched?limit=50`);
   const following = await page(`${reader.origin}/following`);
 
   assert.match(
@@ -613,7 +689,7 @@ await test('a report without a date shows [no date] after the dated ones, and So
   await crawl([labBlog('Clay Lab', lab.origin)]);
   await using reader = await serveApp();
 
-  const unmatched = await page(`${reader.origin}/not-matched`);
+  const unmatched = await page(`${reader.origin}/not-matched?limit=50`);
   const sources = await page(`${reader.origin}/sources`);
 
   assert.match(
@@ -690,7 +766,7 @@ await test('a page that a lab blog links to outside its posts pattern is not rea
   ]);
   await using reader = await serveApp();
 
-  const unmatched = await page(`${reader.origin}/not-matched`);
+  const unmatched = await page(`${reader.origin}/not-matched?limit=50`);
 
   assert.match(unmatched, /Oak Lab dates a beam by its tree rings<\/a>/);
   assert.doesNotMatch(unmatched, /Oak Lab economics team/);
@@ -745,7 +821,7 @@ await test('a blog page added on Sources is read by the running reader through t
 
   await addSite(reader.origin, `${lab.origin}/blog`, 'lab');
   const unmatched = await whenShown(
-    `${reader.origin}/not-matched`,
+    `${reader.origin}/not-matched?limit=50`,
     'Loom Lab weaves a sensor into cotton thread',
   );
   const sources = await page(`${reader.origin}/sources`);
@@ -794,7 +870,7 @@ await test('a page added on Sources that advertises a feed is read through that 
 
   await addSite(reader.origin, `${lab.origin}/`, 'lab');
   const unmatched = await whenShown(
-    `${reader.origin}/not-matched`,
+    `${reader.origin}/not-matched?limit=50`,
     'Pine Lab grows a forest model',
   );
   const sources = await page(`${reader.origin}/sources`);

@@ -4,7 +4,7 @@ import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
 
 import events, { type Line } from '../events.ts';
-import { interestLines, unmatched } from '../matching.ts';
+import ranking from '../ranking.ts';
 import settings, { type Interest } from '../settings.ts';
 import { controls, controlsSchema } from '../views/controls.ts';
 import { layout } from '../views/layout.ts';
@@ -38,20 +38,23 @@ export default function (router: Hono) {
       limit: { select: payload.query.limit, against: controlsSchema.limit },
       hours: { select: payload.query.hours, against: controlsSchema.hours },
     })),
-    (c) => {
+    async (c) => {
       const { limit, hours } = c.var.input;
       const interests = settings.interests();
       const lines = events.lines({ hours });
-      const columns = interests
-        .map((interest) => ({
-          interest,
-          lines: interestLines(interest, lines),
-        }))
-        .filter((column) => column.lines.length > 0);
+      const columns = (
+        await Promise.all(
+          interests.map(async (interest) => ({
+            interest,
+            lines: await ranking.rank(interest, lines),
+          })),
+        )
+      ).filter((column) => column.lines.length > 0);
       return c.html(
-        layout({
+        await layout({
           title: 'What is going on',
           hours,
+          limit,
           controls: controls('/', { limit, hours }),
           main:
             interests.length === 0
@@ -74,7 +77,7 @@ export default function (router: Hono) {
       limit: { select: payload.query.limit, against: controlsSchema.limit },
       hours: { select: payload.query.hours, against: controlsSchema.hours },
     })),
-    (c) => {
+    async (c) => {
       const { name, limit, hours } = c.var.input;
       const interest = settings
         .interests()
@@ -82,12 +85,13 @@ export default function (router: Hono) {
       if (interest === undefined)
         throw new HTTPException(404, { message: 'No such interest' });
       return c.html(
-        layout({
+        await layout({
           title: `${interest.name} - What is going on`,
           hours,
+          limit,
           controls: controls(c.req.path, { limit, hours }),
           main: markup`<div class="about"><h3>${interest.name}</h3><p>${interest.sentence}. [${interest.keywords.join(', ')}]</p>${list(
-            interestLines(interest, events.lines({ hours })),
+            await ranking.rank(interest, events.lines({ hours })),
             limit,
             back(c.req.url),
             interest,
@@ -103,15 +107,20 @@ export default function (router: Hono) {
       limit: { select: payload.query.limit, against: controlsSchema.limit },
       hours: { select: payload.query.hours, against: controlsSchema.hours },
     })),
-    (c) => {
+    async (c) => {
       const { limit, hours } = c.var.input;
       return c.html(
-        layout({
+        await layout({
           title: 'Not matched - What is going on',
           hours,
+          limit,
           controls: controls('/not-matched', { limit, hours }),
           main: markup`<div class="about"><h3>Not matched</h3>${list(
-            unmatched(settings.interests(), events.lines({ hours })),
+            await ranking.unmatched(
+              settings.interests(),
+              events.lines({ hours }),
+              limit,
+            ),
             limit,
             back(c.req.url),
           )}</div>`,

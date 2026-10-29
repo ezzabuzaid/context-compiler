@@ -3,7 +3,7 @@ import type { Hono } from 'hono';
 import { z } from 'zod';
 
 import events from '../events.ts';
-import { matches } from '../matching.ts';
+import ranking from '../ranking.ts';
 import settings from '../settings.ts';
 import { controlsSchema } from '../views/controls.ts';
 import { layout } from '../views/layout.ts';
@@ -31,16 +31,25 @@ export default function (router: Hono) {
         against: z.string().default(''),
       },
     })),
-    (c) => {
+    async (c) => {
       const draft = c.var.input;
       const keywords = keywordsSchema.parse(draft.keywords);
       const answers = settings.answers(draft.name);
+      // The draft's best 20 of the last 30 days, as its column would rank them.
       const found =
-        keywords.length === 0
+        draft.name.trim() === ''
           ? []
-          : events
-              .lines({ hours: 720 })
-              .filter(({ head }) => matches(keywords, head));
+          : (
+              await ranking.rank(
+                {
+                  name: draft.name.trim(),
+                  sentence: draft.sentence.trim(),
+                  keywords:
+                    keywords.length > 0 ? keywords : [draft.name.trim()],
+                },
+                events.lines({ hours: 720 }),
+              )
+            ).slice(0, 20);
       const answer = (report: string, verdict: 'yes' | 'no') =>
         markup`<button formmethod="post" formaction="/interests/answers?${new URLSearchParams({ report, verdict }).toString()}">${
           answers.get(report) === verdict
@@ -48,14 +57,14 @@ export default function (router: Hono) {
             : `[${verdict}]`
         }</button>`;
       return c.html(
-        layout({
+        await layout({
           title: 'Interests - What is going on',
           hours: controlsSchema.hours.parse(undefined),
           main: markup`<div class="about"><h3>Interests</h3><ul>${settings
             .interests()
             .map(
               ({ name, sentence, keywords }) =>
-                markup`<li><a href="/interest/${encodeURIComponent(name)}">${name}</a> ${sentence}. [${keywords.join(', ')}]</li>`,
+                markup`<li><a href="/interest/${encodeURIComponent(name)}">${name}</a> ${sentence}. [${keywords.join(', ')}] <form class="act" method="post" action="/interest/${encodeURIComponent(name)}/delete"><button>[delete]</button></form></li>`,
             )}</ul><h3>New interest</h3><form class="draft" method="post" action="/interests"><p><label for="interest-name">Name</label><br><input id="interest-name" name="name" type="text" required value="${draft.name}"></p><p><label for="interest-sentence">Sentence</label><br><textarea id="interest-sentence" name="sentence" rows="2">${draft.sentence}</textarea></p><p><label for="interest-keywords">Keywords</label><br><input id="interest-keywords" name="keywords" type="text" value="${draft.keywords}"></p><p><button formmethod="get" formaction="/interests" formnovalidate>Show matches</button></p><p>Matches from the last 30 days; mark each [yes] or [no]:</p><ul>${found.map(
             ({ head }) =>
               markup`<li><a href="${head.url}">${head.title}</a> [${head.source}] ${age(head.published_at)} ${answer(head.id, 'yes')} ${answer(head.id, 'no')}</li>`,
@@ -81,6 +90,18 @@ export default function (router: Hono) {
         keywords: keywords.length > 0 ? keywords : [name],
       });
       return c.redirect('/', 303);
+    },
+  );
+
+  // [delete]: the interest and its answers go.
+  router.post(
+    '/interest/:name/delete',
+    validate((payload) => ({
+      name: { select: payload.params.name, against: z.string().min(1) },
+    })),
+    (c) => {
+      settings.deleteInterest(c.var.input.name);
+      return c.redirect('/interests', 303);
     },
   );
 

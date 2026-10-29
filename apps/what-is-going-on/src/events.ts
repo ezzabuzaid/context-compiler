@@ -128,6 +128,8 @@ export default {
             ])
         : [],
     ),
+  report: (id: string): Report | undefined =>
+    reports('SELECT * FROM report WHERE id = ?', id)[0],
   // Every report of one event, earliest first, the undated ones last.
   event: (id: number): Report[] =>
     reports('SELECT * FROM report WHERE event = ?', id).toSorted(oldestFirst),

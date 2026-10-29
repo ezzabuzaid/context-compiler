@@ -1,6 +1,7 @@
 import events from '../events.ts';
-import { unmatched } from '../matching.ts';
+import ranking from '../ranking.ts';
 import settings from '../settings.ts';
+import { controlsSchema } from './controls.ts';
 import { Html, markup, separated } from './markup.ts';
 import stylesheet from './stylesheet.ts';
 
@@ -32,10 +33,11 @@ const updated = new Intl.DateTimeFormat('en-US', {
   timeStyle: 'short',
 });
 
-export function layout(page: {
+export async function layout(page: {
   readonly title: string;
-  // The window of the Not matched count.
+  // The window and the column length of the Not matched count.
   readonly hours: number;
+  readonly limit?: number;
   readonly controls?: Html;
   readonly main: Html;
 }) {
@@ -44,8 +46,13 @@ export function layout(page: {
     markup`<a href="/">Today</a>`,
     markup`<a href="/following">Following (${settings.follows().size})</a>`,
     markup`<a href="/not-matched?hours=${page.hours}">Not matched (${
-      unmatched(settings.interests(), events.lines({ hours: page.hours }))
-        .length
+      (
+        await ranking.unmatched(
+          settings.interests(),
+          events.lines({ hours: page.hours }),
+          page.limit ?? controlsSchema.limit.parse(undefined),
+        )
+      ).length
     })</a>`,
     markup`<a href="/interests">Interests</a>`,
     markup`<a href="/sources">Sources</a>`,

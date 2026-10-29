@@ -60,7 +60,7 @@ function how(rows: readonly { site: string; feed: string | null }[]) {
   }`;
 }
 
-function page(c: Context, notice?: string) {
+async function page(c: Context, notice?: string) {
   const sources = read();
   const newest = events.newest();
   const outlets = [
@@ -88,7 +88,7 @@ function page(c: Context, notice?: string) {
 }
 
 export default function (router: Hono) {
-  router.get('/sources', (c) => c.html(page(c)));
+  router.get('/sources', async (c) => c.html(await page(c)));
 
   // Finds how to read the address, keeps it, and reads the sources again.
   router.post(
@@ -108,12 +108,15 @@ export default function (router: Hono) {
       try {
         const source = await discoverSite(url, kind);
         if (!settings.addSite(source))
-          return c.html(page(c, `${source.site} is already a source.`), 409);
+          return c.html(
+            await page(c, `${source.site} is already a source.`),
+            409,
+          );
         void reading.restart();
         return c.redirect('/sources', 303);
       } catch (error) {
         if (!(error instanceof SiteError)) throw error;
-        return c.html(page(c, error.message), 422);
+        return c.html(await page(c, error.message), 422);
       }
     },
   );

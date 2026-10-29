@@ -26,7 +26,7 @@ export default function (router: Hono) {
     validate((payload) => ({
       id: { select: payload.params.id, against: eventId },
     })),
-    (c) => {
+    async (c) => {
       const { id } = c.var.input;
       const reports = events.event(id);
       const first = head(reports);
@@ -34,7 +34,7 @@ export default function (router: Hono) {
         throw new HTTPException(404, { message: 'No such event' });
       const publishers = new Set(reports.map(({ source }) => source)).size;
       return c.html(
-        layout({
+        await layout({
           title: `${first.title} - What is going on`,
           hours: controlsSchema.hours.parse(undefined),
           main: markup`<div class="about"><h3><a class="source" href="${first.url}">${first.title}</a></h3><p>${reports.length} reports from ${publishers} publishers ${followAction(
@@ -64,7 +64,7 @@ export default function (router: Hono) {
     );
 
   // Each followed event with the reports that joined it since following.
-  router.get('/following', (c) => {
+  router.get('/following', async (c) => {
     const followed = [...settings.follows()].flatMap(([event, at]) => {
       const reports = events.event(event);
       const first = head(reports);
@@ -82,7 +82,7 @@ export default function (router: Hono) {
           ];
     });
     return c.html(
-      layout({
+      await layout({
         title: 'Following - What is going on',
         hours: controlsSchema.hours.parse(undefined),
         main:

@@ -19,7 +19,7 @@ const choice = <T extends number>(values: readonly T[], fallback: T) =>
     .pipe(z.union(values.map((value) => z.literal(value))));
 
 export const controlsSchema = {
-  limit: choice(limits, 50),
+  limit: choice(limits, 10),
   hours: choice(
     windows.map(([hours]) => hours),
     168,

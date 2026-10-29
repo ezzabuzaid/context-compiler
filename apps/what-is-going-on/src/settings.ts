@@ -110,6 +110,10 @@ export default {
       Date.now(),
     );
   },
+  deleteInterest: (name: string) => {
+    db.prepare('DELETE FROM answer WHERE interest = ?').run(name);
+    db.prepare('DELETE FROM interest WHERE name = ?').run(name);
+  },
   // Each report's answer under one interest.
   answers: (interest: string) =>
     new Map(
