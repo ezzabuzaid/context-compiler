@@ -1,0 +1,16 @@
+{
+  "name": "what-is-going-on",
+  "sourceRoot": "apps/what-is-going-on/src",
+  "projectType": "application",
+  "targets": {
+    "format": {},
+    "start": {
+      "dependsOn": ["build"],
+      "command": "node apps/what-is-going-on/dist/main.js"
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "command": "node --test {args} \"apps/what-is-going-on/src/*.test.ts\""
+    }
+  }
+}

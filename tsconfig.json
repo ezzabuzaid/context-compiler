@@ -76,6 +76,9 @@
     },
     {
       "path": "./packages/ui"
+    },
+    {
+      "path": "./apps/what-is-going-on"
     }
   ]
 }
