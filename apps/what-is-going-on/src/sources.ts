@@ -115,7 +115,7 @@ export default [
     'https://stability.ai/news',
     'https://stability.ai/news-updates?format=rss',
   ),
-  lab('Runway', 'https://runwayml.com/research'),
+  lab('Runway', 'https://runway.com/research'),
   lab(
     'ElevenLabs',
     'https://elevenlabs.io/blog',
@@ -124,7 +124,7 @@ export default [
   lab('Physical Intelligence', 'https://www.pi.website/blog'),
   lab('Prime Intellect', 'https://www.primeintellect.ai/blog'),
   lab('Nous Research', 'https://nousresearch.com/blog/'),
-  lab('Cartesia', 'https://cartesia.ai/blog'),
+  lab('Cartesia', 'https://www.cartesia.ai/blog'),
   lab('Cerebras', 'https://www.cerebras.ai/blog'),
   lab('Groq', 'https://groq.com/blog'),
   outlet(
