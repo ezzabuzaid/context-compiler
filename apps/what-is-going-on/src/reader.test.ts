@@ -248,6 +248,29 @@ await test('a lab post whose page carries no date shows the date its feed gives'
   );
 });
 
+await test('a page that declares a publish date in the future shows [no date], not a fresh age', async () => {
+  await using lab = await blog({
+    '/blog/kiln-schedule': article(
+      'Kiln Lab schedules its open day',
+      hoursAgo(-14),
+      [
+        'Kiln Lab will open its furnace hall to visitors for one day in November.',
+        'Engineers will show the 1,400-degree kiln that fires its ceramic membranes.',
+        'Places are free and limited to 200 visitors.',
+      ],
+    ),
+  });
+  await crawl([labBlog('Kiln Lab', lab.origin)]);
+  await using reader = await serveApp();
+
+  const unmatched = await page(`${reader.origin}/not-matched`);
+
+  assert.match(
+    unmatched,
+    /Kiln Lab schedules its open day<\/a> \[Kiln Lab\] \[no date\]/,
+  );
+});
+
 await test("an outlet's report of a lab's announcement folds under the lab's line as [+1], and the event page lists both", async () => {
   await using lab = await blog({
     '/blog/atlas-7': article(

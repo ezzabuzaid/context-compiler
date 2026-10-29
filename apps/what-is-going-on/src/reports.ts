@@ -139,7 +139,8 @@ export class Reports extends DerivedDataset<SQLiteTable> {
           // The page's own date first, then the date its feed gave.
           const published = [row.publishedTime, row.published]
             .map((value) => Date.parse(value ?? ''))
-            .find((time) => !Number.isNaN(time));
+            // A date in the future is wrong, as htmldate's max_date rule holds.
+            .find((time) => !Number.isNaN(time) && time <= now);
           const publisher = new URL(row.articleUrl).host;
           const stored = upsert.get({
             id: row.articleUrl,
