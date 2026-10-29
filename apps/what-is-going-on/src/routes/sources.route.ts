@@ -40,6 +40,26 @@ function read() {
   ];
 }
 
+// How the app reads a lab: [feed] for each feed, and [page] for the blog
+// pages it reads again because they have no feed, named when there are many.
+function how(rows: readonly { site: string; feed: string | null }[]) {
+  const feeds = rows.flatMap(({ feed }) => feed ?? []);
+  const pages = rows
+    .filter(({ feed }) => feed === null)
+    .map(({ site }) => site);
+  const named = (site: string) =>
+    markup`<a href="${site}">${new URL(site).pathname.split('/').findLast(Boolean) ?? site}</a>`;
+  return markup`${feeds.map((feed, index) => markup`${index === 0 ? '' : ' '}[<a href="${feed}">feed</a>]`)}${
+    feeds.length > 0 && pages.length > 0 ? ' ' : ''
+  }${
+    pages.length === 0
+      ? ''
+      : pages.length === 1
+        ? '[page]'
+        : markup`[page: ${pages.map((site, index) => markup`${index === 0 ? '' : ', '}${named(site)}`)}]`
+  }`;
+}
+
 function page(c: Context, notice?: string) {
   const sources = read();
   const newest = events.newest();
@@ -51,14 +71,17 @@ function page(c: Context, notice?: string) {
   return layout({
     title: 'Sources - What is going on',
     hours: controlsSchema.hours.parse(undefined),
-    main: markup`<div class="about"><h3>Labs</h3><ul>${sources
-      .filter(({ kind }) => kind === 'lab')
-      .map(({ site, name, feed }) => {
-        const at = newest.get(name);
-        return markup`<li><a href="${site}">${name}</a> [${feed === null ? 'blog page re-read (no feed)' : markup`<a href="${feed}">feed</a>`}]${
-          at === undefined ? '' : ` ${age(at)}`
-        }</li>`;
-      })}</ul><h3>Outlets</h3><p>${outlets.join(' | ')}</p><h3>Left out</h3><ul>${leftOut.map(
+    main: markup`<div class="about"><h3>Labs</h3><ul>${[
+      ...Map.groupBy(
+        sources.filter(({ kind }) => kind === 'lab'),
+        ({ name }) => name,
+      ),
+    ].map(([name, rows]) => {
+      const at = newest.get(name);
+      return markup`<li><a href="${rows[0]?.site}">${name}</a> ${how(rows)}${
+        at === undefined ? '' : ` ${age(at)}`
+      }</li>`;
+    })}</ul><h3>Outlets</h3><p>${outlets.join(' | ')}</p><h3>Left out</h3><ul>${leftOut.map(
       ({ name, reason }) => markup`<li>${name} [${reason}]</li>`,
     )}</ul><h3>Add a site</h3>${notice === undefined ? '' : markup`<p>${notice}</p>`}<form method="post" action="/sources"><p><label for="site-url">Blog or feed address</label><br><input id="site-url" name="url" type="url" placeholder="https://" required></p><p><label><input type="radio" name="kind" value="lab" checked> lab</label> <label><input type="radio" name="kind" value="outlet"> outlet</label></p><p><button type="submit">Add</button></p></form></div>`,
   });

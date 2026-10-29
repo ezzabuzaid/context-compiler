@@ -39,8 +39,8 @@ const checkpoints = new SQLiteCheckpointStore({
 });
 
 // A source with a feed is read through its newest feed items. A source
-// without one is read through the posts its blog page links to: links under
-// the source's posts address, one hop, so a first crawl reads what the page
+// without one is read through the posts its blog page links to: links that
+// match the source's posts pattern, one hop, so a first crawl reads what the page
 // shows and never the site's sitemaps or archive. Starting pages are read
 // again every hour; posts when they change, as AdaptiveRevisit learns.
 async function connection(
@@ -120,14 +120,7 @@ export default async function pipeline(options: {
               'blogs',
               blogs.map(({ site }) => site),
               [new LinkReader({ maxDepth: 0, maxPages: 0 })],
-              blogs.map(({ posts }) => {
-                const { protocol, hostname, pathname } = new URL(posts);
-                return new URLPattern({
-                  protocol: protocol.slice(0, -1),
-                  hostname,
-                  pathname: `${pathname.replace(/\/$/, '')}/*`,
-                });
-              }),
+              blogs.map(({ posts }) => new URLPattern(posts)),
             ),
           ]),
     ],

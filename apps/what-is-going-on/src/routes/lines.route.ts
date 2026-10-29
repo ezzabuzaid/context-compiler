@@ -11,8 +11,6 @@ import { layout } from '../views/layout.ts';
 import { backSchema, line } from '../views/line.ts';
 import { markup } from '../views/markup.ts';
 
-const newest = (a: Line, b: Line) => b.head.published_at - a.head.published_at;
-
 function list(
   lines: readonly Line[],
   limit: number,
@@ -21,7 +19,6 @@ function list(
 ) {
   const follows = settings.follows();
   return markup`<ul>${lines
-    .toSorted(newest)
     .slice(0, limit)
     .map((item) =>
       line(item, { follows, back, interest: interest?.name }),

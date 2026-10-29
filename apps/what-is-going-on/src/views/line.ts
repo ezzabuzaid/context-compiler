@@ -3,8 +3,10 @@ import { z } from 'zod';
 import type { Line } from '../events.ts';
 import { type Html, markup } from './markup.ts';
 
-// An age as brutalist.report shows it: minutes, hours under a day, then days.
-export function age(at: number) {
+// An age as brutalist.report shows it: minutes, hours under a day, then
+// days. A report without a date has none.
+export function age(at: number | null) {
+  if (at === null) return '[no date]';
   const minutes = Math.max(0, Math.round((Date.now() - at) / 60_000));
   if (minutes < 60) return `[${minutes}m]`;
   const hours = Math.round(minutes / 60);

@@ -40,8 +40,7 @@ export default function (router: Hono) {
           ? []
           : events
               .lines({ hours: 720 })
-              .filter(({ head }) => matches(keywords, head))
-              .toSorted((a, b) => b.head.published_at - a.head.published_at);
+              .filter(({ head }) => matches(keywords, head));
       const answer = (report: string, verdict: 'yes' | 'no') =>
         markup`<button formmethod="post" formaction="/interests/answers?${new URLSearchParams({ report, verdict }).toString()}">${
           answers.get(report) === verdict

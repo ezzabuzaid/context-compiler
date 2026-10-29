@@ -6,7 +6,7 @@ import {
 import { defaultExtractFn } from 'feedscout/feeds';
 
 import { userAgent } from './pipeline.ts';
-import type { Source } from './sources.ts';
+import { type Source, under } from './sources.ts';
 
 // What the user reads about a site that cannot be added.
 export class SiteError extends Error {}
@@ -62,7 +62,7 @@ export async function discoverSite(
       kind,
       site,
       feed: url,
-      posts: site,
+      posts: under(site),
     };
   }
   const advertised = (
@@ -77,7 +77,7 @@ export async function discoverSite(
         kind,
         site: url,
         feed: advertised.url,
-        posts: url,
+        posts: under(url),
       }
-    : { name: host, kind, site: url, feed: null, posts: url };
+    : { name: host, kind, site: url, feed: null, posts: under(url) };
 }

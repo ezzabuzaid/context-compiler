@@ -24,10 +24,16 @@ const { default: reading } = await import('./reading.ts');
 const hoursAgo = (hours: number) =>
   new Date(Date.now() - hours * 3_600_000).toISOString();
 
-function article(title: string, published: string, paragraphs: string[]) {
-  return `<!doctype html><html><head><title>${title}</title>
-<meta property="article:published_time" content="${published}">
-</head><body><article><h1>${title}</h1>${paragraphs
+function article(
+  title: string,
+  published: string | null,
+  paragraphs: string[],
+) {
+  return `<!doctype html><html><head><title>${title}</title>${
+    published === null
+      ? ''
+      : `<meta property="article:published_time" content="${published}">`
+  }</head><body><article><h1>${title}</h1>${paragraphs
     .map((paragraph) => `<p>${paragraph}</p>`)
     .join('')}</article></body></html>`;
 }
@@ -88,7 +94,7 @@ const labBlog = (name: string, origin: string): Source => ({
   kind: 'lab',
   site: `${origin}/blog`,
   feed: null,
-  posts: `${origin}/blog`,
+  posts: `${origin}/blog/*`,
 });
 
 const outletFeed = (name: string, origin: string): Source => ({
@@ -96,7 +102,7 @@ const outletFeed = (name: string, origin: string): Source => ({
   kind: 'outlet',
   site: `${origin}/`,
   feed: `${origin}/feed.xml`,
-  posts: `${origin}/`,
+  posts: `${origin}/*`,
 });
 
 function feed(
@@ -229,7 +235,7 @@ await test('a lab post whose page carries no date shows the date its feed gives'
       kind: 'lab',
       site: `${lab.origin}/`,
       feed: `${lab.origin}/feed.xml`,
-      posts: `${lab.origin}/`,
+      posts: `${lab.origin}/*`,
     },
   ]);
   await using reader = await serveApp();
@@ -469,6 +475,124 @@ await test('a followed event shows the reports that joined it after the follow a
   );
 });
 
+// A page that links to the given paths, as a blog's index does.
+const index = (paths: string[]) => ({
+  type: 'text/html',
+  body: () =>
+    `<!doctype html><html><body><ul>${paths
+      .map((path) => `<li><a href="${path}">${path}</a></li>`)
+      .join('')}</ul></body></html>`,
+});
+
+const post = (html: string) => ({ type: 'text/html', body: () => html });
+
+await test('a report without a date shows [no date] after the dated ones, and Sources shows the age of the newest dated report', async () => {
+  await using lab = await blog({
+    '/blog/clay-dated': article(
+      'Clay Lab fires a ceramic battery',
+      hoursAgo(30),
+      [
+        'Clay Lab fired a ceramic battery that stores 40 watt-hours per kilogram.',
+        'The battery survives 900 degrees.',
+        'Kilns could use it as a heat store.',
+      ],
+    ),
+    '/blog/clay-undated': article(
+      'Clay Lab opens a pottery school for engineers',
+      null,
+      [
+        'Clay Lab opened a pottery school where engineers learn to throw clay.',
+        'Classes run on weekends for twelve weeks.',
+        'The first class has 24 students.',
+      ],
+    ),
+  });
+  await crawl([labBlog('Clay Lab', lab.origin)]);
+  await using reader = await serveApp();
+
+  const unmatched = await page(`${reader.origin}/not-matched`);
+  const sources = await page(`${reader.origin}/sources`);
+
+  assert.match(
+    unmatched,
+    /Clay Lab fires a ceramic battery<\/a> \[Clay Lab\] \[1d\][^]*Clay Lab opens a pottery school for engineers<\/a> \[Clay Lab\] \[no date\]/,
+  );
+  assert.match(sources, />Clay Lab<\/a> \[page\] \[1d\]<\/li>/);
+});
+
+await test('a lab read through two blog pages shows once on Sources, with both pages', async () => {
+  await using lab = await site({
+    '/news': index(['/news/cedar-wins']),
+    '/research': index(['/research/cedar-roots']),
+    '/news/cedar-wins': post(
+      article('Cedar Lab wins a grant for drought maps', hoursAgo(5), [
+        'Cedar Lab won a grant of 3 million euros to map drought in southern Europe.',
+        'The maps will update every week.',
+        'Farmers can read them for free.',
+      ]),
+    ),
+    '/research/cedar-roots': post(
+      article('Cedar Lab measures how deep olive roots grow', hoursAgo(6), [
+        'Cedar Lab measured olive roots that reach 6 metres below the surface.',
+        'Deep roots let the trees survive four dry months.',
+        'The study covers 300 trees.',
+      ]),
+    ),
+  });
+  const page_ = (path: string): Source => ({
+    name: 'Cedar Lab',
+    kind: 'lab',
+    site: `${lab.origin}${path}`,
+    feed: null,
+    posts: `${lab.origin}${path}/*`,
+  });
+  await crawl([page_('/news'), page_('/research')]);
+  await using reader = await serveApp();
+
+  const sources = await page(`${reader.origin}/sources`);
+
+  assert.equal(sources.split('>Cedar Lab</a>').length - 1, 1);
+  assert.match(
+    sources,
+    />Cedar Lab<\/a> \[page: <a href="[^"]+\/news">news<\/a>, <a href="[^"]+\/research">research<\/a>\] \[5h\]/,
+  );
+});
+
+await test('a page that a lab blog links to outside its posts pattern is not read as a post', async () => {
+  await using lab = await site({
+    '/research': index(['/research/team/economics', '/research/oak-rings']),
+    '/research/team/economics': post(
+      article('Oak Lab economics team', hoursAgo(2), [
+        'The economics team of Oak Lab studies how markets use timber.',
+        'It has eight members.',
+        'It publishes a report each year.',
+      ]),
+    ),
+    '/research/oak-rings': post(
+      article('Oak Lab dates a beam by its tree rings', hoursAgo(3), [
+        'Oak Lab dated an oak beam from a church roof to the year 1183 by its tree rings.',
+        'The beam holds 212 rings.',
+        'The church is older than its records say.',
+      ]),
+    ),
+  });
+  await crawl([
+    {
+      name: 'Oak Lab',
+      kind: 'lab',
+      site: `${lab.origin}/research`,
+      feed: null,
+      posts: `${lab.origin}/research/:slug`,
+    },
+  ]);
+  await using reader = await serveApp();
+
+  const unmatched = await page(`${reader.origin}/not-matched`);
+
+  assert.match(unmatched, /Oak Lab dates a beam by its tree rings<\/a>/);
+  assert.doesNotMatch(unmatched, /Oak Lab economics team/);
+});
+
 async function addSite(origin: string, url: string, kind: 'lab' | 'outlet') {
   return fetch(`${origin}/sources`, {
     method: 'POST',
@@ -530,7 +654,7 @@ await test('a blog page added on Sources is read by the running reader through t
   assert.match(
     sources,
     new RegExp(
-      `<a href="${RegExp.escape(`${lab.origin}/blog`)}">[^<]+</a> \\[blog page re-read \\(no feed\\)\\]`,
+      `<a href="${RegExp.escape(`${lab.origin}/blog`)}">[^<]+</a> \\[page\\]`,
     ),
   );
 });

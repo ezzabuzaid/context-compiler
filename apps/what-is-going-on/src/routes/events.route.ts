@@ -3,7 +3,7 @@ import type { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
 
-import events, { type Report } from '../events.ts';
+import events, { type Report, newestFirst } from '../events.ts';
 import settings from '../settings.ts';
 import { controlsSchema } from '../views/controls.ts';
 import { layout } from '../views/layout.ts';
@@ -77,7 +77,7 @@ export default function (router: Hono) {
               first,
               fresh: reports
                 .filter(({ stored_at }) => stored_at > at)
-                .toSorted((a, b) => b.published_at - a.published_at),
+                .toSorted(newestFirst),
             },
           ];
     });

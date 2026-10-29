@@ -25,7 +25,10 @@ const declaration = new Declaration(
       source TEXT NOT NULL,
       kind TEXT NOT NULL CHECK (kind IN ('lab', 'outlet')),
       publisher TEXT NOT NULL,
-      published_at INTEGER NOT NULL,
+      -- When the report was published, declared by its page or given by its
+      -- feed; null when neither gives a date.
+      published_at INTEGER,
+      -- When the app first stored the report.
       stored_at INTEGER NOT NULL,
       event INTEGER
     ) STRICT`,
@@ -99,12 +102,12 @@ export class Reports extends DerivedDataset<SQLiteTable> {
     declaration.apply(database);
     const upsert = database.prepare(
       `INSERT INTO report (id, url, title, lead, source, kind, publisher, published_at, stored_at)
-      VALUES (:id, :url, :title, :lead, :source, :kind, :publisher, coalesce(:published, :now), :now)
+      VALUES (:id, :url, :title, :lead, :source, :kind, :publisher, :published, :now)
       ON CONFLICT (id) DO UPDATE SET
         url = excluded.url, title = excluded.title, lead = excluded.lead,
         source = excluded.source, kind = excluded.kind, publisher = excluded.publisher,
-        published_at = coalesce(:published, report.stored_at)
-      RETURNING published_at`,
+        published_at = excluded.published_at
+      RETURNING coalesce(published_at, stored_at) AS at`,
     );
     const addSource = database.prepare(
       'INSERT OR IGNORE INTO source (site, name, kind, feed) VALUES (?, ?, ?, ?)',
@@ -153,7 +156,9 @@ export class Reports extends DerivedDataset<SQLiteTable> {
             title: row.title,
             body: row.textContent,
             publisher,
-            publishedAt: new Date(z.number().parse(stored?.published_at)),
+            // The grouping needs a day; an undated report takes the day the app
+            // first stored it.
+            publishedAt: new Date(z.number().parse(stored?.at)),
           });
         }
         return reports;

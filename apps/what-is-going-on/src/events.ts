@@ -9,7 +9,8 @@ const reportSchema = z.object({
   lead: z.string(),
   source: z.string(),
   kind: z.enum(['lab', 'outlet']),
-  published_at: z.number(),
+  // null when neither the page nor its feed gives a date.
+  published_at: z.number().nullable(),
   stored_at: z.number(),
   event: z.number(),
 });
@@ -39,13 +40,31 @@ function reports(sql: string, ...parameters: (string | number)[]) {
     : [];
 }
 
-const byPublished = (a: Report, b: Report) => a.published_at - b.published_at;
+// When a report counts for a time window: its date, or, without one, when the
+// app first stored it.
+const when = (report: Report) => report.published_at ?? report.stored_at;
+
+// Dated reports by date, then the undated ones by when the app stored them.
+export function oldestFirst(a: Report, b: Report) {
+  return (
+    Number(a.published_at === null) - Number(b.published_at === null) ||
+    when(a) - when(b)
+  );
+}
+
+// Dated reports newest first, then the undated ones.
+export function newestFirst(a: Report, b: Report) {
+  return (
+    Number(a.published_at === null) - Number(b.published_at === null) ||
+    when(b) - when(a)
+  );
+}
 
 // The lines of one event: its earliest lab report heads it, the other
 // reports fold under it, except the same lab's other reports, which head
 // lines of their own. An event with no lab report has no line.
 function eventLines(members: readonly Report[]): Line[] {
-  const sorted = members.toSorted(byPublished);
+  const sorted = members.toSorted(oldestFirst);
   const head = sorted.find(({ kind }) => kind === 'lab');
   if (head === undefined) return [];
   const own = sorted.filter(
@@ -71,19 +90,21 @@ function eventLines(members: readonly Report[]): Line[] {
 }
 
 export default {
-  // The lines whose lab report was published in the last hours, newest first.
+  // The lines whose lab report was published, or, undated, first stored in
+  // the last hours; newest first.
   lines: ({ hours }: { hours: number }): Line[] => {
     const since = Date.now() - hours * 3_600_000;
     const members = reports(
       `SELECT * FROM report WHERE event IN (
-        SELECT event FROM report WHERE kind = 'lab' AND published_at >= ?
+        SELECT event FROM report
+        WHERE kind = 'lab' AND coalesce(published_at, stored_at) >= ?
       )`,
       since,
     );
     return [...Map.groupBy(members, ({ event }) => event).values()]
       .flatMap(eventLines)
-      .filter(({ head }) => head.published_at >= since)
-      .toSorted((a, b) => byPublished(b.head, a.head));
+      .filter(({ head }) => when(head) >= since)
+      .toSorted((a, b) => newestFirst(a.head, b.head));
   },
   // When the newest report was stored; null before the first refresh.
   updatedAt: (): Date | null => {
@@ -92,13 +113,13 @@ export default {
       db.prepare('SELECT max(stored_at) AS at FROM report').get() ?? {};
     return typeof at === 'number' ? new Date(at) : null;
   },
-  // Each source's newest report, by source name.
+  // Each source's newest dated report, by source name.
   newest: (): Map<string, number> =>
     new Map(
       loaded()
         ? db
             .prepare(
-              'SELECT source, max(published_at) AS at FROM report GROUP BY source',
+              'SELECT source, max(published_at) AS at FROM report WHERE published_at IS NOT NULL GROUP BY source',
             )
             .all()
             .map((row) => [
@@ -107,7 +128,7 @@ export default {
             ])
         : [],
     ),
-  // Every report of one event, earliest first.
+  // Every report of one event, earliest first, the undated ones last.
   event: (id: number): Report[] =>
-    reports('SELECT * FROM report WHERE event = ? ORDER BY published_at', id),
+    reports('SELECT * FROM report WHERE event = ?', id).toSorted(oldestFirst),
 };

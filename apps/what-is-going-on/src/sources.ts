@@ -8,36 +8,58 @@ export type Source = {
   readonly kind: 'lab' | 'outlet';
   readonly site: string;
   readonly feed: string | null;
-  // Where the posts live: a crawl of the blog page reads its links under this
-  // address. Most blogs keep their posts under the blog page itself.
+  // The URLPattern of the posts: a crawl of the blog page reads the links
+  // that match it. Most blogs keep their posts under the blog page itself.
   readonly posts: string;
 };
+
+// The URLPattern of every address under url's path.
+export function under(url: string) {
+  const { origin, pathname } = new URL(url);
+  return `${origin}${pathname.replace(/\/$/, '').replace(/[\\:*?+(){}]/g, '\\$&')}/*`;
+}
 
 const lab = (
   name: string,
   site: string,
   feed: string | null = null,
-  posts = site,
+  posts = under(site),
 ): Source => ({ name, kind: 'lab', site, feed, posts });
 const outlet = (name: string, site: string, feed: string): Source => ({
   name,
   kind: 'outlet',
   site,
   feed,
-  posts: site,
+  posts: under(site),
 });
 
 export default [
-  lab('Anthropic', 'https://www.anthropic.com/news'),
-  lab('Anthropic', 'https://www.anthropic.com/research'),
-  lab('Anthropic', 'https://www.anthropic.com/engineering'),
+  // One path segment: /research/team/economics is a team page, not a post.
+  lab(
+    'Anthropic',
+    'https://www.anthropic.com/news',
+    null,
+    'https://www.anthropic.com/news/:slug',
+  ),
+  lab(
+    'Anthropic',
+    'https://www.anthropic.com/research',
+    null,
+    'https://www.anthropic.com/research/:slug',
+  ),
+  lab(
+    'Anthropic',
+    'https://www.anthropic.com/engineering',
+    null,
+    'https://www.anthropic.com/engineering/:slug',
+  ),
   lab('OpenAI', 'https://openai.com/news/', 'https://openai.com/news/rss.xml'),
   // The blog page moved to /news (2026-10-29); the posts stay under /blog.
   lab(
     'Liquid AI',
     'https://www.liquid.ai/news',
     null,
-    'https://www.liquid.ai/blog',
+    'https://www.liquid.ai/blog/*',
   ),
   lab(
     'Google DeepMind',
