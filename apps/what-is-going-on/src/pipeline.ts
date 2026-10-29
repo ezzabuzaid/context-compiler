@@ -47,7 +47,7 @@ async function connection(
   name: 'feeds' | 'blogs',
   inputs: readonly string[],
   readers: readonly Reader<unknown, unknown>[],
-  include: readonly URLPattern[] | undefined,
+  include: readonly [URLPattern, ...URLPattern[]] | undefined,
 ) {
   const source = new WebSource({
     stream: new WebStream({
@@ -100,6 +100,7 @@ export default async function pipeline(options: {
   ].flatMap(([first]) => first ?? []);
   const feeds = sources.flatMap(({ feed }) => feed ?? []);
   const blogs = sources.filter(({ feed }) => feed === null);
+  const [posts, ...morePosts] = blogs.map(({ posts }) => new URLPattern(posts));
   return new Pipeline({
     history,
     connections: [
@@ -113,14 +114,14 @@ export default async function pipeline(options: {
               undefined,
             ),
           ]),
-      ...(blogs.length === 0
+      ...(posts === undefined
         ? []
         : [
             await connection(
               'blogs',
               blogs.map(({ site }) => site),
               [new LinkReader({ maxDepth: 0, maxPages: 0 })],
-              blogs.map(({ posts }) => new URLPattern(posts)),
+              [posts, ...morePosts],
             ),
           ]),
     ],
