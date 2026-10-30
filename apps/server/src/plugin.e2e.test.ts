@@ -2558,3 +2558,43 @@ test(
     assert.deepEqual(photoIds(scratch.path), ['p1', 'p2', 'p3']);
   },
 );
+
+test(
+  'the plugin, started by its launcher, loads every built-in connector it bundles',
+  { timeout: 120_000 },
+  async (t) => {
+    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
+    const plugin = join(root, 'plugins/context-compiler');
+    const runtime =
+      process.env.CODEX_MCP_NODE_PATH ??
+      join(
+        homedir(),
+        '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node',
+      );
+    const {
+      mcpServers: { 'context-compiler': launcher },
+    } = JSON.parse(readFileSync(join(plugin, '.mcp.json'), 'utf8'));
+    const transport = new StdioClientTransport({
+      command: join(plugin, launcher.command),
+      args: launcher.args,
+      cwd: join(plugin, launcher.cwd),
+      env: { HOME: scratch.path, CODEX_MCP_NODE_PATH: runtime, PATH: '' },
+      stderr: 'pipe',
+    });
+    const client = new Client({ name: 'plugin-e2e', version: '1.0.0' });
+    await client.connect(transport, { signal: t.signal, timeout: 10_000 });
+    try {
+      const result = await client.callTool({
+        name: 'context',
+        arguments: { event: 'UserPromptSubmit' },
+      });
+
+      assert.ok(Array.isArray(result.content));
+      const context = String(result.content[0]?.text);
+      assert.match(context, /^Context Compiler: no connectors are set up\./);
+      assert.doesNotMatch(context, /could not be loaded/, context);
+    } finally {
+      await client.close();
+    }
+  },
+);

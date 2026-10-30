@@ -15,7 +15,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
-import { basename, extname, join } from 'node:path';
+import { basename, dirname, extname, join, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { build } from 'esbuild';
@@ -54,9 +54,11 @@ await build({
   splitting: true,
   format: 'esm',
   platform: 'node',
-  // @keyv/sqlite's Bun driver. The web source opens its HTTP cache with the
-  // node:sqlite driver, so this import never runs under Node.
-  external: ['bun:sqlite'],
+  // @keyv/sqlite's Bun driver: the web source opens its HTTP cache with the
+  // node:sqlite driver, so this import never runs under Node. jsdom, which the
+  // web crawler reads pages with, loads its own files from beside its code
+  // and does not support bundlers, so it ships below as node_modules.
+  external: ['bun:sqlite', 'jsdom'],
   target: 'node24.19',
   outExtension: { '.js': '.mjs' },
   chunkNames: 'chunks/[name]-[hash]',
@@ -66,6 +68,39 @@ await build({
     js: "import { createRequire } from 'node:module'; const require = createRequire(import.meta.url);",
   },
 });
+
+// Copies a package and each package it depends on into outdir/node_modules,
+// each from where Node's package lookup finds it for the package that needs
+// it: the nearest node_modules folder above that holds it. A lookup by
+// folder, not require.resolve, so a package named like a built-in module,
+// such as punycode, is the package.
+function ship(name, from, shipped = new Set()) {
+  let parent = from;
+  while (!existsSync(join(parent, 'node_modules', name, 'package.json'))) {
+    if (dirname(parent) === parent)
+      throw new Error(`${name} is not installed for ${from}`);
+    parent = dirname(parent);
+  }
+  const folder = join(parent, 'node_modules', name);
+  if (shipped.has(folder)) return;
+  shipped.add(folder);
+  const modules = `${sep}node_modules${sep}`;
+  const packagePath = folder.slice(folder.indexOf(modules) + modules.length);
+  cpSync(folder, join(outdir, 'node_modules', packagePath), {
+    recursive: true,
+    dereference: true,
+    filter: (path) => !path.slice(folder.length).includes(modules),
+  });
+  const { dependencies = {} } = JSON.parse(
+    readFileSync(join(folder, 'package.json'), 'utf8'),
+  );
+  for (const dependency of Object.keys(dependencies))
+    ship(dependency, folder, shipped);
+}
+ship(
+  'jsdom',
+  dirname(fileURLToPath(import.meta.resolve('@workspace/sdk-web-crawler'))),
+);
 
 const { version } = JSON.parse(
   readFileSync('plugins/context-compiler/.codex-plugin/plugin.json', 'utf8'),
