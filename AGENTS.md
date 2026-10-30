@@ -73,6 +73,8 @@ When asked for a platform's latest format or practice, read what the vendor's ne
 
 Before writing argv routing, help text, usage errors, prompts or terminal rendering, search the installed package and its authors' siblings for it. In `apps/cli`, commander routes and validates, and clack prompts and renders. When a package takes over a job, such as clack exiting on Ctrl-C while its spinner runs, adapt to how it behaves rather than working around it.
 
+Before proposing a package or an API, list the installed package's whole export surface, renamed exports such as `decide as experimental_decide` included, and read its vendor's current source for providers. A grep for the names you expect is not that list. The decision-model API went this way: a `@zukhruf/decisions` package was proposed while AI SDK 7 already shipped `experimental_decide`, and its official `@ai-sdk/typesafe-ai` provider already spoke llama.cpp's `/v1/systemone`.
+
 Model a set of things that share an algorithm as a template class: an abstract base owns the fixed steps, and each variant is its own small class in its own file (`apps/cli/src/commands/`, the connectors in `packages/connectors/` over `Connector`). Do not use a definitions table imported everywhere and indexed by name. Callers ask an object; they do not reach into a registry.
 
 ## Fake only what cannot run for real
