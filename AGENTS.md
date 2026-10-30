@@ -33,6 +33,8 @@ Before defending a package mechanism, list each consumer with its file and line 
 
 Before you move, extract or wrap a guard such as a lock, name the failure it prevents as a concrete case with the hosts' real configuration, and say who else prevents it. If no host can cause the case, delete the guard; do not find it a new home.
 
+Before proposing a change to a package's rule, state why the rule exists and what each part is responsible for, from the package's README, its ADRs and the commit that introduced the rule. A rule that blocks your case is not yet a gap. The startup-credits crawl went this way: `LinkReader`'s starting-origin rule, `ListingReader`'s starting-page-only sitemaps and `PaginationReader`'s nav and footer removal were first called three gaps; they are one designed scope ("pages from remote feeds are emitted, but cannot expand an unseeded origin") and one correct job (a list's items exclude site chrome).
+
 ## Exhaust live verification before calling something unverified
 
 When a live probe finds no instance of a feature, widen it before concluding: scan the full history, not a sample window, and use any earlier evidence that the data exists. Mark behavior unverified only when the environment genuinely cannot produce it, and say what blocked it.
