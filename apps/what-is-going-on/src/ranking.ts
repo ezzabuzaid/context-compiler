@@ -1,10 +1,9 @@
-import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { Collection, UnknownDocumentError } from '@zukhruf/embeddings';
-import { design3152b } from '@zukhruf/event-grouping';
 import { Profile } from '@zukhruf/relevance-filtering';
 import { embed } from 'ai';
 
 import db from './db.ts';
+import model from './embedding-model.ts';
 import events, { type Line, type Report } from './events.ts';
 import settings, { type Interest } from './settings.ts';
 
@@ -39,25 +38,10 @@ const text = (report: Report) => `${report.title} ${report.lead}`;
 // evidence, and the user's yes and no answers. The best come first; a report
 // the user answered no for is never in that interest.
 class Ranking {
-  #model:
-    | ReturnType<ReturnType<typeof createOpenAICompatible>['embeddingModel']>
-    | undefined;
   // The query vector of each sentence, made once.
   readonly #queries = new Map<string, Promise<number[]>>();
 
-  // The embedding server the event detector stores the vectors with.
-  install({ embeddings }: { embeddings: string }) {
-    this.#model = createOpenAICompatible({
-      name: 'llama.cpp',
-      baseURL: embeddings,
-    }).embeddingModel(design3152b.embeddingModel);
-    this.#queries.clear();
-  }
-
   async rank(interest: Interest, lines: readonly Line[]): Promise<Line[]> {
-    const model = this.#model;
-    if (model === undefined)
-      throw new Error('ranking.install() was not called');
     const vectors = new Collection({ database: db, model });
     // A headline-only report has no vector (event-grouping ADR 0003).
     const stored = (id: string) => {
@@ -123,9 +107,6 @@ class Ranking {
   }
 
   #query(description: string) {
-    const model = this.#model;
-    if (model === undefined)
-      throw new Error('ranking.install() was not called');
     let vector = this.#queries.get(description);
     if (vector === undefined) {
       vector = embed({

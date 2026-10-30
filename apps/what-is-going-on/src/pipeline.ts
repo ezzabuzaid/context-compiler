@@ -88,8 +88,6 @@ async function connection(
 // given ones, because a WebSource's inputs cannot change after construction.
 export default async function pipeline(options: {
   sources: readonly Source[];
-  // The OpenAI-compatible URL of the EmbeddingGemma 2 server.
-  embeddings: string;
 }) {
   // One input is read once, under the first source that names it.
   const sources = [
@@ -129,7 +127,6 @@ export default async function pipeline(options: {
       new Reports({
         path: join(directory, 'app.sqlite'),
         sources,
-        embeddings: options.embeddings,
       }),
     ],
   });

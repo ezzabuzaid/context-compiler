@@ -1,8 +1,6 @@
 import { serve } from '@hono/node-server';
 
 import app from './app.ts';
-import { startEmbeddingServer } from './embedding-server.ts';
-import ranking from './ranking.ts';
 import reading from './reading.ts';
 import sources from './sources.ts';
 
@@ -11,9 +9,7 @@ const stop = Promise.withResolvers<void>();
 for (const signal of ['SIGINT', 'SIGTERM'] as const)
   process.once(signal, () => stop.resolve());
 
-await using embeddings = await startEmbeddingServer(8120);
-ranking.install({ embeddings: embeddings.url });
-reading.start({ sources, embeddings: embeddings.url });
+reading.start({ sources });
 const server = serve({ fetch: app.fetch, port }, () =>
   console.log(`What is going on: http://localhost:${port}`),
 );

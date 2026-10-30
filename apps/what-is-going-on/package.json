@@ -10,7 +10,6 @@
     "@workspace/elt-sqlite": "0.0.1",
     "@workspace/sdk-web-crawler": "0.0.1",
     "@workspace/source-web-pages": "0.0.1",
-    "@zukhruf/coprocess": "0.3.55",
     "@zukhruf/embeddings": "0.3.55",
     "@zukhruf/event-grouping": "0.3.55",
     "@zukhruf/relevance-filtering": "0.3.55",

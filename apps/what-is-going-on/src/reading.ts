@@ -6,10 +6,10 @@ import type { Source } from './sources.ts';
 // pipeline over the full list (elt's apps/web builds its pipeline per sync for
 // the same reason). The checkpoints carry each input's crawl over.
 class Reading {
-  #options: { sources: readonly Source[]; embeddings: string } | undefined;
+  #options: { sources: readonly Source[] } | undefined;
   #watch: { stop: AbortController; ended: Promise<void> } | undefined;
 
-  start(options: { sources: readonly Source[]; embeddings: string }) {
+  start(options: { sources: readonly Source[] }) {
     this.#options = options;
     const stop = new AbortController();
     this.#watch = { stop, ended: watch(options, stop.signal) };
@@ -31,7 +31,7 @@ class Reading {
 }
 
 async function watch(
-  options: { sources: readonly Source[]; embeddings: string },
+  options: { sources: readonly Source[] },
   signal: AbortSignal,
 ) {
   try {

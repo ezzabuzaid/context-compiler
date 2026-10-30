@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
 import { mkdtempDisposable } from 'node:fs/promises';
-import { type AddressInfo, createServer } from 'node:net';
+import type { AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -18,9 +18,7 @@ await using data = await mkdtempDisposable(join(tmpdir(), 'what-is-going-on-'));
 process.env.XDG_DATA_HOME = data.path;
 const { default: app } = await import('./app.ts');
 const { default: pipeline } = await import('./pipeline.ts');
-const { startEmbeddingServer } = await import('./embedding-server.ts');
 const { default: reading } = await import('./reading.ts');
-const { default: ranking } = await import('./ranking.ts');
 
 const hoursAgo = (hours: number) =>
   new Date(Date.now() - hours * 3_600_000).toISOString();
@@ -81,15 +79,6 @@ function listening(address: string | AddressInfo | null) {
   return address;
 }
 
-async function freePort() {
-  const server = createServer().listen(0, '127.0.0.1');
-  await once(server, 'listening');
-  const { port } = listening(server.address());
-  server.close();
-  await once(server, 'close');
-  return port;
-}
-
 const labBlog = (name: string, origin: string): Source => ({
   name,
   kind: 'lab',
@@ -122,16 +111,13 @@ function feed(
   };
 }
 
-// Runs one pass of the pipeline over the sources with a real embedding server.
+// Runs one pass of the pipeline over the sources, embedding through Llama.app.
 async function crawl(sources: readonly Source[]) {
-  await using embeddings = await startEmbeddingServer(await freePort());
-  await (await pipeline({ sources, embeddings: embeddings.url })).run();
+  await (await pipeline({ sources })).run();
 }
 
-// The app's server, ranking with a real embedding server as main.ts does.
+// The app's server, as main.ts serves it.
 async function serveApp() {
-  const embeddings = await startEmbeddingServer(await freePort());
-  ranking.install({ embeddings: embeddings.url });
   const server = serve({ fetch: app.fetch, port: 0, hostname: '127.0.0.1' });
   await once(server, 'listening');
   const { port } = listening(server.address());
@@ -140,7 +126,6 @@ async function serveApp() {
     [Symbol.asyncDispose]: async () => {
       server.close();
       await once(server, 'close');
-      await embeddings[Symbol.asyncDispose]();
     },
   };
 }
@@ -783,12 +768,10 @@ async function addSite(origin: string, url: string, kind: 'lab' | 'outlet') {
 // The app's reader watching its sources, as main.ts runs it: a site added
 // on Sources is read while it runs.
 async function watchSources() {
-  const embeddings = await startEmbeddingServer(await freePort());
-  reading.start({ sources: [], embeddings: embeddings.url });
+  reading.start({ sources: [] });
   return {
     [Symbol.asyncDispose]: async () => {
       await reading.stop();
-      await embeddings[Symbol.asyncDispose]();
     },
   };
 }

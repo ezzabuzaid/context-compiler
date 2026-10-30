@@ -1,7 +1,6 @@
 import { existsSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 
-import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { Collection } from '@zukhruf/embeddings';
 import { EventDetector, design3152b } from '@zukhruf/event-grouping';
 import { Declaration } from '@zukhruf/sqlite-drift';
@@ -11,6 +10,7 @@ import { z } from 'zod';
 import { type Connection, DerivedDataset } from '@workspace/elt';
 import { SQLiteDestination, type SQLiteTable } from '@workspace/elt-sqlite';
 
+import model from './embedding-model.ts';
 import type { Source } from './sources.ts';
 
 // Rebuilt from the crawled articles on any run, so a changed declaration
@@ -70,19 +70,15 @@ export class Reports extends DerivedDataset<SQLiteTable> {
   readonly name = 'reports';
   readonly #path: string;
   readonly #sources: readonly Source[];
-  readonly #embeddings: string;
 
   constructor(options: {
     // The app's own SQLite file, which also keeps the detector's tables.
     path: string;
     sources: readonly Source[];
-    // The OpenAI-compatible URL of the EmbeddingGemma 2 server.
-    embeddings: string;
   }) {
     super();
     this.#path = options.path;
     this.#sources = options.sources;
-    this.#embeddings = options.embeddings;
   }
 
   async refresh({
@@ -175,13 +171,7 @@ export class Reports extends DerivedDataset<SQLiteTable> {
 
     const detector = new EventDetector({
       database,
-      vectors: new Collection({
-        database,
-        model: createOpenAICompatible({
-          name: 'llama.cpp',
-          baseURL: this.#embeddings,
-        }).embeddingModel(design3152b.embeddingModel),
-      }),
+      vectors: new Collection({ database, model }),
       design: design3152b,
     });
     // The detector skips the reports it has already.
