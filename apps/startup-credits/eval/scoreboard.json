@@ -48,5 +48,21 @@
       "investor → home": 1
     },
     "predictions": "runs/2026-10-30T21-25-56-jev-1.14.json"
+  },
+  {
+    "model": "typesafe/jev-1.14",
+    "modelIds": ["typesafe/jev-1.14-20261014"],
+    "ranAt": "2026-10-30T21:32:27.698Z",
+    "answered": 121,
+    "failed": 0,
+    "right": 113,
+    "confusions": {
+      "other_program → home": 2,
+      "other → home": 2,
+      "home → program": 2,
+      "other → program": 1,
+      "investor → home": 1
+    },
+    "predictions": "runs/2026-10-30T21-32-27-typesafe_jev-1.14.json"
   }
 ]
