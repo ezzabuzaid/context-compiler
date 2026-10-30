@@ -1,5 +1,5 @@
 import { Collection, UnknownDocumentError } from '@zukhruf/embeddings';
-import { Profile } from '@zukhruf/relevance-filtering';
+import { Profile, SimilarityScorer } from '@zukhruf/relevance-filtering';
 import { embed } from 'ai';
 
 import db from './db.ts';
@@ -65,24 +65,24 @@ class Ranking {
       [...answers]
         .filter(([id, given]) => given === verdict && stored(id))
         .map(([id]) => id);
-    const description = interest.sentence || interest.name;
-    const filter = new Profile({
-      name: interest.name,
-      description,
-      keywords: interest.keywords.map(keyword),
-      relevant: answered('yes'),
-      notRelevant: answered('no'),
-    }).train({
+    const scorer = new SimilarityScorer({
       vectors,
-      descriptionVector: await this.#query(description),
-      stream: [first, ...rest],
+      embedDescription: (description) => this.#query(description),
       taughtText: (id) => {
         const report = events.report(id);
         return report === undefined ? '' : text(report);
       },
     });
+    const profile = new Profile({
+      name: interest.name,
+      description: interest.sentence || interest.name,
+      keywords: interest.keywords.map(keyword),
+      relevant: answered('yes'),
+      notRelevant: answered('no'),
+    });
+    const scores = await scorer.score(profile, [first, ...rest]);
     const byId = new Map(ranked.map((line) => [line.head.id, line]));
-    return filter.ranked().flatMap((id) => {
+    return scores.ranked().flatMap((id) => {
       const line = byId.get(id);
       return line === undefined || answers.get(id) === 'no' ? [] : [line];
     });
