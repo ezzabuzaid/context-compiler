@@ -35,6 +35,7 @@ app.onError(async (error, c) => {
     return c.html(
       await layout({
         title: 'Not saved - What is going on',
+        signal: c.req.raw.signal,
         hours: controlsSchema.hours.parse(undefined),
         main: markup`<div class="about"><h3>Not saved</h3><ul>${problems.map(
           (problem) => markup`<li>${problem}</li>`,

@@ -4,6 +4,7 @@ import { mkdtempDisposable } from 'node:fs/promises';
 import type { AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
 
 import { serve } from '@hono/node-server';
@@ -161,15 +162,10 @@ async function click(
 
 // Adds an interest through the form; disposing it deletes it through
 // [delete], so the next test starts without it.
-async function addInterest(
-  origin: string,
-  name: string,
-  keywords: string,
-  sentence = `About ${name}`,
-) {
+async function addInterest(origin: string, name: string, sentence = '') {
   await fetch(`${origin}/interests`, {
     method: 'POST',
-    body: new URLSearchParams({ name, sentence, keywords }),
+    body: new URLSearchParams({ name, sentence }),
     redirect: 'manual',
   });
   return {
@@ -180,6 +176,151 @@ async function addInterest(
       });
     },
   };
+}
+
+// Twenty posts of one lab, each about a different thing, so each is an event
+// of its own and the decision model answers twenty lines.
+function twentyPosts(lab: string) {
+  const posts = [
+    [
+      'otters',
+      'counts the otters back in its river',
+      'Otters returned to the river after 40 years.',
+    ],
+    [
+      'basalt',
+      'stores carbon dioxide in basalt rock',
+      'The gas turned to stone within two years.',
+    ],
+    [
+      'violin',
+      'scans a 300-year-old violin with X-rays',
+      'The scan shows three repairs inside the body.',
+    ],
+    [
+      'bread',
+      'bakes bread with a wheat that needs less water',
+      'The loaves rose as well as ordinary ones.',
+    ],
+    [
+      'tram',
+      'tests a tram that charges at every stop',
+      'The tram ran 40 kilometres a day for a month.',
+    ],
+    [
+      'coral',
+      'grows coral on a frame of recycled glass',
+      'Divers counted 900 young corals on the frame.',
+    ],
+    [
+      'chess',
+      'trains a chess program on old club games',
+      'The program won 70 of 100 games against club players.',
+    ],
+    [
+      'honey',
+      'traces fake honey by its sugar pattern',
+      'One jar in five from the market was not pure honey.',
+    ],
+    [
+      'bridge',
+      'listens to the cracks inside a steel bridge',
+      'Microphones found two cracks that inspectors missed.',
+    ],
+    [
+      'owls',
+      'tags barn owls with tiny radio tags',
+      'One owl flew 30 kilometres in a night.',
+    ],
+    [
+      'paint',
+      'makes a white paint that cools a roof',
+      'The roof stayed 8 degrees cooler in July.',
+    ],
+    [
+      'vaccine',
+      'freeze-dries a vaccine for hot regions',
+      'The dried vaccine kept for six months without a fridge.',
+    ],
+    [
+      'language',
+      'records the last speakers of a mountain language',
+      'The archive holds 200 hours of speech.',
+    ],
+    [
+      'solar',
+      'prints solar cells on thin plastic sheets',
+      'The sheets made 18 percent of the power of glass cells.',
+    ],
+    [
+      'sleep',
+      'measures sleep with a ring on the finger',
+      'The ring matched a sleep clinic on 9 nights of 10.',
+    ],
+    [
+      'wheat',
+      'finds a gene that lets wheat resist rust',
+      'Plants with the gene lost no leaves to the fungus.',
+    ],
+    [
+      'meteor',
+      'films meteors with 50 cameras on rooftops',
+      'The cameras tracked 1,200 meteors in one night.',
+    ],
+    [
+      'textile',
+      'turns old jeans into new thread',
+      'The new thread was 80 percent as strong.',
+    ],
+    [
+      'volcano',
+      'flies a drone into the plume of a volcano',
+      'The drone measured the gas for 20 minutes.',
+    ],
+    [
+      'ferment',
+      'ferments cabbage with a new strain of bacteria',
+      'The cabbage was ready in four days instead of ten.',
+    ],
+  ];
+  return Object.fromEntries(
+    posts.map(([slug, did, result], index) => [
+      `/blog/${lab.toLowerCase()}-${slug}`,
+      article(`${lab} Lab ${did}`, hoursAgo(2 + index / 10), [
+        `${lab} Lab reported its work on ${slug} this week.`,
+        `${result}`,
+        'The lab will publish the full data next year.',
+      ]),
+    ]),
+  );
+}
+
+// How many answers of the decision model the app keeps for a sentence, about
+// the reports whose text holds about. No page shows them: the app keeps them
+// in decisions.sqlite so that a page asks the model once (#3430), so a test
+// of that reads the file.
+function answers(sentence: string, about = '') {
+  using database = new DatabaseSync(
+    join(data.path, 'what-is-going-on', 'decisions.sqlite'),
+    { readOnly: true, timeout: 5_000 },
+  );
+  return Number(
+    database
+      .prepare(
+        'SELECT count(*) AS n FROM decision WHERE instr(question, ?) > 0 AND instr(state, ?) > 0',
+      )
+      .get(sentence, about)?.n,
+  );
+}
+
+// Waits, polling from a timer, until the app keeps at least one answer for a
+// sentence, or fails after a minute.
+async function whenAnswered(sentence: string) {
+  const deadline = Date.now() + 60_000;
+  while (answers(sentence) === 0) {
+    assert.ok(Date.now() < deadline, `no answer for ${sentence}`);
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
 }
 
 await test('a crawl of a lab blog makes its posts appear among the events no interest matches', async () => {
@@ -381,7 +522,7 @@ await test("Today shows a column per interest with the interest's best line firs
   await using _interest = await addInterest(
     reader.origin,
     'Biology',
-    'protein, cell biology',
+    'Biology research: proteins, cells and how living things work.',
   );
 
   const today = await page(`${reader.origin}/`);
@@ -396,17 +537,26 @@ await test("Today shows a column per interest with the interest's best line firs
   );
 });
 
-await test('an interest added without keywords ranks by its name', async () => {
+await test('an interest added without a sentence ranks by its name', async () => {
   await using lab = await blog({
     '/blog/kelp': article('Kelp Lab farms seaweed for jet fuel', hoursAgo(3), [
       'Kelp Lab grew 40 tonnes of seaweed off the coast and turned it into jet fuel.',
       'The fuel passed the first engine tests at a test site in Norway.',
       'Kelp Lab plans a farm ten times larger next year.',
     ]),
+    '/blog/kelp-ledger': article(
+      'Kelp Lab moves its accounts to a new ledger system',
+      hoursAgo(2),
+      [
+        'Kelp Lab moved its accounts to a new ledger system this month.',
+        'The finance team closed the quarter two days faster.',
+        'The old system is switched off in December.',
+      ],
+    ),
   });
   await crawl([labBlog('Kelp Lab', lab.origin)]);
   await using reader = await serveApp();
-  await using _interest = await addInterest(reader.origin, 'Seaweed', '');
+  await using _interest = await addInterest(reader.origin, 'Seaweed');
 
   const today = await page(`${reader.origin}/`);
 
@@ -416,35 +566,7 @@ await test('an interest added without keywords ranks by its name', async () => {
   );
 });
 
-await test('a keyword with a space ranks the same words joined by a hyphen first', async () => {
-  await using lab = await blog({
-    '/blog/kestrel-tuning': article(
-      'Kestrel Lab: Fine-Tuning the pitch of its glass bells',
-      hoursAgo(3),
-      [
-        'Kestrel Lab tuned 24 glass bells for a cathedral by grinding their rims by hand.',
-        'Each bell took four days and lost about 30 grams of glass.',
-        'The bells ring for the first time at the winter concert.',
-      ],
-    ),
-  });
-  await crawl([labBlog('Kestrel Lab', lab.origin)]);
-  await using reader = await serveApp();
-  await using _interest = await addInterest(
-    reader.origin,
-    'Small tuning',
-    'fine tuning',
-  );
-
-  const interest = await page(`${reader.origin}/interest/Small%20tuning`);
-
-  assert.match(
-    interest,
-    /<h3>Small tuning<\/h3><p>[^<]*<\/p><ul><li><a href="[^"]+">Kestrel Lab: Fine-Tuning the pitch of its glass bells<\/a>/,
-  );
-});
-
-await test("an interest's sentence ranks first a post that has none of its keywords", async () => {
+await test("an interest's sentence ranks the post about it first", async () => {
   await using lab = await blog({
     '/blog/lark-satellite': article(
       'Lark Lab sends a weather satellite to orbit on a small rocket',
@@ -455,13 +577,21 @@ await test("an interest's sentence ranks first a post that has none of its keywo
         'The satellite will measure clouds and sea temperature for three years.',
       ],
     ),
+    '/blog/lark-garden': article(
+      'Lark Lab plants a garden of herbs on its roof',
+      hoursAgo(21),
+      [
+        'Lark Lab planted 40 kinds of herb in a garden on the roof of its office.',
+        'Staff pick the herbs for the canteen kitchen.',
+        'The garden needs no water in the wet months.',
+      ],
+    ),
   });
   await crawl([labBlog('Lark Lab', lab.origin)]);
   await using reader = await serveApp();
   await using _interest = await addInterest(
     reader.origin,
     'Spaceflight',
-    'heliophysics',
     'Rocket launches and satellites that go into orbit',
   );
 
@@ -473,12 +603,62 @@ await test("an interest's sentence ranks first a post that has none of its keywo
   );
 });
 
+await test('an interest added again with a new sentence ranks by the new sentence, not by the answers for the old one', async () => {
+  await using lab = await blog({
+    '/blog/fjord-glacier': article(
+      'Fjord Lab measures how fast a glacier melts into the sea',
+      hoursAgo(5),
+      [
+        'Fjord Lab put 30 sensors on a glacier where it meets the sea.',
+        'The ice front lost 12 metres a day through the summer.',
+        'The lab will measure the glacier again in the winter.',
+      ],
+    ),
+    '/blog/fjord-beetles': article(
+      'Fjord Lab counts the beetles that live in old pine trees',
+      hoursAgo(6),
+      [
+        'Fjord Lab counted 41 kinds of beetle in the bark of old pine trees.',
+        'Three of the kinds were not known in the region before.',
+        'The beetles live only in trees older than 150 years.',
+      ],
+    ),
+  });
+  await crawl([labBlog('Fjord Lab', lab.origin)]);
+  await using reader = await serveApp();
+  let before: string;
+  {
+    await using _first = await addInterest(
+      reader.origin,
+      'Fieldwork',
+      'Glaciers, sea ice and how fast they melt',
+    );
+    before = await page(`${reader.origin}/interest/Fieldwork`);
+  }
+
+  await using _again = await addInterest(
+    reader.origin,
+    'Fieldwork',
+    'Beetles and the other insects that live in forests',
+  );
+  const after = await page(`${reader.origin}/interest/Fieldwork`);
+
+  assert.match(
+    before,
+    /<h3>Fieldwork<\/h3><p>[^<]*<\/p><ul><li><a href="[^"]+">Fjord Lab measures how fast a glacier melts into the sea<\/a>/,
+  );
+  assert.match(
+    after,
+    /<h3>Fieldwork<\/h3><p>[^<]*<\/p><ul><li><a href="[^"]+">Fjord Lab counts the beetles that live in old pine trees<\/a>/,
+  );
+});
+
 await test('a form the app cannot accept answers with a page that names the problem, not JSON', async () => {
   await using reader = await serveApp();
 
   const response = await fetch(`${reader.origin}/interests`, {
     method: 'POST',
-    body: new URLSearchParams({ name: ' ', sentence: '', keywords: 'kelp' }),
+    body: new URLSearchParams({ name: ' ', sentence: '' }),
     redirect: 'manual',
   });
   const body = await response.text();
@@ -504,7 +684,11 @@ await test("[x] on an interest's page removes the event from that interest's pag
   });
   await crawl([labBlog('Coral Lab', lab.origin)]);
   await using reader = await serveApp();
-  await using _interest = await addInterest(reader.origin, 'Oceans', 'ocean');
+  await using _interest = await addInterest(
+    reader.origin,
+    'Oceans',
+    'The oceans and the life in them.',
+  );
   const before = await page(`${reader.origin}/interest/Oceans`);
 
   await click(
@@ -520,10 +704,12 @@ await test("[x] on an interest's page removes the event from that interest's pag
 });
 
 await test("Not matched lists the lines that no interest's column shows, and the menu counts them", async () => {
+  // Six lines, one more than the column's limit, published in the last hour,
+  // so they are the newest lines and Not matched lists them first.
   await using lab = await blog({
     '/blog/rail': article(
       'Birch Lab plans a railway timetable with a solver',
-      hoursAgo(3),
+      hoursAgo(0.2),
       [
         'Birch Lab built a solver that plans the railway timetable of a whole country.',
         'The solver plans 9,000 trains a day in under a minute.',
@@ -532,11 +718,47 @@ await test("Not matched lists the lines that no interest's column shows, and the
     ),
     '/blog/choir': article(
       'Birch Lab records a choir for its speech dataset',
-      hoursAgo(4),
+      hoursAgo(0.3),
       [
         'Birch Lab recorded a choir of 80 singers for an open speech dataset.',
         'The recordings hold 120 hours of song in five languages.',
         'The dataset is free for research use.',
+      ],
+    ),
+    '/blog/moths': article(
+      'Birch Lab counts the moths that fly to street lamps',
+      hoursAgo(0.4),
+      [
+        'Birch Lab counted 3,000 moths at 40 street lamps over one summer.',
+        'Warm white lamps drew half as many moths as cold white ones.',
+        'The city will test warm lamps in two parks.',
+      ],
+    ),
+    '/blog/clay': article(
+      'Birch Lab fires pottery in a kiln heated by the sun',
+      hoursAgo(0.5),
+      [
+        'Birch Lab fired 60 clay pots in a kiln that mirrors heat with sunlight.',
+        'The kiln reached 1,100 degrees at noon.',
+        'Potters in two villages will try it next spring.',
+      ],
+    ),
+    '/blog/chess': article(
+      'Birch Lab teaches chess to children with a board that talks',
+      hoursAgo(0.6),
+      [
+        'Birch Lab built a chess board that explains each move out loud.',
+        'Children who used it for a month won twice as many games.',
+        'The board costs less than a school calculator.',
+      ],
+    ),
+    '/blog/salt': article(
+      'Birch Lab grows rice in salty soil near the coast',
+      hoursAgo(0.7),
+      [
+        'Birch Lab grew rice in fields that the sea had flooded with salt.',
+        'The new strain gave 80 percent of the usual harvest.',
+        'Farmers on three islands will plant it next season.',
       ],
     ),
   });
@@ -545,7 +767,7 @@ await test("Not matched lists the lines that no interest's column shows, and the
   await using _interest = await addInterest(
     reader.origin,
     'Transport',
-    'railway',
+    'Railways, roads and how people and goods travel.',
   );
 
   const shown = await page(`${reader.origin}/interest/Transport?limit=5`);
@@ -572,7 +794,122 @@ await test("Not matched lists the lines that no interest's column shows, and the
     titles(shown).has('Birch Lab records a choir for its speech dataset') ||
       titles(unmatched).has('Birch Lab records a choir for its speech dataset'),
   );
+  // Each of the lab's lines is in the column or in Not matched, and in one
+  // of them only.
+  const birch = [...titles(shown), ...titles(unmatched)].filter(
+    (title) => title !== undefined && title.startsWith('Birch Lab '),
+  );
+  assert.equal(birch.length, 6);
+  assert.equal(new Set(birch).size, 6);
 });
+
+await test('reports that arrive are answered for every interest, so a page shows them again without asking the decision model', async () => {
+  await using lab = await blog(twentyPosts('Ash'));
+  await using reader = await serveApp();
+  await using _first = await addInterest(
+    reader.origin,
+    'Materials',
+    'New materials and how they are made',
+  );
+  await using _second = await addInterest(
+    reader.origin,
+    'Wildlife',
+    'Wild animals and how they live',
+  );
+
+  await crawl([labBlog('Ash Lab', lab.origin)]);
+  const stored = [
+    answers('New materials and how they are made', 'Ash Lab'),
+    answers('Wild animals and how they live', 'Ash Lab'),
+  ];
+  await page(`${reader.origin}/interest/Materials`);
+  const viewed = answers('New materials and how they are made', 'Ash Lab');
+  const started = performance.now();
+  await page(`${reader.origin}/interest/Materials`);
+  const again = performance.now() - started;
+
+  assert.deepEqual(stored, [20, 20]);
+  // A page that did not find the stored answers would ask about the twenty
+  // reports again, under its own text.
+  assert.equal(viewed, 20);
+  // Asked again, the lines of the window would take seconds: d1 answers in
+  // about 0.3 s each.
+  assert.ok(again < 1_500, `the page took ${Math.round(again)} ms again`);
+});
+
+await test('stopping the reader while the decision model answers for new reports ends in seconds, before most answers', async () => {
+  await using lab = await blog(twentyPosts('Elm'));
+  await using reader = await serveApp();
+  await using _interest = await addInterest(
+    reader.origin,
+    'Harvest',
+    'Farming, food and the crops people grow',
+  );
+  reading.start({ sources: [labBlog('Elm Lab', lab.origin)] });
+  // A failure before the stop below still stops the reader.
+  await using _watch = { [Symbol.asyncDispose]: () => reading.stop() };
+  await whenAnswered('Farming, food and the crops people grow');
+
+  const started = performance.now();
+  await reading.stop();
+  const took = performance.now() - started;
+
+  assert.ok(took < 3_000, `the stop took ${Math.round(took)} ms`);
+  assert.ok(answers('Farming, food and the crops people grow') < 20);
+});
+
+// The views that ask the decision model about the lines of the window, each
+// with a lab and a sentence of its own, so its answers start cold.
+for (const view of [
+  {
+    name: 'Show matches',
+    lab: 'Oak',
+    sentence: 'The sky, the weather and what falls from space',
+    path: (sentence: string) =>
+      `/interests?${new URLSearchParams({ name: 'Sky', sentence })}`,
+    saved: false,
+  },
+  {
+    name: "an interest's page",
+    lab: 'Yew',
+    sentence: 'Music, instruments and the people who play them',
+    path: () => '/interest/Sky',
+    saved: true,
+  },
+  {
+    name: 'Today',
+    lab: 'Fir',
+    sentence: 'Medicine, vaccines and how illness is treated',
+    path: () => '/',
+    saved: true,
+  },
+])
+  await test(`${view.name} that its viewer leaves stops asking the decision model`, async () => {
+    await using lab = await blog(twentyPosts(view.lab));
+    await crawl([labBlog(`${view.lab} Lab`, lab.origin)]);
+    await using reader = await serveApp();
+    await using _interest = view.saved
+      ? await addInterest(reader.origin, 'Sky', view.sentence)
+      : undefined;
+    const leave = new AbortController();
+    const asked = performance.now();
+    const viewed = fetch(`${reader.origin}${view.path(view.sentence)}`, {
+      signal: leave.signal,
+    }).catch(() => undefined);
+    await whenAnswered(view.sentence);
+    // A view that kept asking would store more answers in a few times the
+    // time of the first one, however fast the decision model is today.
+    const wait = Math.max(2_000, 3 * (performance.now() - asked));
+
+    leave.abort();
+    await viewed;
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    const left = answers(view.sentence);
+    await new Promise((resolve) => setTimeout(resolve, wait));
+
+    assert.equal(answers(view.sentence), left);
+    assert.ok(left < 20);
+  });
 
 await test('a followed event shows the reports that joined it after the follow as [N new], and Following lists them', async () => {
   await using lab = await blog({

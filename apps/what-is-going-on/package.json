@@ -4,6 +4,7 @@
   "type": "module",
   "dependencies": {
     "@ai-sdk/openai-compatible": "3.0.80",
+    "@ai-sdk/typesafe-ai": "3.0.31",
     "@hono/node-server": "2.1.5",
     "@sdk-it/hono": "0.46.11",
     "@workspace/elt": "0.0.1",
@@ -12,7 +13,7 @@
     "@workspace/source-web-pages": "0.0.1",
     "@zukhruf/embeddings": "0.3.55",
     "@zukhruf/event-grouping": "0.3.55",
-    "@zukhruf/relevance-filtering": "0.5.1",
+    "@zukhruf/relevance-filtering": "0.6.2",
     "@zukhruf/sqlite-drift": "0.3.55",
     "@zukhruf/sqlite-transaction": "0.3.55",
     "ai": "7.0.156",

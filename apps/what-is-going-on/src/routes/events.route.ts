@@ -36,6 +36,7 @@ export default function (router: Hono) {
       return c.html(
         await layout({
           title: `${first.title} - What is going on`,
+          signal: c.req.raw.signal,
           hours: controlsSchema.hours.parse(undefined),
           main: markup`<div class="about"><h3><a class="source" href="${first.url}">${first.title}</a></h3><p>${reports.length} reports from ${publishers} publishers ${followAction(
             id,
@@ -84,6 +85,7 @@ export default function (router: Hono) {
     return c.html(
       await layout({
         title: 'Following - What is going on',
+        signal: c.req.raw.signal,
         hours: controlsSchema.hours.parse(undefined),
         main:
           followed.length === 0

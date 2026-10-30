@@ -70,6 +70,7 @@ async function page(c: Context, notice?: string) {
   ];
   return layout({
     title: 'Sources - What is going on',
+    signal: c.req.raw.signal,
     hours: controlsSchema.hours.parse(undefined),
     main: markup`<div class="about"><h3>Labs</h3><ul>${[
       ...Map.groupBy(

@@ -10,7 +10,9 @@ import { z } from 'zod';
 import { type Connection, DerivedDataset } from '@workspace/elt';
 import { SQLiteDestination, type SQLiteTable } from '@workspace/elt-sqlite';
 
+import { articleText, score } from './decisions.ts';
 import model from './embedding-model.ts';
+import settings from './settings.ts';
 import type { Source } from './sources.ts';
 
 // Rebuilt from the crawled articles on any run, so a changed declaration
@@ -54,8 +56,8 @@ const articleSchema = z.object({
 
 const sentences = new Intl.Segmenter('en', { granularity: 'sentence' });
 
-// The first sentences of a report, which an interest's keywords are matched
-// against with its title.
+// The first sentences of a report, which the decision model reads with its
+// title.
 function lead(text: string) {
   return [...sentences.segment(text.trim())]
     .slice(0, 3)
@@ -83,8 +85,10 @@ export class Reports extends DerivedDataset<SQLiteTable> {
 
   async refresh({
     connections,
+    signal,
   }: {
     readonly connections: readonly Connection<SQLiteTable>[];
+    readonly signal?: AbortSignal;
   }) {
     const sources = new Map(
       this.#sources.flatMap((source) =>
@@ -187,6 +191,19 @@ export class Reports extends DerivedDataset<SQLiteTable> {
       },
       { mode: 'immediate' },
     );
+    // The decision model answers for every interest when reports arrive, so
+    // a page reads the stored answers (#3430). An interest it did not answer
+    // for is asked again when a page misses.
+    const stream = new Map(
+      [...reports].map(([id, { title, body, publishedAt }]) => [
+        id,
+        { publishedAt, text: articleText({ title, lead: lead(body) }) },
+      ]),
+    );
+    // A run without a signal has no stop.
+    const stop = signal ?? new AbortController().signal;
+    for (const interest of settings.interests())
+      await score(interest, stream, { signal: stop });
   }
 }
 

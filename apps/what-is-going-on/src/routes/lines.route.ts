@@ -25,6 +25,9 @@ function list(
     )}</ul>`;
 }
 
+// An interest's column when the decision model did not answer (#3430).
+const notAnswered = markup`<p>The decision model did not answer.</p>`;
+
 const back = (url: string) => {
   const { pathname, search } = new URL(url);
   return pathname + search;
@@ -46,13 +49,16 @@ export default function (router: Hono) {
         await Promise.all(
           interests.map(async (interest) => ({
             interest,
-            lines: await ranking.rank(interest, lines),
+            ranked: await ranking.rank(interest, lines, {
+              signal: c.req.raw.signal,
+            }),
           })),
         )
-      ).filter((column) => column.lines.length > 0);
+      ).filter(({ ranked }) => !ranked.answered || ranked.lines.length > 0);
       return c.html(
         await layout({
           title: 'What is going on',
+          signal: c.req.raw.signal,
           hours,
           limit,
           controls: controls('/', { limit, hours }),
@@ -62,8 +68,8 @@ export default function (router: Hono) {
               : columns.length === 0
                 ? markup`<p>Nothing matches your interests in this window. <a href="/not-matched?hours=${hours}">See what did not match</a>.</p>`
                 : markup`<div class="brutal-grid">${columns.map(
-                    ({ interest, lines }) =>
-                      markup`<div><h3><a class="source" href="/interest/${encodeURIComponent(interest.name)}">${interest.name}</a></h3>${list(lines, limit, back(c.req.url), interest)}</div>`,
+                    ({ interest, ranked }) =>
+                      markup`<div><h3><a class="source" href="/interest/${encodeURIComponent(interest.name)}">${interest.name}</a></h3>${ranked.answered ? list(ranked.lines, limit, back(c.req.url), interest) : notAnswered}</div>`,
                   )}</div>`,
         }),
       );
@@ -84,18 +90,21 @@ export default function (router: Hono) {
         .find((interest) => interest.name === name);
       if (interest === undefined)
         throw new HTTPException(404, { message: 'No such interest' });
+      const ranked = await ranking.rank(interest, events.lines({ hours }), {
+        signal: c.req.raw.signal,
+      });
       return c.html(
         await layout({
           title: `${interest.name} - What is going on`,
+          signal: c.req.raw.signal,
           hours,
           limit,
           controls: controls(c.req.path, { limit, hours }),
-          main: markup`<div class="about"><h3>${interest.name}</h3><p>${interest.sentence}. [${interest.keywords.join(', ')}]</p>${list(
-            await ranking.rank(interest, events.lines({ hours })),
-            limit,
-            back(c.req.url),
-            interest,
-          )}</div>`,
+          main: markup`<div class="about"><h3>${interest.name}</h3><p>${interest.sentence}.</p>${
+            ranked.answered
+              ? list(ranked.lines, limit, back(c.req.url), interest)
+              : notAnswered
+          }</div>`,
         }),
       );
     },
@@ -112,6 +121,7 @@ export default function (router: Hono) {
       return c.html(
         await layout({
           title: 'Not matched - What is going on',
+          signal: c.req.raw.signal,
           hours,
           limit,
           controls: controls('/not-matched', { limit, hours }),
@@ -120,6 +130,7 @@ export default function (router: Hono) {
               settings.interests(),
               events.lines({ hours }),
               limit,
+              { signal: c.req.raw.signal },
             ),
             limit,
             back(c.req.url),

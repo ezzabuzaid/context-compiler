@@ -14,7 +14,6 @@ const declaration = new Declaration(
     `CREATE TABLE interest (
       name TEXT PRIMARY KEY,
       sentence TEXT NOT NULL,
-      keywords TEXT NOT NULL CHECK (json_valid(keywords)),
       created_at INTEGER NOT NULL
     ) STRICT`,
     // An answer about one report under one interest: [x] on a line, or
@@ -51,15 +50,11 @@ declaration.apply(db);
 export type Interest = {
   readonly name: string;
   readonly sentence: string;
-  readonly keywords: readonly string[];
 };
 
 const interestSchema = z.object({
   name: z.string(),
   sentence: z.string(),
-  keywords: z
-    .string()
-    .transform((text) => z.array(z.string()).parse(JSON.parse(text))),
 });
 
 const siteSchema = z.object({
@@ -95,20 +90,13 @@ export default {
       ).changes > 0,
   interests: (): Interest[] =>
     db
-      .prepare(
-        'SELECT name, sentence, keywords FROM interest ORDER BY created_at',
-      )
+      .prepare('SELECT name, sentence FROM interest ORDER BY created_at')
       .all()
       .map((row) => interestSchema.parse(row)),
   addInterest: (interest: Interest) => {
     db.prepare(
-      'INSERT INTO interest (name, sentence, keywords, created_at) VALUES (?, ?, ?, ?)',
-    ).run(
-      interest.name,
-      interest.sentence,
-      JSON.stringify(interest.keywords),
-      Date.now(),
-    );
+      'INSERT INTO interest (name, sentence, created_at) VALUES (?, ?, ?)',
+    ).run(interest.name, interest.sentence, Date.now());
   },
   deleteInterest: (name: string) => {
     db.prepare('DELETE FROM answer WHERE interest = ?').run(name);

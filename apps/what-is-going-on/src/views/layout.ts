@@ -40,6 +40,8 @@ export async function layout(page: {
   readonly limit?: number;
   readonly controls?: Html;
   readonly main: Html;
+  // The request's signal, which stops the count when the viewer leaves.
+  readonly signal: AbortSignal;
 }) {
   const last = events.updatedAt();
   const views = [
@@ -51,6 +53,7 @@ export async function layout(page: {
           settings.interests(),
           events.lines({ hours: page.hours }),
           page.limit ?? controlsSchema.limit.parse(undefined),
+          { signal: page.signal },
         )
       ).length
     })</a>`,

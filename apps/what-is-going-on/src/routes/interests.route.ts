@@ -3,19 +3,12 @@ import type { Hono } from 'hono';
 import { z } from 'zod';
 
 import events from '../events.ts';
-import ranking from '../ranking.ts';
+import ranking, { type Ranked } from '../ranking.ts';
 import settings from '../settings.ts';
 import { controlsSchema } from '../views/controls.ts';
 import { layout } from '../views/layout.ts';
 import { age } from '../views/line.ts';
 import { markup } from '../views/markup.ts';
-
-const keywordsSchema = z.string().transform((text) =>
-  text
-    .split(',')
-    .map((keyword) => keyword.trim())
-    .filter(Boolean),
-);
 
 export default function (router: Hono) {
   router.get(
@@ -26,30 +19,19 @@ export default function (router: Hono) {
         select: payload.query.sentence,
         against: z.string().default(''),
       },
-      keywords: {
-        select: payload.query.keywords,
-        against: z.string().default(''),
-      },
     })),
     async (c) => {
       const draft = c.var.input;
-      const keywords = keywordsSchema.parse(draft.keywords);
       const answers = settings.answers(draft.name);
       // The draft's best 20 of the last 30 days, as its column would rank them.
-      const found =
+      const found: Ranked =
         draft.name.trim() === ''
-          ? []
-          : (
-              await ranking.rank(
-                {
-                  name: draft.name.trim(),
-                  sentence: draft.sentence.trim(),
-                  keywords:
-                    keywords.length > 0 ? keywords : [draft.name.trim()],
-                },
-                events.lines({ hours: 720 }),
-              )
-            ).slice(0, 20);
+          ? { answered: true, lines: [] }
+          : await ranking.rank(
+              { name: draft.name.trim(), sentence: draft.sentence.trim() },
+              events.lines({ hours: 720 }),
+              { signal: c.req.raw.signal },
+            );
       const answer = (report: string, verdict: 'yes' | 'no') =>
         markup`<button formmethod="post" formaction="/interests/answers?${new URLSearchParams({ report, verdict }).toString()}">${
           answers.get(report) === verdict
@@ -59,16 +41,23 @@ export default function (router: Hono) {
       return c.html(
         await layout({
           title: 'Interests - What is going on',
+          signal: c.req.raw.signal,
           hours: controlsSchema.hours.parse(undefined),
           main: markup`<div class="about"><h3>Interests</h3><ul>${settings
             .interests()
             .map(
-              ({ name, sentence, keywords }) =>
-                markup`<li><a href="/interest/${encodeURIComponent(name)}">${name}</a> ${sentence}. [${keywords.join(', ')}] <form class="act" method="post" action="/interest/${encodeURIComponent(name)}/delete"><button>[delete]</button></form></li>`,
-            )}</ul><h3>New interest</h3><form class="draft" method="post" action="/interests"><p><label for="interest-name">Name</label><br><input id="interest-name" name="name" type="text" required value="${draft.name}"></p><p><label for="interest-sentence">Sentence</label><br><textarea id="interest-sentence" name="sentence" rows="2">${draft.sentence}</textarea></p><p><label for="interest-keywords">Keywords</label><br><input id="interest-keywords" name="keywords" type="text" value="${draft.keywords}"></p><p><button formmethod="get" formaction="/interests" formnovalidate>Show matches</button></p><p>Matches from the last 30 days; mark each [yes] or [no]:</p><ul>${found.map(
-            ({ head }) =>
-              markup`<li><a href="${head.url}">${head.title}</a> [${head.source}] ${age(head.published_at)} ${answer(head.id, 'yes')} ${answer(head.id, 'no')}</li>`,
-          )}</ul><p><button type="submit">Add</button></p></form></div>`,
+              ({ name, sentence }) =>
+                markup`<li><a href="/interest/${encodeURIComponent(name)}">${name}</a> ${sentence}. <form class="act" method="post" action="/interest/${encodeURIComponent(name)}/delete"><button>[delete]</button></form></li>`,
+            )}</ul><h3>New interest</h3><form class="draft" method="post" action="/interests"><p><label for="interest-name">Name</label><br><input id="interest-name" name="name" type="text" required value="${draft.name}"></p><p><label for="interest-sentence">Sentence</label><br><textarea id="interest-sentence" name="sentence" rows="2">${draft.sentence}</textarea></p><p><button formmethod="get" formaction="/interests" formnovalidate>Show matches</button></p><p>Matches from the last 30 days; mark each [yes] or [no]:</p>${
+            found.answered
+              ? markup`<ul>${found.lines
+                  .slice(0, 20)
+                  .map(
+                    ({ head }) =>
+                      markup`<li><a href="${head.url}">${head.title}</a> [${head.source}] ${age(head.published_at)} ${answer(head.id, 'yes')} ${answer(head.id, 'no')}</li>`,
+                  )}</ul>`
+              : markup`<p>The decision model did not answer.</p>`
+          }<p><button type="submit">Add</button></p></form></div>`,
         }),
       );
     },
@@ -79,16 +68,9 @@ export default function (router: Hono) {
     validate((payload) => ({
       name: { select: payload.body.name, against: z.string().trim().min(1) },
       sentence: { select: payload.body.sentence, against: z.string().trim() },
-      keywords: { select: payload.body.keywords, against: keywordsSchema },
     })),
     (c) => {
-      const { name, sentence, keywords } = c.var.input;
-      // An interest without keywords of its own matches by its name.
-      settings.addInterest({
-        name,
-        sentence,
-        keywords: keywords.length > 0 ? keywords : [name],
-      });
+      settings.addInterest(c.var.input);
       return c.redirect('/', 303);
     },
   );
@@ -116,7 +98,6 @@ export default function (router: Hono) {
       },
       name: { select: payload.body.name, against: z.string().trim().min(1) },
       sentence: { select: payload.body.sentence, against: z.string() },
-      keywords: { select: payload.body.keywords, against: z.string() },
     })),
     (c) => {
       const { report, verdict, ...draft } = c.var.input;
