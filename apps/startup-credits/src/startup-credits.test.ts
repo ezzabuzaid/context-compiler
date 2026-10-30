@@ -218,6 +218,150 @@ test('a program page is logged as a new program with each credit amount and its 
   }
 });
 
+// Sentences from the program pages that the first live run on the two lists
+// read on 2026-10-30, with the credit amounts each page offers; null is a
+// page that offers none, whose figures are a funding round or a fund.
+const liveRun: readonly (readonly [
+  string,
+  string,
+  readonly string[] | null,
+])[] = [
+  [
+    'https://aws.amazon.com/startups/',
+    '<p>Apply to receive up to $200,000 in AWS Activate Credits to offset costs on infrastructure, data services, and AI/ML models.</p>',
+    ['$200,000'],
+  ],
+  [
+    'https://www.microsoft.com/en-us/startups',
+    '<p>Access cutting-edge AI models, developer tools, and up to $150,000 in credits, backed by Microsoft’s global customer network.</p>',
+    ['$150,000'],
+  ],
+  [
+    'https://www.cloudflare.com/startups/',
+    '<p>Cloudflare for Startups gives early-stage companies up to $350k in credits to build the next big idea.</p>',
+    ['$350k'],
+  ],
+  [
+    'https://www.linode.com/',
+    '<h2>Get up to US$5,000 in cloud credits*</h2>',
+    ['$5,000'],
+  ],
+  [
+    'https://estuary.dev/startup/',
+    '<p>To help you get off the ground, we offer an exclusive startup program with $2,000 of free Estuary credits over 12 months.</p>',
+    ['$2,000'],
+  ],
+  [
+    'https://education.github.com/pack',
+    '<p>Enjoy a credit of $13 USD per month for 24 months.</p>',
+    ['$13'],
+  ],
+  [
+    'https://claude.com/programs/startups',
+    '<p>Access discounts and credits worth up to $45,000 from companies building with Claude.</p><p>You may be eligible to receive up to $100K in additional API credits, claimed through your VC.</p>',
+    ['$45,000', '$100K'],
+  ],
+  [
+    'https://www.intercom.com/early-stage',
+    '<p>Program members get credits and discounts worth $500K on Stripe, Notion, Linear and more.</p>',
+    ['$500K'],
+  ],
+  [
+    'https://zed.dev/education',
+    '<p>Everything in Zed Pro: all Pro features, unlimited edit predictions, and $10/month in AI token credits.</p>',
+    ['$10'],
+  ],
+  [
+    'https://livekit.com/startups',
+    '<p>Get up to $23K in infrastructure and inference credits, plus LiveKit’s realtime platform to build, test, launch, and scale your product.</p>',
+    ['$23K'],
+  ],
+  [
+    'https://temporal.io/startup',
+    '<p>Our startup program offers $6,000 in Temporal Cloud credits to funded startups that have raised $30M or less.</p>',
+    ['$6,000'],
+  ],
+  [
+    'https://circleci.com/startup-program/',
+    '<h1>Up to $20,000 of free compute credits for eligible startups</h1><p>With this offer, you receive significantly more compute credits than the standard Performance Plan, free Starter Support (valued at $249 per month) at no cost during the program.</p>',
+    ['$20,000'],
+  ],
+  [
+    'https://stripe.com/atlas',
+    '<p>Save with over $200K in offers from partners like AWS, Google, and Xero, and get $2.5K in credits for Stripe products.</p>',
+    ['$2.5K'],
+  ],
+  [
+    'https://www.antler.co/',
+    '<p>Salmon has raised $100M to build a digital bank for the Philippines’ mobile-first generation to redefine banking and credit for millions of users.</p>',
+    null,
+  ],
+  [
+    'https://nebius.com/startups',
+    '<p>Important: Credit offerings are currently available through our VC partners to startups that have raised $5M+.</p>',
+    null,
+  ],
+  [
+    'https://developers.openai.com/community/codex-for-oss',
+    '<p>Over the past year, the Codex Open Source Fund ($1 million) has supported projects that need API credits.</p>',
+    null,
+  ],
+  [
+    'https://aicreditradar.com/',
+    '<p>Pydantic Logfire Personal plan: 10M logs, spans and metrics per month ($20/month usage credit), hard-capped at $0.</p>',
+    ['$20'],
+  ],
+];
+
+test('a dollar figure counts as credits only when the word credit stands next to it, as on the pages of the first live run', async () => {
+  await rm(outputs, { recursive: true, force: true });
+  try {
+    const reported = (lines: readonly string[]) =>
+      lines.filter(
+        (line) =>
+          line.startsWith('new program') ||
+          line.startsWith('no program page found'),
+      );
+    const { lines, errors } = await running(
+      {
+        ...lists(liveRun.map(([url]) => [url, new URL(url).hostname, ''])),
+        ...Object.fromEntries(
+          liveRun.map(([url, body]) => [
+            url,
+            ok(
+              `<!doctype html><html><head><title>${new URL(url).hostname}</title></head><body><main>${body}</main></body></html>`,
+            ),
+          ]),
+        ),
+      },
+      (lines) => reported(lines).length === liveRun.length,
+    );
+
+    const amounts = new Map(
+      reported(lines).map((line) => {
+        const program = /^new program (\S+): (.*)$/u.exec(line);
+        return program
+          ? [
+              program[1],
+              [
+                ...(program[2] ?? '').matchAll(
+                  /(\$\S+?(?: million| thousand)?) \("/gu,
+                ),
+              ].map(([, amount]) => amount),
+            ]
+          : [line.split(' ')[4], null];
+      }),
+    );
+    assert.deepEqual(
+      Object.fromEntries(amounts),
+      Object.fromEntries(liveRun.map(([url, , expected]) => [url, expected])),
+      errors,
+    );
+  } finally {
+    await rm(outputs, { recursive: true, force: true });
+  }
+});
+
 test('a dollar figure in a sentence that names no credits is not a credit amount', async () => {
   await rm(outputs, { recursive: true, force: true });
   try {
