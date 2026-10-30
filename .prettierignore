@@ -7,3 +7,5 @@
 package-lock.json
 # The CLI's default store, rebuilt by its own commands
 /outputs
+# Frozen page text for the startup-credits evaluation, written by eval-seed
+/apps/startup-credits/eval/cache

@@ -1,0 +1,5940 @@
+{
+  "frozenAt": "2026-10-30T19:07:08.619Z",
+  "annotator": "Claude (Opus 5.5), four labelling agents with one guide (session 44d0cc7f, 2026-10-30)",
+  "run": "2026-10-30T11:10:46.797Z",
+  "pages": [
+    {
+      "url": "https://1password.com/",
+      "sha256": "2223987f9253c46c70656f8c42cb7ed4c9949ce3aa3854c6cbd36a7a0b3780ee",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://about.gitlab.com/solutions/education/",
+      "sha256": "19ce3b5cb31c8c34738f3f169c1b9530bf66c98ade112d16ccff508a9b823396",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://about.gitlab.com/solutions/startups/",
+      "sha256": "6886603f10589043b9908aacb3e673e154d513394a669e39eb5e44922966206f",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "free_period",
+          "value": null,
+          "percent": null,
+          "duration": "one year",
+          "who": "Pre-Seed or Seed stage with up to $5M in external funding",
+          "mentions": [
+            {
+              "start": 1547,
+              "end": 1617
+            },
+            {
+              "start": 33,
+              "end": 100
+            }
+          ]
+        },
+        {
+          "kind": "discount",
+          "value": null,
+          "percent": 50,
+          "duration": "Year Two",
+          "who": "Pre-Seed or Seed stage with up to $5M in external funding",
+          "mentions": [
+            {
+              "start": 1730,
+              "end": 1770
+            }
+          ]
+        },
+        {
+          "kind": "discount",
+          "value": null,
+          "percent": 50,
+          "duration": "Year One",
+          "who": "Series A or Series B with up to $20M in external funding",
+          "mentions": [
+            {
+              "start": 1906,
+              "end": 1946
+            }
+          ]
+        },
+        {
+          "kind": "discount",
+          "value": null,
+          "percent": 25,
+          "duration": "Year Two",
+          "who": "Series A or Series B with up to $20M in external funding",
+          "mentions": [
+            {
+              "start": 1982,
+              "end": 2022
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 1434,
+          "end": 1491,
+          "reason": "eligibility"
+        },
+        {
+          "start": 1794,
+          "end": 1850,
+          "reason": "eligibility"
+        },
+        {
+          "start": 1493,
+          "end": 1511,
+          "reason": "eligibility"
+        },
+        {
+          "start": 1619,
+          "end": 1694,
+          "reason": "other"
+        },
+        {
+          "start": 2066,
+          "end": 2355,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 3374,
+          "end": 3477,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 2749,
+          "end": 3075,
+          "reason": "testimonial"
+        },
+        {
+          "start": 1159,
+          "end": 1318,
+          "reason": "marketing"
+        }
+      ]
+    },
+    {
+      "url": "https://accounts.google.com/v3/signin/identifier?continue=https://one.google.com/ai-student&followup=https://one.google.com/ai-student&passive=1209600&flowName=WebLiteSignIn&flowEntry=ServiceLogin&dsh=S-921284725:1793358794003432",
+      "sha256": "d384b13e780593125b6bd2bcbc1aebf287f26b5d4b9512db4e1aec658242c971",
+      "role": "test",
+      "kind": "other",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://aicreditradar.com/",
+      "sha256": "2f89a6d381f062341bcced7571e2f5a7a9967524f6b7ef346dd0dbe60a8cc5d6",
+      "role": "test",
+      "kind": "list",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://ambassador-program-6pmlhfuf2fg.qoder.website/?lang=en",
+      "sha256": "047338b49cba7bd9da984f5af4c98866622dbe07a73f82c5592156565701f25e",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://amplitude.com/startups",
+      "sha256": "db9ffd6f0bd22d5a8d9de6851868750dba3982899cf7aff1ad49cdd132636f7f",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "free_period",
+          "value": {
+            "amount": 60000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": "first year",
+          "who": "fewer than 20 employees, under $10M raised",
+          "mentions": [
+            {
+              "start": 0,
+              "end": 41
+            },
+            {
+              "start": 43,
+              "end": 149
+            },
+            {
+              "start": 2491,
+              "end": 2583
+            },
+            {
+              "start": 5117,
+              "end": 5175
+            },
+            {
+              "start": 7469,
+              "end": 7611
+            }
+          ]
+        },
+        {
+          "kind": "discount",
+          "value": null,
+          "percent": 40,
+          "duration": "year two",
+          "who": "Startup Plan alumni",
+          "mentions": [
+            {
+              "start": 150,
+              "end": 168
+            },
+            {
+              "start": 2632,
+              "end": 2667
+            },
+            {
+              "start": 5248,
+              "end": 5310
+            },
+            {
+              "start": 5693,
+              "end": 5755
+            }
+          ]
+        },
+        {
+          "kind": "discount",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "startups not otherwise eligible that came from an Amplitude partner",
+          "mentions": [
+            {
+              "start": 6259,
+              "end": 6342
+            }
+          ]
+        },
+        {
+          "kind": "free_period",
+          "value": null,
+          "percent": null,
+          "duration": "for as long as you are eligible",
+          "who": "Black founders, under $30M raised, under 150 employees, US-based",
+          "mentions": [
+            {
+              "start": 7706,
+              "end": 7804
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "Startup Plan teams",
+          "mentions": [
+            {
+              "start": 7188,
+              "end": 7318
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 243,
+          "end": 307,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 2740,
+          "end": 2824,
+          "reason": "regular_pricing"
+        },
+        {
+          "start": 3506,
+          "end": 3534,
+          "reason": "marketing"
+        },
+        {
+          "start": 3693,
+          "end": 3784,
+          "reason": "testimonial"
+        },
+        {
+          "start": 3919,
+          "end": 4019,
+          "reason": "other"
+        },
+        {
+          "start": 6230,
+          "end": 6258,
+          "reason": "eligibility"
+        },
+        {
+          "start": 6368,
+          "end": 6521,
+          "reason": "faq"
+        },
+        {
+          "start": 7084,
+          "end": 7142,
+          "reason": "faq"
+        }
+      ],
+      "note": "The VC/accelerator line is counted as a mention of the free Startup Plan; the Tech for Black Founders plan is a separate offer because its eligibility and duration differ."
+    },
+    {
+      "url": "https://arize.com/",
+      "sha256": "4ffd92f3c087d997e12c1460279b655115e0c20593647b7c42f4b74faf949d2c",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://aws.amazon.com/startups/",
+      "sha256": "60b9ee4edad38869c5d83b45458ce3f98acab2c962c35240a6ff42d9bb08f00f",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 200000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "startups",
+          "mentions": [
+            {
+              "start": 1635,
+              "end": 1758
+            },
+            {
+              "start": 4111,
+              "end": 4220
+            },
+            {
+              "start": 1599,
+              "end": 1633
+            }
+          ]
+        },
+        {
+          "kind": "credits",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "AI startups ready to grow",
+          "mentions": [
+            {
+              "start": 1823,
+              "end": 1904
+            },
+            {
+              "start": 4111,
+              "end": 4220
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "startups",
+          "mentions": [
+            {
+              "start": 1403,
+              "end": 1596
+            },
+            {
+              "start": 1190,
+              "end": 1357
+            },
+            {
+              "start": 5141,
+              "end": 5236
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "startups",
+          "mentions": [
+            {
+              "start": 1934,
+              "end": 2002
+            },
+            {
+              "start": 1907,
+              "end": 1932
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 0,
+          "end": 38,
+          "reason": "marketing"
+        },
+        {
+          "start": 1008,
+          "end": 1149,
+          "reason": "marketing"
+        },
+        {
+          "start": 4003,
+          "end": 4110,
+          "reason": "product"
+        },
+        {
+          "start": 4587,
+          "end": 4667,
+          "reason": "product"
+        },
+        {
+          "start": 2003,
+          "end": 2135,
+          "reason": "marketing"
+        },
+        {
+          "start": 1759,
+          "end": 1822,
+          "reason": "other"
+        }
+      ]
+    },
+    {
+      "url": "https://aws.amazon.com/startups/credits",
+      "sha256": "ce82fc9c964c165cd403ab6524798a57576d7c3b0e6e1bf39b8b95e495cdad29",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 200000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "Pre-Series B startups with an Org ID from an Activate Provider",
+          "mentions": [
+            {
+              "start": 1775,
+              "end": 1813
+            },
+            {
+              "start": 449,
+              "end": 606
+            },
+            {
+              "start": 1714,
+              "end": 1745
+            }
+          ]
+        },
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 5000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "bootstrapped or self-funded startups",
+          "mentions": [
+            {
+              "start": 1145,
+              "end": 1181
+            },
+            {
+              "start": 1084,
+              "end": 1113
+            },
+            {
+              "start": 1449,
+              "end": 1492
+            },
+            {
+              "start": 1584,
+              "end": 1644
+            }
+          ]
+        },
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 200000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "invite-only AI startups ready to scale post Activate Portfolio",
+          "mentions": [
+            {
+              "start": 2573,
+              "end": 2597
+            },
+            {
+              "start": 2512,
+              "end": 2570
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 753,
+          "end": 944,
+          "reason": "eligibility"
+        },
+        {
+          "start": 2122,
+          "end": 2174,
+          "reason": "eligibility"
+        },
+        {
+          "start": 3382,
+          "end": 3479,
+          "reason": "other"
+        },
+        {
+          "start": 3574,
+          "end": 3813,
+          "reason": "partner_list"
+        },
+        {
+          "start": 4837,
+          "end": 4921,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 5414,
+          "end": 5457,
+          "reason": "how_to_apply"
+        }
+      ]
+    },
+    {
+      "url": "https://azure.microsoft.com/en-us/free/students",
+      "sha256": "3ddba70d41486c40b9d8abbc47e1fd56f9845c6e8944f86b2a1943565c157113",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": [],
+      "note": "Azure for Students page; it also has an Azure for Startups section (up to $5,000 credits), but the page is the student program."
+    },
+    {
+      "url": "https://capy.ai/open-source",
+      "sha256": "266be7f3ea94412b09d831af3148a2620cd53e7cc111546b6eb9df1bb634db64",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://carta.com/sg/en/",
+      "sha256": "81d6a8f9da7af014084dc3e2a96e40a98165638e60a852e2458baead58f7666e",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://chatgpt.com/codex/students/",
+      "sha256": "a7b5c5276a21da3723b4f3d92079007f2cef4bdba628eabe92d08b28476d1691",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://circleci.com/startup-program/",
+      "sha256": "6e75d0c64e78b787ea87b9600a8cf75af3a8bc93e798fd0f487358e57b372e04",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 20000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "eligible startups",
+          "mentions": [
+            {
+              "start": 0,
+              "end": 59
+            },
+            {
+              "start": 599,
+              "end": 631
+            },
+            {
+              "start": 2053,
+              "end": 2162
+            }
+          ]
+        },
+        {
+          "kind": "free_period",
+          "value": null,
+          "percent": null,
+          "duration": "up to 24 months",
+          "who": "eligible startups",
+          "mentions": [
+            {
+              "start": 886,
+              "end": 906
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": {
+            "amount": 249,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 1974,
+              "end": 2051
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 981,
+              "end": 1026
+            },
+            {
+              "start": 1028,
+              "end": 1132
+            },
+            {
+              "start": 2912,
+              "end": 3185
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 1642,
+          "end": 1674,
+          "reason": "eligibility"
+        },
+        {
+          "start": 1678,
+          "end": 1703,
+          "reason": "eligibility"
+        },
+        {
+          "start": 1707,
+          "end": 1738,
+          "reason": "eligibility"
+        },
+        {
+          "start": 1742,
+          "end": 1841,
+          "reason": "eligibility"
+        },
+        {
+          "start": 3613,
+          "end": 3706,
+          "reason": "regular_pricing"
+        },
+        {
+          "start": 3187,
+          "end": 3510,
+          "reason": "faq"
+        },
+        {
+          "start": 1142,
+          "end": 1284,
+          "reason": "testimonial"
+        },
+        {
+          "start": 633,
+          "end": 739,
+          "reason": "product"
+        }
+      ],
+      "note": "\"Up to 24 months free\" is read as the free promotional period; the $249 is the stated monthly value of Starter Support."
+    },
+    {
+      "url": "https://claude.com/community/ambassadors",
+      "sha256": "12e31aad5e9a8d40d44a8c796f1b5927c31eb476f395fed9b19ac7fbe34dc7b7",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://claude.com/contact-sales/claude-for-oss",
+      "sha256": "ad3f471e50e47b48424e48a8e27a3c4e1fab23ff974f3593d08a1ae1a7c60a24",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://claude.com/programs/campus",
+      "sha256": "1678430c77cf14b9f4f00c30f5a7804f62a92ded072abfad677a52aa704e11ad",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://claude.com/programs/startups",
+      "sha256": "4e3a2e2f29d16c231faf215aa86ea1143bde973d6b283d36fa7285832f55725b",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "perks",
+          "value": {
+            "amount": 45000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "Claude Startups members",
+          "mentions": [
+            {
+              "start": 2332,
+              "end": 2417
+            },
+            {
+              "start": 4813,
+              "end": 4980
+            },
+            {
+              "start": 4203,
+              "end": 4286
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "Claude Startups members",
+          "mentions": [
+            {
+              "start": 2450,
+              "end": 2591
+            },
+            {
+              "start": 5017,
+              "end": 5269
+            },
+            {
+              "start": 4288,
+              "end": 4435
+            }
+          ]
+        },
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 100000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "startups backed by a VC in Anthropic’s partner network",
+          "mentions": [
+            {
+              "start": 5590,
+              "end": 5684
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 2211,
+          "end": 2294,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 4503,
+          "end": 4775,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 5345,
+          "end": 5512,
+          "reason": "faq"
+        },
+        {
+          "start": 150,
+          "end": 231,
+          "reason": "product"
+        },
+        {
+          "start": 293,
+          "end": 414,
+          "reason": "product"
+        },
+        {
+          "start": 1813,
+          "end": 1878,
+          "reason": "testimonial"
+        },
+        {
+          "start": 36,
+          "end": 135,
+          "reason": "marketing"
+        },
+        {
+          "start": 2802,
+          "end": 3046,
+          "reason": "other"
+        }
+      ],
+      "note": "The cohort is full and closed to new applications, but the page still states the member offers; Applied AI sessions and member events are one support offer."
+    },
+    {
+      "url": "https://clerk.com/startups",
+      "sha256": "0ae592ef517d93c74bf287ecac2ee27dde5b62a61d2e2e5e13f1608e3737f72e",
+      "role": "example",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "discount",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "early-stage startups up to 1 year after launch with up to $5 million in venture funding",
+          "mentions": [
+            {
+              "start": 398,
+              "end": 473
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 146,
+          "end": 268,
+          "reason": "regular_pricing"
+        },
+        {
+          "start": 269,
+          "end": 396,
+          "reason": "product"
+        },
+        {
+          "start": 474,
+          "end": 563,
+          "reason": "eligibility"
+        },
+        {
+          "start": 606,
+          "end": 740,
+          "reason": "testimonial"
+        },
+        {
+          "start": 1957,
+          "end": 2028,
+          "reason": "testimonial"
+        },
+        {
+          "start": 60,
+          "end": 144,
+          "reason": "marketing"
+        },
+        {
+          "start": 567,
+          "end": 599,
+          "reason": "marketing"
+        }
+      ]
+    },
+    {
+      "url": "https://cloud.google.com/startup",
+      "sha256": "8f777c91836bf78f4bdb90f84ca8486cc08096c0b8480c05f62ecdae3031ae32",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 350000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": "two years",
+          "who": "AI startups with Pre-Seed to Series A funding",
+          "mentions": [
+            {
+              "start": 12503,
+              "end": 12645
+            },
+            {
+              "start": 27,
+              "end": 272
+            },
+            {
+              "start": 1379,
+              "end": 1407
+            },
+            {
+              "start": 1532,
+              "end": 1580
+            },
+            {
+              "start": 4782,
+              "end": 4949
+            }
+          ]
+        },
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 200000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": "two years",
+          "who": "other (non-AI) startups with Pre-Seed to Series A funding",
+          "mentions": [
+            {
+              "start": 12648,
+              "end": 12790
+            },
+            {
+              "start": 4782,
+              "end": 4949
+            }
+          ]
+        },
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 2000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "startups founded in the past 2 years with a working MVP, planning to seek venture funding",
+          "mentions": [
+            {
+              "start": 4623,
+              "end": 4777
+            }
+          ]
+        },
+        {
+          "kind": "credits",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "Pre-Seed to Series A startups",
+          "mentions": [
+            {
+              "start": 1587,
+              "end": 1638
+            }
+          ]
+        },
+        {
+          "kind": "free_period",
+          "value": null,
+          "percent": null,
+          "duration": "12 months",
+          "who": "Pre-Seed to Series A startups",
+          "mentions": [
+            {
+              "start": 1723,
+              "end": 1785
+            }
+          ]
+        },
+        {
+          "kind": "credits",
+          "value": null,
+          "percent": null,
+          "duration": "monthly",
+          "who": "Pre-Seed to Series A startups",
+          "mentions": [
+            {
+              "start": 1792,
+              "end": 1830
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "Pre-Seed to Series A startups",
+          "mentions": [
+            {
+              "start": 1645,
+              "end": 1716
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "growing startups in the program",
+          "mentions": [
+            {
+              "start": 1837,
+              "end": 1963
+            },
+            {
+              "start": 27,
+              "end": 272
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 3630,
+              "end": 3744
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 3927,
+              "end": 4074
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 4267,
+              "end": 4381
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 1128,
+          "end": 1216,
+          "reason": "eligibility"
+        },
+        {
+          "start": 1987,
+          "end": 2070,
+          "reason": "eligibility"
+        },
+        {
+          "start": 914,
+          "end": 1010,
+          "reason": "product"
+        },
+        {
+          "start": 2314,
+          "end": 2459,
+          "reason": "marketing"
+        },
+        {
+          "start": 8875,
+          "end": 8968,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 11453,
+          "end": 11578,
+          "reason": "regular_pricing"
+        },
+        {
+          "start": 8555,
+          "end": 8734,
+          "reason": "eligibility"
+        },
+        {
+          "start": 12792,
+          "end": 12877,
+          "reason": "other"
+        }
+      ],
+      "note": "Scale AI ($350k) and Scale ($200k) are split by the footnote; the generic \"credits for Gemini and Gemma\" bullet may be part of the Cloud credits rather than a separate offer."
+    },
+    {
+      "url": "https://cloud.google.com/startup/ai",
+      "sha256": "d3ef970896e36f39e24303e00efaf2024d9d0ee41d23c9b3a94a63f0815f889b",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 350000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": "2 years",
+          "who": "AI startups that raised Pre-Seed/Seed in the last five years or Series A in the last 12 months",
+          "mentions": [
+            {
+              "start": 4576,
+              "end": 4666
+            },
+            {
+              "start": 51,
+              "end": 90
+            },
+            {
+              "start": 2152,
+              "end": 2211
+            },
+            {
+              "start": 4674,
+              "end": 4749
+            },
+            {
+              "start": 4754,
+              "end": 4813
+            },
+            {
+              "start": 4821,
+              "end": 4895
+            },
+            {
+              "start": 4903,
+              "end": 4975
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 5084,
+              "end": 5160
+            },
+            {
+              "start": 5167,
+              "end": 5280
+            },
+            {
+              "start": 5286,
+              "end": 5359
+            },
+            {
+              "start": 138,
+              "end": 170
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 4267,
+          "end": 4395,
+          "reason": "eligibility"
+        },
+        {
+          "start": 4400,
+          "end": 4434,
+          "reason": "eligibility"
+        },
+        {
+          "start": 4439,
+          "end": 4496,
+          "reason": "eligibility"
+        },
+        {
+          "start": 7980,
+          "end": 8357,
+          "reason": "eligibility"
+        },
+        {
+          "start": 7922,
+          "end": 7978,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 7407,
+          "end": 7728,
+          "reason": "other"
+        },
+        {
+          "start": 6793,
+          "end": 7190,
+          "reason": "testimonial"
+        },
+        {
+          "start": 5972,
+          "end": 6124,
+          "reason": "product"
+        }
+      ],
+      "note": "The Year 1 / Year 2 and AI-first amounts are parts of one up-to-$350,000 credit offer; the Gemini Startup Forum is a separate Google for Startups event, not labelled."
+    },
+    {
+      "url": "https://cohere.com/",
+      "sha256": "e499dfb0de55aa34d79354508902589497830d89844345980f2c03113d9b5e54",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://contextual.ai/",
+      "sha256": "d8dfba2544a0e8357662d3307f34c65e82d3f97c58bb7ab510d1a55f9a05b77c",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://cursor.com/campus-leads",
+      "sha256": "962884e3c400826fe886cf7f57e3b48d96fe7914212f43c9f804cfe1cdbe6d21",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://customer.io/",
+      "sha256": "0e15577de5e5d1ff6caad3952df5ad5b46f0514983c6d25268ee2a0f3d2f821e",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://deepgram.com/startup-program",
+      "sha256": "5ef0e6e4dfd589d5cd2814e97d35ce454e8d6af1990c55ae585bdfa8ceef74ad",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 100000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": "12 months",
+          "who": "AI builders or early-stage startups",
+          "mentions": [
+            {
+              "start": 583,
+              "end": 663
+            },
+            {
+              "start": 9525,
+              "end": 9725
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 6419,
+          "end": 6601,
+          "reason": "eligibility"
+        },
+        {
+          "start": 6837,
+          "end": 6926,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 6740,
+          "end": 6809,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 10459,
+          "end": 10565,
+          "reason": "regular_pricing"
+        },
+        {
+          "start": 9753,
+          "end": 9811,
+          "reason": "faq"
+        },
+        {
+          "start": 10703,
+          "end": 10857,
+          "reason": "eligibility"
+        },
+        {
+          "start": 10596,
+          "end": 10654,
+          "reason": "regular_pricing"
+        },
+        {
+          "start": 8197,
+          "end": 8265,
+          "reason": "testimonial"
+        }
+      ]
+    },
+    {
+      "url": "https://developers.openai.com/community/codex-for-oss",
+      "sha256": "988abaad844aa9ab4694ade1917e1e50272b3ebf636dab9a2ecaffcb8ecaf73a",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://devin.ai/community",
+      "sha256": "c934933221ecde9ff1aac5d088b065e184fa64ed9dd83791b86b7f26c827f3e9",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": [],
+      "note": "Community page with events, ambassadors and event support; nothing for startups."
+    },
+    {
+      "url": "https://devin.ai/startups",
+      "sha256": "5c849803e699784ab38206a55271779bdd2834202f62a2196a7d91b7aa26811f",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 65000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "approved startups",
+          "mentions": [
+            {
+              "start": 20,
+              "end": 60
+            },
+            {
+              "start": 217,
+              "end": 294
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 126,
+          "end": 196,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 366,
+          "end": 497,
+          "reason": "testimonial"
+        },
+        {
+          "start": 718,
+          "end": 782,
+          "reason": "testimonial"
+        },
+        {
+          "start": 1429,
+          "end": 1506,
+          "reason": "marketing"
+        }
+      ],
+      "note": "Headline says $65K in credits and grants while step 02 says $15K in free credits; the split between credits and grants is not stated, so one credits offer at the largest amount."
+    },
+    {
+      "url": "https://doanbactam.github.io/awesome-builder-programs/",
+      "sha256": "1eda3f09b21dd9ad22a82a1ef65ae7600ffcf41b96ce9b504154b2296cf5a22e",
+      "role": "test",
+      "kind": "list",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://docs.mistral.ai/resources/ambassadors",
+      "sha256": "dcd0dc00e86088b41e1bb8883aba57d0e4a13876b2d3f5147c5b7cdb42dbf873",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://drata.com/",
+      "sha256": "38c95b4afe8761cb172cfaf40ff30db7b7111ac9b85a9b6f859163b2cd11567f",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://education.github.com/pack",
+      "sha256": "f0eeadd4227a2ae56ba89bbba7f0f4e6470f6cf35453ddd6f04a2c9aed05c7ae",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": [],
+      "note": "GitHub Student Developer Pack: offers for students, not startups."
+    },
+    {
+      "url": "https://elevenlabs.io/",
+      "sha256": "528015f5554b45601061731aa88f1c18b7a8fd38a56d1396d49413c282211d9f",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://elevenlabs.io/students",
+      "sha256": "8b06ed388f457ac7dee42e97445a9ad4b97ec8e7c24c315fc029331b0c96df51",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://estuary.dev/startup/",
+      "sha256": "89526fc60b51877dfa8eec294575f351babbe0f160865a552e69a7eba4cf4216",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 2000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": "12 months",
+          "who": "early-stage startups",
+          "mentions": [
+            {
+              "start": 148,
+              "end": 269
+            },
+            {
+              "start": 22,
+              "end": 81
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 274,
+          "end": 442,
+          "reason": "product"
+        },
+        {
+          "start": 86,
+          "end": 143,
+          "reason": "marketing"
+        }
+      ]
+    },
+    {
+      "url": "https://fellowship.mlh.com/",
+      "sha256": "299825bd6572c5a2cde6e982596fe8d53268ae450ebed06665839e8389b87892",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://github.com/sindresorhus/awesome#readme",
+      "sha256": "143aaec98015e34cfb496ce4144a5cd462144a735b42960352967b706d34effb",
+      "role": "test",
+      "kind": "list",
+      "offers": [],
+      "lookalikes": [],
+      "note": "An awesome list of awesome lists on all topics, not a list of startup programs; list is the nearest kind."
+    },
+    {
+      "url": "https://huggingface.co/",
+      "sha256": "9279f1a5ebb612e7b4296a91ebcdef0e1b9e9f2076152c752a84b776e341438c",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://huggingface.co/startups",
+      "sha256": "e62d02f2985674ec1ce7d132368d0eba55d80ea942ceb2be2def167b1d41e705",
+      "role": "test",
+      "kind": "other",
+      "offers": [],
+      "lookalikes": [],
+      "note": "A Hugging Face organization page (startupsdao) with almost no text and no program."
+    },
+    {
+      "url": "https://kilo.ai/",
+      "sha256": "04a63eb7505727abc0f206e6584c07f7c71707ff4139be6859050dc4bdde4f11",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://kiro.dev/startups/",
+      "sha256": "70c118f98f90c06c924f29b29be5067a5f9dac6e80a6a528943f303dc51c4c5c",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": null,
+          "percent": null,
+          "duration": "1 year",
+          "who": "early stage to Series A startups without active AWS Activate credits",
+          "mentions": [
+            {
+              "start": 678,
+              "end": 734
+            },
+            {
+              "start": 736,
+              "end": 880
+            },
+            {
+              "start": 2252,
+              "end": 2431
+            },
+            {
+              "start": 6519,
+              "end": 6603
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 881,
+          "end": 958,
+          "reason": "eligibility"
+        },
+        {
+          "start": 2811,
+          "end": 3234,
+          "reason": "eligibility"
+        },
+        {
+          "start": 3357,
+          "end": 3770,
+          "reason": "eligibility"
+        },
+        {
+          "start": 6086,
+          "end": 6392,
+          "reason": "eligibility"
+        },
+        {
+          "start": 1251,
+          "end": 1472,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 326,
+          "end": 564,
+          "reason": "testimonial"
+        },
+        {
+          "start": 1524,
+          "end": 1748,
+          "reason": "testimonial"
+        },
+        {
+          "start": 6658,
+          "end": 6730,
+          "reason": "faq"
+        }
+      ],
+      "note": "The Starter, Growth and Scale tiers differ only in user count (2, 10, 30) with no amount, so they are one credits offer."
+    },
+    {
+      "url": "https://kiro.dev/students/",
+      "sha256": "ef0a1e2334d951a86969c13ae9d5c387fd4ad6dcd375ca14bde529b79e2da2f6",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://linear.app/index.md",
+      "sha256": "ba3bbbe10d8bef66441c88536ce7b8e724e2829b59a3da658654f4961cd61ae5",
+      "role": "test",
+      "kind": "other",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://livekit.com/startups",
+      "sha256": "22cb9b611b15fdc840c87b8eff7d9892427c197a6f61aa9fa7725f91250871e6",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 23000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": "12 months",
+          "who": "early-stage teams with fewer than 50 employees, under $5M raised and pre–Series A",
+          "mentions": [
+            {
+              "start": 135,
+              "end": 271
+            },
+            {
+              "start": 2745,
+              "end": 2811
+            },
+            {
+              "start": 3068,
+              "end": 3122
+            },
+            {
+              "start": 3124,
+              "end": 3215
+            },
+            {
+              "start": 3929,
+              "end": 4040
+            }
+          ]
+        },
+        {
+          "kind": "free_period",
+          "value": null,
+          "percent": null,
+          "duration": "a year",
+          "who": "program members",
+          "mentions": [
+            {
+              "start": 3541,
+              "end": 3675
+            },
+            {
+              "start": 4233,
+              "end": 4295
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 434,
+          "end": 460,
+          "reason": "eligibility"
+        },
+        {
+          "start": 461,
+          "end": 526,
+          "reason": "eligibility"
+        },
+        {
+          "start": 662,
+          "end": 708,
+          "reason": "eligibility"
+        },
+        {
+          "start": 5552,
+          "end": 5728,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 5783,
+          "end": 5849,
+          "reason": "other"
+        },
+        {
+          "start": 3841,
+          "end": 3896,
+          "reason": "regular_pricing"
+        },
+        {
+          "start": 1630,
+          "end": 1791,
+          "reason": "testimonial"
+        },
+        {
+          "start": 2503,
+          "end": 2563,
+          "reason": "how_to_apply"
+        }
+      ],
+      "note": "The $23K is labelled as one credits offer although the FAQ splits it into $10,000 of LiveKit Cloud credits and inference credits."
+    },
+    {
+      "url": "https://mailchimp.com/",
+      "sha256": "d04338f485beae2433f0776742791e277769a43bf50ebd26f41b3b7e849673d8",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": [],
+      "note": "The 50% off Standard plan for 12 months is a public promotion for everyone, not a startup program."
+    },
+    {
+      "url": "https://manus.im/",
+      "sha256": "3e44426e12316b5b7960dc924a9fe0ba50454832bf5cdb19a61a4fb2f0f175f7",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://mentorship.linuxfoundation.org/",
+      "sha256": "b53dba9845bbd852f91ee605481425c6e4d25591e6e62b5324a694c09fc9b476",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://mercury.com/",
+      "sha256": "3a1e5a081e449f5e70d06068ea2301bce36d117874e8f233392b8a50365a9621",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://miro.com/startups/",
+      "sha256": "96587300552e201a0d51bcbaf825ad8f606fb5d2e058a268e9eec205d51dfd96",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "early startups",
+          "mentions": [
+            {
+              "start": 1136,
+              "end": 1229
+            },
+            {
+              "start": 1231,
+              "end": 1247
+            }
+          ]
+        },
+        {
+          "kind": "discount",
+          "value": null,
+          "percent": 25,
+          "duration": null,
+          "who": "scale ups",
+          "mentions": [
+            {
+              "start": 1296,
+              "end": 1319
+            },
+            {
+              "start": 1442,
+              "end": 1459
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 806,
+          "end": 943,
+          "reason": "marketing"
+        },
+        {
+          "start": 1519,
+          "end": 1640,
+          "reason": "partner_list"
+        },
+        {
+          "start": 141,
+          "end": 241,
+          "reason": "marketing"
+        },
+        {
+          "start": 3720,
+          "end": 3920,
+          "reason": "product"
+        }
+      ]
+    },
+    {
+      "url": "https://modal.com/startups",
+      "sha256": "561fbd6ff6ecf678c14056cf9bddafa8c6bf8e8504d7d5051fa1ebd6592db4ac",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "Seed to Series A startups new to Modal",
+          "mentions": [
+            {
+              "start": 284,
+              "end": 349
+            },
+            {
+              "start": 1981,
+              "end": 2013
+            },
+            {
+              "start": 107,
+              "end": 182
+            }
+          ]
+        },
+        {
+          "kind": "credits",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "raised VC funding > $30m or post-series B",
+          "mentions": [
+            {
+              "start": 2144,
+              "end": 2190
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 378,
+              "end": 487
+            },
+            {
+              "start": 351,
+              "end": 376
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 512,
+              "end": 628
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 2018,
+          "end": 2077,
+          "reason": "eligibility"
+        },
+        {
+          "start": 2082,
+          "end": 2118,
+          "reason": "eligibility"
+        },
+        {
+          "start": 2195,
+          "end": 2236,
+          "reason": "eligibility"
+        },
+        {
+          "start": 1774,
+          "end": 1961,
+          "reason": "eligibility"
+        },
+        {
+          "start": 957,
+          "end": 1132,
+          "reason": "testimonial"
+        },
+        {
+          "start": 1246,
+          "end": 1408,
+          "reason": "testimonial"
+        },
+        {
+          "start": 643,
+          "end": 725,
+          "reason": "product"
+        },
+        {
+          "start": 2315,
+          "end": 2417,
+          "reason": "other"
+        }
+      ],
+      "note": "Two tiers: free credits for Seed to Series A and custom credits for Series B+; neither states an amount."
+    },
+    {
+      "url": "https://nebius.com/startups",
+      "sha256": "51f35caca6b845c81eb5f5d625a6eb5625d09232e13f978e1b98741e85456753",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "startups that raised $5M+ through a Nebius VC partner",
+          "mentions": [
+            {
+              "start": 2481,
+              "end": 2582
+            },
+            {
+              "start": 2458,
+              "end": 2479
+            },
+            {
+              "start": 1188,
+              "end": 1207
+            },
+            {
+              "start": 4974,
+              "end": 5156
+            }
+          ]
+        },
+        {
+          "kind": "discount",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "startups that raised $5M+ through a Nebius VC partner",
+          "mentions": [
+            {
+              "start": 2481,
+              "end": 2582
+            },
+            {
+              "start": 2458,
+              "end": 2479
+            },
+            {
+              "start": 1188,
+              "end": 1207
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "startups accepted through a Nebius VC partner",
+          "mentions": [
+            {
+              "start": 2610,
+              "end": 2748
+            },
+            {
+              "start": 2585,
+              "end": 2608
+            },
+            {
+              "start": 234,
+              "end": 332
+            },
+            {
+              "start": 4974,
+              "end": 5156
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "startups accepted through a Nebius VC partner",
+          "mentions": [
+            {
+              "start": 2780,
+              "end": 2947
+            },
+            {
+              "start": 2751,
+              "end": 2778
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "all AI startups globally",
+          "mentions": [
+            {
+              "start": 2970,
+              "end": 3087
+            },
+            {
+              "start": 5221,
+              "end": 5288
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 407,
+          "end": 517,
+          "reason": "eligibility"
+        },
+        {
+          "start": 5157,
+          "end": 5219,
+          "reason": "eligibility"
+        },
+        {
+          "start": 874,
+          "end": 893,
+          "reason": "marketing"
+        },
+        {
+          "start": 1652,
+          "end": 1796,
+          "reason": "product"
+        },
+        {
+          "start": 3419,
+          "end": 3532,
+          "reason": "testimonial"
+        },
+        {
+          "start": 4318,
+          "end": 4349,
+          "reason": "other"
+        }
+      ],
+      "note": "No amounts are stated; \"credits and compute savings\" is split into a credits offer and a discount offer."
+    },
+    {
+      "url": "https://neo4j.com/",
+      "sha256": "2c3f59e7e0eec300b5c1e91aba67d58a0539367b3951c678973a096f915f7478",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://ona.com/stories/ona-for-open-source",
+      "sha256": "9f2c00ab1da1fc8d2a9a8f1063512fc18e55b7cfc42f710f41eda2ae666a2e94",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": [],
+      "note": "Program for open-source maintainers, announced in a blog post."
+    },
+    {
+      "url": "https://openai.com/",
+      "sha256": "086db17b4b580cb9e1ed94e54a8045e690a53e07779233fe84ccd617768465fb",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://openai.com/business/why-openai/startups/",
+      "sha256": "72b4e058eef1f0e70127c0e66d1dc8084389364fa24ce6ff6ec7f5922ed9e417",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "startups backed by a partner VC",
+          "mentions": [
+            {
+              "start": 5599,
+              "end": 5768
+            },
+            {
+              "start": 5928,
+              "end": 6003
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "startups backed by a VC partner",
+          "mentions": [
+            {
+              "start": 228,
+              "end": 304
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 642,
+              "end": 740
+            },
+            {
+              "start": 5769,
+              "end": 5854
+            },
+            {
+              "start": 7149,
+              "end": 7425
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 306,
+          "end": 581,
+          "reason": "testimonial"
+        },
+        {
+          "start": 3080,
+          "end": 3144,
+          "reason": "testimonial"
+        },
+        {
+          "start": 5190,
+          "end": 5434,
+          "reason": "partner_list"
+        },
+        {
+          "start": 6198,
+          "end": 6246,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 6251,
+          "end": 6286,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 7528,
+          "end": 7810,
+          "reason": "faq"
+        },
+        {
+          "start": 8016,
+          "end": 8121,
+          "reason": "regular_pricing"
+        },
+        {
+          "start": 19,
+          "end": 190,
+          "reason": "marketing"
+        }
+      ],
+      "note": "Rate limit upgrades are named only inside the credits sentence and are not labelled as a separate offer; events and Build Hours are one support offer apart from the VC-partner technical and GTM support."
+    },
+    {
+      "url": "https://openai.com/student-collective/",
+      "sha256": "b31c0cbdf2d8e90fac339a8734112ea58395e45c929d84407cbd7571b070cb09",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://opencoreventures.com/catalyst/",
+      "sha256": "49be1a9c448ff6ecdc9b5b3cdbf008b2874c9bb9bdd4036d2fa94f27481a6dec",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": [],
+      "note": "A venture firm runs it, but Catalyst sponsors open source authors, not startups, so other_program rather than investor."
+    },
+    {
+      "url": "https://openrouter.ai/startup-program",
+      "sha256": "d0a1ae50c93cca156398df40e1d2194d635690b69e30481bcdfb00b65712d6d6",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 5000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": "6 months",
+          "who": "eligible pre-Series B startups referred by an approved OpenRouter partner",
+          "mentions": [
+            {
+              "start": 62,
+              "end": 199
+            },
+            {
+              "start": 426,
+              "end": 434
+            },
+            {
+              "start": 1222,
+              "end": 1371
+            },
+            {
+              "start": 2720,
+              "end": 2935
+            },
+            {
+              "start": 6257,
+              "end": 6367
+            },
+            {
+              "start": 5059,
+              "end": 5116
+            }
+          ]
+        },
+        {
+          "kind": "discount",
+          "value": null,
+          "percent": null,
+          "duration": "12 months",
+          "who": "eligible pre-Series B startups referred by an approved OpenRouter partner",
+          "mentions": [
+            {
+              "start": 545,
+              "end": 574
+            },
+            {
+              "start": 2720,
+              "end": 2935
+            },
+            {
+              "start": 1222,
+              "end": 1371
+            },
+            {
+              "start": 4906,
+              "end": 5007
+            },
+            {
+              "start": 5189,
+              "end": 5237
+            },
+            {
+              "start": 5552,
+              "end": 5606
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 1376,
+          "end": 1414,
+          "reason": "eligibility"
+        },
+        {
+          "start": 1484,
+          "end": 1528,
+          "reason": "eligibility"
+        },
+        {
+          "start": 1633,
+          "end": 1676,
+          "reason": "eligibility"
+        },
+        {
+          "start": 3683,
+          "end": 3791,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 4613,
+          "end": 4783,
+          "reason": "regular_pricing"
+        },
+        {
+          "start": 788,
+          "end": 873,
+          "reason": "product"
+        },
+        {
+          "start": 5656,
+          "end": 5749,
+          "reason": "faq"
+        }
+      ],
+      "note": "The 0% processing-fee waiver is labelled a discount with no percent; 12 months of waived platform and BYOK fees."
+    },
+    {
+      "url": "https://planetscale.com/startups",
+      "sha256": "19d649ef271f05a942b87bbe6fe0143550b41994fbe3241f625aa643e459c2da",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": [],
+      "note": "A startups landing page that states no startup benefit (migration help and pricing are for everyone), so it is a product page, not a program."
+    },
+    {
+      "url": "https://posthog.com/startups",
+      "sha256": "aaaa4f6a89e6947ead929a132b7b6b1a62e651fb7c4674b13b16addd46956315",
+      "role": "example",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 50000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": "12 months",
+          "who": "companies less than 2 years old that raised less than $5m",
+          "mentions": [
+            {
+              "start": 0,
+              "end": 50
+            },
+            {
+              "start": 748,
+              "end": 766
+            },
+            {
+              "start": 652,
+              "end": 670
+            },
+            {
+              "start": 5902,
+              "end": 5984
+            },
+            {
+              "start": 5737,
+              "end": 5778
+            },
+            {
+              "start": 2545,
+              "end": 2569
+            }
+          ]
+        },
+        {
+          "kind": "perks",
+          "value": {
+            "amount": 12000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "accepted startups",
+          "mentions": [
+            {
+              "start": 5902,
+              "end": 5984
+            },
+            {
+              "start": 5737,
+              "end": 5778
+            },
+            {
+              "start": 538,
+              "end": 628
+            }
+          ]
+        },
+        {
+          "kind": "perks",
+          "value": {
+            "amount": 1500,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "accepted startups",
+          "mentions": [
+            {
+              "start": 1172,
+              "end": 1231
+            },
+            {
+              "start": 1148,
+              "end": 1170
+            },
+            {
+              "start": 1046,
+              "end": 1068
+            }
+          ]
+        },
+        {
+          "kind": "perks",
+          "value": null,
+          "percent": 50,
+          "duration": "6 months",
+          "who": "accepted startups",
+          "mentions": [
+            {
+              "start": 1353,
+              "end": 1417
+            },
+            {
+              "start": 1329,
+              "end": 1351
+            },
+            {
+              "start": 1233,
+              "end": 1250
+            }
+          ]
+        },
+        {
+          "kind": "perks",
+          "value": {
+            "amount": 5000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "accepted startups",
+          "mentions": [
+            {
+              "start": 1571,
+              "end": 1593
+            },
+            {
+              "start": 1419,
+              "end": 1441
+            }
+          ]
+        },
+        {
+          "kind": "perks",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "accepted startups",
+          "mentions": [
+            {
+              "start": 951,
+              "end": 973
+            },
+            {
+              "start": 975,
+              "end": 1044
+            },
+            {
+              "start": 835,
+              "end": 875
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "members of the startup program",
+          "mentions": [
+            {
+              "start": 9444,
+              "end": 9632
+            },
+            {
+              "start": 10340,
+              "end": 10460
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 7721,
+          "end": 7806,
+          "reason": "eligibility"
+        },
+        {
+          "start": 7367,
+          "end": 7464,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 10519,
+          "end": 10643,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 8547,
+          "end": 8597,
+          "reason": "regular_pricing"
+        },
+        {
+          "start": 4595,
+          "end": 4793,
+          "reason": "testimonial"
+        },
+        {
+          "start": 5221,
+          "end": 5350,
+          "reason": "marketing"
+        },
+        {
+          "start": 9964,
+          "end": 10000,
+          "reason": "faq"
+        },
+        {
+          "start": 10726,
+          "end": 10824,
+          "reason": "other"
+        }
+      ],
+      "note": "The $12,000 partner-perks bundle is the sum of the Incident.io, Speakeasy and Depot perks, kept as its own offer because the page states it; the comparison table lists other vendors too."
+    },
+    {
+      "url": "https://ramp.com/",
+      "sha256": "708ab4ee5081f18e637470d45ef5ee4e7b811b25b9fb7f87bc47829a095fb60c",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://redis.io/",
+      "sha256": "23c1db9aa1df04ecc678e0365fc460b627c5e071c37d1bdc02388aee5d251261",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://render.com/startups",
+      "sha256": "6e14ff07b5c39b518803e5d603a83c8188ff94dc574989b50f973fb640a4eaee",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 500,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": "1-year",
+          "who": "all qualified startups (Prototype tier)",
+          "mentions": [
+            {
+              "start": 2571,
+              "end": 2594
+            },
+            {
+              "start": 2492,
+              "end": 2556
+            }
+          ]
+        },
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 2500,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": "1-year",
+          "who": "startups from a partner (Build tier)",
+          "mentions": [
+            {
+              "start": 2869,
+              "end": 2914
+            }
+          ]
+        },
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 5000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": "1-year",
+          "who": "startups from select partners (Build tier)",
+          "mentions": [
+            {
+              "start": 2918,
+              "end": 2966
+            },
+            {
+              "start": 6625,
+              "end": 6708
+            }
+          ]
+        },
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 10000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": "1-year",
+          "who": "Scale tier startups with less than $1M in funding",
+          "mentions": [
+            {
+              "start": 3302,
+              "end": 3368
+            },
+            {
+              "start": 6807,
+              "end": 6940
+            }
+          ]
+        },
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 25000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": "1-year",
+          "who": "Scale tier startups with $1M in funding or more",
+          "mentions": [
+            {
+              "start": 3372,
+              "end": 3436
+            },
+            {
+              "start": 6807,
+              "end": 6940
+            }
+          ]
+        },
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 100000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": "1-year",
+          "who": "AI tier: at least $2.5M in funding from an enrolled top tier VC",
+          "mentions": [
+            {
+              "start": 3787,
+              "end": 3811
+            },
+            {
+              "start": 6941,
+              "end": 7069
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "all tiers",
+          "mentions": [
+            {
+              "start": 2598,
+              "end": 2635
+            },
+            {
+              "start": 2970,
+              "end": 3007
+            },
+            {
+              "start": 3440,
+              "end": 3477
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "Build, Scale and AI tiers",
+          "mentions": [
+            {
+              "start": 3011,
+              "end": 3045
+            },
+            {
+              "start": 3481,
+              "end": 3515
+            },
+            {
+              "start": 3937,
+              "end": 3971
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "AI tier",
+          "mentions": [
+            {
+              "start": 3815,
+              "end": 3849
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": "1-yr",
+          "who": "AI tier",
+          "mentions": [
+            {
+              "start": 3853,
+              "end": 3890
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "AI tier",
+          "mentions": [
+            {
+              "start": 3894,
+              "end": 3933
+            }
+          ]
+        },
+        {
+          "kind": "perks",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "program members",
+          "mentions": [
+            {
+              "start": 4750,
+              "end": 4793
+            }
+          ]
+        },
+        {
+          "kind": "perks",
+          "value": null,
+          "percent": null,
+          "duration": "one year",
+          "who": "program members",
+          "mentions": [
+            {
+              "start": 4934,
+              "end": 4975
+            }
+          ]
+        },
+        {
+          "kind": "perks",
+          "value": {
+            "amount": 5000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "program members",
+          "mentions": [
+            {
+              "start": 5130,
+              "end": 5154
+            }
+          ]
+        },
+        {
+          "kind": "perks",
+          "value": null,
+          "percent": 20,
+          "duration": "1st year",
+          "who": "program members",
+          "mentions": [
+            {
+              "start": 5306,
+              "end": 5340
+            }
+          ]
+        },
+        {
+          "kind": "perks",
+          "value": null,
+          "percent": 50,
+          "duration": "6 months",
+          "who": "program members",
+          "mentions": [
+            {
+              "start": 5508,
+              "end": 5556
+            }
+          ]
+        },
+        {
+          "kind": "perks",
+          "value": {
+            "amount": 1500,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "program members",
+          "mentions": [
+            {
+              "start": 5712,
+              "end": 5734
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 2131,
+          "end": 2192,
+          "reason": "eligibility"
+        },
+        {
+          "start": 2669,
+          "end": 2697,
+          "reason": "eligibility"
+        },
+        {
+          "start": 4005,
+          "end": 4056,
+          "reason": "eligibility"
+        },
+        {
+          "start": 2367,
+          "end": 2427,
+          "reason": "other"
+        },
+        {
+          "start": 4155,
+          "end": 4310,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 5915,
+          "end": 5967,
+          "reason": "testimonial"
+        },
+        {
+          "start": 1909,
+          "end": 1968,
+          "reason": "marketing"
+        },
+        {
+          "start": 6164,
+          "end": 6260,
+          "reason": "other"
+        }
+      ],
+      "note": "Each partner deal is its own perks offer; Mintlify 50% off is a partner perk, not a Render discount."
+    },
+    {
+      "url": "https://retool.com/startups",
+      "sha256": "3247dc60417ad02082c8972afefb220ea7b8ffe0f519822b2d4e26c3c87e6505",
+      "role": "example",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "free_period",
+          "value": {
+            "amount": 60000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": "a year",
+          "who": "Startups",
+          "mentions": [
+            {
+              "start": 82,
+              "end": 219
+            },
+            {
+              "start": 0,
+              "end": 36
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 1269,
+          "end": 1309,
+          "reason": "faq"
+        },
+        {
+          "start": 1332,
+          "end": 1354,
+          "reason": "faq"
+        },
+        {
+          "start": 1357,
+          "end": 1411,
+          "reason": "faq"
+        },
+        {
+          "start": 717,
+          "end": 786,
+          "reason": "product"
+        },
+        {
+          "start": 1093,
+          "end": 1207,
+          "reason": "marketing"
+        }
+      ]
+    },
+    {
+      "url": "https://runware.ai/startup-program",
+      "sha256": "728daf7cf675753d99fb3834563b02c647793531e668edbb18b9561979d10fc6",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 10000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "Growth tier: bootstrapped and pre-seed teams with a product in use, depositing $25,000",
+          "mentions": [
+            {
+              "start": 296,
+              "end": 351
+            },
+            {
+              "start": 259,
+              "end": 294
+            },
+            {
+              "start": 353,
+              "end": 390
+            },
+            {
+              "start": 5251,
+              "end": 5338
+            }
+          ]
+        },
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 30000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "Scale tier: seed to Series A companies running AI in production, depositing $50,000",
+          "mentions": [
+            {
+              "start": 746,
+              "end": 801
+            },
+            {
+              "start": 709,
+              "end": 744
+            },
+            {
+              "start": 803,
+              "end": 840
+            },
+            {
+              "start": 5339,
+              "end": 5414
+            },
+            {
+              "start": 52,
+              "end": 122
+            }
+          ]
+        },
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 1000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "Starter tier: bootstrapped and pre-seed companies, no deposit",
+          "mentions": [
+            {
+              "start": 1195,
+              "end": 1276
+            },
+            {
+              "start": 1508,
+              "end": 1544
+            },
+            {
+              "start": 5415,
+              "end": 5523
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "Growth and Scale tiers",
+          "mentions": [
+            {
+              "start": 538,
+              "end": 563
+            },
+            {
+              "start": 988,
+              "end": 1013
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 1861,
+          "end": 1951,
+          "reason": "eligibility"
+        },
+        {
+          "start": 2113,
+          "end": 2229,
+          "reason": "eligibility"
+        },
+        {
+          "start": 2628,
+          "end": 2746,
+          "reason": "eligibility"
+        },
+        {
+          "start": 2879,
+          "end": 2973,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 5816,
+          "end": 5924,
+          "reason": "faq"
+        },
+        {
+          "start": 6680,
+          "end": 6712,
+          "reason": "faq"
+        },
+        {
+          "start": 3288,
+          "end": 3383,
+          "reason": "product"
+        },
+        {
+          "start": 7110,
+          "end": 7206,
+          "reason": "other"
+        }
+      ],
+      "note": "Growth and Scale values are the bonus credits Runware adds, not the deposit-inclusive balances ($35,000, $80,000)."
+    },
+    {
+      "url": "https://sentry.io/for/startups/",
+      "sha256": "e043f6e58ddab1a91d72cec3133c90585c0fdbc49da869a3e2a3d505b37e5daf",
+      "role": "test",
+      "kind": "other",
+      "offers": [],
+      "lookalikes": [],
+      "note": "Loading screen with almost no text."
+    },
+    {
+      "url": "https://snyk.io/open-source/",
+      "sha256": "f60136c912963d76a98cb89c20887eea18f34c244869bce04da6f09358b69f09",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://startup.ovhcloud.com/en-ie/",
+      "sha256": "9d1be21194e8fec60e4900d22acdd0c6d6c84e6a91ae26ce1d66ac8201c87922",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 10000,
+            "currency": "EUR"
+          },
+          "percent": null,
+          "duration": "12-month",
+          "who": "startups (Start level)",
+          "mentions": [
+            {
+              "start": 1033,
+              "end": 1062
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": "12-month",
+          "who": "startups (Start level)",
+          "mentions": [
+            {
+              "start": 1066,
+              "end": 1112
+            }
+          ]
+        },
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 100000,
+            "currency": "EUR"
+          },
+          "percent": null,
+          "duration": "12-month",
+          "who": "scaleups (Scale level)",
+          "mentions": [
+            {
+              "start": 1417,
+              "end": 1453
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": "12-month",
+          "who": "scaleups (Scale level)",
+          "mentions": [
+            {
+              "start": 1457,
+              "end": 1510
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "startups and scaleups",
+          "mentions": [
+            {
+              "start": 1116,
+              "end": 1143
+            },
+            {
+              "start": 1514,
+              "end": 1550
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "startups and scaleups",
+          "mentions": [
+            {
+              "start": 1147,
+              "end": 1175
+            },
+            {
+              "start": 1554,
+              "end": 1582
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 1858,
+          "end": 1908,
+          "reason": "other"
+        },
+        {
+          "start": 1912,
+          "end": 1961,
+          "reason": "other"
+        },
+        {
+          "start": 715,
+          "end": 746,
+          "reason": "other"
+        },
+        {
+          "start": 423,
+          "end": 532,
+          "reason": "marketing"
+        },
+        {
+          "start": 3102,
+          "end": 3201,
+          "reason": "marketing"
+        },
+        {
+          "start": 4183,
+          "end": 4287,
+          "reason": "regular_pricing"
+        },
+        {
+          "start": 3526,
+          "end": 3645,
+          "reason": "product"
+        }
+      ],
+      "note": "The Enablers card offers credits and support to accelerators' members; labelled look-alikes because it addresses enablers, not startups directly."
+    },
+    {
+      "url": "https://startupsmap.co.in/",
+      "sha256": "ecbb1c3e281808d1947e6eaa57e8b71618c6dcc9f8bd21972793a7fd27926782",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": [],
+      "note": "Home page of a directory of startups (not of programs)."
+    },
+    {
+      "url": "https://stripe.com/atlas",
+      "sha256": "cc2c6d1b48e1019324b0e0b8dd422146da5ed74793e65a68827efb627ae9c19e",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "perks",
+          "value": {
+            "amount": 200000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 4748,
+              "end": 4886
+            }
+          ]
+        },
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 2500,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 4892,
+              "end": 4932
+            }
+          ]
+        },
+        {
+          "kind": "discount",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "founders who fund a Stripe Treasury bank account with $5,000 within 90 days",
+          "mentions": [
+            {
+              "start": 3930,
+              "end": 4027
+            },
+            {
+              "start": 4934,
+              "end": 5058
+            },
+            {
+              "start": 5636,
+              "end": 5721
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 4029,
+          "end": 4252,
+          "reason": "product"
+        },
+        {
+          "start": 4254,
+          "end": 4398,
+          "reason": "product"
+        },
+        {
+          "start": 4400,
+          "end": 4580,
+          "reason": "product"
+        },
+        {
+          "start": 5777,
+          "end": 5874,
+          "reason": "product"
+        },
+        {
+          "start": 6038,
+          "end": 6214,
+          "reason": "testimonial"
+        },
+        {
+          "start": 6229,
+          "end": 6512,
+          "reason": "testimonial"
+        },
+        {
+          "start": 6527,
+          "end": 6722,
+          "reason": "testimonial"
+        },
+        {
+          "start": 6808,
+          "end": 7292,
+          "reason": "other"
+        }
+      ],
+      "note": "Stripe Atlas is an incorporation product for startups that states perks, credits and a fee refund, so it is labelled program; the fee refund is a discount with no percent."
+    },
+    {
+      "url": "https://summerofcode.withgoogle.com/",
+      "sha256": "5b44bf47932d5bb154f547f6c0c343bb8b4dc44ad93233a95e1bd9facec70e93",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://temporal.io/startup",
+      "sha256": "59d74cc9eca5b90a35cbc5015595daf9179ef21da7b100f9727d4b85a262e070",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 6000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "funded startups that have raised $30M or less",
+          "mentions": [
+            {
+              "start": 41,
+              "end": 150
+            },
+            {
+              "start": 701,
+              "end": 809
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "startups in the program",
+          "mentions": [
+            {
+              "start": 826,
+              "end": 945
+            },
+            {
+              "start": 6015,
+              "end": 6103
+            },
+            {
+              "start": 6127,
+              "end": 6181
+            },
+            {
+              "start": 6199,
+              "end": 6238
+            },
+            {
+              "start": 6262,
+              "end": 6312
+            },
+            {
+              "start": 6329,
+              "end": 6385
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 271,
+          "end": 401,
+          "reason": "product"
+        },
+        {
+          "start": 427,
+          "end": 537,
+          "reason": "product"
+        },
+        {
+          "start": 5216,
+          "end": 5350,
+          "reason": "testimonial"
+        },
+        {
+          "start": 6733,
+          "end": 6778,
+          "reason": "other"
+        },
+        {
+          "start": 7062,
+          "end": 7256,
+          "reason": "other"
+        },
+        {
+          "start": 7289,
+          "end": 7337,
+          "reason": "faq"
+        },
+        {
+          "start": 7423,
+          "end": 7477,
+          "reason": "faq"
+        }
+      ],
+      "note": "FAQ answers are collapsed and not in the text; the VC section describes help for portfolio companies, labelled as look-alikes."
+    },
+    {
+      "url": "https://upstash.com/",
+      "sha256": "eab7c784be07d78f01dc0288269525e6e629315043d56ac58c95a6a94c0eb5e3",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://upstash.com/open-source",
+      "sha256": "c96603dc9fcbf26753118c3f528e6ccbd3392221099de546bb98c137a54ebafa",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://v0.app/students",
+      "sha256": "7e38b32472d4ccb09fc648bdc4b9126b8f30424028bd8d2d6ecb58625b621f3e",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://vercel.com/",
+      "sha256": "9d661d60b384fe14786e15726509efaab669504f9b4aa5294e02d18b63daaef1",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://vercel.com/startups",
+      "sha256": "270783679c487e02e143e78049807cd17f0b69c0009b56287eae6c51bd29ab2c",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 30000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "eligible teams",
+          "mentions": [
+            {
+              "start": 1701,
+              "end": 1868
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "eligible teams",
+          "mentions": [
+            {
+              "start": 1701,
+              "end": 1868
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 3120,
+          "end": 3294,
+          "reason": "testimonial"
+        },
+        {
+          "start": 2206,
+          "end": 2366,
+          "reason": "testimonial"
+        },
+        {
+          "start": 129,
+          "end": 164,
+          "reason": "partner_list"
+        },
+        {
+          "start": 649,
+          "end": 754,
+          "reason": "product"
+        },
+        {
+          "start": 4189,
+          "end": 4282,
+          "reason": "how_to_apply"
+        }
+      ],
+      "note": "Enterprise-tier access fits no offer kind and is not labelled as a separate offer."
+    },
+    {
+      "url": "https://www.alibabacloud.com/en?_p_lc=1",
+      "sha256": "d171b5c8d83aeda048fe2f5679a7626a8493773966d261829263370aac75ce2b",
+      "role": "test",
+      "kind": "other",
+      "offers": [],
+      "lookalikes": [],
+      "note": "Only a chat-widget shell with no page content."
+    },
+    {
+      "url": "https://www.anthropic.com/",
+      "sha256": "bc5a8f26f558b48585a7d174a1a729eedb5033618fd20fcc60c2f21c875c7b24",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://www.antler.co/",
+      "sha256": "50ad334feeaf7af802515bf64d62f4df9decce2335962d261bb56ee87e152833",
+      "role": "test",
+      "kind": "investor",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://www.assemblyai.com/",
+      "sha256": "8e417fb0293e9d0724053ac1dd8dca7cf06cdab6c4e7d53c5098d99cb1e04f16",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://www.assemblyai.com/contact/startup-program",
+      "sha256": "cc61674a5e9ea7cd00ac65cf0e94a189f2a088204e51cdaee6b428217bbfc8f1",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": null,
+          "percent": null,
+          "duration": "12 months",
+          "who": "early-stage startups, pre-seed to Series A, building with voice or audio",
+          "mentions": [
+            {
+              "start": 400,
+              "end": 435
+            },
+            {
+              "start": 343,
+              "end": 392
+            },
+            {
+              "start": 1390,
+              "end": 1439
+            },
+            {
+              "start": 1441,
+              "end": 1611
+            },
+            {
+              "start": 11958,
+              "end": 12155
+            }
+          ]
+        },
+        {
+          "kind": "discount",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "accepted startups",
+          "mentions": [
+            {
+              "start": 1614,
+              "end": 1641
+            },
+            {
+              "start": 1643,
+              "end": 1800
+            },
+            {
+              "start": 12787,
+              "end": 12944
+            },
+            {
+              "start": 11958,
+              "end": 12155
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "accepted startups",
+          "mentions": [
+            {
+              "start": 1830,
+              "end": 2007
+            },
+            {
+              "start": 1803,
+              "end": 1828
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "accepted startups",
+          "mentions": [
+            {
+              "start": 11958,
+              "end": 12155
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 123,
+          "end": 156,
+          "reason": "eligibility"
+        },
+        {
+          "start": 275,
+          "end": 300,
+          "reason": "eligibility"
+        },
+        {
+          "start": 11769,
+          "end": 11912,
+          "reason": "eligibility"
+        },
+        {
+          "start": 2153,
+          "end": 2323,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 2347,
+          "end": 2445,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 2028,
+          "end": 2129,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 6267,
+          "end": 6338,
+          "reason": "testimonial"
+        },
+        {
+          "start": 963,
+          "end": 1001,
+          "reason": "product"
+        }
+      ],
+      "note": "The co-marketing and community support offer is stated only in the FAQ answer."
+    },
+    {
+      "url": "https://www.atlascloud.ai/",
+      "sha256": "b70861c9808f74039ae49f1e19bd67a617c4a29ff4d96b267fd5d30b7eb420cd",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://www.baseten.co/",
+      "sha256": "aa55f96f1c96e8ac8c53ca763d6c4bd093f5192f1699d4e0f98077bb407ccc74",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://www.clerky.com/",
+      "sha256": "33cd461145042e1867e8ddf13d49997d22a5f39e1100048fb66fdc68c28507b7",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://www.cloudflare.com/startups/",
+      "sha256": "f554333b53d01448dc5bf4fc36600e3e147afe373f0d0ef3e781d4aaed821f42",
+      "role": "example",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 350000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": "one year",
+          "who": "Tier 1 startups",
+          "mentions": [
+            {
+              "start": 184,
+              "end": 286
+            },
+            {
+              "start": 2933,
+              "end": 3023
+            },
+            {
+              "start": 5099,
+              "end": 5177
+            }
+          ]
+        },
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 10000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": "one year",
+          "who": "Tier 3 early-stage founders",
+          "mentions": [
+            {
+              "start": 2841,
+              "end": 2927
+            },
+            {
+              "start": 5099,
+              "end": 5177
+            }
+          ]
+        },
+        {
+          "kind": "free_period",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "all tiers",
+          "mentions": [
+            {
+              "start": 493,
+              "end": 575
+            },
+            {
+              "start": 847,
+              "end": 866
+            },
+            {
+              "start": 922,
+              "end": 979
+            },
+            {
+              "start": 2012,
+              "end": 2098
+            },
+            {
+              "start": 8290,
+              "end": 8361
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "all tiers",
+          "mentions": [
+            {
+              "start": 7676,
+              "end": 7727
+            },
+            {
+              "start": 7865,
+              "end": 7926
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "Tier 2 (case-dependent)",
+          "mentions": [
+            {
+              "start": 7930,
+              "end": 7993
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "Tier 1",
+          "mentions": [
+            {
+              "start": 7997,
+              "end": 8048
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 1227,
+          "end": 1259,
+          "reason": "eligibility"
+        },
+        {
+          "start": 1318,
+          "end": 1339,
+          "reason": "eligibility"
+        },
+        {
+          "start": 1537,
+          "end": 1586,
+          "reason": "eligibility"
+        },
+        {
+          "start": 2471,
+          "end": 2518,
+          "reason": "other"
+        },
+        {
+          "start": 2661,
+          "end": 2755,
+          "reason": "other"
+        },
+        {
+          "start": 5384,
+          "end": 5522,
+          "reason": "eligibility"
+        },
+        {
+          "start": 5607,
+          "end": 5712,
+          "reason": "other"
+        },
+        {
+          "start": 7070,
+          "end": 7120,
+          "reason": "how_to_apply"
+        }
+      ],
+      "note": "Only Tier 1 ($350k) and Tier 3 ($10k) amounts are stated; Tier 2 credits have no amount, so no separate Tier 2 credits offer."
+    },
+    {
+      "url": "https://www.databricks.com/product/startups",
+      "sha256": "c1ba6ca1ef1c6be9b3eef160104fa630248788967885c2de38005550b498a4bd",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 200000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "qualifying startups",
+          "mentions": [
+            {
+              "start": 25,
+              "end": 104
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 550,
+              "end": 635
+            },
+            {
+              "start": 4710,
+              "end": 4866
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 4280,
+              "end": 4388
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 2359,
+          "end": 2630,
+          "reason": "other"
+        },
+        {
+          "start": 2836,
+          "end": 3095,
+          "reason": "other"
+        },
+        {
+          "start": 1814,
+          "end": 1978,
+          "reason": "partner_list"
+        },
+        {
+          "start": 1290,
+          "end": 1393,
+          "reason": "marketing"
+        },
+        {
+          "start": 661,
+          "end": 771,
+          "reason": "product"
+        },
+        {
+          "start": 1512,
+          "end": 1660,
+          "reason": "product"
+        },
+        {
+          "start": 158,
+          "end": 278,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 3547,
+          "end": 3665,
+          "reason": "other"
+        }
+      ],
+      "note": "The invitation-only AI Accelerator Program and the Built on Databricks Partner Program are other programs on the page, labelled as look-alikes; the FAQ answers are collapsed and not in the text."
+    },
+    {
+      "url": "https://www.datadoghq.com/partner/datadog-for-startups/",
+      "sha256": "0384a2b3df8e369e0d19ddbd85b4892b859a1a622afbd887ff51c908699002bc",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 100000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": "first year",
+          "who": "Series A or earlier, referred by a partner, new to Datadog",
+          "mentions": [
+            {
+              "start": 8958,
+              "end": 9000
+            },
+            {
+              "start": 9002,
+              "end": 9084
+            },
+            {
+              "start": 8716,
+              "end": 8799
+            },
+            {
+              "start": 11313,
+              "end": 11444
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "program participants",
+          "mentions": [
+            {
+              "start": 16531,
+              "end": 16611
+            },
+            {
+              "start": 16141,
+              "end": 16288
+            },
+            {
+              "start": 16767,
+              "end": 16968
+            },
+            {
+              "start": 9557,
+              "end": 9660
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 9749,
+          "end": 9768,
+          "reason": "eligibility"
+        },
+        {
+          "start": 9770,
+          "end": 9801,
+          "reason": "eligibility"
+        },
+        {
+          "start": 13787,
+          "end": 13845,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 10811,
+          "end": 10931,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 12706,
+          "end": 12822,
+          "reason": "regular_pricing"
+        },
+        {
+          "start": 12854,
+          "end": 12893,
+          "reason": "other"
+        },
+        {
+          "start": 9343,
+          "end": 9474,
+          "reason": "product"
+        }
+      ]
+    },
+    {
+      "url": "https://www.daytona.io/startups",
+      "sha256": "fa641ff2c550baf256b791674ceea75c5f532d46a4d5ba55af8d252284a94170",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 100000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "startups",
+          "mentions": [
+            {
+              "start": 23,
+              "end": 74
+            },
+            {
+              "start": 76,
+              "end": 221
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 247,
+          "end": 333,
+          "reason": "how_to_apply"
+        }
+      ]
+    },
+    {
+      "url": "https://www.digitalocean.com/startups",
+      "sha256": "2649a12280f04668c16bfa97f5d4f079f1188d72555cb3d50330889dacdadbb3",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": null,
+          "percent": null,
+          "duration": "12 months",
+          "who": "AI-native startups that raised $10m or less, through approved DigitalOcean Startups partners",
+          "mentions": [
+            {
+              "start": 8615,
+              "end": 8838
+            },
+            {
+              "start": 819,
+              "end": 863
+            },
+            {
+              "start": 10280,
+              "end": 10442
+            }
+          ]
+        },
+        {
+          "kind": "credits",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "select startups after review of their GPU credit application",
+          "mentions": [
+            {
+              "start": 1197,
+              "end": 1264
+            },
+            {
+              "start": 1178,
+              "end": 1195
+            },
+            {
+              "start": 11274,
+              "end": 11403
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "program members",
+          "mentions": [
+            {
+              "start": 7931,
+              "end": 8147
+            }
+          ]
+        },
+        {
+          "kind": "perks",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "program members",
+          "mentions": [
+            {
+              "start": 12343,
+              "end": 12466
+            },
+            {
+              "start": 7931,
+              "end": 8147
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 7602,
+          "end": 7729,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 9346,
+          "end": 9379,
+          "reason": "eligibility"
+        },
+        {
+          "start": 9132,
+          "end": 9284,
+          "reason": "eligibility"
+        },
+        {
+          "start": 10159,
+          "end": 10243,
+          "reason": "eligibility"
+        },
+        {
+          "start": 10443,
+          "end": 10571,
+          "reason": "other"
+        },
+        {
+          "start": 9890,
+          "end": 10100,
+          "reason": "faq"
+        },
+        {
+          "start": 2456,
+          "end": 2670,
+          "reason": "testimonial"
+        },
+        {
+          "start": 12173,
+          "end": 12280,
+          "reason": "other"
+        }
+      ],
+      "note": "New applications are paused until early 2027; the $10,000 monthly limit is a usage cap, not a grant amount, so the core credits have no value."
+    },
+    {
+      "url": "https://www.figma.com/education/",
+      "sha256": "ee6ad9f039b5c44da9327aa63a8f588fed06ae820b5f6f10510eb24edef39f50",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://www.firecrawl.dev/student-program",
+      "sha256": "924e7a9ab39190df8292d94fc1a934a592b9421bde04e1dde02d0842a66ab347",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://www.hubspot.com/startups",
+      "sha256": "2f17b637f01ed02a3f9a4db4b01b65407d985a0cf9ded0019daac901ffe91809",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": [],
+      "note": "The HubSpot for Startups URL, but the text holds only customer stories and Breeze AI product copy and states no offer."
+    },
+    {
+      "url": "https://www.ibm.com/products/cloud",
+      "sha256": "409b6955348615d02b7215f43bd03d981f7c9ca2dc158988ceb0849b1c51192e",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": [],
+      "note": "Product page that only links to the IBM Global Entrepreneur Program."
+    },
+    {
+      "url": "https://www.intercom.com/early-stage",
+      "sha256": "7edc5a00530ee14e2a01ae280aa4452a32f29c981585ef2adca5cddb05002560",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "discount",
+          "value": null,
+          "percent": 93,
+          "duration": "Year 1",
+          "who": "startups with up to $10M in funding, fewer than 15 employees, not currently Intercom customers",
+          "mentions": [
+            {
+              "start": 879,
+              "end": 886
+            },
+            {
+              "start": 0,
+              "end": 41
+            },
+            {
+              "start": 3827,
+              "end": 4019
+            },
+            {
+              "start": 5565,
+              "end": 5585
+            }
+          ]
+        },
+        {
+          "kind": "discount",
+          "value": null,
+          "percent": 50,
+          "duration": "Year 2",
+          "who": "customers who stay on the program",
+          "mentions": [
+            {
+              "start": 1105,
+              "end": 1112
+            },
+            {
+              "start": 3827,
+              "end": 4019
+            },
+            {
+              "start": 5586,
+              "end": 5606
+            }
+          ]
+        },
+        {
+          "kind": "discount",
+          "value": null,
+          "percent": 25,
+          "duration": "Year 3",
+          "who": "customers who stay on the program",
+          "mentions": [
+            {
+              "start": 1331,
+              "end": 1338
+            },
+            {
+              "start": 3827,
+              "end": 4019
+            },
+            {
+              "start": 5607,
+              "end": 5627
+            }
+          ]
+        },
+        {
+          "kind": "free_period",
+          "value": null,
+          "percent": null,
+          "duration": "1 year",
+          "who": "Early Stage Program members",
+          "mentions": [
+            {
+              "start": 4290,
+              "end": 4334
+            },
+            {
+              "start": 0,
+              "end": 41
+            },
+            {
+              "start": 159,
+              "end": 304
+            },
+            {
+              "start": 4904,
+              "end": 4974
+            }
+          ]
+        },
+        {
+          "kind": "perks",
+          "value": {
+            "amount": 500000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "program members",
+          "mentions": [
+            {
+              "start": 6841,
+              "end": 6930
+            },
+            {
+              "start": 6807,
+              "end": 6839
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 3647,
+          "end": 3669,
+          "reason": "eligibility"
+        },
+        {
+          "start": 3683,
+          "end": 3707,
+          "reason": "eligibility"
+        },
+        {
+          "start": 3723,
+          "end": 3758,
+          "reason": "eligibility"
+        },
+        {
+          "start": 4998,
+          "end": 5015,
+          "reason": "regular_pricing"
+        },
+        {
+          "start": 5825,
+          "end": 5949,
+          "reason": "regular_pricing"
+        },
+        {
+          "start": 4566,
+          "end": 4691,
+          "reason": "other"
+        },
+        {
+          "start": 6475,
+          "end": 6640,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 3354,
+          "end": 3552,
+          "reason": "testimonial"
+        }
+      ],
+      "note": "The three yearly discount steps are labelled as three offers; Early Stage Academy courses are a general resource, not labelled as support."
+    },
+    {
+      "url": "https://www.jetbrains.com/",
+      "sha256": "9b7ea671c6127f4d3852ee72f849119b12ab225610ce9296783439dc8eab1941",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://www.kimi.ai/lp/kimi-ambassador",
+      "sha256": "84eb9e21afae447e67f7deec22c311319261ef3eae6fe5ac2c6e1ac69d04bf5d",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://www.linode.com/",
+      "sha256": "5f18450586c159af131ef9016c047e98f14c85fe52041dd7c7b5c8945c421284",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": [],
+      "note": "Home page with a cloud credits promotion for new and existing enterprise customers, not a startup program."
+    },
+    {
+      "url": "https://www.microsoft.com/ar/startups",
+      "sha256": "681e61d3e626040b9778705f32216e8edb7ef29528321ac75dc845c1368cc437",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 150000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 243,
+              "end": 430
+            },
+            {
+              "start": 9404,
+              "end": 9531
+            },
+            {
+              "start": 8580,
+              "end": 8702
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 8392,
+              "end": 8579
+            },
+            {
+              "start": 9711,
+              "end": 9917
+            }
+          ]
+        },
+        {
+          "kind": "free_period",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 8047,
+              "end": 8138
+            },
+            {
+              "start": 7997,
+              "end": 8023
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 4879,
+          "end": 5027,
+          "reason": "testimonial"
+        },
+        {
+          "start": 5592,
+          "end": 5699,
+          "reason": "testimonial"
+        },
+        {
+          "start": 6734,
+          "end": 6845,
+          "reason": "testimonial"
+        },
+        {
+          "start": 7362,
+          "end": 7442,
+          "reason": "testimonial"
+        },
+        {
+          "start": 555,
+          "end": 632,
+          "reason": "marketing"
+        },
+        {
+          "start": 8706,
+          "end": 8839,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 9535,
+          "end": 9707,
+          "reason": "product"
+        },
+        {
+          "start": 8900,
+          "end": 9192,
+          "reason": "faq"
+        }
+      ],
+      "note": "Free access to tools has no fixed time; labelled free_period with null duration."
+    },
+    {
+      "url": "https://www.microsoft.com/en-us/startups",
+      "sha256": "91bfc44fe710a737d709929df1e91706e4805719412668de794aafed94147234",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 150000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 233,
+              "end": 412
+            },
+            {
+              "start": 8705,
+              "end": 8851
+            },
+            {
+              "start": 8001,
+              "end": 8125
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 7831,
+              "end": 8000
+            },
+            {
+              "start": 9027,
+              "end": 9270
+            }
+          ]
+        },
+        {
+          "kind": "free_period",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 7478,
+              "end": 7576
+            },
+            {
+              "start": 7433,
+              "end": 7453
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 4366,
+          "end": 4500,
+          "reason": "testimonial"
+        },
+        {
+          "start": 4995,
+          "end": 5137,
+          "reason": "testimonial"
+        },
+        {
+          "start": 6184,
+          "end": 6328,
+          "reason": "testimonial"
+        },
+        {
+          "start": 6768,
+          "end": 6872,
+          "reason": "testimonial"
+        },
+        {
+          "start": 541,
+          "end": 624,
+          "reason": "marketing"
+        },
+        {
+          "start": 8194,
+          "end": 8478,
+          "reason": "faq"
+        },
+        {
+          "start": 3523,
+          "end": 3619,
+          "reason": "other"
+        }
+      ],
+      "note": "Free access to tools has no fixed time; labelled free_period with null duration."
+    },
+    {
+      "url": "https://www.mintlify.com/oss-program",
+      "sha256": "c28d168f91146b62ad0186edc595b44b582864847727ab2bc1597f2af459f5cd",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": [],
+      "note": "Open source program; it only links to the separate Startup Program (50% off Pro for 12 months)."
+    },
+    {
+      "url": "https://www.mintlify.com/startups",
+      "sha256": "4ff6fbae72787693187daf712d6a609d0da3d89daabbdb2096e6ddb5890b5f81",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "discount",
+          "value": null,
+          "percent": 50,
+          "duration": "12 months",
+          "who": "startups founded in the past 2 years that have raised under $2M",
+          "mentions": [
+            {
+              "start": 250,
+              "end": 330
+            },
+            {
+              "start": 1630,
+              "end": 1661
+            },
+            {
+              "start": 1663,
+              "end": 1772
+            },
+            {
+              "start": 1867,
+              "end": 1901
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "startups founded in the past 2 years that have raised under $2M",
+          "mentions": [
+            {
+              "start": 250,
+              "end": 330
+            },
+            {
+              "start": 1663,
+              "end": 1772
+            },
+            {
+              "start": 2101,
+              "end": 2138
+            },
+            {
+              "start": 2140,
+              "end": 2205
+            }
+          ]
+        },
+        {
+          "kind": "free_period",
+          "value": null,
+          "percent": null,
+          "duration": "12 months",
+          "who": "current Y Combinator batch",
+          "mentions": [
+            {
+              "start": 2026,
+              "end": 2064
+            }
+          ]
+        },
+        {
+          "kind": "discount",
+          "value": null,
+          "percent": 50,
+          "duration": "12 months",
+          "who": "Y Combinator alumni",
+          "mentions": [
+            {
+              "start": 2065,
+              "end": 2098
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 424,
+          "end": 497,
+          "reason": "marketing"
+        },
+        {
+          "start": 1266,
+          "end": 1333,
+          "reason": "product"
+        },
+        {
+          "start": 1903,
+          "end": 1999,
+          "reason": "product"
+        },
+        {
+          "start": 2271,
+          "end": 2334,
+          "reason": "marketing"
+        },
+        {
+          "start": 2426,
+          "end": 2529,
+          "reason": "testimonial"
+        },
+        {
+          "start": 2774,
+          "end": 2832,
+          "reason": "marketing"
+        }
+      ]
+    },
+    {
+      "url": "https://www.mongodb.com/solutions/startups",
+      "sha256": "104482afd5c3043f73a8e8500e2d7f845e1f1c584cac9e1766503b5478718744",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 562,
+              "end": 712
+            },
+            {
+              "start": 1975,
+              "end": 2073
+            },
+            {
+              "start": 2109,
+              "end": 2231
+            },
+            {
+              "start": 2275,
+              "end": 2380
+            },
+            {
+              "start": 2420,
+              "end": 2519
+            },
+            {
+              "start": 2576,
+              "end": 2753
+            }
+          ]
+        },
+        {
+          "kind": "credits",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 3715,
+              "end": 3856
+            },
+            {
+              "start": 562,
+              "end": 712
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 562,
+              "end": 712
+            },
+            {
+              "start": 1836,
+              "end": 1936
+            },
+            {
+              "start": 2109,
+              "end": 2231
+            },
+            {
+              "start": 2420,
+              "end": 2519
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 2576,
+              "end": 2753
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 726,
+          "end": 811,
+          "reason": "marketing"
+        },
+        {
+          "start": 2777,
+          "end": 2955,
+          "reason": "product"
+        },
+        {
+          "start": 4080,
+          "end": 4159,
+          "reason": "other"
+        },
+        {
+          "start": 4463,
+          "end": 4526,
+          "reason": "faq"
+        },
+        {
+          "start": 4667,
+          "end": 4711,
+          "reason": "faq"
+        },
+        {
+          "start": 9178,
+          "end": 9192,
+          "reason": "how_to_apply"
+        }
+      ],
+      "note": "Tiers (Inspire, Grow, Innovate, Scale) state no amounts, so the Atlas credits are one offer with each tier as a mention."
+    },
+    {
+      "url": "https://www.muscula.com/",
+      "sha256": "f776fbad52eaf1b716fb78b43e7637d59589b89253697395235a0ad20c204d6b",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://www.notion.com/startups",
+      "sha256": "a29fe249eddc68ac2e7867919a0bcd85341256032258458738f5bc7ee2d5d826",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "free_period",
+          "value": {
+            "amount": 12000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": "6 months",
+          "who": "non-paying Notion customers with under 100 employees affiliated with a select startup partner",
+          "mentions": [
+            {
+              "start": 4105,
+              "end": 4142
+            },
+            {
+              "start": 72,
+              "end": 141
+            },
+            {
+              "start": 6461,
+              "end": 6535
+            }
+          ]
+        },
+        {
+          "kind": "free_period",
+          "value": null,
+          "percent": null,
+          "duration": "3 months",
+          "who": "non-paying Notion customers with under 100 employees, a valid business website and a company domain email",
+          "mentions": [
+            {
+              "start": 4263,
+              "end": 4300
+            }
+          ]
+        },
+        {
+          "kind": "free_period",
+          "value": null,
+          "percent": null,
+          "duration": "1 month",
+          "who": "under 10 employees (SMBs) or startups with incomplete business information",
+          "mentions": [
+            {
+              "start": 4424,
+              "end": 4460
+            }
+          ]
+        },
+        {
+          "kind": "perks",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "accepted startups",
+          "mentions": [
+            {
+              "start": 4604,
+              "end": 4684
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "accepted startups",
+          "mentions": [
+            {
+              "start": 4844,
+              "end": 4919
+            },
+            {
+              "start": 4814,
+              "end": 4842
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 5528,
+          "end": 5703,
+          "reason": "eligibility"
+        },
+        {
+          "start": 6920,
+          "end": 7042,
+          "reason": "eligibility"
+        },
+        {
+          "start": 6402,
+          "end": 6460,
+          "reason": "regular_pricing"
+        },
+        {
+          "start": 5110,
+          "end": 5178,
+          "reason": "other"
+        },
+        {
+          "start": 1361,
+          "end": 1463,
+          "reason": "marketing"
+        },
+        {
+          "start": 2960,
+          "end": 3087,
+          "reason": "testimonial"
+        },
+        {
+          "start": 6098,
+          "end": 6196,
+          "reason": "faq"
+        }
+      ]
+    },
+    {
+      "url": "https://www.nvidia.com/en-us/startups/",
+      "sha256": "2802ba0dc8e991a53ba29b29262f68944a7cb2070dbc8b83a14cfb162097c4b1",
+      "role": "test",
+      "kind": "other",
+      "offers": [],
+      "lookalikes": [],
+      "note": "Only a sign-up form survived extraction; no program benefit is stated in the text."
+    },
+    {
+      "url": "https://www.outreachy.org/",
+      "sha256": "96b4f2e1bb423e011b8cad771a37cb7e934964ab0f386cc4399a78c7db7f69a3",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://www.pinecone.io/",
+      "sha256": "73c04e8cc2435f4f435f05fa8847355157d0f987ae15566a608ee77b075dd0f9",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://www.speechmatics.com/startup-program",
+      "sha256": "8a4b89cd6d938091d120c529672bb472a5a3b34e81f51d6a0e0b0e32b3780818",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 50000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "early-stage startups building with voice AI",
+          "mentions": [
+            {
+              "start": 2394,
+              "end": 2530
+            },
+            {
+              "start": 3815,
+              "end": 3951
+            },
+            {
+              "start": 234,
+              "end": 257
+            },
+            {
+              "start": 2371,
+              "end": 2392
+            },
+            {
+              "start": 3792,
+              "end": 3813
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "program startups",
+          "mentions": [
+            {
+              "start": 3107,
+              "end": 3234
+            },
+            {
+              "start": 4528,
+              "end": 4655
+            },
+            {
+              "start": 259,
+              "end": 279
+            },
+            {
+              "start": 3089,
+              "end": 3105
+            },
+            {
+              "start": 4510,
+              "end": 4526
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "standout startups",
+          "mentions": [
+            {
+              "start": 3450,
+              "end": 3589
+            },
+            {
+              "start": 4871,
+              "end": 5010
+            },
+            {
+              "start": 281,
+              "end": 303
+            },
+            {
+              "start": 3433,
+              "end": 3448
+            },
+            {
+              "start": 4854,
+              "end": 4869
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 5424,
+          "end": 5485,
+          "reason": "eligibility"
+        },
+        {
+          "start": 5342,
+          "end": 5395,
+          "reason": "eligibility"
+        },
+        {
+          "start": 5172,
+          "end": 5258,
+          "reason": "eligibility"
+        },
+        {
+          "start": 2748,
+          "end": 2814,
+          "reason": "product"
+        },
+        {
+          "start": 5791,
+          "end": 5866,
+          "reason": "testimonial"
+        },
+        {
+          "start": 6012,
+          "end": 6090,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 80,
+          "end": 232,
+          "reason": "marketing"
+        }
+      ]
+    },
+    {
+      "url": "https://www.star-history.com/",
+      "sha256": "f5964a4289fa2414bb395ca34a29a4b22358a25d03ac1f530dddfbeb94ae8977",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": [],
+      "note": "Product page of the GitHub Star History tool; no startup program."
+    },
+    {
+      "url": "https://www.techstars.com/",
+      "sha256": "563b37d27fec9f191f2405d3e70b29bc3eb2e4da7f962cae6362d3053426724d",
+      "role": "test",
+      "kind": "investor",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://www.tinyfish.ai/ambassadors",
+      "sha256": "fc993f88611f77c11faeba746248e5539694d4eefd34548af0b1e11eea92b8c9",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://www.tinyfish.ai/startups",
+      "sha256": "e027ab53ec9a0c2730a01e012e5d0c15981516ecabd496c6ef46807bc9ed5d44",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "free_period",
+          "value": {
+            "amount": 7000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": "6 months",
+          "who": "Tier 1: independent teams, not in an accelerator or investor-backed, still pre-production",
+          "mentions": [
+            {
+              "start": 433,
+              "end": 496
+            },
+            {
+              "start": 355,
+              "end": 376
+            }
+          ]
+        },
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 600,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": "6 months",
+          "who": "Tier 1: independent teams, not in an accelerator or investor-backed, still pre-production",
+          "mentions": [
+            {
+              "start": 500,
+              "end": 544
+            }
+          ]
+        },
+        {
+          "kind": "free_period",
+          "value": {
+            "amount": 12000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": "a year",
+          "who": "Tier 2: startups in an accelerator or backed by investors",
+          "mentions": [
+            {
+              "start": 813,
+              "end": 874
+            },
+            {
+              "start": 730,
+              "end": 752
+            },
+            {
+              "start": 39,
+              "end": 198
+            }
+          ]
+        },
+        {
+          "kind": "discount",
+          "value": null,
+          "percent": 50,
+          "duration": "24 months",
+          "who": "Tier 2: startups in an accelerator or backed by investors",
+          "mentions": [
+            {
+              "start": 878,
+              "end": 925
+            }
+          ]
+        },
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 500,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "Tier 2: startups in an accelerator or backed by investors",
+          "mentions": [
+            {
+              "start": 929,
+              "end": 957
+            },
+            {
+              "start": 39,
+              "end": 198
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "both tiers",
+          "mentions": [
+            {
+              "start": 1110,
+              "end": 1168
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "both tiers",
+          "mentions": [
+            {
+              "start": 1172,
+              "end": 1218
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "both tiers",
+          "mentions": [
+            {
+              "start": 1222,
+              "end": 1271
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 609,
+          "end": 719,
+          "reason": "eligibility"
+        },
+        {
+          "start": 974,
+          "end": 1076,
+          "reason": "eligibility"
+        },
+        {
+          "start": 1575,
+          "end": 1620,
+          "reason": "eligibility"
+        },
+        {
+          "start": 1523,
+          "end": 1571,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 1624,
+          "end": 1727,
+          "reason": "other"
+        },
+        {
+          "start": 1292,
+          "end": 1370,
+          "reason": "other"
+        },
+        {
+          "start": 548,
+          "end": 592,
+          "reason": "product"
+        }
+      ],
+      "note": "Tier values ($7,000, $12,000) are bundle estimates that fine print ties to full use of the free rate limits, so they sit on the free_period offers; Tier 1 wallet value $600 comes from the fine print; the 50 concurrent runs line is a usage limit, labelled product."
+    },
+    {
+      "url": "https://www.tinyfish.ai/students",
+      "sha256": "09405dfe9290578a4af1a3eefbab5225199a55c226daf4f52863568942186f35",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://www.together.ai/research-credits-program-request",
+      "sha256": "140f6e2c938e6b27d0ed19d1b2400f632b23b9db7985a1e0394b4d65a2715ef7",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://www.together.ai/startup-accelerator",
+      "sha256": "80b3bc0875d0c62e21e2e16e3dc7acdd7d0fcb3976263222c0f072773c2bc5e8",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 15000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "Build tier",
+          "mentions": [
+            {
+              "start": 1083,
+              "end": 1119
+            },
+            {
+              "start": 321,
+              "end": 437
+            }
+          ]
+        },
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 30000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "Scale tier",
+          "mentions": [
+            {
+              "start": 1190,
+              "end": 1226
+            },
+            {
+              "start": 321,
+              "end": 437
+            }
+          ]
+        },
+        {
+          "kind": "credits",
+          "value": {
+            "amount": 50000,
+            "currency": "USD"
+          },
+          "percent": null,
+          "duration": null,
+          "who": "Grow tier",
+          "mentions": [
+            {
+              "start": 1296,
+              "end": 1332
+            },
+            {
+              "start": 321,
+              "end": 437
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "Build tier",
+          "mentions": [
+            {
+              "start": 1120,
+              "end": 1169
+            },
+            {
+              "start": 478,
+              "end": 602
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "Scale tier",
+          "mentions": [
+            {
+              "start": 1227,
+              "end": 1276
+            },
+            {
+              "start": 478,
+              "end": 602
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "Grow tier",
+          "mentions": [
+            {
+              "start": 1333,
+              "end": 1383
+            },
+            {
+              "start": 478,
+              "end": 602
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 632,
+              "end": 709
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 731,
+              "end": 837
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 859,
+              "end": 949
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": null,
+          "mentions": [
+            {
+              "start": 972,
+              "end": 1037
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 245,
+          "end": 293,
+          "reason": "eligibility"
+        },
+        {
+          "start": 1387,
+          "end": 1434,
+          "reason": "other"
+        },
+        {
+          "start": 1464,
+          "end": 1535,
+          "reason": "how_to_apply"
+        },
+        {
+          "start": 1860,
+          "end": 1951,
+          "reason": "testimonial"
+        },
+        {
+          "start": 3216,
+          "end": 3288,
+          "reason": "testimonial"
+        },
+        {
+          "start": 3736,
+          "end": 3826,
+          "reason": "testimonial"
+        },
+        {
+          "start": 43,
+          "end": 209,
+          "reason": "marketing"
+        }
+      ]
+    },
+    {
+      "url": "https://www.twilio.com/en-us/solutions/startups",
+      "sha256": "16c7249d65afed4b858c94adc56f18f1d838856845e4ffae403fbea04c58d8cf",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "early stage companies",
+          "mentions": [
+            {
+              "start": 72,
+              "end": 273
+            },
+            {
+              "start": 10448,
+              "end": 10602
+            },
+            {
+              "start": 854,
+              "end": 1053
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 11950,
+          "end": 12117,
+          "reason": "faq"
+        },
+        {
+          "start": 1091,
+          "end": 1286,
+          "reason": "regular_pricing"
+        },
+        {
+          "start": 11695,
+          "end": 11890,
+          "reason": "regular_pricing"
+        },
+        {
+          "start": 1808,
+          "end": 1859,
+          "reason": "regular_pricing"
+        },
+        {
+          "start": 8823,
+          "end": 8885,
+          "reason": "testimonial"
+        },
+        {
+          "start": 8283,
+          "end": 8496,
+          "reason": "marketing"
+        },
+        {
+          "start": 11042,
+          "end": 11107,
+          "reason": "how_to_apply"
+        }
+      ],
+      "note": "Twilio Startups gives only free resources and team help and says it offers no startup credits; program with one support offer."
+    },
+    {
+      "url": "https://www.vanta.com/",
+      "sha256": "89f17d91c129e7301d94e4dc73689b19244cedb32d8e3de0a98eb2b0e08aaef1",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://www.ycombinator.com/",
+      "sha256": "e1616b05025ec0c5bc5d2b9567a85c322153eb0e2a138cb670ba8751cfe4dd1f",
+      "role": "test",
+      "kind": "investor",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://www.ycombinator.com/apply",
+      "sha256": "d174ab8414c3369182bd25371833b15eceaa13c53cfe4f243af453b31bb65e99",
+      "role": "test",
+      "kind": "investor",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://www.yugabyte.com/",
+      "sha256": "919a277753df297986fca6fa5672ace4005673148bf6fee3f1fd6464b5232728",
+      "role": "test",
+      "kind": "home",
+      "offers": [],
+      "lookalikes": []
+    },
+    {
+      "url": "https://www.zendesk.com/business/startups/",
+      "sha256": "38071c8e65b5986b0c92f70dd94fb6a9fc92e9a453ec4c1d5a276730e782d956",
+      "role": "test",
+      "kind": "program",
+      "offers": [
+        {
+          "kind": "free_period",
+          "value": null,
+          "percent": null,
+          "duration": "up to 2 years",
+          "who": "startups affiliated with Zendesk VC and accelerator partners",
+          "mentions": [
+            {
+              "start": 0,
+              "end": 43
+            },
+            {
+              "start": 10102,
+              "end": 10284
+            },
+            {
+              "start": 11289,
+              "end": 11418
+            },
+            {
+              "start": 12122,
+              "end": 12233
+            },
+            {
+              "start": 12400,
+              "end": 12504
+            }
+          ]
+        },
+        {
+          "kind": "free_period",
+          "value": null,
+          "percent": null,
+          "duration": "6 months",
+          "who": "accepted startups not affiliated with a partner",
+          "mentions": [
+            {
+              "start": 11214,
+              "end": 11286
+            },
+            {
+              "start": 11585,
+              "end": 11715
+            }
+          ]
+        },
+        {
+          "kind": "support",
+          "value": null,
+          "percent": null,
+          "duration": null,
+          "who": "program members",
+          "mentions": [
+            {
+              "start": 14711,
+              "end": 14957
+            },
+            {
+              "start": 14958,
+              "end": 15010
+            },
+            {
+              "start": 12234,
+              "end": 12352
+            }
+          ]
+        }
+      ],
+      "lookalikes": [
+        {
+          "start": 299,
+          "end": 440,
+          "reason": "eligibility"
+        },
+        {
+          "start": 10648,
+          "end": 10682,
+          "reason": "eligibility"
+        },
+        {
+          "start": 10746,
+          "end": 10787,
+          "reason": "eligibility"
+        },
+        {
+          "start": 2788,
+          "end": 2823,
+          "reason": "marketing"
+        },
+        {
+          "start": 3316,
+          "end": 3449,
+          "reason": "product"
+        },
+        {
+          "start": 5604,
+          "end": 5745,
+          "reason": "testimonial"
+        },
+        {
+          "start": 11926,
+          "end": 12057,
+          "reason": "faq"
+        },
+        {
+          "start": 14178,
+          "end": 14325,
+          "reason": "regular_pricing"
+        }
+      ],
+      "note": "The free period is split into the 6-month baseline and the partner-tied 1-2 year extension."
+    },
+    {
+      "url": "https://zed.dev/education",
+      "sha256": "4723c0e768596a829ace897ffd51b2d68db86acedb8b4ab7fdf21558c2dc433e",
+      "role": "test",
+      "kind": "other_program",
+      "offers": [],
+      "lookalikes": []
+    }
+  ]
+}

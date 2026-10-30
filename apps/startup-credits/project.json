@@ -11,6 +11,12 @@
     "test": {
       "dependsOn": ["build"],
       "command": "node --test {args} \"apps/startup-credits/src/*.test.ts\""
+    },
+    "eval-seed": {
+      "command": "node apps/startup-credits/eval/seed.ts"
+    },
+    "eval": {
+      "command": "node apps/startup-credits/eval/score.ts {args}"
     }
   }
 }
