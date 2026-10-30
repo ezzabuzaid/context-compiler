@@ -35,6 +35,7 @@ test('every connector folder loads as its connector for the host, and one that c
     'messages',
     'notes',
     'notification-center',
+    'opensooq',
     'photos',
     'reminders',
     'safari',

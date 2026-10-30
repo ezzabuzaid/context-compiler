@@ -157,8 +157,13 @@ export abstract class Connector {
 
   protected abstract source(scope: ImportScope): Source;
 
-  // The source an import loads from; listing choices reads source(scope).
-  protected importSource({ scope }: Selection): Source | Promise<Source> {
+  // The source an import loads from, given the import's folder for the files
+  // a source keeps of its own, such as an HTTP cache; listing choices reads
+  // source(scope).
+  protected importSource(
+    { scope }: Selection,
+    _directory: string,
+  ): Source | Promise<Source> {
     return this.source(scope);
   }
 
@@ -431,7 +436,7 @@ export abstract class Connector {
     derived: readonly DerivedDataset<SQLiteTable>[];
   }> {
     const { scope, includeAttachments } = selection;
-    const source = await this.importSource(selection);
+    const source = await this.importSource(selection, directory);
     const narrowed = Object.keys(scope).length > 0;
     const { streams } = await source.discover();
     const withFiles = (stream: Stream) =>

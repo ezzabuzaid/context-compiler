@@ -22,6 +22,7 @@
     "@workspace/connector-apple-call-history": "0.0.1",
     "@workspace/connector-apple-contacts": "0.0.1",
     "@workspace/connector-instagram-web": "0.0.1",
+    "@workspace/connector-opensooq-web": "0.0.1",
     "@workspace/connector-apple-mail": "0.0.1",
     "@workspace/connector-apple-messages": "0.0.1",
     "@workspace/connector-apple-notes": "0.0.1",

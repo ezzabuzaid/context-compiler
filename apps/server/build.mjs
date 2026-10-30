@@ -54,6 +54,9 @@ await build({
   splitting: true,
   format: 'esm',
   platform: 'node',
+  // @keyv/sqlite's Bun driver. The web source opens its HTTP cache with the
+  // node:sqlite driver, so this import never runs under Node.
+  external: ['bun:sqlite'],
   target: 'node24.19',
   outExtension: { '.js': '.mjs' },
   chunkNames: 'chunks/[name]-[hash]',

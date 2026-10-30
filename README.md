@@ -2,7 +2,7 @@
 
 **Import your Mac apps into SQLite. Ask Codex about them.**
 
-Context Compiler is a Codex plugin and a terminal CLI that import what the apps on a Mac keep (Notes, Mail, Messages, Calendar, Reminders, Contacts, Safari, Books, Activity, Accounts, Call History, Clock, Notification Center, Wallet, Slack, Microsoft Teams, WhatsApp and Instagram) into one SQLite database per connector, and keep it current. The plugin's skills let the agent read those databases directly with `sqlite3 -readonly`. Everything stays on the Mac.
+Context Compiler is a Codex plugin and a terminal CLI that import what the apps on a Mac keep (Notes, Mail, Messages, Calendar, Reminders, Contacts, Safari, Books, Activity, Accounts, Call History, Clock, Notification Center, Wallet, Slack, Microsoft Teams, WhatsApp and Instagram) and the listings of the OpenSooq categories you pick into one SQLite database per connector, and keep it current. The plugin's skills let the agent read those databases directly with `sqlite3 -readonly`. Everything stays on the Mac.
 
 The sources, the SQLite destination and the pipeline that loads them are the [elt](https://github.com/ezzabuzaid/elt) library. This repository holds the hosts: the plugin, the CLI, one connector package per app, and the settings they share. See the README of each [elt source package](https://github.com/ezzabuzaid/elt/tree/main/packages/sources) for its streams, fields and limits, for example [Mail streams](https://github.com/ezzabuzaid/elt/blob/main/packages/sources/apple/mail/README.md).
 

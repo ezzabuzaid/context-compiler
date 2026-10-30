@@ -24,6 +24,7 @@
     "@workspace/connector-instagram-web": "0.0.1",
     "@workspace/connector-manifest": "0.0.1",
     "@workspace/connector-microsoft-teams": "0.0.1",
+    "@workspace/connector-opensooq-web": "0.0.1",
     "@workspace/connector-slack-desktop": "0.0.1",
     "@workspace/connector-whatsapp-desktop": "0.0.1",
     "@workspace/eca": "0.0.1",

@@ -42,6 +42,9 @@
       "path": "../mail/tsconfig.lib.json"
     },
     {
+      "path": "../opensooq/tsconfig.lib.json"
+    },
+    {
       "path": "../instagram/tsconfig.lib.json"
     },
     {

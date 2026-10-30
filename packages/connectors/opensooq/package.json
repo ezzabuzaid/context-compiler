@@ -1,0 +1,21 @@
+{
+  "name": "@workspace/connector-opensooq-web",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": "./dist/opensooq-connector.js",
+  "contextCompiler": {
+    "name": "opensooq",
+    "title": "OpenSooq"
+  },
+  "dependencies": {
+    "@workspace/connector": "0.0.1",
+    "@workspace/source-apple-macos": "0.0.1",
+    "@workspace/source-opensooq-web": "0.0.1",
+    "@workspace/source-web-pages": "0.0.1"
+  },
+  "devDependencies": {
+    "@workspace/settings": "0.0.1",
+    "msw": "^2.15.0"
+  }
+}

@@ -18,13 +18,19 @@
       "path": "../../packages/connectors/whatsapp/tsconfig.lib.json"
     },
     {
-      "path": "../../packages/connectors/wallet/tsconfig.lib.json"
+      "path": "../../packages/connectors/slack/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/opensooq/tsconfig.lib.json"
     },
     {
       "path": "../../packages/connectors/teams/tsconfig.lib.json"
     },
     {
-      "path": "../../packages/connectors/slack/tsconfig.lib.json"
+      "path": "../../packages/connectors/instagram/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/wallet/tsconfig.lib.json"
     },
     {
       "path": "../../packages/connectors/safari/tsconfig.lib.json"
@@ -45,13 +51,7 @@
       "path": "../../packages/connectors/mail/tsconfig.lib.json"
     },
     {
-      "path": "../../packages/connectors/instagram/tsconfig.lib.json"
-    },
-    {
       "path": "../../packages/connectors/contacts/tsconfig.lib.json"
-    },
-    {
-      "path": "../../packages/connectors/connector/tsconfig.lib.json"
     },
     {
       "path": "../../packages/connectors/clock/tsconfig.lib.json"
@@ -70,6 +70,9 @@
     },
     {
       "path": "../../packages/connectors/accounts/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/connector/tsconfig.lib.json"
     },
     {
       "path": "../../packages/connectors/manifest/tsconfig.lib.json"

@@ -33,25 +33,29 @@ const destination = new SQLiteDestination({
 });
 
 const source = new WebSource({
-  stream: new WebStream({
-    name: 'program_pages',
-    primaryKey: ['articleUrl'],
-    // Each list hands back the pages it links on every website.
-    readers: [new PaginationReader({ strategy: 'all' })],
-    // Lists every hour; pages when they change, as AdaptiveRevisit learns.
-    revisit: new CompositeRevisit(
-      lists.map((list) => [
-        new URLPattern(list),
-        new FixedRevisit({ every: hour }),
-      ]),
-      new AdaptiveRevisit(),
-    ),
-    // Every host but GitHub's, so a list's license and commits are not pages
-    // (the crawler recipe "Follow a list to other websites").
-    include: [new URLPattern({ hostname: '((?!github\\.com$).*)' })],
-    extractor: new ArticleExtractor(),
-  }),
-  inputs: lists,
+  streams: [
+    {
+      stream: new WebStream({
+        name: 'program_pages',
+        primaryKey: ['articleUrl'],
+        // Each list hands back the pages it links on every website.
+        readers: [new PaginationReader({ strategy: 'all' })],
+        // Lists every hour; pages when they change, as AdaptiveRevisit learns.
+        revisit: new CompositeRevisit(
+          lists.map((list) => [
+            new URLPattern(list),
+            new FixedRevisit({ every: hour }),
+          ]),
+          new AdaptiveRevisit(),
+        ),
+        // Every host but GitHub's, so a list's license and commits are not pages
+        // (the crawler recipe "Follow a list to other websites").
+        include: [new URLPattern({ hostname: '((?!github\\.com$).*)' })],
+        extractor: new ArticleExtractor(),
+      }),
+      inputs: lists,
+    },
+  ],
   // The crawler's name, which robots.txt groups match (RFC 9309).
   userAgent:
     'StartupCredits/0.1 (+https://github.com/ezzabuzaid/context-compiler)',

@@ -82,7 +82,7 @@ export class SetupCommand extends Command {
       .addOption(
         new Option(
           '--collection <id>',
-          'import only this folder, mailbox, chat, calendar, list or profile of the --connector before it',
+          'import only this folder, mailbox, chat, calendar, list, profile or category of the --connector before it',
         ).argParser(narrow('collection')),
       )
       .addOption(

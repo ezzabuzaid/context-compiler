@@ -50,21 +50,25 @@ async function connection(
   include: readonly [URLPattern, ...URLPattern[]] | undefined,
 ) {
   const source = new WebSource({
-    stream: new WebStream({
-      name: `${name}_articles`,
-      primaryKey: ['articleUrl'],
-      readers,
-      revisit: new CompositeRevisit(
-        inputs.map((input) => [
-          new URLPattern(input),
-          new FixedRevisit({ every: hour }),
-        ]),
-        new AdaptiveRevisit(),
-      ),
-      include,
-      extractor: new ArticleExtractor(),
-    }),
-    inputs,
+    streams: [
+      {
+        stream: new WebStream({
+          name: `${name}_articles`,
+          primaryKey: ['articleUrl'],
+          readers,
+          revisit: new CompositeRevisit(
+            inputs.map((input) => [
+              new URLPattern(input),
+              new FixedRevisit({ every: hour }),
+            ]),
+            new AdaptiveRevisit(),
+          ),
+          include,
+          extractor: new ArticleExtractor(),
+        }),
+        inputs,
+      },
+    ],
     userAgent,
     cachePath: join(directory, 'web-http.sqlite'),
   });

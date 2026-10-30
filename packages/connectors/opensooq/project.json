@@ -1,0 +1,12 @@
+{
+  "name": "connector-opensooq-web",
+  "sourceRoot": "packages/connectors/opensooq/src",
+  "projectType": "library",
+  "targets": {
+    "format": {},
+    "test": {
+      "dependsOn": ["build"],
+      "command": "node --test {args} \"packages/connectors/opensooq/src/*.test.ts\""
+    }
+  }
+}

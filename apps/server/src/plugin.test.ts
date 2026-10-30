@@ -1888,6 +1888,7 @@ test('the sidebar page describes each connector’s import and switches one conn
       messages: false,
       contacts: false,
       instagram: false,
+      opensooq: false,
       calendar: false,
       reminders: false,
       safari: false,
