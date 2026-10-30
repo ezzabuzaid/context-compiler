@@ -10,6 +10,7 @@ import {
   pageKinds,
 } from './answer-key.ts';
 import { ground } from './ground.ts';
+import { scoreKinds } from './kind-score.ts';
 import { pages } from './pages.ts';
 
 // What an extractor answered for each page it read: its offers, each with
@@ -131,7 +132,6 @@ const tally: Tally = {
   amounts: 0,
   amountsRight: 0,
 };
-const kinds = { pages: 0, right: 0, confusions: new Map<string, number>() };
 const tests = key.pages.filter(({ role }) => role === 'test');
 for (const label of tests) {
   const prediction = answered.get(label.url);
@@ -140,14 +140,15 @@ for (const label of tests) {
   if (page.sha256 !== label.sha256)
     throw new Error(`${label.url}: the cache holds other text than the labels`);
   scorePage(label, page.text, prediction, tally);
-  if (prediction.kind !== undefined) {
-    kinds.pages++;
-    if (prediction.kind === label.kind) kinds.right++;
-    else {
-      increment(kinds.confusions, `${label.kind} → ${prediction.kind}`);
-    }
-  }
 }
+const kinds = scoreKinds(
+  key.pages,
+  new Map(
+    predictions.pages.flatMap(({ url, kind }) =>
+      kind === undefined ? [] : [[url, kind]],
+    ),
+  ),
+);
 
 const wrong = [...tally.wrong.values()].reduce((sum, count) => sum + count, 0);
 const percent = (part: number, whole: number) =>

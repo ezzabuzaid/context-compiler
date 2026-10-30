@@ -17,6 +17,9 @@
     },
     "eval": {
       "command": "node apps/startup-credits/eval/score.ts {args}"
+    },
+    "eval-kinds": {
+      "command": "node apps/startup-credits/eval/kinds.ts {args}"
     }
   }
 }

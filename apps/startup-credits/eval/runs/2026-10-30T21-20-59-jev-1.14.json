@@ -1,0 +1,610 @@
+{
+  "extractor": "jev-1.14 page kinds",
+  "pages": [
+    {
+      "url": "https://1password.com/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://about.gitlab.com/solutions/education/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://about.gitlab.com/solutions/startups/",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://accounts.google.com/v3/signin/identifier?continue=https://one.google.com/ai-student&followup=https://one.google.com/ai-student&passive=1209600&flowName=WebLiteSignIn&flowEntry=ServiceLogin&dsh=S-921284725:1793358794003432",
+      "kind": "other",
+      "offers": []
+    },
+    {
+      "url": "https://aicreditradar.com/",
+      "kind": "list",
+      "offers": []
+    },
+    {
+      "url": "https://ambassador-program-6pmlhfuf2fg.qoder.website/?lang=en",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://amplitude.com/startups",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://arize.com/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://aws.amazon.com/startups/",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://aws.amazon.com/startups/credits",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://azure.microsoft.com/en-us/free/students",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://capy.ai/open-source",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://carta.com/sg/en/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://chatgpt.com/codex/students/",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://circleci.com/startup-program/",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://claude.com/community/ambassadors",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://claude.com/contact-sales/claude-for-oss",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://claude.com/programs/campus",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://claude.com/programs/startups",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://cloud.google.com/startup",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://cloud.google.com/startup/ai",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://cohere.com/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://contextual.ai/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://cursor.com/campus-leads",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://customer.io/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://deepgram.com/startup-program",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://developers.openai.com/community/codex-for-oss",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://devin.ai/community",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://devin.ai/startups",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://doanbactam.github.io/awesome-builder-programs/",
+      "kind": "list",
+      "offers": []
+    },
+    {
+      "url": "https://docs.mistral.ai/resources/ambassadors",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://drata.com/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://education.github.com/pack",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://elevenlabs.io/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://elevenlabs.io/students",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://estuary.dev/startup/",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://fellowship.mlh.com/",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://github.com/sindresorhus/awesome#readme",
+      "kind": "list",
+      "offers": []
+    },
+    {
+      "url": "https://huggingface.co/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://huggingface.co/startups",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://kilo.ai/",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://kiro.dev/startups/",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://kiro.dev/students/",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://linear.app/index.md",
+      "kind": "other",
+      "offers": []
+    },
+    {
+      "url": "https://livekit.com/startups",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://mailchimp.com/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://manus.im/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://mentorship.linuxfoundation.org/",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://mercury.com/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://miro.com/startups/",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://modal.com/startups",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://nebius.com/startups",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://neo4j.com/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://ona.com/stories/ona-for-open-source",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://openai.com/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://openai.com/business/why-openai/startups/",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://openai.com/student-collective/",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://opencoreventures.com/catalyst/",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://openrouter.ai/startup-program",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://planetscale.com/startups",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://ramp.com/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://redis.io/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://render.com/startups",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://runware.ai/startup-program",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://sentry.io/for/startups/",
+      "kind": "other",
+      "offers": []
+    },
+    {
+      "url": "https://snyk.io/open-source/",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://startup.ovhcloud.com/en-ie/",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://startupsmap.co.in/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://stripe.com/atlas",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://summerofcode.withgoogle.com/",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://temporal.io/startup",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://upstash.com/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://upstash.com/open-source",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://v0.app/students",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://vercel.com/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://vercel.com/startups",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://www.alibabacloud.com/en?_p_lc=1",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://www.anthropic.com/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://www.antler.co/",
+      "kind": "investor",
+      "offers": []
+    },
+    {
+      "url": "https://www.assemblyai.com/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://www.assemblyai.com/contact/startup-program",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://www.atlascloud.ai/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://www.baseten.co/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://www.clerky.com/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://www.databricks.com/product/startups",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://www.datadoghq.com/partner/datadog-for-startups/",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://www.daytona.io/startups",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://www.digitalocean.com/startups",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://www.figma.com/education/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://www.firecrawl.dev/student-program",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://www.hubspot.com/startups",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://www.ibm.com/products/cloud",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://www.intercom.com/early-stage",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://www.jetbrains.com/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://www.kimi.ai/lp/kimi-ambassador",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://www.linode.com/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://www.microsoft.com/ar/startups",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://www.microsoft.com/en-us/startups",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://www.mintlify.com/oss-program",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://www.mintlify.com/startups",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://www.mongodb.com/solutions/startups",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://www.muscula.com/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://www.notion.com/startups",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://www.nvidia.com/en-us/startups/",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://www.outreachy.org/",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://www.pinecone.io/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://www.speechmatics.com/startup-program",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://www.star-history.com/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://www.techstars.com/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://www.tinyfish.ai/ambassadors",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://www.tinyfish.ai/startups",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://www.tinyfish.ai/students",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://www.together.ai/research-credits-program-request",
+      "kind": "other_program",
+      "offers": []
+    },
+    {
+      "url": "https://www.together.ai/startup-accelerator",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://www.twilio.com/en-us/solutions/startups",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://www.vanta.com/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://www.ycombinator.com/",
+      "kind": "investor",
+      "offers": []
+    },
+    {
+      "url": "https://www.ycombinator.com/apply",
+      "kind": "investor",
+      "offers": []
+    },
+    {
+      "url": "https://www.yugabyte.com/",
+      "kind": "home",
+      "offers": []
+    },
+    {
+      "url": "https://www.zendesk.com/business/startups/",
+      "kind": "program",
+      "offers": []
+    },
+    {
+      "url": "https://zed.dev/education",
+      "kind": "other_program",
+      "offers": []
+    }
+  ]
+}

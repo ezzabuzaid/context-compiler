@@ -3,11 +3,13 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "@ai-sdk/typesafe-ai": "3.0.31",
     "@workspace/eca": "0.0.1",
     "@workspace/elt": "0.0.1",
     "@workspace/elt-sqlite": "0.0.1",
     "@workspace/sdk-web-crawler": "0.0.1",
     "@workspace/source-web-pages": "0.0.1",
+    "ai": "7.0.158",
     "zod": "4.6.5"
   },
   "devDependencies": {
