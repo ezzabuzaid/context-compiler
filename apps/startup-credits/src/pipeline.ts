@@ -1,0 +1,92 @@
+import { join } from 'node:path';
+
+import { Connection, Copy, Pipeline } from '@workspace/elt';
+import {
+  ComputedDataset,
+  SQLiteCheckpointStore,
+  SQLiteDestination,
+  SQLiteSyncHistory,
+} from '@workspace/elt-sqlite';
+import {
+  AdaptiveRevisit,
+  CompositeRevisit,
+  FixedRevisit,
+  PaginationReader,
+  hour,
+} from '@workspace/sdk-web-crawler';
+import { ArticleExtractor } from '@workspace/source-web-pages/article-extractor';
+import { WebSource } from '@workspace/source-web-pages/web-source';
+import { WebStream } from '@workspace/source-web-pages/web-stream';
+
+import { CreditAmounts } from './credit-amounts.ts';
+import directory from './directory.ts';
+
+// GitHub lists of startup credit programs; the second links most programs'
+// own pages, the first links more companies (#3352).
+const lists = [
+  'https://github.com/avinash201199/awesome-startup-credits',
+  'https://github.com/doanbactam/awesome-builder-programs',
+];
+
+const destination = new SQLiteDestination({
+  path: join(directory, 'credits.sqlite'),
+});
+
+const source = new WebSource({
+  stream: new WebStream({
+    name: 'program_pages',
+    primaryKey: ['articleUrl'],
+    // Each list hands back the pages it links on every website.
+    readers: [new PaginationReader({ strategy: 'all' })],
+    // Lists every hour; pages when they change, as AdaptiveRevisit learns.
+    revisit: new CompositeRevisit(
+      lists.map((list) => [
+        new URLPattern(list),
+        new FixedRevisit({ every: hour }),
+      ]),
+      new AdaptiveRevisit(),
+    ),
+    // Every host but GitHub's, so a list's license and commits are not pages
+    // (the crawler recipe "Follow a list to other websites").
+    include: [new URLPattern({ hostname: '((?!github\\.com$).*)' })],
+    extractor: new ArticleExtractor(),
+  }),
+  inputs: lists,
+  // The crawler's name, which robots.txt groups match (RFC 9309).
+  userAgent:
+    'StartupCredits/0.1 (+https://github.com/ezzabuzaid/context-compiler)',
+  cachePath: join(directory, 'web-http.sqlite'),
+});
+const pages = destination.table('program_pages');
+
+export default new Pipeline({
+  // One process runs the passes, so a pass left running belongs to one that
+  // stopped.
+  history: new SQLiteSyncHistory({ soleWriter: true }),
+  connections: [
+    new Connection({
+      name: 'lists',
+      source,
+      destination,
+      checkpoints: new SQLiteCheckpointStore({
+        path: join(directory, 'checkpoints.sqlite'),
+      }),
+      steps: [
+        new Copy((await source.discover()).get('program_pages'), pages, {
+          id: 'lists:program_pages',
+          syncMode: 'incremental',
+          destinationSyncMode: 'append_dedup',
+        }),
+      ],
+    }),
+  ],
+  derived: [
+    new ComputedDataset({
+      into: destination,
+      name: 'credit_amounts',
+      description: 'The credit amounts that each program page states.',
+      from: [pages],
+      compute: new CreditAmounts(),
+    }),
+  ],
+});

@@ -1,11 +1,10 @@
 # Code copied into this app
 
-The Rule of Three counts places, not packages. Code that a second place needs is copied, and it is extracted only when a third place needs it (backlog #3371). Until then, a fix in one copy is made in the other copy too, and the commit names both files.
+The Rule of Three counts places, not packages. Code that a second place needs is copied, and it is extracted only when a third place needs it. A tiny helper stays copied even then, as a little copying is better than a little dependency (backlog #3371). A fix in one copy is made in the other copies too, and the commit names each file.
 
 ## The data folder
 
-**`apps/what-is-going-on/src/directory.ts` → `src/main.ts`.**
-Both apps keep their files in a folder under `XDG_DATA_HOME`, or `~/.local/share` when it is not set, and make the folder when the app starts.
-These parts are different:
+**`datahub` `apps/semantic-layer/elt/src/directory.ts` → `src/directory.ts`, without a change.**
+The app keeps its files in its own `outputs/` folder, which the root `.gitignore` leaves out, and makes the folder when the app starts.
 
-- What is going on exports the folder from `directory.ts`, and its tests set `XDG_DATA_HOME` before they import the app. This app makes the folder in `main.ts` and gives it to `watchStartupCredits` as a parameter, so its tests give a temporary folder.
+What is going on (`apps/what-is-going-on/src/directory.ts`) has the same concept with one difference: its folder is under `XDG_DATA_HOME`, or `~/.local/share` when that is not set.
