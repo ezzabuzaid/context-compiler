@@ -4,7 +4,7 @@ The Rule of Three counts places, not packages. Code that a second place needs is
 
 ## The data folder
 
-**`datahub` `apps/semantic-layer/elt/src/directory.ts` → `src/directory.ts`, without a change.**
-The app keeps its files in its own `outputs/` folder, which the root `.gitignore` leaves out, and makes the folder when the app starts.
+**`apps/what-is-going-on/src/directory.ts` → `src/directory.ts`, with the folder named `startup-credits`.**
+The app keeps its files in a `startup-credits` folder under `XDG_DATA_HOME`, or under `~/.local/share` when that is not set, and makes the folder when the app starts. Each test gives the app a temporary `XDG_DATA_HOME`.
 
-What is going on (`apps/what-is-going-on/src/directory.ts`) has the same concept with one difference: its folder is under `XDG_DATA_HOME`, or `~/.local/share` when that is not set.
+`datahub` (`apps/semantic-layer/elt/src/directory.ts`) has the same concept with one difference: its folder is `outputs/`, next to its code.

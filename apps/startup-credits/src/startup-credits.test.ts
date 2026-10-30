@@ -1,16 +1,12 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { mkdtempDisposable, rm, writeFile } from 'node:fs/promises';
+import { mkdtempDisposable, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import test from 'node:test';
 import { setTimeout } from 'node:timers/promises';
-
-// Where the app keeps its files (src/directory.ts). Its data is disposable,
-// so each test starts with none and leaves none.
-const outputs = join(import.meta.dirname, '../outputs');
 
 const avinash = 'https://github.com/avinash201199/awesome-startup-credits';
 const doanbactam = 'https://github.com/doanbactam/awesome-builder-programs';
@@ -102,10 +98,11 @@ server.events.on('request:start', ({ request }) => process.stderr.write('request
 server.listen({ onUnhandledRequest: 'error' });
 `;
 
-// Runs the app until the lines it logged satisfy until, or thirty seconds
-// pass, then stops it as Ctrl-C does, and gives its lines and the URLs it
-// requested.
+// Runs the app with its files in the data folder until the lines it logged
+// satisfy until, or thirty seconds pass, then stops it as Ctrl-C does, and
+// gives its lines and the URLs it requested.
 async function running(
+  data: string,
   pages: Readonly<Record<string, Page>>,
   until: (lines: readonly string[]) => boolean,
   ahead = 0,
@@ -116,7 +113,11 @@ async function running(
   const app = spawn(
     process.execPath,
     ['--import', setup, join(import.meta.dirname, 'main.ts')],
-    { stdio: ['ignore', 'pipe', 'pipe'] },
+    {
+      stdio: ['ignore', 'pipe', 'pipe'],
+      // The app keeps its files under XDG_DATA_HOME, here the test's own folder.
+      env: { ...process.env, XDG_DATA_HOME: data },
+    },
   );
   const lines: string[] = [];
   const requests: string[] = [];
@@ -140,82 +141,73 @@ const has = (prefix: string) => (lines: readonly string[]) =>
   lines.some((line) => line.startsWith(prefix));
 
 test('a company page that refuses the crawl is logged as not read, with its address and answer', async () => {
-  await rm(outputs, { recursive: true, force: true });
-  try {
-    const { lines, errors } = await running(
-      {
-        ...lists([['https://openai.com/startups/', 'OpenAI', 'API credits']]),
-        'https://openai.com/startups/': cloudflareChallenge,
-      },
-      has('could not read'),
-    );
+  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  const { lines, errors } = await running(
+    data.path,
+    {
+      ...lists([['https://openai.com/startups/', 'OpenAI', 'API credits']]),
+      'https://openai.com/startups/': cloudflareChallenge,
+    },
+    has('could not read'),
+  );
 
-    assert.ok(
-      lines.some((line) =>
-        line.startsWith(
-          'could not read https://openai.com/startups/: Request failed with status code 403',
-        ),
+  assert.ok(
+    lines.some((line) =>
+      line.startsWith(
+        'could not read https://openai.com/startups/: Request failed with status code 403',
       ),
-      `${lines.join('\n')}\n${errors}`,
-    );
-  } finally {
-    await rm(outputs, { recursive: true, force: true });
-  }
+    ),
+    `${lines.join('\n')}\n${errors}`,
+  );
 });
 
 test('a page that a list links and that states no credit amount is logged as no program page found, with its list', async () => {
-  await rm(outputs, { recursive: true, force: true });
-  try {
-    const { lines, errors } = await running(
-      {
-        ...lists([['https://www.anthropic.com/', 'Anthropic', 'API credits']]),
-        'https://www.anthropic.com/': anthropicHome,
-      },
-      has('no program page found'),
-    );
+  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  const { lines, errors } = await running(
+    data.path,
+    {
+      ...lists([['https://www.anthropic.com/', 'Anthropic', 'API credits']]),
+      'https://www.anthropic.com/': anthropicHome,
+    },
+    has('no program page found'),
+  );
 
-    assert.ok(
-      lines.includes(
-        `no program page found https://www.anthropic.com/ (linked by ${avinash})`,
-      ),
-      `${lines.join('\n')}\n${errors}`,
-    );
-  } finally {
-    await rm(outputs, { recursive: true, force: true });
-  }
+  assert.ok(
+    lines.includes(
+      `no program page found https://www.anthropic.com/ (linked by ${avinash})`,
+    ),
+    `${lines.join('\n')}\n${errors}`,
+  );
 });
 
 test('a program page is logged as a new program with each credit amount and its sentence, and no other page of GitHub is requested', async () => {
-  await rm(outputs, { recursive: true, force: true });
-  try {
-    const { lines, requests, errors } = await running(
-      {
-        ...lists([
-          ['https://aws.amazon.com/startups/credits', 'AWS', 'Up to $200,000'],
-        ]),
-        'https://aws.amazon.com/startups/credits': awsProgram('$200,000'),
-      },
-      has('new program'),
-    );
+  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  const { lines, requests, errors } = await running(
+    data.path,
+    {
+      ...lists([
+        ['https://aws.amazon.com/startups/credits', 'AWS', 'Up to $200,000'],
+      ]),
+      'https://aws.amazon.com/startups/credits': awsProgram('$200,000'),
+    },
+    has('new program'),
+  );
 
-    assert.ok(
-      lines.includes(
-        'new program https://aws.amazon.com/startups/credits: $200,000 ("Apply for up to $200,000 in AWS Activate Credits, with additional credits available for AI startups ready to scale."); $5,000 ("Up to $5,000 USD in Activate Credits")',
+  assert.ok(
+    lines.includes(
+      'new program https://aws.amazon.com/startups/credits: $200,000 ("Apply for up to $200,000 in AWS Activate Credits, with additional credits available for AI startups ready to scale."); $5,000 ("Up to $5,000 USD in Activate Credits")',
+    ),
+    `${lines.join('\n')}\n${errors}`,
+  );
+  assert.deepEqual(
+    // Each list is a crawl of its own, which reads robots.txt itself.
+    [
+      ...new Set(
+        requests.filter((url) => new URL(url).hostname === 'github.com'),
       ),
-      `${lines.join('\n')}\n${errors}`,
-    );
-    assert.deepEqual(
-      // Each list is a crawl of its own, which reads robots.txt itself.
-      [
-        ...new Set(
-          requests.filter((url) => new URL(url).hostname === 'github.com'),
-        ),
-      ].sort(),
-      [avinash, doanbactam, 'https://github.com/robots.txt'],
-    );
-  } finally {
-    await rm(outputs, { recursive: true, force: true });
-  }
+    ].sort(),
+    [avinash, doanbactam, 'https://github.com/robots.txt'],
+  );
 });
 
 // Sentences from the program pages that the first live run on the two lists
@@ -314,123 +306,111 @@ const liveRun: readonly (readonly [
 ];
 
 test('a dollar figure counts as credits only when the word credit stands next to it, as on the pages of the first live run', async () => {
-  await rm(outputs, { recursive: true, force: true });
-  try {
-    const reported = (lines: readonly string[]) =>
-      lines.filter(
-        (line) =>
-          line.startsWith('new program') ||
-          line.startsWith('no program page found'),
-      );
-    const { lines, errors } = await running(
-      {
-        ...lists(liveRun.map(([url]) => [url, new URL(url).hostname, ''])),
-        ...Object.fromEntries(
-          liveRun.map(([url, body]) => [
-            url,
-            ok(
-              `<!doctype html><html><head><title>${new URL(url).hostname}</title></head><body><main>${body}</main></body></html>`,
-            ),
-          ]),
-        ),
-      },
-      (lines) => reported(lines).length === liveRun.length,
+  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  const reported = (lines: readonly string[]) =>
+    lines.filter(
+      (line) =>
+        line.startsWith('new program') ||
+        line.startsWith('no program page found'),
     );
+  const { lines, errors } = await running(
+    data.path,
+    {
+      ...lists(liveRun.map(([url]) => [url, new URL(url).hostname, ''])),
+      ...Object.fromEntries(
+        liveRun.map(([url, body]) => [
+          url,
+          ok(
+            `<!doctype html><html><head><title>${new URL(url).hostname}</title></head><body><main>${body}</main></body></html>`,
+          ),
+        ]),
+      ),
+    },
+    (lines) => reported(lines).length === liveRun.length,
+  );
 
-    const amounts = new Map(
-      reported(lines).map((line) => {
-        const program = /^new program (\S+): (.*)$/u.exec(line);
-        return program
-          ? [
-              program[1],
-              [
-                ...(program[2] ?? '').matchAll(
-                  /(\$\S+?(?: million| thousand)?) \("/gu,
-                ),
-              ].map(([, amount]) => amount),
-            ]
-          : [line.split(' ')[4], null];
-      }),
-    );
-    assert.deepEqual(
-      Object.fromEntries(amounts),
-      Object.fromEntries(liveRun.map(([url, , expected]) => [url, expected])),
-      errors,
-    );
-  } finally {
-    await rm(outputs, { recursive: true, force: true });
-  }
+  const amounts = new Map(
+    reported(lines).map((line) => {
+      const program = /^new program (\S+): (.*)$/u.exec(line);
+      return program
+        ? [
+            program[1],
+            [
+              ...(program[2] ?? '').matchAll(
+                /(\$\S+?(?: million| thousand)?) \("/gu,
+              ),
+            ].map(([, amount]) => amount),
+          ]
+        : [line.split(' ')[4], null];
+    }),
+  );
+  assert.deepEqual(
+    Object.fromEntries(amounts),
+    Object.fromEntries(liveRun.map(([url, , expected]) => [url, expected])),
+    errors,
+  );
 });
 
 test('a dollar figure in a sentence that names no credits is not a credit amount', async () => {
-  await rm(outputs, { recursive: true, force: true });
-  try {
-    const { lines, errors } = await running(
-      {
-        ...lists([
-          ['https://cloud.google.com/startup', 'Google', 'Up to $350,000'],
-        ]),
-        'https://cloud.google.com/startup': googleProgram,
-      },
-      has('new program'),
-    );
+  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  const { lines, errors } = await running(
+    data.path,
+    {
+      ...lists([
+        ['https://cloud.google.com/startup', 'Google', 'Up to $350,000'],
+      ]),
+      'https://cloud.google.com/startup': googleProgram,
+    },
+    has('new program'),
+  );
 
-    assert.ok(
-      lines.includes(
-        'new program https://cloud.google.com/startup: $350,000 ("Up to $350,000 in Cloud credits over two years.")',
-      ),
-      `${lines.join('\n')}\n${errors}`,
-    );
-  } finally {
-    await rm(outputs, { recursive: true, force: true });
-  }
+  assert.ok(
+    lines.includes(
+      'new program https://cloud.google.com/startup: $350,000 ("Up to $350,000 in Cloud credits over two years.")',
+    ),
+    `${lines.join('\n')}\n${errors}`,
+  );
 });
 
 test('a program whose amount changes is logged as amount changed after a restart, and the restart logs nothing else', async () => {
-  await rm(outputs, { recursive: true, force: true });
-  try {
-    const rows = [
-      ['https://aws.amazon.com/startups/credits', 'AWS', 'Up to $200,000'],
-      [
-        'https://www.microsoft.com/en-us/startups',
-        'Microsoft',
-        'Up to $150,000',
-      ],
-    ] as const;
-    const first = await running(
-      {
-        ...lists(rows),
-        'https://aws.amazon.com/startups/credits': awsProgram('$200,000'),
-        'https://www.microsoft.com/en-us/startups': microsoftProgram,
-      },
-      (lines) =>
-        lines.filter((line) => line.startsWith('new program')).length === 2,
-    );
-    assert.equal(
-      first.lines.filter((line) => line.startsWith('new program')).length,
-      2,
-      `${first.lines.join('\n')}\n${first.errors}`,
-    );
+  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  const rows = [
+    ['https://aws.amazon.com/startups/credits', 'AWS', 'Up to $200,000'],
+    ['https://www.microsoft.com/en-us/startups', 'Microsoft', 'Up to $150,000'],
+  ] as const;
+  const first = await running(
+    data.path,
+    {
+      ...lists(rows),
+      'https://aws.amazon.com/startups/credits': awsProgram('$200,000'),
+      'https://www.microsoft.com/en-us/startups': microsoftProgram,
+    },
+    (lines) =>
+      lines.filter((line) => line.startsWith('new program')).length === 2,
+  );
+  assert.equal(
+    first.lines.filter((line) => line.startsWith('new program')).length,
+    2,
+    `${first.lines.join('\n')}\n${first.errors}`,
+  );
 
-    // A month later, when every page is due again.
-    const second = await running(
-      {
-        ...lists(rows),
-        'https://aws.amazon.com/startups/credits': awsProgram('$100,000'),
-        'https://www.microsoft.com/en-us/startups': microsoftProgram,
-      },
-      has('amount changed'),
-      31 * 24 * 3_600_000,
-    );
+  // A month later, when every page is due again.
+  const second = await running(
+    data.path,
+    {
+      ...lists(rows),
+      'https://aws.amazon.com/startups/credits': awsProgram('$100,000'),
+      'https://www.microsoft.com/en-us/startups': microsoftProgram,
+    },
+    has('amount changed'),
+    31 * 24 * 3_600_000,
+  );
 
-    assert.deepEqual(
-      second.lines,
-      [
-        'amount changed https://aws.amazon.com/startups/credits: $200,000, $5,000 → $100,000, $5,000',
-      ],
-      second.errors,
-    );
-  } finally {
-    await rm(outputs, { recursive: true, force: true });
-  }
+  assert.deepEqual(
+    second.lines,
+    [
+      'amount changed https://aws.amazon.com/startups/credits: $200,000, $5,000 → $100,000, $5,000',
+    ],
+    second.errors,
+  );
 });
