@@ -1,0 +1,16 @@
+{
+  "name": "startup-credits",
+  "sourceRoot": "apps/startup-credits/src",
+  "projectType": "application",
+  "targets": {
+    "format": {},
+    "start": {
+      "dependsOn": ["build"],
+      "command": "node apps/startup-credits/dist/main.js"
+    },
+    "test": {
+      "dependsOn": ["build"],
+      "command": "node --test {args} \"apps/startup-credits/src/*.test.ts\""
+    }
+  }
+}

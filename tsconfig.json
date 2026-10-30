@@ -79,6 +79,9 @@
     },
     {
       "path": "./apps/what-is-going-on"
+    },
+    {
+      "path": "./apps/startup-credits"
     }
   ]
 }
