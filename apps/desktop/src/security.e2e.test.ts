@@ -5,6 +5,10 @@ import { test } from 'node:test';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { type ElectronApplication, _electron } from 'playwright';
 
+// The workspace root: the tests read its fixtures and builds from any
+// working directory.
+const workspace = resolve(import.meta.dirname, '../../..');
+
 test(
   'the renderer is isolated and the main process rejects tools outside the page contract',
   { timeout: 90_000 },
@@ -16,7 +20,7 @@ test(
     let application: ElectronApplication | undefined;
     try {
       application = await _electron.launch({
-        args: [resolve('apps/desktop'), '--hidden'],
+        args: [resolve(workspace, 'apps/desktop'), '--hidden'],
         env: { HOME: home, PATH: process.env.PATH ?? '', TMPDIR: '/tmp' },
       });
       const page = await application.firstWindow();
@@ -100,7 +104,7 @@ test(
     let application: ElectronApplication | undefined;
     try {
       application = await _electron.launch({
-        args: [resolve('apps/desktop'), '--hidden'],
+        args: [resolve(workspace, 'apps/desktop'), '--hidden'],
         env: { HOME: home, PATH: process.env.PATH ?? '', TMPDIR: '/tmp' },
       });
       const page = await application.firstWindow();

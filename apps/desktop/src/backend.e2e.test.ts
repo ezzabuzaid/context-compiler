@@ -19,6 +19,10 @@ import { settleWithin, timebox } from '@zukhruf/testing/async';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { type ElectronApplication, _electron } from 'playwright';
 
+// The workspace root: the tests read its fixtures and builds from any
+// working directory.
+const workspace = resolve(import.meta.dirname, '../../..');
+
 test(
   'Call History access failures name Context Compiler in the desktop even after ChatGPT configured the import',
   { timeout: 90_000 },
@@ -34,7 +38,7 @@ test(
     const client = new Client({ name: 'permission-test', version: '1.0.0' });
     const transport = new StdioClientTransport({
       command: process.execPath,
-      args: [resolve('apps/server/dist/server/main.mjs')],
+      args: [resolve(workspace, 'apps/server/dist/server/main.mjs')],
       env: {
         HOME: home,
         PATH: '/usr/bin:/bin',
@@ -63,7 +67,7 @@ test(
       assert.match(JSON.stringify(before), /Turn on ChatGPT/);
 
       application = await _electron.launch({
-        args: [resolve('apps/desktop'), '--hidden'],
+        args: [resolve(workspace, 'apps/desktop'), '--hidden'],
         env: {
           HOME: home,
           PATH: process.env.PATH ?? '',
@@ -113,8 +117,8 @@ test(
       version: '1.0.0',
     });
     const transport = new StdioClientTransport({
-      command: resolve('plugins/context-compiler/launch_node'),
-      args: [resolve('plugins/context-compiler/server/main.mjs')],
+      command: resolve(workspace, 'plugins/context-compiler/launch_node'),
+      args: [resolve(workspace, 'plugins/context-compiler/server/main.mjs')],
       env: {
         HOME: home,
         PATH: '/usr/bin:/bin',
@@ -132,7 +136,7 @@ test(
     try {
       photos(home);
       application = await _electron.launch({
-        args: [resolve('apps/desktop'), '--hidden'],
+        args: [resolve(workspace, 'apps/desktop'), '--hidden'],
         env: { HOME: home, PATH: process.env.PATH ?? '', TMPDIR: '/tmp' },
       });
       const page = await application.firstWindow();
@@ -245,7 +249,7 @@ test(
     try {
       photos(home);
       application = await _electron.launch({
-        args: [resolve('apps/desktop'), '--hidden'],
+        args: [resolve(workspace, 'apps/desktop'), '--hidden'],
         env: { HOME: home, PATH: process.env.PATH ?? '', TMPDIR: '/tmp' },
       });
       const page = await application.firstWindow();
@@ -314,7 +318,10 @@ function photos(home: string) {
   writeFileSync(
     join(connector, 'photos-connector.ts'),
     readFileSync(
-      'packages/connectors/manifest/src/fixtures/photos/photos-connector.ts',
+      join(
+        workspace,
+        'packages/connectors/manifest/src/fixtures/photos/photos-connector.ts',
+      ),
     ),
   );
   mkdirSync(join(home, 'Pictures'));

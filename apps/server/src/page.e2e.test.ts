@@ -10,6 +10,10 @@ import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { build } from 'esbuild';
 import { chromium } from 'playwright';
 
+// The workspace root: the tests read its fixtures and builds from any
+// working directory.
+const workspace = resolve(import.meta.dirname, '../../..');
+
 test(
   'the bundled MCP page connects through AppBridge, imports Photos, follows deep links and preserves selection across theme changes',
   { timeout: 60_000 },
@@ -23,7 +27,10 @@ test(
     );
     await mkdir(connector, { recursive: true });
     await cp(
-      'packages/connectors/manifest/src/fixtures/photos/photos-connector.ts',
+      join(
+        workspace,
+        'packages/connectors/manifest/src/fixtures/photos/photos-connector.ts',
+      ),
       join(connector, 'photos-connector.ts'),
     );
     await writeFile(
@@ -42,7 +49,7 @@ test(
     const client = new Client({ name: 'page-test', version: '1.0.0' });
     const transport = new StdioClientTransport({
       command: process.execPath,
-      args: [resolve('apps/server/dist/server/main.mjs')],
+      args: [resolve(workspace, 'apps/server/dist/server/main.mjs')],
       env: { HOME: home.path, CONTEXT_COMPILER_GRANTEE: 'Context Compiler' },
       stderr: 'pipe',
     });
@@ -76,7 +83,7 @@ const bridge = new AppBridge(null, { name: 'page-test', version: '1.0.0' }, { se
 bridge.oncalltool = params => window.callServerTool(params);
 window.addEventListener('test:context', event => bridge.setHostContext({ theme: event.detail.theme, [OPENAI_DEEP_LINK_KEY]: { url: event.detail.url } }));
 await bridge.connect(new PostMessageTransport(frame.contentWindow, frame.contentWindow));`,
-          resolveDir: process.cwd(),
+          resolveDir: workspace,
         },
         bundle: true,
         write: false,

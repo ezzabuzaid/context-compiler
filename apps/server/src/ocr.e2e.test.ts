@@ -9,6 +9,10 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 
+// The workspace root: the tests read its fixtures and builds from any
+// working directory.
+const workspace = resolve(import.meta.dirname, '../../..');
+
 async function children(parent: number) {
   const { stdout } = await promisify(execFile)('/bin/ps', [
     '-axo',
@@ -43,7 +47,7 @@ for (const shutdown of ['stdin', 'SIGTERM'] as const)
     const client = new Client({ name: 'ocr-test', version: '1.0.0' });
     const transport = new StdioClientTransport({
       command: process.execPath,
-      args: [resolve('plugins/context-compiler/server/main.mjs')],
+      args: [resolve(workspace, 'plugins/context-compiler/server/main.mjs')],
       env: { HOME: home.path, CONTEXT_COMPILER_GRANTEE: 'Context Compiler' },
       stderr: 'pipe',
     });

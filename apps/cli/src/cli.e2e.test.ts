@@ -33,6 +33,10 @@ import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import { IndexedDBWriter } from '@workspace/codec-chromium-indexeddb/test';
 
+// The workspace root: the tests read its fixtures and builds from any
+// working directory.
+const workspace = resolve(import.meta.dirname, '../../..');
+
 // NoteStore.sqlite's tables as macOS 26.6.2 creates them (schema only, no
 // data), in WAL mode like the real store.
 const noteStoreSchema = `PRAGMA journal_mode = WAL;
@@ -1936,6 +1940,7 @@ async function withConnectors(mac: string) {
     join(connectors, 'photos/photos-connector.ts'),
     await readFile(
       resolve(
+        workspace,
         'packages/connectors/manifest/src/fixtures/photos/photos-connector.ts',
       ),
     ),

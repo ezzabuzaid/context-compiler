@@ -38,8 +38,15 @@ import { monitorRows } from './monitor-page.ts';
 import { Monitors } from './monitors.ts';
 import { Plugin } from './plugin.ts';
 
+// The workspace root: the tests read its fixtures and builds from any
+// working directory.
+const workspace = resolve(import.meta.dirname, '../../..');
+
 // The committed plugin, as Codex installs it.
-const versionFile = resolve('plugins/context-compiler/server/version.json');
+const versionFile = resolve(
+  workspace,
+  'plugins/context-compiler/server/version.json',
+);
 const pageUri = 'codex://plugins/context-compiler/app/page';
 const chatUri = 'codex://threads/';
 
@@ -121,7 +128,7 @@ async function photosPlugin(
   const plugin = new Plugin(
     new Connectors([
       builtInConnectors,
-      resolve('packages/connectors/manifest/src/fixtures'),
+      resolve(workspace, 'packages/connectors/manifest/src/fixtures'),
     ]),
     { ...host, home },
     versionFile,

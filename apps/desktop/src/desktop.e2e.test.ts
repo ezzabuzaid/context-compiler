@@ -9,6 +9,10 @@ import { test } from 'node:test';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { type ElectronApplication, _electron } from 'playwright';
 
+// The workspace root: the tests read its fixtures and builds from any
+// working directory.
+const workspace = resolve(import.meta.dirname, '../../..');
+
 test(
   'the Apple page connects Photos, syncs the real store, hides Monitors, reopens and quits its backend',
   { timeout: 120_000 },
@@ -36,7 +40,10 @@ test(
       writeFileSync(
         join(connector, 'photos-connector.ts'),
         readFileSync(
-          'packages/connectors/manifest/src/fixtures/photos/photos-connector.ts',
+          join(
+            workspace,
+            'packages/connectors/manifest/src/fixtures/photos/photos-connector.ts',
+          ),
           'utf8',
         ) +
           `\nimport { writeFileSync } from 'node:fs';
@@ -49,7 +56,7 @@ writeFileSync(join(homedir(), 'backend.json'), JSON.stringify({ pid: process.pid
         JSON.stringify([{ id: 'p1', title: 'Beach' }]),
       );
       application = await _electron.launch({
-        args: [resolve('apps/desktop'), '--hidden'],
+        args: [resolve(workspace, 'apps/desktop'), '--hidden'],
         env: {
           HOME: home,
           PATH: process.env.PATH ?? '',
@@ -71,7 +78,7 @@ writeFileSync(join(homedir(), 'backend.json'), JSON.stringify({ pid: process.pid
       assert.deepEqual(await visible(), [false]);
       second = spawn(
         application.process().spawnfile,
-        [resolve('apps/desktop')],
+        [resolve(workspace, 'apps/desktop')],
         {
           env: { HOME: home, PATH: process.env.PATH ?? '', TMPDIR: '/tmp' },
           stdio: 'ignore',
@@ -284,7 +291,7 @@ test(
         'A file cannot be an import directory.',
       );
       application = await _electron.launch({
-        args: [resolve('apps/desktop'), '--hidden'],
+        args: [resolve(workspace, 'apps/desktop'), '--hidden'],
         env: { HOME: home, PATH: process.env.PATH ?? '', TMPDIR: '/tmp' },
       });
       const hostWindow = await application.firstWindow();

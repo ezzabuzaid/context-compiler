@@ -9,6 +9,10 @@ import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import { Settings } from '@workspace/settings';
 
+// The workspace root: the tests read its fixtures and builds from any
+// working directory.
+const workspace = resolve(import.meta.dirname, '../../..');
+
 test('the bundled page tools discover models, save the selection and reject an unavailable model', async () => {
   await using scratch = await new TemporaryFiles().directory(
     'page-transcription-',
@@ -23,7 +27,7 @@ test('the bundled page tools discover models, save the selection and reject an u
   const client = new Client({ name: 'transcription-test', version: '1.0.0' });
   const transport = new StdioClientTransport({
     command: process.execPath,
-    args: [resolve('plugins/context-compiler/server/main.mjs')],
+    args: [resolve(workspace, 'plugins/context-compiler/server/main.mjs')],
     env: {
       HOME: scratch.path,
       PATH: process.env.PATH ?? '',
@@ -91,7 +95,7 @@ async function pageTool(home: string, name: string, args: object) {
   const client = new Client({ name: 'transcription-test', version: '1.0.0' });
   const transport = new StdioClientTransport({
     command: process.execPath,
-    args: [resolve('plugins/context-compiler/server/main.mjs')],
+    args: [resolve(workspace, 'plugins/context-compiler/server/main.mjs')],
     env: {
       HOME: home,
       PATH: process.env.PATH ?? '',

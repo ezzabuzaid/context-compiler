@@ -17,6 +17,10 @@ import { CallToolResultSchema } from '@modelcontextprotocol/sdk/types.js';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { type Browser, chromium } from 'playwright';
 
+// The workspace root: the tests read its fixtures and builds from any
+// working directory.
+const workspace = resolve(import.meta.dirname, '../../..');
+
 test(
   'the native package is ad-hoc signed, includes its executable server resources and starts without PATH or Codex',
   { timeout: 90_000 },
@@ -26,6 +30,7 @@ test(
     });
     const home = homeDirectory.path;
     const bundle = resolve(
+      workspace,
       `apps/desktop/dist/package/Context Compiler-darwin-${process.arch}/Context Compiler.app`,
     );
     const resources = join(bundle, 'Contents/Resources');
@@ -172,6 +177,7 @@ test(
     // drives the real renderer without changing any production fuse.
     const child = spawn(
       resolve(
+        workspace,
         `apps/desktop/dist/package/Context Compiler-darwin-${process.arch}/Context Compiler.app/Contents/MacOS/Context Compiler`,
       ),
       ['--remote-debugging-port=0'],
