@@ -1,11 +1,9 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { once } from 'node:events';
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import test from 'node:test';
-import { setTimeout } from 'node:timers/promises';
 
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { z } from 'zod';
@@ -250,9 +248,20 @@ const askedSchema = z.object({
 });
 type Asked = z.infer<typeof askedSchema>;
 
-// Runs the app with its files in the data folder until what it logged and
-// asked the models satisfy until, it exits, or thirty seconds pass, then
-// stops it as Ctrl-C does. Gives its lines, the URLs it requested, each
+// What ends a run before the app exits or thirty seconds pass, checked on
+// each line the app writes: until ends it when it holds; quietAfter ends it
+// two seconds after the app's last line once it holds, so a line that the
+// last answer causes is logged by then (the app checks its rows every
+// second).
+type Holds = (
+  lines: readonly string[],
+  asked: readonly Asked[],
+  decided: readonly Asked[],
+) => boolean;
+type End = { readonly until: Holds } | { readonly quietAfter: Holds };
+
+// Runs the app with its files in the data folder until end holds, it exits,
+// or thirty seconds pass, then stops it as Ctrl-C does. Gives its lines, the URLs it requested, each
 // request to the offer model (asked) and to the decision model (decided), its
 // exit code and stderr. A model request that the test did not plan fails the
 // test.
@@ -262,23 +271,19 @@ async function running(
     pages,
     model,
     decisions,
-    until,
     ahead,
+    ...end
   }: {
     readonly pages: Readonly<Record<string, Page>>;
     readonly model: Readonly<Record<string, readonly Answer[]>>;
     readonly decisions: Readonly<Record<string, Decision>>;
-    readonly until: (
-      lines: readonly string[],
-      asked: readonly Asked[],
-      decided: readonly Asked[],
-    ) => boolean;
     readonly ahead: number;
-  },
+  } & End,
 ) {
   await using folder = await new TemporaryFiles().directory('internet-');
   const setup = join(folder.path, 'internet.mjs');
   await writeFile(setup, internet(pages, model, decisions, ahead));
+  const ended = new AbortController();
   const app = spawn(
     process.execPath,
     ['--import', setup, join(import.meta.dirname, 'main.ts')],
@@ -293,15 +298,36 @@ async function running(
         CLAUDE_CODE_OAUTH_TOKEN: token,
         OPENROUTER_API_KEY: openRouterKey,
       },
+      signal: AbortSignal.any([ended.signal, AbortSignal.timeout(30_000)]),
+      killSignal: 'SIGINT',
     },
   );
+  // The abort that stops the app is an error event of its child process.
+  const exited = new Promise<number | null>((resolve, reject) => {
+    app.once('exit', resolve);
+    app.once('error', (error) => {
+      if (error.name !== 'AbortError') reject(error);
+    });
+  });
   const lines: string[] = [];
   const requests: string[] = [];
   const asked: Asked[] = [];
   const decided: Asked[] = [];
   const unplanned: string[] = [];
   const errors: string[] = [];
-  createInterface({ input: app.stdout }).on('line', (line) => lines.push(line));
+  let quiet: NodeJS.Timeout | undefined;
+  const check = () => {
+    if ('until' in end) {
+      if (end.until(lines, asked, decided)) ended.abort();
+    } else if (end.quietAfter(lines, asked, decided)) {
+      clearTimeout(quiet);
+      quiet = setTimeout(() => ended.abort(), 2_000);
+    }
+  };
+  createInterface({ input: app.stdout }).on('line', (line) => {
+    lines.push(line);
+    check();
+  });
   createInterface({ input: app.stderr }).on('line', (line) => {
     if (line.startsWith('request '))
       requests.push(line.slice('request '.length));
@@ -313,17 +339,10 @@ async function running(
       );
     else if (line.startsWith('unplanned ')) unplanned.push(line);
     else errors.push(line);
+    check();
   });
-  const exited = once(app, 'exit');
-  const deadline = performance.now() + 30_000;
-  while (
-    !until(lines, asked, decided) &&
-    app.exitCode === null &&
-    performance.now() < deadline
-  )
-    await setTimeout(100);
-  app.kill('SIGINT');
-  const [code] = await exited;
+  const code = await exited;
+  clearTimeout(quiet);
   assert.deepEqual(unplanned, [], errors.join('\n'));
   return {
     lines,
@@ -342,20 +361,11 @@ const programs = (...pages: readonly string[]) =>
 const has = (prefix: string) => (lines: readonly string[]) =>
   lines.some((line) => line.startsWith(prefix));
 
-// True two seconds after the model was asked about the page the given number
-// of times: the app checks its rows every second, so a line that the last
-// answer causes is logged by then.
-function quietAfter(page: string, calls: number) {
-  let at: number | undefined;
-  return (_lines: readonly string[], asked: readonly Asked[]) => {
-    if (
-      at === undefined &&
-      asked.filter((call) => call.page === page).length >= calls
-    )
-      at = performance.now();
-    return at !== undefined && performance.now() - at > 2_000;
-  };
-}
+// True once the model was asked about the page the given number of times.
+const askedAbout =
+  (page: string, calls: number) =>
+  (_lines: readonly string[], asked: readonly Asked[]) =>
+    asked.filter((call) => call.page === page).length >= calls;
 
 test('a 401 from the model ends the app with the reason, and logs no page as not extracted', async () => {
   await using data = await new TemporaryFiles().directory('credits-data-');
@@ -472,7 +482,7 @@ test('a page whose model calls stay rate limited after the AI SDK retries is log
   const second = await running(data.path, {
     pages,
     model: { [aws]: [overloaded, overloaded, overloaded] },
-    until: quietAfter(aws, 3),
+    quietAfter: askedAbout(aws, 3),
     decisions: programs(aws, microsoft),
     ahead: 31 * 24 * 3_600_000,
   });
@@ -847,7 +857,6 @@ test('a program whose offers change is logged as offers changed after a restart,
 
   // A month later, when every page is due again. The model is planned for
   // the changed page only.
-  const quiet = quietAfter(aws, 1);
   const second = await running(data.path, {
     pages: {
       ...lists(rows),
@@ -863,8 +872,8 @@ test('a program whose offers change is logged as offers changed after a restart,
         ),
       ],
     },
-    until: (lines, asked) =>
-      has('offers changed')(lines) && quiet(lines, asked),
+    quietAfter: (lines, asked) =>
+      has('offers changed')(lines) && askedAbout(aws, 1)(lines, asked),
     decisions: programs(aws, microsoft),
     ahead: 31 * 24 * 3_600_000,
   });
@@ -919,7 +928,7 @@ test('a page whose text changes outside its offers, and whose new answer quotes 
         },
       ],
     },
-    until: quietAfter(microsoft, 1),
+    quietAfter: askedAbout(microsoft, 1),
     decisions: programs(microsoft),
     ahead: 31 * 24 * 3_600_000,
   });
@@ -1009,7 +1018,7 @@ test('a page whose text changes, and whose new answer adds an offer with no valu
         },
       ],
     },
-    until: quietAfter(notion, 1),
+    quietAfter: askedAbout(notion, 1),
     decisions: programs(notion),
     ahead: 31 * 24 * 3_600_000,
   });
@@ -1080,8 +1089,6 @@ test('a page whose free period changes its months, and a page whose discount cha
   );
 
   // A month later, when every page is due again.
-  const quietLinear = quietAfter(linear, 1);
-  const quietMintlify = quietAfter(mintlify, 1);
   const second = await running(data.path, {
     pages: {
       ...lists(rows),
@@ -1089,10 +1096,10 @@ test('a page whose free period changes its months, and a page whose discount cha
       [mintlify]: mintlifyPage(30),
     },
     model: { [linear]: [linearOffers(3)], [mintlify]: [mintlifyOffers(30)] },
-    until: (lines, asked) =>
+    quietAfter: (lines, asked) =>
       lines.filter((line) => line.startsWith('offers changed')).length === 2 &&
-      quietLinear(lines, asked) &&
-      quietMintlify(lines, asked),
+      askedAbout(linear, 1)(lines, asked) &&
+      askedAbout(mintlify, 1)(lines, asked),
     decisions: programs(linear, mintlify),
     ahead: 31 * 24 * 3_600_000,
   });
@@ -1113,18 +1120,13 @@ test('a page whose free period changes its months, and a page whose discount cha
 
 test('a company page that refuses the crawl is logged as not read, with its address and answer, and its program is not logged as missing, as no page of it was read', async () => {
   await using data = await new TemporaryFiles().directory('credits-data-');
-  // Two seconds after the line, so a missing line would be logged by then.
-  let readAt: number | undefined;
   const { lines, errors } = await running(data.path, {
     pages: {
       ...lists([['https://openai.com/startups/', 'OpenAI', 'API credits']]),
       'https://openai.com/startups/': cloudflareChallenge,
     },
-    until: (lines) => {
-      if (readAt === undefined && has('could not read')(lines))
-        readAt = performance.now();
-      return readAt !== undefined && performance.now() - readAt > 2_000;
-    },
+    // Two seconds after the line, so a missing line would be logged by then.
+    quietAfter: has('could not read'),
     decisions: {},
     ahead: 0,
     model: {},
@@ -1364,7 +1366,6 @@ test('a program whose name another list gives to a program page on another websi
   const anthropic = 'https://www.anthropic.com/';
   const claude = 'https://claude.com/programs/startups';
   // Both lists as they link Anthropic's program on 2026-10-31.
-  let quietFrom: number | undefined;
   const { lines, errors } = await running(data.path, {
     pages: {
       [avinash]: githubList('/avinash201199/awesome-startup-credits', [
@@ -1384,11 +1385,7 @@ test('a program whose name another list gives to a program page on another websi
     decisions: { [anthropic]: { kind: 'home' }, ...programs(claude) },
     // Two seconds after the new program, so a missing line would be logged
     // by then.
-    until: (lines) => {
-      if (quietFrom === undefined && has('new program')(lines))
-        quietFrom = performance.now();
-      return quietFrom !== undefined && performance.now() - quietFrom > 2_000;
-    },
+    quietAfter: has('new program'),
     ahead: 0,
   });
 
@@ -1405,7 +1402,6 @@ test('a program whose link shares its registrable domain with a program page is 
   await using data = await new TemporaryFiles().directory('credits-data-');
   const home = 'https://vercel.com/';
   const startups = 'https://vercel.com/startups';
-  let quietFrom: number | undefined;
   const { lines, errors } = await running(data.path, {
     pages: {
       ...lists([
@@ -1438,11 +1434,7 @@ test('a program whose link shares its registrable domain with a program page is 
       ],
     },
     decisions: { [home]: { kind: 'home' }, ...programs(startups) },
-    until: (lines) => {
-      if (quietFrom === undefined && has('new program')(lines))
-        quietFrom = performance.now();
-      return quietFrom !== undefined && performance.now() - quietFrom > 2_000;
-    },
+    quietAfter: has('new program'),
     ahead: 0,
   });
 
@@ -1511,7 +1503,6 @@ test('a home page that a list links is searched one step, so the program page th
   const home = 'https://vercel.com/';
   const startups = 'https://vercel.com/startups';
   const broken = 'https://vercel.com/broken-sitemap.xml';
-  let quietFrom: number | undefined;
   const { lines, requests, errors } = await running(data.path, {
     pages: {
       ...lists([[home, 'Vercel', 'Credits + AI Accelerator']]),
@@ -1526,11 +1517,7 @@ test('a home page that a list links is searched one step, so the program page th
     decisions: { [home]: { kind: 'home' }, ...programs(startups) },
     // The offers come after the pass, so its failures are logged by then;
     // two seconds more for a missing line.
-    until: (lines) => {
-      if (quietFrom === undefined && has('new program')(lines))
-        quietFrom = performance.now();
-      return quietFrom !== undefined && performance.now() - quietFrom > 2_000;
-    },
+    quietAfter: has('new program'),
     ahead: 0,
   });
 
@@ -1549,7 +1536,6 @@ test("a partner's program page that a home page links on another website is repo
   await using data = await new TemporaryFiles().directory('credits-data-');
   const home = 'https://vercel.com/';
   const partner = 'https://aws.amazon.com/startups/credits';
-  let quietFrom: number | undefined;
   const { lines, errors } = await running(data.path, {
     pages: {
       ...lists([[home, 'Vercel', 'Credits + AI Accelerator']]),
@@ -1576,15 +1562,8 @@ test("a partner's program page that a home page links on another website is repo
       ],
     },
     decisions: { [home]: { kind: 'home' }, ...programs(partner) },
-    until: (lines) => {
-      if (
-        quietFrom === undefined &&
-        has('new program')(lines) &&
-        has('Vercel: no program page found')(lines)
-      )
-        quietFrom = performance.now();
-      return quietFrom !== undefined && performance.now() - quietFrom > 2_000;
-    },
+    quietAfter: (lines) =>
+      has('new program')(lines) && has('Vercel: no program page found')(lines),
     ahead: 0,
   });
 
