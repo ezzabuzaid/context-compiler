@@ -1,3 +1,5 @@
+import { Latch } from '@zukhruf/async';
+
 import pipeline from './pipeline.ts';
 import type { Source } from './sources.ts';
 
@@ -6,27 +8,50 @@ import type { Source } from './sources.ts';
 // pipeline over the full list (elt's apps/web builds its pipeline per sync for
 // the same reason). The checkpoints carry each input's crawl over.
 class Reading {
-  #options: { sources: readonly Source[] } | undefined;
-  #watch: { stop: AbortController; ended: Promise<void> } | undefined;
+  #state: Idle | Watching | Stopped = new Idle();
 
   start(options: { sources: readonly Source[] }) {
-    this.#options = options;
-    const stop = new AbortController();
-    this.#watch = { stop, ended: watch(options, stop.signal) };
+    this.#state = new Watching(options);
   }
 
   // Reads the sources again, the added ones too; nothing when no watch runs.
   async restart() {
-    const options = this.#options;
-    if (options === undefined) return;
+    if (this.#state instanceof Idle) return;
+    const { options } = this.#state;
     await this.stop();
     this.start(options);
   }
 
   async stop() {
-    this.#watch?.stop.abort();
-    await this.#watch?.ended;
-    this.#watch = undefined;
+    const state = this.#state;
+    if (!(state instanceof Watching)) return;
+    state.stop.abort();
+    await state.ended.wait();
+    this.#state = new Stopped(state.options);
+  }
+}
+
+// Before the first start.
+class Idle {}
+
+// A watch over the sources, until stop is aborted and the watch has ended.
+class Watching {
+  readonly options: { sources: readonly Source[] };
+  readonly stop = new AbortController();
+  readonly ended = new Latch();
+
+  constructor(options: { sources: readonly Source[] }) {
+    this.options = options;
+    void watch(options, this.stop.signal).then(() => this.ended.open());
+  }
+}
+
+// After a stop: restart reads the same sources again.
+class Stopped {
+  readonly options: { sources: readonly Source[] };
+
+  constructor(options: { sources: readonly Source[] }) {
+    this.options = options;
   }
 }
 
