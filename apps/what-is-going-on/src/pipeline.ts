@@ -77,14 +77,17 @@ async function connection(
     source,
     destination,
     checkpoints,
-    steps: (await source.discover()).streams.map(
-      (stream) =>
-        new Copy(stream, destination.table(stream.name), {
+    steps: [
+      new Copy(
+        (await source.discover()).get(`${name}_articles`),
+        destination.table(`${name}_articles`),
+        {
           id: `${name}:articles`,
           syncMode: 'incremental',
           destinationSyncMode: 'append_dedup',
-        }),
-    ),
+        },
+      ),
+    ],
   });
 }
 
