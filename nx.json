@@ -20,31 +20,15 @@
         "targetName": "lint"
       },
       "exclude": ["packages/connectors/manifest/src/fixtures/**"]
-    }
+    },
+    "@zukhruf/nx/lint"
   ],
   "targetDefaults": {
     "format": {
       "command": "prettier --write {projectRoot}"
     },
-    "lint": {
-      "dependsOn": ["format"],
-      "inputs": [
-        "default",
-        "^default",
-        "{workspaceRoot}/eslint.config.mjs",
-        {
-          "externalDependencies": [
-            "eslint",
-            "typescript-eslint",
-            "eslint-plugin-import-x",
-            "eslint-plugin-functional",
-            "@nx/eslint-plugin"
-          ]
-        }
-      ]
-    },
     "typecheck": {
-      "dependsOn": ["lint", "..."]
+      "dependsOn": ["format", "lint", "..."]
     }
   },
   "sync": {
