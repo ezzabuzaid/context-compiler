@@ -151,10 +151,10 @@ export class Plugin {
   // What macOS needs granted for a connector, or how to bring back a selected
   // connector that is not loaded.
   #permissions(name: string): string {
-    return (
-      this.#loaded(name)?.guidance() ??
-      `No connector named ${name} is loaded: fix or restore its folder in ${userConnectors}, or disconnect it.`
-    );
+    const connector = this.#loaded(name);
+    return connector === undefined
+      ? `No connector named ${name} is loaded: fix or restore its folder in ${userConnectors}, or disconnect it.`
+      : connector.guidance();
   }
 
   // Whether another plugin version replaced this one, which deletes this

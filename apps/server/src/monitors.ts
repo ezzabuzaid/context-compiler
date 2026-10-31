@@ -108,11 +108,15 @@ export class Monitors {
   async add(name: string, thread: string, locate: Locate): Promise<void> {
     const { loaded, broken } = await this.#load();
     const monitor = loaded.get(name);
-    if (monitor === undefined)
+    if (monitor === undefined) {
+      // A monitor whose file failed to load is named in broken, with why.
+      const failure = broken.get(name);
       throw new Error(
-        broken.get(name) ??
-          `No monitor is named ${name}. Write it in ${this.#root} first.`,
+        failure === undefined
+          ? `No monitor is named ${name}. Write it in ${this.#root} first.`
+          : failure,
       );
+    }
     using federation = new Federation({ main: ':memory:', locate });
     const eca = new Eca<Query, unknown>({ warehouse: once(federation.sql) });
     const rule = { condition: monitor.condition };
