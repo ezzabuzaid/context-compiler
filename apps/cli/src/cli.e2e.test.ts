@@ -16,7 +16,6 @@ import {
   chmod,
   cp,
   mkdir,
-  mkdtempDisposable,
   open,
   readFile,
   rm,
@@ -28,6 +27,8 @@ import { type TestContext, test } from 'node:test';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { promisify, stripVTControlCharacters } from 'node:util';
 import { deflateSync, gzipSync } from 'node:zlib';
+
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import { IndexedDBWriter } from '@workspace/codec-chromium-indexeddb/test';
 
@@ -1182,7 +1183,9 @@ const lines = (stdout: string) =>
     .map((line) => JSON.parse(line));
 
 test('a connector whose app macOS will not open fails alone, named with the access to grant, while the others load', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withNotes(mac.path);
   assert.equal(
     cli(mac.path, 'setup', '--connector', 'notes', '--connector', 'messages')
@@ -1215,7 +1218,9 @@ test('a connector whose app macOS will not open fails alone, named with the acce
 });
 
 test('a second sync of an import another sync is importing says so, waits for that pass and shows it', async (t) => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withConnectors(mac.path);
   // A pipe the test writes once the second sync waits: the Photos read waits
   // on it, so the first sync's pass still runs when the second starts.
@@ -1266,7 +1271,9 @@ test('a second sync of an import another sync is importing says so, waits for th
 });
 
 test('a sync waiting on another sync whose pass is killed says the pass was interrupted and exits 1', async (t) => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withConnectors(mac.path);
   // A pipe no one writes to: the first sync's Photos pass runs until killed.
   const pictures = join(mac.path, 'Pictures/photos.json');
@@ -1303,7 +1310,9 @@ test('a sync waiting on another sync whose pass is killed says the pass was inte
 });
 
 test('a sync of one connector runs while another sync waits on a read of a different one', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withNotes(mac.path);
   await withConnectors(mac.path);
   // A pipe no one writes to: the Photos pass runs until killed.
@@ -1342,7 +1351,9 @@ test('a sync of one connector runs while another sync waits on a read of a diffe
 });
 
 test('Ctrl-C stops a sync at once while a connector waits on a read', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withConnectors(mac.path);
   // A pipe no one writes to: the Photos read waits on it in a thread of
   // Node's pool, which an exit that waits for that pool never gets past.
@@ -1369,7 +1380,9 @@ test('Ctrl-C stops a sync at once while a connector waits on a read', async () =
 });
 
 test('Ctrl-C typed in a terminal stops a sync at once while a connector waits on a read', async (t) => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withConnectors(mac.path);
   // A pipe no one writes to, as above: the Photos read never returns.
   const pictures = join(mac.path, 'Pictures/photos.json');
@@ -1396,7 +1409,9 @@ test('Ctrl-C typed in a terminal stops a sync at once while a connector waits on
 });
 
 test('SIGTERM stops a sync in a terminal at once while its spinner shows', async (t) => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withConnectors(mac.path);
   const pictures = join(mac.path, 'Pictures/photos.json');
   await rm(pictures);
@@ -1451,7 +1466,9 @@ async function ocrWorkers(root: number): Promise<number[]> {
 }
 
 test('only a command that reads files starts the OCR workers', async (t) => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withConnectors(mac.path);
   // A pipe no one writes to: the Photos pass runs until the sync stops.
   const pictures = join(mac.path, 'Pictures/photos.json');
@@ -1480,7 +1497,9 @@ test('only a command that reads files starts the OCR workers', async (t) => {
 });
 
 test('a setup that removes a connector stops the sync importing it, while the rest loads, and the next sync removes its import', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withNotes(mac.path);
   await withConnectors(mac.path);
   // A pipe the test writes only after the removal: the Photos read waits on
@@ -1530,7 +1549,9 @@ test('a setup that removes a connector stops the sync importing it, while the re
 });
 
 test("a sync leaves the key locks of the store's single flight in place and campaigns for none of them", async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withNotes(mac.path);
   const store = join(
     mac.path,
@@ -1558,7 +1579,9 @@ test("a sync leaves the key locks of the store's single flight in place and camp
 });
 
 test("status waits out a write to the store's settings instead of printing nothing", async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withNotes(mac.path);
   cli(mac.path, 'setup', '--connector', 'notes');
   // Stands in for a setup or a sync writing the store's settings.
@@ -1592,7 +1615,9 @@ test("status waits out a write to the store's settings instead of printing nothi
 });
 
 test('setup, sync, status and query read the Notes this Mac holds through documented views', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withNotes(mac.path);
 
   const setup = cli(mac.path, 'setup', '--connector', 'notes', '--json');
@@ -1671,7 +1696,9 @@ test('setup, sync, status and query read the Notes this Mac holds through docume
 });
 
 test('a sync ends with the text of the attachments it stored, which a query finds by that text', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withNotes(mac.path);
   const setup = cli(mac.path, 'setup', '--connector', 'notes', '--json');
   assert.equal(setup.status, 0, setup.stderr);
@@ -1695,7 +1722,9 @@ test('a sync ends with the text of the attachments it stored, which a query find
 });
 
 test('changing what a connector imports, down to its attachments, loads the new selection completely on the next sync', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withNotes(mac.path);
   cli(mac.path, 'setup', '--connector', 'notes');
   cli(mac.path, 'sync');
@@ -1751,7 +1780,9 @@ test('changing what a connector imports, down to its attachments, loads the new 
 });
 
 test('a command a script cannot run fails and says why, changing nothing', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withNotes(mac.path);
   cli(mac.path, 'setup', '--connector', 'notes');
   cli(mac.path, 'sync');
@@ -1813,7 +1844,9 @@ test('a command a script cannot run fails and says why, changing nothing', async
 });
 
 test('the setup wizard saves what the person picks and syncs it when asked', async (t) => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withNotes(mac.path);
   const wizard = terminal(t, mac.path, 'setup');
   try {
@@ -1916,7 +1949,9 @@ async function withConnectors(mac: string) {
 }
 
 test('a connector the user added syncs and answers queries beside the built-in connectors, through its presets too, and one that does not load is reported while the rest work', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withConnectors(mac.path);
   const presets = join(
     mac.path,
@@ -1973,7 +2008,9 @@ test('a connector the user added syncs and answers queries beside the built-in c
 });
 
 test('a selected connector that was removed is reported by status, and sync still loads the other connectors', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withNotes(mac.path);
   await withConnectors(mac.path);
   cli(mac.path, 'setup', '--connector', 'notes', '--connector', 'photos');
@@ -1999,7 +2036,9 @@ test('a selected connector that was removed is reported by status, and sync stil
 });
 
 test('--until takes in the day it names, and a day that is not on the calendar is refused', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withNotes(mac.path);
 
   const impossible = cli(
@@ -2046,7 +2085,9 @@ test('--since and --until name days on the clock of the Mac the CLI runs on, and
       encoding: 'utf8',
     });
   const imported = async (...bounds: string[]) => {
-    await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+    await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+      parent: homes,
+    });
     await withNotes(mac.path);
     inHonolulu(mac.path, 'setup', '--connector', 'notes', ...bounds);
     inHonolulu(mac.path, 'sync');
@@ -2078,7 +2119,9 @@ test('--since and --until name days on the clock of the Mac the CLI runs on, and
 });
 
 test('one SQL statement runs however it is spaced or commented', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withNotes(mac.path);
   cli(mac.path, 'setup', '--connector', 'notes');
   cli(mac.path, 'sync');
@@ -2123,7 +2166,9 @@ function visit(history: string, ...at: string[]): void {
 }
 
 test('sync loads Safari history from its library and tabs from where Safari keeps its sandbox container', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   visit(await withSafari(mac.path), '2026-04-01T00:00:00Z');
   cli(mac.path, 'setup', '--connector', 'safari');
 
@@ -2161,7 +2206,9 @@ const attempts = (mac: string, connector: string): number =>
   )[0].n;
 
 test('a sync of a connector a sync watch keeps current says so and exits 0, running no pass of its own', async (t) => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withSafari(mac.path);
   cli(mac.path, 'setup', '--connector', 'safari');
   const watch = started(mac.path, 'sync', 'watch', '--json');
@@ -2208,7 +2255,9 @@ test('a sync of a connector a sync watch keeps current says so and exits 0, runn
 });
 
 test('a setup that removes a watched connector keeps its import while the watch owns it, the watch then stops within seconds, and the next sync removes it', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withSafari(mac.path);
   await withConnectors(mac.path);
   // A pipe the test writes only after the removal: the Photos read waits on
@@ -2263,7 +2312,9 @@ test('a setup that removes a watched connector keeps its import while the watch 
 });
 
 test('a second sync watch of a connector another one keeps current waits without a pass, and takes over once that one is stopped', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withSafari(mac.path);
   cli(mac.path, 'setup', '--connector', 'safari');
   const first = started(mac.path, 'sync', 'watch', '--json');
@@ -2299,7 +2350,9 @@ test('a second sync watch of a connector another one keeps current waits without
 });
 
 test('a connector whose watch ends stops alone and says so, while the others keep loading what changes', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   const history = await withSafari(mac.path);
   // Photos reports a change once, for its first pass, and never again.
   await withConnectors(mac.path);
@@ -2336,7 +2389,9 @@ test('a connector whose watch ends stops alone and says so, while the others kee
 });
 
 test('a connector whose watcher fails for a system reason is reported failed with its error and watches again about ten seconds later, while the others keep loading what changes', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   const history = await withSafari(mac.path);
   await withConnectors(mac.path);
   // Photos as a connector whose watcher fails once its library is gone.
@@ -2407,7 +2462,9 @@ test('a connector whose watcher fails for a system reason is reported failed wit
 });
 
 test('sync watch --connector watches only the connectors it names', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withSafari(mac.path);
   await withConnectors(mac.path);
   cli(mac.path, 'setup', '--connector', 'safari', '--connector', 'photos');
@@ -2444,7 +2501,9 @@ test('sync watch --connector watches only the connectors it names', async () => 
 });
 
 test('status says a watched connector is current as of the watch’s latest check while its store changes nothing', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   // passd has never fetched these passes from iCloud, so Wallet's store is
   // current whenever it is read, and only the watch's checks move it.
   withWallet(mac.path);
@@ -2480,7 +2539,9 @@ test('status says a watched connector is current as of the watch’s latest chec
 });
 
 test('sync watch loads each change Safari commits until SIGTERM stops it, keeping every pass it finished', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   const history = await withSafari(mac.path);
   cli(mac.path, 'setup', '--connector', 'safari');
   const watch = started(mac.path, 'sync', 'watch', '--json');
@@ -2527,7 +2588,9 @@ test('sync watch loads each change Safari commits until SIGTERM stops it, keepin
 });
 
 test('a copy that fails is shown as the pass its sync history recorded, not as an error of the sync', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withConnectors(mac.path);
   await writeFile(
     join(mac.path, 'Pictures/photos.json'),
@@ -2547,7 +2610,9 @@ test('a copy that fails is shown as the pass its sync history recorded, not as a
 });
 
 test('a pass that fails with an error its sync history never recorded makes sync exit 1 naming it, though the error aggregates others', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withConnectors(mac.path);
   // Photos as a connector whose source cannot say what a pass reads.
   const photos = join(
@@ -2582,7 +2647,9 @@ test('a pass that fails with an error its sync history never recorded makes sync
 });
 
 test('after a sync whose import can no longer write its database, status shows that connector failed, not its last pass, and sync exits 1 naming it', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withConnectors(mac.path);
   cli(mac.path, 'setup', '--connector', 'photos');
   cli(mac.path, 'sync');
@@ -2604,7 +2671,9 @@ test('after a sync whose import can no longer write its database, status shows t
 });
 
 test('a connector whose import fails before a pass can record it fails alone: the other connectors finish and show their passes, and sync exits 1 naming the error', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withNotes(mac.path);
   await withConnectors(mac.path);
   cli(mac.path, 'setup', '--connector', 'photos', '--connector', 'notes');
@@ -2627,7 +2696,9 @@ test('a connector whose import fails before a pass can record it fails alone: th
 });
 
 test('sync watch exits 1 and names the error when an import’s sync history cannot record a pass, though another connector keeps watching', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   const history = await withSafari(mac.path);
   await withConnectors(mac.path);
   // Photos as a connector that watches until the watch stops.
@@ -2692,7 +2763,9 @@ test('sync watch exits 1 and names the error when an import’s sync history can
 });
 
 test('sync watch in a terminal says it watches between passes, and Ctrl-C stops it', async (t) => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withSafari(mac.path);
   cli(mac.path, 'setup', '--connector', 'safari');
   const watch = terminal(t, mac.path, 'sync', 'watch');
@@ -2726,7 +2799,9 @@ test('sync watch in a terminal says it watches between passes, and Ctrl-C stops 
 });
 
 test('a sync watch started while a sync runs a pass of the connector waits for that pass, then watches', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withConnectors(mac.path);
   // A pipe the test writes once the watch waits: the sync's Photos read waits
   // on it, so its pass still runs when the watch starts.
@@ -2796,7 +2871,9 @@ function withCallHistory(mac: string) {
 }
 
 test('call history syncs from where callhistoryd keeps it, and --since keeps the calls from that day on with their participants', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   withCallHistory(mac.path);
 
   const setup = cli(
@@ -2835,7 +2912,9 @@ test('call history syncs from where callhistoryd keeps it, and --since keeps the
 });
 
 test('call history that macOS keeps behind Full Disk Access fails its sync naming that access', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   // No store under HOME: SQLite cannot open it, as under a privacy denial.
   assert.equal(cli(mac.path, 'setup', '--connector', 'call-history').status, 0);
 
@@ -2894,7 +2973,9 @@ async function withNotificationCenter(mac: string) {
 }
 
 test('notification center syncs from where usernoted keeps it, and --since keeps the notifications delivered from that day on', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withNotificationCenter(mac.path);
 
   const setup = cli(
@@ -2970,7 +3051,9 @@ function withWallet(mac: string) {
 }
 
 test('sync watch reads the files an import stores, with no command of its own', async (t) => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   withWallet(mac.path);
   // The pass's icon, a 1x1 PNG its signed manifest lists, as passd keeps it.
   const bundle = join(
@@ -3031,7 +3114,9 @@ test('sync watch reads the files an import stores, with no command of its own', 
 });
 
 test('wallet syncs the passes where passd keeps them, with their fields', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   withWallet(mac.path);
 
   const setup = cli(mac.path, 'setup', '--connector', 'wallet');
@@ -3117,7 +3202,9 @@ async function withSlack(mac: string) {
 }
 
 test('slack syncs from the store the Slack app keeps, and --since keeps the messages sent from that day on', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withSlack(mac.path);
 
   const setup = cli(
@@ -3248,7 +3335,9 @@ async function withTeams(mac: string) {
 }
 
 test('teams syncs from the store the Teams app keeps, and --since keeps the messages sent from that day on', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withTeams(mac.path);
 
   const setup = cli(
@@ -3281,7 +3370,9 @@ test('teams syncs from the store the Teams app keeps, and --since keeps the mess
 });
 
 test('teams without access to the Teams app’s store fails its sync naming Full Disk Access', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   // No store under HOME, as when macOS withholds the app's container.
   assert.equal(cli(mac.path, 'setup', '--connector', 'teams').status, 0);
 
@@ -3295,7 +3386,9 @@ test('teams without access to the Teams app’s store fails its sync naming Full
 });
 
 test('teams options name the account by its organization’s domain, a team without a name by its ID and its channels after it', async () => {
-  await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   await withTeams(mac.path);
 
   const listed = cli(mac.path, 'options', 'teams', '--json');
@@ -3319,7 +3412,9 @@ test('teams options name the account by its organization’s domain, a team with
 });
 
 test('a Mac copied to another home resumes its imports from their checkpoints, with no reload', async () => {
-  await using scratch = await mkdtempDisposable(join(homes, 'cli-e2e-'));
+  await using scratch = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
   const before = join(scratch.path, 'ada');
   const after = join(scratch.path, 'grace');
   await mkdir(before);

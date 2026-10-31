@@ -1,17 +1,21 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, realpathSync } from 'node:fs';
-import { mkdtempDisposable } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
+
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 const entry = join(import.meta.dirname, '../dist/main.js');
 
 for (const mode of ['default', 'relative', 'absolute'])
   test(`CLI uses the ${mode} store for setup, status and query`, async () => {
     // Keep the shared store's Unix socket within macOS's 103-byte path limit.
-    await using scratch = await mkdtempDisposable('/tmp/cli-directory-');
+    await using scratch = await new TemporaryFiles().directory(
+      'cli-directory-',
+      { parent: '/tmp' },
+    );
     const directory =
       mode === 'absolute' ? join(scratch.path, 'Apple Store') : 'Apple Store';
     const cli = (...args: string[]) =>
@@ -81,7 +85,9 @@ for (const mode of ['default', 'relative', 'absolute'])
   });
 
 test('--directory requires a path before any store is opened', async () => {
-  await using scratch = await mkdtempDisposable('/tmp/cli-directory-');
+  await using scratch = await new TemporaryFiles().directory('cli-directory-', {
+    parent: '/tmp',
+  });
   const result = spawnSync(process.execPath, [entry, '--directory'], {
     cwd: scratch.path,
     env: { ...process.env, HOME: scratch.path },

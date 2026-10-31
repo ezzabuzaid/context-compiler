@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempDisposable } from 'node:fs/promises';
 import { join } from 'node:path';
 import { test } from 'node:test';
+
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import type { ConnectorStatus } from './imports.ts';
 
@@ -10,7 +11,9 @@ const entry = join(import.meta.dirname, '../dist/main.js');
 
 test('status lists disabled connectors and keeps configuration separate from sync state', async () => {
   // Keep the shared store's Unix socket within macOS's 103-byte path limit.
-  await using scratch = await mkdtempDisposable('/tmp/cli-status-');
+  await using scratch = await new TemporaryFiles().directory('cli-status-', {
+    parent: '/tmp',
+  });
   const cli = (...args: string[]) =>
     spawnSync(process.execPath, [entry, ...args], {
       cwd: scratch.path,

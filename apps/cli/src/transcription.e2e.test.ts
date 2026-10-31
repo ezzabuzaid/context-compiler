@@ -1,15 +1,16 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdir, mkdtempDisposable, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { test } from 'node:test';
+
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import { Settings } from '@workspace/settings';
 
 test('the CLI saves an installed model in its chosen directory, rejects unknown models and can turn it off', async () => {
-  await using scratch = await mkdtempDisposable(
-    join(tmpdir(), 'cli-transcription-'),
+  await using scratch = await new TemporaryFiles().directory(
+    'cli-transcription-',
   );
   const snapshot = join(
     scratch.path,
