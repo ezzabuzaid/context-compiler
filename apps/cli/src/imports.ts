@@ -379,8 +379,11 @@ export class Imports {
         connector: selection.connector,
         title: connector?.title ?? selection.connector,
         enabled: true,
+        // A connector that is not loaded cannot describe the saved scope.
         selection:
-          connector?.describe(selection.scope) ?? 'its saved selection',
+          connector === undefined
+            ? 'its saved selection'
+            : connector.describe(selection.scope),
         database: existsSync(path) ? path : null,
       };
       const never = {
