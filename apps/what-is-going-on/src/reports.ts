@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
 
 import { Collection } from '@zukhruf/embeddings';
-import { EventDetector, design3152b } from '@zukhruf/event-grouping';
+import { EventDetector, design3152b } from '@zukhruf/event-detection';
 import { Declaration } from '@zukhruf/sqlite-drift';
 import { transaction } from '@zukhruf/sqlite-transaction';
 import { z } from 'zod';
@@ -66,7 +66,7 @@ function lead(text: string) {
 }
 
 // The reports of the crawled articles, each in the event of
-// @zukhruf/event-grouping that it reports. Clustering again moves older
+// @zukhruf/event-detection that it reports. Clustering again moves older
 // reports between events, so each refresh writes every report's event again.
 export class Reports extends DerivedDataset<SQLiteTable> {
   readonly name = 'reports';

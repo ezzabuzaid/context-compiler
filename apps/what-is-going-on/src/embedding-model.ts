@@ -6,7 +6,7 @@ const llamaApp = createOpenAICompatible({
   baseURL: 'http://127.0.0.1:9931/v1',
 });
 
-// EmbeddingGemma 2, which @zukhruf/event-grouping's design 3152b was fitted
+// EmbeddingGemma 2, which @zukhruf/event-detection's design 3152b was fitted
 // with.
 const model: ReturnType<typeof llamaApp.embeddingModel> =
   llamaApp.embeddingModel('ggml-org/embeddinggemma-2-GGUF:Q8_0');
