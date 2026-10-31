@@ -15,6 +15,8 @@ import { basename, dirname, extname, join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 
+import { Latch } from '@zukhruf/async';
+import { timebox } from '@zukhruf/testing/async';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { MockTranscriptionModelV4 } from 'ai/test';
 
@@ -70,7 +72,7 @@ class FolderSource extends LiveSource {
     }),
   ]);
   readonly #folder: string;
-  #change = Promise.withResolvers<void>();
+  #change = new Latch();
 
   constructor(folder: string) {
     super();
@@ -78,7 +80,7 @@ class FolderSource extends LiveSource {
   }
 
   changed() {
-    this.#change.resolve();
+    this.#change.open();
   }
 
   override coverage() {
@@ -95,9 +97,9 @@ class FolderSource extends LiveSource {
       signal.addEventListener('abort', resolve, { once: true }),
     );
     while (!signal.aborted) {
-      await Promise.race([this.#change.promise, stopped]);
+      await Promise.race([this.#change.wait(), stopped]);
       if (signal.aborted) return;
-      this.#change = Promise.withResolvers();
+      this.#change = new Latch();
       yield streams;
     }
   }
@@ -273,7 +275,7 @@ class HoldingParser extends DocumentParser {
   inFlight = 0;
   peak = 0;
   readonly #parser = new MacOSDocumentParser();
-  readonly #release = Promise.withResolvers<void>();
+  readonly #release = new Latch();
 
   constructor() {
     super(new MacOSDocumentParser().identity);
@@ -284,7 +286,7 @@ class HoldingParser extends DocumentParser {
   }
 
   release() {
-    this.#release.resolve();
+    this.#release.open();
   }
 
   override async parse(path: string) {
@@ -292,7 +294,7 @@ class HoldingParser extends DocumentParser {
     this.peak = Math.max(this.peak, this.inFlight);
     try {
       if ((await readFile(path, 'utf8')).includes('hold'))
-        await this.#release.promise;
+        await this.#release.wait();
       return await this.#parser.parse(path);
     } finally {
       this.inFlight -= 1;
@@ -302,11 +304,11 @@ class HoldingParser extends DocumentParser {
 
 // Waits until check() holds, polling, or fails after a deadline.
 async function eventually(check: () => boolean, what: string) {
-  const deadline = Date.now() + 20_000;
-  while (!check()) {
-    if (Date.now() > deadline) assert.fail(`Timed out waiting for ${what}`);
-    await new Promise((resolve) => setTimeout(resolve, 50));
-  }
+  await timebox(() => assert.ok(check(), `Timed out waiting for ${what}`), {
+    minTimeout: 50,
+    maxRetryTime: 20_000,
+    shouldRetry: ({ error }) => error instanceof assert.AssertionError,
+  });
 }
 
 // One page with a line of text in Helvetica: a PDF with a text layer.

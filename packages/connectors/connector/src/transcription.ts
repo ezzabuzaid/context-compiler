@@ -1,3 +1,4 @@
+import { Latch } from '@zukhruf/async';
 import { Fixed, Parallel, Pool } from '@zukhruf/pool';
 
 import type { DocumentParser } from '@workspace/elt';
@@ -19,11 +20,12 @@ import { TranscriptionWorker } from '@workspace/transcription-local/transcriptio
 export class Transcription implements AsyncDisposable {
   readonly #settings: Settings;
   readonly #models: SpeechModels;
-  #closing = Promise.resolve();
-  #loading = Promise.resolve();
   readonly #helper: string;
-  #chosen: string | null | undefined = null;
-  #engines: Pool<TranscriptionWorker> | undefined;
+  #choice: Loading | Loaded | Failed = new Loaded(null);
+  #engines: Pool<TranscriptionWorker> | NoEngines = new NoEngines();
+  // The closes of the engine pools that a later choice replaced. A failed
+  // close stays, so refresh and disposal report it.
+  readonly #closings = new Set<Latch<Outcome>>();
   readonly #image: ImageFormat;
   #parser: DocumentParser;
 
@@ -47,8 +49,12 @@ export class Transcription implements AsyncDisposable {
 
   async refresh(): Promise<void> {
     this.#reload();
-    await this.#loading;
-    await this.#closing;
+    const choice = this.#choice;
+    if (choice instanceof Loading) {
+      const outcome = await choice.done.wait();
+      if (!outcome.ok) throw outcome.error;
+    }
+    await this.#closed();
   }
 
   // A long-running CLI watch must see choices saved by another host too.
@@ -58,43 +64,67 @@ export class Transcription implements AsyncDisposable {
   // audio, as when transcription is off.
   #reload(): void {
     const chosen = this.#settings.transcription();
-    if (chosen === this.#chosen) return;
-    this.#chosen = chosen;
-    this.#loading = this.#load(chosen).catch((error: unknown) => {
-      // The next read searches again, and refresh reports the failure.
-      if (this.#chosen === chosen) this.#chosen = undefined;
-      throw error;
-    });
+    const choice = this.#choice;
+    // After a failed search, the next read searches again, and refresh
+    // reports the failure.
+    if (!(choice instanceof Failed) && choice.chosen === chosen) return;
+    const loading = new Loading(chosen);
+    this.#choice = loading;
     // A read through the parser getter does not wait for the search.
-    this.#loading.catch(() => undefined);
+    void this.#load(loading);
   }
 
-  async #load(chosen: string | null): Promise<void> {
-    const configuration =
-      chosen === null
-        ? undefined
-        : (await this.#models.find(chosen))?.configuration;
-    if (chosen !== this.#chosen) return;
-    const previous = this.#engines;
-    this.#engines = undefined;
-    const formats: DocumentFormat[] = [this.#image];
-    if (configuration !== undefined) {
-      const engines = new Pool({
-        size: new Fixed(1),
-        startup: new Parallel(),
-        create: () => new TranscriptionWorker(this.#helper, configuration),
-      });
-      this.#engines = engines;
-      formats.push(
-        new AudioFormat(new LocalTranscriptionModel(configuration, engines)),
-      );
+  async #load(loading: Loading): Promise<void> {
+    try {
+      const configuration =
+        loading.chosen === null
+          ? undefined
+          : (await this.#models.find(loading.chosen))?.configuration;
+      if (this.#choice !== loading) {
+        loading.done.open({ ok: true });
+        return;
+      }
+      const previous = this.#engines;
+      this.#engines = new NoEngines();
+      const formats: DocumentFormat[] = [this.#image];
+      if (configuration !== undefined) {
+        const engines = new Pool({
+          size: new Fixed(1),
+          startup: new Parallel(),
+          create: () => new TranscriptionWorker(this.#helper, configuration),
+        });
+        this.#engines = engines;
+        formats.push(
+          new AudioFormat(new LocalTranscriptionModel(configuration, engines)),
+        );
+      }
+      this.#parser = new MacOSDocumentParser(formats);
+      this.#choice = new Loaded(loading.chosen);
+      if (previous instanceof Pool) this.#close(previous);
+      loading.done.open({ ok: true });
+    } catch (error) {
+      if (this.#choice === loading) this.#choice = new Failed();
+      loading.done.open({ ok: false, error });
     }
-    this.#parser = new MacOSDocumentParser(formats);
-    if (previous !== undefined)
-      this.#closing = Promise.all([
-        this.#closing,
-        previous[Symbol.asyncDispose](),
-      ]).then(() => undefined);
+  }
+
+  #close(engines: Pool<TranscriptionWorker>): void {
+    const closed = new Latch<Outcome>();
+    this.#closings.add(closed);
+    engines[Symbol.asyncDispose]().then(
+      () => {
+        this.#closings.delete(closed);
+        closed.open({ ok: true });
+      },
+      (error: unknown) => closed.open({ ok: false, error }),
+    );
+  }
+
+  async #closed(): Promise<void> {
+    for (const outcome of await Promise.all(
+      [...this.#closings].map((closed) => closed.wait()),
+    ))
+      if (!outcome.ok) throw outcome.error;
   }
 
   // Saves the installed model with this file name, or null to stop
@@ -124,12 +154,42 @@ export class Transcription implements AsyncDisposable {
 
   async [Symbol.asyncDispose](): Promise<void> {
     try {
+      const engines = this.#engines;
       await Promise.all([
-        this.#closing,
-        this.#engines?.[Symbol.asyncDispose](),
+        this.#closed(),
+        engines instanceof Pool ? engines[Symbol.asyncDispose]() : undefined,
       ]);
     } finally {
       this.#settings[Symbol.dispose]();
     }
   }
 }
+
+type Outcome =
+  { readonly ok: true } | { readonly ok: false; readonly error: unknown };
+
+// A search for the chosen model; done opens with how it ended.
+class Loading {
+  readonly chosen: string | null;
+  readonly done = new Latch<Outcome>();
+
+  constructor(chosen: string | null) {
+    this.chosen = chosen;
+  }
+}
+
+// The parser reads with the chosen model, or with no model when chosen is
+// null or the model is not installed on this Mac.
+class Loaded {
+  readonly chosen: string | null;
+
+  constructor(chosen: string | null) {
+    this.chosen = chosen;
+  }
+}
+
+// The last search failed: the next read searches again.
+class Failed {}
+
+// Transcription is off, or the chosen model is not installed on this Mac.
+class NoEngines {}
