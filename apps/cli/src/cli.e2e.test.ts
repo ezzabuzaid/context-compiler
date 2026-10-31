@@ -24,7 +24,7 @@ import {
 } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-import { test } from 'node:test';
+import { type TestContext, test } from 'node:test';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { promisify, stripVTControlCharacters } from 'node:util';
 import { deflateSync, gzipSync } from 'node:zlib';
@@ -1088,7 +1088,7 @@ const withNotes = (mac: string) =>
 // which macOS ships, gives it a 120×40 pseudo-terminal, relays keys and exits
 // with the CLI's status. A CLI a signal ended has no status, so expect names
 // the signal instead, and exited resolves to it.
-function terminal(mac: string, ...args: string[]) {
+function terminal(t: TestContext, mac: string, ...args: string[]) {
   const child = spawn(
     '/usr/bin/expect',
     [
@@ -1115,10 +1115,11 @@ function terminal(mac: string, ...args: string[]) {
       return screen;
     },
     async shows(text: string) {
-      for (let tries = 0; !screen.includes(text); tries++) {
-        if (tries > 300) assert.fail(`never showed ${text}:\n${screen}`);
-        await sleep(100);
-      }
+      await t.waitFor(
+        () =>
+          assert.ok(screen.includes(text), `never showed ${text}:\n${screen}`),
+        { interval: 100, timeout: 30_000 },
+      );
     },
     async type(...keys: string[]) {
       for (const key of keys) {
@@ -1213,7 +1214,7 @@ test('a connector whose app macOS will not open fails alone, named with the acce
   );
 });
 
-test('a second sync of an import another sync is importing says so, waits for that pass and shows it', async () => {
+test('a second sync of an import another sync is importing says so, waits for that pass and shows it', async (t) => {
   await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
   await withConnectors(mac.path);
   // A pipe the test writes once the second sync waits: the Photos read waits
@@ -1225,7 +1226,7 @@ test('a second sync of an import another sync is importing says so, waits for th
   const first = started(mac.path, 'sync', '--json');
   try {
     await passRunning(mac.path);
-    const second = terminal(mac.path, 'sync');
+    const second = terminal(t, mac.path, 'sync');
     try {
       await second.shows('a sync is importing it');
 
@@ -1264,7 +1265,7 @@ test('a second sync of an import another sync is importing says so, waits for th
   }
 });
 
-test('a sync waiting on another sync whose pass is killed says the pass was interrupted and exits 1', async () => {
+test('a sync waiting on another sync whose pass is killed says the pass was interrupted and exits 1', async (t) => {
   await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
   await withConnectors(mac.path);
   // A pipe no one writes to: the first sync's Photos pass runs until killed.
@@ -1275,7 +1276,7 @@ test('a sync waiting on another sync whose pass is killed says the pass was inte
   const first = started(mac.path, 'sync', '--json');
   try {
     await passRunning(mac.path);
-    const second = terminal(mac.path, 'sync');
+    const second = terminal(t, mac.path, 'sync');
     try {
       await second.shows('a sync is importing it');
 
@@ -1367,7 +1368,7 @@ test('Ctrl-C stops a sync at once while a connector waits on a read', async () =
   }
 });
 
-test('Ctrl-C typed in a terminal stops a sync at once while a connector waits on a read', async () => {
+test('Ctrl-C typed in a terminal stops a sync at once while a connector waits on a read', async (t) => {
   await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
   await withConnectors(mac.path);
   // A pipe no one writes to, as above: the Photos read never returns.
@@ -1375,7 +1376,7 @@ test('Ctrl-C typed in a terminal stops a sync at once while a connector waits on
   await rm(pictures);
   spawnSync('/usr/bin/mkfifo', [pictures]);
   cli(mac.path, 'setup', '--connector', 'photos');
-  const sync = terminal(mac.path, 'sync');
+  const sync = terminal(t, mac.path, 'sync');
   try {
     await passRunning(mac.path);
     await sync.shows('Photos photos');
@@ -1394,14 +1395,14 @@ test('Ctrl-C typed in a terminal stops a sync at once while a connector waits on
   assert.match(sync.screen, /Sync interrupted/);
 });
 
-test('SIGTERM stops a sync in a terminal at once while its spinner shows', async () => {
+test('SIGTERM stops a sync in a terminal at once while its spinner shows', async (t) => {
   await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
   await withConnectors(mac.path);
   const pictures = join(mac.path, 'Pictures/photos.json');
   await rm(pictures);
   spawnSync('/usr/bin/mkfifo', [pictures]);
   cli(mac.path, 'setup', '--connector', 'photos');
-  const sync = terminal(mac.path, 'sync');
+  const sync = terminal(t, mac.path, 'sync');
   try {
     await passRunning(mac.path);
     await sync.shows('Photos photos');
@@ -1449,7 +1450,7 @@ async function ocrWorkers(root: number): Promise<number[]> {
   );
 }
 
-test('only a command that reads files starts the OCR workers', async () => {
+test('only a command that reads files starts the OCR workers', async (t) => {
   await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
   await withConnectors(mac.path);
   // A pipe no one writes to: the Photos pass runs until the sync stops.
@@ -1458,7 +1459,7 @@ test('only a command that reads files starts the OCR workers', async () => {
   spawnSync('/usr/bin/mkfifo', [pictures]);
 
   // A setup waiting at its first question has read no file.
-  const wizard = terminal(mac.path, 'setup');
+  const wizard = terminal(t, mac.path, 'setup');
   try {
     await wizard.shows('Which connectors should be imported?');
     assert.deepEqual(await ocrWorkers(wizard.child.pid!), []);
@@ -1811,10 +1812,10 @@ test('a command a script cannot run fails and says why, changing nothing', async
   );
 });
 
-test('the setup wizard saves what the person picks and syncs it when asked', async () => {
+test('the setup wizard saves what the person picks and syncs it when asked', async (t) => {
   await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
   await withNotes(mac.path);
-  const wizard = terminal(mac.path, 'setup');
+  const wizard = terminal(t, mac.path, 'setup');
   try {
     await wizard.shows('Which connectors should be imported?');
     // Connectors are listed by name; Notes is the eleventh.
@@ -2158,7 +2159,7 @@ const attempts = (mac: string, connector: string): number =>
     ).stdout,
   )[0].n;
 
-test('a sync of a connector a sync watch keeps current says so and exits 0, running no pass of its own', async () => {
+test('a sync of a connector a sync watch keeps current says so and exits 0, running no pass of its own', async (t) => {
   await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
   await withSafari(mac.path);
   cli(mac.path, 'setup', '--connector', 'safari');
@@ -2173,7 +2174,7 @@ test('a sync of a connector a sync watch keeps current says so and exits 0, runn
         sync.exited,
         sleep(30_000).then(() => null),
       ]);
-      const shown = terminal(mac.path, 'sync');
+      const shown = terminal(t, mac.path, 'sync');
       try {
         const exited = await Promise.race([
           shown.exited,
@@ -2689,25 +2690,24 @@ test('sync watch exits 1 and names the error when an import’s sync history can
   }
 });
 
-test('sync watch in a terminal says it watches between passes, and Ctrl-C stops it', async () => {
+test('sync watch in a terminal says it watches between passes, and Ctrl-C stops it', async (t) => {
   await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
   await withSafari(mac.path);
   cli(mac.path, 'setup', '--connector', 'safari');
-  const watch = terminal(mac.path, 'sync', 'watch');
+  const watch = terminal(t, mac.path, 'sync', 'watch');
   try {
     await watch.shows(' streams · ');
     // The spinner comes back after the pass's line, not only before it.
     const sincePass = () =>
       watch.screen.slice(watch.screen.lastIndexOf(' streams · '));
-    for (
-      let tries = 0;
-      !sincePass().includes('Watching for changes');
-      tries++
-    ) {
-      if (tries > 100)
-        assert.fail(`no spinner after the pass:\n${watch.screen}`);
-      await sleep(100);
-    }
+    await t.waitFor(
+      () =>
+        assert.ok(
+          sincePass().includes('Watching for changes'),
+          `no spinner after the pass:\n${watch.screen}`,
+        ),
+      { interval: 100, timeout: 10_000 },
+    );
 
     await watch.type(ctrlC);
     const ended = await Promise.race([
@@ -2968,7 +2968,7 @@ function withWallet(mac: string) {
   `);
 }
 
-test('sync watch reads the files an import stores, with no command of its own', async () => {
+test('sync watch reads the files an import stores, with no command of its own', async (t) => {
   await using mac = await mkdtempDisposable(join(homes, 'cli-e2e-'));
   withWallet(mac.path);
   // The pass's icon, a 1x1 PNG its signed manifest lists, as passd keeps it.
@@ -3008,17 +3008,17 @@ test('sync watch reads the files an import stores, with no command of its own', 
         '--json',
       );
 
-    let found = read();
-    for (
-      let tries = 0;
-      found.status !== 0 || found.stdout.trim() === '[]';
-      tries++
-    ) {
-      if (tries > 100)
-        assert.fail(`no text was read:\n${found.stdout}${found.stderr}`);
-      await sleep(100);
-      found = read();
-    }
+    const found = await t.waitFor(
+      () => {
+        const answer = read();
+        assert.ok(
+          answer.status === 0 && answer.stdout.trim() !== '[]',
+          `no text was read:\n${answer.stdout}${answer.stderr}`,
+        );
+        return answer;
+      },
+      { interval: 100, timeout: 60_000 },
+    );
 
     assert.deepEqual(JSON.parse(found.stdout), [
       { name: 'icon', status: 'empty' },
