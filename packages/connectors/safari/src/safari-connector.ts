@@ -14,8 +14,10 @@ export default class SafariConnector extends Connector {
       scope: 'collectionIds',
       title: 'profiles',
       id: byId,
-      // Safari stores no name for the profile it starts with.
-      label: (row) => String(row.title ?? 'Default profile'),
+      // Safari stores no name (a NULL title) for the profile it starts with,
+      // DefaultProfile.
+      label: (row) =>
+        row.title === null ? 'Default profile' : String(row.title),
     },
   ];
   // Bookmarks, the Reading List and iCloud Tabs belong to no profile or date.

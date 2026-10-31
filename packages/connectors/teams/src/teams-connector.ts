@@ -1,4 +1,9 @@
-import { type Choice, accounts, byId } from '@workspace/connector/choice';
+import {
+  type Choice,
+  type Row,
+  accounts,
+  byId,
+} from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
 import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 import { TeamsSource } from '@workspace/source-microsoft-teams/teams-source';
@@ -8,6 +13,12 @@ const account: Choice['label'] = (row) => {
   const domains = Array.isArray(row.tenantDomains) ? row.tenantDomains : [];
   return String(domains[0] ?? row.tenantId);
 };
+
+// A team or chat that Teams stores no name for, by its kind and id.
+const unnamed = (name: unknown, kind: unknown, row: Row): string =>
+  name === null || name === undefined
+    ? `${String(kind)} ${byId(row)}`
+    : String(name);
 
 // A conversation as Teams' chat list names it: a channel after its team, a
 // team by its name, a chat by its topic or, without one, its members.
@@ -20,9 +31,9 @@ const conversation: Choice['label'] = (row, rows) => {
       : `${String(team.teamName ?? team.topic ?? 'team')} / ${channel}`;
   }
   if (row.type === 'Space')
-    return String(row.teamName ?? row.topic ?? `team ${byId(row)}`);
+    return unnamed(row.teamName ?? row.topic, 'team', row);
   if (row.type === 'StreamOfNotes') return 'Notes';
-  return String(row.topic ?? row.title ?? `${String(row.type)} ${byId(row)}`);
+  return unnamed(row.topic ?? row.title, row.type, row);
 };
 
 export default class TeamsConnector extends Connector {
