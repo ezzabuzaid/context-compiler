@@ -10,8 +10,8 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import { Fixed, LeaderFirst, Pool } from '@zukhruf/pool';
+import { Msw } from '@zukhruf/testing/msw';
 import { HttpResponse, http } from 'msw';
-import { setupServer } from 'msw/node';
 
 import { type DocumentParser, Pipeline } from '@workspace/elt';
 import { SQLiteSyncHistory } from '@workspace/elt-sqlite';
@@ -21,6 +21,8 @@ import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-documen
 import { VisionWorker } from '@workspace/source-apple-macos/vision';
 
 import InstagramConnector from './instagram-connector.ts';
+
+const msw = new Msw();
 
 // This package's folder, which holds its manifest.
 const folder = fileURLToPath(new URL('..', import.meta.url));
@@ -206,7 +208,7 @@ function instagram(slides: ReadonlyMap<string, Buffer>) {
     (request.headers.get('cookie') ?? '').includes(
       `sessionid=${session.sessionid}`,
     );
-  const server = setupServer(
+  return msw.intercept(
     http.get('https://www.instagram.com/', ({ request }) =>
       signed(request)
         ? new HttpResponse(tokens, { headers: { 'content-type': 'text/html' } })
@@ -261,8 +263,6 @@ function instagram(slides: ReadonlyMap<string, Buffer>) {
         : new HttpResponse(bytes, { headers: { 'content-type': 'image/png' } });
     }),
   );
-  server.listen({ onUnhandledRequest: 'error' });
-  return { [Symbol.dispose]: () => server.close() };
 }
 
 test('setup offers the accounts the browser’s Instagram account follows, by username and name', async () => {
@@ -315,7 +315,7 @@ test('an everything import keeps each followed profile once across overlapping p
       },
     ],
   ]);
-  const server = setupServer(
+  using _wire = msw.intercept(
     http.get(
       'https://www.instagram.com/',
       () =>
@@ -330,30 +330,25 @@ test('an everything import keeps each followed profile once across overlapping p
       },
     ),
   );
-  server.listen({ onUnhandledRequest: 'error' });
-  try {
-    const instagramConnector = connector(new MacOSDocumentParser(), mac.path);
+  const instagramConnector = connector(new MacOSDocumentParser(), mac.path);
 
-    const { connection } = await instagramConnector.connection(imports.path, {
-      connector: instagramConnector.name,
-      scope: {},
-      includeAttachments: false,
-    });
-    connection.validate();
-    const catalog = await connection.source.discover();
-    const [profiles] = await instagramConnector.listChoices();
+  const { connection } = await instagramConnector.connection(imports.path, {
+    connector: instagramConnector.name,
+    scope: {},
+    includeAttachments: false,
+  });
+  connection.validate();
+  const catalog = await connection.source.discover();
+  const [profiles] = await instagramConnector.listChoices();
 
-    assert.deepEqual(
-      connection.source.coverage(catalog.get('profiles')).selection,
-      { profileIds: ['6720734023', '44555906095'] },
-    );
-    assert.deepEqual(profiles?.options, [
-      { id: '6720734023', label: 'repeated (After rename)' },
-      { id: '44555906095', label: 'hivefitnationgym (Hive Fit Nation)' },
-    ]);
-  } finally {
-    server.close();
-  }
+  assert.deepEqual(
+    connection.source.coverage(catalog.get('profiles')).selection,
+    { profileIds: ['6720734023', '44555906095'] },
+  );
+  assert.deepEqual(profiles?.options, [
+    { id: '6720734023', label: 'repeated (After rename)' },
+    { id: '44555906095', label: 'hivefitnationgym (Hive Fit Nation)' },
+  ]);
 });
 
 test('an import that keeps attachments, as setup does by default, makes the text on a timetable slide searchable', async () => {

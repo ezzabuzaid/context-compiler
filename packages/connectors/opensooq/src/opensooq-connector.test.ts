@@ -7,13 +7,15 @@ import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import { Msw } from '@zukhruf/testing/msw';
 import { HttpResponse, http } from 'msw';
-import { setupServer } from 'msw/node';
 
 import { Settings } from '@workspace/settings';
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
 
 import OpenSooqConnector from './opensooq-connector.ts';
+
+const msw = new Msw();
 
 // This package's folder, which holds its manifest.
 const folder = fileURLToPath(new URL('..', import.meta.url));
@@ -63,10 +65,10 @@ function listing(id: string, name: string, price: string) {
 }
 
 // OpenSooq Jordan as the import sees it: the home page with its menu, two
-// categories with one listing each, and no robots.txt. requests records
-// every request the import sends, to any host; a request to another host is
-// an error.
-function openSooq(requests: Request[]) {
+// categories with one listing each, and no robots.txt. The interception's
+// requests hold every request the import sends, to any host; a request to
+// another host is an error.
+function openSooq() {
   const listings: Record<string, ReturnType<typeof listing>> = {
     '287909010': listing('287909010', 'TARO RANGER 401cc', '1500'),
     '287909020': listing('287909020', 'Apartment in Abdoun', '450'),
@@ -75,7 +77,7 @@ function openSooq(requests: Request[]) {
     '/en/cars/motorcycles': '287909010',
     '/en/property/apartments-for-rent': '287909020',
   };
-  const server = setupServer(
+  return msw.intercept(
     http.get('https://jo.opensooq.com/*', ({ request }) => {
       const { pathname } = new URL(request.url);
       if (pathname === '/robots.txt')
@@ -97,17 +99,11 @@ function openSooq(requests: Request[]) {
       return new HttpResponse(null, { status: 404 });
     }),
   );
-  server.events.on('request:start', ({ request }) => {
-    requests.push(request);
-  });
-  server.listen({ onUnhandledRequest: 'error' });
-  return { [Symbol.dispose]: () => server.close() };
 }
 
 test('an import with no category chosen fails as the user’s to fix, and requests nothing', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'opensooq-'));
-  const requests: Request[] = [];
-  using _wire = openSooq(requests);
+  using wire = openSooq();
   const opensooq = connector();
   using settings = new Settings(join(scratch.path, 'Imports'));
   const selection = {
@@ -132,11 +128,11 @@ test('an import with no category chosen fails as the user’s to fix, and reques
     ),
     /category/i,
   );
-  assert.deepEqual(requests, []);
+  assert.deepEqual(wire.requests, []);
 });
 
 test('setup offers the categories of OpenSooq Jordan, each under its top-level category', async () => {
-  using _wire = openSooq([]);
+  using _wire = openSooq();
 
   const [categories] = await connector().listChoices();
 
@@ -156,8 +152,7 @@ test('setup offers the categories of OpenSooq Jordan, each under its top-level c
 
 test('an import of the categories chosen in setup loads their listings and the categories, from jo.opensooq.com alone', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'opensooq-'));
-  const requests: Request[] = [];
-  using _wire = openSooq(requests);
+  using wire = openSooq();
   const opensooq = connector();
   const [categories] = await opensooq.listChoices();
   const chosen = (categories?.options ?? [])
@@ -215,11 +210,15 @@ test('an import of the categories chosen in setup loads their listings and the c
     4,
   );
   assert.deepEqual(
-    [...new Set(requests.map((request) => new URL(request.url).host))],
+    [...new Set(wire.requests.map((request) => new URL(request.url).host))],
     ['jo.opensooq.com'],
   );
   assert.deepEqual(
-    [...new Set(requests.map((request) => request.headers.get('user-agent')))],
+    [
+      ...new Set(
+        wire.requests.map((request) => request.headers.get('user-agent')),
+      ),
+    ],
     [null],
   );
   // The HTTP cache is the import's own, so it goes with the import.
