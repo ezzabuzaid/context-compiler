@@ -64,7 +64,7 @@ function listing(id: string, name: string, price: string) {
 // categories with one listing each, and no robots.txt. requests records
 // every request the import sends, to any host; a request to another host is
 // an error.
-function openSooq(requests: string[]) {
+function openSooq(requests: Request[]) {
   const listings: Record<string, ReturnType<typeof listing>> = {
     '287909010': listing('287909010', 'TARO RANGER 401cc', '1500'),
     '287909020': listing('287909020', 'Apartment in Abdoun', '450'),
@@ -96,8 +96,7 @@ function openSooq(requests: string[]) {
     }),
   );
   server.events.on('request:start', ({ request }) => {
-    const { host, pathname } = new URL(request.url);
-    requests.push(`${host}${pathname}`);
+    requests.push(request);
   });
   server.listen({ onUnhandledRequest: 'error' });
   return { [Symbol.dispose]: () => server.close() };
@@ -105,7 +104,7 @@ function openSooq(requests: string[]) {
 
 test('an import with no category chosen fails as the user’s to fix, and requests nothing', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'opensooq-'));
-  const requests: string[] = [];
+  const requests: Request[] = [];
   using _wire = openSooq(requests);
   const opensooq = connector();
   using settings = new Settings(join(scratch.path, 'Imports'));
@@ -155,7 +154,7 @@ test('setup offers the categories of OpenSooq Jordan, each under its top-level c
 
 test('an import of the categories chosen in setup loads their listings and the categories, from jo.opensooq.com alone', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'opensooq-'));
-  const requests: string[] = [];
+  const requests: Request[] = [];
   using _wire = openSooq(requests);
   const opensooq = connector();
   const [categories] = await opensooq.listChoices();
@@ -214,8 +213,12 @@ test('an import of the categories chosen in setup loads their listings and the c
     4,
   );
   assert.deepEqual(
-    [...new Set(requests.map((request) => request.split('/')[0]))],
+    [...new Set(requests.map((request) => new URL(request.url).host))],
     ['jo.opensooq.com'],
+  );
+  assert.deepEqual(
+    [...new Set(requests.map((request) => request.headers.get('user-agent')))],
+    [null],
   );
   // The HTTP cache is the import's own, so it goes with the import.
   assert.ok(existsSync(join(settings.directory(selection), 'web-http.sqlite')));

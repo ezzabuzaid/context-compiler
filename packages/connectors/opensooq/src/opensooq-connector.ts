@@ -9,9 +9,6 @@ import { WebSource } from '@workspace/source-web-pages/web-source';
 
 // The home page of OpenSooq Jordan, whose hidden menu links every category.
 const home = 'https://jo.opensooq.com/en';
-// The name each request carries, and robots.txt groups match.
-const userAgent =
-  'ContextCompiler (+https://github.com/ezzabuzaid/context-compiler)';
 
 // A category under its top-level category, such as "Autos / Motorcycles".
 const category: Choice['label'] = ({ name, group }) =>
@@ -45,7 +42,6 @@ export default class OpenSooqConnector extends Connector {
     return new WebSource({
       streams: [{ stream: categories, inputs: [home] }],
       cachePath: join(tmpdir(), 'context-compiler-opensooq', 'web-http.sqlite'),
-      userAgent,
     });
   }
 
@@ -62,7 +58,6 @@ export default class OpenSooqConnector extends Connector {
         { stream: listings, inputs: scope.collectionIds ?? [] },
       ],
       cachePath: join(directory, 'web-http.sqlite'),
-      userAgent,
     });
   }
 }
