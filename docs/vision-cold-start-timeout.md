@@ -2,6 +2,8 @@
 
 Follow-up: [cold-start latency investigation and startup ordering](vision-cold-start-latency.md) addresses duplicate model compilation. This report records the earlier deadline fix and its measurements.
 
+Follow-up (#3067, 2026-10-31): elt's `VisionWorker.ready()` now gives the warm-up a time limit of 10 minutes. When the limit ends, the worker kills the native process, and the file that waits for it fails. The next file starts a new worker. Thus the sentence below, "A stuck initialization waits until the native process returns/exits or the caller cancels/closes the host", is no longer true.
+
 Measurement caveat discovered in the follow-up: overriding the SDK constructor's
 default container does not redirect the source, which passes an explicit container.
 The earlier probe did not assert the paths actually opened. Its frozen-input claim
