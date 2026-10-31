@@ -22,9 +22,10 @@ export class SyncReport implements SyncObserver {
   protected readonly spinsWhenIdle: boolean = false;
   protected readonly interruption: string = 'Sync interrupted';
   readonly #reading = new Map<string, string>();
-  #spinner: SpinnerResult | undefined;
+  #spinner: SpinnerResult | Hidden = new Hidden();
   #shownAt = 0;
-  #incomplete = false;
+  // The connectors whose pass did not load completely.
+  readonly #incomplete = new Set<string>();
 
   constructor(interactive: boolean) {
     this.interactive = interactive;
@@ -51,10 +52,10 @@ export class SyncReport implements SyncObserver {
     if (performance.now() - this.#shownAt > 100) this.#show();
   }
 
-  passed({ title }: Connector, summary: PassSummary): void {
+  passed({ name, title }: Connector, summary: PassSummary): void {
     // A cancelled pass is a removed connector; skipped reports it.
     if (summary.status === 'cancelled') return;
-    if (summary.status !== 'succeeded') this.#incomplete = true;
+    if (summary.status !== 'succeeded') this.#incomplete.add(name);
     this.line(summary, () => {
       const written = summary.streams.reduce(
         (total, { written, deleted }) => total + written + deleted,
@@ -70,7 +71,7 @@ export class SyncReport implements SyncObserver {
   // shows it runs, and Ctrl-C stops it the same way.
   joined({ title }: Connector): void {
     if (!this.interactive) return;
-    this.#spinner?.clear();
+    this.#spinner.clear();
     log.info(`${title.padEnd(10)} a sync is importing it · waiting…`);
     this.#spin();
   }
@@ -79,7 +80,7 @@ export class SyncReport implements SyncObserver {
     { name, title }: Connector,
     why: 'removed' | 'interrupted' | 'watched',
   ): void {
-    if (why === 'interrupted') this.#incomplete = true;
+    if (why === 'interrupted') this.#incomplete.add(name);
     this.line({ connector: name, status: why }, () => {
       if (why === 'interrupted')
         log.warn(
@@ -98,12 +99,12 @@ export class SyncReport implements SyncObserver {
 
   finish(): void {
     if (!this.interactive) return;
-    this.#spinner?.clear();
+    this.#spinner.clear();
     outro(this.closing());
   }
 
   protected closing(): string {
-    return this.#incomplete
+    return this.#incomplete.size > 0
       ? 'Some connectors did not load completely.'
       : 'All connectors current.';
   }
@@ -111,7 +112,7 @@ export class SyncReport implements SyncObserver {
   // Cancelling the spinner hands the terminal back: the cursor shows again and
   // keys echo.
   interrupted(): void {
-    this.#spinner?.cancel(this.interruption);
+    this.#spinner.cancel(this.interruption);
   }
 
   // One line about an import: its JSON without a terminal; otherwise shown in
@@ -121,8 +122,8 @@ export class SyncReport implements SyncObserver {
       process.stdout.write(`${json(data, 0)}\n`);
       return;
     }
-    this.#spinner?.clear();
-    this.#spinner = undefined;
+    this.#spinner.clear();
+    this.#spinner = new Hidden();
     show();
     if (this.#reading.size > 0 || this.spinsWhenIdle) this.#spin();
   }
@@ -130,17 +131,27 @@ export class SyncReport implements SyncObserver {
   // Without its guide, a spinner leaves no bar behind when cleared, so each
   // pass's line follows the last.
   #spin(): SpinnerResult {
-    this.#spinner = spinner({ withGuide: false });
-    this.#spinner.start(this.#status());
-    return this.#spinner;
+    const shown = spinner({ withGuide: false });
+    shown.start(this.#status());
+    this.#spinner = shown;
+    return shown;
   }
 
   #show(): void {
     this.#shownAt = performance.now();
-    (this.#spinner ?? this.#spin()).message(this.#status());
+    const shown =
+      this.#spinner instanceof Hidden ? this.#spin() : this.#spinner;
+    shown.message(this.#status());
   }
 
   #status(): string {
     return [...this.#reading.values()].join(' · ') || this.idle;
   }
+}
+
+// No spinner shows: before the sync starts, without a terminal, and after a
+// line while no stream reads.
+class Hidden {
+  clear(): void {}
+  cancel(_message: string): void {}
 }

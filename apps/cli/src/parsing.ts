@@ -12,17 +12,15 @@ import { VisionWorker } from '@workspace/source-apple-macos/vision';
 // status and help start no native process.
 export class Parsing implements AsyncDisposable {
   readonly #directory: string;
-  #ocr: Pool<VisionWorker> | undefined;
-  #transcription: Transcription | undefined;
+  #state: Idle | Started = new Idle();
 
   constructor(directory: string) {
     this.#directory = directory;
   }
 
   get parser(): DocumentParser {
-    if (this.#transcription === undefined)
-      throw new Error('Files are read only after Parsing.prepare()');
-    return this.#transcription.parser;
+    if (this.#state instanceof Started) return this.#state.transcription.parser;
+    throw new Error('Files are read only after Parsing.prepare()');
   }
 
   async prepare(): Promise<void> {
@@ -34,9 +32,31 @@ export class Parsing implements AsyncDisposable {
   }
 
   #started(): Transcription {
-    if (this.#transcription !== undefined) return this.#transcription;
+    if (this.#state instanceof Started) return this.#state.transcription;
+    const started = new Started(this.#directory);
+    this.#state = started;
+    return started.transcription;
+  }
+
+  async [Symbol.asyncDispose](): Promise<void> {
+    await this.#state[Symbol.asyncDispose]();
+  }
+}
+
+// No command has read a file yet: nothing runs.
+class Idle implements AsyncDisposable {
+  async [Symbol.asyncDispose](): Promise<void> {}
+}
+
+// A command reads files: the OCR workers and the speech engine run until the
+// CLI exits.
+class Started implements AsyncDisposable {
+  readonly #ocr: Pool<VisionWorker>;
+  readonly transcription: Transcription;
+
+  constructor(directory: string) {
     // The server builds the same pool: change both.
-    const ocr = new Pool({
+    this.#ocr = new Pool({
       size: new HillClimbing({ memoryPerWorker: VisionWorker.memory }),
       startup: new LeaderFirst(),
       create: () =>
@@ -46,20 +66,18 @@ export class Parsing implements AsyncDisposable {
           ),
         ),
     });
-    this.#ocr = ocr;
-    this.#transcription = new Transcription(
-      this.#directory,
+    this.transcription = new Transcription(
+      directory,
       new SpeechModels(),
-      ocr,
+      this.#ocr,
       fileURLToPath(
         import.meta.resolve('@workspace/transcription-local/transcribe-local'),
       ),
     );
-    return this.#transcription;
   }
 
   async [Symbol.asyncDispose](): Promise<void> {
-    await this.#transcription?.[Symbol.asyncDispose]();
-    await this.#ocr?.[Symbol.asyncDispose]();
+    await this.transcription[Symbol.asyncDispose]();
+    await this.#ocr[Symbol.asyncDispose]();
   }
 }
