@@ -12,7 +12,6 @@
     "@workspace/ui": "0.0.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "@openai/mcp-extensions": "0.1.0",
     "@zukhruf/async": "0.6.4"
   },
   "devDependencies": {

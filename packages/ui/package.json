@@ -21,14 +21,14 @@
   "dependencies": {
     "@modelcontextprotocol/ext-apps": "1.7.5",
     "@modelcontextprotocol/sdk": "1.31.0",
-    "@radix-ui/react-context-menu": "2.4.1",
-    "@radix-ui/react-select": "2.4.1",
+    "@openai/mcp-extensions": "0.1.0",
     "@zukhruf/shadcn": "0.6.5",
     "zod": "4.6.5"
   },
   "peerDependencies": {
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "tailwindcss": "4.3.3"
   },
   "devDependencies": {
     "@types/react": "19.3.0",

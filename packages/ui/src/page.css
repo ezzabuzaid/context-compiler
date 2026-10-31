@@ -1,11 +1,31 @@
-/* The Context Compiler page's layout over OpenAI's MCP App styles. */
+/* The Context Compiler page's layout over OpenAI's MCP App styles, which
+   come after @zukhruf/shadcn's in the same layers, so ChatGPT's theme wins
+   over shadcn's default one. Tailwind scans only shadcn's own components
+   (source(none)): this package's class names, such as text-muted, are
+   OpenAI's classes, not Tailwind utilities. */
+@import 'tailwindcss' source(none);
+@import '@zukhruf/shadcn/styles.css';
+@import '@openai/mcp-extensions/app/styles.css';
+
+/* OpenAI's check mark is 7px by 4px inside its 2px borders, which the
+   preflight's border-box would take from it. */
+.form-check-input:checked::after {
+  box-sizing: content-box;
+}
 
 /* The sidebar follows ChatGPT's Space sidebar (ChatGPT 26.1007): 275px wide,
    30px rows, 14px text, a 14px chevron that shows on hover or while folded.
-   The page gets no hover colour from ChatGPT, so it mixes Space's own. A
-   row's menu renders outside the shell, so the colours sit on the root. */
+   The page gets no hover colour from ChatGPT, so it mixes Space's own. The
+   menus and the model list render outside the shell, so their colours sit on
+   the root: shadcn's popover, which OpenAI's styles do not name, is ChatGPT's
+   elevated surface, as the menus had before. Tailwind's theme names
+   --font-weight-normal 400, which would win over OpenAI's fallback of 430
+   where the host gives no weight, as the desktop app does. */
 
 :root {
+  --popover: var(--secondary);
+  --popover-foreground: var(--secondary-foreground);
+  --font-weight-normal: 430;
   --row-hover: light-dark(
     color-mix(
       in srgb,
@@ -29,6 +49,9 @@
 }
 
 .sidebar {
+  /* Tailwind's preflight sizes every box by its border; this layout and
+     .page's and .dialog's are measured by their content. */
+  box-sizing: content-box;
   display: flex;
   position: sticky;
   top: 0;
@@ -252,56 +275,6 @@ button.item:hover,
   padding: 5px 8px;
 }
 
-/* A row's menu follows ChatGPT's own row menus (code-review 26.1007): an
-   elevated surface with a hairline border, 4px around items shaped like the
-   sidebar's rows. */
-.menu {
-  z-index: 50;
-  min-width: 180px;
-  padding: 4px;
-  border-radius: calc(var(--radius) + 4px);
-  color: var(--foreground);
-  background: var(--secondary);
-  box-shadow:
-    0 0 0 0.5px var(--border),
-    var(--shadow-lg, 0 4px 8px -2px rgb(0 0 0 / 10%));
-  /* Opened from the keyboard, the menu takes focus; its highlighted item
-     shows where focus is. */
-  outline: none;
-}
-
-.menu-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  height: 30px;
-  padding: 5px 8px;
-  border-radius: var(--radius);
-  outline: none;
-  cursor: var(--cursor-interaction, pointer);
-  user-select: none;
-}
-
-.menu-item[data-highlighted] {
-  background: var(--row-hover);
-}
-
-.menu-item[data-disabled] {
-  opacity: 0.5;
-  cursor: default;
-}
-
-.menu-item svg {
-  width: 16px;
-  height: 16px;
-  flex: none;
-  fill: none;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 2;
-}
-
 .glyph {
   width: 16px;
   height: 16px;
@@ -358,6 +331,7 @@ button.item:hover,
 }
 
 .page {
+  box-sizing: content-box;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -465,6 +439,9 @@ button.item:hover,
 }
 
 .dialog {
+  box-sizing: content-box;
+  /* A modal dialog centres by its auto margins, which the preflight zeroes. */
+  margin: auto;
   max-width: 360px;
   border: 1px solid var(--border);
   background: var(--background);
@@ -493,23 +470,6 @@ button.item:hover,
   gap: 8px;
 }
 
-.transcription-model .form-select {
-  text-align: start;
-}
-
-.transcription-menu {
-  width: var(--radix-select-trigger-width);
-  max-height: var(--radix-select-content-available-height);
-}
-
-.transcription-menu .menu-item {
-  position: relative;
-  padding-inline-start: 32px;
-}
-
-.transcription-selected {
-  position: absolute;
-  inset-inline-start: 8px;
-  display: flex;
-  align-items: center;
+.transcription-model [data-slot='select-trigger'] {
+  width: 100%;
 }

@@ -1,4 +1,9 @@
-import * as ContextMenu from '@radix-ui/react-context-menu';
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from '@zukhruf/shadcn';
 import type { KeyboardEvent, ReactElement } from 'react';
 
 import type { ConnectorRow } from './contract.ts';
@@ -20,34 +25,30 @@ export function ConnectorMenu({
   const { sync, syncing, syncingConnectors } = usePage();
   const busy = syncing || syncingConnectors.has(row.name);
   return (
-    <ContextMenu.Root>
-      <ContextMenu.Trigger
-        asChild
-        disabled={row.selection === null}
-        onKeyDown={openFromKeyboard}
-      >
-        {children}
-      </ContextMenu.Trigger>
-      <ContextMenu.Portal>
-        <ContextMenu.Content className="menu" collisionPadding={6}>
-          <ContextMenu.Item
-            className="menu-item"
-            disabled={busy}
-            onSelect={() => void sync(row.name)}
+    <ContextMenu disabled={row.selection === null}>
+      <ContextMenuTrigger render={children} onKeyDown={openFromKeyboard} />
+      <ContextMenuContent>
+        <ContextMenuItem disabled={busy} onClick={() => void sync(row.name)}>
+          {/* A copy of the Sync icon beside the sidebar's title
+              (sidebar.tsx): change both. */}
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
           >
-            {/* A copy of the Sync icon beside the sidebar's title
-                (sidebar.tsx): change both. */}
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-              <path d="M21 3v5h-5" />
-              <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
-              <path d="M8 16H3v5" />
-            </svg>
-            Sync
-          </ContextMenu.Item>
-        </ContextMenu.Content>
-      </ContextMenu.Portal>
-    </ContextMenu.Root>
+            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+            <path d="M21 3v5h-5" />
+            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+            <path d="M8 16H3v5" />
+          </svg>
+          Sync
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
   );
 }
 

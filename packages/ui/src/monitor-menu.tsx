@@ -1,4 +1,9 @@
-import * as ContextMenu from '@radix-ui/react-context-menu';
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuTrigger,
+} from '@zukhruf/shadcn';
 import { type ReactElement, useState } from 'react';
 
 import { messageOf } from './call-tool.ts';
@@ -20,19 +25,14 @@ export function MonitorMenu({
   const [failure, setFailure] = useState<string | null>(null);
   return (
     <>
-      <ContextMenu.Root>
-        <ContextMenu.Trigger asChild>{children}</ContextMenu.Trigger>
-        <ContextMenu.Portal>
-          <ContextMenu.Content className="menu" collisionPadding={6}>
-            <ContextMenu.Item
-              className="menu-item"
-              onSelect={() => setConfirming(true)}
-            >
-              Remove
-            </ContextMenu.Item>
-          </ContextMenu.Content>
-        </ContextMenu.Portal>
-      </ContextMenu.Root>
+      <ContextMenu>
+        <ContextMenuTrigger render={children} />
+        <ContextMenuContent>
+          <ContextMenuItem onClick={() => setConfirming(true)}>
+            Remove
+          </ContextMenuItem>
+        </ContextMenuContent>
+      </ContextMenu>
       {confirming && (
         <ConfirmDialog
           title={`Remove ${monitor.title}?`}

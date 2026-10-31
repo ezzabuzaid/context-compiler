@@ -1,4 +1,10 @@
-import * as Select from '@radix-ui/react-select';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@zukhruf/shadcn';
 import { useEffect, useState } from 'react';
 
 import { callTool, messageOf } from './call-tool.ts';
@@ -105,39 +111,31 @@ function TranscriptionForm({ choices }: { choices: TranscriptionChoices }) {
       ) : (
         <div className="transcription-model">
           <label htmlFor="transcription-model">Model</label>
-          <Select.Root
+          <Select
+            items={choices.models.map(({ id, title }) => ({
+              value: id,
+              label: title,
+            }))}
             value={model}
             disabled={!enabled || saving}
             onValueChange={(value) => {
+              // Only clearing reports null, and the list offers no empty item.
+              if (value === null) return;
               setModel(value);
               setMessage(null);
             }}
           >
-            <Select.Trigger id="transcription-model" className="form-select">
-              <Select.Value />
-            </Select.Trigger>
-            <Select.Portal>
-              <Select.Content
-                className="menu transcription-menu"
-                position="popper"
-                sideOffset={4}
-                collisionPadding={6}
-              >
-                <Select.Viewport>
-                  {choices.models.map(({ id, title }) => (
-                    <Select.Item key={id} value={id} className="menu-item">
-                      <Select.ItemIndicator className="transcription-selected">
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                          <path d="m5 12 4 4L19 6" />
-                        </svg>
-                      </Select.ItemIndicator>
-                      <Select.ItemText>{title}</Select.ItemText>
-                    </Select.Item>
-                  ))}
-                </Select.Viewport>
-              </Select.Content>
-            </Select.Portal>
-          </Select.Root>
+            <SelectTrigger id="transcription-model">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent alignItemWithTrigger={false}>
+              {choices.models.map(({ id, title }) => (
+                <SelectItem key={id} value={id}>
+                  {title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       )}
       {saved !== null && selected === undefined && (

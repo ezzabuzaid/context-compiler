@@ -1,7 +1,11 @@
 import type { App } from '@modelcontextprotocol/ext-apps';
-import { useApp, useHostStyles } from '@modelcontextprotocol/ext-apps/react';
+import {
+  useApp,
+  useDocumentTheme,
+  useHostStyles,
+} from '@modelcontextprotocol/ext-apps/react';
 import { OpenAIExtensions } from '@openai/mcp-extensions/app';
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import { Page } from '@workspace/ui/page';
@@ -12,6 +16,12 @@ function PluginPage() {
     capabilities: {},
   });
   useHostStyles(app, app?.getHostContext());
+  // The @zukhruf/shadcn menus take their dark variant from .dark, and
+  // ChatGPT's theme sets data-theme.
+  const theme = useDocumentTheme();
+  useLayoutEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+  }, [theme]);
   const link = useDeepLink(app);
   if (error !== null)
     return (

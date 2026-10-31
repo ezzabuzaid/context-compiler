@@ -38,8 +38,10 @@ function Desktop() {
     return unsubscribe;
   }, []);
   useLayoutEffect(() => {
-    if (state !== undefined)
-      document.documentElement.dataset.theme = state.theme;
+    if (state === undefined) return;
+    document.documentElement.dataset.theme = state.theme;
+    // The @zukhruf/shadcn menus take their dark variant from .dark.
+    document.documentElement.classList.toggle('dark', state.theme === 'dark');
   }, [state]);
   if (state?.status === 'ready') return <Page app={client} link={undefined} />;
   return (

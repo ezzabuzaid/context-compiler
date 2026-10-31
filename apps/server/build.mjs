@@ -18,6 +18,8 @@ import {
 import { basename, dirname, extname, join, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { compile } from '@tailwindcss/node';
+import { Scanner } from '@tailwindcss/oxide';
 import { build } from 'esbuild';
 
 import { builtInConnectors } from '@workspace/connector-manifest/built-in-connectors';
@@ -161,14 +163,16 @@ const {
   tsconfig: 'apps/server/src/page/tsconfig.json',
   logLevel: 'warning',
 });
-// OpenAI's MCP App styles map ChatGPT's theme onto the page; page.css lays it
-// out.
-const styles = [
-  fileURLToPath(import.meta.resolve('@openai/mcp-extensions/app/styles.css')),
-  fileURLToPath(import.meta.resolve('@workspace/ui/styles.css')),
-]
-  .map((path) => readFileSync(path, 'utf8'))
-  .join('\n');
+// The page's stylesheet goes through Tailwind, which writes the classes of the
+// @zukhruf/shadcn components it registers.
+const page = fileURLToPath(import.meta.resolve('@workspace/ui/styles.css'));
+const tailwind = await compile(readFileSync(page, 'utf8'), {
+  base: dirname(page),
+  onDependency: () => {},
+});
+const styles = tailwind.build(
+  new Scanner({ sources: tailwind.sources }).scan(),
+);
 writeFileSync(
   join(outdir, 'page.html'),
   `<!doctype html>
