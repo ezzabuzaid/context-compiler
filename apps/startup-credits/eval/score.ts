@@ -2,9 +2,9 @@ import { readFileSync } from 'node:fs';
 
 import { z } from 'zod';
 
+import { type Span, ground, same } from '../src/ground.ts';
 import { pageKinds } from '../src/page-kinds.ts';
-import { type Label, type Span, answerKey, offerKinds } from './answer-key.ts';
-import { ground } from './ground.ts';
+import { type Label, answerKey, offerKinds } from './answer-key.ts';
 import { scoreKinds } from './kind-score.ts';
 import { pages } from './pages.ts';
 
@@ -34,15 +34,6 @@ const predictionsSchema = z.object({
   ),
 });
 type Prediction = z.infer<typeof predictionsSchema>['pages'][number];
-
-const overlap = (a: Span, b: Span) =>
-  Math.max(0, Math.min(a.end, b.end) - Math.max(a.start, b.start));
-
-// Two spans state the same thing when they share at least half of the
-// shorter one, so a prediction that quotes a sentence without its heading,
-// or with it, still matches the labelled mention.
-const same = (a: Span, b: Span) =>
-  overlap(a, b) * 2 >= Math.min(a.end - a.start, b.end - b.start);
 
 function increment(counts: Map<string, number>, key: string) {
   counts.set(key, (counts.get(key) ?? 0) + 1);
@@ -75,7 +66,9 @@ function scorePage(
   tally.amounts += offers.filter(({ value }) => value !== null).length;
   const matched = new Set<number>();
   for (const predicted of prediction.offers) {
-    const span = predicted.span ?? ground(text, predicted.quote);
+    const span =
+      predicted.span ??
+      (predicted.quote === undefined ? null : ground(text, predicted.quote));
     if (span === null) {
       increment(tally.wrong, 'unaligned');
       continue;

@@ -3,13 +3,13 @@ import { join } from 'node:path';
 
 import { z } from 'zod';
 
+import type { Span } from '../src/ground.ts';
 import { pageKinds } from '../src/page-kinds.ts';
 
 const span = z.object({
   start: z.number().int().nonnegative(),
   end: z.number().int().positive(),
-});
-export type Span = z.infer<typeof span>;
+}) satisfies z.ZodType<Span>;
 
 export const offerKinds = [
   'credits',

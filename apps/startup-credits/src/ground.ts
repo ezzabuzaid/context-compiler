@@ -1,4 +1,5 @@
-import type { Span } from './answer-key.ts';
+// Where a text states something: offsets in UTF-16 units, end exclusive.
+export type Span = { readonly start: number; readonly end: number };
 
 // The text in lower case with each run of white space as one space. For each
 // UTF-16 unit it keeps, the span of the original character, since spans count
@@ -23,8 +24,8 @@ function folded(text: string) {
 // Where a quote occurs in the text, ignoring case and the kind and number of
 // spaces: the page text writes headings in capitals, many pages use
 // non-breaking spaces, and a model writes a line break as a space.
-export function ground(text: string, quote: string | undefined): Span | null {
-  const needle = folded(quote ?? '').value.trim();
+export function ground(text: string, quote: string): Span | null {
+  const needle = folded(quote).value.trim();
   if (needle === '') return null;
   const page = folded(text);
   const at = page.value.indexOf(needle);
@@ -34,3 +35,12 @@ export function ground(text: string, quote: string | undefined): Span | null {
     end: page.spans[at + needle.length - 1]!.end,
   };
 }
+
+const overlap = (a: Span, b: Span) =>
+  Math.max(0, Math.min(a.end, b.end) - Math.max(a.start, b.start));
+
+// Two spans state the same thing when they share at least half of the
+// shorter one, so a quote of a sentence without its heading, or with it,
+// still states the same thing.
+export const same = (a: Span, b: Span) =>
+  overlap(a, b) * 2 >= Math.min(a.end - a.start, b.end - b.start);

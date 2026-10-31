@@ -1,15 +1,21 @@
 import { DatabaseSync, type SQLTagStore } from 'node:sqlite';
 import { setTimeout } from 'node:timers/promises';
 
+import { z } from 'zod';
+
 import type { Condition, Warehouse } from '@workspace/eca';
 
-import { type Amounts, amountsSchema } from './credit-amounts.ts';
+import {
+  type StoredOffer,
+  storedOffersSchema,
+  valuedIdentities,
+} from './offer.ts';
 
 // The app's SQLite file as eca's warehouse, read only. A commit is any change
-// another connection commits there, the copies' and the amount rule's, which
+// another connection commits there, the copies' and the offer rule's, which
 // PRAGMA data_version shows; SQLite tells a reader nothing, so it asks every
-// second. The watch refreshes the amounts after a pass, not before it yields
-// the pass, so a commit of the pass alone would read the amounts before it.
+// second. The watch refreshes the offers after a pass, not before it yields
+// the pass, so a commit of the pass alone would read the offers before it.
 export class CreditsWarehouse implements Warehouse<SQLTagStore>, Disposable {
   readonly sql: SQLTagStore;
   readonly #database: DatabaseSync;
@@ -45,9 +51,10 @@ export type Alert =
   | {
       readonly kind: 'program';
       readonly page: string;
-      readonly amounts: Amounts;
+      readonly offers: readonly StoredOffer[];
     }
-  | { readonly kind: 'missing'; readonly page: string; readonly list: string };
+  | { readonly kind: 'missing'; readonly page: string; readonly list: string }
+  | { readonly kind: 'failed'; readonly page: string; readonly reason: string };
 
 // Rows of a table that the first pass makes, and none before it.
 function rows(read: () => Record<string, unknown>[]) {
@@ -60,38 +67,39 @@ function rows(read: () => Record<string, unknown>[]) {
   }
 }
 
-// Each program page with its credit amounts. The key is the page and its
-// amounts together, so a page that gains amounts, or whose amounts change,
-// is a new match once.
-export class ProgramAmounts implements Condition<SQLTagStore, Alert> {
+// A computed row has its offers and a failed row its error: the computed
+// dataset writes them so.
+const offersRow = z.object({ articleUrl: z.string(), offers: z.string() });
+const failedRow = z.object({ articleUrl: z.string(), error: z.string() });
+
+// Each program page with its offers. The key is the page and the kind and
+// value of each offer that has a value (money, a percent, months), so a page
+// whose amounts change is a new match once. An answer that quotes other
+// words, or that gains or loses an offer with no value, such as support, is
+// not.
+export class OfferedPrograms implements Condition<SQLTagStore, Alert> {
   async evaluate(sql: SQLTagStore) {
     return rows(
       () =>
-        sql.all`SELECT articleUrl, amounts FROM credit_amounts WHERE status = 'computed'`,
-    ).flatMap(({ articleUrl, amounts }) =>
-      typeof articleUrl === 'string' && typeof amounts === 'string'
-        ? [
-            {
-              key: `${articleUrl}\n${amounts}`,
-              data: {
-                kind: 'program' as const,
-                page: articleUrl,
-                amounts: amountsSchema.parse(JSON.parse(amounts)),
-              },
-            },
-          ]
-        : [],
-    );
+        sql.all`SELECT articleUrl, offers FROM program_offers WHERE status = 'computed'`,
+    ).map((row) => {
+      const { articleUrl, offers } = offersRow.parse(row);
+      const stored = storedOffersSchema.parse(JSON.parse(offers));
+      return {
+        key: [articleUrl, ...valuedIdentities(stored).toSorted()].join('\n'),
+        data: { kind: 'program' as const, page: articleUrl, offers: stored },
+      };
+    });
   }
 }
 
-// Each page that a list links and that states no credit amount, such as a
-// company's home page: the program page is somewhere else on its site.
+// Each page that a list links and that states no offer, such as a company's
+// home page: the program page is somewhere else on its site.
 export class MissingPrograms implements Condition<SQLTagStore, Alert> {
   async evaluate(sql: SQLTagStore) {
     return rows(
       () =>
-        sql.all`SELECT c.articleUrl, min(p.listingUrl) AS listingUrl FROM credit_amounts c JOIN program_pages p ON p.articleUrl = c.articleUrl WHERE c.status = 'empty' GROUP BY c.articleUrl`,
+        sql.all`SELECT o.articleUrl, min(p.listingUrl) AS listingUrl FROM program_offers o JOIN program_pages p ON p.articleUrl = o.articleUrl WHERE o.status = 'empty' GROUP BY o.articleUrl`,
     ).flatMap(({ articleUrl, listingUrl }) =>
       typeof articleUrl === 'string' && typeof listingUrl === 'string'
         ? [
@@ -106,5 +114,23 @@ export class MissingPrograms implements Condition<SQLTagStore, Alert> {
           ]
         : [],
     );
+  }
+}
+
+// Each page whose offers the model could not read. The key is the page
+// alone, so a page that fails again at each refresh is a match once, until
+// it stops failing.
+export class FailedExtractions implements Condition<SQLTagStore, Alert> {
+  async evaluate(sql: SQLTagStore) {
+    return rows(
+      () =>
+        sql.all`SELECT articleUrl, error FROM program_offers WHERE status = 'failed'`,
+    ).map((row) => {
+      const { articleUrl, error } = failedRow.parse(row);
+      return {
+        key: articleUrl,
+        data: { kind: 'failed' as const, page: articleUrl, reason: error },
+      };
+    });
   }
 }

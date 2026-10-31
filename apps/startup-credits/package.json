@@ -4,6 +4,7 @@
   "type": "module",
   "dependencies": {
     "@ai-sdk/typesafe-ai": "3.0.31",
+    "@deepagents/experimental": "7.3.0",
     "@workspace/eca": "0.0.1",
     "@workspace/elt": "0.0.1",
     "@workspace/elt-sqlite": "0.0.1",

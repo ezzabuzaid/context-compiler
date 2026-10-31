@@ -20,6 +20,9 @@
     },
     "eval-kinds": {
       "command": "node apps/startup-credits/eval/kinds.ts {args}"
+    },
+    "eval-predict": {
+      "command": "node apps/startup-credits/eval/predict.ts {args}"
     }
   }
 }

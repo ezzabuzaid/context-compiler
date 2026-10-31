@@ -18,8 +18,8 @@ import { ArticleExtractor } from '@workspace/source-web-pages/article-extractor'
 import { WebSource } from '@workspace/source-web-pages/web-source';
 import { WebStream } from '@workspace/source-web-pages/web-stream';
 
-import { CreditAmounts } from './credit-amounts.ts';
 import directory from './directory.ts';
+import { ProgramOffers } from './program-offers.ts';
 
 // GitHub lists of startup credit programs; the second links most programs'
 // own pages, the first links more companies (#3352).
@@ -87,10 +87,10 @@ export default new Pipeline({
   derived: [
     new ComputedDataset({
       into: destination,
-      name: 'credit_amounts',
-      description: 'The credit amounts that each program page states.',
+      name: 'program_offers',
+      description: 'The offers that each program page states.',
       from: [pages],
-      compute: new CreditAmounts(),
+      compute: new ProgramOffers(),
     }),
   ],
 });

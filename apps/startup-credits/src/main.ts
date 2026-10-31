@@ -7,33 +7,32 @@ import { CrawlError } from '@workspace/sdk-web-crawler';
 import {
   type Alert,
   CreditsWarehouse,
+  FailedExtractions,
   MissingPrograms,
-  ProgramAmounts,
+  OfferedPrograms,
 } from './alerts.ts';
-import type { Amounts } from './credit-amounts.ts';
 import directory from './directory.ts';
+import { type StoredOffer, offerIdentity, valuedIdentities } from './offer.ts';
 import pipeline from './pipeline.ts';
 
 const stop = new AbortController();
 for (const signal of ['SIGINT', 'SIGTERM'] as const)
   process.once(signal, () => stop.abort());
 
-const amountsOf = (amounts: Amounts) =>
-  amounts.map(({ amount }) => amount).join(', ');
-
 const reasonOf = (error: unknown) =>
   Error.isError(error) ? error.message : String(error);
 
 using warehouse = new CreditsWarehouse(join(directory, 'credits.sqlite'));
 const eca = new Eca<SQLTagStore, Alert>({ warehouse });
-const programs = { condition: new ProgramAmounts() };
+const programs = { condition: new OfferedPrograms() };
 // What the app saw before this start is its baseline: a restart logs only
 // what changes after it.
 await eca.add(programs);
 await eca.add({ condition: new MissingPrograms() });
-const known = new Map<string, Amounts>();
+await eca.add({ condition: new FailedExtractions() });
+const known = new Map<string, readonly StoredOffer[]>();
 for (const { data } of await programs.condition.evaluate(warehouse.sql))
-  if (data.kind === 'program') known.set(data.page, data.amounts);
+  if (data.kind === 'program') known.set(data.page, data.offers);
 
 // Either loop that fails stops the other.
 const failed = new AbortController();
@@ -68,13 +67,15 @@ await Promise.all([
         console.log(
           `no program page found ${data.page} (linked by ${data.list})`,
         );
+      else if (data.kind === 'failed')
+        console.log(`could not extract ${data.page}: ${data.reason}`);
       else {
         const before = known.get(data.page);
-        known.set(data.page, data.amounts);
+        known.set(data.page, data.offers);
         console.log(
           before === undefined
-            ? `new program ${data.page}: ${data.amounts.map(({ amount, sentence }) => `${amount} ("${sentence}")`).join('; ')}`
-            : `amount changed ${data.page}: ${amountsOf(before)} → ${amountsOf(data.amounts)}`,
+            ? `new program ${data.page}: ${data.offers.map((offer) => `${offerIdentity(offer)} ("${offer.quote}")`).join('; ')}`
+            : `offers changed ${data.page}: ${valuedIdentities(before).join(', ')} → ${valuedIdentities(data.offers).join(', ')}`,
         );
       }
     }
