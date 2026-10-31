@@ -22,7 +22,7 @@
     "@modelcontextprotocol/ext-apps": "1.7.5",
     "@modelcontextprotocol/sdk": "1.31.0",
     "@openai/mcp-extensions": "0.1.0",
-    "@zukhruf/shadcn": "0.6.5",
+    "@zukhruf/shadcn": "0.6.6",
     "zod": "4.6.5"
   },
   "peerDependencies": {
