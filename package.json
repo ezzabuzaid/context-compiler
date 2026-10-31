@@ -24,7 +24,7 @@
     "@nx/js": "23.2.1",
     "@trivago/prettier-plugin-sort-imports": "6.0.2",
     "@types/node": "26.6.1",
-    "@zukhruf/eslint": "0.6.4",
+    "@zukhruf/eslint": "0.6.5",
     "@zukhruf/git-hooks": "0.6.4",
     "@zukhruf/nx": "0.6.4",
     "esbuild": "0.28.2",

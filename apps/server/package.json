@@ -51,7 +51,7 @@
     "@types/react-dom": "19.3.0",
     "@workspace/sdk-apple-eventkit": "0.0.1",
     "@workspace/transcription-local": "0.0.1",
-    "@zukhruf/testing": "0.6.4",
+    "@zukhruf/testing": "0.6.5",
     "playwright": "1.64.1",
     "tailwindcss": "4.3.3"
   }

@@ -17,6 +17,6 @@
     "@zukhruf/sqlite-transaction": "0.3.31"
   },
   "devDependencies": {
-    "@zukhruf/testing": "0.6.4"
+    "@zukhruf/testing": "0.6.5"
   }
 }

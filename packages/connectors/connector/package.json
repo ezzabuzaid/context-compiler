@@ -30,7 +30,7 @@
     "p-retry": "^8.0.1"
   },
   "devDependencies": {
-    "@zukhruf/testing": "0.6.4",
+    "@zukhruf/testing": "0.6.5",
     "ai": "7.0.148"
   }
 }

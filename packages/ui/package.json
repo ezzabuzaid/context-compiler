@@ -23,7 +23,7 @@
     "@modelcontextprotocol/sdk": "1.31.0",
     "@radix-ui/react-context-menu": "2.4.1",
     "@radix-ui/react-select": "2.4.1",
-    "@zukhruf/shadcn": "0.6.4",
+    "@zukhruf/shadcn": "0.6.5",
     "zod": "4.6.5"
   },
   "peerDependencies": {
