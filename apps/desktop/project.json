@@ -85,16 +85,15 @@
     },
     "test": {
       "dependsOn": [
-        "build",
+        "...",
         "bundle",
         {
           "projects": ["plugin"],
           "target": "bundle"
         }
       ],
-      "executor": "nx:run-commands",
       "options": {
-        "command": "node --test --test-concurrency=1 {args} apps/desktop/src/desktop.e2e.test.ts apps/desktop/src/security.e2e.test.ts apps/desktop/src/backend.e2e.test.ts"
+        "args": "--test-concurrency=1 src/desktop.e2e.test.ts src/security.e2e.test.ts src/backend.e2e.test.ts"
       }
     },
     "verify-package": {

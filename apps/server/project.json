@@ -18,13 +18,12 @@
     },
     "test": {
       "dependsOn": [
-        "build",
+        "...",
         {
           "projects": ["plugin"],
           "target": "bundle"
         }
-      ],
-      "command": "node --test {args} \"apps/server/src/*.test.ts\""
+      ]
     }
   }
 }

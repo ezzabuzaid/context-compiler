@@ -3,10 +3,6 @@
   "sourceRoot": "packages/settings/src",
   "projectType": "library",
   "targets": {
-    "format": {},
-    "test": {
-      "dependsOn": ["build"],
-      "command": "node --test {args} \"packages/settings/src/*.test.ts\""
-    }
+    "format": {}
   }
 }

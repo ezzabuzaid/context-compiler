@@ -3,10 +3,6 @@
   "sourceRoot": "packages/connectors/calendar/src",
   "projectType": "library",
   "targets": {
-    "format": {},
-    "test": {
-      "dependsOn": ["build"],
-      "command": "node --test {args} \"packages/connectors/calendar/src/*.test.ts\""
-    }
+    "format": {}
   }
 }

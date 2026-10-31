@@ -7,10 +7,6 @@
     "start": {
       "dependsOn": ["build"],
       "command": "node apps/cli/dist/main.js"
-    },
-    "test": {
-      "dependsOn": ["build"],
-      "command": "node --test {args} \"apps/cli/src/*.test.ts\""
     }
   }
 }

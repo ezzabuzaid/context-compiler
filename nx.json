@@ -21,7 +21,8 @@
       },
       "exclude": ["packages/connectors/manifest/src/fixtures/**"]
     },
-    "@zukhruf/nx/lint"
+    "@zukhruf/nx/lint",
+    "@zukhruf/nx/test"
   ],
   "targetDefaults": {
     "format": {
@@ -29,6 +30,9 @@
     },
     "typecheck": {
       "dependsOn": ["format", "lint", "..."]
+    },
+    "test": {
+      "dependsOn": ["...", "build"]
     }
   },
   "sync": {

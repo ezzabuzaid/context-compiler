@@ -5,14 +5,12 @@
   "targets": {
     "format": {},
     "test": {
-      "dependsOn": ["build"],
       "inputs": [
         "default",
         "^default",
         "{workspaceRoot}/packages/connectors/messages/presets/*.sql",
         "{workspaceRoot}/packages/connectors/notes/presets/*.sql"
-      ],
-      "command": "node --test {args} \"packages/connectors/mail/src/*.test.ts\""
+      ]
     }
   }
 }

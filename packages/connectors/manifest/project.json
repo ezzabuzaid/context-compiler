@@ -3,10 +3,6 @@
   "sourceRoot": "packages/connectors/manifest/src",
   "projectType": "library",
   "targets": {
-    "format": {},
-    "test": {
-      "dependsOn": ["build"],
-      "command": "node --test {args} \"packages/connectors/manifest/src/*.test.ts\""
-    }
+    "format": {}
   }
 }
