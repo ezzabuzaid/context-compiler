@@ -50,12 +50,16 @@ await Promise.all([
         for (const { error } of failures)
           for (const reason of error instanceof AggregateError
             ? error.errors
-            : [error])
+            : [error]) {
+            // A sitemap or robots.txt that a site names but that does not
+            // load is the crawl's matter, not a page anyone reads.
+            if (reason instanceof CrawlError && !reason.page) continue;
             console.log(
               reason instanceof CrawlError
                 ? `could not read ${reason.url}: ${reasonOf(reason.cause)}`
                 : `could not read: ${reasonOf(reason)}`,
             );
+          }
       }
   })().catch((error: unknown) => failed.abort(error)),
   (async () => {

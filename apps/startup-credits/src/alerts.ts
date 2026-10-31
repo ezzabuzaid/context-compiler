@@ -242,11 +242,28 @@ export class MissingPrograms implements Condition<SQLTagStore, Alert> {
       kinds.set(pageUrl, kind);
       kinds.set(articleUrl, kind);
     }
+    const next = Map.groupBy(routes, ({ listingUrl }) => listingUrl);
+    // The pages that the routes from a linked page lead to, the page itself
+    // first: its links and its sitemaps, when the crawl searched its site.
+    const reached = (url: string) => {
+      const seen = new Set([url]);
+      for (const at of seen)
+        for (const route of next.get(at) ?? []) seen.add(route.url);
+      return seen;
+    };
     const programs = groupIntoPrograms(claims);
     return programs.flatMap((links) => {
-      const kindsOfLinks = links.map(({ url }) => kinds.get(url));
-      if (kindsOfLinks.includes(undefined)) return [];
-      if (kindsOfLinks.includes('program')) return [];
+      if (links.some(({ url }) => !kinds.has(url))) return [];
+      // A program page counts only on a website of the program's own links:
+      // a partner's program that a home page links is not this program.
+      const domains = new Set(links.map(({ url }) => getDomain(url)));
+      const found = links.some(({ url }) =>
+        [...reached(url)].some(
+          (page) =>
+            kinds.get(page) === 'program' && domains.has(getDomain(page)),
+        ),
+      );
+      if (found) return [];
       const sorted = links.toSorted((a, b) => a.url.localeCompare(b.url));
       return [
         {

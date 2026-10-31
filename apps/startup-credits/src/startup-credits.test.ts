@@ -13,10 +13,23 @@ import { z } from 'zod';
 const avinash = 'https://github.com/avinash201199/awesome-startup-credits';
 const doanbactam = 'https://github.com/doanbactam/awesome-builder-programs';
 
-// A page, or a permanent redirect to another address.
-type Served = { readonly status: number; readonly body: string };
+// A page with its content type, or a permanent redirect to another address.
+type Served = {
+  readonly status: number;
+  readonly type: string;
+  readonly body: string;
+};
 type Page = Served | { readonly status: 301; readonly location: string };
-const ok = (body: string): Served => ({ status: 200, body });
+const ok = (body: string): Served => ({
+  status: 200,
+  type: 'text/html; charset=utf-8',
+  body,
+});
+const plain = (body: string): Served => ({
+  status: 200,
+  type: 'text/plain',
+  body,
+});
 
 // A GitHub list as github.com renders it, trimmed from
 // github.com/doanbactam/awesome-builder-programs on 2026-10-30: GitHub's own
@@ -61,8 +74,9 @@ const anthropicHome =
 <p>Anthropic is a Public Benefit Corporation (PBC), a designation that requires us to balance the financial interests of shareholders with the benefit to the broader public.</p></main></body></html>`);
 
 // openai.com/startups/ as it answers a crawler: a Cloudflare challenge.
-const cloudflareChallenge: Page = {
+const cloudflareChallenge: Served = {
   status: 403,
+  type: 'text/html; charset=utf-8',
   body: '<!doctype html><html><head><title>Just a moment...</title></head><body></body></html>',
 };
 
@@ -96,7 +110,7 @@ type Decision =
 
 // The internet as the app's process sees it in a test, loaded before
 // main.ts: GitHub and the companies' websites answer these pages, every
-// robots.txt is missing, any other request fails, and each
+// robots.txt and sitemap.xml that a test does not give is missing, any other request fails, and each
 // request is written to stderr. The Messages API answers each request about
 // a page with the next answer planned for it, in the shape of a real Haiku
 // 5.5 answer captured on 2026-10-31; OpenRouter's Decisions API answers each
@@ -129,14 +143,15 @@ globalThis.Date = class extends RealDate {
 const fold = (text) => text.replace(/\\s+/gu, ' ').trim().toLowerCase();
 const asked = new Map();
 const { server } = new Msw().intercept(
-  http.get('*/robots.txt', () => new HttpResponse(null, { status: 404 })),
   ...Object.entries(pages).map(([url, page]) =>
     http.get(url, () =>
       'location' in page
         ? new HttpResponse(null, { status: page.status, headers: { location: page.location } })
-        : new HttpResponse(page.body, { status: page.status, headers: { 'content-type': 'text/html; charset=utf-8' } }),
+        : new HttpResponse(page.body, { status: page.status, headers: { 'content-type': page.type } }),
     ),
   ),
+  http.get('*/robots.txt', () => new HttpResponse(null, { status: 404 })),
+  http.get('*/sitemap.xml', () => new HttpResponse(null, { status: 404 })),
   http.post('https://api.anthropic.com/v1/messages', async ({ request }) => {
     const body = await request.json();
     const prompt = body.messages
@@ -732,13 +747,19 @@ ${questions}
     },
   ]);
   assert.deepEqual(
-    // Each list is a crawl of its own, which reads robots.txt itself.
+    // Each list is a crawl of its own, which reads robots.txt itself and,
+    // when robots.txt names no sitemap, guesses /sitemap.xml.
     [
       ...new Set(
         requests.filter((url) => new URL(url).hostname === 'github.com'),
       ),
     ].sort(),
-    [avinash, doanbactam, 'https://github.com/robots.txt'],
+    [
+      avinash,
+      doanbactam,
+      'https://github.com/robots.txt',
+      'https://github.com/sitemap.xml',
+    ],
   );
 });
 
@@ -1457,6 +1478,121 @@ test('a list that redirects to its new address, as a renamed GitHub repository d
     lines,
     [
       `Anthropic Startup Program: no program page found (${anthropic} linked by ${avinash})`,
+    ],
+    errors,
+  );
+});
+
+// vercel.com, trimmed on 2026-10-31: its menu links the program and a page
+// that is no program; its robots.txt names a sitemap.
+const vercelHome =
+  ok(`<!doctype html><html><head><title>Vercel: Build and deploy the best web experiences with the AI Cloud</title></head><body>
+<nav><a href="/startups">Startups</a><a href="/pricing">Pricing</a></nav>
+<main><h1>Build and deploy on the AI Cloud.</h1>
+<p>Vercel provides the developer tools and cloud infrastructure to build, scale, and secure a faster, more personalized web.</p></main></body></html>`);
+const vercelStartups =
+  ok(`<!doctype html><html><head><title>Vercel for Startups</title></head><body>
+<main><h1>Vercel for Startups</h1><p>Eligible teams get up to $30,000 in credits for their first year.</p></main></body></html>`);
+const vercelCredits: Answer = {
+  offers: [
+    {
+      quote:
+        'Eligible teams get up to $30,000 in credits for their first year.',
+      kind: 'credits',
+      value: { amount: 30_000, currency: 'USD' },
+      duration: null,
+      who: null,
+    },
+  ],
+};
+
+test('a home page that a list links is searched one step, so the program page that its menu links is reported and the program is not missing, a link that matches no expand pattern is not requested, and a sitemap that its robots.txt names but that does not load is not logged', async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  const home = 'https://vercel.com/';
+  const startups = 'https://vercel.com/startups';
+  const broken = 'https://vercel.com/broken-sitemap.xml';
+  let quietFrom: number | undefined;
+  const { lines, requests, errors } = await running(data.path, {
+    pages: {
+      ...lists([[home, 'Vercel', 'Credits + AI Accelerator']]),
+      [home]: vercelHome,
+      [startups]: vercelStartups,
+      'https://vercel.com/robots.txt': plain(
+        `User-agent: *\nAllow: /\nSitemap: ${broken}\n`,
+      ),
+      [broken]: { status: 500, type: 'text/plain', body: 'Server error' },
+    },
+    model: { [startups]: [vercelCredits] },
+    decisions: { [home]: { kind: 'home' }, ...programs(startups) },
+    // The offers come after the pass, so its failures are logged by then;
+    // two seconds more for a missing line.
+    until: (lines) => {
+      if (quietFrom === undefined && has('new program')(lines))
+        quietFrom = performance.now();
+      return quietFrom !== undefined && performance.now() - quietFrom > 2_000;
+    },
+    ahead: 0,
+  });
+
+  assert.deepEqual(
+    lines,
+    [
+      `new program ${startups}: credits $30,000 ("Eligible teams get up to $30,000 in credits for their first year.")`,
+    ],
+    errors,
+  );
+  assert.ok(requests.includes(broken), errors);
+  assert.ok(!requests.includes('https://vercel.com/pricing'), errors);
+});
+
+test("a partner's program page that a home page links on another website is reported, and does not stand for the program that the list names", async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  const home = 'https://vercel.com/';
+  const partner = 'https://aws.amazon.com/startups/credits';
+  let quietFrom: number | undefined;
+  const { lines, errors } = await running(data.path, {
+    pages: {
+      ...lists([[home, 'Vercel', 'Credits + AI Accelerator']]),
+      [home]:
+        ok(`<!doctype html><html><head><title>Vercel: Build and deploy the best web experiences with the AI Cloud</title></head><body>
+<nav><a href="${partner}">AWS Activate credits for our customers</a></nav>
+<main><h1>Build and deploy on the AI Cloud.</h1>
+<p>Vercel provides the developer tools and cloud infrastructure to build, scale, and secure a faster, more personalized web.</p></main></body></html>`),
+      [partner]: awsProgram('$200,000'),
+    },
+    model: {
+      [partner]: [
+        {
+          offers: [
+            {
+              quote: 'Up to $5,000 USD in Activate Credits',
+              kind: 'credits',
+              value: { amount: 5_000, currency: 'USD' },
+              duration: null,
+              who: null,
+            },
+          ],
+        },
+      ],
+    },
+    decisions: { [home]: { kind: 'home' }, ...programs(partner) },
+    until: (lines) => {
+      if (
+        quietFrom === undefined &&
+        has('new program')(lines) &&
+        has('Vercel: no program page found')(lines)
+      )
+        quietFrom = performance.now();
+      return quietFrom !== undefined && performance.now() - quietFrom > 2_000;
+    },
+    ahead: 0,
+  });
+
+  assert.deepEqual(
+    lines.toSorted(),
+    [
+      `Vercel: no program page found (${home} linked by ${avinash})`,
+      `new program ${partner}: credits $5,000 ("Up to $5,000 USD in Activate Credits")`,
     ],
     errors,
   );

@@ -12,6 +12,8 @@ import {
   AdaptiveRevisit,
   CompositeRevisit,
   FixedRevisit,
+  LinkReader,
+  ListingReader,
   PaginationReader,
   hour,
 } from '@workspace/sdk-web-crawler';
@@ -40,8 +42,19 @@ const source = new WebSource({
       stream: new WebStream({
         name: 'program_pages',
         primaryKey: ['articleUrl'],
-        // Each list hands back the pages it links on every website.
-        readers: [new PaginationReader({ strategy: 'all' })],
+        // Each list hands back the pages it links on every website. A linked
+        // page on another website is searched one step, its links and its
+        // robots.txt sitemaps, for the pages that expand matches (the crawler
+        // recipe "Search inside the sites a list links").
+        readers: [
+          new PaginationReader({ strategy: 'all' }),
+          new ListingReader(),
+          new LinkReader({ maxDepth: 0, maxPages: 0 }),
+        ],
+        expand: [
+          new URLPattern({ pathname: '*startup*' }),
+          new URLPattern({ pathname: '*start-up*' }),
+        ],
         // Lists every hour; pages when they change, as AdaptiveRevisit learns.
         revisit: new CompositeRevisit(
           lists.map((list) => [
