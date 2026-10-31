@@ -6,6 +6,7 @@ import {
   SQLiteCheckpointStore,
   SQLiteDestination,
   SQLiteSyncHistory,
+  View,
 } from '@workspace/elt-sqlite';
 import {
   AdaptiveRevisit,
@@ -19,6 +20,7 @@ import { WebSource } from '@workspace/source-web-pages/web-source';
 import { WebStream } from '@workspace/source-web-pages/web-stream';
 
 import directory from './directory.ts';
+import { PageKinds } from './page-kinds.ts';
 import { ProgramOffers } from './program-offers.ts';
 
 // GitHub lists of startup credit programs; the second links most programs'
@@ -62,6 +64,18 @@ const source = new WebSource({
   cachePath: join(directory, 'web-http.sqlite'),
 });
 const pages = destination.table('program_pages');
+// Only the pages labelled program go to the offer model.
+const programs = new View({
+  into: destination,
+  name: 'programs',
+  description: 'The stored pages that Jev labels program.',
+  columns: {
+    articleUrl: 'The article URL of the program page.',
+    title: 'The title of the page, or NULL.',
+    textContent: 'The text of the page.',
+  },
+  sql: "SELECT p.articleUrl, p.title, p.textContent FROM program_pages p JOIN page_kinds k USING (articleUrl) WHERE k.status = 'computed' AND k.kind = 'program'",
+});
 
 export default new Pipeline({
   // One process runs the passes, so a pass left running belongs to one that
@@ -87,9 +101,17 @@ export default new Pipeline({
   derived: [
     new ComputedDataset({
       into: destination,
+      name: 'page_kinds',
+      description: 'The kind of each stored page, as Jev 1.14 labels it.',
+      from: [pages],
+      compute: new PageKinds(),
+    }),
+    programs,
+    new ComputedDataset({
+      into: destination,
       name: 'program_offers',
       description: 'The offers that each program page states.',
-      from: [pages],
+      from: [programs],
       compute: new ProgramOffers(),
     }),
   ],

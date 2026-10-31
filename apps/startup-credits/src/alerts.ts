@@ -53,8 +53,12 @@ export type Alert =
       readonly page: string;
       readonly offers: readonly StoredOffer[];
     }
-  | { readonly kind: 'missing'; readonly page: string; readonly list: string }
-  | { readonly kind: 'failed'; readonly page: string; readonly reason: string };
+  | {
+      readonly kind: 'failed';
+      readonly step: 'label' | 'extract';
+      readonly page: string;
+      readonly reason: string;
+    };
 
 // Rows of a table that the first pass makes, and none before it.
 function rows(read: () => Record<string, unknown>[]) {
@@ -67,24 +71,28 @@ function rows(read: () => Record<string, unknown>[]) {
   }
 }
 
-// A computed row has its offers and a failed row its error: the computed
-// dataset writes them so.
-const offersRow = z.object({ articleUrl: z.string(), offers: z.string() });
+// A computed row has its offers, an empty row none, and a failed row its
+// error: the computed dataset writes them so.
+const offersRow = z.object({
+  articleUrl: z.string(),
+  offers: z.string().nullable(),
+});
 const failedRow = z.object({ articleUrl: z.string(), error: z.string() });
 
-// Each program page with its offers. The key is the page and the kind and
-// value of each offer that has a value (money, a percent, months), so a page
-// whose amounts change is a new match once. An answer that quotes other
-// words, or that gains or loses an offer with no value, such as support, is
-// not.
+// Each program page with its offers, none when the page states no offer that
+// its text holds. The key is the page and the kind and value of each offer
+// that has a value (money, a percent, months), so a page whose amounts change
+// is a new match once. An answer that quotes other words, or that gains or
+// loses an offer with no value, such as support, is not.
 export class OfferedPrograms implements Condition<SQLTagStore, Alert> {
   async evaluate(sql: SQLTagStore) {
     return rows(
       () =>
-        sql.all`SELECT articleUrl, offers FROM program_offers WHERE status = 'computed'`,
+        sql.all`SELECT articleUrl, offers FROM program_offers WHERE status IN ('computed', 'empty')`,
     ).map((row) => {
       const { articleUrl, offers } = offersRow.parse(row);
-      const stored = storedOffersSchema.parse(JSON.parse(offers));
+      const stored =
+        offers === null ? [] : storedOffersSchema.parse(JSON.parse(offers));
       return {
         key: [articleUrl, ...valuedIdentities(stored).toSorted()].join('\n'),
         data: { kind: 'program' as const, page: articleUrl, offers: stored },
@@ -93,44 +101,38 @@ export class OfferedPrograms implements Condition<SQLTagStore, Alert> {
   }
 }
 
-// Each page that a list links and that states no offer, such as a company's
-// home page: the program page is somewhere else on its site.
-export class MissingPrograms implements Condition<SQLTagStore, Alert> {
+// Each page that a model could not read: Jev its kind, or Haiku its
+// offers. The key is the step and the page, so a page that fails again at
+// each refresh is a match once, until it stops failing.
+export class ModelFailures implements Condition<SQLTagStore, Alert> {
   async evaluate(sql: SQLTagStore) {
-    return rows(
-      () =>
-        sql.all`SELECT o.articleUrl, min(p.listingUrl) AS listingUrl FROM program_offers o JOIN program_pages p ON p.articleUrl = o.articleUrl WHERE o.status = 'empty' GROUP BY o.articleUrl`,
-    ).flatMap(({ articleUrl, listingUrl }) =>
-      typeof articleUrl === 'string' && typeof listingUrl === 'string'
-        ? [
-            {
-              key: articleUrl,
-              data: {
-                kind: 'missing' as const,
-                page: articleUrl,
-                list: listingUrl,
-              },
-            },
-          ]
-        : [],
-    );
-  }
-}
-
-// Each page whose offers the model could not read. The key is the page
-// alone, so a page that fails again at each refresh is a match once, until
-// it stops failing.
-export class FailedExtractions implements Condition<SQLTagStore, Alert> {
-  async evaluate(sql: SQLTagStore) {
-    return rows(
-      () =>
-        sql.all`SELECT articleUrl, error FROM program_offers WHERE status = 'failed'`,
-    ).map((row) => {
-      const { articleUrl, error } = failedRow.parse(row);
-      return {
-        key: articleUrl,
-        data: { kind: 'failed' as const, page: articleUrl, reason: error },
-      };
-    });
+    const failures = (
+      step: 'label' | 'extract',
+      read: () => Record<string, unknown>[],
+    ) =>
+      rows(read).map((row) => {
+        const { articleUrl, error } = failedRow.parse(row);
+        return {
+          key: `${step}\n${articleUrl}`,
+          data: {
+            kind: 'failed' as const,
+            step,
+            page: articleUrl,
+            reason: error,
+          },
+        };
+      });
+    return [
+      ...failures(
+        'label',
+        () =>
+          sql.all`SELECT articleUrl, error FROM page_kinds WHERE status = 'failed'`,
+      ),
+      ...failures(
+        'extract',
+        () =>
+          sql.all`SELECT articleUrl, error FROM program_offers WHERE status = 'failed'`,
+      ),
+    ];
   }
 }

@@ -7,8 +7,7 @@ import { CrawlError } from '@workspace/sdk-web-crawler';
 import {
   type Alert,
   CreditsWarehouse,
-  FailedExtractions,
-  MissingPrograms,
+  ModelFailures,
   OfferedPrograms,
 } from './alerts.ts';
 import directory from './directory.ts';
@@ -21,6 +20,8 @@ for (const signal of ['SIGINT', 'SIGTERM'] as const)
 
 const reasonOf = (error: unknown) =>
   Error.isError(error) ? error.message : String(error);
+const valued = (offers: readonly StoredOffer[]) =>
+  valuedIdentities(offers).join(', ') || 'none';
 
 using warehouse = new CreditsWarehouse(join(directory, 'credits.sqlite'));
 const eca = new Eca<SQLTagStore, Alert>({ warehouse });
@@ -28,8 +29,7 @@ const programs = { condition: new OfferedPrograms() };
 // What the app saw before this start is its baseline: a restart logs only
 // what changes after it.
 await eca.add(programs);
-await eca.add({ condition: new MissingPrograms() });
-await eca.add({ condition: new FailedExtractions() });
+await eca.add({ condition: new ModelFailures() });
 const known = new Map<string, readonly StoredOffer[]>();
 for (const { data } of await programs.condition.evaluate(warehouse.sql))
   if (data.kind === 'program') known.set(data.page, data.offers);
@@ -63,19 +63,15 @@ await Promise.all([
         continue;
       }
       const { data } = item;
-      if (data.kind === 'missing')
-        console.log(
-          `no program page found ${data.page} (linked by ${data.list})`,
-        );
-      else if (data.kind === 'failed')
-        console.log(`could not extract ${data.page}: ${data.reason}`);
+      if (data.kind === 'failed')
+        console.log(`could not ${data.step} ${data.page}: ${data.reason}`);
       else {
         const before = known.get(data.page);
         known.set(data.page, data.offers);
         console.log(
           before === undefined
-            ? `new program ${data.page}: ${data.offers.map((offer) => `${offerIdentity(offer)} ("${offer.quote}")`).join('; ')}`
-            : `offers changed ${data.page}: ${valuedIdentities(before).join(', ')} → ${valuedIdentities(data.offers).join(', ')}`,
+            ? `new program ${data.page}: ${data.offers.map((offer) => `${offerIdentity(offer)} ("${offer.quote}")`).join('; ') || 'no offer found'}`
+            : `offers changed ${data.page}: ${valued(before)} → ${valued(data.offers)}`,
         );
       }
     }

@@ -81,24 +81,39 @@ type Answer =
 
 // The token in the app's environment, which the Claude provider sends.
 const token = 'sk-ant-oat01-test-token';
+// The OpenRouter key in the app's environment, which the decision model
+// sends.
+const openRouterKey = 'sk-or-v1-test-key';
+
+// What OpenRouter's Decisions API answers for each page: the kind that Jev
+// chooses, or an error in OpenRouter's error shape, as a 401 for a wrong key
+// came on 2026-10-31, at every request about the page.
+type Decision =
+  | { readonly kind: string }
+  | { readonly status: number; readonly message: string };
 
 // The internet as the app's process sees it in a test, loaded before
 // main.ts: GitHub and the companies' websites answer these pages, every
-// robots.txt is missing, any other request fails, and each request is
-// written to stderr. The Messages API answers each request about a page with
-// the next answer planned for it, in the shape of a real Haiku 5.5 answer
-// captured on 2026-10-31; a request with no planned answer is written to
-// stderr as unplanned. The clock runs ahead by the given milliseconds, since
-// a test cannot wait a month for the pages to be due again.
+// robots.txt is missing, any other request fails, and each
+// request is written to stderr. The Messages API answers each request about
+// a page with the next answer planned for it, in the shape of a real Haiku
+// 5.5 answer captured on 2026-10-31; OpenRouter's Decisions API answers each
+// request about a page with its decision, in the shape of a real Jev 1.14
+// answer captured on 2026-10-31. A request with no planned answer or
+// decision is written to stderr as unplanned. The clock runs ahead by the
+// given milliseconds, since a test cannot wait a month for the pages to be
+// due again.
 const internet = (
   pages: Readonly<Record<string, Page>>,
   model: Readonly<Record<string, readonly Answer[]>>,
+  decisions: Readonly<Record<string, Decision>>,
   ahead: number,
 ) => `
 import { setupServer } from ${JSON.stringify(import.meta.resolve('msw/node'))};
 import { HttpResponse, http } from ${JSON.stringify(import.meta.resolve('msw'))};
 const pages = ${JSON.stringify(pages)};
 const planned = ${JSON.stringify(model)};
+const decisions = ${JSON.stringify(decisions)};
 const RealDate = Date;
 globalThis.Date = class extends RealDate {
   constructor(...args) {
@@ -168,12 +183,46 @@ const server = setupServer(
       diagnostics: null,
     });
   }),
+  http.post('https://openrouter.ai/api/alpha/decisions', async ({ request }) => {
+    const body = await request.json();
+    const page = /^URL: (\\S+)$/mu.exec(body.state)?.[1];
+    process.stderr.write('decision ' + JSON.stringify({ page, model: body.model, authorization: request.headers.get('authorization') }) + '\\n');
+    const decision = decisions[page];
+    const criteria = Object.keys(body.questions.kind.criteria);
+    if (decision === undefined || ('kind' in decision && !criteria.includes(decision.kind))) {
+      process.stderr.write('unplanned decision for ' + page + '\\n');
+      return HttpResponse.error();
+    }
+    if ('status' in decision)
+      return HttpResponse.json(
+        { error: { message: decision.message, code: decision.status } },
+        { status: decision.status, headers: { 'retry-after': '0' } },
+      );
+    return HttpResponse.json(
+      {
+        model: 'typesafe/jev-1.14-20261014',
+        answers: {
+          kind: {
+            type: 'choice',
+            choice: decision.kind,
+            probabilities: Object.fromEntries(criteria.map((kind) => [kind, kind === decision.kind ? 1 : 0])),
+            confidence: 1,
+          },
+        },
+        usage: { input_tokens: 351, output_tokens: 31, cost: 0.000014742 },
+        id: 'gen-dec-1793424713-wGFdCAJhdI68yDBeKJAj',
+        provider: 'TypeSafe',
+      },
+      { headers: { 'x-generation-id': 'gen-dec-1793424713-wGFdCAJhdI68yDBeKJAj', 'x-provider-name': 'TypeSafe' } },
+    );
+  }),
 );
 server.events.on('request:start', ({ request }) => process.stderr.write('request ' + request.url + '\\n'));
 server.listen({ onUnhandledRequest: 'error' });
 `;
 
-// One request to the Messages API, as the internet writes it to stderr.
+// One request to the Messages API or to the Decisions API, as the internet
+// writes it to stderr.
 const askedSchema = z.object({
   page: z.string(),
   model: z.string(),
@@ -182,45 +231,54 @@ const askedSchema = z.object({
 type Asked = z.infer<typeof askedSchema>;
 
 // Runs the app with its files in the data folder until what it logged and
-// asked the model satisfy until, it exits, or thirty seconds pass, then
+// asked the models satisfy until, it exits, or thirty seconds pass, then
 // stops it as Ctrl-C does. Gives its lines, the URLs it requested, each
-// model request, its exit code and stderr. A model request that the test
-// did not plan fails the test.
+// request to the offer model (asked) and to the decision model (decided), its
+// exit code and stderr. A model request that the test did not plan fails the
+// test.
 async function running(
   data: string,
   {
     pages,
     model,
+    decisions,
     until,
     ahead,
   }: {
     readonly pages: Readonly<Record<string, Page>>;
     readonly model: Readonly<Record<string, readonly Answer[]>>;
+    readonly decisions: Readonly<Record<string, Decision>>;
     readonly until: (
       lines: readonly string[],
       asked: readonly Asked[],
+      decided: readonly Asked[],
     ) => boolean;
     readonly ahead: number;
   },
 ) {
   await using folder = await mkdtempDisposable(join(tmpdir(), 'internet-'));
   const setup = join(folder.path, 'internet.mjs');
-  await writeFile(setup, internet(pages, model, ahead));
+  await writeFile(setup, internet(pages, model, decisions, ahead));
   const app = spawn(
     process.execPath,
     ['--import', setup, join(import.meta.dirname, 'main.ts')],
     {
       stdio: ['ignore', 'pipe', 'pipe'],
-      // Only what the app needs, and none of the developer's Claude login:
-      // XDG_DATA_HOME, the test's own folder, holds the app's files, and the
+      // Only what the app needs, and none of the developer's logins:
+      // XDG_DATA_HOME, the test's own folder, holds the app's files, the
       // Claude provider sends CLAUDE_CODE_OAUTH_TOKEN without reading a
-      // stored login.
-      env: { XDG_DATA_HOME: data, CLAUDE_CODE_OAUTH_TOKEN: token },
+      // stored login, and the decision model sends OPENROUTER_API_KEY.
+      env: {
+        XDG_DATA_HOME: data,
+        CLAUDE_CODE_OAUTH_TOKEN: token,
+        OPENROUTER_API_KEY: openRouterKey,
+      },
     },
   );
   const lines: string[] = [];
   const requests: string[] = [];
   const asked: Asked[] = [];
+  const decided: Asked[] = [];
   const unplanned: string[] = [];
   const errors: string[] = [];
   createInterface({ input: app.stdout }).on('line', (line) => lines.push(line));
@@ -229,13 +287,17 @@ async function running(
       requests.push(line.slice('request '.length));
     else if (line.startsWith('model '))
       asked.push(askedSchema.parse(JSON.parse(line.slice('model '.length))));
+    else if (line.startsWith('decision '))
+      decided.push(
+        askedSchema.parse(JSON.parse(line.slice('decision '.length))),
+      );
     else if (line.startsWith('unplanned ')) unplanned.push(line);
     else errors.push(line);
   });
   const exited = once(app, 'exit');
   const deadline = performance.now() + 30_000;
   while (
-    !until(lines, asked) &&
+    !until(lines, asked, decided) &&
     app.exitCode === null &&
     performance.now() < deadline
   )
@@ -243,8 +305,19 @@ async function running(
   app.kill('SIGINT');
   const [code] = await exited;
   assert.deepEqual(unplanned, [], errors.join('\n'));
-  return { lines, requests, asked, code, errors: errors.join('\n') };
+  return {
+    lines,
+    requests,
+    asked,
+    decided,
+    code,
+    errors: errors.join('\n'),
+  };
 }
+
+// Jev labels each of these pages program.
+const programs = (...pages: readonly string[]) =>
+  Object.fromEntries(pages.map((page) => [page, { kind: 'program' }]));
 
 const has = (prefix: string) => (lines: readonly string[]) =>
   lines.some((line) => line.startsWith(prefix));
@@ -288,6 +361,10 @@ test('a 401 from the model ends the app with the reason, and logs no page as not
       'https://www.microsoft.com/en-us/startups': [rejected],
     },
     until: () => false,
+    decisions: programs(
+      'https://aws.amazon.com/startups/credits',
+      'https://www.microsoft.com/en-us/startups',
+    ),
     ahead: 0,
   });
 
@@ -358,6 +435,7 @@ test('a page whose model calls stay rate limited after the AI SDK retries is log
     },
     until: (lines) =>
       has('could not extract')(lines) && has('new program')(lines),
+    decisions: programs(aws, microsoft),
     ahead: 0,
   });
   assert.deepEqual(
@@ -375,6 +453,7 @@ test('a page whose model calls stay rate limited after the AI SDK retries is log
     pages,
     model: { [aws]: [overloaded, overloaded, overloaded] },
     until: quietAfter(aws, 3),
+    decisions: programs(aws, microsoft),
     ahead: 31 * 24 * 3_600_000,
   });
   assert.equal(second.asked.length, 3, second.errors);
@@ -384,6 +463,7 @@ test('a page whose model calls stay rate limited after the AI SDK retries is log
     pages,
     model: { [aws]: [awsOffers] },
     until: has('new program'),
+    decisions: programs(aws, microsoft),
     ahead: 62 * 24 * 3_600_000,
   });
   assert.deepEqual(
@@ -406,6 +486,7 @@ test('an answer that does not match the offer schema is logged as could not extr
     // An offer with no quote, as a model that skips the schema answers.
     model: { [aws]: [{ text: '{"offers":[{"kind":"credits"}]}' }] },
     until: has('could not extract'),
+    decisions: programs(aws),
     ahead: 0,
   });
 
@@ -418,10 +499,10 @@ test('an answer that does not match the offer schema is logged as could not extr
   );
 });
 
-test('an offer whose quote is not in the page is not reported, and a page whose quotes are all invented is logged as no program page found', async () => {
+test('an offer whose quote is not in the page is not reported, and a program page whose quotes are all invented is logged as a new program with no offer found', async () => {
   await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
   const aws = 'https://aws.amazon.com/startups/credits';
-  const anthropic = 'https://www.anthropic.com/';
+  const microsoft = 'https://www.microsoft.com/en-us/startups';
   // What a small model answered on the first live run: its own prompt as
   // the quote.
   const echo = {
@@ -434,10 +515,10 @@ test('an offer whose quote is not in the page is not reported, and a page whose 
     pages: {
       ...lists([
         [aws, 'AWS', 'Up to $200,000'],
-        [anthropic, 'Anthropic', 'API credits'],
+        [microsoft, 'Microsoft', 'Up to $150,000'],
       ]),
       [aws]: awsProgram('$200,000'),
-      [anthropic]: anthropicHome,
+      [microsoft]: microsoftProgram,
     },
     model: {
       [aws]: [
@@ -463,10 +544,11 @@ test('an offer whose quote is not in the page is not reported, and a page whose 
           ],
         },
       ],
-      [anthropic]: [{ offers: [], invented: [echo] }],
+      [microsoft]: [{ offers: [], invented: [echo] }],
     },
     until: (lines) =>
-      has('new program')(lines) && has('no program page found')(lines),
+      lines.filter((line) => line.startsWith('new program')).length === 2,
+    decisions: programs(aws, microsoft),
     ahead: 0,
   });
 
@@ -474,7 +556,7 @@ test('an offer whose quote is not in the page is not reported, and a page whose 
     lines.toSorted(),
     [
       `new program ${aws}: credits $5,000 ("Up to $5,000 USD in Activate Credits")`,
-      `no program page found ${anthropic} (linked by ${avinash})`,
+      `new program ${microsoft}: no offer found`,
     ],
     errors,
   );
@@ -558,6 +640,7 @@ test('an offer that the answer repeats, with the same kind and value or a value-
       ],
     },
     until: has('new program'),
+    decisions: programs(vercel),
     ahead: 0,
   });
 
@@ -570,7 +653,7 @@ test('an offer that the answer repeats, with the same kind and value or a value-
   );
 });
 
-test('a program page is logged as a new program with the kind, value and quote of each offer, the model gets the whole page from Claude Haiku 5.5 with the token, and no other page of GitHub is requested', async () => {
+test('a program page is logged as a new program with the kind, value and quote of each offer, Jev 1.14 labels it through OpenRouter with the key, the offer model gets the whole page from Claude Haiku 5.5 with the token, and no other page of GitHub is requested', async () => {
   await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
   const ovh = 'https://startup.ovhcloud.com/en/';
   // Questions and answers that put the last offer after the first 20,000
@@ -580,7 +663,7 @@ test('a program page is logged as a new program with the kind, value and quote o
     (_, index) =>
       `<p>Question ${index + 1}: who can apply? ${'Startups that are less than five years old, that have raised less than ten million euros, and that build a digital product can apply to the program through one of our partners or directly on this page. '.repeat(4)}</p>`,
   ).join('\n');
-  const { lines, requests, asked, errors } = await running(data.path, {
+  const { lines, requests, asked, decided, errors } = await running(data.path, {
     pages: {
       ...lists([[ovh, 'OVHcloud', 'Up to €100,000']]),
       [ovh]:
@@ -622,6 +705,7 @@ ${questions}
       ],
     },
     until: has('new program'),
+    decisions: programs(ovh),
     ahead: 0,
   });
 
@@ -635,6 +719,13 @@ ${questions}
   assert.deepEqual(asked, [
     { page: ovh, model: 'claude-haiku-5-5', authorization: `Bearer ${token}` },
   ]);
+  assert.deepEqual(decided, [
+    {
+      page: ovh,
+      model: 'typesafe/jev-1.14',
+      authorization: `Bearer ${openRouterKey}`,
+    },
+  ]);
   assert.deepEqual(
     // Each list is a crawl of its own, which reads robots.txt itself.
     [
@@ -643,26 +734,6 @@ ${questions}
       ),
     ].sort(),
     [avinash, doanbactam, 'https://github.com/robots.txt'],
-  );
-});
-
-test('a page that a list links and that states no offer is logged as no program page found, with its list', async () => {
-  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
-  const { lines, errors } = await running(data.path, {
-    pages: {
-      ...lists([['https://www.anthropic.com/', 'Anthropic', 'API credits']]),
-      'https://www.anthropic.com/': anthropicHome,
-    },
-    model: { 'https://www.anthropic.com/': [{ offers: [] }] },
-    until: has('no program page found'),
-    ahead: 0,
-  });
-
-  assert.ok(
-    lines.includes(
-      `no program page found https://www.anthropic.com/ (linked by ${avinash})`,
-    ),
-    `${lines.join('\n')}\n${errors}`,
   );
 });
 
@@ -739,6 +810,7 @@ test('a program whose offers change is logged as offers changed after a restart,
     },
     until: (lines) =>
       lines.filter((line) => line.startsWith('new program')).length === 2,
+    decisions: programs(aws, microsoft),
     ahead: 0,
   });
   assert.equal(
@@ -767,6 +839,7 @@ test('a program whose offers change is logged as offers changed after a restart,
     },
     until: (lines, asked) =>
       has('offers changed')(lines) && quiet(lines, asked),
+    decisions: programs(aws, microsoft),
     ahead: 31 * 24 * 3_600_000,
   });
 
@@ -791,6 +864,7 @@ test('a page whose text changes outside its offers, and whose new answer quotes 
     pages: { ...lists(rows), [microsoft]: microsoftProgram },
     model: { [microsoft]: [microsoftOffers] },
     until: has('new program'),
+    decisions: programs(microsoft),
     ahead: 0,
   });
   assert.ok(has('new program')(first.lines), first.errors);
@@ -820,6 +894,7 @@ test('a page whose text changes outside its offers, and whose new answer quotes 
       ],
     },
     until: quietAfter(microsoft, 1),
+    decisions: programs(microsoft),
     ahead: 31 * 24 * 3_600_000,
   });
 
@@ -861,6 +936,7 @@ test('a page whose text changes, and whose new answer adds an offer with no valu
       ],
     },
     until: has('new program'),
+    decisions: programs(notion),
     ahead: 0,
   });
   assert.deepEqual(
@@ -908,6 +984,7 @@ test('a page whose text changes, and whose new answer adds an offer with no valu
       ],
     },
     until: quietAfter(notion, 1),
+    decisions: programs(notion),
     ahead: 31 * 24 * 3_600_000,
   });
 
@@ -967,6 +1044,7 @@ test('a page whose free period changes its months, and a page whose discount cha
     model: { [linear]: [linearOffers(6)], [mintlify]: [mintlifyOffers(20)] },
     until: (lines) =>
       lines.filter((line) => line.startsWith('new program')).length === 2,
+    decisions: programs(linear, mintlify),
     ahead: 0,
   });
   assert.equal(
@@ -989,6 +1067,7 @@ test('a page whose free period changes its months, and a page whose discount cha
       lines.filter((line) => line.startsWith('offers changed')).length === 2 &&
       quietLinear(lines, asked) &&
       quietMintlify(lines, asked),
+    decisions: programs(linear, mintlify),
     ahead: 31 * 24 * 3_600_000,
   });
 
@@ -1014,6 +1093,7 @@ test('a company page that refuses the crawl is logged as not read, with its addr
       'https://openai.com/startups/': cloudflareChallenge,
     },
     until: has('could not read'),
+    decisions: {},
     ahead: 0,
     model: {},
   });
@@ -1039,6 +1119,7 @@ test('stopping the app during a model call stores no failure, so the page is sti
     pages,
     model: { [aws]: [{ hold: true }] },
     until: (_lines, asked) => asked.length === 1,
+    decisions: programs(aws),
     ahead: 0,
   });
   assert.equal(first.code, 0, first.errors);
@@ -1054,6 +1135,7 @@ test('stopping the app during a model call stores no failure, so the page is sti
     pages,
     model: { [aws]: [failing, failing, failing] },
     until: has('could not extract'),
+    decisions: programs(aws),
     ahead: 31 * 24 * 3_600_000,
   });
 
@@ -1061,5 +1143,135 @@ test('stopping the app during a model call stores no failure, so the page is sti
     second.lines,
     [`could not extract ${aws}: Internal server error`],
     second.errors,
+  );
+});
+
+test('a page that Jev labels home or list is not sent to the offer model and logs nothing, a program page whose answer states no offer is logged as a new program with no offer found, and a later answer that states one is logged as offers changed', async () => {
+  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  const anthropic = 'https://www.anthropic.com/';
+  const directory = 'https://startupsmap.co.in/';
+  const microsoft = 'https://www.microsoft.com/en-us/startups';
+  const rows = [
+    [anthropic, 'Anthropic Startup Program', 'API credits'],
+    [directory, 'Startups Map', 'Programs in India'],
+    [microsoft, 'Microsoft', 'Up to $150,000'],
+  ] as const;
+  const decisions = {
+    [anthropic]: { kind: 'home' },
+    [directory]: { kind: 'list' },
+    ...programs(microsoft),
+  };
+  // startupsmap.co.in, trimmed on 2026-10-31: a directory of programs.
+  const directoryPage =
+    ok(`<!doctype html><html><head><title>Startups Map</title></head><body>
+<main><h1>Startup programs in India</h1><p>Accelerators, incubators and credits for founders, by city.</p></main></body></html>`);
+  const first = await running(data.path, {
+    pages: {
+      ...lists(rows),
+      [anthropic]: anthropicHome,
+      [directory]: directoryPage,
+      [microsoft]: microsoftProgram,
+    },
+    model: { [microsoft]: [{ offers: [] }] },
+    decisions,
+    until: has('new program'),
+    ahead: 0,
+  });
+  assert.deepEqual(
+    first.lines,
+    [`new program ${microsoft}: no offer found`],
+    first.errors,
+  );
+  assert.deepEqual(
+    first.asked.map(({ page }) => page),
+    [microsoft],
+  );
+  assert.deepEqual(first.decided.map(({ page }) => page).toSorted(), [
+    directory,
+    anthropic,
+    microsoft,
+  ]);
+
+  // A month later the page gains a sentence and the new answer states the
+  // credits.
+  const second = await running(data.path, {
+    pages: {
+      ...lists(rows),
+      [anthropic]: anthropicHome,
+      [directory]: directoryPage,
+      [microsoft]: ok(
+        microsoftProgram.body.replace(
+          '</main>',
+          '<p>Join more than 100,000 founders who build on Azure.</p></main>',
+        ),
+      ),
+    },
+    model: { [microsoft]: [microsoftOffers] },
+    decisions,
+    until: has('offers changed'),
+    ahead: 31 * 24 * 3_600_000,
+  });
+  assert.deepEqual(
+    second.lines,
+    [`offers changed ${microsoft}: none → credits $150,000`],
+    second.errors,
+  );
+});
+
+test('a page that Jev cannot label after the AI SDK retries is logged as could not label, and the other page still reports', async () => {
+  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  const aws = 'https://aws.amazon.com/startups/credits';
+  const microsoft = 'https://www.microsoft.com/en-us/startups';
+  const { lines, decided, errors } = await running(data.path, {
+    pages: {
+      ...lists([
+        [aws, 'AWS', 'Up to $200,000'],
+        [microsoft, 'Microsoft', 'Up to $150,000'],
+      ]),
+      [aws]: awsProgram('$200,000'),
+      [microsoft]: microsoftProgram,
+    },
+    model: { [microsoft]: [microsoftOffers] },
+    decisions: {
+      [aws]: { status: 429, message: 'Rate limit exceeded' },
+      ...programs(microsoft),
+    },
+    until: (lines) =>
+      has('could not label')(lines) && has('new program')(lines),
+    ahead: 0,
+  });
+
+  assert.deepEqual(
+    lines.toSorted(),
+    [
+      `could not label ${aws}: Rate limit exceeded`,
+      `new program ${microsoft}: credits $150,000 ("up to $150,000 in credits")`,
+    ],
+    errors,
+  );
+  // A first call and the AI SDK's two retries.
+  assert.equal(decided.filter(({ page }) => page === aws).length, 3);
+});
+
+test('a 401 from OpenRouter ends the app with the reason, and logs no page as not labelled', async () => {
+  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  const aws = 'https://aws.amazon.com/startups/credits';
+  const { lines, code, errors } = await running(data.path, {
+    pages: {
+      ...lists([[aws, 'AWS', 'Up to $200,000']]),
+      [aws]: awsProgram('$200,000'),
+    },
+    model: {},
+    // What OpenRouter answered a wrong key on 2026-10-31.
+    decisions: { [aws]: { status: 401, message: 'User not found.' } },
+    until: () => false,
+    ahead: 0,
+  });
+
+  assert.notEqual(code, 0, `${lines.join('\n')}\n${errors}`);
+  assert.match(errors, /User not found\./u);
+  assert.deepEqual(
+    lines.filter((line) => line.startsWith('could not label')),
+    [],
   );
 });
