@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { mkdtempDisposable, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import test from 'node:test';
 import { setTimeout } from 'node:timers/promises';
 
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { z } from 'zod';
 
 const avinash = 'https://github.com/avinash201199/awesome-startup-credits';
@@ -261,7 +261,7 @@ async function running(
     readonly ahead: number;
   },
 ) {
-  await using folder = await mkdtempDisposable(join(tmpdir(), 'internet-'));
+  await using folder = await new TemporaryFiles().directory('internet-');
   const setup = join(folder.path, 'internet.mjs');
   await writeFile(setup, internet(pages, model, decisions, ahead));
   const app = spawn(
@@ -343,7 +343,7 @@ function quietAfter(page: string, calls: number) {
 }
 
 test('a 401 from the model ends the app with the reason, and logs no page as not extracted', async () => {
-  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  await using data = await new TemporaryFiles().directory('credits-data-');
   const rejected: Answer = {
     status: 401,
     error: { type: 'authentication_error', message: 'Invalid bearer token' },
@@ -382,7 +382,7 @@ test('a 401 from the model ends the app with the reason, and logs no page as not
 });
 
 test('a page whose model calls stay rate limited after the AI SDK retries is logged as could not extract once, also when it fails again after a restart, the other page still reports, and a later pass that succeeds reports the page', async () => {
-  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  await using data = await new TemporaryFiles().directory('credits-data-');
   const aws = 'https://aws.amazon.com/startups/credits';
   const microsoft = 'https://www.microsoft.com/en-us/startups';
   const pages = {
@@ -481,7 +481,7 @@ test('a page whose model calls stay rate limited after the AI SDK retries is log
 });
 
 test('an answer that does not match the offer schema is logged as could not extract', async () => {
-  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  await using data = await new TemporaryFiles().directory('credits-data-');
   const aws = 'https://aws.amazon.com/startups/credits';
   const { lines, errors } = await running(data.path, {
     pages: {
@@ -505,7 +505,7 @@ test('an answer that does not match the offer schema is logged as could not extr
 });
 
 test('an offer whose quote is not in the page is not reported, and a program page whose quotes are all invented is logged as a new program with no offer found', async () => {
-  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  await using data = await new TemporaryFiles().directory('credits-data-');
   const aws = 'https://aws.amazon.com/startups/credits';
   const microsoft = 'https://www.microsoft.com/en-us/startups';
   // What a small model answered on the first live run: its own prompt as
@@ -568,7 +568,7 @@ test('an offer whose quote is not in the page is not reported, and a program pag
 });
 
 test('an offer that the answer repeats, with the same kind and value or a value-less offer of an overlapping sentence, is reported once, and two different support offers both stay', async () => {
-  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  await using data = await new TemporaryFiles().directory('credits-data-');
   const vercel = 'https://vercel.com/startups';
   const credits = (quote: string) => ({
     quote,
@@ -659,7 +659,7 @@ test('an offer that the answer repeats, with the same kind and value or a value-
 });
 
 test('a program page is logged as a new program with the kind, value and quote of each offer, Jev 1.14 labels it through OpenRouter with the key, the offer model gets the whole page from Claude Haiku 5.5 with the token, and no other page of GitHub is requested', async () => {
-  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  await using data = await new TemporaryFiles().directory('credits-data-');
   const ovh = 'https://startup.ovhcloud.com/en/';
   // Questions and answers that put the last offer after the first 20,000
   // characters of the page text.
@@ -790,7 +790,7 @@ const microsoftOffers: Answer = {
 };
 
 test('a program whose offers change is logged as offers changed after a restart, the restart logs nothing else, and only the changed page goes to the model', async () => {
-  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  await using data = await new TemporaryFiles().directory('credits-data-');
   const aws = 'https://aws.amazon.com/startups/credits';
   const microsoft = 'https://www.microsoft.com/en-us/startups';
   const rows = [
@@ -862,7 +862,7 @@ test('a program whose offers change is logged as offers changed after a restart,
 });
 
 test('a page whose text changes outside its offers, and whose new answer quotes the same offers in other words, logs nothing after a restart', async () => {
-  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  await using data = await new TemporaryFiles().directory('credits-data-');
   const microsoft = 'https://www.microsoft.com/en-us/startups';
   const rows = [[microsoft, 'Microsoft', 'Up to $150,000']] as const;
   const first = await running(data.path, {
@@ -908,7 +908,7 @@ test('a page whose text changes outside its offers, and whose new answer quotes 
 });
 
 test('a page whose text changes, and whose new answer adds an offer with no value and quotes its free period in other words, logs nothing after a restart', async () => {
-  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  await using data = await new TemporaryFiles().directory('credits-data-');
   const notion = 'https://www.notion.com/startups';
   const rows = [[notion, 'Notion', 'Free Plus plan']] as const;
   const page = (more: string) =>
@@ -998,7 +998,7 @@ test('a page whose text changes, and whose new answer adds an offer with no valu
 });
 
 test('a page whose free period changes its months, and a page whose discount changes its percent, are each logged as offers changed after a restart', async () => {
-  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  await using data = await new TemporaryFiles().directory('credits-data-');
   const linear = 'https://linear.app/startups';
   const mintlify = 'https://www.mintlify.com/startups';
   const rows = [
@@ -1091,7 +1091,7 @@ test('a page whose free period changes its months, and a page whose discount cha
 });
 
 test('a company page that refuses the crawl is logged as not read, with its address and answer, and its program is not logged as missing, as no page of it was read', async () => {
-  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  await using data = await new TemporaryFiles().directory('credits-data-');
   // Two seconds after the line, so a missing line would be logged by then.
   let readAt: number | undefined;
   const { lines, errors } = await running(data.path, {
@@ -1124,7 +1124,7 @@ test('a company page that refuses the crawl is logged as not read, with its addr
 });
 
 test('stopping the app during a model call stores no failure, so the page is still reported when it fails after a restart', async () => {
-  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  await using data = await new TemporaryFiles().directory('credits-data-');
   const aws = 'https://aws.amazon.com/startups/credits';
   const pages = {
     ...lists([[aws, 'AWS', 'Up to $200,000']]),
@@ -1162,7 +1162,7 @@ test('stopping the app during a model call stores no failure, so the page is sti
 });
 
 test('a page that Jev labels home or list is not sent to the offer model, and the program that the list names for it is logged as no program page found, a program page whose answer states no offer is logged as a new program with no offer found, and a later answer that states one is logged as offers changed', async () => {
-  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  await using data = await new TemporaryFiles().directory('credits-data-');
   const anthropic = 'https://www.anthropic.com/';
   const directory = 'https://startupsmap.co.in/';
   const microsoft = 'https://www.microsoft.com/en-us/startups';
@@ -1241,7 +1241,7 @@ test('a page that Jev labels home or list is not sent to the offer model, and th
 });
 
 test('a page that Jev cannot label after the AI SDK retries is logged as could not label, and the other page still reports', async () => {
-  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  await using data = await new TemporaryFiles().directory('credits-data-');
   const aws = 'https://aws.amazon.com/startups/credits';
   const microsoft = 'https://www.microsoft.com/en-us/startups';
   const { lines, decided, errors } = await running(data.path, {
@@ -1276,7 +1276,7 @@ test('a page that Jev cannot label after the AI SDK retries is logged as could n
 });
 
 test('a 401 from OpenRouter ends the app with the reason, and logs no page as not labelled', async () => {
-  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  await using data = await new TemporaryFiles().directory('credits-data-');
   const aws = 'https://aws.amazon.com/startups/credits';
   const { lines, code, errors } = await running(data.path, {
     pages: {
@@ -1299,7 +1299,7 @@ test('a 401 from OpenRouter ends the app with the reason, and logs no page as no
 });
 
 test('a program that a list names and whose page Jev labels home is logged as no program page found, with its name, link and list', async () => {
-  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  await using data = await new TemporaryFiles().directory('credits-data-');
   const anthropic = 'https://www.anthropic.com/';
   const { lines, errors } = await running(data.path, {
     pages: {
@@ -1339,7 +1339,7 @@ const claudeOffers: Answer = {
 };
 
 test('a program whose name another list gives to a program page on another website is not logged as missing', async () => {
-  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  await using data = await new TemporaryFiles().directory('credits-data-');
   const anthropic = 'https://www.anthropic.com/';
   const claude = 'https://claude.com/programs/startups';
   // Both lists as they link Anthropic's program on 2026-10-31.
@@ -1381,7 +1381,7 @@ test('a program whose name another list gives to a program page on another websi
 });
 
 test('a program whose link shares its registrable domain with a program page is not logged as missing', async () => {
-  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  await using data = await new TemporaryFiles().directory('credits-data-');
   const home = 'https://vercel.com/';
   const startups = 'https://vercel.com/startups';
   let quietFrom: number | undefined;
@@ -1435,7 +1435,7 @@ test('a program whose link shares its registrable domain with a program page is 
 });
 
 test('a list that redirects to its new address, as a renamed GitHub repository does, still names its programs', async () => {
-  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  await using data = await new TemporaryFiles().directory('credits-data-');
   const anthropic = 'https://www.anthropic.com/';
   const renamed = 'https://github.com/avinash201199/startup-credits';
   const { lines, errors } = await running(data.path, {
