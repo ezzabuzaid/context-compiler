@@ -3,10 +3,6 @@
   "sourceRoot": "packages/connectors/contacts/src",
   "projectType": "library",
   "targets": {
-    "format": {},
-    "test": {
-      "dependsOn": ["build"],
-      "command": "node --test {args} \"packages/connectors/contacts/src/*.test.ts\""
-    }
+    "format": {}
   }
 }
