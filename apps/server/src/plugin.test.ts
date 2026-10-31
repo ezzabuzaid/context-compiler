@@ -1363,7 +1363,7 @@ test('a monitor whose folder was deleted after a chat added it says its folder i
   }
 });
 
-test('removing a monitor while a check runs leaves the other monitors to save what they sent, so nothing is sent twice', async () => {
+test('removing a monitor while a check runs leaves the other monitors to save what they sent, so nothing is sent twice', async (t) => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'monitor-'));
   const { home, codex, root, plugin, imports, photos } = await monitoredPhotos(
     scratch.path,
@@ -1399,7 +1399,13 @@ export default {
     await plugin.addMonitor('new-photos', 'chat-2');
     await photos('p1', 'p2');
     const importing = plugin.import(imports);
-    while (!existsSync(started)) await sleep(20);
+    await t.waitFor(
+      () => assert.ok(existsSync(started), 'a-slow never started'),
+      {
+        interval: 20,
+        timeout: 30_000,
+      },
+    );
 
     await plugin.monitors.remove('a-slow');
     await writeFile(release, '');
