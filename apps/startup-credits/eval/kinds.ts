@@ -2,11 +2,15 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
 
-import { createTypeSafeAi } from '@ai-sdk/typesafe-ai';
 import { experimental_decide as decide } from 'ai';
 import { z } from 'zod';
 
-import { answerKey, pageKinds } from './answer-key.ts';
+import {
+  openRouterDecisionModel,
+  pageKindQuestions,
+  pageState,
+} from '../src/page-kinds.ts';
+import { answerKey } from './answer-key.ts';
 import { scoreKinds } from './kind-score.ts';
 import { pages } from './pages.ts';
 
@@ -17,34 +21,8 @@ if (name === undefined)
     '--model takes an OpenRouter decision model id, such as typesafe/jev-1.14',
   );
 
-// OpenRouter's Decisions API speaks TypeSafe's wire format at /decisions. Its
-// own provider (3.1.0) types its model against an older decision spec than
-// ai 7, so the TypeSafe provider is pointed at it instead.
-const model = createTypeSafeAi({
-  baseURL: 'https://openrouter.ai/api/alpha',
-  apiKey: process.env.OPENROUTER_API_KEY,
-  fetch: (url, init) =>
-    fetch(String(url).replace(/\/systemone$/u, '/decisions'), init),
-}).decisionModel(name);
-
-// Every model gets the same question, with one criterion for each kind that
-// the labels use.
-const questions = {
-  kind: {
-    type: 'choice',
-    instructions: 'What kind of web page is this?',
-    criteria: {
-      program: "one company's program page for startups",
-      home: "a company's home page or product page",
-      list: 'a list or directory of many programs from many companies',
-      article: 'a blog post, news article or documentation page',
-      other_program: 'a program for students, open source or ambassadors',
-      investor: 'a venture fund, investor or accelerator',
-      other:
-        'a sign-in wall, loading screen, error page or a page with almost no text',
-    } satisfies Record<(typeof pageKinds)[number], string>,
-  },
-} as const;
+// Every model gets the question the app asks.
+const model = openRouterDecisionModel(name);
 
 // OpenRouter answered 16 requests at once with no refusal (2026-10-31).
 const inFlight = 16;
@@ -91,11 +69,8 @@ async function decideAll() {
     try {
       const { answers: answer, response } = await decide({
         model,
-        state: `URL: ${page.url}\nTitle: ${page.title}\n\n${page.text}`.slice(
-          0,
-          20_000,
-        ),
-        questions,
+        state: pageState(page.url, page.title, page.text),
+        questions: pageKindQuestions,
       });
       modelIds.add(response.modelId);
       answers.set(label.url, answer.kind.choice);

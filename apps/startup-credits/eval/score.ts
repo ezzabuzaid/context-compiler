@@ -2,13 +2,8 @@ import { readFileSync } from 'node:fs';
 
 import { z } from 'zod';
 
-import {
-  type Label,
-  type Span,
-  answerKey,
-  offerKinds,
-  pageKinds,
-} from './answer-key.ts';
+import { pageKinds } from '../src/page-kinds.ts';
+import { type Label, type Span, answerKey, offerKinds } from './answer-key.ts';
 import { ground } from './ground.ts';
 import { scoreKinds } from './kind-score.ts';
 import { pages } from './pages.ts';

@@ -64,5 +64,38 @@
       "investor → home": 1
     },
     "predictions": "runs/2026-10-30T21-32-27-typesafe_jev-1.14.json"
+  },
+  {
+    "model": "typesafe/jev-1.14",
+    "modelIds": ["typesafe/jev-1.14-20261014"],
+    "ranAt": "2026-10-30T21:46:49.085Z",
+    "answered": 121,
+    "failed": 0,
+    "right": 113,
+    "confusions": {
+      "other_program → home": 1,
+      "other → home": 2,
+      "home → program": 2,
+      "program → home": 1,
+      "other → program": 1,
+      "investor → home": 1
+    },
+    "predictions": "runs/2026-10-30T21-46-49-typesafe_jev-1.14.json"
+  },
+  {
+    "model": "typesafe/jev-1.14",
+    "modelIds": ["typesafe/jev-1.14-20261014"],
+    "ranAt": "2026-10-31T05:29:06.034Z",
+    "answered": 121,
+    "failed": 0,
+    "right": 113,
+    "confusions": {
+      "other_program → home": 2,
+      "other → home": 2,
+      "home → program": 2,
+      "program → home": 1,
+      "other → program": 1
+    },
+    "predictions": "runs/2026-10-31T05-29-06-typesafe_jev-1.14.json"
   }
 ]

@@ -3,21 +3,14 @@ import { join } from 'node:path';
 
 import { z } from 'zod';
 
+import { pageKinds } from '../src/page-kinds.ts';
+
 const span = z.object({
   start: z.number().int().nonnegative(),
   end: z.number().int().positive(),
 });
 export type Span = z.infer<typeof span>;
 
-export const pageKinds = [
-  'program',
-  'home',
-  'list',
-  'article',
-  'other_program',
-  'investor',
-  'other',
-] as const;
 export const offerKinds = [
   'credits',
   'discount',
