@@ -15,6 +15,7 @@ import { setTimeout as sleep } from 'node:timers/promises';
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { settleWithin, timebox } from '@zukhruf/testing/async';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { type ElectronApplication, _electron } from 'playwright';
 
@@ -277,20 +278,14 @@ test(
       });
       writer = await readerOf(pipe);
       await page.evaluate(() => window.desktop.cancelTool('cancelled-sync'));
-      const deadline = new AbortController();
-      try {
-        assert.match(
-          await Promise.race([
-            result,
-            sleep(5000, undefined, { signal: deadline.signal }).then(() => {
-              throw new Error('Cancellation did not reject the tool call.');
-            }),
-          ]),
-          /abort|cancel/i,
-        );
-      } finally {
-        deadline.abort();
-      }
+      assert.match(
+        await settleWithin(
+          result,
+          'the cancellation to reject the tool call',
+          5000,
+        ),
+        /abort|cancel/i,
+      );
       await writer.writeFile(JSON.stringify([{ id: 'p1', title: 'Beach' }]));
     } finally {
       try {
@@ -347,22 +342,11 @@ function imported(home: string): string {
   return join(store, row.database);
 }
 
-async function readerOf(pipe: string): Promise<FileHandle> {
-  for (let attempt = 0; ; attempt++) {
-    try {
-      return await open(pipe, constants.O_WRONLY | constants.O_NONBLOCK);
-    } catch (error) {
-      if (!(
-        error instanceof Error &&
-        'code' in error &&
-        error.code === 'ENXIO'
-      ))
-        throw error;
-      if (attempt > 300)
-        throw new Error(`Nothing read ${pipe} within 30 seconds.`, {
-          cause: error,
-        });
-      await sleep(100);
-    }
-  }
+// ENXIO: no process has the pipe open to read yet.
+function readerOf(pipe: string): Promise<FileHandle> {
+  return timebox(() => open(pipe, constants.O_WRONLY | constants.O_NONBLOCK), {
+    minTimeout: 100,
+    maxRetryTime: 30_000,
+    shouldRetry: ({ error }) => 'code' in error && error.code === 'ENXIO',
+  });
 }
