@@ -400,7 +400,7 @@ test('a stored copy removed while it is read leaves no row and no failure', asyn
 test(
   'a file that is slow to read holds only its own place when the device has spare capacity',
   { skip: readers < 2 },
-  async () => {
+  async (t) => {
     await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
     const store = await importStore(directory.path);
     await store.put('a-slow.txt', 'hold until released');
@@ -410,7 +410,10 @@ test(
 
     const sync = store.sync(parser);
     try {
-      await eventually(() => parser.inFlight > 0, 'the reads to start');
+      await t.waitFor(
+        () => assert.ok(parser.inFlight > 0, 'the reads to start'),
+        { timeout: 20_000 },
+      );
       await eventually(
         () =>
           store.texts().filter(({ name }) => name !== 'a-slow.txt').length ===
@@ -432,7 +435,7 @@ test(
   },
 );
 
-test('a watched import loads and commits its rows while a file is still being read', async () => {
+test('a watched import loads and commits its rows while a file is still being read', async (t) => {
   await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
   const store = await importStore(directory.path);
   await store.put('slow.txt', 'hold until released');
@@ -441,7 +444,10 @@ test('a watched import loads and commits its rows while a file is still being re
   const passes = (await store.watching(parser)).watch({ signal: stop.signal });
   try {
     await passes.next();
-    await eventually(() => parser.inFlight === 1, 'the held read to start');
+    await t.waitFor(
+      () => assert.equal(parser.inFlight, 1, 'the held read to start'),
+      { timeout: 20_000 },
+    );
     await store.put('invoice.txt', 'Careem invoice 4471');
     store.source.changed();
 
@@ -459,7 +465,7 @@ test('a watched import loads and commits its rows while a file is still being re
   }
 });
 
-test('a sync stopped while files are read keeps the text it read, and the next sync reads the rest', async () => {
+test('a sync stopped while files are read keeps the text it read, and the next sync reads the rest', async (t) => {
   await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
   const store = await importStore(directory.path);
   // Whichever reads start first stay held, leaving the rest queued.
@@ -470,7 +476,9 @@ test('a sync stopped while files are read keeps the text it read, and the next s
   const stop = new AbortController();
   const sync = store.sync(parser, { signal: stop.signal });
   try {
-    await eventually(() => parser.inFlight > 0, 'a read held');
+    await t.waitFor(() => assert.ok(parser.inFlight > 0, 'a read held'), {
+      timeout: 20_000,
+    });
   } finally {
     stop.abort();
     parser.release();
