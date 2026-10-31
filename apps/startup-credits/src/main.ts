@@ -7,6 +7,7 @@ import { CrawlError } from '@workspace/sdk-web-crawler';
 import {
   type Alert,
   CreditsWarehouse,
+  MissingPrograms,
   ModelFailures,
   OfferedPrograms,
 } from './alerts.ts';
@@ -31,6 +32,7 @@ const programs = { condition: new OfferedPrograms() };
 // What the app saw before this start is its baseline: a restart logs only
 // what changes after it.
 await eca.add(programs);
+await eca.add({ condition: new MissingPrograms() });
 await eca.add({ condition: new ModelFailures() });
 const known = new Map<string, readonly StoredOffer[]>();
 for (const { data } of await programs.condition.evaluate(warehouse.sql))
@@ -67,7 +69,16 @@ await Promise.all([
       const { data } = item;
       if (data.kind === 'failed')
         console.log(`could not ${data.step} ${data.page}: ${data.reason}`);
-      else {
+      else if (data.kind === 'missing') {
+        const links = data.links
+          .map(({ url, list }) => `${url} linked by ${list}`)
+          .join('; ');
+        console.log(
+          data.name === null
+            ? `no program page found (${links})`
+            : `${data.name}: no program page found (${links})`,
+        );
+      } else {
         const before = known.get(data.page);
         known.set(data.page, data.offers);
         console.log(

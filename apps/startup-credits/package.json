@@ -11,6 +11,7 @@
     "@workspace/sdk-web-crawler": "0.0.1",
     "@workspace/source-web-pages": "0.0.1",
     "ai": "7.0.158",
+    "tldts": "7.4.19",
     "zod": "4.6.5"
   },
   "devDependencies": {

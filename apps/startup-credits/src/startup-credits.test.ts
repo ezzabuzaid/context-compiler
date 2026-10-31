@@ -13,8 +13,10 @@ import { z } from 'zod';
 const avinash = 'https://github.com/avinash201199/awesome-startup-credits';
 const doanbactam = 'https://github.com/doanbactam/awesome-builder-programs';
 
-type Page = { readonly status: number; readonly body: string };
-const ok = (body: string): Page => ({ status: 200, body });
+// A page, or a permanent redirect to another address.
+type Served = { readonly status: number; readonly body: string };
+type Page = Served | { readonly status: 301; readonly location: string };
+const ok = (body: string): Served => ({ status: 200, body });
 
 // A GitHub list as github.com renders it, trimmed from
 // github.com/doanbactam/awesome-builder-programs on 2026-10-30: GitHub's own
@@ -128,8 +130,12 @@ const fold = (text) => text.replace(/\\s+/gu, ' ').trim().toLowerCase();
 const asked = new Map();
 const { server } = new Msw().intercept(
   http.get('*/robots.txt', () => new HttpResponse(null, { status: 404 })),
-  ...Object.entries(pages).map(([url, { status, body }]) =>
-    http.get(url, () => new HttpResponse(body, { status, headers: { 'content-type': 'text/html; charset=utf-8' } })),
+  ...Object.entries(pages).map(([url, page]) =>
+    http.get(url, () =>
+      'location' in page
+        ? new HttpResponse(null, { status: page.status, headers: { location: page.location } })
+        : new HttpResponse(page.body, { status: page.status, headers: { 'content-type': 'text/html; charset=utf-8' } }),
+    ),
   ),
   http.post('https://api.anthropic.com/v1/messages', async ({ request }) => {
     const body = await request.json();
@@ -1084,14 +1090,20 @@ test('a page whose free period changes its months, and a page whose discount cha
   ]);
 });
 
-test('a company page that refuses the crawl is logged as not read, with its address and answer', async () => {
+test('a company page that refuses the crawl is logged as not read, with its address and answer, and its program is not logged as missing, as no page of it was read', async () => {
   await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  // Two seconds after the line, so a missing line would be logged by then.
+  let readAt: number | undefined;
   const { lines, errors } = await running(data.path, {
     pages: {
       ...lists([['https://openai.com/startups/', 'OpenAI', 'API credits']]),
       'https://openai.com/startups/': cloudflareChallenge,
     },
-    until: has('could not read'),
+    until: (lines) => {
+      if (readAt === undefined && has('could not read')(lines))
+        readAt = performance.now();
+      return readAt !== undefined && performance.now() - readAt > 2_000;
+    },
     decisions: {},
     ahead: 0,
     model: {},
@@ -1104,6 +1116,10 @@ test('a company page that refuses the crawl is logged as not read, with its addr
       ),
     ),
     `${lines.join('\n')}\n${errors}`,
+  );
+  assert.deepEqual(
+    lines.filter((line) => line.includes('no program page found')),
+    [],
   );
 });
 
@@ -1145,7 +1161,7 @@ test('stopping the app during a model call stores no failure, so the page is sti
   );
 });
 
-test('a page that Jev labels home or list is not sent to the offer model and logs nothing, a program page whose answer states no offer is logged as a new program with no offer found, and a later answer that states one is logged as offers changed', async () => {
+test('a page that Jev labels home or list is not sent to the offer model, and the program that the list names for it is logged as no program page found, a program page whose answer states no offer is logged as a new program with no offer found, and a later answer that states one is logged as offers changed', async () => {
   await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
   const anthropic = 'https://www.anthropic.com/';
   const directory = 'https://startupsmap.co.in/';
@@ -1173,12 +1189,19 @@ test('a page that Jev labels home or list is not sent to the offer model and log
     },
     model: { [microsoft]: [{ offers: [] }] },
     decisions,
-    until: has('new program'),
+    until: (lines) =>
+      has('new program')(lines) &&
+      lines.filter((line) => line.includes('no program page found')).length ===
+        2,
     ahead: 0,
   });
   assert.deepEqual(
-    first.lines,
-    [`new program ${microsoft}: no offer found`],
+    first.lines.toSorted(),
+    [
+      `Anthropic Startup Program: no program page found (${anthropic} linked by ${avinash})`,
+      `Startups Map: no program page found (${directory} linked by ${avinash})`,
+      `new program ${microsoft}: no offer found`,
+    ],
     first.errors,
   );
   assert.deepEqual(
@@ -1272,5 +1295,169 @@ test('a 401 from OpenRouter ends the app with the reason, and logs no page as no
   assert.deepEqual(
     lines.filter((line) => line.startsWith('could not label')),
     [],
+  );
+});
+
+test('a program that a list names and whose page Jev labels home is logged as no program page found, with its name, link and list', async () => {
+  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  const anthropic = 'https://www.anthropic.com/';
+  const { lines, errors } = await running(data.path, {
+    pages: {
+      ...lists([[anthropic, 'Anthropic Startup Program', 'API credits']]),
+      [anthropic]: anthropicHome,
+    },
+    model: {},
+    decisions: { [anthropic]: { kind: 'home' } },
+    until: has('Anthropic Startup Program: no program page found'),
+    ahead: 0,
+  });
+
+  assert.deepEqual(
+    lines,
+    [
+      `Anthropic Startup Program: no program page found (${anthropic} linked by ${avinash})`,
+    ],
+    errors,
+  );
+});
+
+// claude.com/programs/startups, trimmed on 2026-10-31.
+const claudeProgram =
+  ok(`<!doctype html><html><head><title>Claude for Startups</title></head><body>
+<main><h1>Claude for Startups</h1><p>Access discounts and credits worth up to $45,000 from companies building with Claude.</p></main></body></html>`);
+const claudeOffers: Answer = {
+  offers: [
+    {
+      quote:
+        'Access discounts and credits worth up to $45,000 from companies building with Claude.',
+      kind: 'credits',
+      value: { amount: 45_000, currency: 'USD' },
+      duration: null,
+      who: null,
+    },
+  ],
+};
+
+test('a program whose name another list gives to a program page on another website is not logged as missing', async () => {
+  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  const anthropic = 'https://www.anthropic.com/';
+  const claude = 'https://claude.com/programs/startups';
+  // Both lists as they link Anthropic's program on 2026-10-31.
+  let quietFrom: number | undefined;
+  const { lines, errors } = await running(data.path, {
+    pages: {
+      [avinash]: githubList('/avinash201199/awesome-startup-credits', [
+        [
+          anthropic,
+          'Anthropic Startup Program',
+          '$25K–$100K+ Claude API credits',
+        ],
+      ]),
+      [doanbactam]: githubList('/doanbactam/awesome-builder-programs', [
+        [claude, 'Anthropic Startup Program', 'API credits'],
+      ]),
+      [anthropic]: anthropicHome,
+      [claude]: claudeProgram,
+    },
+    model: { [claude]: [claudeOffers] },
+    decisions: { [anthropic]: { kind: 'home' }, ...programs(claude) },
+    // Two seconds after the new program, so a missing line would be logged
+    // by then.
+    until: (lines) => {
+      if (quietFrom === undefined && has('new program')(lines))
+        quietFrom = performance.now();
+      return quietFrom !== undefined && performance.now() - quietFrom > 2_000;
+    },
+    ahead: 0,
+  });
+
+  assert.deepEqual(
+    lines,
+    [
+      `new program ${claude}: credits $45,000 ("Access discounts and credits worth up to $45,000 from companies building with Claude.")`,
+    ],
+    errors,
+  );
+});
+
+test('a program whose link shares its registrable domain with a program page is not logged as missing', async () => {
+  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  const home = 'https://vercel.com/';
+  const startups = 'https://vercel.com/startups';
+  let quietFrom: number | undefined;
+  const { lines, errors } = await running(data.path, {
+    pages: {
+      ...lists([
+        [home, 'Vercel', 'Credits + AI Accelerator'],
+        [startups, 'Vercel Startups', 'Hosting credits'],
+      ]),
+      // vercel.com, trimmed on 2026-10-31: enough text for a page record.
+      [home]:
+        ok(`<!doctype html><html><head><title>Vercel: Build and deploy the best web experiences with the AI Cloud</title></head><body>
+<main><h1>Build and deploy on the AI Cloud.</h1>
+<p>Vercel provides the developer tools and cloud infrastructure to build, scale, and secure a faster, more personalized web.</p></main></body></html>`),
+      [startups]:
+        ok(`<!doctype html><html><head><title>Vercel for Startups</title></head><body>
+<main><h1>Vercel for Startups</h1><p>Eligible teams get up to $30,000 in credits for their first year.</p></main></body></html>`),
+    },
+    model: {
+      [startups]: [
+        {
+          offers: [
+            {
+              quote:
+                'Eligible teams get up to $30,000 in credits for their first year.',
+              kind: 'credits',
+              value: { amount: 30_000, currency: 'USD' },
+              duration: null,
+              who: null,
+            },
+          ],
+        },
+      ],
+    },
+    decisions: { [home]: { kind: 'home' }, ...programs(startups) },
+    until: (lines) => {
+      if (quietFrom === undefined && has('new program')(lines))
+        quietFrom = performance.now();
+      return quietFrom !== undefined && performance.now() - quietFrom > 2_000;
+    },
+    ahead: 0,
+  });
+
+  assert.deepEqual(
+    lines,
+    [
+      `new program ${startups}: credits $30,000 ("Eligible teams get up to $30,000 in credits for their first year.")`,
+    ],
+    errors,
+  );
+});
+
+test('a list that redirects to its new address, as a renamed GitHub repository does, still names its programs', async () => {
+  await using data = await mkdtempDisposable(join(tmpdir(), 'credits-data-'));
+  const anthropic = 'https://www.anthropic.com/';
+  const renamed = 'https://github.com/avinash201199/startup-credits';
+  const { lines, errors } = await running(data.path, {
+    pages: {
+      [avinash]: { status: 301, location: renamed },
+      [renamed]: githubList('/avinash201199/startup-credits', [
+        [anthropic, 'Anthropic Startup Program', 'API credits'],
+      ]),
+      [doanbactam]: githubList('/doanbactam/awesome-builder-programs', []),
+      [anthropic]: anthropicHome,
+    },
+    model: {},
+    decisions: { [anthropic]: { kind: 'home' } },
+    until: has('Anthropic Startup Program: no program page found'),
+    ahead: 0,
+  });
+
+  assert.deepEqual(
+    lines,
+    [
+      `Anthropic Startup Program: no program page found (${anthropic} linked by ${avinash})`,
+    ],
+    errors,
   );
 });

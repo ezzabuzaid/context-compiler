@@ -63,6 +63,7 @@ const source = new WebSource({
     'StartupCredits/0.1 (+https://github.com/ezzabuzaid/context-compiler)',
   cachePath: join(directory, 'web-http.sqlite'),
 });
+const catalog = await source.discover();
 const pages = destination.table('program_pages');
 // Only the pages labelled program go to the offer model.
 const programs = new View({
@@ -90,11 +91,22 @@ export default new Pipeline({
         path: join(directory, 'checkpoints.sqlite'),
       }),
       steps: [
-        new Copy((await source.discover()).get('program_pages'), pages, {
+        new Copy(catalog.get('program_pages'), pages, {
           id: 'lists:program_pages',
           syncMode: 'incremental',
           destinationSyncMode: 'append_dedup',
         }),
+        // Every route by which the crawl found a page: the alerts follow
+        // them from each link of a list to the pages that it led to.
+        new Copy(
+          catalog.get('program_pages_routes'),
+          destination.table('program_pages_routes'),
+          {
+            id: 'lists:program_pages_routes',
+            syncMode: 'incremental',
+            destinationSyncMode: 'append_dedup',
+          },
+        ),
       ],
     }),
   ],
