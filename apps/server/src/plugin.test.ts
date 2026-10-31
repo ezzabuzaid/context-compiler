@@ -16,6 +16,7 @@ import { test } from 'node:test';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 
+import { timebox } from '@zukhruf/testing/async';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { z } from 'zod';
 
@@ -1388,11 +1389,19 @@ test('two servers importing one selection at once load it in one pass, the secon
   const photos = { connector: 'photos', scope: {}, includeAttachments: true };
   const imports = await plugin.configure({ connectors: [photos] });
   const both = Promise.all([plugin.import(imports), plugin.import(imports)]);
-  const deadline = Date.now() + 30_000;
-  while (plugin.status().connectors[0]?.sync?.state !== 'running') {
-    if (Date.now() > deadline) assert.fail('no import started its pass');
-    await sleep(50);
-  }
+  await timebox(
+    () =>
+      assert.equal(
+        plugin.status().connectors[0]?.sync?.state,
+        'running',
+        'no import started its pass',
+      ),
+    {
+      minTimeout: 50,
+      maxRetryTime: 30_000,
+      shouldRetry: ({ error }) => error instanceof assert.AssertionError,
+    },
+  );
 
   await writeFile(
     join(home, 'Pictures/photos.json'),
@@ -1426,11 +1435,19 @@ test('a connector switched off while its pass runs loses its import once the pas
   const imports = await plugin.configure({ connectors: [photos] });
   const directory = importDirectory(plugin.directory, photos);
   const importing = plugin.import(imports);
-  const deadline = Date.now() + 30_000;
-  while (plugin.status().connectors[0]?.sync?.state !== 'running') {
-    if (Date.now() > deadline) assert.fail('no import started its pass');
-    await sleep(50);
-  }
+  await timebox(
+    () =>
+      assert.equal(
+        plugin.status().connectors[0]?.sync?.state,
+        'running',
+        'no import started its pass',
+      ),
+    {
+      minTimeout: 50,
+      maxRetryTime: 30_000,
+      shouldRetry: ({ error }) => error instanceof assert.AssertionError,
+    },
+  );
 
   await plugin.configure({ connectors: [] });
   const keptWhileRunning = existsSync(directory);

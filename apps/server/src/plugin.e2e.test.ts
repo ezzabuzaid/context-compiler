@@ -28,6 +28,7 @@ import {
   ElicitRequestSchema,
   type ElicitResult,
 } from '@modelcontextprotocol/sdk/types.js';
+import { timebox } from '@zukhruf/testing/async';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { z } from 'zod';
 
@@ -411,14 +412,19 @@ test(
     const settled = async (
       what: string,
       done: (connectors: SelectedConnector[]) => boolean,
-    ): Promise<SelectedConnector[]> => {
-      for (let attempt = 0; attempt < 60; attempt++) {
-        const connectors = selected();
-        if (done(connectors)) return connectors;
-        await sleep(500);
-      }
-      assert.fail(`The import never ${what}`);
-    };
+    ): Promise<SelectedConnector[]> =>
+      timebox(
+        () => {
+          const connectors = selected();
+          assert.ok(done(connectors), `The import never ${what}`);
+          return connectors;
+        },
+        {
+          minTimeout: 500,
+          maxRetryTime: 30_000,
+          shouldRetry: ({ error }) => error instanceof assert.AssertionError,
+        },
+      );
     const notesOf = (connectors: SelectedConnector[]) =>
       connectors.find(({ connector }) => connector === 'notes');
     const imported = async (title: string) => {
@@ -1012,21 +1018,27 @@ test(
         scratch.path,
         'Library/Application Support/Context Compiler/Imports/settings.sqlite',
       );
-      let loaded = false;
-      for (let attempt = 0; attempt < 60 && !loaded; attempt++) {
-        const [notes] = read(
-          settings,
-          "SELECT database FROM selected_connectors WHERE connector = 'notes'",
-        ).rows;
-        loaded =
-          notes !== undefined &&
-          read(
-            join(dirname(settings), notes.database),
-            'SELECT title FROM notes',
-          ).rows.length > 0;
-        if (!loaded) await sleep(500);
-      }
-      assert.ok(loaded, 'the Notes import never loaded the store’s notes');
+      await timebox(
+        () => {
+          const [notes] = read(
+            settings,
+            "SELECT database FROM selected_connectors WHERE connector = 'notes'",
+          ).rows;
+          assert.ok(
+            notes !== undefined &&
+              read(
+                join(dirname(settings), notes.database),
+                'SELECT title FROM notes',
+              ).rows.length > 0,
+            'the Notes import never loaded the store’s notes',
+          );
+        },
+        {
+          minTimeout: 500,
+          maxRetryTime: 30_000,
+          shouldRetry: ({ error }) => error instanceof assert.AssertionError,
+        },
+      );
 
       // A selection the user narrowed in chat survives setting up again.
       const narrowed = { collectionIds: ['FOLDER-NOTES'] };
@@ -1157,23 +1169,28 @@ test(
         scratch.path,
         'Library/Application Support/Context Compiler/Imports/settings.sqlite',
       );
-      let photos: unknown[] = [];
-      for (let attempt = 0; attempt < 60 && photos.length === 0; attempt++) {
-        await sleep(500);
-        const [selected] = read(
-          settings,
-          "SELECT database FROM selected_connectors WHERE connector = 'photos'",
-        ).rows;
-        const database =
-          selected === undefined
-            ? undefined
-            : join(dirname(settings), selected.database);
-        if (database !== undefined && existsSync(database))
-          photos = read(
+      const photos = await timebox(
+        () => {
+          const [selected] = read(
+            settings,
+            "SELECT database FROM selected_connectors WHERE connector = 'photos'",
+          ).rows;
+          assert.ok(selected, 'Photos has no import');
+          const database = join(dirname(settings), selected.database);
+          assert.ok(existsSync(database), 'the Photos import has no database');
+          const rows: unknown[] = read(
             database,
             'SELECT id, title FROM photos ORDER BY id',
           ).rows;
-      }
+          assert.notEqual(rows.length, 0, 'the Photos import loaded no photos');
+          return rows;
+        },
+        {
+          minTimeout: 500,
+          maxRetryTime: 30_000,
+          shouldRetry: ({ error }) => error instanceof assert.AssertionError,
+        },
+      );
       const connector = join(
         scratch.path,
         'Library/Application Support/Context Compiler/Connectors/photos/photos-connector.ts',
@@ -1575,21 +1592,13 @@ const onUnix = {
 // checkpoints; what is written to the handle, once closed, ends the read. An
 // open with no reader fails at once, where a plain write would wait in a
 // thread of Node's pool that no test can stop.
-async function readerOf(pipe: string) {
-  for (let tries = 0; ; tries++) {
-    try {
-      return await open(pipe, constants.O_WRONLY | constants.O_NONBLOCK);
-    } catch (error) {
-      if (!(
-        error instanceof Error &&
-        'code' in error &&
-        error.code === 'ENXIO'
-      ))
-        throw error;
-      if (tries > 300) assert.fail(`nothing read ${pipe} within 30 s`);
-      await sleep(100);
-    }
-  }
+// ENXIO: no process has the pipe open to read yet.
+function readerOf(pipe: string) {
+  return timebox(() => open(pipe, constants.O_WRONLY | constants.O_NONBLOCK), {
+    minTimeout: 100,
+    maxRetryTime: 30_000,
+    shouldRetry: ({ error }) => 'code' in error && error.code === 'ENXIO',
+  });
 }
 
 // A chat's Context Compiler server on the installed plugin, started as Codex starts it.
@@ -1820,10 +1829,14 @@ async function eventually(
   failure: string,
   said: () => string,
 ) {
-  for (let tries = 0; !holds(); tries++) {
-    if (tries > 120) assert.fail(`${failure} within 60 s:\n${said()}`);
-    await sleep(500);
-  }
+  await timebox(
+    () => assert.ok(holds(), `${failure} within 60 s:\n${said()}`),
+    {
+      minTimeout: 500,
+      maxRetryTime: 60_000,
+      shouldRetry: ({ error }) => error instanceof assert.AssertionError,
+    },
+  );
 }
 
 // Three chats' servers on one store, as when a customer's import
@@ -1868,18 +1881,13 @@ async function frozenLeader(signal: AbortSignal, home: string) {
     const start = async () => owned.use(await chat(signal, plugin, home));
     const coordinator = await start();
     await coordinator.configure(['photos', 'albums']);
-    for (let attempt = 0; ; attempt++) {
-      if (
+    await eventually(
+      () =>
         passes(home, 'photos').join() === 'succeeded' &&
-        passes(home, 'albums').join() === 'succeeded'
-      )
-        break;
-      if (attempt > 120)
-        assert.fail(
-          `the first imports never loaded:\n${coordinator.diagnostics}`,
-        );
-      await sleep(500);
-    }
+        passes(home, 'albums').join() === 'succeeded',
+      'the first imports did not load',
+      () => coordinator.diagnostics,
+    );
     const pictures = {
       photos: join(home, 'Pictures/photos.json'),
       albums: join(home, 'Pictures/albums.json'),
