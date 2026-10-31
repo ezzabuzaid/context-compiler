@@ -478,12 +478,13 @@ mcpServer.registerTool(
     title: 'Open Full Disk Access',
     description: `Open the Full Disk Access list in System Settings, where the user allows ${grantee}.`,
     inputSchema: {},
+    outputSchema: {},
     annotations: { readOnlyHint: true, openWorldHint: false },
     _meta: appOnly,
   },
   async () => {
     await openFullDiskAccessSettings();
-    return { content: [] };
+    return structured({});
   },
 );
 // Codex runs one server per chat, so this server's context is this chat's.
