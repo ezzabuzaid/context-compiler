@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { mkdir, mkdtempDisposable, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { pathToFileURL } from 'node:url';
+
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import {
   Catalog,
@@ -171,7 +172,7 @@ test(
   'an import whose signal aborts stops at its next note, records the pass cancelled and no failure, and the next import resumes from the saved cursor',
   { timeout: 10_000 },
   async () => {
-    await using scratch = await mkdtempDisposable(join(tmpdir(), 'import-'));
+    await using scratch = await new TemporaryFiles().directory('import-');
     const reads: unknown[] = [];
     const paused = Promise.withResolvers<void>();
     const resume = Promise.withResolvers<void>();
@@ -231,7 +232,7 @@ test(
   'a pass whose process was killed is recorded failed once the next import begins, and that import resumes from its last checkpoint',
   { timeout: 30_000 },
   async () => {
-    await using scratch = await mkdtempDisposable(join(tmpdir(), 'import-'));
+    await using scratch = await new TemporaryFiles().directory('import-');
     using settings = new Settings(join(scratch.path, 'Imports'));
     const reads: unknown[] = [];
     const connector = new OneSourceConnector(
@@ -354,7 +355,7 @@ test(
   'an import whose signal aborts once its pass committed reads no text of the files it stored, and the next import reads it',
   { timeout: 30_000 },
   async () => {
-    await using scratch = await mkdtempDisposable(join(tmpdir(), 'import-'));
+    await using scratch = await new TemporaryFiles().directory('import-');
     const file = join(scratch.path, 'Store/invoice.txt');
     await mkdir(join(scratch.path, 'Store'));
     await writeFile(file, 'Careem invoice 4471');

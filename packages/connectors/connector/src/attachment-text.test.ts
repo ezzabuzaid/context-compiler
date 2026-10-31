@@ -4,18 +4,18 @@ import { chmodSync } from 'node:fs';
 import {
   chmod,
   mkdir,
-  mkdtempDisposable,
   readFile,
   readdir,
   rename,
   rm,
   writeFile,
 } from 'node:fs/promises';
-import { availableParallelism, tmpdir } from 'node:os';
+import { availableParallelism } from 'node:os';
 import { basename, dirname, extname, join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { MockTranscriptionModelV4 } from 'ai/test';
 
 import {
@@ -331,7 +331,7 @@ function textPdf(text: string): string {
 }
 
 test('an unreadable file loads as failed with its error, and the sync still reads every other file', async () => {
-  await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
+  await using directory = await new TemporaryFiles().directory('att-');
   const store = await importStore(directory.path);
   await store.put('invoice.txt', 'Careem invoice 4471');
   await store.put('corrupt.pdf', 'not a pdf');
@@ -356,7 +356,7 @@ test('an unreadable file loads as failed with its error, and the sync still read
 });
 
 test('a file whose read failed is read again on the next sync', async () => {
-  await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
+  await using directory = await new TemporaryFiles().directory('att-');
   const store = await importStore(directory.path);
   await store.put('invoice.txt', 'Careem invoice 4471');
   // The real parser fails only for reasons a test cannot switch on and off,
@@ -381,7 +381,7 @@ test('a file whose read failed is read again on the next sync', async () => {
 });
 
 test('a stored copy removed while it is read leaves no row and no failure', async () => {
-  await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
+  await using directory = await new TemporaryFiles().directory('att-');
   const store = await importStore(directory.path);
   await store.put('invoice.txt', 'Careem invoice 4471');
   // Only a commit that lands mid-read removes a copy, and a test cannot time
@@ -403,7 +403,7 @@ test(
   'a file that is slow to read holds only its own place when the device has spare capacity',
   { skip: readers < 2 },
   async (t) => {
-    await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
+    await using directory = await new TemporaryFiles().directory('att-');
     const store = await importStore(directory.path);
     await store.put('a-slow.txt', 'hold until released');
     for (const name of ['b', 'c', 'd', 'e', 'f', 'g'])
@@ -438,7 +438,7 @@ test(
 );
 
 test('a watched import loads and commits its rows while a file is still being read', async (t) => {
-  await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
+  await using directory = await new TemporaryFiles().directory('att-');
   const store = await importStore(directory.path);
   await store.put('slow.txt', 'hold until released');
   const parser = new HoldingParser();
@@ -468,7 +468,7 @@ test('a watched import loads and commits its rows while a file is still being re
 });
 
 test('a sync stopped while files are read keeps the text it read, and the next sync reads the rest', async (t) => {
-  await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
+  await using directory = await new TemporaryFiles().directory('att-');
   const store = await importStore(directory.path);
   // Whichever reads start first stay held, leaving the rest queued.
   const files = readers + 2;
@@ -498,7 +498,7 @@ test('a sync stopped while files are read keeps the text it read, and the next s
 });
 
 test('a read that fails for a reason other than the file being gone fails the sync, and stops it taking more files', async () => {
-  await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
+  await using directory = await new TemporaryFiles().directory('att-');
   const store = await importStore(directory.path);
   for (let index = 0; index < readers + 2; index++)
     await store.put(`${index}.txt`, `text ${index}`);
@@ -537,7 +537,7 @@ test('a read that fails for a reason other than the file being gone fails the sy
 });
 
 test('a sync of an import with no files yet reads nothing and fails nothing', async () => {
-  await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
+  await using directory = await new TemporaryFiles().directory('att-');
   const store = await importStore(directory.path);
   const parser = new CountingParser();
 
@@ -548,7 +548,7 @@ test('a sync of an import with no files yet reads nothing and fails nothing', as
 });
 
 test('a reader finds a stored file by its text: text and PDF files load their text, a file with no text loads empty', async () => {
-  await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
+  await using directory = await new TemporaryFiles().directory('att-');
   const store = await importStore(directory.path);
   const contents = {
     'note.txt': 'Dinner at eight',
@@ -606,7 +606,7 @@ test('a reader finds a stored file by its text: text and PDF files load their te
 });
 
 test('a sync with nothing new reads no file', async () => {
-  await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
+  await using directory = await new TemporaryFiles().directory('att-');
   const store = await importStore(directory.path);
   await store.put('note.txt', 'Dinner at eight');
   await store.put('invoice.txt', 'Careem invoice 4471');
@@ -621,7 +621,7 @@ test('a sync with nothing new reads no file', async () => {
 });
 
 test('a parser with a new identity reads every file again', async () => {
-  await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
+  await using directory = await new TemporaryFiles().directory('att-');
   const store = await importStore(directory.path);
   await store.put('note.txt', 'Dinner at eight');
   await store.put('invoice.txt', 'Careem invoice 4471');
@@ -641,7 +641,7 @@ test('a parser with a new identity reads every file again', async () => {
 });
 
 test('a file the import deletes loses its text on the next sync', async () => {
-  await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
+  await using directory = await new TemporaryFiles().directory('att-');
   const store = await importStore(directory.path);
   await store.put('note.txt', 'Dinner at eight');
   await store.put('invoice.txt', 'Careem invoice 4471');
@@ -656,7 +656,7 @@ test('a file the import deletes loses its text on the next sync', async () => {
 });
 
 test('one file attached in three chats is read once, and all three find its text', async () => {
-  await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
+  await using directory = await new TemporaryFiles().directory('att-');
   const store = await importStore(directory.path);
   for (const chat of ['family', 'work', 'friends'])
     await store.put(`${chat}-invoice.txt`, 'Careem invoice 4471');
@@ -677,7 +677,7 @@ test('one file attached in three chats is read once, and all three find its text
 // AI SDK's provider stand-in lets one test change a model's answer without
 // credentials or downloading different weights. Dispatch and storage are real.
 test('enabling or changing an audio model processes stored audio; disabling keeps its transcript', async () => {
-  await using directory = await mkdtempDisposable(join(tmpdir(), 'att-audio-'));
+  await using directory = await new TemporaryFiles().directory('att-audio-');
   const store = await importStore(directory.path);
   await store.put('note.txt', 'Keep this document');
   await store.put('voice.opus', '\u0000audio');
@@ -716,7 +716,7 @@ test('enabling or changing an audio model processes stored audio; disabling keep
 });
 
 test('a moved import reads the text of its stored files', async () => {
-  await using directory = await mkdtempDisposable(join(tmpdir(), 'att-'));
+  await using directory = await new TemporaryFiles().directory('att-');
   const upstream = join(directory.path, 'upstream');
   const before = await importStore(join(directory.path, 'before'), upstream);
   await before.put('note.txt', 'milk and eggs');

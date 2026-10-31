@@ -1,18 +1,18 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
-import { mkdtempDisposable } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import { TemporaryFiles } from '@zukhruf/testing/fs';
+
 const folder = fileURLToPath(new URL('..', import.meta.url));
 
 test('subscription evidence combines read-only imports without confusing their messages or attachments, retains lifecycle records and explains multilingual and attachment matches', async () => {
-  await using scratch = await mkdtempDisposable(
-    join(tmpdir(), 'subscription-presets-'),
+  await using scratch = await new TemporaryFiles().directory(
+    'subscription-presets-',
   );
   const mail = join(scratch.path, 'mail.sqlite');
   const messages = join(scratch.path, 'messages.sqlite');

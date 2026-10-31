@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
-import { mkdtempDisposable, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
+
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import {
   Catalog,
@@ -167,7 +168,7 @@ async function imports(directory: string, views: readonly ViewSpec[]) {
 }
 
 test("a connector's view that reads a stream whose first pass failed waits for it without failing the import, its other views publish, and it is published once the stream loaded", async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'views-'));
+  await using scratch = await new TemporaryFiles().directory('views-');
   const app = await imports(scratch.path, [both, everyone]);
   try {
     await app.break();
@@ -188,7 +189,7 @@ test("a connector's view that reads a stream whose first pass failed waits for i
 });
 
 test('a view that cannot be published once every stream loaded fails the import, which the settings keep', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'views-'));
+  await using scratch = await new TemporaryFiles().directory('views-');
   const app = await imports(scratch.path, [
     {
       ...both,

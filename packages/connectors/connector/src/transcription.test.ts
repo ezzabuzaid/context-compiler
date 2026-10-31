@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
-import { mkdir, mkdtempDisposable, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import { Fixed, LeaderFirst, Pool } from '@zukhruf/pool';
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import {
   Catalog,
@@ -102,8 +102,8 @@ class VoiceNoteConnector extends Connector {
 }
 
 test('an existing import pipeline reads audio with a model saved or disabled by another host', async () => {
-  await using directory = await mkdtempDisposable(
-    join(tmpdir(), 'transcription-host-'),
+  await using directory = await new TemporaryFiles().directory(
+    'transcription-host-',
   );
   const audio = join(directory.path, 'voice.opus');
   await writeFile(audio, Buffer.from([0, 1, 2, 3]));

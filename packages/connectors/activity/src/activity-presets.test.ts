@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { mkdtempDisposable } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { crc32 } from 'node:zlib';
+
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import type { Connector, Preset } from '@workspace/connector/connector';
 import { Pipeline } from '@workspace/elt';
@@ -217,8 +217,8 @@ const bluetooth = (address: string, connected: boolean) =>
   ]);
 
 test('Activity presets pair each start with its end into sessions, visits and spans', async () => {
-  await using scratch = await mkdtempDisposable(
-    join(tmpdir(), 'activity-presets-'),
+  await using scratch = await new TemporaryFiles().directory(
+    'activity-presets-',
   );
   const home = scratch.path;
   // An app switch writes the app left and the app entered at one instant;

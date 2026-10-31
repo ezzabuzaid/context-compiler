@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { mkdtempDisposable } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import type { Connector, Preset } from '@workspace/connector/connector';
 import { Pipeline } from '@workspace/elt';
@@ -279,9 +279,7 @@ const emlx = (lines: readonly string[]) => {
 const january = Date.UTC(2026, 0, 1) / 1000;
 
 test('mail_messages reads each message with both body formats, recipients, subject, Message-ID and attachments', async (t) => {
-  await using scratch = await mkdtempDisposable(
-    join(tmpdir(), 'mail-presets-'),
-  );
+  await using scratch = await new TemporaryFiles().directory('mail-presets-');
   const root = join(scratch.path, 'Library/Mail');
   const mailbox = join(root, 'V10/ACCOUNT/Inbox.mbox');
   mkdirSync(join(scratch.path, 'Library/Accounts'), { recursive: true });

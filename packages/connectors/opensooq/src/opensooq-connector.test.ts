@@ -1,12 +1,11 @@
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
-import { mkdtempDisposable } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { Msw } from '@zukhruf/testing/msw';
 import { HttpResponse, http } from 'msw';
 
@@ -102,7 +101,7 @@ function openSooq() {
 }
 
 test('an import with no category chosen fails as the user’s to fix, and requests nothing', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'opensooq-'));
+  await using scratch = await new TemporaryFiles().directory('opensooq-');
   using wire = openSooq();
   const opensooq = connector();
   using settings = new Settings(join(scratch.path, 'Imports'));
@@ -151,7 +150,7 @@ test('setup offers the categories of OpenSooq Jordan, each under its top-level c
 });
 
 test('an import of the categories chosen in setup loads their listings and the categories, from jo.opensooq.com alone', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'opensooq-'));
+  await using scratch = await new TemporaryFiles().directory('opensooq-');
   using wire = openSooq();
   const opensooq = connector();
   const [categories] = await opensooq.listChoices();

@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, renameSync } from 'node:fs';
-import { mkdtempDisposable } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
+
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import {
   type ConnectorFacts,
@@ -96,7 +96,7 @@ test('a selection is checked against what each connector can be narrowed by', ()
 });
 
 test('readers find each selected import, where it lives and what access it needs in selected_connectors with the sqlite3 shell', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'store-'));
+  await using scratch = await new TemporaryFiles().directory('store-');
   const notes = {
     connector: 'notes',
     scope: { collectionIds: ['folder-1'] },
@@ -155,7 +155,7 @@ test('readers find each selected import, where it lives and what access it needs
 });
 
 test('a store moved to another folder still names its imports, their failures and their databases', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'store-'));
+  await using scratch = await new TemporaryFiles().directory('store-');
   const notes = { connector: 'notes', scope: {}, includeAttachments: true };
   const before = join(scratch.path, 'before');
   const after = join(scratch.path, 'after');
@@ -184,7 +184,7 @@ test('a store moved to another folder still names its imports, their failures an
 });
 
 test('readers find selected_connectors empty in a new store and in one whose tables another version declared otherwise, before anything is selected', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'store-'));
+  await using scratch = await new TemporaryFiles().directory('store-');
   const settings = join(scratch.path, 'settings.sqlite');
   const selected = () =>
     shell(settings, 'SELECT connector FROM selected_connectors');
@@ -211,7 +211,7 @@ test('readers find selected_connectors empty in a new store and in one whose tab
 });
 
 test('a changed selection leaves its previous import stale, and a selection with problems changes nothing', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'store-'));
+  await using scratch = await new TemporaryFiles().directory('store-');
   using store = new Settings(scratch.path);
   const everything = {
     connector: 'notes',
@@ -251,7 +251,7 @@ test('a changed selection leaves its previous import stale, and a selection with
 });
 
 test('a connector the user keeps current stays so when narrowed, until it is switched off or disconnected', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'store-'));
+  await using scratch = await new TemporaryFiles().directory('store-');
   const notes = { connector: 'notes', scope: {}, includeAttachments: true };
   const books = { connector: 'books', scope: {}, includeAttachments: true };
   {
@@ -287,7 +287,7 @@ test('a connector the user keeps current stays so when narrowed, until it is swi
 });
 
 test('removing a connector stops its running import', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'store-'));
+  await using scratch = await new TemporaryFiles().directory('store-');
   const notes = { connector: 'notes', scope: {}, includeAttachments: true };
   using store = new Settings(scratch.path);
   store.select([notes], options);
@@ -311,7 +311,7 @@ test('removing a connector stops its running import', async () => {
 });
 
 test('a selection that keeps a connector never stops its import', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'store-'));
+  await using scratch = await new TemporaryFiles().directory('store-');
   const notes = { connector: 'notes', scope: {}, includeAttachments: true };
   const books = { connector: 'books', scope: {}, includeAttachments: true };
   using store = new Settings(scratch.path);
@@ -325,8 +325,8 @@ test('a selection that keeps a connector never stops its import', async () => {
 });
 
 test('the transcription choice persists independently of connector selections and can be turned off', async () => {
-  await using directory = await mkdtempDisposable(
-    join(tmpdir(), 'transcription-settings-'),
+  await using directory = await new TemporaryFiles().directory(
+    'transcription-settings-',
   );
   {
     using settings = new Settings(directory.path);

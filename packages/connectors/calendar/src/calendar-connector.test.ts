@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { mkdtempDisposable } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
 
@@ -14,8 +14,8 @@ import CalendarConnector from './calendar-connector.ts';
 const folder = fileURLToPath(new URL('..', import.meta.url));
 
 test('an import that stores no attachments needs no Google session, and one that stores them asks for it', async () => {
-  await using directory = await mkdtempDisposable(
-    join(tmpdir(), 'calendar-connector-'),
+  await using directory = await new TemporaryFiles().directory(
+    'calendar-connector-',
   );
   const { contextCompiler } = JSON.parse(
     readFileSync(join(folder, 'package.json'), 'utf8'),

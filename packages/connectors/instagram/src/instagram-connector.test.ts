@@ -2,14 +2,13 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
-import { mkdtempDisposable } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import { Fixed, LeaderFirst, Pool } from '@zukhruf/pool';
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { Msw } from '@zukhruf/testing/msw';
 import { HttpResponse, http } from 'msw';
 
@@ -282,8 +281,8 @@ test('setup offers the accounts the browser’s Instagram account follows, by us
 
 test('an everything import keeps each followed profile once across overlapping pages', async () => {
   await using mac = await signedInMac();
-  await using imports = await mkdtempDisposable(
-    join(tmpdir(), 'instagram-partitions-'),
+  await using imports = await new TemporaryFiles().directory(
+    'instagram-partitions-',
   );
   const repeated = {
     pk: '6720734023',
@@ -373,8 +372,8 @@ test('an import that keeps attachments, as setup does by default, makes the text
     slides.set(id, readFileSync(path));
   }
   using _wire = instagram(slides);
-  await using imports = await mkdtempDisposable(
-    join(tmpdir(), 'instagram-import-'),
+  await using imports = await new TemporaryFiles().directory(
+    'instagram-import-',
   );
   const instagramConnector = connector(
     new MacOSDocumentParser([new ImageFormat(ocr)]),

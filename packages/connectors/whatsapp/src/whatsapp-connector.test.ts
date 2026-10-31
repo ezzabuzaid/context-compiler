@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { mkdirSync, readFileSync } from 'node:fs';
-import { mkdtempDisposable } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import type { Connector } from '@workspace/connector/connector';
 import { Pipeline, PipelineError } from '@workspace/elt';
@@ -127,7 +127,7 @@ async function importWhatsApp(
 }
 
 test('an import narrowed to a chat loads that chat and what hangs off it, and leaves out statuses and the other streams that belong to no chat', async () => {
-  await using home = await mkdtempDisposable(join(tmpdir(), 'whatsapp-home-'));
+  await using home = await new TemporaryFiles().directory('whatsapp-home-');
   whatsappContainer(home.path);
   const connector = connectorUnder(home.path);
 
