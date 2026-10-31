@@ -27,6 +27,8 @@ function connector(): OpenSooqConnector {
     {
       grantee: 'Codex',
       documentParser: new MacOSDocumentParser(),
+      home: '',
+      env: {},
       eventKitHelper: '',
     },
     { name: contextCompiler.name, title: contextCompiler.title, folder },

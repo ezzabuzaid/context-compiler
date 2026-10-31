@@ -1,5 +1,6 @@
 import type { Choice } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
+import { callHistoryStorePath } from '@workspace/sdk-apple-call-history';
 import { AppleCallHistorySource } from '@workspace/source-apple-call-history/apple-call-history-source';
 import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 
@@ -19,6 +20,9 @@ export default class CallHistoryConnector extends Connector {
   }
 
   protected source(scope: ImportScope) {
-    return new AppleCallHistorySource(undefined, scope);
+    return new AppleCallHistorySource({
+      path: callHistoryStorePath(this.host.home),
+      scope,
+    });
   }
 }

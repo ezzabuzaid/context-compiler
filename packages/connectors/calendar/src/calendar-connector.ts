@@ -66,7 +66,9 @@ export default class CalendarConnector extends Connector {
   #calendar(scope: ImportScope, attachments: CalendarAttachmentFetcher) {
     const window = this.defaultScope();
     return new AppleCalendarSource({
-      store: new CalendarStore(this.host.eventKitHelper),
+      store: new CalendarStore(this.host.eventKitHelper, {
+        env: this.host.env,
+      }),
       startAt: scope.startAt ?? window.startAt,
       endAt: scope.endAt ?? window.endAt,
       scope,

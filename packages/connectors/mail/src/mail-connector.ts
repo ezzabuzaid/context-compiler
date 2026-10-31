@@ -91,8 +91,8 @@ export default class MailConnector extends Connector {
 
   protected source(scope: ImportScope) {
     return new AppleMailSource({
-      path: mailDirectory,
-      accounts: new AccountsStore(accountsStorePath),
+      path: mailDirectory(this.host.home),
+      accounts: new AccountsStore(accountsStorePath(this.host.home)),
       scope,
     });
   }

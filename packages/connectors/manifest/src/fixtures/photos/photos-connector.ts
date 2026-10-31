@@ -1,5 +1,4 @@
 import { readFile } from 'node:fs/promises';
-import { homedir } from 'node:os';
 import { join } from 'node:path';
 
 import type { Choice } from '@workspace/connector/choice';
@@ -14,7 +13,7 @@ import {
 
 // A connector outside the library, as an agent writes one: TypeScript that
 // Node runs as written, on the host's elt and Connector. It reads
-// ~/Pictures/photos.json, a list of { id, title }, and checkpoints after each
+// Pictures/photos.json in the host's home folder, a list of { id, title }, and checkpoints after each
 // photo, so an entry that is not a photo fails the stream after the photos
 // before it loaded.
 
@@ -35,6 +34,12 @@ const photos = new Stream({
 
 class PhotosSource extends Source {
   readonly identity = 'photos';
+  readonly #home: string;
+
+  constructor(home: string) {
+    super();
+    this.#home = home;
+  }
   protected readonly catalog = new Catalog([photos]);
 
   coverage(): ExtractionCoverage {
@@ -55,7 +60,7 @@ class PhotosSource extends Source {
 
   protected async *extract() {
     const listed: unknown = JSON.parse(
-      await readFile(join(homedir(), 'Pictures/photos.json'), 'utf8'),
+      await readFile(join(this.#home, 'Pictures/photos.json'), 'utf8'),
     );
     if (!Array.isArray(listed)) throw new TypeError('photos.json is a list');
     for (const photo of listed) {
@@ -79,6 +84,6 @@ export default class PhotosConnector extends Connector {
   }
 
   protected source(): Source {
-    return new PhotosSource();
+    return new PhotosSource(this.host.home);
   }
 }

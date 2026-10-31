@@ -139,6 +139,8 @@ class FolderConnector extends Connector {
         get documentParser() {
           return host.documentParser;
         },
+        home: '',
+        env: {},
         eventKitHelper: '',
       },
       { name: 'folder', title: 'Folder', folder: '/nonexistent' },

@@ -1,5 +1,6 @@
 import type { Choice } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
+import { chatDatabasePath } from '@workspace/sdk-apple-messages';
 import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 import { AppleMessagesSource } from '@workspace/source-apple-messages/apple-messages-source';
 
@@ -23,6 +24,10 @@ export default class MessagesConnector extends Connector {
   }
 
   protected source(scope: ImportScope) {
-    return new AppleMessagesSource(undefined, scope);
+    return new AppleMessagesSource({
+      path: chatDatabasePath(this.host.home),
+      home: this.host.home,
+      scope,
+    });
   }
 }

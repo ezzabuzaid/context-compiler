@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { homedir } from 'node:os';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
@@ -15,6 +16,8 @@ test('every connector folder loads as its connector for the host, and one that c
     fixtures,
     fileURLToPath(new URL('./missing/', import.meta.url)),
   ]).load({
+    home: homedir(),
+    env: process.env,
     grantee: 'Terminal',
     documentParser: new MacOSDocumentParser(),
     eventKitHelper: fileURLToPath(

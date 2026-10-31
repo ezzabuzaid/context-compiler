@@ -144,6 +144,8 @@ test('an existing import pipeline reads audio with a model saved or disabled by 
       get documentParser() {
         return host.parser;
       },
+      home: '',
+      env: {},
       eventKitHelper: '',
     },
     audio,

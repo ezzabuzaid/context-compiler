@@ -1,5 +1,6 @@
 import type { Choice } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
+import { accountsStorePath } from '@workspace/sdk-apple-accounts';
 import { AppleAccountsSource } from '@workspace/source-apple-accounts/apple-accounts-source';
 
 export default class AccountsConnector extends Connector {
@@ -17,6 +18,8 @@ export default class AccountsConnector extends Connector {
   }
 
   protected source() {
-    return new AppleAccountsSource();
+    return new AppleAccountsSource({
+      path: accountsStorePath(this.host.home),
+    });
   }
 }

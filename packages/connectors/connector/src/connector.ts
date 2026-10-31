@@ -42,6 +42,12 @@ export type { Selection } from '@workspace/settings';
 
 // What the host running a connector offers it.
 export type ConnectorHost = {
+  // The home folder of the user whose apps the connectors read: each
+  // connector finds its app's stores under it.
+  readonly home: string;
+  // The environment the EventKit helper runs with, as the host's own
+  // process has it: its TZ gives an all-day item its dates.
+  readonly env: NodeJS.ProcessEnv;
   readonly documentParser: DocumentParser;
   // The app macOS grants access to: ChatGPT for the plugin, the terminal
   // that launched the CLI.

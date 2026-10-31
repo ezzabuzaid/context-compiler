@@ -95,6 +95,8 @@ class TwoStoreConnector extends Connector {
       {
         grantee: 'Codex',
         documentParser: new MacOSDocumentParser(),
+        home: '',
+        env: {},
         eventKitHelper: '',
       },
       { name: 'two-stores', title: 'Two Stores', folder: '/nonexistent' },

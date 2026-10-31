@@ -1,5 +1,7 @@
 import type { Choice } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
+import { biomeDirectory } from '@workspace/sdk-apple-biome';
+import { knowledgeStorePath } from '@workspace/sdk-apple-knowledge';
 import { AppleActivitySource } from '@workspace/source-apple-activity/apple-activity-source';
 
 export default class ActivityConnector extends Connector {
@@ -17,6 +19,9 @@ export default class ActivityConnector extends Connector {
   }
 
   protected source() {
-    return new AppleActivitySource();
+    return new AppleActivitySource({
+      biome: biomeDirectory(this.host.home),
+      knowledge: knowledgeStorePath(this.host.home),
+    });
   }
 }

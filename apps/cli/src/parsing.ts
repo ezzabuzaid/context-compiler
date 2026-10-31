@@ -1,3 +1,5 @@
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { HillClimbing, LeaderFirst, Pool } from '@zukhruf/pool';
@@ -68,7 +70,10 @@ class Started implements AsyncDisposable {
     });
     this.transcription = new Transcription(
       directory,
-      new SpeechModels(),
+      new SpeechModels({
+        hub: join(homedir(), '.cache/huggingface/hub'),
+        home: homedir(),
+      }),
       this.#ocr,
       fileURLToPath(
         import.meta.resolve('@workspace/transcription-local/transcribe-local'),

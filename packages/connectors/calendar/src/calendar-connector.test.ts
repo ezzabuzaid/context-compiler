@@ -27,6 +27,8 @@ test('an import that stores no attachments needs no Google session, and one that
     {
       grantee: 'Terminal',
       documentParser: new MacOSDocumentParser(),
+      home: '',
+      env: {},
       eventKitHelper: '',
       google: () =>
         Promise.reject(

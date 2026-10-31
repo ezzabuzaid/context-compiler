@@ -21,6 +21,10 @@ export class TerminalHost implements ConnectorHost {
     return this.#parser();
   }
 
+  readonly home = homedir();
+
+  readonly env = process.env;
+
   readonly eventKitHelper = fileURLToPath(
     import.meta.resolve('@workspace/sdk-apple-eventkit/eventkit-helper'),
   );

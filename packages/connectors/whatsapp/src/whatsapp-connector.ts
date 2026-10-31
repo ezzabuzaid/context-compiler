@@ -1,5 +1,6 @@
 import type { Choice } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
+import { whatsappContainer } from '@workspace/sdk-whatsapp-desktop';
 import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 import { WhatsAppDesktopSource } from '@workspace/source-whatsapp-desktop/whatsapp-desktop-source';
 
@@ -50,6 +51,9 @@ export default class WhatsAppConnector extends Connector {
   }
 
   protected source(scope: ImportScope) {
-    return new WhatsAppDesktopSource(undefined, scope);
+    return new WhatsAppDesktopSource({
+      container: whatsappContainer(this.host.home),
+      scope,
+    });
   }
 }

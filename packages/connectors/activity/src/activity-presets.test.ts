@@ -14,34 +14,28 @@ import { Pipeline } from '@workspace/elt';
 import { SQLiteSyncHistory } from '@workspace/elt-sqlite';
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
 
+import ActivityConnector from './activity-connector.ts';
+
 // This package's folder, which holds its manifest and presets.
 const folder = fileURLToPath(new URL('..', import.meta.url));
 
-// Activity finds Biome and knowledgeC under HOME when its module loads, so the
-// connector is imported only after HOME points at the test's folder. node
-// --test runs this file in its own process, so the module loads once.
-async function connectorUnder(home: string): Promise<Connector> {
-  const previous = process.env.HOME;
-  process.env.HOME = home;
-  try {
-    const { default: ActivityConnector } =
-      await import('./activity-connector.ts');
-    const { contextCompiler } = JSON.parse(
-      readFileSync(join(folder, 'package.json'), 'utf8'),
-    );
-    // Activity reads nothing through EventKit.
-    return new ActivityConnector(
-      {
-        grantee: 'Codex',
-        documentParser: new MacOSDocumentParser(),
-        eventKitHelper: '',
-      },
-      { name: contextCompiler.name, title: contextCompiler.title, folder },
-    );
-  } finally {
-    if (previous === undefined) delete process.env.HOME;
-    else process.env.HOME = previous;
-  }
+// The connector as a host builds it, with the test's folder as the home its
+// stores are under.
+function connectorUnder(home: string): Connector {
+  const { contextCompiler } = JSON.parse(
+    readFileSync(join(folder, 'package.json'), 'utf8'),
+  );
+  // Activity reads nothing through EventKit.
+  return new ActivityConnector(
+    {
+      home,
+      env: {},
+      grantee: 'Codex',
+      documentParser: new MacOSDocumentParser(),
+      eventKitHelper: '',
+    },
+    { name: contextCompiler.name, title: contextCompiler.title, folder },
+  );
 }
 
 // The import the plugin makes: one pass into data.sqlite with sync history
@@ -333,7 +327,7 @@ test('Activity presets pair each start with its end into sessions, visits and sp
     knowledge.exec(knowledgeSchema);
   }
 
-  const connector = await connectorUnder(home);
+  const connector = connectorUnder(home);
   const database = await importActivity(connector, join(home, 'import'));
   const presets = connector.presets();
   const rows = (view: string) =>

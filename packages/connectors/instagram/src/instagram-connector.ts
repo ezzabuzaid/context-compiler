@@ -13,12 +13,12 @@ const account: Choice['label'] = ({ username, fullName }) =>
     ? `${String(username)} (${fullName})`
     : String(username);
 
-function options({
-  collectionIds,
-  startAt,
-  endAt,
-}: ImportScope): InstagramWebOptions {
+function options(
+  home: string,
+  { collectionIds, startAt, endAt }: ImportScope,
+): InstagramWebOptions {
   return {
+    home,
     ...(collectionIds === undefined ? {} : { profileIds: collectionIds }),
     ...(startAt === undefined ? {} : { startAt }),
     ...(endAt === undefined ? {} : { endAt }),
@@ -47,7 +47,7 @@ export default class InstagramConnector extends Connector {
   }
 
   protected source(scope: ImportScope): InstagramWebSource {
-    return new InstagramWebSource(options(scope));
+    return new InstagramWebSource(options(this.host.home, scope));
   }
 
   // An import that selects no profile reads every account the signed-in
@@ -55,6 +55,6 @@ export default class InstagramConnector extends Connector {
   protected override importSource({
     scope,
   }: Selection): Promise<InstagramWebSource> {
-    return InstagramWebSource.connect(options(scope));
+    return InstagramWebSource.connect(options(this.host.home, scope));
   }
 }

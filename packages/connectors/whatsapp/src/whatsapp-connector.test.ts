@@ -13,34 +13,28 @@ import { SQLiteSyncHistory } from '@workspace/elt-sqlite';
 import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
 
+import WhatsAppConnector from './whatsapp-connector.ts';
+
 // This package's folder, which holds its manifest.
 const folder = fileURLToPath(new URL('..', import.meta.url));
 
-// The SDK finds WhatsApp's container under HOME when its module loads, so the
-// connector is imported only after HOME points at the test's folder. node
-// --test runs this file in its own process, so the module loads once.
-async function connectorUnder(home: string): Promise<Connector> {
-  const previous = process.env.HOME;
-  process.env.HOME = home;
-  try {
-    const { default: WhatsAppConnector } =
-      await import('./whatsapp-connector.ts');
-    const { contextCompiler } = JSON.parse(
-      readFileSync(join(folder, 'package.json'), 'utf8'),
-    );
-    // WhatsApp reads nothing through EventKit.
-    return new WhatsAppConnector(
-      {
-        grantee: 'Codex',
-        documentParser: new MacOSDocumentParser(),
-        eventKitHelper: '',
-      },
-      { name: contextCompiler.name, title: contextCompiler.title, folder },
-    );
-  } finally {
-    if (previous === undefined) delete process.env.HOME;
-    else process.env.HOME = previous;
-  }
+// The connector as a host builds it, with the test's folder as the home its
+// stores are under.
+function connectorUnder(home: string): Connector {
+  const { contextCompiler } = JSON.parse(
+    readFileSync(join(folder, 'package.json'), 'utf8'),
+  );
+  // WhatsApp reads nothing through EventKit.
+  return new WhatsAppConnector(
+    {
+      home,
+      env: {},
+      grantee: 'Codex',
+      documentParser: new MacOSDocumentParser(),
+      eventKitHelper: '',
+    },
+    { name: contextCompiler.name, title: contextCompiler.title, folder },
+  );
 }
 
 // The stores a chat-narrowed import reads and the one that shows what it
@@ -135,7 +129,7 @@ async function importWhatsApp(
 test('an import narrowed to a chat loads that chat and what hangs off it, and leaves out statuses and the other streams that belong to no chat', async () => {
   await using home = await mkdtempDisposable(join(tmpdir(), 'whatsapp-home-'));
   whatsappContainer(home.path);
-  const connector = await connectorUnder(home.path);
+  const connector = connectorUnder(home.path);
 
   const everything = await importWhatsApp(
     connector,

@@ -14,33 +14,28 @@ import { SQLiteSyncHistory } from '@workspace/elt-sqlite';
 import { Settings } from '@workspace/settings';
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
 
+import MailConnector from './mail-connector.ts';
+
 // This package's folder, which holds its manifest and presets.
 const folder = fileURLToPath(new URL('..', import.meta.url));
 
-// Mail reads its store under HOME when its module loads, so the connector is
-// imported only after HOME points at the test's folder. node --test runs this
-// file in its own process, so the module loads once, under that HOME.
-async function connectorUnder(home: string): Promise<Connector> {
-  const previous = process.env.HOME;
-  process.env.HOME = home;
-  try {
-    const { default: MailConnector } = await import('./mail-connector.ts');
-    const { contextCompiler } = JSON.parse(
-      readFileSync(join(folder, 'package.json'), 'utf8'),
-    );
-    // Mail reads nothing through EventKit.
-    return new MailConnector(
-      {
-        grantee: 'Codex',
-        documentParser: new MacOSDocumentParser(),
-        eventKitHelper: '',
-      },
-      { name: contextCompiler.name, title: contextCompiler.title, folder },
-    );
-  } finally {
-    if (previous === undefined) delete process.env.HOME;
-    else process.env.HOME = previous;
-  }
+// The connector as a host builds it, with the test's folder as the home its
+// stores are under.
+function connectorUnder(home: string): Connector {
+  const { contextCompiler } = JSON.parse(
+    readFileSync(join(folder, 'package.json'), 'utf8'),
+  );
+  // Mail reads nothing through EventKit.
+  return new MailConnector(
+    {
+      home,
+      env: {},
+      grantee: 'Codex',
+      documentParser: new MacOSDocumentParser(),
+      eventKitHelper: '',
+    },
+    { name: contextCompiler.name, title: contextCompiler.title, folder },
+  );
 }
 
 // The import the plugin makes: one pass into data.sqlite with sync history and
@@ -410,7 +405,7 @@ test('mail_messages reads each message with both body formats, recipients, subje
     `);
   }
 
-  const connector = await connectorUnder(scratch.path);
+  const connector = connectorUnder(scratch.path);
   const database = await importMail(connector, join(scratch.path, 'import'));
   const presets = connector.presets();
   const mailMessages = presets.find(({ name }) => name === 'mail_messages');

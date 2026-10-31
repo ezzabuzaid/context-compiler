@@ -25,7 +25,9 @@ export default class RemindersConnector extends Connector {
 
   protected source(scope: ImportScope) {
     return new AppleRemindersSource({
-      store: new RemindersStore(this.host.eventKitHelper),
+      store: new RemindersStore(this.host.eventKitHelper, {
+        env: this.host.env,
+      }),
       scope,
     });
   }

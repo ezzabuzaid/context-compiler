@@ -1,5 +1,6 @@
 import type { Choice } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
+import { clockLocation } from '@workspace/sdk-apple-clock/clock-store';
 import { AppleClockSource } from '@workspace/source-apple-clock/apple-clock-source';
 
 export default class ClockConnector extends Connector {
@@ -13,6 +14,6 @@ export default class ClockConnector extends Connector {
     return 'Open Clock once to create its stores. Clock need not stay open: this imports saved alarms, timers, world clocks and the current stopwatch with its laps.';
   }
   protected source() {
-    return new AppleClockSource();
+    return new AppleClockSource(clockLocation(this.host.home));
   }
 }

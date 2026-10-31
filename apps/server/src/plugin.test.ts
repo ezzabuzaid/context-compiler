@@ -9,7 +9,7 @@ import {
   rmSync,
 } from 'node:fs';
 import { chmod, mkdir, mkdtempDisposable, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { homedir, tmpdir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
@@ -44,6 +44,8 @@ const chatUri = 'codex://threads/';
 // The host the plugin's server passes its connectors, with the helper this
 // workspace compiled instead of the bundled copy.
 const host = {
+  home: homedir(),
+  env: process.env,
   grantee: 'ChatGPT',
   documentParser: new MacOSDocumentParser(),
   eventKitHelper: fileURLToPath(
@@ -111,6 +113,7 @@ async function oneCalendar() {
 // whose pass reads $HOME/Pictures/photos.json.
 async function photosPlugin(
   directory: string,
+  home: string,
   monitors: Monitors | null = null,
 ) {
   const plugin = new Plugin(
@@ -118,7 +121,7 @@ async function photosPlugin(
       builtInConnectors,
       resolve('packages/connectors/manifest/src/fixtures'),
     ]),
-    host,
+    { ...host, home },
     versionFile,
     directory,
     monitors,
@@ -504,7 +507,10 @@ test('importing settles when the settings cannot be read, so the server keeps se
 
 test('an import that fails before its pass begins shows the failure on the page and in chat, not that it waits to import', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
-  const plugin = await photosPlugin(join(scratch.path, 'store'));
+  const plugin = await photosPlugin(
+    join(scratch.path, 'store'),
+    join(scratch.path, 'home'),
+  );
   const photos = { connector: 'photos', scope: {}, includeAttachments: true };
   const imports = await plugin.configure({ connectors: [photos] });
   // A database the import cannot write stands in for one a reader keeps
@@ -537,35 +543,28 @@ test('an import that synced before and now fails before its pass begins shows th
     join(home, 'Pictures/photos.json'),
     JSON.stringify([{ id: 'p1', title: 'Beach' }]),
   );
-  const plugin = await photosPlugin(join(scratch.path, 'store'));
+  const plugin = await photosPlugin(join(scratch.path, 'store'), home);
   const photos = { connector: 'photos', scope: {}, includeAttachments: true };
   const imports = await plugin.configure({ connectors: [photos] });
   const statusOf = () =>
     connectorRows(plugin).find(({ name }) => name === 'photos')?.status;
-  const previous = process.env.HOME;
-  process.env.HOME = home;
-  try {
-    await plugin.import(imports);
-    const synced = statusOf();
-    // The import can no longer write its database, as when a reader keeps it
-    // busy past the timeout or the disk is full.
-    await chmod(
-      join(importDirectory(plugin.directory, photos), 'data.sqlite'),
-      0o444,
-    );
+  await plugin.import(imports);
+  const synced = statusOf();
+  // The import can no longer write its database, as when a reader keeps it
+  // busy past the timeout or the disk is full.
+  await chmod(
+    join(importDirectory(plugin.directory, photos), 'data.sqlite'),
+    0o444,
+  );
 
-    await plugin.import(imports);
+  await plugin.import(imports);
 
-    assert.equal(synced?.state, 'succeeded');
-    assert.equal(statusOf()?.state, 'failed');
-    assert.equal(
-      statusOf()?.text,
-      'Last sync failed: attempt to write a readonly database',
-    );
-  } finally {
-    if (previous === undefined) delete process.env.HOME;
-    else process.env.HOME = previous;
-  }
+  assert.equal(synced?.state, 'succeeded');
+  assert.equal(statusOf()?.state, 'failed');
+  assert.equal(
+    statusOf()?.text,
+    'Last sync failed: attempt to write a readonly database',
+  );
 });
 
 test('once an import that failed before its pass can write again, its next pass syncs and the failure is gone', async () => {
@@ -576,7 +575,7 @@ test('once an import that failed before its pass can write again, its next pass 
     join(home, 'Pictures/photos.json'),
     JSON.stringify([{ id: 'p1', title: 'Beach' }]),
   );
-  const plugin = await photosPlugin(join(scratch.path, 'store'));
+  const plugin = await photosPlugin(join(scratch.path, 'store'), home);
   const photos = { connector: 'photos', scope: {}, includeAttachments: true };
   const imports = await plugin.configure({ connectors: [photos] });
   const directory = importDirectory(plugin.directory, photos);
@@ -584,31 +583,27 @@ test('once an import that failed before its pass can write again, its next pass 
   mkdirSync(directory, { recursive: true });
   await writeFile(database, '');
   await chmod(database, 0o444);
-  const previous = process.env.HOME;
-  process.env.HOME = home;
-  try {
-    await plugin.import(imports);
-    const failed = connectorRows(plugin).find(
-      ({ name }) => name === 'photos',
-    )?.status;
-    await chmod(database, 0o644);
+  await plugin.import(imports);
+  const failed = connectorRows(plugin).find(
+    ({ name }) => name === 'photos',
+  )?.status;
+  await chmod(database, 0o644);
 
-    await plugin.import(imports);
+  await plugin.import(imports);
 
-    const row = connectorRows(plugin).find(({ name }) => name === 'photos');
-    assert.equal(failed?.state, 'failed');
-    assert.equal(row?.status.state, 'succeeded');
-    assert.match(String(row?.status.text), /^Synced just now/);
-    assert.doesNotMatch(chatStatus(plugin, pageUri).text, /last sync failed/);
-  } finally {
-    if (previous === undefined) delete process.env.HOME;
-    else process.env.HOME = previous;
-  }
+  const row = connectorRows(plugin).find(({ name }) => name === 'photos');
+  assert.equal(failed?.state, 'failed');
+  assert.equal(row?.status.state, 'succeeded');
+  assert.match(String(row?.status.text), /^Synced just now/);
+  assert.doesNotMatch(chatStatus(plugin, pageUri).text, /last sync failed/);
 });
 
 test('a pass a killed process left days ago reads importing with the day it began and how long ago, not as if it began today', async (t) => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
-  const plugin = await photosPlugin(join(scratch.path, 'store'));
+  const plugin = await photosPlugin(
+    join(scratch.path, 'store'),
+    join(scratch.path, 'home'),
+  );
   const photos = { connector: 'photos', scope: {}, includeAttachments: true };
   await plugin.configure({ connectors: [photos] });
   // A pass begun and never finished, as a process killed mid-pass leaves it.
@@ -651,7 +646,7 @@ test('the next import replaces a pass a killed process left, so syncing a connec
     join(home, 'Pictures/photos.json'),
     JSON.stringify([{ id: 'p1', title: 'Beach' }]),
   );
-  const plugin = await photosPlugin(join(scratch.path, 'store'));
+  const plugin = await photosPlugin(join(scratch.path, 'store'), home);
   const photos = { connector: 'photos', scope: {}, includeAttachments: true };
   await plugin.configure({ connectors: [photos] });
   const statusOf = () =>
@@ -662,23 +657,16 @@ test('the next import replaces a pass a killed process left, so syncing a connec
     await passes(plugin, photos)
   )();
   const left = statusOf();
-  const previous = process.env.HOME;
-  process.env.HOME = home;
-  try {
-    // As the row's Sync calls it: the selection read back from status.
-    await plugin.import(
-      plugin
-        .status()
-        .connectors.filter(({ connector }) => connector === 'photos'),
-    );
+  // As the row's Sync calls it: the selection read back from status.
+  await plugin.import(
+    plugin
+      .status()
+      .connectors.filter(({ connector }) => connector === 'photos'),
+  );
 
-    assert.equal(left?.state, 'running');
-    assert.equal(statusOf()?.state, 'succeeded');
-    assert.match(String(statusOf()?.text), /^Synced just now/);
-  } finally {
-    if (previous === undefined) delete process.env.HOME;
-    else process.env.HOME = previous;
-  }
+  assert.equal(left?.state, 'running');
+  assert.equal(statusOf()?.state, 'succeeded');
+  assert.match(String(statusOf()?.text), /^Synced just now/);
 });
 
 test('a monitor added from a chat stays quiet about what already matched, and once a sync brings new matches, queues one message into that chat that names each of them', async () => {
@@ -693,6 +681,7 @@ test('a monitor added from a chat stays quiet about what already matched, and on
   const store = join(scratch.path, 'store');
   const plugin = await photosPlugin(
     store,
+    home,
     new Monitors({
       root,
       store: join(store, 'monitors.sqlite'),
@@ -701,38 +690,31 @@ test('a monitor added from a chat stays quiet about what already matched, and on
   );
   const photos = { connector: 'photos', scope: {}, includeAttachments: true };
   const imports = await plugin.configure({ connectors: [photos] });
-  const previous = process.env.HOME;
-  process.env.HOME = home;
-  try {
-    await plugin.import(imports);
-    await plugin.addMonitor('new-photos', 'chat-1');
-    await plugin.import(imports);
-    const quiet = codex.calls();
-    await writeFile(
-      photosJson,
-      JSON.stringify([
-        { id: 'p1', title: 'Beach' },
-        { id: 'p2', title: 'Snow' },
-        { id: 'p3', title: 'Dunes' },
-      ]),
-    );
+  await plugin.import(imports);
+  await plugin.addMonitor('new-photos', 'chat-1');
+  await plugin.import(imports);
+  const quiet = codex.calls();
+  await writeFile(
+    photosJson,
+    JSON.stringify([
+      { id: 'p1', title: 'Beach' },
+      { id: 'p2', title: 'Snow' },
+      { id: 'p3', title: 'Dunes' },
+    ]),
+  );
 
-    await plugin.import(imports);
+  await plugin.import(imports);
 
-    assert.deepEqual(quiet, []);
-    assert.deepEqual(codex.calls(), [
-      [
-        'queue',
-        '--thread',
-        'chat-1',
-        '--message',
-        'Monitor "New photos" triggered: Describe the new photo.\nNew matches:\n- p2\n- p3',
-      ],
-    ]);
-  } finally {
-    if (previous === undefined) delete process.env.HOME;
-    else process.env.HOME = previous;
-  }
+  assert.deepEqual(quiet, []);
+  assert.deepEqual(codex.calls(), [
+    [
+      'queue',
+      '--thread',
+      'chat-1',
+      '--message',
+      'Monitor "New photos" triggered: Describe the new photo.\nNew matches:\n- p2\n- p3',
+    ],
+  ]);
 });
 
 test('a monitor keeps what it sent across a restart: a match that arrived while the server was down is queued at the next sync, and nothing sent before is queued again', async () => {
@@ -749,6 +731,7 @@ test('a monitor keeps what it sent across a restart: a match that arrived while 
   const server = () =>
     photosPlugin(
       store,
+      home,
       new Monitors({
         root,
         store: join(store, 'monitors.sqlite'),
@@ -758,40 +741,33 @@ test('a monitor keeps what it sent across a restart: a match that arrived while 
   const before = await server();
   const photos = { connector: 'photos', scope: {}, includeAttachments: true };
   const imports = await before.configure({ connectors: [photos] });
-  const previous = process.env.HOME;
-  process.env.HOME = home;
-  try {
-    await before.import(imports);
-    await before.addMonitor('new-photos', 'chat-1');
-    await writeFile(
-      photosJson,
-      JSON.stringify([
-        { id: 'p1', title: 'Beach' },
-        { id: 'p2', title: 'Snow' },
-      ]),
-    );
-    await before.import(imports);
-    // p3 arrives while no server runs, and p2 is gone, so the one send after
-    // the restart can only be p3.
-    await writeFile(
-      photosJson,
-      JSON.stringify([
-        { id: 'p1', title: 'Beach' },
-        { id: 'p3', title: 'Dunes' },
-      ]),
-    );
-    const after = await server();
+  await before.import(imports);
+  await before.addMonitor('new-photos', 'chat-1');
+  await writeFile(
+    photosJson,
+    JSON.stringify([
+      { id: 'p1', title: 'Beach' },
+      { id: 'p2', title: 'Snow' },
+    ]),
+  );
+  await before.import(imports);
+  // p3 arrives while no server runs, and p2 is gone, so the one send after
+  // the restart can only be p3.
+  await writeFile(
+    photosJson,
+    JSON.stringify([
+      { id: 'p1', title: 'Beach' },
+      { id: 'p3', title: 'Dunes' },
+    ]),
+  );
+  const after = await server();
 
-    await after.import(imports);
+  await after.import(imports);
 
-    assert.deepEqual(codex.calls(), [
-      queued('chat-1', 'p2'),
-      queued('chat-1', 'p3'),
-    ]);
-  } finally {
-    if (previous === undefined) delete process.env.HOME;
-    else process.env.HOME = previous;
-  }
+  assert.deepEqual(codex.calls(), [
+    queued('chat-1', 'p2'),
+    queued('chat-1', 'p3'),
+  ]);
 });
 
 test('matches whose message could not be sent are all sent again at the next sync, and until then the monitor says why', async () => {
@@ -806,6 +782,7 @@ test('matches whose message could not be sent are all sent again at the next syn
   const store = join(scratch.path, 'store');
   const plugin = await photosPlugin(
     store,
+    home,
     new Monitors({
       root,
       store: join(store, 'monitors.sqlite'),
@@ -814,52 +791,45 @@ test('matches whose message could not be sent are all sent again at the next syn
   );
   const photos = { connector: 'photos', scope: {}, includeAttachments: true };
   const imports = await plugin.configure({ connectors: [photos] });
-  const previous = process.env.HOME;
-  process.env.HOME = home;
-  try {
-    assert.ok(plugin.monitors !== null);
-    await plugin.import(imports);
-    await plugin.addMonitor('new-photos', 'chat-1');
-    await writeFile(
-      photosJson,
-      JSON.stringify([
-        { id: 'p1', title: 'Beach' },
-        { id: 'p2', title: 'Snow' },
-        { id: 'p3', title: 'Dunes' },
-      ]),
-    );
-    await writeFile(codex.failing, '');
-    await plugin.import(imports);
-    const [failed] = await plugin.monitors.status();
-    const [failedRow] = (await monitorRows(plugin, chatUri)) ?? [];
-    rmSync(codex.failing);
+  assert.ok(plugin.monitors !== null);
+  await plugin.import(imports);
+  await plugin.addMonitor('new-photos', 'chat-1');
+  await writeFile(
+    photosJson,
+    JSON.stringify([
+      { id: 'p1', title: 'Beach' },
+      { id: 'p2', title: 'Snow' },
+      { id: 'p3', title: 'Dunes' },
+    ]),
+  );
+  await writeFile(codex.failing, '');
+  await plugin.import(imports);
+  const [failed] = await plugin.monitors.status();
+  const [failedRow] = (await monitorRows(plugin, chatUri)) ?? [];
+  rmSync(codex.failing);
 
-    await plugin.import(imports);
+  await plugin.import(imports);
 
-    assert.equal(failed?.state, 'watching');
-    assert.match(
-      String(failed?.state === 'watching' && failed.failure),
-      /^Could not send to its chat: Error: failed to queue session message: .*no rollout found for thread id chat-1/,
-    );
-    assert.equal(failedRow?.status.state, 'failed');
-    assert.equal(
-      failedRow?.status.text,
-      failed?.state === 'watching' ? failed.failure : undefined,
-    );
-    assert.deepEqual(codex.calls(), [
-      queued('chat-1', 'p2', 'p3'),
-      queued('chat-1', 'p2', 'p3'),
-    ]);
-    const [sent] = await plugin.monitors.status();
-    assert.equal(sent?.state === 'watching' && sent.failure, null);
-    assert.equal(
-      (await monitorRows(plugin, chatUri))?.[0]?.status.state,
-      'watching',
-    );
-  } finally {
-    if (previous === undefined) delete process.env.HOME;
-    else process.env.HOME = previous;
-  }
+  assert.equal(failed?.state, 'watching');
+  assert.match(
+    String(failed?.state === 'watching' && failed.failure),
+    /^Could not send to its chat: Error: failed to queue session message: .*no rollout found for thread id chat-1/,
+  );
+  assert.equal(failedRow?.status.state, 'failed');
+  assert.equal(
+    failedRow?.status.text,
+    failed?.state === 'watching' ? failed.failure : undefined,
+  );
+  assert.deepEqual(codex.calls(), [
+    queued('chat-1', 'p2', 'p3'),
+    queued('chat-1', 'p2', 'p3'),
+  ]);
+  const [sent] = await plugin.monitors.status();
+  assert.equal(sent?.state === 'watching' && sent.failure, null);
+  assert.equal(
+    (await monitorRows(plugin, chatUri))?.[0]?.status.state,
+    'watching',
+  );
 });
 
 test('a monitor whose chat refuses its message fails alone: the monitors after it still send, and its matches go at the next sync', async () => {
@@ -870,38 +840,31 @@ test('a monitor whose chat refuses its message fails alone: the monitors after i
   // Checked in name order, so the refused chat comes first.
   await writeMonitor(root, 'a-photos', newPhotos);
   await writeMonitor(root, 'b-photos', newPhotos);
-  const previous = process.env.HOME;
-  process.env.HOME = home;
-  try {
-    assert.ok(plugin.monitors !== null);
-    await plugin.import(imports);
-    await plugin.addMonitor('a-photos', 'chat-1');
-    await plugin.addMonitor('b-photos', 'chat-2');
-    await photos('p1', 'p2');
-    // A deleted chat: codex refuses this one thread only.
-    await writeFile(codex.failingFor('chat-1'), '');
-    await plugin.import(imports);
-    const failures = Object.fromEntries(
-      (await plugin.monitors.status()).map((monitor) => [
-        monitor.name,
-        monitor.state === 'watching' ? monitor.failure : monitor.state,
-      ]),
-    );
-    rmSync(codex.failingFor('chat-1'));
+  assert.ok(plugin.monitors !== null);
+  await plugin.import(imports);
+  await plugin.addMonitor('a-photos', 'chat-1');
+  await plugin.addMonitor('b-photos', 'chat-2');
+  await photos('p1', 'p2');
+  // A deleted chat: codex refuses this one thread only.
+  await writeFile(codex.failingFor('chat-1'), '');
+  await plugin.import(imports);
+  const failures = Object.fromEntries(
+    (await plugin.monitors.status()).map((monitor) => [
+      monitor.name,
+      monitor.state === 'watching' ? monitor.failure : monitor.state,
+    ]),
+  );
+  rmSync(codex.failingFor('chat-1'));
 
-    await plugin.import(imports);
+  await plugin.import(imports);
 
-    assert.match(String(failures['a-photos']), /^Could not send to its chat: /);
-    assert.equal(failures['b-photos'], null);
-    assert.deepEqual(codex.calls(), [
-      queued('chat-1', 'p2'),
-      queued('chat-2', 'p2'),
-      queued('chat-1', 'p2'),
-    ]);
-  } finally {
-    if (previous === undefined) delete process.env.HOME;
-    else process.env.HOME = previous;
-  }
+  assert.match(String(failures['a-photos']), /^Could not send to its chat: /);
+  assert.equal(failures['b-photos'], null);
+  assert.deepEqual(codex.calls(), [
+    queued('chat-1', 'p2'),
+    queued('chat-2', 'p2'),
+    queued('chat-1', 'p2'),
+  ]);
 });
 
 test('a monitor whose condition throws says why, and the other monitors still send', async () => {
@@ -929,6 +892,7 @@ export default {
   const store = join(scratch.path, 'store');
   const plugin = await photosPlugin(
     store,
+    home,
     new Monitors({
       root,
       store: join(store, 'monitors.sqlite'),
@@ -937,37 +901,30 @@ export default {
   );
   const photos = { connector: 'photos', scope: {}, includeAttachments: true };
   const imports = await plugin.configure({ connectors: [photos] });
-  const previous = process.env.HOME;
-  process.env.HOME = home;
-  try {
-    assert.ok(plugin.monitors !== null);
-    await plugin.import(imports);
-    await plugin.addMonitor('a-broken-condition', 'chat-1');
-    await plugin.addMonitor('new-photos', 'chat-2');
-    await writeFile(
-      photosJson,
-      JSON.stringify([
-        { id: 'p1', title: 'Beach' },
-        { id: 'p2', title: 'Snow' },
-      ]),
-    );
+  assert.ok(plugin.monitors !== null);
+  await plugin.import(imports);
+  await plugin.addMonitor('a-broken-condition', 'chat-1');
+  await plugin.addMonitor('new-photos', 'chat-2');
+  await writeFile(
+    photosJson,
+    JSON.stringify([
+      { id: 'p1', title: 'Beach' },
+      { id: 'p2', title: 'Snow' },
+    ]),
+  );
 
-    await plugin.import(imports);
+  await plugin.import(imports);
 
-    const [broken] = await plugin.monitors.status();
-    assert.equal(
-      broken?.state === 'watching' && broken.failure,
-      'Last check failed: no such column: albums',
-    );
-    assert.deepEqual((await monitorRows(plugin, chatUri))?.[0]?.status, {
-      state: 'failed',
-      text: 'Last check failed: no such column: albums',
-    });
-    assert.deepEqual(codex.calls(), [queued('chat-2', 'p2')]);
-  } finally {
-    if (previous === undefined) delete process.env.HOME;
-    else process.env.HOME = previous;
-  }
+  const [broken] = await plugin.monitors.status();
+  assert.equal(
+    broken?.state === 'watching' && broken.failure,
+    'Last check failed: no such column: albums',
+  );
+  assert.deepEqual((await monitorRows(plugin, chatUri))?.[0]?.status, {
+    state: 'failed',
+    text: 'Last check failed: no such column: albums',
+  });
+  assert.deepEqual(codex.calls(), [queued('chat-2', 'p2')]);
 });
 
 test('a monitor no chat added is listed as not active and sends nothing, and one that does not load says why', async () => {
@@ -983,6 +940,7 @@ test('a monitor no chat added is listed as not active and sends nothing, and one
   const store = join(scratch.path, 'store');
   const plugin = await photosPlugin(
     store,
+    home,
     new Monitors({
       root,
       store: join(store, 'monitors.sqlite'),
@@ -991,55 +949,48 @@ test('a monitor no chat added is listed as not active and sends nothing, and one
   );
   const photos = { connector: 'photos', scope: {}, includeAttachments: true };
   const imports = await plugin.configure({ connectors: [photos] });
-  const previous = process.env.HOME;
-  process.env.HOME = home;
-  try {
-    assert.ok(plugin.monitors !== null);
-    await plugin.import(imports);
-    await writeFile(
-      photosJson,
-      JSON.stringify([
-        { id: 'p1', title: 'Beach' },
-        { id: 'p2', title: 'Snow' },
-      ]),
-    );
+  assert.ok(plugin.monitors !== null);
+  await plugin.import(imports);
+  await writeFile(
+    photosJson,
+    JSON.stringify([
+      { id: 'p1', title: 'Beach' },
+      { id: 'p2', title: 'Snow' },
+    ]),
+  );
 
-    await plugin.import(imports);
+  await plugin.import(imports);
 
-    assert.deepEqual(
-      (await plugin.monitors.status()).map(({ name, state }) => ({
-        name,
-        state,
-      })),
-      [
-        { name: 'new-photos', state: 'inactive' },
-        { name: 'no-evaluate', state: 'broken' },
-      ],
-    );
-    const [, broken] = await plugin.monitors.status();
-    assert.equal(
-      broken?.state === 'broken' && broken.error,
+  assert.deepEqual(
+    (await plugin.monitors.status()).map(({ name, state }) => ({
+      name,
+      state,
+    })),
+    [
+      { name: 'new-photos', state: 'inactive' },
+      { name: 'no-evaluate', state: 'broken' },
+    ],
+  );
+  const [, broken] = await plugin.monitors.status();
+  assert.equal(
+    broken?.state === 'broken' && broken.error,
+    'Could not be loaded: Its entry does not export an object with evaluate(sql) by default.',
+  );
+  assert.deepEqual(
+    (await monitorRows(plugin, chatUri))?.map(({ status }) => status),
+    [
+      { state: 'inactive', text: 'Not active: set it up from a chat.' },
+      {
+        state: 'failed',
+        text: 'Could not be loaded: Its entry does not export an object with evaluate(sql) by default.',
+      },
+    ],
+  );
+  assert.deepEqual(codex.calls(), []);
+  await assert.rejects(plugin.addMonitor('no-evaluate', 'chat-1'), {
+    message:
       'Could not be loaded: Its entry does not export an object with evaluate(sql) by default.',
-    );
-    assert.deepEqual(
-      (await monitorRows(plugin, chatUri))?.map(({ status }) => status),
-      [
-        { state: 'inactive', text: 'Not active: set it up from a chat.' },
-        {
-          state: 'failed',
-          text: 'Could not be loaded: Its entry does not export an object with evaluate(sql) by default.',
-        },
-      ],
-    );
-    assert.deepEqual(codex.calls(), []);
-    await assert.rejects(plugin.addMonitor('no-evaluate', 'chat-1'), {
-      message:
-        'Could not be loaded: Its entry does not export an object with evaluate(sql) by default.',
-    });
-  } finally {
-    if (previous === undefined) delete process.env.HOME;
-    else process.env.HOME = previous;
-  }
+  });
 });
 
 test('two servers that import at once send a new match once', async () => {
@@ -1055,6 +1006,7 @@ test('two servers that import at once send a new match once', async () => {
   const server = () =>
     photosPlugin(
       store,
+      home,
       new Monitors({
         root,
         store: join(store, 'monitors.sqlite'),
@@ -1065,26 +1017,19 @@ test('two servers that import at once send a new match once', async () => {
   const second = await server();
   const photos = { connector: 'photos', scope: {}, includeAttachments: true };
   const imports = await first.configure({ connectors: [photos] });
-  const previous = process.env.HOME;
-  process.env.HOME = home;
-  try {
-    await first.import(imports);
-    await first.addMonitor('new-photos', 'chat-1');
-    await writeFile(
-      photosJson,
-      JSON.stringify([
-        { id: 'p1', title: 'Beach' },
-        { id: 'p2', title: 'Snow' },
-      ]),
-    );
+  await first.import(imports);
+  await first.addMonitor('new-photos', 'chat-1');
+  await writeFile(
+    photosJson,
+    JSON.stringify([
+      { id: 'p1', title: 'Beach' },
+      { id: 'p2', title: 'Snow' },
+    ]),
+  );
 
-    await Promise.all([first.import(imports), second.import(imports)]);
+  await Promise.all([first.import(imports), second.import(imports)]);
 
-    assert.deepEqual(codex.calls(), [queued('chat-1', 'p2')]);
-  } finally {
-    if (previous === undefined) delete process.env.HOME;
-    else process.env.HOME = previous;
-  }
+  assert.deepEqual(codex.calls(), [queued('chat-1', 'p2')]);
 });
 
 test('the page lists each monitor with its status line: not active until a chat adds it, then watching, then when it last sent, with a link to its chat', async () => {
@@ -1099,6 +1044,7 @@ test('the page lists each monitor with its status line: not active until a chat 
   const store = join(scratch.path, 'store');
   const plugin = await photosPlugin(
     store,
+    home,
     new Monitors({
       root,
       store: join(store, 'monitors.sqlite'),
@@ -1107,46 +1053,39 @@ test('the page lists each monitor with its status line: not active until a chat 
   );
   const photos = { connector: 'photos', scope: {}, includeAttachments: true };
   const imports = await plugin.configure({ connectors: [photos] });
-  const previous = process.env.HOME;
-  process.env.HOME = home;
-  try {
-    await plugin.import(imports);
-    const [inactive] = (await monitorRows(plugin, chatUri)) ?? [];
-    await plugin.addMonitor('new-photos', 'chat 1');
-    const [watching] = (await monitorRows(plugin, chatUri)) ?? [];
-    await writeFile(
-      photosJson,
-      JSON.stringify([
-        { id: 'p1', title: 'Beach' },
-        { id: 'p2', title: 'Snow' },
-      ]),
-    );
+  await plugin.import(imports);
+  const [inactive] = (await monitorRows(plugin, chatUri)) ?? [];
+  await plugin.addMonitor('new-photos', 'chat 1');
+  const [watching] = (await monitorRows(plugin, chatUri)) ?? [];
+  await writeFile(
+    photosJson,
+    JSON.stringify([
+      { id: 'p1', title: 'Beach' },
+      { id: 'p2', title: 'Snow' },
+    ]),
+  );
 
-    await plugin.import(imports);
+  await plugin.import(imports);
 
-    const [ran] = (await monitorRows(plugin, chatUri)) ?? [];
-    assert.deepEqual(inactive, {
-      name: 'new-photos',
-      title: 'New photos',
-      description: 'A photo is added to Photos',
-      instruction: 'Describe the new photo.',
-      chat: null,
-      status: { state: 'inactive', text: 'Not active: set it up from a chat.' },
-    });
-    assert.deepEqual(watching?.status, {
-      state: 'watching',
-      text: 'Watching · has not run yet.',
-    });
-    assert.equal(watching?.chat, 'codex://threads/chat%201');
-    assert.equal(ran?.status.state, 'watching');
-    assert.match(
-      String(ran?.status.text),
-      /^Watching · ran [A-Z][a-z]{2} \d{1,2}, \d{2}:\d{2} [AP]M \(just now\)\.$/,
-    );
-  } finally {
-    if (previous === undefined) delete process.env.HOME;
-    else process.env.HOME = previous;
-  }
+  const [ran] = (await monitorRows(plugin, chatUri)) ?? [];
+  assert.deepEqual(inactive, {
+    name: 'new-photos',
+    title: 'New photos',
+    description: 'A photo is added to Photos',
+    instruction: 'Describe the new photo.',
+    chat: null,
+    status: { state: 'inactive', text: 'Not active: set it up from a chat.' },
+  });
+  assert.deepEqual(watching?.status, {
+    state: 'watching',
+    text: 'Watching · has not run yet.',
+  });
+  assert.equal(watching?.chat, 'codex://threads/chat%201');
+  assert.equal(ran?.status.state, 'watching');
+  assert.match(
+    String(ran?.status.text),
+    /^Watching · ran [A-Z][a-z]{2} \d{1,2}, \d{2}:\d{2} [AP]M \(just now\)\.$/,
+  );
 });
 
 // A plugin over a Monitors folder and a stub codex, with Photos selected and
@@ -1161,6 +1100,7 @@ async function monitoredPhotos(scratch: string) {
   const store = join(scratch, 'store');
   const plugin = await photosPlugin(
     store,
+    home,
     new Monitors({
       root,
       store: join(store, 'monitors.sqlite'),
@@ -1187,32 +1127,25 @@ test('a monitor whose new matches outgrow one command sends them in several mess
   const added = Array.from({ length: 1100 }, (_, index) =>
     `p${String(index).padStart(4, '0')}`.padEnd(1000, 'x'),
   );
-  const previous = process.env.HOME;
-  process.env.HOME = home;
-  try {
-    assert.ok(plugin.monitors !== null);
-    await plugin.import(imports);
-    await plugin.addMonitor('new-photos', 'chat-1');
-    await photos('p1', ...added);
+  assert.ok(plugin.monitors !== null);
+  await plugin.import(imports);
+  await plugin.addMonitor('new-photos', 'chat-1');
+  await photos('p1', ...added);
 
-    await plugin.import(imports);
+  await plugin.import(imports);
 
-    const [monitor] = await plugin.monitors.status();
-    assert.equal(monitor?.state === 'watching' && monitor.failure, null);
-    const sent = codex.calls();
-    assert.ok(sent.length > 1, `${sent.length} message`);
-    const header = queued('chat-1')[4]?.split('\n').slice(0, 2);
-    const keys = sent.flatMap(([, , thread, , message]) => {
-      assert.equal(thread, 'chat-1');
-      const lines = message?.split('\n') ?? [];
-      assert.deepEqual(lines.slice(0, 2), header);
-      return lines.slice(2).map((line) => line.slice('- '.length));
-    });
-    assert.deepEqual(keys, added);
-  } finally {
-    if (previous === undefined) delete process.env.HOME;
-    else process.env.HOME = previous;
-  }
+  const [monitor] = await plugin.monitors.status();
+  assert.equal(monitor?.state === 'watching' && monitor.failure, null);
+  const sent = codex.calls();
+  assert.ok(sent.length > 1, `${sent.length} message`);
+  const header = queued('chat-1')[4]?.split('\n').slice(0, 2);
+  const keys = sent.flatMap(([, , thread, , message]) => {
+    assert.equal(thread, 'chat-1');
+    const lines = message?.split('\n') ?? [];
+    assert.deepEqual(lines.slice(0, 2), header);
+    return lines.slice(2).map((line) => line.slice('- '.length));
+  });
+  assert.deepEqual(keys, added);
 });
 
 test('a monitor whose messages fail partway sends only the matches of the messages that did not go at the next sync', async () => {
@@ -1225,32 +1158,25 @@ test('a monitor whose messages fail partway sends only the matches of the messag
   const added = Array.from({ length: 1100 }, (_, index) =>
     `p${String(index).padStart(4, '0')}`.padEnd(1000, 'x'),
   );
-  const previous = process.env.HOME;
-  process.env.HOME = home;
-  try {
-    await plugin.import(imports);
-    await plugin.addMonitor('new-photos', 'chat-1');
-    await photos('p1', ...added);
-    // The first message goes; codex refuses the second and every call after.
-    await writeFile(codex.failingFrom, '2');
-    await plugin.import(imports);
-    rmSync(codex.failingFrom);
+  await plugin.import(imports);
+  await plugin.addMonitor('new-photos', 'chat-1');
+  await photos('p1', ...added);
+  // The first message goes; codex refuses the second and every call after.
+  await writeFile(codex.failingFrom, '2');
+  await plugin.import(imports);
+  rmSync(codex.failingFrom);
 
-    await plugin.import(imports);
+  await plugin.import(imports);
 
-    const [first, refused, ...retried] = codex.calls();
-    const keysOf = (calls: (string[] | undefined)[]) =>
-      calls.flatMap((call) =>
-        (call?.[4]?.split('\n') ?? [])
-          .slice(2)
-          .map((line) => line.slice('- '.length)),
-      );
-    assert.ok(refused !== undefined && retried.length > 0);
-    assert.deepEqual(keysOf([first, ...retried]), added);
-  } finally {
-    if (previous === undefined) delete process.env.HOME;
-    else process.env.HOME = previous;
-  }
+  const [first, refused, ...retried] = codex.calls();
+  const keysOf = (calls: (string[] | undefined)[]) =>
+    calls.flatMap((call) =>
+      (call?.[4]?.split('\n') ?? [])
+        .slice(2)
+        .map((line) => line.slice('- '.length)),
+    );
+  assert.ok(refused !== undefined && retried.length > 0);
+  assert.deepEqual(keysOf([first, ...retried]), added);
 });
 
 test('adding a monitor again from another chat moves where it sends', async () => {
@@ -1259,21 +1185,14 @@ test('adding a monitor again from another chat moves where it sends', async () =
     scratch.path,
   );
   await writeMonitor(root, 'new-photos', newPhotos);
-  const previous = process.env.HOME;
-  process.env.HOME = home;
-  try {
-    await plugin.import(imports);
-    await plugin.addMonitor('new-photos', 'chat-1');
+  await plugin.import(imports);
+  await plugin.addMonitor('new-photos', 'chat-1');
 
-    await plugin.addMonitor('new-photos', 'chat-2');
-    await photos('p1', 'p2');
-    await plugin.import(imports);
+  await plugin.addMonitor('new-photos', 'chat-2');
+  await photos('p1', 'p2');
+  await plugin.import(imports);
 
-    assert.deepEqual(codex.calls(), [queued('chat-2', 'p2')]);
-  } finally {
-    if (previous === undefined) delete process.env.HOME;
-    else process.env.HOME = previous;
-  }
+  assert.deepEqual(codex.calls(), [queued('chat-2', 'p2')]);
 });
 
 test('a monitor whose entry is edited checks with the new code at the next sync, without being added again', async () => {
@@ -1283,32 +1202,25 @@ test('a monitor whose entry is edited checks with the new code at the next sync,
   );
   await writeMonitor(root, 'new-photos', newPhotos);
   const entry = join(root, 'new-photos', 'new-photos-monitor.ts');
-  const previous = process.env.HOME;
-  process.env.HOME = home;
-  try {
-    await plugin.import(imports);
-    await plugin.addMonitor('new-photos', 'chat-1');
-    await writeFile(
-      entry,
-      `export default { async evaluate() { throw new Error('edited'); } };`,
-    );
-    await plugin.import(imports);
-    const [edited] = (await monitorRows(plugin, chatUri)) ?? [];
-    await writeFile(entry, newPhotos);
+  await plugin.import(imports);
+  await plugin.addMonitor('new-photos', 'chat-1');
+  await writeFile(
+    entry,
+    `export default { async evaluate() { throw new Error('edited'); } };`,
+  );
+  await plugin.import(imports);
+  const [edited] = (await monitorRows(plugin, chatUri)) ?? [];
+  await writeFile(entry, newPhotos);
 
-    await photos('p1', 'p2');
-    await plugin.import(imports);
+  await photos('p1', 'p2');
+  await plugin.import(imports);
 
-    assert.equal(edited?.status.text, 'Last check failed: edited');
-    assert.deepEqual(codex.calls(), [queued('chat-1', 'p2')]);
-    assert.equal(
-      (await monitorRows(plugin, chatUri))?.[0]?.status.state,
-      'watching',
-    );
-  } finally {
-    if (previous === undefined) delete process.env.HOME;
-    else process.env.HOME = previous;
-  }
+  assert.equal(edited?.status.text, 'Last check failed: edited');
+  assert.deepEqual(codex.calls(), [queued('chat-1', 'p2')]);
+  assert.equal(
+    (await monitorRows(plugin, chatUri))?.[0]?.status.state,
+    'watching',
+  );
 });
 
 test('a monitor whose package.json cannot be read is listed with why, and cannot be added', async () => {
@@ -1345,22 +1257,15 @@ test('a monitor whose folder was deleted after a chat added it says its folder i
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'monitor-'));
   const { home, root, plugin, imports } = await monitoredPhotos(scratch.path);
   await writeMonitor(root, 'new-photos', newPhotos);
-  const previous = process.env.HOME;
-  process.env.HOME = home;
-  try {
-    await plugin.import(imports);
-    await plugin.addMonitor('new-photos', 'chat-1');
+  await plugin.import(imports);
+  await plugin.addMonitor('new-photos', 'chat-1');
 
-    rmSync(join(root, 'new-photos'), { recursive: true });
+  rmSync(join(root, 'new-photos'), { recursive: true });
 
-    assert.deepEqual((await monitorRows(plugin, chatUri))?.[0]?.status, {
-      state: 'failed',
-      text: 'Its folder is gone.',
-    });
-  } finally {
-    if (previous === undefined) delete process.env.HOME;
-    else process.env.HOME = previous;
-  }
+  assert.deepEqual((await monitorRows(plugin, chatUri))?.[0]?.status, {
+    state: 'failed',
+    text: 'Its folder is gone.',
+  });
 });
 
 test('removing a monitor while a check runs leaves the other monitors to save what they sent, so nothing is sent twice', async (t) => {
@@ -1390,33 +1295,26 @@ export default {
 };`,
   );
   await writeMonitor(root, 'new-photos', newPhotos);
-  const previous = process.env.HOME;
-  process.env.HOME = home;
-  try {
-    assert.ok(plugin.monitors !== null);
-    await plugin.import(imports);
-    await plugin.addMonitor('a-slow', 'chat-1');
-    await plugin.addMonitor('new-photos', 'chat-2');
-    await photos('p1', 'p2');
-    const importing = plugin.import(imports);
-    await t.waitFor(
-      () => assert.ok(existsSync(started), 'a-slow never started'),
-      {
-        interval: 20,
-        timeout: 30_000,
-      },
-    );
+  assert.ok(plugin.monitors !== null);
+  await plugin.import(imports);
+  await plugin.addMonitor('a-slow', 'chat-1');
+  await plugin.addMonitor('new-photos', 'chat-2');
+  await photos('p1', 'p2');
+  const importing = plugin.import(imports);
+  await t.waitFor(
+    () => assert.ok(existsSync(started), 'a-slow never started'),
+    {
+      interval: 20,
+      timeout: 30_000,
+    },
+  );
 
-    await plugin.monitors.remove('a-slow');
-    await writeFile(release, '');
-    await importing;
-    await plugin.import(imports);
+  await plugin.monitors.remove('a-slow');
+  await writeFile(release, '');
+  await importing;
+  await plugin.import(imports);
 
-    assert.deepEqual(codex.calls(), [queued('chat-2', 'p2')]);
-  } finally {
-    if (previous === undefined) delete process.env.HOME;
-    else process.env.HOME = previous;
-  }
+  assert.deepEqual(codex.calls(), [queued('chat-2', 'p2')]);
 });
 
 test('a check that cannot find the imports, as with settings it cannot read, says so on each monitor', async () => {
@@ -1425,24 +1323,17 @@ test('a check that cannot find the imports, as with settings it cannot read, say
     scratch.path,
   );
   await writeMonitor(root, 'new-photos', newPhotos);
-  const previous = process.env.HOME;
-  process.env.HOME = home;
-  try {
-    await plugin.import(imports);
-    await plugin.addMonitor('new-photos', 'chat-1');
-    // A directory where the settings file belongs fails every read of them.
-    rmSync(join(store, 'settings.sqlite'));
-    mkdirSync(join(store, 'settings.sqlite'));
+  await plugin.import(imports);
+  await plugin.addMonitor('new-photos', 'chat-1');
+  // A directory where the settings file belongs fails every read of them.
+  rmSync(join(store, 'settings.sqlite'));
+  mkdirSync(join(store, 'settings.sqlite'));
 
-    await plugin.import(imports);
+  await plugin.import(imports);
 
-    const [row] = (await monitorRows(plugin, chatUri)) ?? [];
-    assert.equal(row?.status.state, 'failed');
-    assert.match(String(row?.status.text), /^Last check failed: /);
-  } finally {
-    if (previous === undefined) delete process.env.HOME;
-    else process.env.HOME = previous;
-  }
+  const [row] = (await monitorRows(plugin, chatUri)) ?? [];
+  assert.equal(row?.status.state, 'failed');
+  assert.match(String(row?.status.text), /^Last check failed: /);
 });
 
 test('removing a monitor forgets it and deletes its folder, so it sends nothing more', async () => {
@@ -1457,6 +1348,7 @@ test('removing a monitor forgets it and deletes its folder, so it sends nothing 
   const store = join(scratch.path, 'store');
   const plugin = await photosPlugin(
     store,
+    home,
     new Monitors({
       root,
       store: join(store, 'monitors.sqlite'),
@@ -1465,30 +1357,23 @@ test('removing a monitor forgets it and deletes its folder, so it sends nothing 
   );
   const photos = { connector: 'photos', scope: {}, includeAttachments: true };
   const imports = await plugin.configure({ connectors: [photos] });
-  const previous = process.env.HOME;
-  process.env.HOME = home;
-  try {
-    assert.ok(plugin.monitors !== null);
-    await plugin.import(imports);
-    await plugin.addMonitor('new-photos', 'chat-1');
+  assert.ok(plugin.monitors !== null);
+  await plugin.import(imports);
+  await plugin.addMonitor('new-photos', 'chat-1');
 
-    await plugin.monitors.remove('new-photos');
-    await writeFile(
-      photosJson,
-      JSON.stringify([
-        { id: 'p1', title: 'Beach' },
-        { id: 'p2', title: 'Snow' },
-      ]),
-    );
-    await plugin.import(imports);
+  await plugin.monitors.remove('new-photos');
+  await writeFile(
+    photosJson,
+    JSON.stringify([
+      { id: 'p1', title: 'Beach' },
+      { id: 'p2', title: 'Snow' },
+    ]),
+  );
+  await plugin.import(imports);
 
-    assert.deepEqual(await plugin.monitors.status(), []);
-    assert.equal(existsSync(join(root, 'new-photos')), false);
-    assert.deepEqual(codex.calls(), []);
-  } finally {
-    if (previous === undefined) delete process.env.HOME;
-    else process.env.HOME = previous;
-  }
+  assert.deepEqual(await plugin.monitors.status(), []);
+  assert.equal(existsSync(join(root, 'new-photos')), false);
+  assert.deepEqual(codex.calls(), []);
 });
 
 test('two servers importing one selection at once load it in one pass, the second waiting for the first', async () => {
@@ -1498,41 +1383,34 @@ test('two servers importing one selection at once load it in one pass, the secon
   const home = join(scratch.path, 'home');
   mkdirSync(join(home, 'Pictures'), { recursive: true });
   spawnSync('/usr/bin/mkfifo', [join(home, 'Pictures/photos.json')]);
-  const plugin = await photosPlugin(join(scratch.path, 'store'));
+  const plugin = await photosPlugin(join(scratch.path, 'store'), home);
   const photos = { connector: 'photos', scope: {}, includeAttachments: true };
   const imports = await plugin.configure({ connectors: [photos] });
-  const previous = process.env.HOME;
-  process.env.HOME = home;
-  try {
-    const both = Promise.all([plugin.import(imports), plugin.import(imports)]);
-    const deadline = Date.now() + 30_000;
-    while (plugin.status().connectors[0]?.sync?.state !== 'running') {
-      if (Date.now() > deadline) assert.fail('no import started its pass');
-      await sleep(50);
-    }
-
-    await writeFile(
-      join(home, 'Pictures/photos.json'),
-      JSON.stringify([{ id: 'p1', title: 'Beach' }]),
-    );
-    const settled = await Promise.race([both, sleep(30_000).then(() => null)]);
-
-    if (settled === null) assert.fail('an import never settled');
-    using data = new DatabaseSync(
-      join(importDirectory(plugin.directory, photos), 'data.sqlite'),
-      { readOnly: true },
-    );
-    assert.deepEqual(
-      data
-        .prepare('SELECT status FROM sync_attempts')
-        .all()
-        .map((row) => ({ ...row })),
-      [{ status: 'succeeded' }],
-    );
-  } finally {
-    if (previous === undefined) delete process.env.HOME;
-    else process.env.HOME = previous;
+  const both = Promise.all([plugin.import(imports), plugin.import(imports)]);
+  const deadline = Date.now() + 30_000;
+  while (plugin.status().connectors[0]?.sync?.state !== 'running') {
+    if (Date.now() > deadline) assert.fail('no import started its pass');
+    await sleep(50);
   }
+
+  await writeFile(
+    join(home, 'Pictures/photos.json'),
+    JSON.stringify([{ id: 'p1', title: 'Beach' }]),
+  );
+  const settled = await Promise.race([both, sleep(30_000).then(() => null)]);
+
+  if (settled === null) assert.fail('an import never settled');
+  using data = new DatabaseSync(
+    join(importDirectory(plugin.directory, photos), 'data.sqlite'),
+    { readOnly: true },
+  );
+  assert.deepEqual(
+    data
+      .prepare('SELECT status FROM sync_attempts')
+      .all()
+      .map((row) => ({ ...row })),
+    [{ status: 'succeeded' }],
+  );
 });
 
 test('a connector switched off while its pass runs loses its import once the pass ends', async () => {
@@ -1542,38 +1420,31 @@ test('a connector switched off while its pass runs loses its import once the pas
   const home = join(scratch.path, 'home');
   mkdirSync(join(home, 'Pictures'), { recursive: true });
   spawnSync('/usr/bin/mkfifo', [join(home, 'Pictures/photos.json')]);
-  const plugin = await photosPlugin(join(scratch.path, 'store'));
+  const plugin = await photosPlugin(join(scratch.path, 'store'), home);
   const photos = { connector: 'photos', scope: {}, includeAttachments: true };
   const imports = await plugin.configure({ connectors: [photos] });
   const directory = importDirectory(plugin.directory, photos);
-  const previous = process.env.HOME;
-  process.env.HOME = home;
-  try {
-    const importing = plugin.import(imports);
-    const deadline = Date.now() + 30_000;
-    while (plugin.status().connectors[0]?.sync?.state !== 'running') {
-      if (Date.now() > deadline) assert.fail('no import started its pass');
-      await sleep(50);
-    }
-
-    await plugin.configure({ connectors: [] });
-    const keptWhileRunning = existsSync(directory);
-    await writeFile(
-      join(home, 'Pictures/photos.json'),
-      JSON.stringify([{ id: 'p1', title: 'Beach' }]),
-    );
-    const settled = await Promise.race([
-      importing.then(() => true),
-      sleep(30_000).then(() => false),
-    ]);
-
-    assert.equal(settled, true, 'the pass never ended');
-    assert.equal(keptWhileRunning, true);
-    assert.equal(existsSync(directory), false);
-  } finally {
-    if (previous === undefined) delete process.env.HOME;
-    else process.env.HOME = previous;
+  const importing = plugin.import(imports);
+  const deadline = Date.now() + 30_000;
+  while (plugin.status().connectors[0]?.sync?.state !== 'running') {
+    if (Date.now() > deadline) assert.fail('no import started its pass');
+    await sleep(50);
   }
+
+  await plugin.configure({ connectors: [] });
+  const keptWhileRunning = existsSync(directory);
+  await writeFile(
+    join(home, 'Pictures/photos.json'),
+    JSON.stringify([{ id: 'p1', title: 'Beach' }]),
+  );
+  const settled = await Promise.race([
+    importing.then(() => true),
+    sleep(30_000).then(() => false),
+  ]);
+
+  assert.equal(settled, true, 'the pass never ended');
+  assert.equal(keptWhileRunning, true);
+  assert.equal(existsSync(directory), false);
 });
 
 test('a chat hears of a pass only when it changes what a reader can do with the connector', async () => {
@@ -1635,63 +1506,56 @@ test('a chat never calls an import empty while it holds rows that a pass loaded 
     join(home, 'Pictures/photos.json'),
     JSON.stringify([{ id: 'p1', title: 'Beach' }, 'not a photo']),
   );
-  const plugin = await photosPlugin(join(scratch.path, 'store'));
+  const plugin = await photosPlugin(join(scratch.path, 'store'), home);
   const photos = { connector: 'photos', scope: {}, includeAttachments: true };
   const imports = await plugin.configure({ connectors: [photos] });
-  const previous = process.env.HOME;
-  process.env.HOME = home;
-  try {
-    await plugin.import(imports);
-    const partial = chatStatus(plugin, pageUri).text;
-    const begin = await passes(plugin, photos);
-    await begin();
-    const running = chatStatus(plugin, pageUri).text;
-    await (await begin()).fail(new Error('Photos crashed.'), 'system');
-    const failed = chatStatus(plugin, pageUri).text;
-    await (await begin()).cancel();
-    const cancelled = chatStatus(plugin, pageUri).text;
+  await plugin.import(imports);
+  const partial = chatStatus(plugin, pageUri).text;
+  const begin = await passes(plugin, photos);
+  await begin();
+  const running = chatStatus(plugin, pageUri).text;
+  await (await begin()).fail(new Error('Photos crashed.'), 'system');
+  const failed = chatStatus(plugin, pageUri).text;
+  await (await begin()).cancel();
+  const cancelled = chatStatus(plugin, pageUri).text;
 
-    using data = new DatabaseSync(
-      join(importDirectory(plugin.directory, photos), 'data.sqlite'),
-      { readOnly: true },
-    );
-    assert.deepEqual(
-      data
-        .prepare('SELECT id FROM photos')
-        .all()
-        .map(({ id }) => id),
-      ['p1'],
-    );
-    // Where the chat sends the reader: the stream is listed, not current.
-    assert.deepEqual(
-      data
-        .prepare('SELECT stream, current_as_of FROM stream_status')
-        .all()
-        .map((row) => ({ ...row })),
-      [{ stream: 'photos', current_as_of: null }],
-    );
-    assert.match(
-      partial,
-      /^- Photos: partly synced at .*; not every stream has loaded completely yet; stream_status has each stream's current_as_of\. Database: photos\//m,
-    );
-    assert.match(
-      running,
-      /^- Photos: importing since .*; not every stream has loaded completely yet; stream_status has each stream's current_as_of\. Database: photos\//m,
-    );
-    assert.match(
-      failed,
-      /^- Photos: last sync failed at .*: Photos crashed\.; not every stream has loaded completely yet; stream_status has each stream's current_as_of\. Database: photos\//m,
-    );
-    assert.match(
-      cancelled,
-      /^- Photos: its last pass was stopped before it finished; not every stream has loaded completely yet; stream_status has each stream's current_as_of\. Database: photos\//m,
-    );
-    for (const text of [partial, running, failed, cancelled])
-      assert.doesNotMatch(text, /no data yet/);
-  } finally {
-    if (previous === undefined) delete process.env.HOME;
-    else process.env.HOME = previous;
-  }
+  using data = new DatabaseSync(
+    join(importDirectory(plugin.directory, photos), 'data.sqlite'),
+    { readOnly: true },
+  );
+  assert.deepEqual(
+    data
+      .prepare('SELECT id FROM photos')
+      .all()
+      .map(({ id }) => id),
+    ['p1'],
+  );
+  // Where the chat sends the reader: the stream is listed, not current.
+  assert.deepEqual(
+    data
+      .prepare('SELECT stream, current_as_of FROM stream_status')
+      .all()
+      .map((row) => ({ ...row })),
+    [{ stream: 'photos', current_as_of: null }],
+  );
+  assert.match(
+    partial,
+    /^- Photos: partly synced at .*; not every stream has loaded completely yet; stream_status has each stream's current_as_of\. Database: photos\//m,
+  );
+  assert.match(
+    running,
+    /^- Photos: importing since .*; not every stream has loaded completely yet; stream_status has each stream's current_as_of\. Database: photos\//m,
+  );
+  assert.match(
+    failed,
+    /^- Photos: last sync failed at .*: Photos crashed\.; not every stream has loaded completely yet; stream_status has each stream's current_as_of\. Database: photos\//m,
+  );
+  assert.match(
+    cancelled,
+    /^- Photos: its last pass was stopped before it finished; not every stream has loaded completely yet; stream_status has each stream's current_as_of\. Database: photos\//m,
+  );
+  for (const text of [partial, running, failed, cancelled])
+    assert.doesNotMatch(text, /no data yet/);
 });
 
 test('the Context Compiler page and chat report Mail local freshness and content gaps, including a newly downloaded body', async () => {
@@ -1754,7 +1618,10 @@ test('the Context Compiler page and chat report Mail local freshness and content
 
 test('a selected connector that is no longer loaded is reported, keeps its import through other changes, and can be disconnected', async () => {
   await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
-  const withPhotos = await photosPlugin(scratch.path);
+  const withPhotos = await photosPlugin(
+    scratch.path,
+    join(scratch.path, 'home'),
+  );
   const photos = { connector: 'photos', scope: {}, includeAttachments: true };
   await withPhotos.configure({ connectors: [photos] });
   const plugin = await createPlugin(versionFile, scratch.path);

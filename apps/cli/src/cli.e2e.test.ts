@@ -2356,7 +2356,7 @@ test('a connector whose watcher fails for a system reason is reported failed wit
     yield streams;
     for (;;) {
       await new Promise((resolve) => setTimeout(resolve, 100));
-      await readFile(join(homedir(), 'Pictures/photos.json')).catch(() => {
+      await readFile(join(this.#home, 'Pictures/photos.json')).catch(() => {
         throw new Error('The photo library went away');
       });
     }

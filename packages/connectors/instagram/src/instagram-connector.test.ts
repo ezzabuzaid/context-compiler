@@ -25,13 +25,18 @@ import InstagramConnector from './instagram-connector.ts';
 // This package's folder, which holds its manifest.
 const folder = fileURLToPath(new URL('..', import.meta.url));
 
-function connector(documentParser: DocumentParser): InstagramConnector {
+function connector(
+  documentParser: DocumentParser,
+  home: string,
+): InstagramConnector {
   const { contextCompiler } = JSON.parse(
     readFileSync(join(folder, 'package.json'), 'utf8'),
   );
   // Instagram reads nothing through EventKit.
   return new InstagramConnector(
     {
+      home,
+      env: {},
       grantee: 'Codex',
       documentParser,
       eventKitHelper: '',
@@ -46,8 +51,7 @@ const session = {
   ds_user_id: '1691',
 };
 
-// A Mac whose Dia is signed in to Instagram, which HOME points at until the
-// test ends.
+// A Mac whose Dia is signed in to Instagram.
 async function signedInMac() {
   const mac = await ScratchMac.create();
   const password = randomUUID();
@@ -62,16 +66,7 @@ async function signedInMac() {
       days: 300,
     })),
   );
-  const previous = process.env.HOME;
-  process.env.HOME = mac.path;
-  return {
-    path: mac.path,
-    async [Symbol.asyncDispose]() {
-      if (previous === undefined) delete process.env.HOME;
-      else process.env.HOME = previous;
-      await mac[Symbol.asyncDispose]();
-    },
-  };
+  return mac;
 }
 
 // A PNG of the given line of text, drawn by AppKit, or a blank one; copied
@@ -271,10 +266,13 @@ function instagram(slides: ReadonlyMap<string, Buffer>) {
 }
 
 test('setup offers the accounts the browser’s Instagram account follows, by username and name', async () => {
-  await using _mac = await signedInMac();
+  await using mac = await signedInMac();
   using _wire = instagram(new Map());
 
-  const [profiles] = await connector(new MacOSDocumentParser()).listChoices();
+  const [profiles] = await connector(
+    new MacOSDocumentParser(),
+    mac.path,
+  ).listChoices();
 
   assert.deepEqual(profiles?.options, [
     { id: '44555906095', label: 'hivefitnationgym (Hive Fit Nation)' },
@@ -283,7 +281,7 @@ test('setup offers the accounts the browser’s Instagram account follows, by us
 });
 
 test('an everything import keeps each followed profile once across overlapping pages', async () => {
-  await using _mac = await signedInMac();
+  await using mac = await signedInMac();
   await using imports = await mkdtempDisposable(
     join(tmpdir(), 'instagram-partitions-'),
   );
@@ -334,7 +332,7 @@ test('an everything import keeps each followed profile once across overlapping p
   );
   server.listen({ onUnhandledRequest: 'error' });
   try {
-    const instagramConnector = connector(new MacOSDocumentParser());
+    const instagramConnector = connector(new MacOSDocumentParser(), mac.path);
 
     const { connection } = await instagramConnector.connection(imports.path, {
       connector: instagramConnector.name,
@@ -385,6 +383,7 @@ test('an import that keeps attachments, as setup does by default, makes the text
   );
   const instagramConnector = connector(
     new MacOSDocumentParser([new ImageFormat(ocr)]),
+    mac.path,
   );
   const { connection, derived } = await instagramConnector.connection(
     imports.path,

@@ -5,6 +5,7 @@ import {
   name,
 } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
+import { noteStorePath } from '@workspace/sdk-apple-notes';
 import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 import { AppleNotesSource } from '@workspace/source-apple-notes/apple-notes-source';
 
@@ -25,6 +26,9 @@ export default class NotesConnector extends Connector {
   }
 
   protected source(scope: ImportScope) {
-    return new AppleNotesSource({ scope });
+    return new AppleNotesSource({
+      path: noteStorePath(this.host.home),
+      scope,
+    });
   }
 }

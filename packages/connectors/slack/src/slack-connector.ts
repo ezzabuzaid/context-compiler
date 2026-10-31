@@ -1,5 +1,6 @@
 import { type Choice, byId, name } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
+import { slackDesktopDirectory } from '@workspace/sdk-slack-desktop';
 import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 import { SlackDesktopSource } from '@workspace/source-slack-desktop/slack-desktop-source';
 
@@ -48,6 +49,9 @@ export default class SlackConnector extends Connector {
   }
 
   protected source(scope: ImportScope) {
-    return new SlackDesktopSource(undefined, scope);
+    return new SlackDesktopSource({
+      directory: slackDesktopDirectory(this.host.home),
+      scope,
+    });
   }
 }

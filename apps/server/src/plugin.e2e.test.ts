@@ -1763,7 +1763,7 @@ async function withWatchedPhotos(home: string) {
         watcher,
         `  protected async *observe({ streams, signal }: SourceWatchOptions) {
     yield streams;
-    const library = join(homedir(), 'Pictures/photos.json');
+    const library = join(this.#home, 'Pictures/photos.json');
     let seen = (await stat(library)).mtimeMs;
     while (!signal.aborted) {
       await new Promise((resolve) => setTimeout(resolve, 100));

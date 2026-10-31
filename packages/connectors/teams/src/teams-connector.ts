@@ -5,6 +5,7 @@ import {
   byId,
 } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
+import { teamsDirectory } from '@workspace/sdk-microsoft-teams';
 import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 import { TeamsSource } from '@workspace/source-microsoft-teams/teams-source';
 
@@ -59,6 +60,9 @@ export default class TeamsConnector extends Connector {
   }
 
   protected source(scope: ImportScope) {
-    return new TeamsSource(undefined, scope);
+    return new TeamsSource({
+      directory: teamsDirectory(this.host.home),
+      scope,
+    });
   }
 }

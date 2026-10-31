@@ -1,5 +1,9 @@
 import { type Choice, byId, name } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
+import {
+  addressBookDirectory,
+  globalPreferences,
+} from '@workspace/sdk-apple-contacts';
 import { AppleContactsSource } from '@workspace/source-apple-contacts/apple-contacts-source';
 import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 
@@ -23,6 +27,10 @@ export default class ContactsConnector extends Connector {
   }
 
   protected source(scope: ImportScope) {
-    return new AppleContactsSource(undefined, scope);
+    return new AppleContactsSource({
+      directory: addressBookDirectory(this.host.home),
+      preferences: globalPreferences(this.host.home),
+      scope,
+    });
   }
 }

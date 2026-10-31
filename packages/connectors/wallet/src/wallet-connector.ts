@@ -1,5 +1,6 @@
 import type { Choice } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
+import { walletStorePath } from '@workspace/sdk-apple-wallet';
 import { AppleWalletSource } from '@workspace/source-apple-wallet/apple-wallet-source';
 
 export default class WalletConnector extends Connector {
@@ -18,6 +19,8 @@ export default class WalletConnector extends Connector {
   }
 
   protected source() {
-    return new AppleWalletSource();
+    return new AppleWalletSource({
+      directory: walletStorePath(this.host.home),
+    });
   }
 }

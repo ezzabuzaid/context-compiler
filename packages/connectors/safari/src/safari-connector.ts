@@ -1,5 +1,6 @@
 import { type Choice, byId } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
+import { safariContainer, safariDirectory } from '@workspace/sdk-apple-safari';
 import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 import { AppleSafariSource } from '@workspace/source-apple-safari/apple-safari-source';
 
@@ -36,6 +37,10 @@ export default class SafariConnector extends Connector {
   }
 
   protected source(scope: ImportScope) {
-    return new AppleSafariSource({ scope });
+    return new AppleSafariSource({
+      directory: safariDirectory(this.host.home),
+      container: safariContainer(this.host.home),
+      scope,
+    });
   }
 }

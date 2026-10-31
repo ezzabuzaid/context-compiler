@@ -68,7 +68,10 @@ const store = join(
 );
 const transcription = new Transcription(
   store,
-  new SpeechModels(),
+  new SpeechModels({
+    hub: join(homedir(), '.cache/huggingface/hub'),
+    home: homedir(),
+  }),
   ocr,
   fileURLToPath(new URL('transcribe-local', import.meta.url)),
 );
@@ -78,6 +81,8 @@ const plugin = new Plugin(
     userConnectors,
   ]),
   {
+    home: homedir(),
+    env: process.env,
     grantee,
     get documentParser() {
       return transcription.parser;
