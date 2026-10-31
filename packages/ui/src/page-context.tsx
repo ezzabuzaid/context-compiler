@@ -130,13 +130,17 @@ export function PageProvider({
   }, [read]);
 
   // A link to /connectors/<name> opens that connector; any other, the list.
-  useEffect(() => {
+  // The link is followed while rendering, as React adjusts state when a prop
+  // changes (react.dev "You Might Not Need an Effect").
+  const [followed, setFollowed] = useState<string>();
+  if (link !== followed) {
+    setFollowed(link);
     if (link !== undefined) {
       setOpened(connectorIn(link) ?? null);
       setOpenedMonitor(null);
       setOpenedTranscription(link === '/transcription');
     }
-  }, [link]);
+  }
 
   const update = useCallback(
     async (

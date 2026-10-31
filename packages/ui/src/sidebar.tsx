@@ -162,7 +162,7 @@ function MonitorLink({ monitor }: { monitor: MonitorRow }) {
 // shows.
 function StatusGlyph({ row }: { row: ConnectorRow }) {
   const { state, text } = row.status;
-  let glyph: Glyph = 'synced';
+  let glyph: GlyphShape = 'synced';
   if (!row.loaded || state === 'failed' || state === 'partial')
     glyph = 'troubled';
   else if (state === 'waiting' || state === 'running') glyph = 'busy';
@@ -170,9 +170,9 @@ function StatusGlyph({ row }: { row: ConnectorRow }) {
   return <Glyph glyph={glyph} label={text} />;
 }
 
-type Glyph = 'synced' | 'busy' | 'troubled' | 'off';
+type GlyphShape = 'synced' | 'busy' | 'troubled' | 'off';
 
-function Glyph({ glyph, label }: { glyph: Glyph; label: string }) {
+function Glyph({ glyph, label }: { glyph: GlyphShape; label: string }) {
   return (
     <svg
       className={`glyph ${glyph}`}
