@@ -2,6 +2,7 @@ import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 
 import {
+  CoalescingDecisionModel,
   DecisionScorer,
   type Scores,
   type Stream,
@@ -14,7 +15,7 @@ import {
 } from 'ai';
 import { z } from 'zod';
 
-import model from './decision-model.ts';
+import d1 from './decision-model.ts';
 import directory from './directory.ts';
 import type { Interest } from './settings.ts';
 
@@ -46,14 +47,18 @@ const write = db.prepare(
 );
 const rowSchema = z.object({ probability: z.number() });
 
+// The questions that the interests ask about one article in one turn of the
+// event loop go to d1 as one call, which answers them in one pass.
+const coalesced = new CoalescingDecisionModel(d1);
+
 // The decision model behind the table: it reads the stored answer and asks
 // the model only on a miss. DecisionScorer asks one boolean question about one
 // text, so any other call is refused.
-const cached: typeof model = {
-  specificationVersion: model.specificationVersion,
-  provider: model.provider,
-  modelId: model.modelId,
-  supportedQuestionTypes: model.supportedQuestionTypes,
+const cached: typeof d1 = {
+  specificationVersion: d1.specificationVersion,
+  provider: d1.provider,
+  modelId: d1.modelId,
+  supportedQuestionTypes: d1.supportedQuestionTypes,
   async doDecide(options) {
     const [part, ...otherParts] = options.state;
     const [entry, ...otherQuestions] = Object.entries(options.questions);
@@ -81,7 +86,7 @@ const cached: typeof model = {
         },
         warnings: [],
       };
-    const result = await model.doDecide(options);
+    const result = await coalesced.doDecide(options);
     const answer = result.answers[id];
     if (answer?.type === 'boolean')
       write.run(part.text, question.instructions, answer.probability);

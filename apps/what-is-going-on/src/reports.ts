@@ -202,8 +202,12 @@ export class Reports extends DerivedDataset<SQLiteTable> {
     );
     // A run without a signal has no stop.
     const stop = signal ?? new AbortController().signal;
-    for (const interest of settings.interests())
-      await score(interest, stream, { signal: stop });
+    // Together, so their questions about one article go as one call.
+    await Promise.all(
+      settings
+        .interests()
+        .map((interest) => score(interest, stream, { signal: stop })),
+    );
   }
 }
 

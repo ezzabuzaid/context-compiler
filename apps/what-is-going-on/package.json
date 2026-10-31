@@ -13,7 +13,7 @@
     "@workspace/source-web-pages": "0.0.1",
     "@zukhruf/embeddings": "0.3.55",
     "@zukhruf/event-grouping": "0.3.55",
-    "@zukhruf/relevance-filtering": "0.6.2",
+    "@zukhruf/relevance-filtering": "0.6.3",
     "@zukhruf/sqlite-drift": "0.3.55",
     "@zukhruf/sqlite-transaction": "0.3.55",
     "ai": "7.0.156",
