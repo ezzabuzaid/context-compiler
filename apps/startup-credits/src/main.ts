@@ -20,8 +20,10 @@ for (const signal of ['SIGINT', 'SIGTERM'] as const)
 
 const reasonOf = (error: unknown) =>
   Error.isError(error) ? error.message : String(error);
-const valued = (offers: readonly StoredOffer[]) =>
-  valuedIdentities(offers).join(', ') || 'none';
+const valued = (offers: readonly StoredOffer[]) => {
+  const identities = valuedIdentities(offers);
+  return identities.length === 0 ? 'none' : identities.join(', ');
+};
 
 using warehouse = new CreditsWarehouse(join(directory, 'credits.sqlite'));
 const eca = new Eca<SQLTagStore, Alert>({ warehouse });
@@ -70,7 +72,7 @@ await Promise.all([
         known.set(data.page, data.offers);
         console.log(
           before === undefined
-            ? `new program ${data.page}: ${data.offers.map((offer) => `${offerIdentity(offer)} ("${offer.quote}")`).join('; ') || 'no offer found'}`
+            ? `new program ${data.page}: ${data.offers.length === 0 ? 'no offer found' : data.offers.map((offer) => `${offerIdentity(offer)} ("${offer.quote}")`).join('; ')}`
             : `offers changed ${data.page}: ${valued(before)} → ${valued(data.offers)}`,
         );
       }
