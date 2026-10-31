@@ -1,13 +1,12 @@
 import assert from 'node:assert/strict';
 import { once } from 'node:events';
-import { mkdtempDisposable } from 'node:fs/promises';
 import type { AddressInfo } from 'node:net';
-import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
 
 import { serve } from '@hono/node-server';
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { HttpServer } from '@zukhruf/testing/http';
 
 import type { Source } from './sources.ts';
@@ -15,7 +14,7 @@ import type { Source } from './sources.ts';
 // The app keeps its files under XDG_DATA_HOME, read once at import, so the
 // tests of this file share one folder; each test reads sites of its own,
 // about stories of its own.
-await using data = await mkdtempDisposable(join(tmpdir(), 'what-is-going-on-'));
+await using data = await new TemporaryFiles().directory('what-is-going-on-');
 process.env.XDG_DATA_HOME = data.path;
 const { default: app } = await import('./app.ts');
 const { default: pipeline } = await import('./pipeline.ts');
