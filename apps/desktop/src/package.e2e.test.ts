@@ -1,14 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
 import { on, once } from 'node:events';
-import {
-  accessSync,
-  constants,
-  existsSync,
-  readdirSync,
-  rmSync,
-} from 'node:fs';
-import { mkdtemp, mkdtempDisposable } from 'node:fs/promises';
+import { accessSync, constants, existsSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { test } from 'node:test';
 
@@ -21,13 +14,17 @@ import {
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { CallToolResultSchema } from '@modelcontextprotocol/sdk/types.js';
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { type Browser, chromium } from 'playwright';
 
 test(
   'the native package is ad-hoc signed, includes its executable server resources and starts without PATH or Codex',
   { timeout: 90_000 },
   async () => {
-    const home = await mkdtemp('/tmp/cc-p-');
+    await using homeDirectory = await new TemporaryFiles().directory('cc-p-', {
+      parent: '/tmp',
+    });
+    const home = homeDirectory.path;
     const bundle = resolve(
       `apps/desktop/dist/package/Context Compiler-darwin-${process.arch}/Context Compiler.app`,
     );
@@ -157,13 +154,9 @@ test(
         true,
       );
     } finally {
-      try {
-        const spawned = transport.pid !== null;
-        await client.close();
-        if (spawned) await exited.promise;
-      } finally {
-        rmSync(home, { recursive: true, force: true });
-      }
+      const spawned = transport.pid !== null;
+      await client.close();
+      if (spawned) await exited.promise;
     }
   },
 );
@@ -172,7 +165,9 @@ test(
   'the packaged Vite frontend loads from ASAR and connects to its bundled server',
   { timeout: 60_000 },
   async () => {
-    await using home = await mkdtempDisposable('/tmp/cc-packaged-ui-');
+    await using home = await new TemporaryFiles().directory('cc-packaged-ui-', {
+      parent: '/tmp',
+    });
     // The signed app disables Node's inspector. Chromium's debugging protocol
     // drives the real renderer without changing any production fuse.
     const child = spawn(

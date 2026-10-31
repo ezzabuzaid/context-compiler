@@ -2,18 +2,21 @@ import assert from 'node:assert/strict';
 import { type ChildProcess, spawn } from 'node:child_process';
 import { once } from 'node:events';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { mkdtemp } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { type ElectronApplication, _electron } from 'playwright';
 
 test(
   'the Apple page connects Photos, syncs the real store, hides Monitors, reopens and quits its backend',
   { timeout: 120_000 },
   async () => {
-    const home = await mkdtemp('/tmp/cc-d-');
+    await using homeDirectory = await new TemporaryFiles().directory('cc-d-', {
+      parent: '/tmp',
+    });
+    const home = homeDirectory.path;
     let application: ElectronApplication | undefined;
     let second: ChildProcess | undefined;
     try {
@@ -258,11 +261,7 @@ writeFileSync(join(homedir(), 'backend.json'), JSON.stringify({ pid: process.pid
           await exited;
         }
       } finally {
-        try {
-          await application?.close();
-        } finally {
-          rmSync(home, { recursive: true, force: true });
-        }
+        await application?.close();
       }
     }
   },
@@ -272,7 +271,10 @@ test(
   'a backend that cannot start shows its failure and Retry opens the page after the cause is removed',
   { timeout: 90_000 },
   async () => {
-    const home = await mkdtemp('/tmp/cc-f-');
+    await using homeDirectory = await new TemporaryFiles().directory('cc-f-', {
+      parent: '/tmp',
+    });
+    const home = homeDirectory.path;
     let application: ElectronApplication | undefined;
     try {
       const root = join(home, 'Library/Application Support/Context Compiler');
@@ -301,11 +303,7 @@ test(
         .getByRole('navigation', { name: 'Context Compiler' })
         .waitFor();
     } finally {
-      try {
-        await application?.close();
-      } finally {
-        rmSync(home, { recursive: true, force: true });
-      }
+      await application?.close();
     }
   },
 );

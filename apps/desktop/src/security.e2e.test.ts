@@ -1,16 +1,18 @@
 import assert from 'node:assert/strict';
-import { rmSync } from 'node:fs';
-import { mkdtemp } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { test } from 'node:test';
 
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { type ElectronApplication, _electron } from 'playwright';
 
 test(
   'the renderer is isolated and the main process rejects tools outside the page contract',
   { timeout: 90_000 },
   async () => {
-    const home = await mkdtemp('/tmp/cc-s-');
+    await using homeDirectory = await new TemporaryFiles().directory('cc-s-', {
+      parent: '/tmp',
+    });
+    const home = homeDirectory.path;
     let application: ElectronApplication | undefined;
     try {
       application = await _electron.launch({
@@ -82,11 +84,7 @@ test(
         404,
       );
     } finally {
-      try {
-        await application?.close();
-      } finally {
-        rmSync(home, { recursive: true, force: true });
-      }
+      await application?.close();
     }
   },
 );
@@ -95,7 +93,10 @@ test(
   'the renderer denies network, injected scripts, eval, frames, popups, navigation and browser permissions',
   { timeout: 90_000 },
   async () => {
-    const home = await mkdtemp('/tmp/cc-s-');
+    await using homeDirectory = await new TemporaryFiles().directory('cc-s-', {
+      parent: '/tmp',
+    });
+    const home = homeDirectory.path;
     let application: ElectronApplication | undefined;
     try {
       application = await _electron.launch({
@@ -218,11 +219,7 @@ test(
       assert.equal(application.windows().length, 1);
       assert.deepEqual(remoteResponses, []);
     } finally {
-      try {
-        await application?.close();
-      } finally {
-        rmSync(home, { recursive: true, force: true });
-      }
+      await application?.close();
     }
   },
 );

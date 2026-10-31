@@ -7,7 +7,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
-import { type FileHandle, mkdtemp, open } from 'node:fs/promises';
+import { type FileHandle, open } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
@@ -15,13 +15,20 @@ import { setTimeout as sleep } from 'node:timers/promises';
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { type ElectronApplication, _electron } from 'playwright';
 
 test(
   'Call History access failures name Context Compiler in the desktop even after ChatGPT configured the import',
   { timeout: 90_000 },
   async () => {
-    const home = await mkdtemp('/tmp/cc-permission-');
+    await using homeDirectory = await new TemporaryFiles().directory(
+      'cc-permission-',
+      {
+        parent: '/tmp',
+      },
+    );
+    const home = homeDirectory.path;
     let application: ElectronApplication | undefined;
     const client = new Client({ name: 'permission-test', version: '1.0.0' });
     const transport = new StdioClientTransport({
@@ -85,7 +92,6 @@ test(
         const spawned = transport.pid !== null;
         await client.close();
         if (spawned) await exited.promise;
-        rmSync(home, { recursive: true, force: true });
       }
     }
   },
@@ -95,7 +101,10 @@ test(
   'a page sync lasting over 60 seconds succeeds and a plugin launcher joins that import on the same store',
   { timeout: 180_000 },
   async () => {
-    const home = await mkdtemp('/tmp/cc-b-');
+    await using homeDirectory = await new TemporaryFiles().directory('cc-b-', {
+      parent: '/tmp',
+    });
+    const home = homeDirectory.path;
     let application: ElectronApplication | undefined;
     let writer: FileHandle | undefined;
     const client = new Client({
@@ -215,11 +224,7 @@ test(
           await client.close();
           if (spawned) await exited.promise;
         } finally {
-          try {
-            await application?.close();
-          } finally {
-            rmSync(home, { recursive: true, force: true });
-          }
+          await application?.close();
         }
       }
     }
@@ -230,7 +235,10 @@ test(
   'cancelling a page tool request reaches the main process and rejects the pending MCP call',
   { timeout: 90_000 },
   async () => {
-    const home = await mkdtemp('/tmp/cc-b-');
+    await using homeDirectory = await new TemporaryFiles().directory('cc-b-', {
+      parent: '/tmp',
+    });
+    const home = homeDirectory.path;
     let application: ElectronApplication | undefined;
     let writer: FileHandle | undefined;
     try {
@@ -288,11 +296,7 @@ test(
       try {
         await writer?.close();
       } finally {
-        try {
-          await application?.close();
-        } finally {
-          rmSync(home, { recursive: true, force: true });
-        }
+        await application?.close();
       }
     }
   },
