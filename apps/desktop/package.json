@@ -12,7 +12,8 @@
     "@workspace/ui": "0.0.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "@openai/mcp-extensions": "0.1.0"
+    "@openai/mcp-extensions": "0.1.0",
+    "@zukhruf/async": "0.6.4"
   },
   "devDependencies": {
     "@electron-forge/cli": "8.0.1",
@@ -23,6 +24,9 @@
     "playwright": "1.64.1",
     "vite": "8.1.5",
     "@types/react": "19.3.0",
-    "@types/react-dom": "19.3.0"
+    "@types/react-dom": "19.3.0",
+    "@zukhruf/testing": "0.6.4",
+    "tailwindcss": "4.3.3",
+    "@tailwindcss/vite": "4.3.3"
   }
 }
