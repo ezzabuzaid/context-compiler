@@ -109,7 +109,7 @@ const internet = (
   decisions: Readonly<Record<string, Decision>>,
   ahead: number,
 ) => `
-import { setupServer } from ${JSON.stringify(import.meta.resolve('msw/node'))};
+import { Msw } from ${JSON.stringify(import.meta.resolve('@zukhruf/testing/msw'))};
 import { HttpResponse, http } from ${JSON.stringify(import.meta.resolve('msw'))};
 const pages = ${JSON.stringify(pages)};
 const planned = ${JSON.stringify(model)};
@@ -126,7 +126,7 @@ globalThis.Date = class extends RealDate {
 };
 const fold = (text) => text.replace(/\\s+/gu, ' ').trim().toLowerCase();
 const asked = new Map();
-const server = setupServer(
+const { server } = new Msw().intercept(
   http.get('*/robots.txt', () => new HttpResponse(null, { status: 404 })),
   ...Object.entries(pages).map(([url, { status, body }]) =>
     http.get(url, () => new HttpResponse(body, { status, headers: { 'content-type': 'text/html; charset=utf-8' } })),
@@ -218,7 +218,6 @@ const server = setupServer(
   }),
 );
 server.events.on('request:start', ({ request }) => process.stderr.write('request ' + request.url + '\\n'));
-server.listen({ onUnhandledRequest: 'error' });
 `;
 
 // One request to the Messages API or to the Decisions API, as the internet
