@@ -32,7 +32,6 @@
         "default",
         "^default",
         "{workspaceRoot}/eslint.config.mjs",
-        "{workspaceRoot}/personal.eslint.config.mjs",
         {
           "externalDependencies": [
             "eslint",
