@@ -28,6 +28,7 @@ import { setTimeout as sleep } from 'node:timers/promises';
 import { promisify, stripVTControlCharacters } from 'node:util';
 import { deflateSync, gzipSync } from 'node:zlib';
 
+import { timebox } from '@zukhruf/testing/async';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import { IndexedDBWriter } from '@workspace/codec-chromium-indexeddb/test';
@@ -1072,10 +1073,18 @@ function started(mac: string, ...args: string[]) {
     exited,
     printed,
     async prints(matches: (line: Record<string, unknown>) => boolean) {
-      for (let tries = 0; !printed().some(matches); tries++) {
-        if (tries > 300) assert.fail(`never printed it:\n${stdout}${stderr}`);
-        await sleep(100);
-      }
+      await timebox(
+        () =>
+          assert.ok(
+            printed().some(matches),
+            `never printed it:\n${stdout}${stderr}`,
+          ),
+        {
+          minTimeout: 100,
+          maxRetryTime: 30_000,
+          shouldRetry: ({ error }) => error instanceof assert.AssertionError,
+        },
+      );
     },
   };
 }
@@ -1133,41 +1142,38 @@ function terminal(t: TestContext, mac: string, ...args: string[]) {
 
 // Polls status until the only selected connector's pass runs.
 async function passRunning(mac: string) {
-  const deadline = Date.now() + 60_000;
-  while (
-    JSON.parse(cli(mac, 'status', '--json').stdout)[0]?.state !== 'running'
-  ) {
-    if (Date.now() > deadline)
-      assert.fail('the sync did not start its pass within a minute');
-    await sleep(100);
-  }
+  await timebox(
+    () =>
+      assert.equal(
+        JSON.parse(cli(mac, 'status', '--json').stdout)[0]?.state,
+        'running',
+        'the sync did not start its pass within a minute',
+      ),
+    {
+      minTimeout: 100,
+      maxRetryTime: 60_000,
+      shouldRetry: ({ error }) => error instanceof assert.AssertionError,
+    },
+  );
 }
 
 // Writes a pipe once a process opens it to read. A plain write waits for a
 // reader in a thread of Node's pool, which no test can stop: a reader that
 // never came would hang the whole run instead of failing this test.
 async function feed(pipe: string, content: string): Promise<void> {
-  for (let tries = 0; ; tries++) {
-    let handle;
-    try {
-      handle = await open(pipe, constants.O_WRONLY | constants.O_NONBLOCK);
-    } catch (error) {
-      if (!(
-        error instanceof Error &&
-        'code' in error &&
-        error.code === 'ENXIO'
-      ))
-        throw error;
-      if (tries > 300) assert.fail(`nothing read ${pipe} within 30 s`);
-      await sleep(100);
-      continue;
-    }
-    try {
-      await handle.writeFile(content);
-    } finally {
-      await handle.close();
-    }
-    return;
+  // ENXIO: no process has the pipe open to read yet.
+  const handle = await timebox(
+    () => open(pipe, constants.O_WRONLY | constants.O_NONBLOCK),
+    {
+      minTimeout: 100,
+      maxRetryTime: 30_000,
+      shouldRetry: ({ error }) => 'code' in error && error.code === 'ENXIO',
+    },
+  );
+  try {
+    await handle.writeFile(content);
+  } finally {
+    await handle.close();
   }
 }
 
@@ -1510,17 +1516,26 @@ test('a setup that removes a connector stops the sync importing it, while the re
   cli(mac.path, 'setup', '--connector', 'notes', '--connector', 'photos');
   const sync = started(mac.path, 'sync', '--json');
   try {
-    let imported: string | undefined;
-    const deadline = Date.now() + 60_000;
-    while (imported === undefined) {
-      const photos = JSON.parse(cli(mac.path, 'status', '--json').stdout).find(
-        ({ connector }: { connector: string }) => connector === 'photos',
-      );
-      if (photos?.state === 'running') imported = photos.database;
-      else if (Date.now() > deadline)
-        assert.fail('the Photos pass did not start within a minute');
-      else await sleep(100);
-    }
+    const imported: string = await timebox(
+      () => {
+        const photos = JSON.parse(
+          cli(mac.path, 'status', '--json').stdout,
+        ).find(
+          ({ connector }: { connector: string }) => connector === 'photos',
+        );
+        assert.equal(
+          photos?.state,
+          'running',
+          'the Photos pass did not start within a minute',
+        );
+        return photos.database;
+      },
+      {
+        minTimeout: 100,
+        maxRetryTime: 60_000,
+        shouldRetry: ({ error }) => error instanceof assert.AssertionError,
+      },
+    );
 
     const removed = cli(mac.path, 'setup', '--connector', 'notes');
     // Longer than the sync takes to hear of the removal; then the Photos read
@@ -2270,17 +2285,26 @@ test('a setup that removes a watched connector keeps its import while the watch 
   cli(mac.path, 'setup', '--connector', 'photos');
   const watch = started(mac.path, 'sync', 'watch', '--json');
   try {
-    let imported: string | undefined;
-    const deadline = Date.now() + 60_000;
-    while (imported === undefined) {
-      const photos = JSON.parse(cli(mac.path, 'status', '--json').stdout).find(
-        ({ connector }: { connector: string }) => connector === 'photos',
-      );
-      if (photos?.state === 'running') imported = dirname(photos.database);
-      else if (Date.now() > deadline)
-        assert.fail('the Photos pass did not start within a minute');
-      else await sleep(100);
-    }
+    const imported: string = await timebox(
+      () => {
+        const photos = JSON.parse(
+          cli(mac.path, 'status', '--json').stdout,
+        ).find(
+          ({ connector }: { connector: string }) => connector === 'photos',
+        );
+        assert.equal(
+          photos?.state,
+          'running',
+          'the Photos pass did not start within a minute',
+        );
+        return dirname(photos.database);
+      },
+      {
+        minTimeout: 100,
+        maxRetryTime: 60_000,
+        shouldRetry: ({ error }) => error instanceof assert.AssertionError,
+      },
+    );
 
     const removed = cli(mac.path, 'setup', '--connector', 'safari');
     const kept = existsSync(imported);
@@ -2517,12 +2541,21 @@ test('status says a watched connector is current as of the watch’s latest chec
 
     // A pass is current as of when it began, before it completed: only a
     // later check can make the connector current past its last success.
-    let shown = status();
-    for (let tries = 0; !(shown.currentAsOf > passed.lastSuccessAt); tries++) {
-      if (tries > 50) assert.fail(`never checked: ${JSON.stringify(shown)}`);
-      await sleep(200);
-      shown = status();
-    }
+    const shown = await timebox(
+      () => {
+        const current = status();
+        assert.ok(
+          current.currentAsOf > passed.lastSuccessAt,
+          `never checked: ${JSON.stringify(current)}`,
+        );
+        return current;
+      },
+      {
+        minTimeout: 200,
+        maxRetryTime: 10_000,
+        shouldRetry: ({ error }) => error instanceof assert.AssertionError,
+      },
+    );
 
     assert.equal(shown.lastSuccessAt, passed.lastSuccessAt);
     assert.ok(
