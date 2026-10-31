@@ -37,6 +37,7 @@ test(
           'utf8',
         ) +
           `\nimport { writeFileSync } from 'node:fs';
+import { homedir } from 'node:os';
 writeFileSync(join(homedir(), 'backend.json'), JSON.stringify({ pid: process.pid, env: process.env }));\n`,
       );
       mkdirSync(join(home, 'Pictures'));
