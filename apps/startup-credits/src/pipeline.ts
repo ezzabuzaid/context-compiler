@@ -120,6 +120,18 @@ export default new Pipeline({
             destinationSyncMode: 'append_dedup',
           },
         ),
+        // Whether the crawl of each list is complete: the alerts conclude
+        // from an absence only behind it, as a stream processor waits for its
+        // watermark.
+        new Copy(
+          catalog.get('program_pages_crawls'),
+          destination.table('program_pages_crawls'),
+          {
+            id: 'lists:program_pages_crawls',
+            syncMode: 'incremental',
+            destinationSyncMode: 'append_dedup',
+          },
+        ),
       ],
     }),
   ],

@@ -160,6 +160,7 @@ const routeRow = z.object({
   how: z.string(),
   text: z.string().nullable(),
 });
+const crawlRow = z.object({ inputUrl: z.string(), complete: z.number() });
 const kindRow = z.object({
   pageUrl: z.string(),
   articleUrl: z.string(),
@@ -208,8 +209,9 @@ function groupIntoPrograms(claims: readonly Claim[]) {
 // pages share a registrable domain (vercel.com and vercel.com/startups) or
 // their texts are the same name ("Anthropic Startup Program" for
 // www.anthropic.com in one list and claude.com/programs/startups in the
-// other). A program is missing only when Jev has labelled the page of each
-// of its links, so a page not read yet is no alarm. The key is the program's
+// other). A program is missing only when the crawl of each list that links
+// it is complete and Jev has labelled the page of each of its links, so a
+// page or a sitemap not read yet is no alarm. The key is the program's
 // links, so a list that adds a link to a missing program is a new match.
 export class MissingPrograms implements Condition<SQLTagStore, Alert> {
   async evaluate(sql: SQLTagStore) {
@@ -251,8 +253,19 @@ export class MissingPrograms implements Condition<SQLTagStore, Alert> {
         for (const route of next.get(at) ?? []) seen.add(route.url);
       return seen;
     };
+    // The lists whose last crawl is complete: SQLite stores the boolean as
+    // 1 or 0.
+    const complete = new Set(
+      rows(
+        () => sql.all`SELECT inputUrl, complete FROM program_pages_crawls`,
+      ).flatMap((row) => {
+        const { inputUrl, complete } = crawlRow.parse(row);
+        return complete === 1 ? [inputUrl] : [];
+      }),
+    );
     const programs = groupIntoPrograms(claims);
     return programs.flatMap((links) => {
+      if (links.some(({ list }) => !complete.has(list))) return [];
       if (links.some(({ url }) => !kinds.has(url))) return [];
       // A program page counts only on a website of the program's own links:
       // a partner's program that a home page links is not this program.
