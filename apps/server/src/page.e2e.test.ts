@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
-import { cp, mkdir, mkdtempDisposable, writeFile } from 'node:fs/promises';
+import { cp, mkdir, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { test } from 'node:test';
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { build } from 'esbuild';
 import { chromium } from 'playwright';
 
@@ -13,7 +14,9 @@ test(
   'the bundled MCP page connects through AppBridge, imports Photos, follows deep links and preserves selection across theme changes',
   { timeout: 60_000 },
   async () => {
-    await using home = await mkdtempDisposable('/tmp/cc-page-');
+    await using home = await new TemporaryFiles().directory('cc-page-', {
+      parent: '/tmp',
+    });
     const connector = join(
       home.path,
       'Library/Application Support/Context Compiler/Connectors/photos',

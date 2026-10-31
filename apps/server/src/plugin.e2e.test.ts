@@ -14,7 +14,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
-import { mkdtempDisposable, open, writeFile } from 'node:fs/promises';
+import { open, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
@@ -28,6 +28,7 @@ import {
   ElicitRequestSchema,
   type ElicitResult,
 } from '@modelcontextprotocol/sdk/types.js';
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { z } from 'zod';
 
 // NoteStore.sqlite's tables as macOS 26.6.2 creates them (schema only, no
@@ -283,7 +284,9 @@ test(
     timeout: 180_000,
   },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
+    await using scratch = await new TemporaryFiles().directory('plugin-e2e-', {
+      parent: homes,
+    });
     const marketplace = JSON.parse(
       readFileSync(join(root, '.agents/plugins/marketplace.json'), 'utf8'),
     );
@@ -897,7 +900,10 @@ test(
     timeout: 120_000,
   },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'plugin-forms-'));
+    await using scratch = await new TemporaryFiles().directory(
+      'plugin-forms-',
+      { parent: homes },
+    );
     // The installed plugin, run as Codex runs it.
     const plugin = join(scratch.path, 'plugin');
     const [entry] = JSON.parse(
@@ -1113,7 +1119,9 @@ test(
   'a connector the user adds while the server runs imports through it on its own elt and Connector, an edit to it and a preset added to it reach the same chat, and a chat hears of one that does not load',
   { timeout: 120_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
+    await using scratch = await new TemporaryFiles().directory('plugin-e2e-', {
+      parent: homes,
+    });
     const plugin = join(scratch.path, 'plugin');
     cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
     const runtime =
@@ -1234,7 +1242,9 @@ test(
   'the server rejects a missing or blank permission grantee before opening the store',
   { timeout: 20_000 },
   async () => {
-    const scratch = await mkdtempDisposable(join(homes, 'plugin-host-'));
+    const scratch = await new TemporaryFiles().directory('plugin-host-', {
+      parent: homes,
+    });
     try {
       for (const grantee of [undefined, '   ']) {
         const result = spawnSync(
@@ -1271,7 +1281,7 @@ test(
         );
       }
     } finally {
-      await scratch.remove();
+      await scratch.cleanup();
     }
   },
 );
@@ -1281,7 +1291,9 @@ for (const codex of [undefined, '/missing/codex'])
     `the standalone server imports and syncs without chat delivery (${codex === undefined ? 'no executable' : 'executable without chat context'})`,
     { timeout: 120_000 },
     async (t) => {
-      const scratch = await mkdtempDisposable(join(homes, 'plugin-host-'));
+      const scratch = await new TemporaryFiles().directory('plugin-host-', {
+        parent: homes,
+      });
       const client = new Client({ name: 'standalone-host', version: '1.0.0' });
       const bundle = join(scratch.path, 'server');
       const transport = new StdioClientTransport({
@@ -1408,7 +1420,7 @@ export default { async evaluate() { return []; } };`,
       } finally {
         await client.close();
         await transport.close();
-        await scratch.remove();
+        await scratch.cleanup();
       }
     },
   );
@@ -1417,7 +1429,9 @@ test(
   'a chat adds the monitor it wrote, and the next sync queues the monitor’s instruction into that chat through the codex the server was given',
   { timeout: 120_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
+    await using scratch = await new TemporaryFiles().directory('plugin-e2e-', {
+      parent: homes,
+    });
     const plugin = join(scratch.path, 'plugin');
     cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
     const runtime =
@@ -1908,7 +1922,9 @@ test(
   'a sync of an import a frozen server is importing, after the server that coordinated the imports died, waits for that pass and returns its outcome without a pass of its own',
   { ...onUnix, timeout: 180_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
+    await using scratch = await new TemporaryFiles().directory('plugin-e2e-', {
+      parent: homes,
+    });
     await using scene = await frozenLeader(t.signal, scratch.path);
     const replacement = await scene.start();
 
@@ -1953,7 +1969,9 @@ test(
   'a sync of an import a frozen server is importing, after the server that coordinated the imports died, runs its own pass once the frozen server is killed',
   { ...onUnix, timeout: 180_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
+    await using scratch = await new TemporaryFiles().directory('plugin-e2e-', {
+      parent: homes,
+    });
     await using scene = await frozenLeader(t.signal, scratch.path);
     const replacement = await scene.start();
     const replaced = replacement.sync('photos');
@@ -2047,7 +2065,9 @@ test(
   'a chat that closes while its server keeps Photos current exits at once, and another chat’s server, open before Photos was switched on, takes the watch and loads the next change with no Sync',
   { ...onUnix, timeout: 180_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
+    await using scratch = await new TemporaryFiles().directory('plugin-e2e-', {
+      parent: homes,
+    });
     await using scene = await ownedWatch(t.signal, scratch.path);
 
     const exitedIn = await scene.owner.hangUp();
@@ -2074,7 +2094,9 @@ test(
   'a server Codex stops with SIGTERM while it keeps Photos current exits, and another chat’s server takes the watch',
   { ...onUnix, timeout: 180_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
+    await using scratch = await new TemporaryFiles().directory('plugin-e2e-', {
+      parent: homes,
+    });
     await using scene = await ownedWatch(t.signal, scratch.path);
 
     scene.owner.send('SIGTERM');
@@ -2098,7 +2120,9 @@ test(
   'switching Keep current off in a chat whose server does not own the watch stops it, and a change then waits for Sync',
   { ...onUnix, timeout: 180_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
+    await using scratch = await new TemporaryFiles().directory('plugin-e2e-', {
+      parent: homes,
+    });
     await using scene = await ownedWatch(t.signal, scratch.path);
 
     const switched = await scene.other.watch('photos', false);
@@ -2125,7 +2149,9 @@ test(
   'a Sync of Photos from another chat while a watch keeps it current runs no pass of its own',
   { ...onUnix, timeout: 180_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
+    await using scratch = await new TemporaryFiles().directory('plugin-e2e-', {
+      parent: homes,
+    });
     await using scene = await ownedWatch(t.signal, scratch.path);
 
     const synced = await scene.other.sync('photos');
@@ -2142,7 +2168,9 @@ test(
   'with two chats open, each change to Photos is loaded by one pass, not one per server',
   { timeout: 180_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
+    await using scratch = await new TemporaryFiles().directory('plugin-e2e-', {
+      parent: homes,
+    });
     const plugin = join(scratch.path, 'plugin');
     cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
     await withWatchedPhotos(scratch.path);
@@ -2184,7 +2212,9 @@ test(
   'only the connectors switched on are kept current: Photos loads a change with no Sync, while Albums, connected but never switched on, waits for Sync',
   { timeout: 180_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
+    await using scratch = await new TemporaryFiles().directory('plugin-e2e-', {
+      parent: homes,
+    });
     const plugin = join(scratch.path, 'plugin');
     cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
     await withWatchedPhotos(scratch.path);
@@ -2271,7 +2301,9 @@ test(
   'a server whose plugin was updated gives up the watch while its chat stays open, and a chat on the new version takes it and loads the next change',
   { timeout: 180_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
+    await using scratch = await new TemporaryFiles().directory('plugin-e2e-', {
+      parent: homes,
+    });
     const old = join(scratch.path, 'plugin-old');
     const current = join(scratch.path, 'plugin-new');
     cpSync(join(root, 'plugins/context-compiler'), old, { recursive: true });
@@ -2332,7 +2364,9 @@ test(
   'disconnecting Photos while its watched pass reads keeps the import until the pass ends, then the watch stops and removes it for good',
   { ...onUnix, timeout: 180_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
+    await using scratch = await new TemporaryFiles().directory('plugin-e2e-', {
+      parent: homes,
+    });
     const plugin = join(scratch.path, 'plugin');
     cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
     await withWatchedPhotos(scratch.path);
@@ -2391,7 +2425,9 @@ test(
   'a monitor’s match that a watched pass loaded is queued into its chat with no Sync',
   { timeout: 180_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
+    await using scratch = await new TemporaryFiles().directory('plugin-e2e-', {
+      parent: homes,
+    });
     const plugin = join(scratch.path, 'plugin');
     cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
     // A real `codex queue` writes into the user's own ~/.codex, so the server
@@ -2477,7 +2513,9 @@ test(
   'a watched connector whose source fails is shown failed and stops alone, while another watched connector keeps loading each change',
   { timeout: 180_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
+    await using scratch = await new TemporaryFiles().directory('plugin-e2e-', {
+      parent: homes,
+    });
     const plugin = join(scratch.path, 'plugin');
     cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
     await withWatchedPhotos(scratch.path);
@@ -2563,7 +2601,9 @@ test(
   'the plugin, started by its launcher, loads every built-in connector it bundles',
   { timeout: 120_000 },
   async (t) => {
-    await using scratch = await mkdtempDisposable(join(homes, 'plugin-e2e-'));
+    await using scratch = await new TemporaryFiles().directory('plugin-e2e-', {
+      parent: homes,
+    });
     const plugin = join(root, 'plugins/context-compiler');
     const runtime =
       process.env.CODEX_MCP_NODE_PATH ??

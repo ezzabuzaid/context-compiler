@@ -1,17 +1,17 @@
 import assert from 'node:assert/strict';
-import { cp, mkdir, mkdtempDisposable, rm, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { cp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { test } from 'node:test';
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import { Settings } from '@workspace/settings';
 
 test('the bundled page tools discover models, save the selection and reject an unavailable model', async () => {
-  await using scratch = await mkdtempDisposable(
-    join(tmpdir(), 'page-transcription-'),
+  await using scratch = await new TemporaryFiles().directory(
+    'page-transcription-',
   );
   const snapshot = join(
     scratch.path,
@@ -109,8 +109,8 @@ async function pageTool(home: string, name: string, args: object) {
 }
 
 test('a store moved to another Mac keeps its chosen model, found where it is installed there', async () => {
-  await using scratch = await mkdtempDisposable(
-    join(tmpdir(), 'page-transcription-moved-'),
+  await using scratch = await new TemporaryFiles().directory(
+    'page-transcription-moved-',
   );
   const before = await homeWithModel(join(scratch.path, 'before'));
   const after = await homeWithModel(join(scratch.path, 'after'));

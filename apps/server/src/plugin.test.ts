@@ -8,14 +8,15 @@ import {
   readdirSync,
   rmSync,
 } from 'node:fs';
-import { chmod, mkdir, mkdtempDisposable, writeFile } from 'node:fs/promises';
-import { homedir, tmpdir } from 'node:os';
+import { chmod, mkdir, writeFile } from 'node:fs/promises';
+import { homedir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { z } from 'zod';
 
 import { builtInConnectors } from '@workspace/connector-manifest/built-in-connectors';
@@ -252,7 +253,7 @@ async function passes(plugin: Plugin, item: Selection) {
 }
 
 test('Setup rejects invalid choices and keeps a Calendar scope as given, so each import reads the default window when it runs', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
+  await using scratch = await new TemporaryFiles().directory('plugin-');
   const plugin = await createPlugin(versionFile, scratch.path);
   assert.deepEqual(plugin.status().connectors, []);
   for (const [selection, message] of [
@@ -335,7 +336,7 @@ test('Setup rejects invalid choices and keeps a Calendar scope as given, so each
 });
 
 test('agents read the selected connectors, where each import lives and what macOS access it needs from the settings file with the sqlite3 shell', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
+  await using scratch = await new TemporaryFiles().directory('plugin-');
   const plugin = await createPlugin(versionFile, scratch.path);
   const notes = {
     connector: 'notes' as const,
@@ -393,7 +394,7 @@ test('agents read the selected connectors, where each import lives and what macO
 });
 
 test('Setup imports only what a change adds or changes, keeps an unchanged import and removes a changed or disconnected one', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
+  await using scratch = await new TemporaryFiles().directory('plugin-');
   const plugin = await createPlugin(versionFile, scratch.path);
   const notes = {
     connector: 'notes' as const,
@@ -428,7 +429,7 @@ test('Setup imports only what a change adds or changes, keeps an unchanged impor
 });
 
 test('saving Calendar again without dates keeps its import', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
+  await using scratch = await new TemporaryFiles().directory('plugin-');
   const plugin = await createPlugin(versionFile, scratch.path);
   const calendar = {
     connector: 'calendar' as const,
@@ -446,7 +447,7 @@ test('saving Calendar again without dates keeps its import', async () => {
 });
 
 test('Calendar options give an agent no dates to copy, and name the default window', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
+  await using scratch = await new TemporaryFiles().directory('plugin-');
   await using calendars = await oneCalendar();
   const plugin = await createPlugin(versionFile, scratch.path, {
     ...host,
@@ -461,7 +462,7 @@ test('Calendar options give an agent no dates to copy, and name the default wind
 });
 
 test('connecting Calendar on the page saves a scope without dates, so saving it again keeps its import', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
+  await using scratch = await new TemporaryFiles().directory('plugin-');
   await using calendars = await oneCalendar();
   const plugin = await createPlugin(versionFile, scratch.path, {
     ...host,
@@ -493,7 +494,7 @@ test('connecting Calendar on the page saves a scope without dates, so saving it 
 });
 
 test('importing settles when the settings cannot be read, so the server keeps serving its tools', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
+  await using scratch = await new TemporaryFiles().directory('plugin-');
   // A directory where the settings file belongs fails every read of them.
   mkdirSync(join(scratch.path, 'settings.sqlite'));
   const plugin = await createPlugin(versionFile, scratch.path);
@@ -506,7 +507,7 @@ test('importing settles when the settings cannot be read, so the server keeps se
 });
 
 test('an import that fails before its pass begins shows the failure on the page and in chat, not that it waits to import', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
+  await using scratch = await new TemporaryFiles().directory('plugin-');
   const plugin = await photosPlugin(
     join(scratch.path, 'store'),
     join(scratch.path, 'home'),
@@ -536,7 +537,7 @@ test('an import that fails before its pass begins shows the failure on the page 
 });
 
 test('an import that synced before and now fails before its pass begins shows the failure, not its last sync', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
+  await using scratch = await new TemporaryFiles().directory('plugin-');
   const home = join(scratch.path, 'home');
   mkdirSync(join(home, 'Pictures'), { recursive: true });
   await writeFile(
@@ -568,7 +569,7 @@ test('an import that synced before and now fails before its pass begins shows th
 });
 
 test('once an import that failed before its pass can write again, its next pass syncs and the failure is gone', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
+  await using scratch = await new TemporaryFiles().directory('plugin-');
   const home = join(scratch.path, 'home');
   mkdirSync(join(home, 'Pictures'), { recursive: true });
   await writeFile(
@@ -599,7 +600,7 @@ test('once an import that failed before its pass can write again, its next pass 
 });
 
 test('a pass a killed process left days ago reads importing with the day it began and how long ago, not as if it began today', async (t) => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
+  await using scratch = await new TemporaryFiles().directory('plugin-');
   const plugin = await photosPlugin(
     join(scratch.path, 'store'),
     join(scratch.path, 'home'),
@@ -639,7 +640,7 @@ test('a pass a killed process left days ago reads importing with the day it bega
 });
 
 test('the next import replaces a pass a killed process left, so syncing a connector that reads importing is never stuck', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
+  await using scratch = await new TemporaryFiles().directory('plugin-');
   const home = join(scratch.path, 'home');
   mkdirSync(join(home, 'Pictures'), { recursive: true });
   await writeFile(
@@ -670,7 +671,7 @@ test('the next import replaces a pass a killed process left, so syncing a connec
 });
 
 test('a monitor added from a chat stays quiet about what already matched, and once a sync brings new matches, queues one message into that chat that names each of them', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'monitor-'));
+  await using scratch = await new TemporaryFiles().directory('monitor-');
   const home = join(scratch.path, 'home');
   const photosJson = join(home, 'Pictures/photos.json');
   mkdirSync(join(home, 'Pictures'), { recursive: true });
@@ -718,7 +719,7 @@ test('a monitor added from a chat stays quiet about what already matched, and on
 });
 
 test('a monitor keeps what it sent across a restart: a match that arrived while the server was down is queued at the next sync, and nothing sent before is queued again', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'monitor-'));
+  await using scratch = await new TemporaryFiles().directory('monitor-');
   const home = join(scratch.path, 'home');
   const photosJson = join(home, 'Pictures/photos.json');
   mkdirSync(join(home, 'Pictures'), { recursive: true });
@@ -771,7 +772,7 @@ test('a monitor keeps what it sent across a restart: a match that arrived while 
 });
 
 test('matches whose message could not be sent are all sent again at the next sync, and until then the monitor says why', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'monitor-'));
+  await using scratch = await new TemporaryFiles().directory('monitor-');
   const home = join(scratch.path, 'home');
   const photosJson = join(home, 'Pictures/photos.json');
   mkdirSync(join(home, 'Pictures'), { recursive: true });
@@ -833,7 +834,7 @@ test('matches whose message could not be sent are all sent again at the next syn
 });
 
 test('a monitor whose chat refuses its message fails alone: the monitors after it still send, and its matches go at the next sync', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'monitor-'));
+  await using scratch = await new TemporaryFiles().directory('monitor-');
   const { home, codex, root, plugin, imports, photos } = await monitoredPhotos(
     scratch.path,
   );
@@ -868,7 +869,7 @@ test('a monitor whose chat refuses its message fails alone: the monitors after i
 });
 
 test('a monitor whose condition throws says why, and the other monitors still send', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'monitor-'));
+  await using scratch = await new TemporaryFiles().directory('monitor-');
   const home = join(scratch.path, 'home');
   const photosJson = join(home, 'Pictures/photos.json');
   mkdirSync(join(home, 'Pictures'), { recursive: true });
@@ -928,7 +929,7 @@ export default {
 });
 
 test('a monitor no chat added is listed as not active and sends nothing, and one that does not load says why', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'monitor-'));
+  await using scratch = await new TemporaryFiles().directory('monitor-');
   const home = join(scratch.path, 'home');
   const photosJson = join(home, 'Pictures/photos.json');
   mkdirSync(join(home, 'Pictures'), { recursive: true });
@@ -994,7 +995,7 @@ test('a monitor no chat added is listed as not active and sends nothing, and one
 });
 
 test('two servers that import at once send a new match once', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'monitor-'));
+  await using scratch = await new TemporaryFiles().directory('monitor-');
   const home = join(scratch.path, 'home');
   const photosJson = join(home, 'Pictures/photos.json');
   mkdirSync(join(home, 'Pictures'), { recursive: true });
@@ -1033,7 +1034,7 @@ test('two servers that import at once send a new match once', async () => {
 });
 
 test('the page lists each monitor with its status line: not active until a chat adds it, then watching, then when it last sent, with a link to its chat', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'monitor-'));
+  await using scratch = await new TemporaryFiles().directory('monitor-');
   const home = join(scratch.path, 'home');
   const photosJson = join(home, 'Pictures/photos.json');
   mkdirSync(join(home, 'Pictures'), { recursive: true });
@@ -1116,7 +1117,7 @@ async function monitoredPhotos(scratch: string) {
 }
 
 test('a monitor whose new matches outgrow one command sends them in several messages, each match once and in order', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'monitor-'));
+  await using scratch = await new TemporaryFiles().directory('monitor-');
   const { home, codex, root, plugin, imports, photos } = await monitoredPhotos(
     scratch.path,
   );
@@ -1149,7 +1150,7 @@ test('a monitor whose new matches outgrow one command sends them in several mess
 });
 
 test('a monitor whose messages fail partway sends only the matches of the messages that did not go at the next sync', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'monitor-'));
+  await using scratch = await new TemporaryFiles().directory('monitor-');
   const { home, codex, root, plugin, imports, photos } = await monitoredPhotos(
     scratch.path,
   );
@@ -1180,7 +1181,7 @@ test('a monitor whose messages fail partway sends only the matches of the messag
 });
 
 test('adding a monitor again from another chat moves where it sends', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'monitor-'));
+  await using scratch = await new TemporaryFiles().directory('monitor-');
   const { home, codex, root, plugin, imports, photos } = await monitoredPhotos(
     scratch.path,
   );
@@ -1196,7 +1197,7 @@ test('adding a monitor again from another chat moves where it sends', async () =
 });
 
 test('a monitor whose entry is edited checks with the new code at the next sync, without being added again', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'monitor-'));
+  await using scratch = await new TemporaryFiles().directory('monitor-');
   const { home, codex, root, plugin, imports, photos } = await monitoredPhotos(
     scratch.path,
   );
@@ -1224,7 +1225,7 @@ test('a monitor whose entry is edited checks with the new code at the next sync,
 });
 
 test('a monitor whose package.json cannot be read is listed with why, and cannot be added', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'monitor-'));
+  await using scratch = await new TemporaryFiles().directory('monitor-');
   const { root, plugin } = await monitoredPhotos(scratch.path);
   await mkdir(join(root, 'no-instruction'), { recursive: true });
   await writeFile(
@@ -1254,7 +1255,7 @@ test('a monitor whose package.json cannot be read is listed with why, and cannot
 });
 
 test('a monitor whose folder was deleted after a chat added it says its folder is gone', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'monitor-'));
+  await using scratch = await new TemporaryFiles().directory('monitor-');
   const { home, root, plugin, imports } = await monitoredPhotos(scratch.path);
   await writeMonitor(root, 'new-photos', newPhotos);
   await plugin.import(imports);
@@ -1269,7 +1270,7 @@ test('a monitor whose folder was deleted after a chat added it says its folder i
 });
 
 test('removing a monitor while a check runs leaves the other monitors to save what they sent, so nothing is sent twice', async (t) => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'monitor-'));
+  await using scratch = await new TemporaryFiles().directory('monitor-');
   const { home, codex, root, plugin, imports, photos } = await monitoredPhotos(
     scratch.path,
   );
@@ -1318,7 +1319,7 @@ export default {
 });
 
 test('a check that cannot find the imports, as with settings it cannot read, says so on each monitor', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'monitor-'));
+  await using scratch = await new TemporaryFiles().directory('monitor-');
   const { home, store, root, plugin, imports } = await monitoredPhotos(
     scratch.path,
   );
@@ -1337,7 +1338,7 @@ test('a check that cannot find the imports, as with settings it cannot read, say
 });
 
 test('removing a monitor forgets it and deletes its folder, so it sends nothing more', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'monitor-'));
+  await using scratch = await new TemporaryFiles().directory('monitor-');
   const home = join(scratch.path, 'home');
   const photosJson = join(home, 'Pictures/photos.json');
   mkdirSync(join(home, 'Pictures'), { recursive: true });
@@ -1377,7 +1378,7 @@ test('removing a monitor forgets it and deletes its folder, so it sends nothing 
 });
 
 test('two servers importing one selection at once load it in one pass, the second waiting for the first', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
+  await using scratch = await new TemporaryFiles().directory('plugin-');
   // A pipe the test writes once the pass runs: the Photos read waits on it,
   // so the second import asks while the first one's pass still runs.
   const home = join(scratch.path, 'home');
@@ -1414,7 +1415,7 @@ test('two servers importing one selection at once load it in one pass, the secon
 });
 
 test('a connector switched off while its pass runs loses its import once the pass ends', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
+  await using scratch = await new TemporaryFiles().directory('plugin-');
   // A pipe the test writes once the connector is switched off: the Photos
   // read waits on it, so the pass is still running when the switch happens.
   const home = join(scratch.path, 'home');
@@ -1448,7 +1449,7 @@ test('a connector switched off while its pass runs loses its import once the pas
 });
 
 test('a chat hears of a pass only when it changes what a reader can do with the connector', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
+  await using scratch = await new TemporaryFiles().directory('plugin-');
   const plugin = await createPlugin(versionFile, scratch.path);
   const notes = {
     connector: 'notes' as const,
@@ -1498,7 +1499,7 @@ test('a chat hears of a pass only when it changes what a reader can do with the 
 });
 
 test('a chat never calls an import empty while it holds rows that a pass loaded before a stream failed', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
+  await using scratch = await new TemporaryFiles().directory('plugin-');
   const home = join(scratch.path, 'home');
   mkdirSync(join(home, 'Pictures'), { recursive: true });
   // The second entry fails the stream after the first photo committed.
@@ -1559,7 +1560,7 @@ test('a chat never calls an import empty while it holds rows that a pass loaded 
 });
 
 test('the Context Compiler page and chat report Mail local freshness and content gaps, including a newly downloaded body', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'mail-status-'));
+  await using scratch = await new TemporaryFiles().directory('mail-status-');
   const plugin = await createPlugin(versionFile, scratch.path);
   const mail = { connector: 'mail', scope: {}, includeAttachments: false };
   await plugin.configure({ connectors: [mail] });
@@ -1617,7 +1618,7 @@ test('the Context Compiler page and chat report Mail local freshness and content
 });
 
 test('a selected connector that is no longer loaded is reported, keeps its import through other changes, and can be disconnected', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
+  await using scratch = await new TemporaryFiles().directory('plugin-');
   const withPhotos = await photosPlugin(
     scratch.path,
     join(scratch.path, 'home'),
@@ -1683,7 +1684,7 @@ test('a selected connector that is no longer loaded is reported, keeps its impor
 });
 
 test('the sidebar page describes each connector’s import and switches one connector without touching the others or moving its row', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
+  await using scratch = await new TemporaryFiles().directory('plugin-');
   const plugin = await createPlugin(versionFile, scratch.path);
   const statusOf = (name: string) =>
     connectorRows(plugin).find((row) => row.name === name)?.status;
@@ -1795,7 +1796,7 @@ test('the sidebar page describes each connector’s import and switches one conn
 });
 
 test('the sidebar page narrows a connector by date, says which connectors it can date, and widens a narrowed one back to everything', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
+  await using scratch = await new TemporaryFiles().directory('plugin-');
   const plugin = await createPlugin(versionFile, scratch.path);
   const dates = {
     startAt: '2026-01-01T00:00:00.000Z',
@@ -1839,7 +1840,7 @@ test('the sidebar page narrows a connector by date, says which connectors it can
 });
 
 test('once another plugin version replaces this one, its server refuses to change connectors and imports nothing', async () => {
-  await using scratch = await mkdtempDisposable(join(tmpdir(), 'plugin-'));
+  await using scratch = await new TemporaryFiles().directory('plugin-');
   // Installing another version deletes this version's folder.
   const replaced = join(scratch.path, 'install');
   mkdirSync(replaced);

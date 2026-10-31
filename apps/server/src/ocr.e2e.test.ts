@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdir, mkdtempDisposable, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { test } from 'node:test';
 import { promisify } from 'node:util';
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 async function children(parent: number) {
   const { stdout } = await promisify(execFile)('/bin/ps', [
@@ -33,7 +33,7 @@ async function ocrWorkers(parent: number) {
 
 for (const shutdown of ['stdin', 'SIGTERM'] as const)
   test(`the MCP server starts OCR before any tool call, reuses it across settings changes and stops it on ${shutdown}`, async () => {
-    await using home = await mkdtempDisposable(join(tmpdir(), 'server-ocr-'));
+    await using home = await new TemporaryFiles().directory('server-ocr-');
     const model = join(
       home.path,
       '.cache/huggingface/hub/models--ggerganov--whisper.cpp/snapshots/a1',
