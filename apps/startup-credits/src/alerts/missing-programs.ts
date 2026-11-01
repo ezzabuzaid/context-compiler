@@ -22,6 +22,8 @@ const routeRow = z.object({
   text: z.string().nullable(),
 });
 const crawlRow = z.object({ inputUrl: z.string(), complete: z.number() });
+const pageRow = z.object({ pageUrl: z.string(), articleUrl: z.string() });
+const failureRow = z.object({ url: z.string() });
 const kindRow = z.object({
   pageUrl: z.string(),
   articleUrl: z.string(),
@@ -78,9 +80,12 @@ type MissingProgram = {
 // their texts are the same name ("Anthropic Startup Program" for
 // www.anthropic.com in one list and claude.com/programs/startups in the
 // other). A program is missing only when the crawl of each list that links
-// it is complete and Jev has labelled the page of each of its links, so a
-// page or a sitemap not read yet is no alarm. The key is the program's
-// links, so a list that adds a link to a missing program logs it again.
+// it is complete, Jev has labelled each page of its links that the crawl
+// stored, and no page of its links failed, so a page or a sitemap not read
+// yet, and a page behind a bot challenge, is no alarm. A page that the
+// crawl read and stored nothing of, such as one that only a script fills,
+// led to no program page. The key is the program's links, so a list that
+// adds a link to a missing program logs it again.
 export class MissingPrograms extends Alert<MissingProgram> {
   constructor() {
     super({
@@ -123,6 +128,19 @@ export class MissingPrograms extends Alert<MissingProgram> {
       kinds.set(pageUrl, kind);
       kinds.set(articleUrl, kind);
     }
+    const stored = new Set(
+      rows(
+        () => sql.all`SELECT pageUrl, articleUrl FROM program_pages`,
+      ).flatMap((row) => {
+        const { pageUrl, articleUrl } = pageRow.parse(row);
+        return [pageUrl, articleUrl];
+      }),
+    );
+    const failed = new Set(
+      rows(() => sql.all`SELECT url FROM program_pages_failures`).map(
+        (row) => failureRow.parse(row).url,
+      ),
+    );
     const next = Map.groupBy(routes, ({ listingUrl }) => listingUrl);
     // The page that a link lands on: the crawl hands a redirected page back
     // at its target, so a link has the label of the page its redirects
@@ -166,7 +184,15 @@ export class MissingPrograms extends Alert<MissingProgram> {
     const programs = groupIntoPrograms(claims);
     return programs.flatMap((links) => {
       if (links.some(({ list }) => !complete.has(list))) return [];
-      if (links.some(({ url }) => !kinds.has(landed(url)))) return [];
+      // A failed page, or a stored page not labelled yet, can still be a
+      // program page.
+      if (
+        links.some(({ url }) => {
+          const page = landed(url);
+          return failed.has(page) || (stored.has(page) && !kinds.has(page));
+        })
+      )
+        return [];
       // A program page counts only on a website of the program's own links:
       // a partner's program that a home page links is not this program.
       const domains = new Set(links.map(({ url }) => getDomain(url)));

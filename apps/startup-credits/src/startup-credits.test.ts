@@ -1426,6 +1426,33 @@ const claudeOffers: Answer = {
   ],
 };
 
+test('a program whose list links a page that gives no text, such as a page that only a script fills, is logged as no program page found once the crawl of the list is complete', async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  const linear = 'https://linear.app/startups';
+  // A page that a script renders, as Vite's index.html is: the crawler runs
+  // no script, so the page holds no text to store or label.
+  const shell =
+    ok(`<!doctype html><html><head><title>Linear</title></head><body>
+<div id="root"></div><script type="module" src="/assets/index.js"></script></body></html>`);
+  const { lines, decided, errors } = await running(data.path, {
+    pages: {
+      ...lists([[linear, 'Linear', 'Free Business plan']]),
+      [linear]: shell,
+    },
+    model: {},
+    decisions: {},
+    until: has('Linear: no program page found'),
+    ahead: 0,
+  });
+
+  assert.deepEqual(
+    lines,
+    [`Linear: no program page found (${linear} linked by ${avinash})`],
+    errors,
+  );
+  assert.deepEqual(decided, []);
+});
+
 test('a program whose name another list gives to a program page on another website is not logged as missing', async () => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const anthropic = 'https://www.anthropic.com/';

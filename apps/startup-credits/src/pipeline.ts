@@ -132,6 +132,18 @@ export default new Pipeline({
             destinationSyncMode: 'append_dedup',
           },
         ),
+        // The pages whose last visit failed, the crawl's dead letters: the
+        // alerts wait for these pages, and take any other linked page that
+        // the crawl stored nothing of as one that gave no text.
+        new Copy(
+          catalog.get('program_pages_failures'),
+          destination.table('program_pages_failures'),
+          {
+            id: 'lists:program_pages_failures',
+            syncMode: 'incremental',
+            destinationSyncMode: 'append_dedup',
+          },
+        ),
       ],
     }),
   ],
