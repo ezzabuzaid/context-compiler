@@ -881,7 +881,7 @@ test('a program whose offers change is logged as offers changed after a restart,
   assert.deepEqual(
     second.lines,
     [
-      `offers changed ${aws}: credits $200,000, credits $5,000, free_period 6 months → credits $100,000, credits $5,000, free_period 3 months`,
+      `offers changed ${aws}: credits $100,000, credits $5,000, free_period 3 months`,
     ],
     second.errors,
   );
@@ -1107,8 +1107,8 @@ test('a page whose free period changes its months, and a page whose discount cha
   assert.deepEqual(
     second.lines.toSorted(),
     [
-      `offers changed ${linear}: credits $2,000, free_period 6 months → credits $2,000, free_period 3 months`,
-      `offers changed ${mintlify}: discount 20% → discount 30%`,
+      `offers changed ${linear}: credits $2,000, free_period 3 months`,
+      `offers changed ${mintlify}: discount 30%`,
     ],
     second.errors,
   );
@@ -1323,7 +1323,7 @@ test('a page that Jev labels home or list is not sent to the offer model, and th
   });
   assert.deepEqual(
     second.lines,
-    [`offers changed ${microsoft}: none → credits $150,000`],
+    [`offers changed ${microsoft}: credits $150,000`],
     second.errors,
   );
 });

@@ -3,6 +3,8 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 
+import { z } from 'zod';
+
 import directory from '../src/directory.ts';
 import { cache } from './pages.ts';
 
@@ -17,7 +19,7 @@ const rows = database
   )
   .all();
 const frozen = rows.map(({ url, title, list, loadedAt, text }) => {
-  const pageText = String(text ?? '');
+  const pageText = z.string().parse(text);
   return {
     url,
     title,

@@ -82,9 +82,8 @@ function scorePage(
     const index =
       unmatched.find((index) => offers[index]!.kind === predicted.kind) ??
       unmatched[0] ??
-      candidates[0] ??
-      -1;
-    if (index === -1) {
+      candidates[0];
+    if (index === undefined) {
       increment(tally.wrong, wrongReason(label, span));
       continue;
     }
@@ -105,10 +104,14 @@ function scorePage(
   }
 }
 
+const file = process.argv[2];
+if (file === undefined)
+  throw new Error('Give the file of predictions to score');
+
 const key = answerKey();
 const texts = pages();
 const predictions = predictionsSchema.parse(
-  JSON.parse(readFileSync(process.argv[2] ?? '', 'utf8')),
+  JSON.parse(readFileSync(file, 'utf8')),
 );
 const answered = new Map(predictions.pages.map((page) => [page.url, page]));
 const tally: Tally = {

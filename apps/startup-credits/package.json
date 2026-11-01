@@ -5,11 +5,11 @@
   "dependencies": {
     "@ai-sdk/typesafe-ai": "3.0.31",
     "@deepagents/experimental": "7.3.0",
-    "@workspace/eca": "0.0.1",
     "@workspace/elt": "0.0.1",
     "@workspace/elt-sqlite": "0.0.1",
     "@workspace/sdk-web-crawler": "0.0.1",
     "@workspace/source-web-pages": "0.0.1",
+    "@zukhruf/snapshot-differential": "0.6.7",
     "ai": "7.0.158",
     "tldts": "7.4.19",
     "zod": "4.6.5"

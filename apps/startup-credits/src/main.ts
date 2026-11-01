@@ -1,19 +1,13 @@
 import { join } from 'node:path';
-import type { SQLTagStore } from 'node:sqlite';
 
-import { Eca } from '@workspace/eca';
 import { CrawlError } from '@workspace/sdk-web-crawler';
 
-import {
-  type Alert,
-  CreditsWarehouse,
-  MissingPrograms,
-  ModelFailures,
-  OfferedPrograms,
-} from './alerts.ts';
+import { MissingPrograms } from './alerts/missing-programs.ts';
+import { ModelFailures } from './alerts/model-failures.ts';
+import { OfferedPrograms } from './alerts/offered-programs.ts';
 import directory from './directory.ts';
-import { type StoredOffer, offerIdentity, valuedIdentities } from './offer.ts';
 import pipeline from './pipeline.ts';
+import { CreditsWarehouse } from './warehouse.ts';
 
 const stop = new AbortController();
 for (const signal of ['SIGINT', 'SIGTERM'] as const)
@@ -21,22 +15,16 @@ for (const signal of ['SIGINT', 'SIGTERM'] as const)
 
 const reasonOf = (error: unknown) =>
   Error.isError(error) ? error.message : String(error);
-const valued = (offers: readonly StoredOffer[]) => {
-  const identities = valuedIdentities(offers);
-  return identities.length === 0 ? 'none' : identities.join(', ');
-};
 
 using warehouse = new CreditsWarehouse(join(directory, 'credits.sqlite'));
-const eca = new Eca<SQLTagStore, Alert>({ warehouse });
-const programs = { condition: new OfferedPrograms() };
+const alerts = [
+  new OfferedPrograms(),
+  new MissingPrograms(),
+  new ModelFailures(),
+];
 // What the app saw before this start is its baseline: a restart logs only
 // what changes after it.
-await eca.add(programs);
-await eca.add({ condition: new MissingPrograms() });
-await eca.add({ condition: new ModelFailures() });
-const known = new Map<string, readonly StoredOffer[]>();
-for (const { data } of await programs.condition.evaluate(warehouse.sql))
-  if (data.kind === 'program') known.set(data.page, data.offers);
+for (const alert of alerts) await alert.baseline(warehouse.sql);
 
 // Either loop that fails stops the other.
 const failed = new AbortController();
@@ -63,35 +51,14 @@ await Promise.all([
       }
   })().catch((error: unknown) => failed.abort(error)),
   (async () => {
-    for await (const item of eca.watch({ signal: watching })) {
-      // A condition that threw keeps its keys and runs again at the next
-      // commit, so it loses nothing.
-      if ('error' in item) {
-        console.log(`could not check: ${reasonOf(item.error)}`);
-        continue;
-      }
-      const { data } = item;
-      if (data.kind === 'failed')
-        console.log(`could not ${data.step} ${data.page}: ${data.reason}`);
-      else if (data.kind === 'missing') {
-        const links = data.links
-          .map(({ url, list }) => `${url} linked by ${list}`)
-          .join('; ');
-        console.log(
-          data.name === null
-            ? `no program page found (${links})`
-            : `${data.name}: no program page found (${links})`,
-        );
-      } else {
-        const before = known.get(data.page);
-        known.set(data.page, data.offers);
-        console.log(
-          before === undefined
-            ? `new program ${data.page}: ${data.offers.length === 0 ? 'no offer found' : data.offers.map((offer) => `${offerIdentity(offer)} ("${offer.quote}")`).join('; ')}`
-            : `offers changed ${data.page}: ${valued(before)} → ${valued(data.offers)}`,
-        );
-      }
-    }
+    for await (const _ of warehouse.commits(watching))
+      for (const alert of alerts)
+        try {
+          for await (const line of alert.lines(warehouse.sql))
+            console.log(line);
+        } catch (error) {
+          console.log(`could not check: ${reasonOf(error)}`);
+        }
   })().catch((error: unknown) => failed.abort(error)),
 ]);
 if (failed.signal.aborted && !stop.signal.aborted) throw failed.signal.reason;
