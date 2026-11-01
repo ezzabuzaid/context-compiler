@@ -64,7 +64,7 @@ A predicted offer matches a labelled offer when its span and one of the offer's 
 
 ## Offer extraction
 
-The app reads the offers of each program page with Claude Haiku 5.5 (`ProgramOffers` in `src/program-offers.ts`). `eval-predict` runs that same rule on each test page of the cache and writes its answers in the format of `eval`:
+The app reads the offers of each program page with Claude Haiku 5.5 (`ProgramOffers` in `src/rules/program-offers.ts`). `eval-predict` runs that same rule on each test page of the cache and writes its answers in the format of `eval`:
 
 ```sh
 CLAUDE_CODE_OAUTH_TOKEN=... npx nx run startup-credits:eval-predict -- answers.json
@@ -85,7 +85,7 @@ npx nx run startup-credits:eval-kinds -- --model typesafe/jev-1.14
 
 `--model` is the id of a decision model on the OpenRouter Decisions API; `https://openrouter.ai/api/v1/models?output_modalities=decisions` lists them. Give a pinned version, such as `typesafe/jev-1.14`, not `~typesafe/jev-latest`, so a run can be repeated. The runner reads `OPENROUTER_API_KEY` from the environment; Nx loads the root `.env`. It sends 16 requests at once.
 
-The question is the one that the app asks (`pageKindQuestions` in `src/page-kinds.ts`): one `choice` with a criterion for each page kind of the labels. The state is the URL, the title and the page text, at most 20,000 characters (`pageState`).
+The question is the one that the app asks (`pageKindQuestions` in `src/rules/page-kinds.ts`): one `choice` with a criterion for each page kind of the labels. The state is the URL, the title and the page text, at most 20,000 characters (`pageState`).
 
 A run writes its answers to `runs/<time>-<model>.json` in the order of the labels, in the format of `eval`, and adds one row to `scoreboard.json`: the model, the model ids that the provider gave, the time, the pages answered and failed, the right answers and each confusion. The first three rows name the model `jev-1.14`, which is `typesafe/jev-1.14`.
 

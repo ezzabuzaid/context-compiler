@@ -5,11 +5,8 @@ import { parseArgs } from 'node:util';
 import { experimental_decide as decide } from 'ai';
 import { z } from 'zod';
 
-import {
-  openRouterDecisionModel,
-  pageKindQuestions,
-  pageState,
-} from '../src/page-kinds.ts';
+import { openRouterDecisionModel } from '../src/rules/decision-model.ts';
+import { pageKindQuestions, pageState } from '../src/rules/page-kinds.ts';
 import { answerKey } from './answer-key.ts';
 import { scoreKinds } from './kind-score.ts';
 import { pages } from './pages.ts';

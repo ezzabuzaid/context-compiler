@@ -11,5 +11,5 @@ The app keeps its files in a `startup-credits` folder under `XDG_DATA_HOME`, or 
 
 ## Which model call failures fail a page
 
-**`src/program-offers.ts` (`ProgramOffers.#offers`) → `src/page-kinds.ts` (`PageKinds.compute`), with the AI SDK errors of `experimental_decide` in place of those of `generateText`.**
+**`src/rules/program-offers.ts` (`ProgramOffers.#offers`) → `src/rules/page-kinds.ts` (`PageKinds.compute`), with the AI SDK errors of `experimental_decide` in place of those of `generateText`.**
 A call that failed after the AI SDK's retries is the failure of one page: the rule takes the last error of a `RetryError` and returns the message of an `APICallError`. A 401 is not a page's failure, as every page would fail, so the rule throws it and the dataset fails. `ProgramOffers` also keeps `NoObjectGeneratedError` and `NoOutputGeneratedError` as a page's failure; `PageKinds` keeps `Experimental_DecisionRefusalError` and `InvalidResponseDataError` instead (backlog #3483).

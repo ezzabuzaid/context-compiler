@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { z } from 'zod';
 
 import { type Span, ground, same } from '../src/ground.ts';
-import { pageKinds } from '../src/page-kinds.ts';
+import { pageKinds } from '../src/rules/page-kinds.ts';
 import { type Label, answerKey, offerKinds } from './answer-key.ts';
 import { scoreKinds } from './kind-score.ts';
 import { pages } from './pages.ts';

@@ -22,8 +22,8 @@ import { WebSource } from '@workspace/source-web-pages/web-source';
 import { WebStream } from '@workspace/source-web-pages/web-stream';
 
 import directory from './directory.ts';
-import { PageKinds } from './page-kinds.ts';
-import { ProgramOffers } from './program-offers.ts';
+import { PageKinds } from './rules/page-kinds.ts';
+import { ProgramOffers } from './rules/program-offers.ts';
 
 // GitHub lists of startup credit programs; the second links most programs'
 // own pages, the first links more companies (#3352).

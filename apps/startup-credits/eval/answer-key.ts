@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { z } from 'zod';
 
 import type { Span } from '../src/ground.ts';
-import { pageKinds } from '../src/page-kinds.ts';
+import { pageKinds } from '../src/rules/page-kinds.ts';
 
 const span = z.object({
   start: z.number().int().nonnegative(),

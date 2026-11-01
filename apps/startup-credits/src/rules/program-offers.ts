@@ -12,15 +12,15 @@ import { z } from 'zod';
 
 import { type LoadedRow, Rule, type RuleResult } from '@workspace/elt';
 
-import { ground, same } from './ground.ts';
-import model from './offer-model.ts';
+import { ground, same } from '../ground.ts';
 import {
   type Offer,
   type StoredOffer,
   offerIdentity,
   offerValue,
   offersSchema,
-} from './offer.ts';
+} from '../offer.ts';
+import model from './offer-model.ts';
 
 type Page = {
   readonly url: string;

@@ -3,7 +3,7 @@ import { writeFileSync } from 'node:fs';
 import { z } from 'zod';
 
 import { storedOffersSchema } from '../src/offer.ts';
-import { ProgramOffers } from '../src/program-offers.ts';
+import { ProgramOffers } from '../src/rules/program-offers.ts';
 import { answerKey } from './answer-key.ts';
 import { pages } from './pages.ts';
 
