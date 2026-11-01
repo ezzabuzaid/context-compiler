@@ -1118,6 +1118,71 @@ test('a page whose free period changes its months, and a page whose discount cha
   ]);
 });
 
+test('a fee waiver that the answer states as a 0% discount is logged as a discount with no percent, and a later answer that states it with no percent logs nothing after a restart', async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  const openrouter = 'https://openrouter.ai/startup-program';
+  const rows = [[openrouter, 'OpenRouter', 'Inference credits']] as const;
+  // openrouter.ai/startup-program, trimmed on 2026-10-30.
+  const page = (more: string) =>
+    ok(`<!doctype html><html><head><title>Startup Program | OpenRouter</title></head><body>
+<main><h1>OpenRouter for Startups</h1><p>One API. Every Model. Zero Lock-In.</p>
+<p>Eligible startups get up to $5,000 in universal inference credits usable across leading frontier and open models with 0% processing fees.</p>${more}
+<h2>What is the offer worth?</h2>
+<p>Eligible startups can receive up to $5,000 in universal inference credits, usable across 600+ models available on OpenRouter, along with 0% processing fees for 12 months (including both platform fees and BYOK fees).</p></main></body></html>`);
+  const credits = {
+    quote:
+      'Eligible startups get up to $5,000 in universal inference credits usable across leading frontier and open models with 0% processing fees.',
+    kind: 'credits',
+    value: { amount: 5_000, currency: 'USD' },
+    duration: null,
+    who: 'Eligible startups',
+  };
+  const waiver = {
+    quote:
+      'Eligible startups can receive up to $5,000 in universal inference credits, usable across 600+ models available on OpenRouter, along with 0% processing fees for 12 months (including both platform fees and BYOK fees).',
+    kind: 'discount',
+    duration: '12 months',
+    who: 'Eligible startups',
+    value: null,
+  };
+  // Haiku 5.5's answer for the page on both eval runs of 2026-10-31.
+  const first = await running(data.path, {
+    pages: { ...lists(rows), [openrouter]: page('') },
+    model: { [openrouter]: [{ offers: [credits, { ...waiver, percent: 0 }] }] },
+    until: has('new program'),
+    decisions: programs(openrouter),
+    ahead: 0,
+  });
+  assert.deepEqual(
+    first.lines,
+    [
+      `new program ${openrouter}: credits $5,000 ("${credits.quote}"); discount ("${waiver.quote}")`,
+    ],
+    first.errors,
+  );
+
+  // A month later the page gains a sentence, and the new answer states the
+  // waiver with no percent, as answers of the earlier prompt did on one of
+  // two runs (#3481).
+  const second = await running(data.path, {
+    pages: {
+      ...lists(rows),
+      [openrouter]: page(
+        '\n<p>Pay only for the tokens you use. No platform markup.</p>',
+      ),
+    },
+    model: {
+      [openrouter]: [{ offers: [credits, { ...waiver, percent: null }] }],
+    },
+    quietAfter: askedAbout(openrouter, 1),
+    decisions: programs(openrouter),
+    ahead: 31 * 24 * 3_600_000,
+  });
+
+  assert.equal(second.asked.length, 1, second.errors);
+  assert.deepEqual(second.lines, [], second.errors);
+});
+
 test('a company page that refuses the crawl is logged as not read, with its address and answer, and its program is not logged as missing, as no page of it was read', async () => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const { lines, errors } = await running(data.path, {

@@ -15,6 +15,7 @@ import { type LoadedRow, Rule, type RuleResult } from '@workspace/elt';
 import { ground, same } from './ground.ts';
 import model from './offer-model.ts';
 import {
+  type Offer,
   type StoredOffer,
   offerIdentity,
   offerValue,
@@ -62,6 +63,14 @@ const identity = `${model.modelId}:${createHash('sha256')
 const repeats = (offer: StoredOffer, kept: StoredOffer) =>
   offerIdentity(offer) === offerIdentity(kept) &&
   (offerValue(offer) !== null || same(offer.span, kept.span));
+
+// A discount of 0% is the percent of a waived fee, as in "0% processing fees
+// for 12 months": the offer is the waiver, which takes no percent off a
+// price.
+const waived = (offer: Offer): Offer =>
+  offer.kind === 'discount' && offer.percent === 0
+    ? { ...offer, percent: null }
+    : offer;
 
 // The offers that each stored program page states, as Claude Haiku 5.5 reads
 // them. An offer stays only when its quote is in the page text, so an
@@ -144,7 +153,7 @@ export class ProgramOffers extends Rule<Page, string> {
     for (const offer of offers) {
       const span = ground(page.text, offer.quote);
       if (span === null) continue;
-      const stored = { ...offer, span };
+      const stored = { ...waived(offer), span };
       if (!kept.some((other) => repeats(stored, other))) kept.push(stored);
     }
     return kept.length === 0
