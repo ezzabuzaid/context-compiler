@@ -1,8 +1,8 @@
 import {
   type ReactNode,
   createContext,
+  use,
   useCallback,
-  useContext,
   useEffect,
   useState,
 } from 'react';
@@ -51,7 +51,7 @@ type Page = {
 const PageContext = createContext<Page | null>(null);
 
 export function usePage(): Page {
-  const page = useContext(PageContext);
+  const page = use(PageContext);
   if (page === null) throw new Error('usePage needs a PageProvider above it.');
   return page;
 }
@@ -84,7 +84,7 @@ export function PageProvider({
   const [syncing, setSyncing] = useState(false);
   const [syncingConnectors, setSyncingConnectors] = useState<
     ReadonlySet<string>
-  >(new Set());
+  >(() => new Set());
 
   const read = useCallback(async () => {
     if (app === null) return;

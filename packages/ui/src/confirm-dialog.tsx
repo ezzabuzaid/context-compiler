@@ -14,12 +14,12 @@ export function ConfirmDialog({
   onConfirm: () => void;
   onCancel: () => void;
 }) {
-  const dialog = useRef<HTMLDialogElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
   useEffect(() => {
-    dialog.current?.showModal();
+    dialogRef.current?.showModal();
   }, []);
   return (
-    <dialog ref={dialog} className="dialog card" onCancel={onCancel}>
+    <dialog ref={dialogRef} className="dialog card" onCancel={onCancel}>
       <h3>{title}</h3>
       <p className="text-muted">{body}</p>
       <div className="actions">
