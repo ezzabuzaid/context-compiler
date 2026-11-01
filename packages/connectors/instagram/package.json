@@ -18,7 +18,7 @@
     "@workspace/elt-sqlite": "0.0.1",
     "@workspace/sdk-chromium-cookies": "0.0.1",
     "@zukhruf/pool": "0.6.7",
-    "@zukhruf/testing": "0.6.6",
+    "@zukhruf/testing": "0.6.9",
     "msw": "^3.0.3"
   }
 }
