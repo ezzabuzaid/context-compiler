@@ -245,6 +245,27 @@ export class MissingPrograms implements Condition<SQLTagStore, Alert> {
       kinds.set(articleUrl, kind);
     }
     const next = Map.groupBy(routes, ({ listingUrl }) => listingUrl);
+    // The page that a link lands on: the crawl hands a redirected page back
+    // at its target, so a link has the label of the page its redirects
+    // reach.
+    const redirects = new Map(
+      routes.flatMap(({ listingUrl, url, how }) =>
+        how === 'redirect' ? [[listingUrl, url] as const] : [],
+      ),
+    );
+    const landed = (url: string) => {
+      const seen = new Set([url]);
+      let at = url;
+      for (
+        let target = redirects.get(at);
+        target !== undefined && !seen.has(target);
+        target = redirects.get(at)
+      ) {
+        seen.add(target);
+        at = target;
+      }
+      return at;
+    };
     // The pages that the routes from a linked page lead to, the page itself
     // first: its links and its sitemaps, when the crawl searched its site.
     const reached = (url: string) => {
@@ -266,7 +287,7 @@ export class MissingPrograms implements Condition<SQLTagStore, Alert> {
     const programs = groupIntoPrograms(claims);
     return programs.flatMap((links) => {
       if (links.some(({ list }) => !complete.has(list))) return [];
-      if (links.some(({ url }) => !kinds.has(url))) return [];
+      if (links.some(({ url }) => !kinds.has(landed(url)))) return [];
       // A program page counts only on a website of the program's own links:
       // a partner's program that a home page links is not this program.
       const domains = new Set(links.map(({ url }) => getDomain(url)));

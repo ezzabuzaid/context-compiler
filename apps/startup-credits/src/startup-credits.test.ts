@@ -1576,3 +1576,28 @@ test("a partner's program page that a home page links on another website is repo
     errors,
   );
 });
+
+test('a program whose list link redirects to the company page that Jev labels home is logged as no program page found, with the link the list gives', async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  const linked = 'https://anthropic.com/';
+  const home = 'https://www.anthropic.com/';
+  const { lines, errors } = await running(data.path, {
+    pages: {
+      ...lists([[linked, 'Anthropic Startup Program', 'API credits']]),
+      [linked]: { status: 301, location: home },
+      [home]: anthropicHome,
+    },
+    model: {},
+    decisions: { [home]: { kind: 'home' } },
+    until: has('Anthropic Startup Program: no program page found'),
+    ahead: 0,
+  });
+
+  assert.deepEqual(
+    lines,
+    [
+      `Anthropic Startup Program: no program page found (${linked} linked by ${avinash})`,
+    ],
+    errors,
+  );
+});
