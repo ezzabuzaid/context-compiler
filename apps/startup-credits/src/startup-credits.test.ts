@@ -1624,10 +1624,115 @@ test('a home page that a list links is searched one step, so the program page th
   assert.ok(!requests.includes('https://vercel.com/pricing'), errors);
 });
 
+test('the search inside a linked website keeps a page whose last path segment names startups, such as /startups, /hubspot-for-startups-for-education or /startup-program/, and requests no page under a startup section, such as its blog or its events', async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  const home = 'https://www.hubspot.com/';
+  const startups = 'https://www.hubspot.com/startups';
+  const education =
+    'https://www.hubspot.com/hubspot-for-startups-for-education';
+  const blog = 'https://www.hubspot.com/startups/blog';
+  const events = 'https://www.hubspot.com/startups/community/events';
+  const sitemap = 'https://www.hubspot.com/sitemap-startups.xml';
+  const neo4j = 'https://neo4j.com/';
+  const neo4jProgram = 'https://neo4j.com/startup-program/';
+  const neo4jSitemap = 'https://neo4j.com/sitemap.xml';
+  const offer =
+    'Eligible startups get up to 90% off HubSpot software in year one.';
+  const { lines, requests, errors } = await running(data.path, {
+    pages: {
+      ...lists([
+        [home, 'HubSpot', 'Discount on HubSpot'],
+        [neo4j, 'Neo4j', 'Startup program'],
+      ]),
+      [home]:
+        ok(`<!doctype html><html><head><title>HubSpot | Software and Tools for your Business</title></head><body>
+<main><h1>Grow better with HubSpot</h1><p>HubSpot is an AI-powered customer platform with the software, integrations and resources you need to connect marketing, sales and service.</p></main></body></html>`),
+      'https://www.hubspot.com/robots.txt': plain(
+        `User-agent: *\nAllow: /\nSitemap: ${sitemap}\n`,
+      ),
+      // The startup pages of the sitemap, as the acceptance test of
+      // 2026-11-01 found them.
+      [sitemap]: {
+        status: 200,
+        type: 'application/xml',
+        body: `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${[startups, education, blog, events].map((url) => `<url><loc>${url}</loc></url>`).join('')}</urlset>`,
+      },
+      [startups]:
+        ok(`<!doctype html><html><head><title>HubSpot for Startups</title></head><body>
+<main><h1>HubSpot for Startups</h1><p>${offer}</p></main></body></html>`),
+      [education]:
+        ok(`<!doctype html><html><head><title>HubSpot for Startups for Education</title></head><body>
+<main><h1>HubSpot for Startups for Education</h1><p>Universities and accelerators that teach entrepreneurship can bring HubSpot into their programs.</p></main></body></html>`),
+      [blog]:
+        ok(`<!doctype html><html><head><title>HubSpot for Startups Blog</title></head><body>
+<main><h1>The HubSpot for Startups blog</h1><p>Stories, playbooks and advice for founders who build and scale a startup.</p></main></body></html>`),
+      [events]:
+        ok(`<!doctype html><html><head><title>Startup events | HubSpot</title></head><body>
+<main><h1>Events for startups</h1><p>Meet other founders at HubSpot for Startups events around the world.</p></main></body></html>`),
+      [neo4j]:
+        ok(`<!doctype html><html><head><title>Neo4j Graph Database & Analytics</title></head><body>
+<main><h1>The graph database for connected data</h1><p>Neo4j helps developers build intelligent applications on connected data.</p></main></body></html>`),
+      'https://neo4j.com/robots.txt': plain(
+        `User-agent: *\nAllow: /\nSitemap: ${neo4jSitemap}\n`,
+      ),
+      [neo4jSitemap]: {
+        status: 200,
+        type: 'application/xml',
+        body: `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${neo4jProgram}</loc></url></urlset>`,
+      },
+      [neo4jProgram]:
+        ok(`<!doctype html><html><head><title>Neo4j Startup Program</title></head><body>
+<main><h1>Neo4j Startup Program</h1><p>Early-stage companies can build on Neo4j with help from our startup team.</p></main></body></html>`),
+    },
+    model: {
+      [startups]: [
+        {
+          offers: [
+            {
+              quote: offer,
+              kind: 'discount',
+              percent: 90,
+              duration: 'year one',
+              who: 'Eligible startups',
+              value: null,
+            },
+          ],
+        },
+      ],
+      [education]: [{ offers: [] }],
+      [neo4jProgram]: [{ offers: [] }],
+    },
+    decisions: {
+      [home]: { kind: 'home' },
+      [neo4j]: { kind: 'home' },
+      ...programs(startups, education, neo4jProgram),
+    },
+    quietAfter: (lines) =>
+      lines.filter((line) => line.startsWith('new program')).length === 3,
+    ahead: 0,
+  });
+
+  assert.deepEqual(
+    lines.toSorted(),
+    [
+      `new program ${neo4jProgram}: no offer found`,
+      `new program ${education}: no offer found`,
+      `new program ${startups}: discount 90% ("${offer}")`,
+    ],
+    errors,
+  );
+  assert.deepEqual(
+    requests.filter((url) => url === blog || url === events),
+    [],
+  );
+});
+
 test("a partner's program page that a home page links on another website is reported, and does not stand for the program that the list names", async () => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const home = 'https://vercel.com/';
-  const partner = 'https://aws.amazon.com/startups/credits';
+  // AWS's program page: the search inside a linked website keeps a page
+  // whose last path segment names startups.
+  const partner = 'https://aws.amazon.com/startups';
   const { lines, errors } = await running(data.path, {
     pages: {
       ...lists([[home, 'Vercel', 'Credits + AI Accelerator']]),

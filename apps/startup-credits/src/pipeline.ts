@@ -51,9 +51,15 @@ const source = new WebSource({
           new ListingReader(),
           new LinkReader({ maxDepth: 0, maxPages: 0 }),
         ],
+        // A page whose last path segment names startups, such as /startups,
+        // /startup-program/ or /arize-for-startups, and no page under a
+        // startup section, such as its blog or events, which the sitemaps
+        // of large websites list by the thousand (#3558). The URL filter of
+        // a focused crawler (Introduction to Information Retrieval, 20.2).
         expand: [
-          new URLPattern({ pathname: '*startup*' }),
-          new URLPattern({ pathname: '*start-up*' }),
+          new URLPattern({
+            pathname: String.raw`*/:page([^\/]*start-?up[^\/]*){/}?`,
+          }),
         ],
         // Lists every hour; pages when they change, as AdaptiveRevisit learns.
         revisit: new CompositeRevisit(
