@@ -73,6 +73,10 @@ Before proposing where a fix lives, split the requirement into its jobs and name
 
 When asked for a platform's latest format or practice, read what the vendor's newest code actually ships (for Codex plugins, `openai/plugins` at `main` and the plugins cached under `~/.codex/plugins/cache`) before recommending anything. When the docs and the source disagree, show both, cite commits, and follow the source.
 
+## Decide framework design by top performers, not by asking
+
+elt is a framework for web crawling and pipelines, not a product. For a design choice inside it, read how the established tools do it in their current source (Nutch, Heritrix, StormCrawler, Crawlee, Scrapy for crawling; Spark, Flink, Airbyte for pipelines), choose their standard, build it, and report the choice in one or two lines with the precedent. Do not ask the user which option he prefers: he has no preference on these choices. Ask only for what only he can give, such as a credential or a product fact outside the framework. The startup-credits budget work (elt #3486) went this way: the question "should a resumed run read its due starting URLs again?" was rejected; Nutch's Generator and StormCrawler's spout answer it (every run reads what is due).
+
 ## Let packages own plumbing; let classes own behavior
 
 Before writing argv routing, help text, usage errors, prompts or terminal rendering, search the installed package and its authors' siblings for it. In `apps/cli`, commander routes and validates, and clack prompts and renders. When a package takes over a job, such as clack exiting on Ctrl-C while its spinner runs, adapt to how it behaves rather than working around it.
