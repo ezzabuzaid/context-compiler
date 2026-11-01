@@ -65,6 +65,8 @@ Build the command, tool or API the approved plan names, in that shape. Avoiding 
 
 When you tell the user about a problem or a design, name the standard software-engineering term for it, define it once in one line with a well-known example, and then use it. Do this in every message, status notes included, not only in proposals: the user reads to learn as well as to decide. The parse-concurrency research went this way: "one slow parse holds up the rows behind it" is head-of-line blocking, "the file is valid until the next pull" is a lending iterator, "read ahead" is prefetching, and "a file handle elt closes" is ownership transfer of a disposable resource.
 
+Define a term in the message before a question uses it; an option label never carries a term that the message has not defined. A choice that a standard practice settles is not a question: make it, and teach why. The relevance research's round-16 gate went this way: the options "Non-inferior, δ 0.05" and "Superiority again" came before any definition, and the user answered "I do not understand those terms. teach me. also man please pick the realistic option and what top performers do".
+
 ## Place each job with whoever can know it
 
 Before proposing where a fix lives, split the requirement into its jobs and name, for each, who can actually know it: the source, the elt engine, the destination, the connector, the plugin server, or the agent. A job belongs to that owner. A slow Mail answer, for example, split into three jobs: whether a message changed (only the Mail source in elt knows), turning changes into upserts and deletions (a shared elt helper the source calls), and when to refresh (the source's `observe()`, run by the plugin server, not a skill telling the agent to sync).
