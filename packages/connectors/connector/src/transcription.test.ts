@@ -5,7 +5,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import { Fixed, LeaderFirst, Pool } from '@zukhruf/pool';
+import { Fixed, LeaderFirst, NoEviction, Pool } from '@zukhruf/pool';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import {
@@ -117,6 +117,7 @@ test('an existing import pipeline reads audio with a model saved or disabled by 
   await using ocr = new Pool({
     size: new Fixed(1),
     startup: new LeaderFirst(),
+    eviction: new NoEviction(),
     create: () =>
       new VisionWorker(
         fileURLToPath(

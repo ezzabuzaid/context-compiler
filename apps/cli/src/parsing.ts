@@ -2,7 +2,7 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { HillClimbing, LeaderFirst, Pool } from '@zukhruf/pool';
+import { HillClimbing, IdleTimeout, LeaderFirst, Pool } from '@zukhruf/pool';
 
 import { Transcription } from '@workspace/connector/transcription';
 import type { DocumentParser } from '@workspace/elt';
@@ -61,6 +61,9 @@ class Started implements AsyncDisposable {
     this.#ocr = new Pool({
       size: new HillClimbing({ memoryPerWorker: VisionWorker.memory }),
       startup: new LeaderFirst(),
+      // Idle Vision workers close after 5 minutes, so a server that does no work,
+      // such as one Codex keeps after a plugin refresh, holds no helpers (#3516).
+      eviction: new IdleTimeout({ after: 300_000 }),
       create: () =>
         new VisionWorker(
           fileURLToPath(

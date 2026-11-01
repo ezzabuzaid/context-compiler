@@ -7,7 +7,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import { Fixed, LeaderFirst, Pool } from '@zukhruf/pool';
+import { Fixed, LeaderFirst, NoEviction, Pool } from '@zukhruf/pool';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { Msw } from '@zukhruf/testing/msw';
 import { HttpResponse, http } from 'msw';
@@ -354,6 +354,7 @@ test('an import that keeps attachments, as setup does by default, makes the text
   await using ocr = new Pool({
     size: new Fixed(1),
     startup: new LeaderFirst(),
+    eviction: new NoEviction(),
     create: () =>
       new VisionWorker(
         fileURLToPath(

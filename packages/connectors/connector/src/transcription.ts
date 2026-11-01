@@ -1,5 +1,5 @@
 import { Latch } from '@zukhruf/async';
-import { Fixed, Parallel, Pool } from '@zukhruf/pool';
+import { Fixed, IdleTimeout, Parallel, Pool } from '@zukhruf/pool';
 
 import type { DocumentParser } from '@workspace/elt';
 import type { SpeechModels } from '@workspace/sdk-macos-speech-models';
@@ -91,6 +91,9 @@ export class Transcription implements AsyncDisposable {
         const engines = new Pool({
           size: new Fixed(1),
           startup: new Parallel(),
+          // The engine holds the model's weights; it closes after 5 idle
+          // minutes and the next audio loads it again.
+          eviction: new IdleTimeout({ after: 300_000 }),
           create: () => new TranscriptionWorker(this.#helper, configuration),
         });
         this.#engines = engines;
