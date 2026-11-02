@@ -94,6 +94,7 @@ class TwoStoreConnector extends Connector {
   constructor(broken: string, views: readonly ViewSpec[]) {
     super(
       {
+        clock: globalThis,
         grantee: 'Codex',
         documentParser: new MacOSDocumentParser(),
         home: '',

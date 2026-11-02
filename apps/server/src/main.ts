@@ -75,6 +75,7 @@ const transcription = new Transcription(
   }),
   ocr,
   fileURLToPath(new URL('transcribe-local', import.meta.url)),
+  globalThis,
 );
 const plugin = new Plugin(
   new Connectors([
@@ -89,6 +90,7 @@ const plugin = new Plugin(
       return transcription.parser;
     },
     eventKitHelper: fileURLToPath(new URL('eventkit-helper', import.meta.url)),
+    clock: globalThis,
   },
   versionFile,
   store,

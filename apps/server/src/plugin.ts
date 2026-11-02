@@ -226,6 +226,7 @@ export class Plugin {
     return new SingleFlight({
       directory: this.directory,
       codec: { encode: () => '', decode: () => undefined },
+      clock: globalThis,
     });
   }
 
@@ -474,6 +475,7 @@ function owners(settings: Settings, directory: string): SqliteElection {
     directory: settings.root,
     claimFile: `${name}.owner.lock`,
     epochFile: `${name}.owner.epoch`,
+    clock: globalThis,
   });
 }
 

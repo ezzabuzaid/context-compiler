@@ -33,6 +33,7 @@ function connectorUnder(home: string): Connector {
   // Mail reads nothing through EventKit.
   return new MailConnector(
     {
+      clock: globalThis,
       home,
       env: {},
       grantee: 'Codex',
@@ -58,7 +59,12 @@ async function importMail(
     includeAttachments: false,
   });
   const history = new SQLiteSyncHistory();
-  await new Pipeline({ connections: [connection], history, derived }).run();
+  await new Pipeline({
+    clock: globalThis,
+    connections: [connection],
+    history,
+    derived,
+  }).run();
   return join(directory, 'data.sqlite');
 }
 

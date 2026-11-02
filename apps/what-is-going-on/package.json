@@ -11,13 +11,13 @@
     "@workspace/elt-sqlite": "0.0.1",
     "@workspace/sdk-web-crawler": "0.0.1",
     "@workspace/source-web-pages": "0.0.1",
-    "@zukhruf/async": "0.6.7",
-    "@zukhruf/embeddings": "0.6.7",
-    "@zukhruf/event-detection": "0.6.7",
-    "@zukhruf/relevance-filtering": "0.6.7",
-    "@zukhruf/shutdown": "0.6.13",
-    "@zukhruf/sqlite-drift": "0.6.7",
-    "@zukhruf/sqlite-transaction": "0.6.7",
+    "@zukhruf/async": "0.6.15",
+    "@zukhruf/embeddings": "0.6.15",
+    "@zukhruf/event-detection": "0.6.15",
+    "@zukhruf/relevance-filtering": "0.6.15",
+    "@zukhruf/shutdown": "0.6.15",
+    "@zukhruf/sqlite-drift": "0.6.15",
+    "@zukhruf/sqlite-transaction": "0.6.15",
     "ai": "7.0.156",
     "feedscout": "2.2.1",
     "feedsmith": "3.0.1",
@@ -25,6 +25,6 @@
     "zod": "4.6.5"
   },
   "devDependencies": {
-    "@zukhruf/testing": "0.6.9"
+    "@zukhruf/testing": "0.6.15"
   }
 }

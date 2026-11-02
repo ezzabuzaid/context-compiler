@@ -27,6 +27,7 @@ function connectorUnder(home: string): Connector {
   // WhatsApp reads nothing through EventKit.
   return new WhatsAppConnector(
     {
+      clock: globalThis,
       home,
       env: {},
       grantee: 'Codex',
@@ -107,7 +108,12 @@ async function importWhatsApp(
   });
   const history = new SQLiteSyncHistory();
   try {
-    await new Pipeline({ history, connections: [connection], derived }).run();
+    await new Pipeline({
+      clock: globalThis,
+      history,
+      connections: [connection],
+      derived,
+    }).run();
   } catch (error) {
     // The stores this container lacks fail their streams; the rest load.
     if (!(error instanceof PipelineError)) throw error;

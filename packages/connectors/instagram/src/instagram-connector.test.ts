@@ -36,6 +36,7 @@ function connector(
   // Instagram reads nothing through EventKit.
   return new InstagramConnector(
     {
+      clock: globalThis,
       home,
       env: {},
       grantee: 'Codex',
@@ -354,6 +355,7 @@ test('an everything import keeps each followed profile once across overlapping p
 
 test('an import that keeps attachments, as setup does by default, makes the text on a timetable slide searchable', async () => {
   await using ocr = new Pool({
+    clock: globalThis,
     size: new Fixed(1),
     startup: new LeaderFirst(),
     eviction: new NoEviction(),
@@ -392,7 +394,12 @@ test('an import that keeps attachments, as setup does by default, makes the text
   });
   const history = new SQLiteSyncHistory();
 
-  await new Pipeline({ history, connections: [connection], derived }).run();
+  await new Pipeline({
+    clock: globalThis,
+    history,
+    connections: [connection],
+    derived,
+  }).run();
 
   using database = new DatabaseSync(join(imports.path, 'data.sqlite'), {
     readOnly: true,

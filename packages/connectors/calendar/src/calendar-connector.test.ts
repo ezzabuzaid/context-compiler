@@ -25,6 +25,7 @@ test('an import that stores no attachments needs no Google session, and one that
   // up an import reads nothing through EventKit.
   const calendar = new CalendarConnector(
     {
+      clock: globalThis,
       grantee: 'Terminal',
       documentParser: new MacOSDocumentParser(),
       home: '',

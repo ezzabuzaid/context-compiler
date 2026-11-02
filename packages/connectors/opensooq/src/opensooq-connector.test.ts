@@ -26,6 +26,7 @@ function connector(): OpenSooqConnector {
   // OpenSooq reads nothing through EventKit.
   return new OpenSooqConnector(
     {
+      clock: globalThis,
       grantee: 'Codex',
       documentParser: new MacOSDocumentParser(),
       home: '',

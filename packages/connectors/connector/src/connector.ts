@@ -14,6 +14,7 @@ import {
   type FailureType,
   LocalFiles,
   Pipeline,
+  type PipelineClock,
   PipelineError,
   type Source,
   type Stream,
@@ -55,6 +56,9 @@ export type ConnectorHost = {
   // The compiled EventKit helper Calendar and Reminders read through: beside
   // the plugin's bundled server, or in @workspace/sdk-apple-eventkit's dist.
   readonly eventKitHelper: string;
+  // The clock of every pipeline a connector builds: a host gives globalThis,
+  // a test a fake clock that it moves (elt ADR 0019).
+  readonly clock: PipelineClock;
   // A Google session for content an app keeps in Google, such as
   // Calendar attachments in Drive and Gmail. Without one, it stays a link.
   google?(scopes: readonly string[]): Promise<GoogleRequester>;
@@ -303,6 +307,7 @@ export abstract class Connector {
           }),
       ),
       new Map(),
+      { clock: this.host.clock },
     )) {
       if (message instanceof StreamStatus) {
         if (message.status === 'FAILED') throw message.error;
@@ -439,6 +444,7 @@ export abstract class Connector {
           connections,
           history,
           derived,
+          clock: this.host.clock,
         }),
         removal.signal,
       );

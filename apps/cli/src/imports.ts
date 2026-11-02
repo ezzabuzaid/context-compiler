@@ -152,6 +152,7 @@ export class Imports {
     return new SingleFlight({
       directory: this.root,
       codec: { encode: JSON.stringify, decode: JSON.parse },
+      clock: globalThis,
     });
   }
 
@@ -471,6 +472,7 @@ function owners(settings: Settings, directory: string): SqliteElection {
     directory: settings.root,
     claimFile: `${name}.owner.lock`,
     epochFile: `${name}.owner.epoch`,
+    clock: globalThis,
   });
 }
 

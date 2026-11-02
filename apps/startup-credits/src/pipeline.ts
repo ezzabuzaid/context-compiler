@@ -173,6 +173,7 @@ const programs = new View({
 });
 
 export default new Pipeline({
+  clock: globalThis,
   // One process runs the passes, so a pass left running belongs to one that
   // stopped.
   history: new SQLiteSyncHistory({ soleWriter: true }),

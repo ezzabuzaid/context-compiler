@@ -107,6 +107,7 @@ export default async function pipeline(options: {
   const blogs = sources.filter(({ feed }) => feed === null);
   const [posts, ...morePosts] = blogs.map(({ posts }) => new URLPattern(posts));
   return new Pipeline({
+    clock: globalThis,
     history,
     connections: [
       ...(feeds.length === 0

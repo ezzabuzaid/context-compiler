@@ -43,6 +43,7 @@ const destination = new SQLiteDestination({
 });
 
 export default new Pipeline({
+  clock: globalThis,
   history: new SQLiteSyncHistory({ soleWriter: true }),
   connections: [
     new Connection({

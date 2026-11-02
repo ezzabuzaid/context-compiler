@@ -12,6 +12,7 @@ import { type GoogleRequester, googleSession } from '@workspace/google-auth';
 // OAuth client.
 export class TerminalHost implements ConnectorHost {
   readonly #parser: () => DocumentParser;
+  readonly clock = globalThis;
 
   constructor(parser: () => DocumentParser) {
     this.#parser = parser;

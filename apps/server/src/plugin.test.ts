@@ -53,6 +53,7 @@ const chatUri = 'codex://threads/';
 // The host the plugin's server passes its connectors, with the helper this
 // workspace compiled instead of the bundled copy.
 const host = {
+  clock: globalThis,
   home: homedir(),
   env: process.env,
   grantee: 'ChatGPT',

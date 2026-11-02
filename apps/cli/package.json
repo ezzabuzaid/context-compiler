@@ -37,14 +37,14 @@
     "@workspace/settings": "0.0.1",
     "@workspace/source-apple-macos": "0.0.1",
     "@workspace/transcription-local": "0.0.1",
-    "@zukhruf/election": "0.6.7",
-    "@zukhruf/pool": "0.6.7",
-    "@zukhruf/single-flight": "0.6.7",
-    "@zukhruf/sqlite-federation": "0.6.7",
+    "@zukhruf/election": "0.6.15",
+    "@zukhruf/pool": "0.6.15",
+    "@zukhruf/single-flight": "0.6.15",
+    "@zukhruf/sqlite-federation": "0.6.15",
     "commander": "15.0.0"
   },
   "devDependencies": {
     "@workspace/codec-chromium-indexeddb": "0.0.1",
-    "@zukhruf/testing": "0.6.9"
+    "@zukhruf/testing": "0.6.15"
   }
 }

@@ -150,6 +150,7 @@ class OneSourceConnector extends Connector {
   constructor(source: Source) {
     super(
       {
+        clock: globalThis,
         grantee: 'Codex',
         documentParser: new MacOSDocumentParser(),
         home: '',
@@ -289,7 +290,7 @@ test(
         unscoped = [];
         storeCopies = [];
         constructor() {
-          super({ grantee: 'Codex', documentParser: new MacOSDocumentParser(), eventKitHelper: '', home: '', env: {} }, { name: 'one-source', title: 'One Source', folder: '/nonexistent' });
+          super({ grantee: 'Codex', documentParser: new MacOSDocumentParser(), eventKitHelper: '', home: '', env: {}, clock: globalThis }, { name: 'one-source', title: 'One Source', folder: '/nonexistent' });
         }
         access() { return 'Nothing to grant.'; }
         sources() { return [new TwoNotesSource()]; }

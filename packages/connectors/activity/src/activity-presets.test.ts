@@ -28,6 +28,7 @@ function connectorUnder(home: string): Connector {
   // Activity reads nothing through EventKit.
   return new ActivityConnector(
     {
+      clock: globalThis,
       home,
       env: {},
       grantee: 'Codex',
@@ -53,7 +54,12 @@ async function importActivity(
     includeAttachments: false,
   });
   const history = new SQLiteSyncHistory();
-  await new Pipeline({ connections: [connection], history, derived }).run();
+  await new Pipeline({
+    clock: globalThis,
+    connections: [connection],
+    history,
+    derived,
+  }).run();
   return join(directory, 'data.sqlite');
 }
 

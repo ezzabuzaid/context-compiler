@@ -115,6 +115,7 @@ test('an existing import pipeline reads audio with a model saved or disabled by 
   await mkdir(snapshot, { recursive: true });
   await writeFile(join(snapshot, 'ggml-small.bin'), 'lmgg');
   await using ocr = new Pool({
+    clock: globalThis,
     size: new Fixed(1),
     startup: new LeaderFirst(),
     eviction: new NoEviction(),
@@ -135,12 +136,14 @@ test('an existing import pipeline reads audio with a model saved or disabled by 
     fileURLToPath(
       import.meta.resolve('@workspace/transcription-local/transcribe-local'),
     ),
+    globalThis,
   );
   using other = new Settings(directory.path);
   // The host offers its connectors the parser of the choice it read last, as
   // the plugin's server does.
   const connector = new VoiceNoteConnector(
     {
+      clock: globalThis,
       grantee: 'Codex',
       get documentParser() {
         return host.parser;
@@ -161,6 +164,7 @@ test('an existing import pipeline reads audio with a model saved or disabled by 
     includeAttachments: true,
   });
   const pipeline = new Pipeline({
+    clock: globalThis,
     connections: [connection],
     history: new SQLiteSyncHistory({ soleWriter: true }),
     derived,

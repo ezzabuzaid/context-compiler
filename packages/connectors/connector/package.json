@@ -25,12 +25,12 @@
     "@workspace/settings": "0.0.1",
     "@workspace/source-apple-macos": "0.0.1",
     "@workspace/transcription-local": "0.0.1",
-    "@zukhruf/async": "0.6.7",
-    "@zukhruf/pool": "0.6.7",
+    "@zukhruf/async": "0.6.15",
+    "@zukhruf/pool": "0.6.15",
     "p-retry": "^8.0.1"
   },
   "devDependencies": {
-    "@zukhruf/testing": "0.6.9",
+    "@zukhruf/testing": "0.6.15",
     "ai": "7.0.148"
   }
 }

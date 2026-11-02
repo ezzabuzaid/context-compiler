@@ -121,6 +121,7 @@ class TwoStoreConnector extends Connector {
   ) {
     super(
       {
+        clock: globalThis,
         grantee: 'Codex',
         documentParser: new MacOSDocumentParser(),
         home: '',

@@ -1,4 +1,4 @@
-import { homedir } from 'node:os';
+import { availableParallelism, homedir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -59,11 +59,18 @@ class Started implements AsyncDisposable {
   constructor(directory: string) {
     // The server builds the same pool: change both.
     this.#ocr = new Pool({
-      size: new HillClimbing({ memoryPerWorker: VisionWorker.memory }),
+      size: new HillClimbing({
+        memoryPerWorker: VisionWorker.memory,
+        computer: {
+          availableParallelism,
+          availableMemory: () => process.availableMemory(),
+        },
+      }),
       startup: new LeaderFirst(),
       // Idle Vision workers close after 5 minutes, so a server that does no work,
       // such as one Codex keeps after a plugin refresh, holds no helpers (#3516).
       eviction: new IdleTimeout({ after: 300_000 }),
+      clock: globalThis,
       create: () =>
         new VisionWorker(
           fileURLToPath(
@@ -81,6 +88,7 @@ class Started implements AsyncDisposable {
       fileURLToPath(
         import.meta.resolve('@workspace/transcription-local/transcribe-local'),
       ),
+      globalThis,
     );
   }
 

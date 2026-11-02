@@ -138,6 +138,7 @@ class FolderConnector extends Connector {
   constructor(host: { documentParser: DocumentParser }, source: FolderSource) {
     super(
       {
+        clock: globalThis,
         grantee: 'Codex',
         get documentParser() {
           return host.documentParser;
@@ -184,6 +185,7 @@ async function importStore(
       includeAttachments: true,
     });
     return new Pipeline({
+      clock: globalThis,
       connections: [connection],
       history: new SQLiteSyncHistory({ soleWriter: true }),
       derived,

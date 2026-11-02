@@ -1,4 +1,4 @@
-import { Latch } from '@zukhruf/async';
+import { type Clock, Latch } from '@zukhruf/async';
 import { Fixed, IdleTimeout, Parallel, Pool } from '@zukhruf/pool';
 
 import type { DocumentParser } from '@workspace/elt';
@@ -27,6 +27,7 @@ export class Transcription implements AsyncDisposable {
   // close stays, so refresh and disposal report it.
   readonly #closings = new Set<Latch<Outcome>>();
   readonly #image: ImageFormat;
+  readonly #clock: Clock;
   #parser: DocumentParser;
 
   constructor(
@@ -34,10 +35,13 @@ export class Transcription implements AsyncDisposable {
     models: SpeechModels,
     ocr: Pool<VisionWorker>,
     helper: string,
+    // The clock of the engines' pool: an app gives globalThis.
+    clock: Clock,
   ) {
     this.#settings = new Settings(directory);
     this.#models = models;
     this.#helper = helper;
+    this.#clock = clock;
     this.#image = new ImageFormat(ocr);
     this.#parser = new MacOSDocumentParser([this.#image]);
   }
@@ -95,6 +99,7 @@ export class Transcription implements AsyncDisposable {
           // minutes and the next audio loads it again.
           eviction: new IdleTimeout({ after: 300_000 }),
           create: () => new TranscriptionWorker(this.#helper, configuration),
+          clock: this.#clock,
         });
         this.#engines = engines;
         formats.push(
