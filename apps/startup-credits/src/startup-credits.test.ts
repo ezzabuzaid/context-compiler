@@ -282,8 +282,8 @@ type End = { readonly until: Holds } | { readonly quietAfter: Holds };
 // Runs the app with its files in the data folder until end holds, it exits,
 // or thirty seconds pass, then stops it as Ctrl-C does. Gives its lines, the URLs it requested, each
 // request to the offer model (asked) and to the decision model (decided), its
-// exit code and stderr. A model request that the test did not plan fails the
-// test.
+// exit code or the signal that ended it, and stderr. A model request that the
+// test did not plan fails the test.
 async function running(
   data: string,
   {
@@ -323,8 +323,11 @@ async function running(
     },
   );
   // The abort that stops the app is an error event of its child process.
-  const exited = new Promise<number | null>((resolve, reject) => {
-    app.once('exit', resolve);
+  const exited = new Promise<{
+    code: number | null;
+    signal: NodeJS.Signals | null;
+  }>((resolve, reject) => {
+    app.once('exit', (code, signal) => resolve({ code, signal }));
     app.once('error', (error) => {
       if (error.name !== 'AbortError') reject(error);
     });
@@ -361,7 +364,7 @@ async function running(
     else errors.push(line);
     check();
   });
-  const code = await exited;
+  const { code, signal } = await exited;
   clearTimeout(quiet);
   assert.deepEqual(unplanned, [], errors.join('\n'));
   return {
@@ -370,6 +373,7 @@ async function running(
     asked,
     decided,
     code,
+    signal,
     errors: errors.join('\n'),
   };
 }
@@ -1257,7 +1261,12 @@ test('stopping the app during a model call stores no failure, so the page is sti
     decisions: programs(aws),
     ahead: 0,
   });
-  assert.equal(first.code, 0, first.errors);
+  // The stop ends the app by its signal, as a Ctrl-C in a shell does.
+  assert.deepEqual(
+    { code: first.code, signal: first.signal },
+    { code: null, signal: 'SIGINT' },
+    first.errors,
+  );
   assert.deepEqual(first.lines, [], first.errors);
 
   // A failure that the stop stored would be the restart's baseline, and the
