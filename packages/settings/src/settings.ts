@@ -259,8 +259,15 @@ export class Settings implements Disposable {
 
   // Aborts with ConnectorRemovedError once the selection no longer names this
   // import. It reads the settings again only when PRAGMA data_version says
-  // another connection committed.
-  removal(selection: Selection): Disposable & { readonly signal: AbortSignal } {
+  // another connection committed, on each heartbeat of clock: an app gives
+  // globalThis.
+  removal(
+    selection: Selection,
+    clock: {
+      setTimeout(callback: () => void, ms: number): unknown;
+      clearTimeout(timer: unknown): void;
+    },
+  ): Disposable & { readonly signal: AbortSignal } {
     const folder = importFolder(selection);
     const watcher = new DatabaseSync(this.#path, {
       readOnly: true,
@@ -285,9 +292,14 @@ export class Settings implements Disposable {
       }
     };
     check();
-    const heartbeat = setInterval(check, heartbeatMs);
+    const beat = () => {
+      check();
+      if (!controller.signal.aborted)
+        heartbeat = clock.setTimeout(beat, heartbeatMs);
+    };
+    let heartbeat = clock.setTimeout(beat, heartbeatMs);
     const stop = () => {
-      clearInterval(heartbeat);
+      clock.clearTimeout(heartbeat);
       if (watcher.isOpen) watcher.close();
     };
     controller.signal.addEventListener('abort', stop, { once: true });

@@ -49,6 +49,13 @@ export default defineConfig(
       ],
     },
   },
+  // The React components of packages/ui wait on the timers of the browser. How
+  // a component gets a clock is not decided yet (zukhruf #3600), so
+  // island/no-ambient-time does not reach them, as in zukhruf's ui and shadcn.
+  {
+    files: ['packages/ui/src/**'],
+    rules: { 'island/no-ambient-time': 'off' },
+  },
   {
     files: ['**/*.ts', '**/*.js'],
     rules: {

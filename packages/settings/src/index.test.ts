@@ -167,7 +167,7 @@ test('a store moved to another folder still names its imports, their failures an
   renameSync(before, after);
 
   using moved = new Settings(after);
-  using removal = moved.removal(notes);
+  using removal = moved.removal(notes, globalThis);
   const { rows } = shell(
     join(after, 'settings.sqlite'),
     'SELECT database FROM selected_connectors',
@@ -291,7 +291,7 @@ test('removing a connector stops its running import', async () => {
   const notes = { connector: 'notes', scope: {}, includeAttachments: true };
   using store = new Settings(scratch.path);
   store.select([notes], options);
-  using removal = store.removal(notes);
+  using removal = store.removal(notes, globalThis);
   const removed = Promise.withResolvers<unknown>();
   removal.signal.addEventListener(
     'abort',
@@ -316,7 +316,7 @@ test('a selection that keeps a connector never stops its import', async () => {
   const books = { connector: 'books', scope: {}, includeAttachments: true };
   using store = new Settings(scratch.path);
   store.select([notes], options);
-  using removal = store.removal(notes);
+  using removal = store.removal(notes, globalThis);
 
   store.select([notes, books], options);
   await new Promise((resolve) => setTimeout(resolve, 1_500));

@@ -421,7 +421,7 @@ export abstract class Connector {
       removal: AbortSignal,
     ) => Promise<unknown>,
   ): Promise<ImportOutcome> {
-    using removal = settings.removal(selection);
+    using removal = settings.removal(selection, this.host.clock);
     let built;
     try {
       built = await this.connections(settings.directory(selection), selection);

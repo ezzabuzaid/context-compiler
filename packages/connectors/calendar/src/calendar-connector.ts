@@ -34,7 +34,7 @@ export default class CalendarConnector extends Connector {
   // Calendar reads occurrences within a window: every event from 2000 to a
   // year ahead.
   override defaultScope() {
-    const end = new Date();
+    const end = new Date(this.host.clock.Date.now());
     end.setUTCFullYear(end.getUTCFullYear() + 1);
     return { startAt: '2000-01-01T00:00:00.000Z', endAt: end.toISOString() };
   }
