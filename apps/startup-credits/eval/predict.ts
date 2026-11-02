@@ -1,5 +1,6 @@
 import { writeFileSync } from 'node:fs';
 
+import { Shutdown } from '@zukhruf/shutdown';
 import { z } from 'zod';
 
 import { storedOffersSchema } from '../src/offer.ts';
@@ -14,8 +15,7 @@ import { pages } from './pages.ts';
 const file = process.argv[2];
 if (file === undefined) throw new Error('Give the file to write the offers to');
 
-const stop = new AbortController();
-process.once('SIGINT', () => stop.abort());
+using shutdown = new Shutdown();
 
 const rule = new ProgramOffers();
 const identity = await rule.identity();
@@ -41,7 +41,7 @@ await Promise.all(
         );
       const [result] = await rule.compute(
         [{ url: page.url, title: page.title, text: page.text }],
-        stop.signal,
+        shutdown.signal,
       );
       if (result === undefined || 'gone' in result)
         throw new Error(`${page.url}: the rule gave no output`);

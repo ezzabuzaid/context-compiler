@@ -36,6 +36,7 @@
     "@workspace/ui": "0.0.1",
     "@zukhruf/election": "0.6.7",
     "@zukhruf/pool": "0.6.7",
+    "@zukhruf/shutdown": "0.6.13",
     "@zukhruf/single-flight": "0.6.7",
     "@zukhruf/sqlite-drift": "0.6.7",
     "@zukhruf/sqlite-federation": "0.6.7",

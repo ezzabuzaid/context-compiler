@@ -1,5 +1,7 @@
 import { join } from 'node:path';
 
+import { Shutdown } from '@zukhruf/shutdown';
+
 import { CrawlError } from '@workspace/sdk-web-crawler';
 
 import { MissingPrograms } from './alerts/missing-programs.ts';
@@ -9,9 +11,7 @@ import directory from './directory.ts';
 import pipeline from './pipeline.ts';
 import { CreditsWarehouse } from './warehouse.ts';
 
-const stop = new AbortController();
-for (const signal of ['SIGINT', 'SIGTERM'] as const)
-  process.once(signal, () => stop.abort());
+using shutdown = new Shutdown();
 
 const reasonOf = (error: unknown) =>
   Error.isError(error) ? error.message : String(error);
@@ -28,7 +28,7 @@ for (const alert of alerts) await alert.baseline(warehouse.sql);
 
 // Either loop that fails stops the other.
 const failed = new AbortController();
-const watching = AbortSignal.any([stop.signal, failed.signal]);
+const watching = AbortSignal.any([shutdown.signal, failed.signal]);
 await Promise.all([
   (async () => {
     for await (const { outcomes } of pipeline.watch({ signal: watching }))
@@ -61,4 +61,5 @@ await Promise.all([
         }
   })().catch((error: unknown) => failed.abort(error)),
 ]);
-if (failed.signal.aborted && !stop.signal.aborted) throw failed.signal.reason;
+if (failed.signal.aborted && !shutdown.signal.aborted)
+  throw failed.signal.reason;

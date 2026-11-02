@@ -15,6 +15,7 @@
     "@zukhruf/embeddings": "0.6.7",
     "@zukhruf/event-detection": "0.6.7",
     "@zukhruf/relevance-filtering": "0.6.7",
+    "@zukhruf/shutdown": "0.6.13",
     "@zukhruf/sqlite-drift": "0.6.7",
     "@zukhruf/sqlite-transaction": "0.6.7",
     "ai": "7.0.156",

@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { Shutdown } from '@zukhruf/shutdown';
 import { z } from 'zod';
 
 import { Connectors } from '@workspace/connector-manifest/connectors';
@@ -523,10 +524,15 @@ mcpServer.server.onclose = () => {
   void transcription[Symbol.asyncDispose]();
   void ocr[Symbol.asyncDispose]();
 };
-for (const signal of ['SIGINT', 'SIGTERM'] as const)
-  process.once(signal, () => {
+// The server lives as long as the process, so the shutdown is never disposed.
+const shutdown = new Shutdown();
+shutdown.signal.addEventListener(
+  'abort',
+  () => {
     void mcpServer.close();
-  });
+  },
+  { once: true },
+);
 // Codex closes a chat's server by ending its stdin, which the SDK's stdio
 // transport does not listen for (1.32.1); the server closes then, so its
 // watches stop and the process ends.
