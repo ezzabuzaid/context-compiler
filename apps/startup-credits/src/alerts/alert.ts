@@ -32,8 +32,9 @@ export type Change<Data> = Extract<
 // again and it loses nothing.
 export abstract class Alert<Data extends Record<string, unknown>> {
   readonly #differential: SnapshotDifferential<Data>;
-  // null until the baseline: the differential reads null as a first scan.
-  #state: SnapshotState | null = null;
+  // Compares records with what the alert read at the commit before; the
+  // first scan compares with nothing, which the differential reads as null.
+  #diff = (records: readonly Data[]) => this.#differential.diff(records, null);
 
   constructor(options: SnapshotDifferentialOptions<Data>) {
     this.#differential = new SnapshotDifferential(options);
@@ -49,12 +50,11 @@ export abstract class Alert<Data extends Record<string, unknown>> {
   }
 
   async *lines(sql: SQLTagStore): AsyncGenerator<string> {
-    for await (const change of this.#differential.diff(
-      this.records(sql),
-      this.#state,
-    )) {
-      if (change.type === 'state') this.#state = change.state;
-      else if (change.type !== 'delete') {
+    for await (const change of this.#diff(this.records(sql))) {
+      if (change.type === 'state') {
+        const { state } = change;
+        this.#diff = (records) => this.#differential.diff(records, state);
+      } else if (change.type !== 'delete') {
         const line = this.line(change);
         if (line !== null) yield line;
       }

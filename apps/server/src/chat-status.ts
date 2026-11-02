@@ -132,11 +132,12 @@ export function chatStatus(
 // compacts, and before a prompt only once the status changed since it was
 // last sent.
 export function chatContext(plugin: Plugin, pageUri: string) {
-  let sent: string | undefined;
+  // Nothing is sent yet, so every status is news.
+  let changed = (_state: string): boolean => true;
   return (event: 'SessionStart' | 'UserPromptSubmit'): string | null => {
     const status = chatStatus(plugin, pageUri);
-    if (event === 'UserPromptSubmit' && status.state === sent) return null;
-    sent = status.state;
+    if (event === 'UserPromptSubmit' && !changed(status.state)) return null;
+    changed = (state) => state !== status.state;
     return status.text;
   };
 }
