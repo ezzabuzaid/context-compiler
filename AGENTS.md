@@ -85,7 +85,13 @@ Before writing argv routing, help text, usage errors, prompts or terminal render
 
 Before proposing a package or an API, list the installed package's whole export surface, renamed exports such as `decide as experimental_decide` included, and read its vendor's current source for providers. A grep for the names you expect is not that list. The decision-model API went this way: a `@zukhruf/decisions` package was proposed while AI SDK 7 already shipped `experimental_decide`, and its official `@ai-sdk/typesafe-ai` provider already spoke llama.cpp's `/v1/systemone`.
 
+Before you extract shared code into zukhruf, search npm for a maintained package that meets the requirements, and read each candidate's source against them. Extraction is the last resort, and the new package's README says why each candidate failed. A claim that Node.js does a package's job natively gets a side-by-side probe of both on the same cases first. `@zukhruf/shutdown` went this way: 13 candidates were read and none died by the signal after the cleanup, and the probe showed that Node.js does not replace terminus's draining of a busy keep-alive connection.
+
 Model a set of things that share an algorithm as a template class: an abstract base owns the fixed steps, and each variant is its own small class in its own file (`apps/cli/src/commands/`, the connectors in `packages/connectors/` over `Connector`). Do not use a definitions table imported everywhere and indexed by name. Callers ask an object; they do not reach into a registry.
+
+## Entry points run without Nx
+
+Judge an app's signals, exit status, environment and working directory as if a shell or a container starts it with plain `node`. Production does that, and so does Ezz in dev. An Nx target is one launcher only: it detaches its child, sends it one SIGTERM and sets the exit code itself, so it hides what the process does on its own. The stop of the entry points went this way: five copies of a SIGINT/SIGTERM `AbortController` exited with 0 after Ctrl-C, which no Nx run showed, but `node app && next` ran `next`, and a container reported a stop as a completed run.
 
 ## Fake only what cannot run for real
 
