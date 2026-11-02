@@ -17,9 +17,11 @@ export default class AccountsConnector extends Connector {
     return 'No app needs to be open: macOS keeps every account its apps sync through in one store.';
   }
 
-  protected source() {
-    return new AppleAccountsSource({
-      path: accountsStorePath(this.host.home),
-    });
+  protected sources() {
+    return [
+      new AppleAccountsSource({
+        path: accountsStorePath(this.host.home),
+      }),
+    ] as const;
   }
 }

@@ -38,26 +38,34 @@ export default class OpenSooqConnector extends Connector {
   // The categories alone, for the choices. The home page sends no ETag or
   // Last-Modified, so a cache saves no download; one file in the OS's
   // temporary folder serves every listing of the choices.
-  protected source(): WebSource {
-    return new WebSource({
-      streams: [{ stream: categories, inputs: [home] }],
-      cachePath: join(tmpdir(), 'context-compiler-opensooq', 'web-http.sqlite'),
-    });
+  protected sources(): readonly [WebSource] {
+    return [
+      new WebSource({
+        streams: [{ stream: categories, inputs: [home] }],
+        cachePath: join(
+          tmpdir(),
+          'context-compiler-opensooq',
+          'web-http.sqlite',
+        ),
+      }),
+    ];
   }
 
   // The listings of the chosen categories, beside the categories. With no
   // category chosen, the listings stream has no input, which the source
   // refuses as the user's to fix.
-  protected override importSource(
+  protected override importSources(
     { scope }: Selection,
     directory: string,
-  ): WebSource {
-    return new WebSource({
-      streams: [
-        { stream: categories, inputs: [home] },
-        { stream: listings, inputs: scope.collectionIds ?? [] },
-      ],
-      cachePath: join(directory, 'web-http.sqlite'),
-    });
+  ): readonly [WebSource] {
+    return [
+      new WebSource({
+        streams: [
+          { stream: categories, inputs: [home] },
+          { stream: listings, inputs: scope.collectionIds ?? [] },
+        ],
+        cachePath: join(directory, 'web-http.sqlite'),
+      }),
+    ];
   }
 }

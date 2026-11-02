@@ -1,0 +1,8 @@
+{
+  "name": "connector-chromium",
+  "sourceRoot": "packages/connectors/chromium/src",
+  "projectType": "library",
+  "targets": {
+    "format": {}
+  }
+}

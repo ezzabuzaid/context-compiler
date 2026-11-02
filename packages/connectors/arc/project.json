@@ -1,0 +1,8 @@
+{
+  "name": "connector-chromium-arc",
+  "sourceRoot": "packages/connectors/arc/src",
+  "projectType": "library",
+  "targets": {
+    "format": {}
+  }
+}

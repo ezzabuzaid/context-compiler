@@ -19,10 +19,12 @@ export default class NotificationCenterConnector extends Connector {
     return 'No app needs to be open: macOS keeps every app’s notifications in one store while Notification Center holds them.';
   }
 
-  protected source(scope: ImportScope) {
-    return new AppleNotificationCenterSource({
-      path: notificationCenterStorePath(this.host.home),
-      scope,
-    });
+  protected sources(scope: ImportScope) {
+    return [
+      new AppleNotificationCenterSource({
+        path: notificationCenterStorePath(this.host.home),
+        scope,
+      }),
+    ] as const;
   }
 }

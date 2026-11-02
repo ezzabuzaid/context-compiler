@@ -19,10 +19,12 @@ export default class CallHistoryConnector extends Connector {
     return 'No app needs to be open: macOS keeps the calls from Phone, FaceTime and your iPhone in one store.';
   }
 
-  protected source(scope: ImportScope) {
-    return new AppleCallHistorySource({
-      path: callHistoryStorePath(this.host.home),
-      scope,
-    });
+  protected sources(scope: ImportScope) {
+    return [
+      new AppleCallHistorySource({
+        path: callHistoryStorePath(this.host.home),
+        scope,
+      }),
+    ] as const;
   }
 }

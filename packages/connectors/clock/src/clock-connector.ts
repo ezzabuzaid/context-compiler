@@ -13,7 +13,7 @@ export default class ClockConnector extends Connector {
   protected access(): string {
     return 'Open Clock once to create its stores. Clock need not stay open: this imports saved alarms, timers, world clocks and the current stopwatch with its laps.';
   }
-  protected source() {
-    return new AppleClockSource(clockLocation(this.host.home));
+  protected sources() {
+    return [new AppleClockSource(clockLocation(this.host.home))] as const;
   }
 }

@@ -40,15 +40,18 @@ test('an import that stores no attachments needs no Google session, and one that
     { name: contextCompiler.name, title: contextCompiler.title, folder },
   );
 
-  const { connection } = await calendar.connection(
-    join(directory.path, 'links'),
-    { connector: 'calendar', scope: {}, includeAttachments: false },
-  );
+  const {
+    connections: [connection],
+  } = await calendar.connections(join(directory.path, 'links'), {
+    connector: 'calendar',
+    scope: {},
+    includeAttachments: false,
+  });
 
   const { streams } = await connection.source.discover();
   assert.ok(streams.some(({ name }) => name === 'events'));
   await assert.rejects(
-    calendar.connection(join(directory.path, 'files'), {
+    calendar.connections(join(directory.path, 'files'), {
       connector: 'calendar',
       scope: {},
       includeAttachments: true,

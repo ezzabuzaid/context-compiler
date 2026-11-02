@@ -46,15 +46,15 @@ export default class InstagramConnector extends Connector {
     return 'Sign in to Instagram in Dia, Google Chrome, Arc, Microsoft Edge or Brave. When macOS asks whether security may use the browser’s Safe Storage key, click Always Allow.';
   }
 
-  protected source(scope: ImportScope): InstagramWebSource {
-    return new InstagramWebSource(options(this.host.home, scope));
+  protected sources(scope: ImportScope): readonly [InstagramWebSource] {
+    return [new InstagramWebSource(options(this.host.home, scope))];
   }
 
   // An import that selects no profile reads every account the signed-in
   // account follows.
-  protected override importSource({
+  protected override async importSources({
     scope,
-  }: Selection): Promise<InstagramWebSource> {
-    return InstagramWebSource.connect(options(this.host.home, scope));
+  }: Selection): Promise<readonly [InstagramWebSource]> {
+    return [await InstagramWebSource.connect(options(this.host.home, scope))];
   }
 }

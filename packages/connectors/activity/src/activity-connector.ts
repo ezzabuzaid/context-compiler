@@ -18,10 +18,12 @@ export default class ActivityConnector extends Connector {
     return 'No app needs to be open: macOS records this activity on its own.';
   }
 
-  protected source() {
-    return new AppleActivitySource({
-      biome: biomeDirectory(this.host.home),
-      knowledge: knowledgeStorePath(this.host.home),
-    });
+  protected sources() {
+    return [
+      new AppleActivitySource({
+        biome: biomeDirectory(this.host.home),
+        knowledge: knowledgeStorePath(this.host.home),
+      }),
+    ] as const;
   }
 }

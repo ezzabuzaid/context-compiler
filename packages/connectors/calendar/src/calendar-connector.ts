@@ -40,27 +40,27 @@ export default class CalendarConnector extends Connector {
   }
 
   // Listing calendars leaves remote attachments as links.
-  protected source(scope: ImportScope) {
-    return this.#calendar(scope, async () => false);
+  protected sources(scope: ImportScope) {
+    return [this.#calendar(scope, async () => false)] as const;
   }
 
   // An import that stores attachments downloads those kept in Google Drive
   // and Gmail when the host offers a Google session; one that stores none
   // needs no session. The Google client loads only then, so a host without
   // one never runs it.
-  protected override async importSource({
+  protected override async importSources({
     scope,
     includeAttachments,
   }: Selection) {
     if (!includeAttachments || this.host.google === undefined)
-      return this.source(scope);
+      return this.sources(scope);
     const google = await this.host.google([
       GOOGLE_DRIVE_READONLY_SCOPE,
       GMAIL_READONLY_SCOPE,
     ]);
     const { googleCalendarAttachments } =
       await import('@workspace/source-apple-calendar/google-calendar-attachments');
-    return this.#calendar(scope, googleCalendarAttachments(google));
+    return [this.#calendar(scope, googleCalendarAttachments(google))] as const;
   }
 
   #calendar(scope: ImportScope, attachments: CalendarAttachmentFetcher) {

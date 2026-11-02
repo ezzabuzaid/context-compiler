@@ -25,10 +25,12 @@ export default class NotesConnector extends Connector {
     return 'Open Notes to let it finish syncing iCloud changes.';
   }
 
-  protected source(scope: ImportScope) {
-    return new AppleNotesSource({
-      path: noteStorePath(this.host.home),
-      scope,
-    });
+  protected sources(scope: ImportScope) {
+    return [
+      new AppleNotesSource({
+        path: noteStorePath(this.host.home),
+        scope,
+      }),
+    ] as const;
   }
 }

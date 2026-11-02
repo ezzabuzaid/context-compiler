@@ -114,8 +114,8 @@ class TwoStoreConnector extends Connector {
     return 'Nothing to grant.';
   }
 
-  protected source() {
-    return new TwoStoreSource(this.#broken);
+  protected sources() {
+    return [new TwoStoreSource(this.#broken)] as const;
   }
 }
 

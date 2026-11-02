@@ -61,7 +61,13 @@ test(
       });
       const content = resource.contents[0];
       assert.ok(content && 'text' in content);
-      const host = await browser.newPage();
+      // The host shows the whole 900 px frame, as ChatGPT sizes its frame to
+      // the page: a click on a part of the frame below the host's viewport is
+      // lost, and the sidebar's last rows were there once it listed every
+      // connector.
+      const host = await browser.newPage({
+        viewport: { width: 1280, height: 1000 },
+      });
       await host.setContent(
         '<!doctype html><html><body><iframe title="Context Compiler" sandbox="allow-scripts allow-forms" style="width:100%;height:900px"></iframe></body></html>',
       );

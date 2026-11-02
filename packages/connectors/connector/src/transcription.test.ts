@@ -96,8 +96,8 @@ class VoiceNoteConnector extends Connector {
     return 'Nothing to grant.';
   }
 
-  protected source() {
-    return new VoiceNoteSource(this.#file);
+  protected sources() {
+    return [new VoiceNoteSource(this.#file)] as const;
   }
 }
 
@@ -152,7 +152,10 @@ test('an existing import pipeline reads audio with a model saved or disabled by 
     audio,
   );
   const imported = join(directory.path, 'import');
-  const { connection, derived } = await connector.connection(imported, {
+  const {
+    connections: [connection],
+    derived,
+  } = await connector.connections(imported, {
     connector: connector.name,
     scope: {},
     includeAttachments: true,

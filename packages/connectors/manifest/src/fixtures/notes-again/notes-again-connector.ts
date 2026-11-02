@@ -14,7 +14,7 @@ export default class NotesAgainConnector extends Connector {
     return 'Open Photos once.';
   }
 
-  protected source(): Source {
+  protected sources(): readonly [Source] {
     throw new Error('The Photos fixture reads nothing.');
   }
 }

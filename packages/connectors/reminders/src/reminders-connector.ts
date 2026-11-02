@@ -23,12 +23,14 @@ export default class RemindersConnector extends Connector {
     return `Allow ${grantee} full Reminders access when macOS asks, or in System Settings › Privacy & Security › Reminders.`;
   }
 
-  protected source(scope: ImportScope) {
-    return new AppleRemindersSource({
-      store: new RemindersStore(this.host.eventKitHelper, {
-        env: this.host.env,
+  protected sources(scope: ImportScope) {
+    return [
+      new AppleRemindersSource({
+        store: new RemindersStore(this.host.eventKitHelper, {
+          env: this.host.env,
+        }),
+        scope,
       }),
-      scope,
-    });
+    ] as const;
   }
 }

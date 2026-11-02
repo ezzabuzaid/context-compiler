@@ -331,7 +331,9 @@ test('an everything import keeps each followed profile once across overlapping p
   );
   const instagramConnector = connector(new MacOSDocumentParser(), mac.path);
 
-  const { connection } = await instagramConnector.connection(imports.path, {
+  const {
+    connections: [connection],
+  } = await instagramConnector.connections(imports.path, {
     connector: instagramConnector.name,
     scope: {},
     includeAttachments: false,
@@ -380,14 +382,14 @@ test('an import that keeps attachments, as setup does by default, makes the text
     new MacOSDocumentParser([new ImageFormat(ocr)]),
     mac.path,
   );
-  const { connection, derived } = await instagramConnector.connection(
-    imports.path,
-    {
-      connector: instagramConnector.name,
-      scope: { collectionIds: [hive.pk] },
-      includeAttachments: true,
-    },
-  );
+  const {
+    connections: [connection],
+    derived,
+  } = await instagramConnector.connections(imports.path, {
+    connector: instagramConnector.name,
+    scope: { collectionIds: [hive.pk] },
+    includeAttachments: true,
+  });
   const history = new SQLiteSyncHistory();
 
   await new Pipeline({ history, connections: [connection], derived }).run();

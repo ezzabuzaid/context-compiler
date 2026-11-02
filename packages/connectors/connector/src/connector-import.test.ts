@@ -165,8 +165,8 @@ class OneSourceConnector extends Connector {
     return 'Nothing to grant.';
   }
 
-  protected source() {
-    return this.#source;
+  protected sources() {
+    return [this.#source] as const;
   }
 }
 
@@ -292,7 +292,7 @@ test(
           super({ grantee: 'Codex', documentParser: new MacOSDocumentParser(), eventKitHelper: '', home: '', env: {} }, { name: 'one-source', title: 'One Source', folder: '/nonexistent' });
         }
         access() { return 'Nothing to grant.'; }
-        source() { return new TwoNotesSource(); }
+        sources() { return [new TwoNotesSource()]; }
       }
       await new OneSourceConnector().import(new Settings(process.env.STORE), JSON.parse(process.env.SELECTION));
     `;

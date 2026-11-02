@@ -1,0 +1,19 @@
+{
+  "name": "@workspace/connector-chromium",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./chromium-connector": {
+      "types": "./dist/chromium-connector.d.ts",
+      "default": "./dist/chromium-connector.js"
+    }
+  },
+  "dependencies": {
+    "@workspace/connector": "0.0.1",
+    "@workspace/elt": "0.0.1",
+    "@workspace/sdk-chromium-browser": "0.0.1",
+    "@workspace/source-apple-macos": "0.0.1",
+    "@workspace/source-chromium-browser": "0.0.1"
+  }
+}

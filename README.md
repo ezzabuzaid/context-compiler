@@ -2,7 +2,7 @@
 
 **Import your Mac apps into SQLite. Ask Codex about them.**
 
-Context Compiler is a Codex plugin and a terminal CLI that import what the apps on a Mac keep (Notes, Mail, Messages, Calendar, Reminders, Contacts, Safari, Books, Activity, Accounts, Call History, Clock, Notification Center, Wallet, Slack, Microsoft Teams, WhatsApp and Instagram) and the listings of the OpenSooq categories you pick into one SQLite database per connector, and keep it current. The plugin's skills let the agent read those databases directly with `sqlite3 -readonly`. Everything stays on the Mac.
+Context Compiler is a Codex plugin and a terminal CLI that import what the apps on a Mac keep (Notes, Mail, Messages, Calendar, Reminders, Contacts, Safari, Dia, Google Chrome, Arc, Microsoft Edge, Books, Activity, Accounts, Call History, Clock, Notification Center, Wallet, Slack, Microsoft Teams, WhatsApp and Instagram) and the listings of the OpenSooq categories you pick into one SQLite database per connector, and keep it current. The plugin's skills let the agent read those databases directly with `sqlite3 -readonly`. Everything stays on the Mac.
 
 The sources, the SQLite destination and the pipeline that loads them are the [elt](https://github.com/ezzabuzaid/elt) library. This repository holds the hosts: the plugin, the CLI, one connector package per app, and the settings they share. See the README of each [elt source package](https://github.com/ezzabuzaid/elt/tree/main/packages/sources) for its streams, fields and limits, for example [Mail streams](https://github.com/ezzabuzaid/elt/blob/main/packages/sources/apple/mail/README.md).
 
@@ -85,18 +85,19 @@ Local transcription decodes audio with macOS's `afconvert`, so it needs nothing 
 
 Permissions apply to the process running the import: ChatGPT for the plugin, the terminal app for the CLI. A sandbox can still restrict access after permission is granted.
 
-| Operation                    | Required access                                                                                                                                        |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Read or watch Apple Mail     | Full Disk Access (Mail's store and the system Accounts store, which holds account settings)                                                            |
-| Read or watch Apple Notes    | Full Disk Access; Notes does not need to be open                                                                                                       |
-| Read or watch Apple Contacts | Contacts access or Full Disk Access; Contacts does not need to be open                                                                                 |
-| Read or watch Apple Safari   | Full Disk Access; Safari does not need to be open, but only Safari fetches history and tabs from other devices                                         |
-| Read or watch Apple Books    | Full Disk Access; Books does not need to be open, and books kept only in iCloud are listed without their files                                         |
-| Read or watch Mac activity   | Full Disk Access (Biome and knowledgeC); no app needs to be open                                                                                       |
-| Read or watch Apple Accounts | Full Disk Access; no app needs to be open                                                                                                              |
-| Read or watch Apple Clock    | Access to the protected database and city preferences, covered by Full Disk Access; stopwatch preferences were readable without that grant on macOS 27 |
-| Read or watch Reminders      | Full Reminders access through EventKit                                                                                                                 |
-| Read or watch Calendar       | Full Calendar access through EventKit                                                                                                                  |
+| Operation                                               | Required access                                                                                                                                        |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Read or watch Apple Mail                                | Full Disk Access (Mail's store and the system Accounts store, which holds account settings)                                                            |
+| Read or watch Dia, Google Chrome, Arc or Microsoft Edge | No access to grant; the browser may stay open                                                                                                          |
+| Read or watch Apple Notes                               | Full Disk Access; Notes does not need to be open                                                                                                       |
+| Read or watch Apple Contacts                            | Contacts access or Full Disk Access; Contacts does not need to be open                                                                                 |
+| Read or watch Apple Safari                              | Full Disk Access; Safari does not need to be open, but only Safari fetches history and tabs from other devices                                         |
+| Read or watch Apple Books                               | Full Disk Access; Books does not need to be open, and books kept only in iCloud are listed without their files                                         |
+| Read or watch Mac activity                              | Full Disk Access (Biome and knowledgeC); no app needs to be open                                                                                       |
+| Read or watch Apple Accounts                            | Full Disk Access; no app needs to be open                                                                                                              |
+| Read or watch Apple Clock                               | Access to the protected database and city preferences, covered by Full Disk Access; stopwatch preferences were readable without that grant on macOS 27 |
+| Read or watch Reminders                                 | Full Reminders access through EventKit                                                                                                                 |
+| Read or watch Calendar                                  | Full Calendar access through EventKit                                                                                                                  |
 
 Manage permissions in **System Settings → Privacy & Security**. Calendar and Reminders request access on the first native operation if it is undecided.
 

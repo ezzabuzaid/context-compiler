@@ -15,13 +15,31 @@
       "path": "../whatsapp/tsconfig.lib.json"
     },
     {
-      "path": "../wallet/tsconfig.lib.json"
+      "path": "../slack/tsconfig.lib.json"
+    },
+    {
+      "path": "../opensooq/tsconfig.lib.json"
     },
     {
       "path": "../teams/tsconfig.lib.json"
     },
     {
-      "path": "../slack/tsconfig.lib.json"
+      "path": "../instagram/tsconfig.lib.json"
+    },
+    {
+      "path": "../edge/tsconfig.lib.json"
+    },
+    {
+      "path": "../dia/tsconfig.lib.json"
+    },
+    {
+      "path": "../chrome/tsconfig.lib.json"
+    },
+    {
+      "path": "../arc/tsconfig.lib.json"
+    },
+    {
+      "path": "../wallet/tsconfig.lib.json"
     },
     {
       "path": "../safari/tsconfig.lib.json"
@@ -40,12 +58,6 @@
     },
     {
       "path": "../mail/tsconfig.lib.json"
-    },
-    {
-      "path": "../opensooq/tsconfig.lib.json"
-    },
-    {
-      "path": "../instagram/tsconfig.lib.json"
     },
     {
       "path": "../contacts/tsconfig.lib.json"

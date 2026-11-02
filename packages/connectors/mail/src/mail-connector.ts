@@ -89,11 +89,13 @@ export default class MailConnector extends Connector {
     return 'The import reads Mail’s local store even while Mail is closed. Open Mail and let its accounts update to download newer messages and missing content; syncing this import does not fetch cloud mail. Account settings come from the macOS Accounts store.';
   }
 
-  protected source(scope: ImportScope) {
-    return new AppleMailSource({
-      path: mailDirectory(this.host.home),
-      accounts: new AccountsStore(accountsStorePath(this.host.home)),
-      scope,
-    });
+  protected sources(scope: ImportScope) {
+    return [
+      new AppleMailSource({
+        path: mailDirectory(this.host.home),
+        accounts: new AccountsStore(accountsStorePath(this.host.home)),
+        scope,
+      }),
+    ] as const;
   }
 }

@@ -155,8 +155,8 @@ class FolderConnector extends Connector {
     return 'Nothing to grant.';
   }
 
-  protected source() {
-    return this.#source;
+  protected sources() {
+    return [this.#source] as const;
   }
 }
 
@@ -175,7 +175,10 @@ async function importStore(
   const imported = join(directory, 'import');
   const path = join(imported, 'data.sqlite');
   const pipeline = async () => {
-    const { connection, derived } = await connector.connection(imported, {
+    const {
+      connections: [connection],
+      derived,
+    } = await connector.connections(imported, {
       connector: connector.name,
       scope: {},
       includeAttachments: true,

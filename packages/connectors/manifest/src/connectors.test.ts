@@ -28,11 +28,15 @@ test('every connector folder loads as its connector for the host, and one that c
   assert.deepEqual(connectors.map(({ name }) => name).sort(), [
     'accounts',
     'activity',
+    'arc',
     'books',
     'calendar',
     'call-history',
+    'chrome',
     'clock',
     'contacts',
+    'dia',
+    'edge',
     'instagram',
     'mail',
     'messages',
@@ -65,6 +69,12 @@ test('every connector folder loads as its connector for the host, and one that c
   assert.equal(
     slack?.guidance(),
     'Turn on Terminal in System Settings › Privacy & Security › Full Disk Access, then quit and reopen Terminal. macOS does not ask for this access. Open Slack in each workspace to import and let it run: it saves what it has loaded every few minutes and when it quits, and only messages it has loaded on this Mac are imported.',
+  );
+  const dia = connectors.find(({ name }) => name === 'dia');
+  assert.equal(dia?.title, 'Dia');
+  assert.equal(
+    dia?.guidance(),
+    'Dia needs no access granted: the import reads the profiles it keeps in your Library folder, also while it runs.',
   );
   const teams = connectors.find(({ name }) => name === 'teams');
   assert.equal(teams?.title, 'Microsoft Teams');

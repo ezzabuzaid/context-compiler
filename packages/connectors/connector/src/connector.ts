@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import pRetry from 'p-retry';
 
 import {
+  type Catalog,
   Connection,
   Copy,
   CopyConfiguration,
@@ -88,7 +89,7 @@ export type ImportOutcome =
   | { readonly status: 'unconnected'; readonly error: unknown };
 
 // The connector for one Mac app. A subclass declares the app's facts and its
-// source; this class lists what it can be narrowed by, builds its load and
+// sources; this class lists what it can be narrowed by, builds its load and
 // words its selection and failures the same way for every connector and host.
 export abstract class Connector {
   readonly name: string;
@@ -160,16 +161,21 @@ export abstract class Connector {
   // What macOS needs granted to the grantee, besides Full Disk Access.
   protected abstract access(grantee: string): string;
 
-  protected abstract source(scope: ImportScope): Source;
+  // The elt sources that read the app, such as the Chromium source every
+  // Chromium browser shares and one that reads what only Dia keeps. An import
+  // loads all of them into one file, one connection for each.
+  protected abstract sources(
+    scope: ImportScope,
+  ): readonly [Source, ...Source[]];
 
-  // The source an import loads from, given the import's folder for the files
+  // The sources an import loads from, given the import's folder for the files
   // a source keeps of its own, such as an HTTP cache; listing choices reads
-  // source(scope).
-  protected importSource(
+  // sources(scope).
+  protected importSources(
     { scope }: Selection,
     _directory: string,
-  ): Source | Promise<Source> {
-    return this.source(scope);
+  ): readonly [Source, ...Source[]] | Promise<readonly [Source, ...Source[]]> {
+    return this.sources(scope);
   }
 
   // The scope an import uses for what its selection leaves out.
@@ -193,9 +199,14 @@ export abstract class Connector {
     ].join(' ');
   }
 
-  // Whose an error is to fix, as this connector's source classifies it.
+  // Whose an error is to fix: the user's when any of this connector's sources
+  // says so, since only the source that threw it knows it.
   failureType(error: unknown): FailureType {
-    return this.source(this.defaultScope()).failureType(error);
+    return this.sources(this.defaultScope()).some(
+      (source) => source.failureType(error) === 'config',
+    )
+      ? 'config'
+      : 'system';
   }
 
   // What failed, and, when it is the user's to fix, what macOS access the app
@@ -244,15 +255,45 @@ export abstract class Connector {
 
   // The rows of the streams this connector can be narrowed by. Opening the
   // app's store is also what makes macOS ask for access, so a denial fails
-  // here, before anything is selected.
+  // here, before anything is selected. Each stream is read from the source
+  // that declares it.
   async choiceRows(): Promise<Rows> {
-    const source = this.source(this.defaultScope());
-    const catalog = await source.discover();
+    const declared = await Promise.all(
+      this.sources(this.defaultScope()).map(async (source) => ({
+        source,
+        catalog: await source.discover(),
+      })),
+    );
     const streams =
       this.probe === undefined
         ? this.choices.map(({ stream }) => stream)
         : [this.probe];
+    const undeclared = streams.filter(
+      (stream) =>
+        !declared.some(({ catalog }) =>
+          catalog.streams.some(({ name }) => name === stream),
+        ),
+    );
+    if (undeclared.length > 0)
+      throw new TypeError(
+        `No source of the ${this.title} connector declares the stream ${undeclared.join(', ')}`,
+      );
     const rows = new Map<string, Row[]>();
+    for (const { source, catalog } of declared) {
+      const read = streams.filter((stream) =>
+        catalog.streams.some(({ name }) => name === stream),
+      );
+      if (read.length > 0) await this.#readChoices(source, catalog, read, rows);
+    }
+    return rows;
+  }
+
+  async #readChoices(
+    source: Source,
+    catalog: Catalog,
+    streams: readonly string[],
+    rows: Map<string, Row[]>,
+  ): Promise<void> {
     for await (const message of source.read(
       streams.map(
         (stream) =>
@@ -276,7 +317,6 @@ export abstract class Connector {
         rows.set(message.stream, [...(rows.get(message.stream) ?? []), data]);
       }
     }
-    return rows;
   }
 
   async listChoices(): Promise<ChoiceOptions[]> {
@@ -379,7 +419,7 @@ export abstract class Connector {
     using removal = settings.removal(selection);
     let built;
     try {
-      built = await this.connection(settings.directory(selection), selection);
+      built = await this.connections(settings.directory(selection), selection);
     } catch (error) {
       settings.saveConnectionFailure(
         selection,
@@ -389,14 +429,14 @@ export abstract class Connector {
       return { status: 'unconnected', error };
     }
     settings.clearConnectionFailure(selection);
-    const { connection, derived } = built;
+    const { connections, derived } = built;
     // Every host loads an import only while it owns it, so no other process
     // can: a pass of it still recorded running is one whose process ended.
     const history = new SQLiteSyncHistory({ soleWriter: true });
     try {
       await load(
         new Pipeline({
-          connections: [connection],
+          connections,
           history,
           derived,
         }),
@@ -424,22 +464,27 @@ export abstract class Connector {
     return { status: 'imported' };
   }
 
-  // The connector's streams, loaded incrementally into raw_<stream> tables of
-  // the import directory's data.sqlite and read through documented views, with
-  // checkpoints.sqlite and attachment copies in files/ beside it. Its derived
+  // The streams of the connector's sources, loaded incrementally into
+  // raw_<stream> tables of the import directory's data.sqlite and read through
+  // documented views, with checkpoints.sqlite and attachment copies in files/
+  // beside it: one connection for each source, named by the source's identity.
+  // Two sources that declare one stream are two writers of its table, which
+  // the destination refuses rather than mixing their rows. Its derived
   // datasets are its own and, when it stores files, attachment_text, the text
-  // of each stored file.
-  async connection(
+  // of each file any of its sources stored.
+  async connections(
     directory: string,
     selection: Selection,
   ): Promise<{
-    connection: Connection<SQLiteTable>;
+    connections: readonly [
+      Connection<SQLiteTable>,
+      ...Connection<SQLiteTable>[],
+    ];
     derived: readonly DerivedDataset<SQLiteTable>[];
   }> {
     const { scope, includeAttachments } = selection;
-    const source = await this.importSource(selection, directory);
+    const sources = await this.importSources(selection, directory);
     const narrowed = Object.keys(scope).length > 0;
-    const { streams } = await source.discover();
     const withFiles = (stream: Stream) =>
       includeAttachments &&
       stream.supportsFileTransfer === true &&
@@ -449,44 +494,61 @@ export abstract class Connector {
       path: join(directory, 'data.sqlite'),
     });
     const files = new LocalFiles({ directory: join(directory, 'files') });
-    const copied = streams.filter(
-      ({ name }) => !(narrowed && this.unscoped.includes(name)),
-    );
-    const copies = copied.map((stream) => ({
-      stream,
-      target: destination
-        .table(
-          `raw_${stream.name}`,
-          withFiles(stream)
-            ? (columns) => [
-                ...SQLiteColumns.fromSchema(stream.jsonSchema),
-                columns.text('attachmentRef').from(stream.file.store(files)),
-              ]
-            : undefined,
-        )
-        .withReaderView(this.view(stream.name)),
-    }));
-    const connection = new Connection({
-      name: this.name,
-      source,
-      destination,
-      checkpoints: new SQLiteCheckpointStore({
-        path: join(directory, 'checkpoints.sqlite'),
-      }),
-      steps: copies.map(
-        ({ stream, target }) =>
-          new Copy(stream, target, {
-            id: `${this.name}:${stream.name}`,
-            syncMode: 'incremental',
-            destinationSyncMode: 'append_dedup',
-          }),
-      ),
+    const checkpoints = new SQLiteCheckpointStore({
+      path: join(directory, 'checkpoints.sqlite'),
     });
-    const stored = copies
-      .filter(({ stream }) => withFiles(stream))
-      .map(({ target }) => target);
+    const load = async (source: Source) => {
+      const { streams } = await source.discover();
+      const copies = streams
+        .filter(({ name }) => !(narrowed && this.unscoped.includes(name)))
+        .map((stream) => ({
+          stream,
+          target: destination
+            .table(
+              `raw_${stream.name}`,
+              withFiles(stream)
+                ? (columns) => [
+                    ...SQLiteColumns.fromSchema(stream.jsonSchema),
+                    columns
+                      .text('attachmentRef')
+                      .from(stream.file.store(files)),
+                  ]
+                : undefined,
+            )
+            .withReaderView(this.view(stream.name)),
+        }));
+      const connection = new Connection({
+        name: source.identity,
+        source,
+        destination,
+        checkpoints,
+        steps: copies.map(
+          ({ stream, target }) =>
+            new Copy(stream, target, {
+              id: `${source.identity}:${stream.name}`,
+              syncMode: 'incremental',
+              destinationSyncMode: 'append_dedup',
+            }),
+        ),
+      });
+      return {
+        connection,
+        stored: copies
+          .filter(({ stream }) => withFiles(stream))
+          .map(({ target }) => target),
+      };
+    };
+    const [first, ...others] = sources;
+    const [loaded, ...more] = await Promise.all([
+      load(first),
+      ...others.map(load),
+    ]);
+    const stored = [loaded, ...more].flatMap(({ stored }) => stored);
     return {
-      connection,
+      connections: [
+        loaded.connection,
+        ...more.map(({ connection }) => connection),
+      ],
       derived: [
         ...this.derived(destination),
         ...(stored.length === 0

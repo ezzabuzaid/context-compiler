@@ -1870,21 +1870,8 @@ test('the setup wizard saves what the person picks and syncs it when asked', asy
   const wizard = terminal(t, mac.path, 'setup');
   try {
     await wizard.shows('Which connectors should be imported?');
-    // Connectors are listed by name; Notes is the eleventh.
-    await wizard.type(
-      down,
-      down,
-      down,
-      down,
-      down,
-      down,
-      down,
-      down,
-      down,
-      down,
-      space,
-      enter,
-    );
+    // Connectors are listed by name; Notes is the fifteenth.
+    await wizard.type(...Array.from({ length: 14 }, () => down), space, enter);
     await wizard.shows('Narrow any connector?');
     await wizard.type(space, enter);
     await wizard.shows('Notes: accounts');
@@ -3272,6 +3259,282 @@ test('slack syncs from the store the Slack app keeps, and --since keeps the mess
       sentAt: '2026-09-21T14:13:20.000100Z',
       text: 'after',
     },
+  ]);
+});
+
+// Chromium's time: microseconds since 1601-01-01 UTC.
+const chromiumMicros = (iso: string) =>
+  (BigInt(Date.parse(iso)) + 11_644_473_600_000n) * 1000n;
+
+// Dia's data as it leaves it: Local State names two profiles, Personal in
+// Default and Work in Profile 1, each with a History at version 70 holding
+// one visit, Personal with Bookmarks; and the tabs Dia archived of each
+// profile, in StorableAutoArchive.json, dated in seconds since 2001.
+async function withDia(mac: string) {
+  const support = join(mac, 'Library/Application Support/Dia');
+  const root = join(support, 'User Data');
+  const profiles = [
+    { folder: 'Default', name: 'Personal', url: 'https://personal.example/' },
+    { folder: 'Profile 1', name: 'Work', url: 'https://work.example/' },
+  ];
+  await mkdir(root, { recursive: true });
+  await writeFile(
+    join(root, 'Local State'),
+    JSON.stringify({
+      profile: {
+        info_cache: Object.fromEntries(
+          profiles.map(({ folder, name }) => [folder, { name }]),
+        ),
+      },
+    }),
+  );
+  const visited = chromiumMicros('2026-10-01T08:00:00Z');
+  for (const { folder, url } of profiles) {
+    await mkdir(join(root, folder));
+    using history = new DatabaseSync(join(root, folder, 'History'));
+    history.exec(`
+CREATE TABLE meta(key LONGVARCHAR NOT NULL UNIQUE PRIMARY KEY, value LONGVARCHAR);
+INSERT INTO meta VALUES ('version', '70'), ('last_compatible_version', '69');
+CREATE TABLE urls(id INTEGER PRIMARY KEY AUTOINCREMENT,url LONGVARCHAR,title LONGVARCHAR,visit_count INTEGER DEFAULT 0 NOT NULL,typed_count INTEGER DEFAULT 0 NOT NULL,last_visit_time INTEGER NOT NULL,hidden INTEGER DEFAULT 0 NOT NULL);
+CREATE TABLE visits(id INTEGER PRIMARY KEY AUTOINCREMENT,url INTEGER NOT NULL,visit_time INTEGER NOT NULL,from_visit INTEGER,external_referrer_url TEXT,transition INTEGER DEFAULT 0 NOT NULL,segment_id INTEGER,visit_duration INTEGER DEFAULT 0 NOT NULL,incremented_omnibox_typed_score BOOLEAN DEFAULT FALSE NOT NULL,opener_visit INTEGER,originator_cache_guid TEXT,originator_visit_id INTEGER,originator_from_visit INTEGER,originator_opener_visit INTEGER,is_known_to_sync BOOLEAN DEFAULT FALSE NOT NULL,consider_for_ntp_most_visited BOOLEAN DEFAULT FALSE NOT NULL,visited_link_id INTEGER DEFAULT 0 NOT NULL,app_id TEXT);
+CREATE TABLE visit_source(id INTEGER PRIMARY KEY,source INTEGER NOT NULL);
+CREATE TABLE context_annotations(visit_id INTEGER PRIMARY KEY,context_annotation_flags INTEGER NOT NULL,duration_since_last_visit INTEGER,page_end_reason INTEGER,total_foreground_duration INTEGER,browser_type INTEGER DEFAULT 0 NOT NULL,window_id INTEGER DEFAULT -1 NOT NULL,tab_id INTEGER DEFAULT -1 NOT NULL,task_id INTEGER DEFAULT -1 NOT NULL,root_task_id INTEGER DEFAULT -1 NOT NULL,parent_task_id INTEGER DEFAULT -1 NOT NULL,response_code INTEGER DEFAULT 0 NOT NULL);
+CREATE TABLE keyword_search_terms (keyword_id INTEGER NOT NULL,url_id INTEGER NOT NULL,term LONGVARCHAR NOT NULL,normalized_term LONGVARCHAR NOT NULL);
+CREATE TABLE downloads (id INTEGER PRIMARY KEY,guid VARCHAR NOT NULL,current_path LONGVARCHAR NOT NULL,target_path LONGVARCHAR NOT NULL,start_time INTEGER NOT NULL,received_bytes INTEGER NOT NULL,total_bytes INTEGER NOT NULL,state INTEGER NOT NULL,danger_type INTEGER NOT NULL,interrupt_reason INTEGER NOT NULL,hash BLOB NOT NULL,end_time INTEGER NOT NULL,opened INTEGER NOT NULL,last_access_time INTEGER NOT NULL,transient INTEGER NOT NULL,referrer VARCHAR NOT NULL,site_url VARCHAR NOT NULL,embedder_download_data VARCHAR NOT NULL,tab_url VARCHAR NOT NULL,tab_referrer_url VARCHAR NOT NULL,http_method VARCHAR NOT NULL,by_ext_id VARCHAR NOT NULL,by_ext_name VARCHAR NOT NULL,by_web_app_id VARCHAR NOT NULL,etag VARCHAR NOT NULL,last_modified VARCHAR NOT NULL,mime_type VARCHAR(255) NOT NULL,original_mime_type VARCHAR(255) NOT NULL);
+CREATE TABLE downloads_url_chains (id INTEGER NOT NULL,chain_index INTEGER NOT NULL,url LONGVARCHAR NOT NULL, PRIMARY KEY (id, chain_index) );
+`);
+    history
+      .prepare(
+        'INSERT INTO urls (id, url, title, visit_count, last_visit_time) VALUES (1, ?, ?, 1, ?)',
+      )
+      .run(url, url, visited);
+    history
+      .prepare('INSERT INTO visits (id, url, visit_time) VALUES (1, 1, ?)')
+      .run(visited);
+  }
+  const folder = (id: string, name: string, children: unknown[] = []) => ({
+    children,
+    date_added: '0',
+    date_modified: '0',
+    guid: `00000000-0000-4000-8000-00000000000${id}`,
+    id,
+    name,
+    type: 'folder',
+  });
+  await writeFile(
+    join(root, 'Default', 'Bookmarks'),
+    JSON.stringify({
+      checksum: '0',
+      roots: {
+        bookmark_bar: folder('1', 'Bookmarks bar', [
+          {
+            date_added: String(chromiumMicros('2026-03-04T05:06:07Z')),
+            guid: '00000000-0000-4000-8000-000000000004',
+            id: '4',
+            name: 'Personal',
+            type: 'url',
+            url: 'https://personal.example/',
+          },
+        ]),
+        other: folder('2', 'Other bookmarks'),
+        synced: folder('3', 'Mobile bookmarks'),
+      },
+      version: 1,
+    }),
+  );
+  // 2026-10-02T09:00:00Z
+  const archived = 812_624_400;
+  await writeFile(
+    join(support, 'StorableAutoArchive.json'),
+    JSON.stringify({
+      version: 2,
+      containers: profiles.map(({ folder, url }, index) => ({
+        id: { profile: { _0: folder } },
+        archivedTabs: [
+          {
+            id: `1A000000-0000-4000-8000-00000000000${index}`,
+            title: url,
+            variant: { webContent: { _0: url } },
+            archiveDate: archived,
+            spaceID: '5A000000-0000-4000-8000-000000000001',
+            url,
+          },
+        ],
+      })),
+    }),
+  );
+}
+
+test('dia loads its Chromium history and the tabs it archived into one import with one pass, narrowed alike by the profile setup chose', async () => {
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
+  await withDia(mac.path);
+
+  const setup = cli(
+    mac.path,
+    'setup',
+    '--connector',
+    'dia',
+    '--collection',
+    'Default',
+  );
+  const synced = cli(mac.path, 'sync');
+  const status = cli(mac.path, 'status', '--json');
+  const tables = cli(mac.path, 'query', 'dia', '--tables', '--json');
+  const visits = cli(
+    mac.path,
+    'query',
+    'dia',
+    'SELECT profileId, visitedAt FROM history_visits',
+    '--json',
+  );
+  const tabs = cli(
+    mac.path,
+    'query',
+    'dia',
+    'SELECT profileId, url, archivedAt FROM archived_tabs',
+    '--json',
+  );
+  const again = cli(mac.path, 'sync');
+
+  // Each stream of the sync's lines for dia, with what it wrote and deleted.
+  const passes = (stdout: string) =>
+    Object.fromEntries(
+      lines(stdout)
+        .filter(({ connector }) => connector === 'dia')
+        .flatMap(({ streams }) => streams)
+        .map(({ stream, written, deleted }) => [stream, [written, deleted]]),
+    );
+  assert.equal(setup.status, 0, setup.stderr);
+  assert.equal(synced.status, 0, synced.stdout + synced.stderr);
+  // One line for the import, though Dia's connector reads two sources.
+  assert.deepEqual(
+    lines(synced.stdout)
+      .filter(({ connector }) => connector === 'dia')
+      .map(({ status }) => status),
+    ['succeeded'],
+  );
+  assert.deepEqual(passes(synced.stdout), {
+    archivedTabs: [1, 0],
+    bookmarks: [4, 0],
+    downloads: [0, 0],
+    historyItems: [1, 0],
+    historyVisits: [1, 0],
+    profiles: [1, 0],
+    searchTerms: [0, 0],
+  });
+  assert.deepEqual(
+    JSON.parse(tables.stdout).map(({ view }: { view: string }) => view),
+    [
+      'archived_tabs',
+      'bookmarks',
+      'downloads',
+      'history_items',
+      'history_visits',
+      'profiles',
+      'search_terms',
+    ],
+  );
+  assert.deepEqual(JSON.parse(visits.stdout), [
+    { profileId: 'Default', visitedAt: '2026-10-01T08:00:00.000000Z' },
+  ]);
+  assert.deepEqual(JSON.parse(tabs.stdout), [
+    {
+      profileId: 'Default',
+      url: 'https://personal.example/',
+      archivedAt: '2026-10-02T09:00:00.000000Z',
+    },
+  ]);
+  const dia = JSON.parse(status.stdout).find(
+    ({ connector }: { connector: string }) => connector === 'dia',
+  );
+  assert.equal(dia.state, 'succeeded', status.stdout);
+  assert.equal(dia.selection, '1 profile');
+  assert.deepEqual(
+    dia.streams.map(
+      ({ stream, state }: { stream: string; state: string }) =>
+        `${stream} ${state}`,
+    ),
+    [
+      'archivedTabs succeeded',
+      'bookmarks succeeded',
+      'downloads succeeded',
+      'historyItems succeeded',
+      'historyVisits succeeded',
+      'profiles succeeded',
+      'searchTerms succeeded',
+    ],
+  );
+  assert.equal(again.status, 0, again.stdout + again.stderr);
+  assert.deepEqual(passes(again.stdout), {
+    archivedTabs: [0, 0],
+    bookmarks: [0, 0],
+    downloads: [0, 0],
+    historyItems: [0, 0],
+    historyVisits: [0, 0],
+    profiles: [0, 0],
+    searchTerms: [0, 0],
+  });
+});
+
+test('dia whose archive a Dia update left in a format the import does not know loads its history, and status shows the import partial, naming the archive', async () => {
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
+  await withDia(mac.path);
+  const archive = join(
+    mac.path,
+    'Library/Application Support/Dia/StorableAutoArchive.json',
+  );
+  await writeFile(archive, JSON.stringify({ version: 3, containers: [] }));
+  const setup = cli(mac.path, 'setup', '--connector', 'dia');
+
+  const synced = cli(mac.path, 'sync');
+  const status = cli(mac.path, 'status', '--json');
+  const visits = cli(
+    mac.path,
+    'query',
+    'dia',
+    'SELECT profileId FROM history_visits ORDER BY profileId',
+    '--json',
+  );
+
+  assert.equal(setup.status, 0, setup.stderr);
+  assert.equal(synced.status, 1, synced.stdout + synced.stderr);
+  // The sync's one line for the import says what status says: partial.
+  assert.deepEqual(
+    lines(synced.stdout)
+      .filter(({ connector }) => connector === 'dia')
+      .map(({ status }) => status),
+    ['partial'],
+  );
+  const dia = JSON.parse(status.stdout).find(
+    ({ connector }: { connector: string }) => connector === 'dia',
+  );
+  assert.equal(dia.state, 'partial', status.stdout);
+  assert.match(
+    dia.error,
+    /Dia's archive at .*StorableAutoArchive\.json is not in a known format: version is 3, not 2\./,
+  );
+  assert.deepEqual(
+    dia.streams.map(
+      ({ stream, state }: { stream: string; state: string }) =>
+        `${stream} ${state}`,
+    ),
+    [
+      'archivedTabs failed',
+      'bookmarks succeeded',
+      'downloads succeeded',
+      'historyItems succeeded',
+      'historyVisits succeeded',
+      'profiles succeeded',
+      'searchTerms succeeded',
+    ],
+  );
+  assert.deepEqual(JSON.parse(visits.stdout), [
+    { profileId: 'Default' },
+    { profileId: 'Profile 1' },
   ]);
 });
 

@@ -36,11 +36,13 @@ export default class SafariConnector extends Connector {
     return 'Open Safari to let it fetch history and tabs from your other devices.';
   }
 
-  protected source(scope: ImportScope) {
-    return new AppleSafariSource({
-      directory: safariDirectory(this.host.home),
-      container: safariContainer(this.host.home),
-      scope,
-    });
+  protected sources(scope: ImportScope) {
+    return [
+      new AppleSafariSource({
+        directory: safariDirectory(this.host.home),
+        container: safariContainer(this.host.home),
+        scope,
+      }),
+    ] as const;
   }
 }

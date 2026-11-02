@@ -48,10 +48,12 @@ export default class SlackConnector extends Connector {
     return 'Open Slack in each workspace to import and let it run: it saves what it has loaded every few minutes and when it quits, and only messages it has loaded on this Mac are imported.';
   }
 
-  protected source(scope: ImportScope) {
-    return new SlackDesktopSource({
-      directory: slackDesktopDirectory(this.host.home),
-      scope,
-    });
+  protected sources(scope: ImportScope) {
+    return [
+      new SlackDesktopSource({
+        directory: slackDesktopDirectory(this.host.home),
+        scope,
+      }),
+    ] as const;
   }
 }

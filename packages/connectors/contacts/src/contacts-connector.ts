@@ -26,11 +26,13 @@ export default class ContactsConnector extends Connector {
     return `Allow ${grantee} when macOS asks for Contacts access, or turn it on in System Settings › Privacy & Security › Contacts. Full Disk Access for ${grantee} also works.`;
   }
 
-  protected source(scope: ImportScope) {
-    return new AppleContactsSource({
-      directory: addressBookDirectory(this.host.home),
-      preferences: globalPreferences(this.host.home),
-      scope,
-    });
+  protected sources(scope: ImportScope) {
+    return [
+      new AppleContactsSource({
+        directory: addressBookDirectory(this.host.home),
+        preferences: globalPreferences(this.host.home),
+        scope,
+      }),
+    ] as const;
   }
 }

@@ -227,9 +227,11 @@ function imported(directory: string, item: Selection) {
 // data.sqlite as a server's history records them: each pass declares every
 // copy of the connection, and one that finishes loads them all.
 async function passes(plugin: Plugin, item: Selection) {
-  const { connection } = await plugin
+  const {
+    connections: [connection],
+  } = await plugin
     .connector(item.connector)
-    .connection(importDirectory(plugin.directory, item), item);
+    .connections(importDirectory(plugin.directory, item), item);
   // A server's pipeline installs its history before a pass; these passes
   // begin without one.
   const history = new SQLiteSyncHistory();
@@ -325,9 +327,11 @@ test('Setup rejects invalid choices and keeps a Calendar scope as given, so each
   // An import reads its window when it runs: two built a moment apart end a
   // moment apart, each a year after it runs.
   const windows = async () => {
-    const { connection } = await plugin
+    const {
+      connections: [connection],
+    } = await plugin
       .connector('calendar')
-      .connection(importDirectory(plugin.directory, calendar), calendar);
+      .connections(importDirectory(plugin.directory, calendar), calendar);
     return connection.steps
       .map((copy) => connection.source.coverage(copy.from).selection)
       .filter((selection) => 'endAt' in selection);
@@ -1790,6 +1794,10 @@ test('the sidebar page describes each connector’s import and switches one conn
       calendar: false,
       reminders: false,
       safari: false,
+      dia: false,
+      chrome: false,
+      arc: false,
+      edge: false,
       books: false,
       activity: false,
       accounts: false,

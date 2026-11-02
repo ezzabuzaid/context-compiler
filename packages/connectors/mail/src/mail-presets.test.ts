@@ -49,7 +49,10 @@ async function importMail(
   connector: Connector,
   directory: string,
 ): Promise<string> {
-  const { connection, derived } = await connector.connection(directory, {
+  const {
+    connections: [connection],
+    derived,
+  } = await connector.connections(directory, {
     connector: connector.name,
     scope: {},
     includeAttachments: false,

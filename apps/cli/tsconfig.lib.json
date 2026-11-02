@@ -30,6 +30,18 @@
       "path": "../../packages/connectors/instagram/tsconfig.lib.json"
     },
     {
+      "path": "../../packages/connectors/edge/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/dia/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/chrome/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/arc/tsconfig.lib.json"
+    },
+    {
       "path": "../../packages/connectors/wallet/tsconfig.lib.json"
     },
     {

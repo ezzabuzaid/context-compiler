@@ -16,12 +16,14 @@ type ViewSummary = {
 };
 
 // What a connector's file holds for readers: each stream's view, how many
-// rows it has, and what the latest pass declared it covers.
+// rows it has, and what the latest pass declared it covers. The file is the
+// connector's own, so every connection in it, one for each of its sources,
+// is the connector's.
 function views(database: Federation, connector: Connector): ViewSummary[] {
   const streams = database.sql
     .all`SELECT s.stream, c.description FROM stream_status s
        JOIN extraction_coverage c ON c.attempt_id = s.latest_attempt_id AND c.stream = s.stream
-       WHERE s.connector = ${connector.name} ORDER BY s.stream`.map((row) => ({
+       ORDER BY s.stream`.map((row) => ({
     stream: String(row.stream),
     description: String(row.description),
   }));

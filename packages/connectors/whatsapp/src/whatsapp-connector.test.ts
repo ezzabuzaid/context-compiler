@@ -97,7 +97,10 @@ async function importWhatsApp(
   directory: string,
   scope: ImportScope,
 ) {
-  const { connection, derived } = await connector.connection(directory, {
+  const {
+    connections: [connection],
+    derived,
+  } = await connector.connections(directory, {
     connector: connector.name,
     scope,
     includeAttachments: false,

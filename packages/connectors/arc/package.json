@@ -1,0 +1,17 @@
+{
+  "name": "@workspace/connector-chromium-arc",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": "./dist/arc-connector.js",
+  "contextCompiler": {
+    "name": "arc",
+    "title": "Arc"
+  },
+  "dependencies": {
+    "@workspace/connector-chromium": "0.0.1",
+    "@workspace/sdk-chromium-browser": "0.0.1",
+    "@workspace/source-apple-macos": "0.0.1",
+    "@workspace/source-arc-desktop": "0.0.1"
+  }
+}

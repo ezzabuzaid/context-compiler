@@ -1,0 +1,15 @@
+{
+  "name": "@workspace/connector-chromium-chrome",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": "./dist/chrome-connector.js",
+  "contextCompiler": {
+    "name": "chrome",
+    "title": "Google Chrome"
+  },
+  "dependencies": {
+    "@workspace/connector-chromium": "0.0.1",
+    "@workspace/sdk-chromium-browser": "0.0.1"
+  }
+}

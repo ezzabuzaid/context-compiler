@@ -17,7 +17,7 @@ export default class BooksConnector extends Connector {
     return 'Books does not need to be open. Books stored only in iCloud are listed without their files; open them in Books to download them.';
   }
 
-  protected source() {
-    return new AppleBooksSource(booksLocation(this.host.home));
+  protected sources() {
+    return [new AppleBooksSource(booksLocation(this.host.home))] as const;
   }
 }

@@ -83,7 +83,7 @@ export default class PhotosConnector extends Connector {
     return 'Open Photos once.';
   }
 
-  protected source(): Source {
-    return new PhotosSource(this.host.home);
+  protected sources(): readonly [Source] {
+    return [new PhotosSource(this.host.home)];
   }
 }

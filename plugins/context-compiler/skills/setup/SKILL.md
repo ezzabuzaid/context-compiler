@@ -1,6 +1,6 @@
 ---
 name: setup
-description: Connect or reconfigure Apple Mail, Notes, Messages, Contacts, Calendar, Reminders, Safari, Books, call history, notifications, Mac accounts, Mac activity, Slack, Microsoft Teams, WhatsApp, Instagram and OpenSooq for the Context Compiler plugin on a Mac.
+description: Connect or reconfigure Apple Mail, Notes, Messages, Contacts, Calendar, Reminders, Safari, Dia, Google Chrome, Arc, Microsoft Edge, Books, call history, notifications, Mac accounts, Mac activity, Slack, Microsoft Teams, WhatsApp, Instagram and OpenSooq for the Context Compiler plugin on a Mac.
 ---
 
 # Set up Context Compiler
@@ -32,7 +32,7 @@ If `setup` fails because the host does not support forms, set up in chat instead
 
 ## Set up in chat
 
-1. Take the current selection from the Context Compiler status in context, or read it as `$query` describes, then ask which connectors the user wants to set up. Present Mail, Notes, Messages, Contacts, Calendar, Reminders, Safari, Books, Call History, Notification Center, Wallet, Activity, Slack, Microsoft Teams, WhatsApp, Instagram and OpenSooq in plain language. Reconfiguration starts from the current selection. Do not call `options` for connectors they have not selected.
+1. Take the current selection from the Context Compiler status in context, or read it as `$query` describes, then ask which connectors the user wants to set up. Present Mail, Notes, Messages, Contacts, Calendar, Reminders, Safari, Dia, Google Chrome, Arc, Microsoft Edge, Books, Call History, Notification Center, Wallet, Activity, Slack, Microsoft Teams, WhatsApp, Instagram and OpenSooq in plain language. Reconfiguration starts from the current selection. Do not call `options` for connectors they have not selected.
 2. For each chosen connector, call `options` with its `connector` to discover real account and collection IDs. It reads metadata and may trigger a macOS prompt. Explain the returned permission guidance when access fails, then retry after the user changes access.
 3. Offer all content or a narrower selection where available:
    - Mail: accounts, mailboxes, received date (sent date if absent).
@@ -41,6 +41,7 @@ If `setup` fails because the host does not support forms, set up in chat instead
    - Contacts: containers shown by the tool.
    - Calendar: accounts, calendars and event dates. Without dates, each import reads every event from 2000 until a year after it runs, as `options` says in `datedBy`. Tell the user that default, and pass `startAt` and `endAt` only for a range the user chooses. Only calendars already available on this Mac are included. Remote attachments retain links; Google sign-in is not needed.
    - Reminders: accounts and lists, including completed and undated reminders.
+   - Dia, Google Chrome, Arc and Microsoft Edge: profiles and visit dates. Profiles narrow every stream, Dia's archived tabs and Arc's sidebar too; dates narrow history visits, and Dia's archived tabs. They need no access granted, and the browser may stay open.
    - Safari: profiles and visit dates. A narrowed Safari import leaves out bookmarks, the Reading List and iCloud Tabs, which belong to no profile. History and tabs from the user's other devices arrive only while Safari is open.
    - Books: everything; it has no accounts, collections or dates to choose. Books kept only in iCloud are listed without their files until the user opens them in Books.
    - Call History: call dates only; it has no accounts or collections. Phone calls arrive from the user's iPhone through iCloud. A call removed from Recents, or dropped by macOS, leaves the import too.

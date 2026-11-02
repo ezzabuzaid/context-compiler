@@ -1,0 +1,17 @@
+{
+  "name": "@workspace/connector-chromium-dia",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": "./dist/dia-connector.js",
+  "contextCompiler": {
+    "name": "dia",
+    "title": "Dia"
+  },
+  "dependencies": {
+    "@workspace/connector-chromium": "0.0.1",
+    "@workspace/sdk-chromium-browser": "0.0.1",
+    "@workspace/source-apple-macos": "0.0.1",
+    "@workspace/source-dia-desktop": "0.0.1"
+  }
+}

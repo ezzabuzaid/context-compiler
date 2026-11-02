@@ -18,9 +18,11 @@ export default class WalletConnector extends Connector {
     return 'No app needs to be open: macOS keeps the passes in Wallet on this Mac, with those iCloud brings from your iPhone.';
   }
 
-  protected source() {
-    return new AppleWalletSource({
-      directory: walletStorePath(this.host.home),
-    });
+  protected sources() {
+    return [
+      new AppleWalletSource({
+        directory: walletStorePath(this.host.home),
+      }),
+    ] as const;
   }
 }

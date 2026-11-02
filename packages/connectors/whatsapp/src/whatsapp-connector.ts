@@ -50,10 +50,12 @@ export default class WhatsAppConnector extends Connector {
     return 'Open WhatsApp and let it run: it keeps what it has synced from your phone, and saves new messages to this Mac while it runs.';
   }
 
-  protected source(scope: ImportScope) {
-    return new WhatsAppDesktopSource({
-      container: whatsappContainer(this.host.home),
-      scope,
-    });
+  protected sources(scope: ImportScope) {
+    return [
+      new WhatsAppDesktopSource({
+        container: whatsappContainer(this.host.home),
+        scope,
+      }),
+    ] as const;
   }
 }

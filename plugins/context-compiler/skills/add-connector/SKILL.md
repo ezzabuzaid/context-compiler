@@ -9,7 +9,7 @@ description: Adds a connector for a Mac app the Context Compiler plugin does not
 
 - A connector is a folder in `~/Library/Application Support/Context Compiler/Connectors/<name>/` holding two files: a `package.json` and the entry point it names. The plugin reads that folder on every tool call, so a connector you add or edit is used in this chat; nothing restarts.
 - `package.json` is `{ "type": "module", "exports": "./<name>-connector.ts", "contextCompiler": { "name": "<name>", "title": "<Title>" } }`. `name` is lowercase letters, digits and dashes, and must not repeat a connector the plugin already has. `title` is what the user sees. The connector class takes both from here; it does not declare them.
-- The entry is TypeScript that Node runs as written, without a compiler. Its default export is a class that extends `Connector`. Its `source()` returns an elt `Source` that reads the app's own data on this Mac.
+- The entry is TypeScript that Node runs as written, without a compiler. Its default export is a class that extends `Connector`. Its `sources()` returns a list of one or more elt `Source`s that read the app's own data on this Mac. Most apps need one source. Give a second source only for a second store of the app, and give each source its own stream names: two sources that declare one stream fail the import.
 - The entry may import only Node built-ins (`node:fs`, `node:sqlite`, `node:child_process`, ...) and three modules the plugin provides: `@workspace/elt` (`Source`, `Stream`, `Catalog` and their types), `@workspace/connector/connector` (`Connector`) and `@workspace/connector/choice` (`accounts`, `collections`, `byId`, `name`, `Choice`). There is no `node_modules`, so no npm package resolves.
 - The plugin imports each stream into `raw_<stream>` in the connector's own `data.sqlite`, read through a view named after the stream in snake case (`photoAssets` reads as `photo_assets`). `$query` reads it like any other connector.
 - The connector runs inside the plugin, with every macOS permission ChatGPT has, Full Disk Access included.
@@ -100,13 +100,13 @@ description: Adds a connector for a Mac app the Context Compiler plugin does not
        return 'Open Example once so it creates its library.';
      }
 
-     protected source(): Source {
-       return new ItemsSource();
+     protected sources() {
+       return [new ItemsSource()];
      }
    }
    ```
 
-3. Let the user narrow the import only when the store can say which account, collection or date a record belongs to. Then list those streams in `choices` (built with `accounts` and `collections`), set `datedBy`, pass the `scope` that `source(scope)` receives into the source, and filter by its `accountIds`, `collectionIds`, `startAt` (inclusive) and `endAt` (exclusive). List streams whose rows belong to no account or collection in `unscoped`. When there are choices, remove `probe`: reading them shows the store opens.
+3. Let the user narrow the import only when the store can say which account, collection or date a record belongs to. Then list those streams in `choices` (built with `accounts` and `collections`), set `datedBy`, pass the `scope` that `sources(scope)` receives into each source, and filter by its `accountIds`, `collectionIds`, `startAt` (inclusive) and `endAt` (exclusive). List streams whose rows belong to no account or collection in `unscoped`. When there are choices, remove `probe`: reading them shows the store opens.
 4. When answering a question about the app needs the same joins each time, write them once as a preset, the shape of the app's data rather than one question's answer.
 
 ## Setting it up

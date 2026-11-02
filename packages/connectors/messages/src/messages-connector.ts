@@ -23,11 +23,13 @@ export default class MessagesConnector extends Connector {
     return 'Only messages synced to this Mac can be imported.';
   }
 
-  protected source(scope: ImportScope) {
-    return new AppleMessagesSource({
-      path: chatDatabasePath(this.host.home),
-      home: this.host.home,
-      scope,
-    });
+  protected sources(scope: ImportScope) {
+    return [
+      new AppleMessagesSource({
+        path: chatDatabasePath(this.host.home),
+        home: this.host.home,
+        scope,
+      }),
+    ] as const;
   }
 }

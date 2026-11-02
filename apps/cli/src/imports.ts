@@ -20,10 +20,11 @@ import { type Selection, Settings } from '@workspace/settings';
 
 import type { Parsing } from './parsing.ts';
 import {
-  ObservedPasses,
   type PassReport,
   type PassSummary,
   type SyncLine,
+  SyncPasses,
+  WatchPasses,
   failed,
 } from './sync.ts';
 
@@ -206,7 +207,7 @@ export class Imports {
               own({ connector: connector.name, status: 'watched' });
               return lines;
             }
-            using observed = new ObservedPasses(connector, {
+            using observed = new SyncPasses(connector, {
               progress: (...args) => observer.progress(...args),
               passed: (_, summary) => own(summary),
             });
@@ -264,7 +265,7 @@ export class Imports {
         owner = await election.campaign({ timeout: Number.POSITIVE_INFINITY });
       // Held until the process ends; the kernel frees it if the process dies.
       await using _ = owner;
-      using observed = new ObservedPasses(connector, {
+      using observed = new WatchPasses(connector, {
         progress: (...args) => observer.progress(...args),
         passed: (_, summary) => show(summary),
       });

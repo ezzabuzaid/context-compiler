@@ -59,10 +59,12 @@ export default class TeamsConnector extends Connector {
     return 'Open Microsoft Teams, sign in and let it run: it saves what it loads as you use it, and only what it has loaded on this Mac is imported.';
   }
 
-  protected source(scope: ImportScope) {
-    return new TeamsSource({
-      directory: teamsDirectory(this.host.home),
-      scope,
-    });
+  protected sources(scope: ImportScope) {
+    return [
+      new TeamsSource({
+        directory: teamsDirectory(this.host.home),
+        scope,
+      }),
+    ] as const;
   }
 }

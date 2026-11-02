@@ -1,0 +1,8 @@
+{
+  "name": "connector-chromium-dia",
+  "sourceRoot": "packages/connectors/dia/src",
+  "projectType": "library",
+  "targets": {
+    "format": {}
+  }
+}
