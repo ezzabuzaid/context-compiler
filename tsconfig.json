@@ -88,21 +88,6 @@
     },
     {
       "path": "./apps/logful"
-    },
-    {
-      "path": "./packages/connectors/chromium"
-    },
-    {
-      "path": "./packages/connectors/chrome"
-    },
-    {
-      "path": "./packages/connectors/edge"
-    },
-    {
-      "path": "./packages/connectors/arc"
-    },
-    {
-      "path": "./packages/connectors/dia"
     }
   ]
 }
