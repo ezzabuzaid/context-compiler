@@ -9,7 +9,12 @@ import { fileURLToPath } from 'node:url';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import type { Connector, Preset } from '@workspace/connector/connector';
-import { Pipeline } from '@workspace/elt';
+import {
+  CopyProgress,
+  PassStarted,
+  Pipeline,
+  passChannels,
+} from '@workspace/elt';
 import { SQLiteSyncHistory } from '@workspace/elt-sqlite';
 import { Settings } from '@workspace/settings';
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
@@ -592,24 +597,25 @@ test('mail_messages reads each message with both body formats, recipients, subje
         const originalOther = readFileSync(malformedFile);
         let attempts = 0;
         if (malformed) writeFileSync(malformedFile, 'not an emlx');
+        // Each pass that starts is an attempt; the first ones change a
+        // message once its copy completed, so the import tries again.
+        const hear = (message: unknown) => {
+          if (message instanceof PassStarted) attempts++;
+          if (
+            message instanceof CopyProgress &&
+            message.copy.from.name === 'messages' &&
+            message.status === 'complete' &&
+            attempts <= changes
+          )
+            writeFileSync(file, original);
+        };
+        using subscriptions = new DisposableStack();
+        for (const channel of [passChannels.start, passChannels.progress]) {
+          channel.subscribe(hear);
+          subscriptions.defer(() => channel.unsubscribe(hear));
+        }
         try {
-          await connector.import(settings, selection, {
-            begin: () => {
-              attempts++;
-              return {
-                progress: ({ copy, status }) => {
-                  if (
-                    copy.from.name === 'messages' &&
-                    status === 'complete' &&
-                    attempts <= changes
-                  )
-                    writeFileSync(file, original);
-                },
-                finish: () => {},
-                fail: () => {},
-              };
-            },
-          });
+          await connector.import(settings, selection);
           assert.equal(attempts, expected.length);
           assert.deepEqual(
             read(

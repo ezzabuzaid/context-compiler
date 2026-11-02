@@ -24,14 +24,15 @@ import {
   Catalog,
   type CopyConfiguration,
   DocumentParser,
-  type PassObserver,
+  PassFinished,
   Pipeline,
   Source,
   type SourceMessage,
   type SourceWatchOptions,
   Stream,
+  passChannels,
 } from '@workspace/elt';
-import { SQLiteSyncHistory, type SQLiteTable } from '@workspace/elt-sqlite';
+import { SQLiteSyncHistory } from '@workspace/elt-sqlite';
 import { AudioFormat } from '@workspace/source-apple-macos/audio-format';
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
 
@@ -173,7 +174,7 @@ async function importStore(
   const connector = new FolderConnector(host, source);
   const imported = join(directory, 'import');
   const path = join(imported, 'data.sqlite');
-  const pipeline = async (observer?: PassObserver<SQLiteTable>) => {
+  const pipeline = async () => {
     const { connection, derived } = await connector.connection(imported, {
       connector: connector.name,
       scope: {},
@@ -182,7 +183,6 @@ async function importStore(
     return new Pipeline({
       connections: [connection],
       history: new SQLiteSyncHistory({ soleWriter: true }),
-      observer,
       derived,
     });
   };
@@ -205,15 +205,9 @@ async function importStore(
       return pipeline();
     },
     // One sync as a host runs it: a pass, then the text of what it stored.
-    sync: async (
-      parser: DocumentParser,
-      {
-        signal,
-        observer,
-      }: { signal?: AbortSignal; observer?: PassObserver<SQLiteTable> } = {},
-    ) => {
+    sync: async (parser: DocumentParser, signal?: AbortSignal) => {
       host.documentParser = parser;
-      await (await pipeline(observer)).run({ signal });
+      await (await pipeline()).run({ signal });
     },
     read,
     // What a reader searching attachment text sees, by document; none before
@@ -478,7 +472,7 @@ test('a sync stopped while files are read keeps the text it read, and the next s
     await store.put(`${index}-held.txt`, `hold ${index}`);
   const parser = new HoldingParser();
   const stop = new AbortController();
-  const sync = store.sync(parser, { signal: stop.signal });
+  const sync = store.sync(parser, stop.signal);
   try {
     await t.waitFor(() => assert.ok(parser.inFlight > 0, 'a read held'), {
       timeout: 20_000,
@@ -515,25 +509,20 @@ test('a read that fails for a reason other than the file being gone fails the sy
   // The stored copies' directory, made unreadable once the pass committed, as
   // permissions can leave it: the parser cannot open a copy, nor the sync tell
   // whether it is gone.
-  const unreadable: PassObserver<SQLiteTable> = {
-    begin: () => ({
-      progress: () => undefined,
-      fail: () => undefined,
-      finish: () => chmodSync(stored, 0o000),
-    }),
+  const unreadable = (message: unknown) => {
+    if (message instanceof PassFinished) chmodSync(stored, 0o000);
   };
   const parser = new CountingParser('macos-document-next');
+  passChannels.finish.subscribe(unreadable);
   try {
-    await assert.rejects(
-      store.sync(parser, { observer: unreadable }),
-      /EACCES/,
-    );
+    await assert.rejects(store.sync(parser), /EACCES/);
 
     assert.ok(
       parser.read.length <= readers,
       `read ${parser.read.length} files`,
     );
   } finally {
+    passChannels.finish.unsubscribe(unreadable);
     await chmod(stored, 0o700);
   }
 });

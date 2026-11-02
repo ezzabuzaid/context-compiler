@@ -1,3 +1,4 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
 import { existsSync, rmSync } from 'node:fs';
 import { relative, sep } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
@@ -13,6 +14,7 @@ import type {
 } from '@workspace/connector-manifest/connectors';
 import { userConnectors } from '@workspace/connector-manifest/user-connectors';
 import type { Connector, ConnectorHost } from '@workspace/connector/connector';
+import { PassFinished, passChannels } from '@workspace/elt';
 import { type PassStatus, readPassStatus } from '@workspace/elt-sqlite';
 import {
   type ConnectorFacts,
@@ -28,6 +30,10 @@ const ids = z.array(z.string().min(1).max(1024)).max(1000);
 // How soon a server hears that the user switched a connector to keep current
 // or back, and how soon one whose plugin was updated stops its watches.
 const followMs = 1_000;
+
+// The import whose watch a pass runs in, by its directory: Node calls a
+// subscriber in the async context of the pass that publishes.
+const watched = new AsyncLocalStorage<string>();
 
 // A connector by its name. Connectors are rediscovered on use, so the name
 // is checked when a tool runs, not by an enum fixed when the chat began.
@@ -297,7 +303,6 @@ export class Plugin {
             await this.connector(selection.connector).import(
               settings,
               selection,
-              undefined,
               signal,
             );
           } finally {
@@ -389,20 +394,18 @@ export class Plugin {
       signal,
     });
     if (!keptCurrent(settings).has(directory)) return;
+    // A pass of this watch, not of an import this server runs meanwhile.
+    const check = (message: unknown) => {
+      if (message instanceof PassFinished && watched.getStore() === directory)
+        void this.#check().catch(() => undefined);
+    };
+    passChannels.finish.subscribe(check);
     try {
-      await connector.watch(
-        settings,
-        selection,
-        {
-          begin: () => ({
-            progress() {},
-            finish: () => void this.#check().catch(() => undefined),
-            fail() {},
-          }),
-        },
-        signal,
+      await watched.run(directory, () =>
+        connector.watch(settings, selection, signal),
       );
     } finally {
+      passChannels.finish.unsubscribe(check);
       if (settings.staleImports().includes(directory))
         rmSync(directory, { recursive: true, force: true });
     }

@@ -206,14 +206,12 @@ export class Imports {
               own({ connector: connector.name, status: 'watched' });
               return lines;
             }
-            const outcome = await connector.import(
-              settings,
-              selection,
-              new ObservedPasses(connector, {
-                progress: (...args) => observer.progress(...args),
-                passed: (_, summary) => own(summary),
-              }),
-              signal,
+            using observed = new ObservedPasses(connector, {
+              progress: (...args) => observer.progress(...args),
+              passed: (_, summary) => own(summary),
+            });
+            const outcome = await observed.run(() =>
+              connector.import(settings, selection, signal),
             );
             if (outcome.status === 'unconnected')
               own(failed(connector, outcome.error, 0));
@@ -266,13 +264,12 @@ export class Imports {
         owner = await election.campaign({ timeout: Number.POSITIVE_INFINITY });
       // Held until the process ends; the kernel frees it if the process dies.
       await using _ = owner;
-      const outcome = await connector.watch(
-        settings,
-        selection,
-        new ObservedPasses(connector, {
-          progress: (...args) => observer.progress(...args),
-          passed: (_, summary) => show(summary),
-        }),
+      using observed = new ObservedPasses(connector, {
+        progress: (...args) => observer.progress(...args),
+        passed: (_, summary) => show(summary),
+      });
+      const outcome = await observed.run(() =>
+        connector.watch(settings, selection),
       );
       if (outcome.status === 'unconnected')
         show(failed(connector, outcome.error, 0));

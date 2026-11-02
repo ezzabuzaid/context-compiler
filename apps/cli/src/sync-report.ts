@@ -2,7 +2,6 @@ import { type SpinnerResult, intro, log, outro, spinner } from '@clack/prompts';
 
 import type { Connector } from '@workspace/connector/connector';
 import type { CopyProgress } from '@workspace/elt';
-import type { SQLiteTable } from '@workspace/elt-sqlite';
 
 import type { SyncObserver } from './imports.ts';
 import type { PassSummary } from './sync.ts';
@@ -37,10 +36,7 @@ export class SyncReport implements SyncObserver {
     this.#spin();
   }
 
-  progress(
-    connector: Connector,
-    { copy, status, emitted }: CopyProgress<SQLiteTable>,
-  ) {
+  progress(connector: Connector, { copy, status, emitted }: CopyProgress) {
     if (!this.interactive) return;
     const key = `${connector.name}:${copy.from.name}`;
     if (status === 'running')

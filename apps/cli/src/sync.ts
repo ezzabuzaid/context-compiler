@@ -1,16 +1,20 @@
+import { AsyncLocalStorage } from 'node:async_hooks';
+
 import type { Connector } from '@workspace/connector/connector';
 import {
   type CopyOutcome,
-  type CopyProgress,
+  CopyProgress,
   type FailureType,
-  type ObservedPass,
-  type PassObserver,
+  PassFailed,
+  PassFinished,
+  PassStarted,
   type SyncStatus,
+  type Target,
+  passChannels,
   passError,
   passFailureType,
   passStatus,
 } from '@workspace/elt';
-import type { SQLiteTable } from '@workspace/elt-sqlite';
 
 // How one pass of one connector ended, as sync reports it.
 export type PassSummary = {
@@ -38,44 +42,65 @@ export type SyncLine =
 
 // What a sync shows of each pass while it runs and once it ends.
 export type PassReport = {
-  progress(connector: Connector, progress: CopyProgress<SQLiteTable>): void;
+  progress(connector: Connector, progress: CopyProgress): void;
   passed(connector: Connector, summary: PassSummary): void;
 };
 
-// Shows the report each pass of one connector: each copy's progress while it
-// runs, and how the pass ended once the import's sync history recorded it.
-export class ObservedPasses implements PassObserver<SQLiteTable> {
+// The ObservedPasses whose run() a pass runs in. Several connectors sync in
+// one process, and Node calls a subscriber in the async context of the pass
+// that publishes.
+const running = new AsyncLocalStorage<ObservedPasses>();
+
+// Shows the report of each pass of one connector that runs inside run(): each
+// copy's progress while it runs, and how the pass ended once the import's
+// sync history recorded it.
+export class ObservedPasses implements Disposable {
   readonly #connector: Connector;
   readonly #report: PassReport;
+  #started = performance.now();
+  readonly #hear = (message: unknown) => {
+    if (running.getStore() !== this) return;
+    const connector = this.#connector;
+    if (message instanceof PassStarted) this.#started = performance.now();
+    if (message instanceof CopyProgress)
+      this.#report.progress(connector, message);
+    if (message instanceof PassFinished)
+      this.#report.passed(
+        connector,
+        summarize(
+          connector,
+          message.outcomes,
+          Math.round((performance.now() - this.#started) / 1000),
+        ),
+      );
+    // A connection that gave no pass took no time.
+    if (message instanceof PassFailed)
+      this.#report.passed(
+        connector,
+        failed(connector, message.error, 0, message.failureType),
+      );
+  };
 
   constructor(connector: Connector, report: PassReport) {
     this.#connector = connector;
     this.#report = report;
+    for (const channel of Object.values(passChannels))
+      channel.subscribe(this.#hear);
   }
 
-  begin(): ObservedPass<SQLiteTable> {
-    const connector = this.#connector;
-    const started = performance.now();
-    const seconds = () => Math.round((performance.now() - started) / 1000);
-    return {
-      progress: (progress) => this.#report.progress(connector, progress),
-      finish: (outcomes) =>
-        this.#report.passed(
-          connector,
-          summarize(connector, outcomes, seconds()),
-        ),
-      fail: (error, failureType) =>
-        this.#report.passed(
-          connector,
-          failed(connector, error, seconds(), failureType),
-        ),
-    };
+  run<T>(load: () => Promise<T>): Promise<T> {
+    return running.run(this, load);
+  }
+
+  [Symbol.dispose]() {
+    for (const channel of Object.values(passChannels))
+      channel.unsubscribe(this.#hear);
   }
 }
 
 function summarize(
   connector: Connector,
-  outcomes: readonly CopyOutcome<SQLiteTable>[],
+  outcomes: readonly CopyOutcome<Target>[],
   seconds: number,
 ): PassSummary {
   const error = passError(outcomes);

@@ -12,7 +12,6 @@ import {
   DocumentText,
   type FailureType,
   LocalFiles,
-  type PassObserver,
   Pipeline,
   PipelineError,
   type Source,
@@ -302,13 +301,11 @@ export abstract class Connector {
   async import(
     settings: Settings,
     selection: Selection,
-    observer?: PassObserver<SQLiteTable>,
     signal?: AbortSignal,
   ): Promise<ImportOutcome> {
     return this.#load(
       settings,
       selection,
-      observer,
       signal,
       async (pipeline, removal) => {
         const stopped =
@@ -353,13 +350,11 @@ export abstract class Connector {
   async watch(
     settings: Settings,
     selection: Selection,
-    observer?: PassObserver<SQLiteTable>,
     signal?: AbortSignal,
   ): Promise<ImportOutcome> {
     return this.#load(
       settings,
       selection,
-      observer,
       signal,
       async (pipeline, removal) => {
         const stopped =
@@ -374,7 +369,6 @@ export abstract class Connector {
   async #load(
     settings: Settings,
     selection: Selection,
-    observer: PassObserver<SQLiteTable> | undefined,
     // The caller's own stop, which the load combines with the removal.
     signal: AbortSignal | undefined,
     load: (
@@ -404,7 +398,6 @@ export abstract class Connector {
         new Pipeline({
           connections: [connection],
           history,
-          observer,
           derived,
         }),
         removal.signal,

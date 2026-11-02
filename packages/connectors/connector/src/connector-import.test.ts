@@ -11,10 +11,12 @@ import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import {
   Catalog,
+  PassFinished,
   Source,
   type SourceMessage,
   type SourceWatchOptions,
   Stream,
+  passChannels,
 } from '@workspace/elt';
 import { Settings } from '@workspace/settings';
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
@@ -194,7 +196,7 @@ test(
     });
     const stop = new AbortController();
     const lost = 'The flight is no longer this pass’s';
-    const first = connector.import(settings, selection, undefined, stop.signal);
+    const first = connector.import(settings, selection, stop.signal);
     const stopped = assert.rejects(first, (error) => error === lost);
     await paused.promise;
 
@@ -380,22 +382,16 @@ test(
         .map(({ content }) => content);
     };
     const stop = new AbortController();
-    // The pass is recorded before its observer hears it ended, so the signal
-    // aborts between the pass and the reading of the text.
-    const aborting = {
-      begin: () => ({
-        progress: () => undefined,
-        fail: () => undefined,
-        finish: () => stop.abort(),
-      }),
+    // The pass is recorded before its end is published, so the signal aborts
+    // between the pass and the reading of the text.
+    const abort = (message: unknown) => {
+      if (message instanceof PassFinished) stop.abort();
     };
+    using subscription = new DisposableStack();
+    passChannels.finish.subscribe(abort);
+    subscription.defer(() => passChannels.finish.unsubscribe(abort));
 
-    const first = await connector.import(
-      settings,
-      selection,
-      aborting,
-      stop.signal,
-    );
+    const first = await connector.import(settings, selection, stop.signal);
     const unread = texts();
     const next = await connector.import(settings, selection);
 
