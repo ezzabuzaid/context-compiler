@@ -1,0 +1,11 @@
+{
+  "name": "@workspace/logful",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@workspace/elt": "0.0.1",
+    "@workspace/elt-sqlite": "0.0.1",
+    "@workspace/sdk-web-crawler": "0.0.1",
+    "@workspace/source-web-pages": "0.0.1"
+  }
+}

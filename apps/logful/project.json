@@ -1,0 +1,12 @@
+{
+  "name": "logful",
+  "sourceRoot": "apps/logful/src",
+  "projectType": "application",
+  "targets": {
+    "format": {},
+    "start": {
+      "dependsOn": ["build"],
+      "command": "node apps/logful/dist/main.js"
+    }
+  }
+}
