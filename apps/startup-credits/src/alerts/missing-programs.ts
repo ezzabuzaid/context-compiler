@@ -75,10 +75,12 @@ export class MissingPrograms extends Alert<MissingProgram> {
           ? [{ list: inputUrl, url, text }]
           : [],
     );
+    // Jev labels only the page that stands for its language copies, and each
+    // copy has that page's label.
     const kinds = new Map<string, string>();
     for (const row of rows(
       () =>
-        sql.all`SELECT p.pageUrl, p.articleUrl, k.kind FROM program_pages p JOIN page_kinds k USING (articleUrl) WHERE k.status = 'computed'`,
+        sql.all`SELECT p.pageUrl, p.articleUrl, k.kind FROM program_pages p JOIN language_groups g USING (articleUrl) JOIN page_kinds k ON k.articleUrl = g.representative WHERE k.status = 'computed'`,
     )) {
       const { pageUrl, articleUrl, kind } = kindRow.parse(row);
       kinds.set(pageUrl, kind);

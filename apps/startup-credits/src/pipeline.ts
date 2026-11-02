@@ -84,6 +84,81 @@ const source = new WebSource({
 });
 const catalog = await source.discover();
 const pages = destination.table('program_pages');
+// The language copies of each stored page, grouped as Google groups them:
+// two pages are copies when each declares the other, in its head, its Link
+// header or a sitemap (ADR 0016 of source-web-pages), and a group holds the
+// copies that such pairs join. The page that stands for a group is its
+// x-default copy, else an English one, else the smallest URL, so every page
+// of a group names the same one. A declared copy that the crawl did not store
+// is in no group.
+const languageGroups = new View({
+  into: destination,
+  name: 'language_groups',
+  description:
+    'The page that stands for the language copies of each stored page; a page with no copy stands for itself.',
+  columns: {
+    articleUrl: 'The article URL of the stored page.',
+    representative:
+      'The article URL of the page that stands for its copies: the x-default copy, else an English one, else the smallest URL.',
+  },
+  sql: `WITH RECURSIVE
+  declared(page, language, url) AS (
+    SELECT p.articleUrl, copy.value ->> 'language', copy.value ->> 'url'
+    FROM program_pages p, json_each(p.localizedVersions) copy
+    UNION
+    SELECT p.articleUrl, copy.value ->> 'language', copy.value ->> 'url'
+    FROM program_pages p, json_each(p.listedVersions) copy
+  ),
+  -- A copy is a stored page, named by its article URL, the canonical URL
+  -- that keys its row.
+  copies(page, copy, language) AS (
+    SELECT declared.page, program_pages.articleUrl, declared.language
+    FROM declared JOIN program_pages ON program_pages.articleUrl = declared.url
+  ),
+  -- A one-way declaration, such as one that names a home page, joins nothing.
+  pairs(page, copy) AS (
+    SELECT a.page, a.copy FROM copies a
+    JOIN copies b ON b.page = a.copy AND b.copy = a.page
+    WHERE a.page <> a.copy
+  ),
+  members(page, member) AS (
+    SELECT articleUrl, articleUrl FROM program_pages
+    UNION
+    SELECT members.page, pairs.copy
+    FROM members JOIN pairs ON pairs.page = members.member
+  ),
+  -- How a group's own pages declare each member: x-default, English, other.
+  ranks(page, member, rank) AS (
+    SELECT members.page, members.member, MIN(CASE
+      WHEN copies.language = 'x-default' THEN 0
+      WHEN copies.language = 'en' OR copies.language LIKE 'en-%' THEN 1
+      ELSE 2 END)
+    FROM members
+    LEFT JOIN members other ON other.page = members.page
+    LEFT JOIN copies
+      ON copies.page = other.member AND copies.copy = members.member
+    GROUP BY members.page, members.member
+  )
+SELECT page AS articleUrl, member AS representative FROM ranks
+WHERE NOT EXISTS (
+  SELECT 1 FROM ranks better
+  WHERE better.page = ranks.page
+    AND (better.rank < ranks.rank
+      OR (better.rank = ranks.rank AND better.member < ranks.member))
+)`,
+});
+// Only the page that stands for its copies goes to Jev.
+const representatives = new View({
+  into: destination,
+  name: 'representative_pages',
+  description: 'The stored pages that stand for their language copies.',
+  columns: {
+    articleUrl: 'The article URL of the page.',
+    title: 'The title of the page, or NULL.',
+    textContent: 'The text of the page.',
+  },
+  sql: 'SELECT p.articleUrl, p.title, p.textContent FROM program_pages p JOIN language_groups g ON g.articleUrl = p.articleUrl AND g.representative = p.articleUrl',
+});
 // Only the pages labelled program go to the offer model.
 const programs = new View({
   into: destination,
@@ -154,11 +229,14 @@ export default new Pipeline({
     }),
   ],
   derived: [
+    languageGroups,
+    representatives,
     new ComputedDataset({
       into: destination,
       name: 'page_kinds',
-      description: 'The kind of each stored page, as Jev 1.14 labels it.',
-      from: [pages],
+      description:
+        'The kind of each page that stands for its language copies, as Jev 1.14 labels it.',
+      from: [representatives],
       compute: new PageKinds(),
     }),
     programs,

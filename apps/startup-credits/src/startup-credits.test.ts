@@ -1830,3 +1830,328 @@ test('a program whose list link redirects to the company page that Jev labels ho
     errors,
   );
 });
+
+// A page in one language, as aws.amazon.com/de/training/startups/ declared
+// its copies on 2026-11-02: in its head, an hreflang link for each copy that
+// it names, itself included, and a language menu that links the copies.
+const localized = (
+  title: string,
+  text: string,
+  head: readonly (readonly [string, string])[],
+  menu: readonly string[] = head.map(([, url]) => url),
+) =>
+  ok(`<!doctype html><html><head><title>${title}</title>
+${head.map(([language, url]) => `<link rel="alternate" hreflang="${language}" href="${url}">`).join('\n')}
+</head><body><nav>${menu.map((url) => `<a href="${url}">${url}</a>`).join('')}</nav>
+<main><h1>${title}</h1><p>${text}</p></main></body></html>`);
+
+const trainingOffer =
+  'Startups can get up to $10,000 in AWS credits for training.';
+const trainingCredits: Answer = {
+  offers: [
+    {
+      quote: trainingOffer,
+      kind: 'credits',
+      value: { amount: 10_000, currency: 'USD' },
+      duration: null,
+      who: null,
+    },
+  ],
+};
+
+test('a page and its German copy, which each declare the other, go to Jev and to the offer model once, as the English copy, and the program is logged once', async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  const english = 'https://aws.amazon.com/training/startups/';
+  const german = 'https://aws.amazon.com/de/training/startups/';
+  const copies = [
+    ['en-us', english],
+    ['de-de', german],
+  ] as const;
+  const { lines, requests, asked, decided, errors } = await running(data.path, {
+    pages: {
+      ...lists([[english, 'AWS Training', 'Credits for training']]),
+      [english]: localized('AWS Training for Startups', trainingOffer, copies),
+      [german]: localized(
+        'AWS Schulungen für Startups',
+        'Startups erhalten bis zu 10.000 USD in AWS-Gutschriften für Schulungen.',
+        copies,
+      ),
+    },
+    model: { [english]: [trainingCredits] },
+    decisions: programs(english),
+    quietAfter: has('new program'),
+    ahead: 0,
+  });
+
+  assert.deepEqual(
+    lines,
+    [`new program ${english}: credits $10,000 ("${trainingOffer}")`],
+    errors,
+  );
+  assert.ok(requests.includes(german), errors);
+  assert.deepEqual(
+    decided.map(({ page }) => page),
+    [english],
+  );
+  assert.deepEqual(
+    asked.map(({ page }) => page),
+    [english],
+  );
+});
+
+test('of the copies that declare each other, the x-default one goes to the models, else an English one, also when another URL is smaller, else the smallest URL, whatever order a page declares them in', async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  const stripe = 'https://stripe.com/startups';
+  const stripeCopies = [
+    ['x-default', stripe],
+    ['en-gb', 'https://stripe.com/gb/startups'],
+    ['de', 'https://stripe.com/de/startups'],
+  ] as const;
+  const aws = 'https://aws.amazon.com/training/startups/';
+  const awsCopies = [
+    ['en-us', aws],
+    ['de-de', 'https://aws.amazon.com/de/training/startups/'],
+    ['ja-jp', 'https://aws.amazon.com/ja/training/startups/'],
+  ] as const;
+  const notion = 'https://www.notion.com/de-de/startups';
+  const notionCopies = [
+    ['ja-jp', 'https://www.notion.com/ja-jp/startups'],
+    ['fr-fr', 'https://www.notion.com/fr-fr/startups'],
+    ['de-de', notion],
+  ] as const;
+  const page = (copies: readonly (readonly [string, string])[]) =>
+    Object.fromEntries(
+      copies.map(([language, url]) => [
+        url,
+        localized(
+          `Startups (${language})`,
+          `Our startup program in ${language}.`,
+          copies,
+        ),
+      ]),
+    );
+  const { lines, decided, errors } = await running(data.path, {
+    pages: {
+      ...lists([
+        [stripe, 'Stripe', 'Discount'],
+        [aws, 'AWS Training', 'Credits for training'],
+        [notion, 'Notion', 'Free months'],
+      ]),
+      ...page(stripeCopies),
+      ...page(awsCopies),
+      ...page(notionCopies),
+    },
+    model: Object.fromEntries(
+      [stripe, aws, notion].map((url) => [url, [{ offers: [] }]]),
+    ),
+    decisions: programs(stripe, aws, notion),
+    quietAfter: (lines) =>
+      lines.filter((line) => line.startsWith('new program')).length === 3,
+    ahead: 0,
+  });
+
+  assert.deepEqual(
+    lines.toSorted(),
+    [
+      `new program ${aws}: no offer found`,
+      `new program ${stripe}: no offer found`,
+      `new program ${notion}: no offer found`,
+    ],
+    errors,
+  );
+  assert.deepEqual(decided.map(({ page }) => page).toSorted(), [
+    aws,
+    stripe,
+    notion,
+  ]);
+});
+
+test("copies that a page's head and a sitemap's xhtml:link declare between them are one group, though neither declaration alone names both ways", async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  const home = 'https://www.hubspot.com/';
+  const english = 'https://www.hubspot.com/startups';
+  const german = 'https://www.hubspot.com/de/startups';
+  const sitemap = 'https://www.hubspot.com/sitemap-startups.xml';
+  const { lines, requests, decided, errors } = await running(data.path, {
+    pages: {
+      ...lists([[home, 'HubSpot', 'Discount on HubSpot']]),
+      [home]:
+        ok(`<!doctype html><html><head><title>HubSpot | Software and Tools for your Business</title></head><body>
+<main><h1>Grow better with HubSpot</h1><p>HubSpot is an AI-powered customer platform with the software, integrations and resources you need to connect marketing, sales and service.</p></main></body></html>`),
+      'https://www.hubspot.com/robots.txt': plain(
+        `User-agent: *\nAllow: /\nSitemap: ${sitemap}\n`,
+      ),
+      // The English page first, then its German copy, which only the
+      // sitemap says is a copy of the English page.
+      [sitemap]: {
+        status: 200,
+        type: 'application/xml',
+        body: `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml"><url><loc>${english}</loc></url><url><loc>${german}</loc><xhtml:link rel="alternate" hreflang="en" href="${english}"/></url></urlset>`,
+      },
+      [english]: localized(
+        'HubSpot for Startups',
+        'Eligible startups get HubSpot software at a discount.',
+        [
+          ['en', english],
+          ['de', german],
+        ],
+        [],
+      ),
+      [german]: localized(
+        'HubSpot für Startups',
+        'Berechtigte Startups erhalten HubSpot-Software mit Rabatt.',
+        [],
+      ),
+    },
+    model: { [english]: [{ offers: [] }] },
+    decisions: { [home]: { kind: 'home' }, ...programs(english) },
+    quietAfter: has('new program'),
+    ahead: 0,
+  });
+
+  assert.deepEqual(lines, [`new program ${english}: no offer found`], errors);
+  assert.ok(requests.includes(german), errors);
+  assert.deepEqual(decided.map(({ page }) => page).toSorted(), [home, english]);
+});
+
+test('a copy that names a page which does not name it back is its own group, so both pages go to the models', async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  const english = 'https://aws.amazon.com/training/startups/';
+  const german = 'https://aws.amazon.com/de/training/startups/';
+  const { lines, decided, errors } = await running(data.path, {
+    pages: {
+      ...lists([[english, 'AWS Training', 'Credits for training']]),
+      [english]: localized(
+        'AWS Training for Startups',
+        trainingOffer,
+        [['en-us', english]],
+        [german],
+      ),
+      [german]: localized(
+        'AWS Schulungen für Startups',
+        'Startups erhalten bis zu 10.000 USD in AWS-Gutschriften für Schulungen.',
+        [
+          ['en-us', english],
+          ['de-de', german],
+        ],
+      ),
+    },
+    model: { [english]: [trainingCredits], [german]: [{ offers: [] }] },
+    decisions: programs(english, german),
+    quietAfter: (lines) =>
+      lines.filter((line) => line.startsWith('new program')).length === 2,
+    ahead: 0,
+  });
+
+  assert.deepEqual(
+    lines.toSorted(),
+    [
+      `new program ${german}: no offer found`,
+      `new program ${english}: credits $10,000 ("${trainingOffer}")`,
+    ],
+    errors,
+  );
+  assert.deepEqual(decided.map(({ page }) => page).toSorted(), [
+    german,
+    english,
+  ]);
+});
+
+test("a program whose list links a German copy takes the label of the copy's English page, so when Jev labels that page home the program is logged as no program page found", async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  const english = 'https://aws.amazon.com/training/startups/';
+  const german = 'https://aws.amazon.com/de/training/startups/';
+  const copies = [
+    ['en-us', english],
+    ['de-de', german],
+  ] as const;
+  const { lines, errors } = await running(data.path, {
+    pages: {
+      ...lists([[german, 'AWS Training', 'Credits for training']]),
+      [english]: localized(
+        'AWS Training',
+        'Learn to build on AWS with courses for every role.',
+        copies,
+      ),
+      [german]: localized(
+        'AWS Schulungen',
+        'Lernen Sie, auf AWS zu bauen, mit Kursen für jede Rolle.',
+        copies,
+      ),
+    },
+    model: {},
+    // The German copy stands alone until its English page is stored.
+    decisions: { [english]: { kind: 'home' }, [german]: { kind: 'home' } },
+    until: has('AWS Training: no program page found'),
+    ahead: 0,
+  });
+
+  assert.deepEqual(
+    lines,
+    [`AWS Training: no program page found (${german} linked by ${avinash})`],
+    errors,
+  );
+});
+
+test("a program whose list links a German copy is not logged as missing while Jev cannot label the copy's English page", async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  const english = 'https://aws.amazon.com/training/startups/';
+  const german = 'https://aws.amazon.com/de/training/startups/';
+  const copies = [
+    ['en-us', english],
+    ['de-de', german],
+  ] as const;
+  const { lines, errors } = await running(data.path, {
+    pages: {
+      ...lists([[german, 'AWS Training', 'Credits for training']]),
+      [english]: localized('AWS Training for Startups', trainingOffer, copies),
+      [german]: localized(
+        'AWS Schulungen für Startups',
+        'Startups erhalten bis zu 10.000 USD in AWS-Gutschriften für Schulungen.',
+        copies,
+      ),
+    },
+    model: {},
+    decisions: {
+      [english]: { status: 429, message: 'Rate limit exceeded' },
+      [german]: { kind: 'home' },
+    },
+    quietAfter: has('could not label'),
+    ahead: 0,
+  });
+
+  assert.deepEqual(
+    lines,
+    [`could not label ${english}: Rate limit exceeded`],
+    errors,
+  );
+});
+
+test('copies whose pages disagree on which one is x-default still send one page to the models, the smallest URL of those that any of them calls x-default', async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  const global = 'https://www.figma.com/startups';
+  const british = 'https://www.figma.com/gb/startups';
+  const { lines, decided, errors } = await running(data.path, {
+    pages: {
+      ...lists([[british, 'Figma', 'Free seats']]),
+      [global]: localized('Figma for Startups', 'Our startup program.', [
+        ['x-default', global],
+        ['en-gb', british],
+      ]),
+      [british]: localized('Figma for Startups (UK)', 'Our startup program.', [
+        ['x-default', british],
+        ['en', global],
+      ]),
+    },
+    model: { [british]: [{ offers: [] }] },
+    decisions: programs(british),
+    quietAfter: has('new program'),
+    ahead: 0,
+  });
+
+  assert.deepEqual(lines, [`new program ${british}: no offer found`], errors);
+  assert.deepEqual(
+    decided.map(({ page }) => page),
+    [british],
+  );
+});
