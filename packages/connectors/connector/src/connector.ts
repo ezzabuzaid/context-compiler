@@ -36,7 +36,7 @@ import {
 } from '@workspace/settings';
 import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 
-import type { Choice, Row, Rows } from './choice.ts';
+import { type Choice, type Row, type Rows, isRow } from './choice.ts';
 
 export type { Selection } from '@workspace/settings';
 
@@ -268,12 +268,14 @@ export abstract class Connector {
         if (message.status === 'FAILED') throw message.error;
         continue;
       }
-      if (!('type' in message) && message.stream !== this.probe)
-        rows.set(message.stream, [
-          ...(rows.get(message.stream) ?? []),
-          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions -- every source validates its records against the stream's object schema
-          message.data as Row,
-        ]);
+      if (!('type' in message) && message.stream !== this.probe) {
+        const { data } = message;
+        if (!isRow(data))
+          throw new TypeError(
+            `Stream ${message.stream} emitted a record that is not an object`,
+          );
+        rows.set(message.stream, [...(rows.get(message.stream) ?? []), data]);
+      }
     }
     return rows;
   }

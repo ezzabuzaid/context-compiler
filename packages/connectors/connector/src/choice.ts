@@ -1,4 +1,8 @@
 export type Row = Record<string, unknown>;
+
+export function isRow(value: unknown): value is Row {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
 export type Rows = ReadonlyMap<string, readonly Row[]>;
 
 // A stream listing the accounts or collections an import can be narrowed to.
