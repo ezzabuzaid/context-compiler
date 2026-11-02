@@ -64,14 +64,14 @@ A predicted offer matches a labelled offer when its span and one of the offer's 
 
 ## Offer extraction
 
-The app reads the offers of each program page with Claude Haiku 5.5 (`ProgramOffers` in `src/rules/program-offers.ts`). `eval-predict` runs that same rule on each test page of the cache and writes its answers in the format of `eval`:
+The app reads the offers of each program page with GPT-6-Luna (`ProgramOffers` in `src/rules/program-offers.ts`). `eval-predict` runs that same rule on each test page of the cache and writes its answers in the format of `eval`:
 
 ```sh
-CLAUDE_CODE_OAUTH_TOKEN=... npx nx run startup-credits:eval-predict -- answers.json
+npx nx run startup-credits:eval-predict -- answers.json
 npx nx run startup-credits:eval -- answers.json
 ```
 
-It calls the real model through the Claude provider of `@deepagents/experimental`. The provider sends the token in `CLAUDE_CODE_OAUTH_TOKEN`, which `claude setup-token` makes. Give the token in the environment of the command. Do not keep it in a file. One run makes about 121 model calls, one for each test page.
+It calls the real model through the Codex provider of `@deepagents/experimental`. The provider uses the ChatGPT login of Codex in `CODEX_HOME/auth.json` (by default `~/.codex/auth.json`), which `codex login` makes. One run makes about 121 model calls, one for each test page, four at a time. On 2026-11-02, one run took about 2 minutes and used less than 1% of a Pro plan's weekly Codex limit (the `x-codex-primary-used-percent` header of each answer).
 
 The extractor name in the file is the model and the first 12 characters of the hash in the rule identity. A page that the rule failed on is in the file with its error and no offers, and the run writes the error to stderr.
 

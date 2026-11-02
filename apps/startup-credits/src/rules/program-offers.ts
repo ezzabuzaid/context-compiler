@@ -32,16 +32,13 @@ const system =
   'You read one web page of a startup program. List only the offers that the page states, each offer once. For each offer, first copy the one sentence of the page text that states it, word for word, as quote; never quote the URL or the title. Then read kind, value and the rest from that sentence. kind: credits (credits, a commitment amount or a balance to spend on the product), discount (a percentage or reduced price), free_period (free use of a paid plan for a fixed time), support (technical help, mentorship), perks (deals from other companies). value: the amount and its ISO 4217 currency code when the sentence states one, else null; read $100K as 100000. months: the length of a free period in months when the sentence states one, else null; a year is 12. If the page states no offer, return an empty list. Each tier of a program is its own offer. A part or a first step of one offer is not a separate offer: for "up to $5,000" and "Start with $1,000", state only the $5,000 offer.';
 
 // The whole page: the longest stored page, about 83,000 characters, is far
-// inside Haiku's context.
+// inside GPT-6-Luna's context of 272,000 tokens.
 const prompt = ({ url, title, text }: Page) =>
   `URL: ${url}\n${title === null ? '' : `Title: ${title}\n`}\n${text}`;
 
 // Thinking counts toward maxOutputTokens, so the limit leaves room for it
 // and for the answer of a long page.
-const settings = {
-  maxOutputTokens: 16_000,
-  providerOptions: { anthropic: { effort: 'medium' } },
-} as const;
+const settings = { maxOutputTokens: 16_000 } as const;
 
 // The model and everything that the model reads besides the page, so a
 // changed prompt, schema or setting makes every output again.
@@ -72,7 +69,7 @@ const waived = (offer: Offer): Offer =>
     ? { ...offer, percent: null }
     : offer;
 
-// The offers that each stored program page states, as Claude Haiku 5.5 reads
+// The offers that each stored program page states, as GPT-6-Luna reads
 // them. An offer stays only when its quote is in the page text, so an
 // invented quote or an echo of the prompt is never an offer.
 export class ProgramOffers extends Rule<Page, string> {

@@ -78,23 +78,46 @@ const cloudflareChallenge: Served = {
   body: '<!doctype html><html><head><title>Just a moment...</title></head><body></body></html>',
 };
 
-// One planned answer of the Messages API to one request about a page: the
-// offers whose quote is in the request (invented ones are sent as they are),
-// a raw text, an error, or no answer until the app stops.
+// One planned answer of the Codex Responses endpoint to one request about a
+// page: the offers whose quote is in the request (invented ones are sent as
+// they are), a raw text, an error status with the body the endpoint sends,
+// or no answer until the app stops.
 type Answer =
   | {
       readonly offers: readonly Record<string, unknown>[];
       readonly invented?: readonly Record<string, unknown>[];
     }
   | { readonly text: string }
-  | {
-      readonly status: number;
-      readonly error: { readonly type: string; readonly message: string };
-    }
+  | { readonly status: number; readonly body: Record<string, unknown> }
   | { readonly hold: true };
 
-// The token in the app's environment, which the Claude provider sends.
-const token = 'sk-ant-oat01-test-token';
+// The ChatGPT login of Codex in the app's CODEX_HOME: an access token that
+// does not expire before 2100, so the provider asks for no refresh, and the
+// account it names.
+const account = '5ba1a5a2-6d1e-4c6a-9a51-2f7f0c1d2e3f';
+const jwt = (claims: Record<string, unknown>) =>
+  [{ alg: 'none', typ: 'JWT' }, claims, 'signature']
+    .map((part) =>
+      typeof part === 'string'
+        ? part
+        : Buffer.from(JSON.stringify(part)).toString('base64url'),
+    )
+    .join('.');
+const token = jwt({
+  exp: 4_102_444_800,
+  'https://api.openai.com/auth': { chatgpt_account_id: account },
+});
+const codexLogin = JSON.stringify({
+  auth_mode: 'chatgpt',
+  OPENAI_API_KEY: null,
+  tokens: {
+    id_token: token,
+    access_token: token,
+    refresh_token: 'rt_test',
+    account_id: account,
+  },
+  last_refresh: '2026-11-02T00:00:00Z',
+});
 // The OpenRouter key in the app's environment, which the decision model
 // sends.
 const openRouterKey = 'sk-or-v1-test-key';
@@ -109,9 +132,9 @@ type Decision =
 // The internet as the app's process sees it in a test, loaded before
 // main.ts: GitHub and the companies' websites answer these pages, every
 // robots.txt and sitemap.xml that a test does not give is missing, any other request fails, and each
-// request is written to stderr. The Messages API answers each request about
-// a page with the next answer planned for it, in the shape of a real Haiku
-// 5.5 answer captured on 2026-10-31; OpenRouter's Decisions API answers each
+// request is written to stderr. The Codex Responses endpoint streams the next
+// answer planned for each request about a page, in the events of a real
+// GPT-6-Luna answer captured on 2026-11-02; OpenRouter's Decisions API answers each
 // request about a page with its decision, in the shape of a real Jev 1.14
 // answer captured on 2026-10-31. A request with no planned answer or
 // decision is written to stderr as unplanned. The clock runs ahead by the
@@ -150,10 +173,11 @@ const { server } = new Msw().intercept(
   ),
   http.get('*/robots.txt', () => new HttpResponse(null, { status: 404 })),
   http.get('*/sitemap.xml', () => new HttpResponse(null, { status: 404 })),
-  http.post('https://api.anthropic.com/v1/messages', async ({ request }) => {
+  http.post('https://chatgpt.com/backend-api/codex/responses', async ({ request }) => {
     const body = await request.json();
-    const prompt = body.messages
-      .flatMap(({ content }) => content.map(({ text }) => text))
+    const prompt = body.input
+      .filter(({ role }) => role === 'user')
+      .flatMap(({ content }) => typeof content === 'string' ? [content] : content.map(({ text }) => text))
       .join('\\n');
     const page = /^URL: (\\S+)$/mu.exec(prompt)?.[1];
     process.stderr.write('model ' + JSON.stringify({ page, model: body.model, authorization: request.headers.get('authorization') }) + '\\n');
@@ -166,10 +190,7 @@ const { server } = new Msw().intercept(
     }
     if ('hold' in answer) return new Promise(() => {});
     if ('status' in answer)
-      return HttpResponse.json(
-        { type: 'error', error: answer.error },
-        { status: answer.status, headers: { 'retry-after': '0' } },
-      );
+      return HttpResponse.json(answer.body, { status: answer.status, headers: { 'retry-after': '0' } });
     const text = 'text' in answer
       ? answer.text
       : JSON.stringify({
@@ -178,29 +199,27 @@ const { server } = new Msw().intercept(
             ...(answer.invented ?? []),
           ],
         });
-    return HttpResponse.json({
-      model: body.model,
-      id: 'msg_011CgZ8NhPVMJP8jgkiwcpLf',
-      type: 'message',
-      role: 'assistant',
-      content: [{ type: 'text', text }],
-      container: null,
-      stop_reason: 'end_turn',
-      stop_sequence: null,
-      stop_details: null,
-      usage: {
-        input_tokens: 427,
-        cache_creation_input_tokens: 0,
-        cache_read_input_tokens: 0,
-        cache_creation: { ephemeral_5m_input_tokens: 0, ephemeral_1h_input_tokens: 0 },
-        output_tokens: 79,
-        output_tokens_details: { thinking_tokens: 0 },
-        service_tier: 'standard',
-        inference_geo: 'global',
-        speed: 'standard',
-      },
-      diagnostics: null,
-    });
+    const id = 'resp_09bbfa0984043937016ae822d27cf08191a424371743d31def';
+    const item = { type: 'message', id: 'msg_09bbfa0984043937016ae822d2ead48191aafda124fab9deca', role: 'assistant', phase: 'final_answer' };
+    const part = { type: 'output_text', text, annotations: [], logprobs: [] };
+    const done = { ...item, status: 'completed', content: [part] };
+    const response = (status, output) => ({ id, object: 'response', created_at: 1793598162, status, model: body.model, output, error: null, incomplete_details: null, service_tier: 'default' });
+    const position = { item_id: item.id, output_index: 0, content_index: 0 };
+    const events = [
+      { type: 'response.created', response: response('in_progress', []) },
+      { type: 'response.in_progress', response: response('in_progress', []) },
+      { type: 'response.output_item.added', output_index: 0, item: { ...item, status: 'in_progress', content: [] } },
+      { type: 'response.content_part.added', ...position, part: { ...part, text: '' } },
+      { type: 'response.output_text.delta', ...position, delta: text, logprobs: [] },
+      { type: 'response.output_text.done', ...position, text },
+      { type: 'response.content_part.done', ...position, part },
+      { type: 'response.output_item.done', output_index: 0, item: done },
+      { type: 'response.completed', response: { ...response('completed', [done]), usage: { input_tokens: 633, input_tokens_details: { cached_tokens: 0 }, output_tokens: 65, output_tokens_details: { reasoning_tokens: 0 }, total_tokens: 698 } } },
+    ];
+    return new HttpResponse(
+      events.map((event, sequence_number) => 'event: ' + event.type + '\\ndata: ' + JSON.stringify({ ...event, sequence_number }) + '\\n\\n').join(''),
+      { headers: { 'content-type': 'text/event-stream; charset=utf-8' } },
+    );
   }),
   http.post('https://openrouter.ai/api/alpha/decisions', async ({ request }) => {
     const body = await request.json();
@@ -239,7 +258,7 @@ const { server } = new Msw().intercept(
 server.events.on('request:start', ({ request }) => process.stderr.write('request ' + request.url + '\\n'));
 `;
 
-// One request to the Messages API or to the Decisions API, as the internet
+// One request to the Codex Responses endpoint or to the Decisions API, as the internet
 // writes it to stderr.
 const askedSchema = z.object({
   page: z.string(),
@@ -283,6 +302,7 @@ async function running(
   await using folder = await new TemporaryFiles().directory('internet-');
   const setup = join(folder.path, 'internet.mjs');
   await writeFile(setup, internet(pages, model, decisions, ahead));
+  await writeFile(join(folder.path, 'auth.json'), codexLogin, { mode: 0o600 });
   const ended = new AbortController();
   const app = spawn(
     process.execPath,
@@ -290,12 +310,12 @@ async function running(
     {
       stdio: ['ignore', 'pipe', 'pipe'],
       // Only what the app needs, and none of the developer's logins:
-      // XDG_DATA_HOME, the test's own folder, holds the app's files, the
-      // Claude provider sends CLAUDE_CODE_OAUTH_TOKEN without reading a
-      // stored login, and the decision model sends OPENROUTER_API_KEY.
+      // XDG_DATA_HOME, the test's own folder, holds the app's files,
+      // CODEX_HOME holds the test's ChatGPT login, which the Codex provider
+      // reads, and the decision model sends OPENROUTER_API_KEY.
       env: {
         XDG_DATA_HOME: data,
-        CLAUDE_CODE_OAUTH_TOKEN: token,
+        CODEX_HOME: folder.path,
         OPENROUTER_API_KEY: openRouterKey,
       },
       signal: AbortSignal.any([ended.signal, AbortSignal.timeout(30_000)]),
@@ -369,9 +389,14 @@ const askedAbout =
 
 test('a 401 from the model ends the app with the reason, and logs no page as not extracted', async () => {
   await using data = await new TemporaryFiles().directory('credits-data-');
+  // The body of a real 401 of the Codex Responses endpoint, captured on
+  // 2026-11-02.
   const rejected: Answer = {
     status: 401,
-    error: { type: 'authentication_error', message: 'Invalid bearer token' },
+    body: {
+      detail:
+        'Could not parse your authentication token. Please try signing in again.',
+    },
   };
   const { lines, code, errors } = await running(data.path, {
     pages: {
@@ -399,7 +424,7 @@ test('a 401 from the model ends the app with the reason, and logs no page as not
   });
 
   assert.notEqual(code, 0, `${lines.join('\n')}\n${errors}`);
-  assert.match(errors, /Invalid bearer token/u);
+  assert.match(errors, /Could not parse your authentication token/u);
   assert.deepEqual(
     lines.filter((line) => line.startsWith('could not extract')),
     [],
@@ -418,18 +443,24 @@ test('a page whose model calls stay rate limited after the AI SDK retries is log
     [aws]: awsProgram('$200,000'),
     [microsoft]: microsoftProgram,
   };
-  // The body of a real 429 of the Messages API, captured on 2026-10-31.
+  // The body of the 429 that the Codex Responses endpoint sends when the
+  // plan's limit is used up, as the Codex CLI parses it
+  // (openai/codex codex-rs/codex-api/src/api_bridge.rs at 5a7353f040).
   const limited: Answer = {
     status: 429,
-    error: {
-      type: 'rate_limit_error',
-      message:
-        "This request would exceed your account's rate limit. Please try again later.",
+    body: {
+      error: {
+        type: 'usage_limit_reached',
+        plan_type: 'pro',
+        resets_at: 1_794_125_699,
+        limit_window_minutes: 10_080,
+      },
     },
   };
+  // The Codex CLI retries a 503 server_is_overloaded.
   const overloaded: Answer = {
-    status: 529,
-    error: { type: 'overloaded_error', message: 'Overloaded' },
+    status: 503,
+    body: { error: { type: 'server_is_overloaded' } },
   };
   const awsOffers: Answer = {
     offers: [
@@ -471,7 +502,8 @@ test('a page whose model calls stay rate limited after the AI SDK retries is log
   assert.deepEqual(
     first.lines.toSorted(),
     [
-      `could not extract ${aws}: This request would exceed your account's rate limit. Please try again later.`,
+      // The body has no message, so the provider gives the status text.
+      `could not extract ${aws}: Too Many Requests`,
       `new program ${microsoft}: credits $150,000 ("Access cutting-edge AI models, developer tools, and up to $150,000 in credits, backed by Microsoft’s global customer network.")`,
     ],
     first.errors,
@@ -683,7 +715,7 @@ test('an offer that the answer repeats, with the same kind and value or a value-
   );
 });
 
-test('a program page is logged as a new program with the kind, value and quote of each offer, Jev 1.14 labels it through OpenRouter with the key, the offer model gets the whole page from Claude Haiku 5.5 with the token, and no other page of GitHub is requested', async () => {
+test('a program page is logged as a new program with the kind, value and quote of each offer, Jev 1.14 labels it through OpenRouter with the key, the offer model gets the whole page from GPT-6-Luna with the ChatGPT login, and no other page of GitHub is requested', async () => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const ovh = 'https://startup.ovhcloud.com/en/';
   // Questions and answers that put the last offer after the first 20,000
@@ -747,7 +779,7 @@ ${questions}
     errors,
   );
   assert.deepEqual(asked, [
-    { page: ovh, model: 'claude-haiku-5-5', authorization: `Bearer ${token}` },
+    { page: ovh, model: 'gpt-6-luna', authorization: `Bearer ${token}` },
   ]);
   assert.deepEqual(decided, [
     {
@@ -1232,7 +1264,7 @@ test('stopping the app during a model call stores no failure, so the page is sti
   // restart would log nothing for it.
   const failing: Answer = {
     status: 500,
-    error: { type: 'api_error', message: 'Internal server error' },
+    body: { error: { message: 'Internal server error', type: 'server_error' } },
   };
   const second = await running(data.path, {
     pages,

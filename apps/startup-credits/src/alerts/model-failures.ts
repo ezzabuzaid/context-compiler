@@ -14,7 +14,7 @@ type ModelFailure = {
   readonly reason: string;
 };
 
-// Each page that a model could not read: Jev its kind, or Haiku its offers.
+// Each page that a model could not read: Jev its kind, or GPT-6-Luna its offers.
 // The key is the step and the page, so a page that fails again at each
 // refresh is logged once, until it stops failing; another reason for the
 // same failure logs nothing.

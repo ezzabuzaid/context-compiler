@@ -10,8 +10,10 @@ const who = z.string().nullable();
 
 // One thing that a program page gives startups, as the model states it. The
 // quote comes first, so the model copies the sentence before it reads the
-// kind and the value from it.
-const offer = z.discriminatedUnion('kind', [
+// kind and the value from it. A union, which JSON Schema states as anyOf:
+// OpenAI's strict structured output rejects the oneOf of a discriminated
+// union, and the literal kind still selects one branch.
+const offer = z.union([
   z.object({
     quote,
     kind: z.literal('credits'),
