@@ -124,7 +124,7 @@ export class ProgramOffers extends Rule<Page, string> {
         output: { offers },
       } = await generateText({
         model,
-        system,
+        instructions: system,
         prompt: prompt(page),
         output: Output.object({ schema: offersSchema }),
         ...settings,
