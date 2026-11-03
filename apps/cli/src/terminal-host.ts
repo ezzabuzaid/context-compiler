@@ -64,6 +64,7 @@ export class TerminalHost implements ConnectorHost {
         process.env.XDG_CONFIG_HOME ?? join(homedir(), '.config'),
         'context-compiler',
       ),
+      clock: globalThis,
     });
   }
 }
