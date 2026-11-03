@@ -344,9 +344,20 @@ function mailStore(home: string, mails: readonly Mail[]) {
   );
   for (const { id, from, subject, received } of mails) {
     const seconds = Date.parse(received) / 1000;
+    // Mail keeps one row for each address and name.
+    const address = from.replace(/^.*<|>$/gu, '');
     index
-      .prepare("INSERT INTO addresses VALUES (?, ?, '')")
-      .run(id, from.replace(/^.*<|>$/gu, ''));
+      .prepare(
+        "INSERT INTO addresses (address, comment) VALUES (?, '') ON CONFLICT DO NOTHING",
+      )
+      .run(address);
+    const sender = Number(
+      index
+        .prepare(
+          "SELECT ROWID AS id FROM addresses WHERE address = ? AND comment = ''",
+        )
+        .get(address)!.id,
+    );
     index.prepare('INSERT INTO subjects VALUES (?, ?)').run(id, subject);
     index
       .prepare(
@@ -357,7 +368,7 @@ function mailStore(home: string, mails: readonly Mail[]) {
       .prepare(
         'INSERT INTO messages(ROWID, message_id, global_message_id, subject, subject_prefix, mailbox, sender, date_sent, date_received, read, flagged, conversation_id) VALUES (?, ?, ?, ?, NULL, 1, ?, ?, ?, 0, 0, ?)',
       )
-      .run(id, id, 100 + id, id, id, seconds, seconds, id);
+      .run(id, id, 100 + id, id, sender, seconds, seconds, id);
   }
 }
 
@@ -503,10 +514,8 @@ type Payment = {
   readonly quote: string;
   readonly company: string;
   readonly service: string;
-  readonly category: string;
   readonly amount: number;
   readonly currency: string;
-  readonly frequency: string;
 };
 
 // One planned answer of the Codex Responses endpoint to one request about an
@@ -516,6 +525,34 @@ type Answer =
   | { readonly payments: readonly Payment[] }
   | { readonly status: number; readonly body: Record<string, unknown> }
   | { readonly hold: true };
+
+// One planned answer of OpenRouter's Decisions API to one request about an
+// email: what Jev chooses for each of ipay's questions, an error in
+// OpenRouter's error shape, or no answer until ipay cancels the request.
+type Decision =
+  | {
+      readonly kind: string;
+      readonly category: string;
+      readonly frequency: string;
+    }
+  | { readonly status: number; readonly message: string }
+  | { readonly hold: true };
+
+const paid = (category: string, frequency: string): Decision => ({
+  kind: 'payment',
+  category,
+  frequency,
+});
+
+// What a run of ipay meets on the internet: Luna's answers and Jev's
+// decisions, each by the email's subject, and the OpenRouter key in its
+// environment (none when null).
+type Plan = {
+  readonly luna?: Readonly<Record<string, readonly Answer[]>>;
+  readonly jev?: Readonly<Record<string, readonly Decision[]>>;
+  readonly openRouterKey?: string | null;
+};
+const openRouterKey = 'sk-or-v1-test-key';
 
 // The ChatGPT login of Codex in the app's CODEX_HOME, copied from
 // startup-credits' test (apps/startup-credits/src/startup-credits.test.ts):
@@ -551,13 +588,26 @@ const codexLogin = JSON.stringify({
 // an email, found by the email's Subject line, in the events of a real
 // GPT-6-Luna answer captured on 2026-11-02 (as startup-credits' test streams
 // them), when the request is ipay's own: GPT-6-Luna asked for the payments
-// schema as JSON. Any other request fails. Each request about an email is
-// written to stderr, and one with no planned answer as unplanned.
-const internet = (plan: Readonly<Record<string, readonly Answer[]>>) => `
+// schema as JSON. OpenRouter's Decisions API answers each request about an
+// email with its planned decision, in the shape of a real Jev 1.14 answer
+// captured on 2026-10-31 (as startup-credits' test answers), when the request
+// is ipay's own: Jev asked ipay's three questions with the user's OpenRouter
+// key. Any other request fails.
+// Each request about an email is written to stderr, and one with no planned
+// answer as unplanned.
+const internet = ({
+  luna = {},
+  jev = {},
+  openRouterKey: key = openRouterKey,
+}: Plan) => `
 import { Msw } from ${JSON.stringify(import.meta.resolve('@zukhruf/testing/msw'))};
 import { HttpResponse, http } from ${JSON.stringify(import.meta.resolve('msw'))};
-const planned = ${JSON.stringify(plan)};
+const planned = ${JSON.stringify(luna)};
+const decisions = ${JSON.stringify(jev)};
 const asked = new Map();
+const decided = new Map();
+const questions = ${JSON.stringify(ipayQuestions)};
+const authorization = ${JSON.stringify(`Bearer ${key}`)};
 new Msw().intercept(
   http.post('https://chatgpt.com/backend-api/codex/responses', async ({ request }) => {
     const body = await request.json();
@@ -604,6 +654,49 @@ new Msw().intercept(
       { headers: { 'content-type': 'text/event-stream; charset=utf-8' } },
     );
   }),
+  http.post('https://openrouter.ai/api/alpha/decisions', async ({ request }) => {
+    const body = await request.json();
+    const subject = /^Subject: (.*)$/mu.exec(body.state)?.[1];
+    process.stderr.write('decision ' + JSON.stringify({ subject, model: body.model, state: body.state }) + '\\n');
+    const index = decided.get(subject) ?? 0;
+    decided.set(subject, index + 1);
+    // ipay asks Jev its three questions, each with its own choices; any other
+    // request is not one the test planned.
+    const ours = request.headers.get('authorization') === authorization && body.model === 'typesafe/jev-1.14' && JSON.stringify(Object.fromEntries(Object.entries(body.questions ?? {}).map(([name, { criteria }]) => [name, Object.keys(criteria ?? {})]))) === JSON.stringify(questions);
+    const decision = ours ? decisions[subject]?.[index] : undefined;
+    if (decision === undefined) {
+      process.stderr.write('unplanned decision request ' + (index + 1) + ' for ' + subject + '\\n');
+      return HttpResponse.error();
+    }
+    if ('hold' in decision)
+      return new Promise((resolve) =>
+        request.signal.addEventListener('abort', () => {
+          process.stderr.write('cancelled decision request for ' + subject + '\\n');
+          resolve(HttpResponse.error());
+        }),
+      );
+    if ('status' in decision)
+      return HttpResponse.json(
+        { error: { message: decision.message, code: decision.status } },
+        { status: decision.status, headers: { 'retry-after': '0' } },
+      );
+    const answer = (name) => ({
+      type: 'choice',
+      choice: decision[name],
+      probabilities: Object.fromEntries(questions[name].map((choice) => [choice, choice === decision[name] ? 1 : 0])),
+      confidence: 1,
+    });
+    return HttpResponse.json(
+      {
+        model: 'typesafe/jev-1.14-20261014',
+        answers: { kind: answer('kind'), category: answer('category'), frequency: answer('frequency') },
+        usage: { input_tokens: 351, output_tokens: 31, cost: 0.000014742 },
+        id: 'gen-dec-1793424713-wGFdCAJhdI68yDBeKJAj',
+        provider: 'TypeSafe',
+      },
+      { headers: { 'x-generation-id': 'gen-dec-1793424713-wGFdCAJhdI68yDBeKJAj', 'x-provider-name': 'TypeSafe' } },
+    );
+  }),
 );
 `;
 
@@ -632,6 +725,31 @@ const askedSchema = z.object({
   prompt: z.string(),
 });
 
+// One request to OpenRouter's Decisions API, as the internet writes it to
+// stderr.
+const decidedSchema = z.object({
+  subject: z.string(),
+  model: z.string(),
+  state: z.string(),
+});
+
+// The choices of each question ipay asks Jev, as the internet checks them.
+const ipayQuestions = {
+  kind: ['payment', 'upcoming', 'failed', 'refund', 'offer', 'other'],
+  category: [
+    'food',
+    'utilities',
+    'entertainment',
+    'transportation',
+    'education',
+    'healthcare',
+    'shopping',
+    'cloud_services',
+    'other',
+  ],
+  frequency: ['once', 'monthly', 'annually'],
+};
+
 // A moment of a run: what must hold in ipay's file, or in what ipay wrote to
 // stderr so far, and what then happens to the apps' stores while ipay runs;
 // or ipay's own exit.
@@ -652,7 +770,7 @@ type Step =
 async function running(
   t: TestContext,
   home: string,
-  plan: Readonly<Record<string, readonly Answer[]>>,
+  plan: Plan,
   ...steps: readonly Step[]
 ) {
   await using folder = await new TemporaryFiles().directory('internet-');
@@ -678,6 +796,11 @@ async function running(
         CODEX_HOME: folder.path,
         NODE_OPTIONS: process.env.NODE_OPTIONS,
         WRITE_TEST_MUTANT: process.env.WRITE_TEST_MUTANT,
+        // The key ipay sends OpenRouter, as a user exports it.
+        OPENROUTER_API_KEY:
+          plan.openRouterKey === null
+            ? undefined
+            : (plan.openRouterKey ?? openRouterKey),
       },
     },
   );
@@ -721,6 +844,17 @@ async function running(
   } finally {
     if (!ended) app.kill('SIGINT');
   }
+  // ipay ends soon after Ctrl-C, or the stop failed; a process that does
+  // not stop is killed, so no test leaves one running.
+  try {
+    await t.waitFor(
+      () => assert.ok(ended, `ipay stops after Ctrl-C\n${stderr}`),
+      { interval: 200, timeout: 30_000 },
+    );
+  } catch (error) {
+    app.kill('SIGKILL');
+    throw error;
+  }
   const { code, signal } = await exited;
   const lines = stderr.split('\n');
   return {
@@ -731,6 +865,11 @@ async function running(
       .map((line) =>
         askedSchema.parse(JSON.parse(line.slice('model '.length))),
       ),
+    decided: lines
+      .filter((line) => line.startsWith('decision '))
+      .map((line) =>
+        decidedSchema.parse(JSON.parse(line.slice('decision '.length))),
+      ),
     unplanned: lines.filter((line) => line.startsWith('unplanned ')),
     stdout: stdout.split('\n').filter((line) => line !== ''),
     stderr,
@@ -738,6 +877,14 @@ async function running(
 }
 
 const count = (read: Read, sql: string) => Number(read(sql)[0]?.n);
+
+// How many requests a run sent about each email, by its subject.
+const bySubject = (requests: readonly { readonly subject: string }[]) =>
+  Object.fromEntries(
+    Object.entries(Object.groupBy(requests, ({ subject }) => subject)).map(
+      ([subject, each]) => [subject, each?.length],
+    ),
+  );
 
 // A receipt as Careem sends one: HTML only, with the total in a table.
 const careemReceipt: Mail = {
@@ -751,10 +898,8 @@ const careemPayment: Payment = {
   quote: 'Total JOD 3.749',
   company: 'Careem',
   service: 'Careem Food',
-  category: 'food',
   amount: 3.749,
   currency: 'JOD',
-  frequency: 'once',
 };
 // A card purchase as Arab Bank texts one.
 const careemCharge: Text = {
@@ -775,7 +920,10 @@ test('ipay reads the Context Compiler imports without writing them, and keeps it
   const run = await running(
     t,
     home.path,
-    { [careemReceipt.subject]: [{ payments: [careemPayment] }] },
+    {
+      luna: { [careemReceipt.subject]: [{ payments: [careemPayment] }] },
+      jev: { [careemReceipt.subject]: [paid('food', 'once')] },
+    },
     {
       until: (read) =>
         count(read, 'SELECT count(*) AS n FROM payments') === 1 &&
@@ -819,10 +967,8 @@ const spotifyPayment: Payment = {
   quote: 'Total charged: USD 11.99',
   company: 'Spotify',
   service: 'Spotify Premium Individual',
-  category: 'entertainment',
   amount: 11.99,
   currency: 'USD',
-  frequency: 'monthly',
 };
 const awsInvoice: Mail = {
   id: 3,
@@ -835,10 +981,8 @@ const awsPayment: Payment = {
   quote: 'Amount charged to your card: USD 42.10',
   company: 'AWS',
   service: 'Amazon EC2',
-  category: 'cloud_services',
   amount: 42.1,
   currency: 'USD',
-  frequency: 'monthly',
 };
 
 const settled = (read: Read, id: number) =>
@@ -857,17 +1001,20 @@ test('a payment whose quote is not in the email is no payment', async (t) => {
     t,
     home.path,
     {
-      [spotifyReceipt.subject]: [
-        {
-          payments: [
-            {
-              ...spotifyPayment,
-              quote: 'Total charged: USD 99.00',
-              amount: 99,
-            },
-          ],
-        },
-      ],
+      luna: {
+        [spotifyReceipt.subject]: [
+          {
+            payments: [
+              {
+                ...spotifyPayment,
+                quote: 'Total charged: USD 99.00',
+                amount: 99,
+              },
+            ],
+          },
+        ],
+      },
+      jev: { [spotifyReceipt.subject]: [paid('entertainment', 'monthly')] },
     },
     { until: (read) => settled(read, spotifyReceipt.id) },
   );
@@ -890,14 +1037,20 @@ test('a model call that fails for one email fails only that email, and a later p
     t,
     home.path,
     {
-      [spotifyReceipt.subject]: [
-        {
-          status: 400,
-          body: { error: { message: 'The request was invalid.' } },
-        },
-        { payments: [spotifyPayment] },
-      ],
-      [awsInvoice.subject]: [{ payments: [awsPayment] }],
+      luna: {
+        [spotifyReceipt.subject]: [
+          {
+            status: 400,
+            body: { error: { message: 'The request was invalid.' } },
+          },
+          { payments: [spotifyPayment] },
+        ],
+        [awsInvoice.subject]: [{ payments: [awsPayment] }],
+      },
+      jev: {
+        [spotifyReceipt.subject]: [paid('entertainment', 'monthly')],
+        [awsInvoice.subject]: [paid('cloud_services', 'monthly')],
+      },
     },
     {
       until: (read) =>
@@ -948,17 +1101,20 @@ test('a ChatGPT login the endpoint rejects stops ipay with the reason, and no em
     t,
     home.path,
     {
-      [spotifyReceipt.subject]: [
-        {
-          status: 401,
-          body: {
-            error: {
-              message:
-                'Your authentication token has expired. Please try signing in again.',
+      luna: {
+        [spotifyReceipt.subject]: [
+          {
+            status: 401,
+            body: {
+              error: {
+                message:
+                  'Your authentication token has expired. Please try signing in again.',
+              },
             },
           },
-        },
-      ],
+        ],
+      },
+      jev: { [spotifyReceipt.subject]: [paid('entertainment', 'monthly')] },
     },
     { exit: true },
   );
@@ -1382,8 +1538,14 @@ test('an email or a bank text that leaves its import leaves the payments and cha
     t,
     home.path,
     {
-      [careemReceipt.subject]: [{ payments: [careemPayment] }],
-      [spotifyReceipt.subject]: [{ payments: [spotifyPayment] }],
+      luna: {
+        [careemReceipt.subject]: [{ payments: [careemPayment] }],
+        [spotifyReceipt.subject]: [{ payments: [spotifyPayment] }],
+      },
+      jev: {
+        [careemReceipt.subject]: [paid('food', 'once')],
+        [spotifyReceipt.subject]: [paid('entertainment', 'monthly')],
+      },
     },
     {
       until: (read) =>
@@ -1412,7 +1574,7 @@ test('an email or a bank text that leaves its import leaves the payments and cha
   ]);
 });
 
-test('an HTML-only receipt gives its payment with every field, counted in the month Mail received it', async (t) => {
+test("an HTML-only receipt gives its payment with every field, Jev's category and frequency among them, counted in the month Mail received it", async (t) => {
   await using home = await new TemporaryFiles().directory('ipay-');
   mailStore(home.path, [careemReceipt]);
   chatStore(home.path, []);
@@ -1421,7 +1583,10 @@ test('an HTML-only receipt gives its payment with every field, counted in the mo
   const run = await running(
     t,
     home.path,
-    { [careemReceipt.subject]: [{ payments: [careemPayment] }] },
+    {
+      luna: { [careemReceipt.subject]: [{ payments: [careemPayment] }] },
+      jev: { [careemReceipt.subject]: [paid('food', 'once')] },
+    },
     {
       until: (read) => count(read, 'SELECT count(*) AS n FROM payments') === 1,
     },
@@ -1432,6 +1597,11 @@ test('an HTML-only receipt gives its payment with every field, counted in the mo
     run.asked[0]!.prompt,
     /Total\s+JOD 3\.749/u,
     'the model reads the receipt as text',
+  );
+  assert.match(
+    run.decided[0]!.state,
+    /Total\s+JOD 3\.749/u,
+    'Jev reads the receipt as text',
   );
   const read = reading(home.path);
   assert.deepEqual(
@@ -1485,21 +1655,22 @@ test('an invoice whose amount is only in its attached PDF gives its payment', as
     t,
     home.path,
     {
-      [invoice.subject]: [
-        {
-          payments: [
-            {
-              quote: 'Amount paid: EUR 4.51',
-              company: 'Hetzner',
-              service: 'Cloud server CX22',
-              category: 'cloud_services',
-              amount: 4.51,
-              currency: 'EUR',
-              frequency: 'monthly',
-            },
-          ],
-        },
-      ],
+      luna: {
+        [invoice.subject]: [
+          {
+            payments: [
+              {
+                quote: 'Amount paid: EUR 4.51',
+                company: 'Hetzner',
+                service: 'Cloud server CX22',
+                amount: 4.51,
+                currency: 'EUR',
+              },
+            ],
+          },
+        ],
+      },
+      jev: { [invoice.subject]: [paid('cloud_services', 'monthly')] },
     },
     {
       until: (read) => count(read, 'SELECT count(*) AS n FROM payments') === 1,
@@ -1512,13 +1683,18 @@ test('an invoice whose amount is only in its attached PDF gives its payment', as
     /Amount paid: EUR 4\.51/u,
     'the model reads the PDF',
   );
+  assert.match(
+    run.decided[0]!.state,
+    /Amount paid: EUR 4\.51/u,
+    'Jev reads the PDF',
+  );
   assert.deepEqual(
     reading(home.path)('SELECT company, amount, currency FROM payments'),
     [{ company: 'Hetzner', amount: 4.51, currency: 'EUR' }],
   );
 });
 
-test('an email that charges for several services gives a payment for each', async (t) => {
+test("an email that charges for several services gives a payment for each, and each carries the email's one category and frequency from Jev", async (t) => {
   await using home = await new TemporaryFiles().directory('ipay-');
   const google: Mail = {
     id: 5,
@@ -1534,28 +1710,29 @@ test('an email that charges for several services gives a payment for each', asyn
     quote,
     company: 'Google',
     service: name,
-    category: 'cloud_services',
     amount,
     currency: 'USD',
-    frequency: 'monthly',
   });
 
   const run = await running(
     t,
     home.path,
     {
-      [google.subject]: [
-        {
-          payments: [
-            service(
-              'Google Workspace Business Starter: USD 7.20',
-              'Google Workspace Business Starter',
-              7.2,
-            ),
-            service('Google One 100 GB: USD 1.99', 'Google One 100 GB', 1.99),
-          ],
-        },
-      ],
+      luna: {
+        [google.subject]: [
+          {
+            payments: [
+              service(
+                'Google Workspace Business Starter: USD 7.20',
+                'Google Workspace Business Starter',
+                7.2,
+              ),
+              service('Google One 100 GB: USD 1.99', 'Google One 100 GB', 1.99),
+            ],
+          },
+        ],
+      },
+      jev: { [google.subject]: [paid('cloud_services', 'monthly')] },
     },
     {
       until: (read) => count(read, 'SELECT count(*) AS n FROM payments') === 2,
@@ -1565,10 +1742,22 @@ test('an email that charges for several services gives a payment for each', asyn
   assert.deepEqual(run.unplanned, []);
   const read = reading(home.path);
   assert.deepEqual(
-    read('SELECT service, amount FROM payments ORDER BY amount'),
+    read(
+      'SELECT service, amount, category, frequency FROM payments ORDER BY amount',
+    ),
     [
-      { service: 'Google One 100 GB', amount: 1.99 },
-      { service: 'Google Workspace Business Starter', amount: 7.2 },
+      {
+        service: 'Google One 100 GB',
+        amount: 1.99,
+        category: 'cloud_services',
+        frequency: 'monthly',
+      },
+      {
+        service: 'Google Workspace Business Starter',
+        amount: 7.2,
+        category: 'cloud_services',
+        frequency: 'monthly',
+      },
     ],
   );
   assert.deepEqual(read('SELECT total, payments FROM monthly_payments'), [
@@ -1576,7 +1765,7 @@ test('an email that charges for several services gives a payment for each', asyn
   ]);
 });
 
-test('an email the model answers with no payments gives no payment row', async (t) => {
+test('an email Jev reads as a payment that Luna answers with no payments gives no payment row', async (t) => {
   await using home = await new TemporaryFiles().directory('ipay-');
   const offer: Mail = {
     id: 6,
@@ -1592,7 +1781,10 @@ test('an email the model answers with no payments gives no payment row', async (
   const run = await running(
     t,
     home.path,
-    { [offer.subject]: [{ payments: [] }] },
+    {
+      luna: { [offer.subject]: [{ payments: [] }] },
+      jev: { [offer.subject]: [paid('entertainment', 'monthly')] },
+    },
     { until: (read) => settled(read, offer.id) },
   );
 
@@ -1611,7 +1803,7 @@ const passes = (read: Read) =>
     'SELECT count(*) AS n FROM sync_attempts WHERE completed_at IS NOT NULL',
   );
 
-test('only candidate emails reach the model and only the bank’s texts are copied, and a restart sends no email again', async (t) => {
+test("only candidate emails reach Jev, only Jev's payments reach Luna, only the bank's texts are copied, and a restart sends nothing again to either", async (t) => {
   await using home = await new TemporaryFiles().directory('ipay-');
   const dinner: Mail = {
     id: 7,
@@ -1627,7 +1819,14 @@ test('only candidate emails reach the model and only the bank’s texts are copi
     received: '2026-10-09T16:00:00.000Z',
     html: '<p>New models shipped this week, and a total of three papers stood out.</p>',
   };
-  mailStore(home.path, [careemReceipt, dinner, newsletter]);
+  const due: Mail = {
+    id: 9,
+    from: 'Spotify <no-reply@spotify.com>',
+    subject: 'Your payment of USD 11.99 is due on 5 November',
+    received: '2026-10-29T08:00:00.000Z',
+    text: 'Your Spotify Premium plan renews on 5 November. We will charge USD 11.99 to your card.',
+  };
+  mailStore(home.path, [careemReceipt, dinner, newsletter, due]);
   chatStore(home.path, [
     careemCharge,
     {
@@ -1642,10 +1841,22 @@ test('only candidate emails reach the model and only the bank’s texts are copi
   const first = await running(
     t,
     home.path,
-    { [careemReceipt.subject]: [{ payments: [careemPayment] }] },
+    {
+      luna: { [careemReceipt.subject]: [{ payments: [careemPayment] }] },
+      jev: {
+        [careemReceipt.subject]: [paid('food', 'once')],
+        [due.subject]: [
+          { kind: 'upcoming', category: 'entertainment', frequency: 'monthly' },
+        ],
+      },
+    },
     {
       until: (read) =>
         count(read, 'SELECT count(*) AS n FROM payments') === 1 &&
+        count(
+          read,
+          "SELECT count(*) AS n FROM email_kinds WHERE status = 'computed'",
+        ) === 2 &&
         count(
           read,
           "SELECT count(*) AS n FROM bank_charges WHERE status = 'computed'",
@@ -1659,12 +1870,16 @@ test('only candidate emails reach the model and only the bank’s texts are copi
     {},
     {
       until: (read) => passes(read) > before,
-      // The refresh after the pass would ask the model now.
+      // The refresh after the pass would ask either model now.
       then: () => sleep(3000),
     },
   );
 
   assert.deepEqual(first.unplanned, []);
+  assert.deepEqual(
+    first.decided.map(({ subject }) => subject).sort(),
+    [careemReceipt.subject, due.subject].sort(),
+  );
   assert.deepEqual(
     first.asked.map(({ subject }) => subject),
     [careemReceipt.subject],
@@ -1675,16 +1890,20 @@ test('only candidate emails reach the model and only the bank’s texts are copi
     'the restarted ipay ran until stopped',
   );
   assert.deepEqual(restart.unplanned, []);
+  assert.deepEqual(restart.decided, []);
   assert.deepEqual(restart.asked, []);
   const read = reading(home.path);
-  assert.deepEqual(read('SELECT id FROM invoice_emails'), [{ id: '1' }]);
+  assert.deepEqual(read('SELECT id FROM invoice_emails ORDER BY id'), [
+    { id: '1' },
+    { id: '9' },
+  ]);
   assert.deepEqual(read('SELECT guid FROM bank_messages'), [
     { guid: careemCharge.guid },
   ]);
   assert.equal(count(read, 'SELECT count(*) AS n FROM payments'), 1);
 });
 
-test('an email or a bank text that arrives while ipay runs is read without a restart, and a changed email is read again', async (t) => {
+test('an email or a bank text that arrives while ipay runs is read without a restart, and a changed email is decided and read again while an unchanged one goes to neither model', async (t) => {
   await using home = await new TemporaryFiles().directory('ipay-');
   mailStore(home.path, [spotifyReceipt]);
   chatStore(home.path, []);
@@ -1698,19 +1917,28 @@ test('an email or a bank text that arrives while ipay runs is read without a res
     t,
     home.path,
     {
-      [spotifyReceipt.subject]: [
-        { payments: [spotifyPayment] },
-        {
-          payments: [
-            {
-              ...spotifyPayment,
-              quote: 'Total charged: USD 12.99',
-              amount: 12.99,
-            },
-          ],
-        },
-      ],
-      [awsInvoice.subject]: [{ payments: [awsPayment] }],
+      luna: {
+        [spotifyReceipt.subject]: [
+          { payments: [spotifyPayment] },
+          {
+            payments: [
+              {
+                ...spotifyPayment,
+                quote: 'Total charged: USD 12.99',
+                amount: 12.99,
+              },
+            ],
+          },
+        ],
+        [awsInvoice.subject]: [{ payments: [awsPayment] }],
+      },
+      jev: {
+        [spotifyReceipt.subject]: [
+          paid('entertainment', 'monthly'),
+          paid('entertainment', 'monthly'),
+        ],
+        [awsInvoice.subject]: [paid('cloud_services', 'monthly')],
+      },
     },
     {
       until: (read) => count(read, 'SELECT count(*) AS n FROM payments') === 1,
@@ -1742,6 +1970,14 @@ test('an email or a bank text that arrives while ipay runs is read without a res
   );
 
   assert.deepEqual(run.unplanned, []);
+  assert.deepEqual(bySubject(run.decided), {
+    [spotifyReceipt.subject]: 2,
+    [awsInvoice.subject]: 1,
+  });
+  assert.deepEqual(bySubject(run.asked), {
+    [spotifyReceipt.subject]: 2,
+    [awsInvoice.subject]: 1,
+  });
   assert.deepEqual(
     reading(home.path)('SELECT company, amount FROM payments ORDER BY company'),
     [
@@ -1782,7 +2018,10 @@ test("ipay's rows are as current as the imports they come from, not as the run",
   await running(
     t,
     home.path,
-    { [careemReceipt.subject]: [{ payments: [careemPayment] }] },
+    {
+      luna: { [careemReceipt.subject]: [{ payments: [careemPayment] }] },
+      jev: { [careemReceipt.subject]: [paid('food', 'once')] },
+    },
     {
       until: (read) =>
         count(read, 'SELECT count(*) AS n FROM payments') === 1 &&
@@ -1815,7 +2054,10 @@ test('Ctrl-C while the model reads an email ends ipay by the signal and stores n
   const run = await running(
     t,
     home.path,
-    { [careemReceipt.subject]: [{ hold: true }] },
+    {
+      luna: { [careemReceipt.subject]: [{ hold: true }] },
+      jev: { [careemReceipt.subject]: [paid('food', 'once')] },
+    },
     {
       until: (_, stderr) =>
         stderr.includes(`"subject":"${careemReceipt.subject}"`),
@@ -1827,6 +2069,369 @@ test('Ctrl-C while the model reads an email ends ipay by the signal and stores n
   assert.deepEqual(run.stdout, []);
   assert.equal(
     count(reading(home.path), 'SELECT count(*) AS n FROM invoice_payments'),
+    0,
+  );
+});
+
+test('an email Jev reads as no payment of the user, as an offer, an upcoming, failed or refunded payment or anything else, never reaches Luna and gives no payment', async (t) => {
+  await using home = await new TemporaryFiles().directory('ipay-');
+  const kinds = ['offer', 'upcoming', 'failed', 'refund', 'other'] as const;
+  const emails: Record<(typeof kinds)[number], Mail> = {
+    offer: {
+      id: 11,
+      from: 'Spotify <no-reply@spotify.com>',
+      subject: 'Get 3 months of Premium subscription for USD 0',
+      received: '2026-10-12T12:00:00.000Z',
+      text: 'Try Spotify Premium free for 3 months. Then USD 11.99 a month.',
+    },
+    upcoming: {
+      id: 12,
+      from: 'Netflix <info@netflix.com>',
+      subject: 'Your payment of USD 15.49 is due soon',
+      received: '2026-10-13T12:00:00.000Z',
+      text: 'We will charge USD 15.49 on 20 October.',
+    },
+    failed: {
+      id: 13,
+      from: 'Apple <no_reply@email.apple.com>',
+      subject: 'Your payment failed',
+      received: '2026-10-14T12:00:00.000Z',
+      text: 'We could not charge USD 2.99 for iCloud+. Update your payment method.',
+    },
+    refund: {
+      id: 14,
+      from: 'Amazon <payments@amazon.com>',
+      subject: 'Your refund receipt',
+      received: '2026-10-15T12:00:00.000Z',
+      text: 'We refunded USD 23.40 to your card.',
+    },
+    other: {
+      id: 15,
+      from: 'PayPal <service@paypal.com>',
+      subject: 'Update to your billing address',
+      received: '2026-10-16T12:00:00.000Z',
+      text: 'Your billing address was changed.',
+    },
+  };
+  // The control: an email Jev decides payment reaches Luna in the same run.
+  const control: Mail = {
+    id: 10,
+    from: 'Spotify <no-reply@spotify.com>',
+    subject: 'Your Spotify Premium receipt',
+    received: '2026-10-03T08:00:00.000Z',
+    text: 'Thanks for your payment.\nTotal charged: USD 11.99',
+  };
+  mailStore(home.path, [control, ...Object.values(emails)]);
+  chatStore(home.path, []);
+  await contextCompilerSync(home.path, ['mail', 'messages']);
+
+  const run = await running(
+    t,
+    home.path,
+    {
+      jev: {
+        [control.subject]: [paid('entertainment', 'monthly')],
+        ...Object.fromEntries(
+          kinds.map((kind) => [
+            emails[kind].subject,
+            [{ kind, category: 'other', frequency: 'once' }],
+          ]),
+        ),
+      },
+      luna: { [control.subject]: [{ payments: [spotifyPayment] }] },
+    },
+    {
+      // Luna reads every email decided payment in one refresh, so by the
+      // control's payment it was asked about any other email it reads.
+      until: (read) =>
+        count(
+          read,
+          "SELECT count(*) AS n FROM email_kinds WHERE status = 'computed'",
+        ) ===
+          kinds.length + 1 &&
+        count(read, 'SELECT count(*) AS n FROM payments') === 1,
+    },
+  );
+
+  assert.deepEqual(run.unplanned, []);
+  assert.equal(run.decided.length, kinds.length + 1);
+  assert.deepEqual(
+    run.asked.map(({ subject }) => subject),
+    [control.subject],
+  );
+  const read = reading(home.path);
+  assert.deepEqual(read('SELECT id, kind FROM email_kinds ORDER BY id'), [
+    { id: String(control.id), kind: 'payment' },
+    ...kinds.map((kind) => ({ id: String(emails[kind].id), kind })),
+  ]);
+  assert.deepEqual(read('SELECT id FROM invoice_payments'), [
+    { id: String(control.id) },
+  ]);
+  assert.deepEqual(read('SELECT email_id FROM payments'), [
+    { email_id: String(control.id) },
+  ]);
+});
+
+test('a decision call that fails for one email fails only that email, and a later pass decides it again', async (t) => {
+  await using home = await new TemporaryFiles().directory('ipay-');
+  mailStore(home.path, [spotifyReceipt, awsInvoice]);
+  chatStore(home.path, []);
+  await contextCompilerSync(home.path, ['mail', 'messages']);
+
+  const run = await running(
+    t,
+    home.path,
+    {
+      luna: {
+        [spotifyReceipt.subject]: [{ payments: [spotifyPayment] }],
+        [awsInvoice.subject]: [{ payments: [awsPayment] }],
+      },
+      jev: {
+        [spotifyReceipt.subject]: [
+          { status: 400, message: 'The decision request was invalid.' },
+          paid('entertainment', 'monthly'),
+        ],
+        [awsInvoice.subject]: [paid('cloud_services', 'monthly')],
+      },
+    },
+    {
+      until: (read) =>
+        count(
+          read,
+          `SELECT count(*) AS n FROM email_kinds WHERE id = '${spotifyReceipt.id}' AND status = 'failed' AND error LIKE '%The decision request was invalid.%'`,
+        ) === 1 &&
+        count(
+          read,
+          "SELECT count(*) AS n FROM payments WHERE company = 'AWS'",
+        ) === 1,
+      // Context Compiler syncs again: the import commits, which is ipay's
+      // next pass.
+      then: () => contextCompilerSync(home.path, ['mail', 'messages']),
+    },
+    {
+      until: (read) =>
+        count(
+          read,
+          "SELECT count(*) AS n FROM payments WHERE company = 'Spotify'",
+        ) === 1,
+    },
+  );
+
+  assert.deepEqual(run.unplanned, []);
+  assert.deepEqual(
+    run.decided.map(({ subject }) => subject).sort(),
+    [awsInvoice.subject, spotifyReceipt.subject, spotifyReceipt.subject].sort(),
+  );
+  assert.deepEqual(
+    run.asked.map(({ subject }) => subject).sort(),
+    [awsInvoice.subject, spotifyReceipt.subject].sort(),
+  );
+});
+
+test('an OpenRouter key the Decisions API rejects stops ipay with the reason, and no email is marked failed', async (t) => {
+  await using home = await new TemporaryFiles().directory('ipay-');
+  mailStore(home.path, [spotifyReceipt]);
+  chatStore(home.path, []);
+  await contextCompilerSync(home.path, ['mail', 'messages']);
+
+  const run = await running(
+    t,
+    home.path,
+    {
+      jev: {
+        [spotifyReceipt.subject]: [
+          { status: 401, message: 'No auth credentials found' },
+        ],
+      },
+    },
+    { exit: true },
+  );
+
+  assert.equal(run.signal, null);
+  assert.notEqual(run.code, 0);
+  assert.match(run.stderr, /No auth credentials found/u);
+  assert.deepEqual(run.asked, []);
+  assert.equal(
+    count(
+      reading(home.path),
+      "SELECT count(*) AS n FROM email_kinds WHERE status = 'failed'",
+    ),
+    0,
+  );
+});
+
+test('with no OpenRouter key ipay stops and tells the user to set OPENROUTER_API_KEY', async (t) => {
+  await using home = await new TemporaryFiles().directory('ipay-');
+  mailStore(home.path, [spotifyReceipt]);
+  chatStore(home.path, []);
+  await contextCompilerSync(home.path, ['mail', 'messages']);
+
+  const run = await running(
+    t,
+    home.path,
+    { openRouterKey: null },
+    { exit: true },
+  );
+
+  assert.equal(run.signal, null);
+  assert.equal(run.code, 1);
+  assert.match(run.stderr, /set OPENROUTER_API_KEY/u);
+  assert.deepEqual(run.decided, []);
+  assert.deepEqual(run.asked, []);
+});
+
+test('every candidate email gets a decision, more of them than Jev is asked at once, and every one decided payment gets its payment', async (t) => {
+  await using home = await new TemporaryFiles().directory('ipay-');
+  // More emails than the 16 decisions PaymentKinds asks for at once.
+  const receipts = Array.from({ length: 20 }, (_, index): Mail => ({
+    id: 21 + index,
+    from: 'Shop <orders@shop.example>',
+    subject: `Your receipt number ${21 + index}`,
+    received: '2026-10-20T10:00:00.000Z',
+    text: `Thanks for your order.\nTotal charged: USD ${21 + index}.00`,
+  }));
+  // Every other email is a payment; the rest are offers.
+  const isPayment = (mail: Mail) => mail.id % 2 === 0;
+  mailStore(home.path, receipts);
+  chatStore(home.path, []);
+  await contextCompilerSync(home.path, ['mail', 'messages']);
+
+  const run = await running(
+    t,
+    home.path,
+    {
+      jev: Object.fromEntries(
+        receipts.map((mail) => [
+          mail.subject,
+          [
+            isPayment(mail)
+              ? paid('shopping', 'once')
+              : { kind: 'offer', category: 'shopping', frequency: 'once' },
+          ],
+        ]),
+      ),
+      luna: Object.fromEntries(
+        receipts.filter(isPayment).map((mail) => [
+          mail.subject,
+          [
+            {
+              payments: [
+                {
+                  quote: `Total charged: USD ${mail.id}.00`,
+                  company: 'Shop',
+                  service: 'Shop order',
+                  amount: mail.id,
+                  currency: 'USD',
+                },
+              ],
+            },
+          ],
+        ]),
+      ),
+    },
+    {
+      until: (read) =>
+        count(read, 'SELECT count(*) AS n FROM payments') ===
+        receipts.filter(isPayment).length,
+    },
+  );
+
+  assert.deepEqual(run.unplanned, []);
+  assert.deepEqual(
+    bySubject(run.decided),
+    Object.fromEntries(receipts.map(({ subject }) => [subject, 1])),
+  );
+  const read = reading(home.path);
+  assert.equal(
+    count(
+      read,
+      "SELECT count(*) AS n FROM email_kinds WHERE status = 'computed'",
+    ),
+    receipts.length,
+  );
+  assert.deepEqual(
+    read('SELECT email_id, amount FROM payments ORDER BY amount'),
+    receipts
+      .filter(isPayment)
+      .map(({ id }) => ({ email_id: String(id), amount: id })),
+  );
+});
+
+test('an email whose change Jev decides is no longer a payment leaves the payments and the monthly totals', async (t) => {
+  await using home = await new TemporaryFiles().directory('ipay-');
+  mailStore(home.path, [spotifyReceipt]);
+  chatStore(home.path, []);
+  await contextCompilerSync(home.path, ['mail', 'messages']);
+  // The same email, now telling of a charge to come.
+  const changed: Mail = {
+    ...spotifyReceipt,
+    text: 'Your Spotify Premium Individual plan renews on 5 November.\nWe will charge USD 11.99 to your card.',
+  };
+
+  const run = await running(
+    t,
+    home.path,
+    {
+      jev: {
+        [spotifyReceipt.subject]: [
+          paid('entertainment', 'monthly'),
+          { kind: 'upcoming', category: 'entertainment', frequency: 'monthly' },
+        ],
+      },
+      luna: { [spotifyReceipt.subject]: [{ payments: [spotifyPayment] }] },
+    },
+    {
+      until: (read) =>
+        count(read, 'SELECT count(*) AS n FROM monthly_payments') === 1,
+      then: async () => {
+        mailStore(home.path, [changed]);
+        await contextCompilerSync(home.path, ['mail', 'messages']);
+      },
+    },
+    {
+      until: (read) =>
+        count(
+          read,
+          `SELECT count(*) AS n FROM email_kinds WHERE id = '${spotifyReceipt.id}' AND kind = 'upcoming'`,
+        ) === 1 && count(read, 'SELECT count(*) AS n FROM payments') === 0,
+    },
+  );
+
+  assert.deepEqual(run.unplanned, []);
+  assert.deepEqual(bySubject(run.decided), { [spotifyReceipt.subject]: 2 });
+  assert.deepEqual(bySubject(run.asked), { [spotifyReceipt.subject]: 1 });
+  const read = reading(home.path);
+  assert.equal(count(read, 'SELECT count(*) AS n FROM invoice_payments'), 0);
+  assert.equal(count(read, 'SELECT count(*) AS n FROM monthly_payments'), 0);
+});
+
+test('Ctrl-C while Jev decides an email cancels the decision request, ends ipay by the signal and stores no failure for the email', async (t) => {
+  await using home = await new TemporaryFiles().directory('ipay-');
+  mailStore(home.path, [careemReceipt]);
+  chatStore(home.path, [careemCharge]);
+  await contextCompilerSync(home.path, ['mail', 'messages']);
+
+  const run = await running(
+    t,
+    home.path,
+    { jev: { [careemReceipt.subject]: [{ hold: true }] } },
+    {
+      until: (_, stderr) =>
+        stderr.includes(`decision {"subject":"${careemReceipt.subject}"`),
+    },
+  );
+
+  assert.match(
+    run.stderr,
+    new RegExp(`cancelled decision request for ${careemReceipt.subject}`, 'u'),
+    'Ctrl-C cancels the request to OpenRouter',
+  );
+  assert.equal(run.signal, 'SIGINT');
+  assert.equal(run.code, null);
+  assert.deepEqual(run.stdout, []);
+  assert.deepEqual(run.asked, []);
+  assert.equal(
+    count(reading(home.path), 'SELECT count(*) AS n FROM email_kinds'),
     0,
   );
 });

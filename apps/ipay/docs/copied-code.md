@@ -2,6 +2,21 @@
 
 The Rule of Three counts places, not packages. Code that a second place needs is copied, and it is extracted only when a third place needs it. A tiny helper stays copied even then, as a little copying is better than a little dependency (backlog #3371). A fix in one copy is made in the other copies too, and the commit names each file.
 
+## The decision model of OpenRouter's Decisions API
+
+**`apps/startup-credits/src/rules/decision-model.ts` (`openRouterDecisionModel`) → `src/rules/decision-model.ts`, unchanged.**
+A decision model by its id, through `@ai-sdk/typesafe-ai`, at OpenRouter's `/api/alpha/decisions`, with `OPENROUTER_API_KEY`. Strike 2: the backlog item for a third place is #3714.
+
+## Which decision failures fail an email
+
+**`apps/startup-credits/src/rules/page-kinds.ts` (`PageKinds.compute`) → `src/rules/payment-kinds.ts` (`PaymentKinds.compute`), with one addition.**
+A refused or malformed answer (`Experimental_DecisionRefusalError`, `InvalidResponseDataError`) and a call that failed after the AI SDK's retries are the failure of one email; a 401 fails the dataset. The addition: a `LoadAPIKeyError` is thrown again with a message that names `OPENROUTER_API_KEY`, as the provider names its own `TYPESAFE_AI_API_KEY`.
+
+## A decision rule's identity
+
+**`apps/startup-credits/src/rules/page-kinds.ts` (`identity`) → `src/rules/payment-kinds.ts` (`identity`), with ipay's three questions in place of the page-kind question.**
+The identity is the model's id and the first 16 hex digits of the SHA-256 of the questions, so a reworded question decides every email again.
+
 ## Which model call failures fail an email
 
 **`apps/startup-credits/src/rules/program-offers.ts` (`ProgramOffers.#offers`) → `src/rules/invoice-payments.ts` (`InvoicePayments.#payments`), unchanged.**

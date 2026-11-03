@@ -13,6 +13,7 @@ import {
 import { contextCompiler, importPaths } from './imports.ts';
 import { BankCharges } from './rules/bank-charges.ts';
 import { InvoicePayments } from './rules/invoice-payments.ts';
+import { PaymentKinds } from './rules/payment-kinds.ts';
 import { ImportsSource } from './source/imports-source.ts';
 
 const directory = join(contextCompiler, 'ipay');
@@ -25,12 +26,35 @@ const source = new ImportsSource(importPaths());
 const invoiceEmails = destination.table('invoice_emails');
 const bankMessages = destination.table('bank_messages');
 
+const emailKinds = new ComputedDataset({
+  into: destination,
+  name: 'email_kinds',
+  description:
+    "What each candidate email says about the user's money, what the money is for and how often it is charged, as Jev 1.14 decides it. Primary key id.",
+  from: [invoiceEmails],
+  compute: new PaymentKinds(),
+});
+// Only the emails Jev decides payment go to GPT-6-Luna.
+const paymentEmails = new View({
+  into: destination,
+  name: 'payment_emails',
+  description: 'The candidate emails that Jev decides confirm a payment.',
+  columns: {
+    id: 'The identifier of the email in invoice_emails.',
+    sender: "The email's sender.",
+    subject: "The email's subject.",
+    body_text: "The email's text/plain parts.",
+    body_html: "The email's text/html parts, as raw HTML.",
+    attachment_text: "The text of the email's attachments, as a JSON array.",
+  },
+  sql: "SELECT e.id, e.sender, e.subject, e.body_text, e.body_html, e.attachment_text FROM invoice_emails e JOIN email_kinds k ON k.id = e.id WHERE k.status = 'computed' AND k.kind = 'payment'",
+});
 const invoicePayments = new ComputedDataset({
   into: destination,
   name: 'invoice_payments',
   description:
-    'The payments that each candidate email confirms, as GPT-6-Luna reads them; empty for an email that confirms none. Primary key id.',
-  from: [invoiceEmails],
+    'The payments that each email Jev decides payment confirms, as GPT-6-Luna reads them; empty for an email that confirms none. Primary key id.',
+  from: [paymentEmails],
   compute: new InvoicePayments(),
 });
 const bankCharges = new ComputedDataset({
@@ -53,18 +77,19 @@ const payments = new View({
     subject: "The email's subject.",
     company: 'The company that charged the user.',
     service: 'The product or plan the payment is for.',
-    category: 'What the payment is for, such as food or cloud_services.',
+    category:
+      'What the payment is for, such as food or cloud_services, as Jev decides it for the email.',
     amount: 'The amount paid, as a number.',
     currency: 'The ISO 4217 code of the amount.',
-    frequency: 'once, monthly or annually.',
+    frequency: 'once, monthly or annually, as Jev decides it for the email.',
     quote: 'The line of the email that states the payment.',
   },
   sql: `SELECT e.id AS email_id, e.received_at, e.sender, e.subject,
       json_extract(j.value, '$.company') AS company, json_extract(j.value, '$.service') AS service,
-      json_extract(j.value, '$.category') AS category, json_extract(j.value, '$.amount') AS amount,
-      json_extract(j.value, '$.currency') AS currency, json_extract(j.value, '$.frequency') AS frequency,
+      k.category, json_extract(j.value, '$.amount') AS amount,
+      json_extract(j.value, '$.currency') AS currency, k.frequency,
       json_extract(j.value, '$.quote') AS quote
-    FROM invoice_payments p JOIN invoice_emails e ON e.id = p.id, json_each(p.payments) j
+    FROM invoice_payments p JOIN invoice_emails e ON e.id = p.id JOIN email_kinds k ON k.id = p.id, json_each(p.payments) j
     WHERE p.status = 'computed'`,
 });
 const monthlyPayments = new View({
@@ -124,6 +149,8 @@ export default new Pipeline({
     }),
   ],
   derived: [
+    emailKinds,
+    paymentEmails,
     invoicePayments,
     bankCharges,
     payments,

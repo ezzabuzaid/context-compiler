@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "@ai-sdk/typesafe-ai": "3.0.33",
     "@deepagents/experimental": "7.3.0",
     "@workspace/connector-apple-mail": "0.0.1",
     "@workspace/elt": "0.0.1",
