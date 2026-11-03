@@ -26,7 +26,7 @@ const sdk = new NodeSDK({
   logRecordProcessors: [
     new BatchLogRecordProcessor({ exporter: new OTLPLogExporter() }),
   ],
-  instrumentations: [new EltInstrumentation()],
+  instrumentations: [new EltInstrumentation(globalThis)],
 });
 sdk.start();
 // The SDK exports what it still holds once the pass ends, or stops.

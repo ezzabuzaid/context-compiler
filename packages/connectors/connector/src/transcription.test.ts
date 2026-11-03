@@ -124,6 +124,7 @@ test('an existing import pipeline reads audio with a model saved or disabled by 
         fileURLToPath(
           import.meta.resolve('@workspace/source-apple-macos/vision-worker'),
         ),
+        globalThis,
       ),
   });
   await using host = new Transcription(

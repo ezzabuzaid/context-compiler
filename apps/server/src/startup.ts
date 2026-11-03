@@ -22,5 +22,8 @@ export const ocr = new Pool({
   eviction: new IdleTimeout({ after: 300_000 }),
   clock: globalThis,
   create: () =>
-    new VisionWorker(fileURLToPath(new URL('vision-worker', import.meta.url))),
+    new VisionWorker(
+      fileURLToPath(new URL('vision-worker', import.meta.url)),
+      globalThis,
+    ),
 });

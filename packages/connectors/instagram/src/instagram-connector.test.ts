@@ -365,6 +365,7 @@ test('an import that keeps attachments, as setup does by default, makes the text
         fileURLToPath(
           import.meta.resolve('@workspace/source-apple-macos/vision-worker'),
         ),
+        globalThis,
       ),
   });
   await using mac = await signedInMac();

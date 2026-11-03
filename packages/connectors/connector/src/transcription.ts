@@ -27,7 +27,7 @@ export class Transcription implements AsyncDisposable {
   // close stays, so refresh and disposal report it.
   readonly #closings = new Set<Latch<Outcome>>();
   readonly #image: ImageFormat;
-  readonly #clock: Clock;
+  readonly #clock: Clock & { readonly Date: { now(): number } };
   #parser: DocumentParser;
 
   constructor(
@@ -35,8 +35,9 @@ export class Transcription implements AsyncDisposable {
     models: SpeechModels,
     ocr: Pool<VisionWorker>,
     helper: string,
-    // The clock of the engines' pool: an app gives globalThis.
-    clock: Clock,
+    // The clock of the engines' pool and of each transcription: an app gives
+    // globalThis.
+    clock: Clock & { readonly Date: { now(): number } },
   ) {
     this.#settings = new Settings(directory);
     this.#models = models;
@@ -103,7 +104,9 @@ export class Transcription implements AsyncDisposable {
         });
         this.#engines = engines;
         formats.push(
-          new AudioFormat(new LocalTranscriptionModel(configuration, engines)),
+          new AudioFormat(
+            new LocalTranscriptionModel(configuration, engines, this.#clock),
+          ),
         );
       }
       this.#parser = new MacOSDocumentParser(formats);

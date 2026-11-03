@@ -76,6 +76,7 @@ class Started implements AsyncDisposable {
           fileURLToPath(
             import.meta.resolve('@workspace/source-apple-macos/vision-worker'),
           ),
+          globalThis,
         ),
     });
     this.transcription = new Transcription(
