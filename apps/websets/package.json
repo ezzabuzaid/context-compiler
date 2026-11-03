@@ -1,0 +1,29 @@
+{
+  "name": "@workspace/websets",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@ai-sdk/openai": "4.0.106",
+    "@deepagents/experimental": "7.3.0",
+    "@hono/node-server": "2.1.5",
+    "@sdk-it/hono": "0.46.11",
+    "@workspace/elt": "0.0.1",
+    "@workspace/elt-sqlite": "0.0.1",
+    "@workspace/sdk-web-crawler": "0.0.1",
+    "@workspace/source-web-pages": "0.0.1",
+    "@zukhruf/async": "0.6.15",
+    "@zukhruf/shutdown": "0.6.15",
+    "@zukhruf/sqlite-data-version": "0.6.15",
+    "@zukhruf/sqlite-drift": "0.6.15",
+    "@zukhruf/sqlite-queue": "0.6.15",
+    "@zukhruf/sqlite-reader": "0.6.15",
+    "@zukhruf/sqlite-transaction": "0.6.15",
+    "ai": "7.0.158",
+    "hono": "4.13.14",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@zukhruf/testing": "0.6.15",
+    "msw": "^3.0.3"
+  }
+}

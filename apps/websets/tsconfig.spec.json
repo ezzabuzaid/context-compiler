@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // pg-boss 12.35.1 to 12.38.0, whose types @zukhruf/sqlite-queue gives,
+    // imports ResolvedConstructorOptions in manager.d.ts and exports it
+    // nowhere, so their declarations do not type-check.
+    "skipLibCheck": true,
+    "rootDir": "src",
+    "outDir": "dist/spec",
+    "tsBuildInfoFile": "dist/spec/tsconfig.spec.tsbuildinfo",
+    "emitDeclarationOnly": true,
+    "rewriteRelativeImportExtensions": false
+  },
+  "include": ["src/**/*.test.ts"],
+  "references": [
+    {
+      "path": "./tsconfig.lib.json"
+    }
+  ]
+}
