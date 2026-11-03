@@ -55,6 +55,11 @@ export default class InstagramConnector extends Connector {
   protected override async importSources({
     scope,
   }: Selection): Promise<readonly [InstagramWebSource]> {
-    return [await InstagramWebSource.connect(options(this.host.home, scope))];
+    return [
+      await InstagramWebSource.connect(
+        options(this.host.home, scope),
+        this.host.clock,
+      ),
+    ];
   }
 }

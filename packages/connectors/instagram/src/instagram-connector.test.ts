@@ -67,6 +67,7 @@ async function signedInMac() {
       value,
       days: 300,
     })),
+    new Date(),
   );
   return mac;
 }
