@@ -1,0 +1,12 @@
+{
+  "name": "ipay",
+  "sourceRoot": "apps/ipay/src",
+  "projectType": "application",
+  "targets": {
+    "format": {},
+    "start": {
+      "dependsOn": ["build"],
+      "command": "node apps/ipay/dist/main.js"
+    }
+  }
+}

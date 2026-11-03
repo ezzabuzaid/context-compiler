@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo"
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["src/**/*.test.ts"],
+  "references": [
+    {
+      "path": "../../packages/connectors/mail/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/settings/tsconfig.lib.json"
+    },
+    {
+      "path": "../../packages/connectors/messages/tsconfig.lib.json"
+    }
+  ]
+}
