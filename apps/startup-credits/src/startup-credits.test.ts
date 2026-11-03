@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { writeFile } from 'node:fs/promises';
+import { rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import test from 'node:test';
@@ -17,7 +17,11 @@ type Served = {
   readonly type: string;
   readonly body: string;
 };
-type Page = Served | { readonly status: 301; readonly location: string };
+type Page =
+  | Served
+  | { readonly status: 301; readonly location: string }
+  // A page that never answers, so the pass that requests it keeps running.
+  | { readonly hold: true };
 const ok = (body: string): Served => ({
   status: 200,
   type: 'text/html; charset=utf-8',
@@ -129,6 +133,38 @@ type Decision =
   | { readonly kind: string }
   | { readonly status: number; readonly message: string };
 
+// What the search model answers to each search, in turn, for a prompt that
+// names every criterion of for: the pages that it found, or an error in the
+// endpoint's shape.
+type Search = { readonly for: readonly string[] } & (
+  | {
+      readonly pages: readonly {
+        readonly url: string;
+        readonly company: string;
+      }[];
+    }
+  | { readonly status: number; readonly body: Record<string, unknown> }
+);
+// What the criterion model answers about one page, for each criterion: its
+// verdict, or an error in the endpoint's shape.
+type Verdict = {
+  readonly quote: string | null;
+  readonly meets: boolean;
+  readonly reason: string;
+};
+type Judgement =
+  Verdict | { readonly status: number; readonly body: Record<string, unknown> };
+type Internet = {
+  readonly pages: Readonly<Record<string, Page>>;
+  readonly model: Readonly<Record<string, readonly Answer[]>>;
+  readonly decisions: Readonly<Record<string, Decision>>;
+  readonly searches: readonly Search[];
+  readonly verdicts: Readonly<
+    Record<string, Readonly<Record<string, Judgement>>>
+  >;
+  readonly ahead: number;
+};
+
 // The internet as the app's process sees it in a test, loaded before
 // main.ts: GitHub and the companies' websites answer these pages, every
 // robots.txt and sitemap.xml that a test does not give is missing, any other request fails, and each
@@ -136,21 +172,29 @@ type Decision =
 // answer planned for each request about a page, in the events of a real
 // GPT-6-Luna answer captured on 2026-11-02; OpenRouter's Decisions API answers each
 // request about a page with its decision, in the shape of a real Jev 1.14
-// answer captured on 2026-10-31. A request with no planned answer or
-// decision is written to stderr as unplanned. The clock runs ahead by the
+// answer captured on 2026-10-31. A search, which asks for pages with the
+// web_search tool, gets the next planned search, and a verdict, which asks
+// whether a page meets a criterion, gets the planned verdict of its page and
+// criterion. A request with no planned answer or decision is written to
+// stderr as unplanned. The clock runs ahead by the
 // given milliseconds, since a test cannot wait a month for the pages to be
 // due again.
-const internet = (
-  pages: Readonly<Record<string, Page>>,
-  model: Readonly<Record<string, readonly Answer[]>>,
-  decisions: Readonly<Record<string, Decision>>,
-  ahead: number,
-) => `
+const internet = ({
+  pages,
+  model,
+  decisions,
+  searches,
+  verdicts,
+  ahead,
+}: Internet) => `
 import { Msw } from ${JSON.stringify(import.meta.resolve('@zukhruf/testing/msw'))};
 import { HttpResponse, http } from ${JSON.stringify(import.meta.resolve('msw'))};
 const pages = ${JSON.stringify(pages)};
 const planned = ${JSON.stringify(model)};
 const decisions = ${JSON.stringify(decisions)};
+const searches = ${JSON.stringify(searches)};
+const verdicts = ${JSON.stringify(verdicts)};
+let searched = 0;
 const RealDate = Date;
 globalThis.Date = class extends RealDate {
   constructor(...args) {
@@ -161,14 +205,41 @@ globalThis.Date = class extends RealDate {
     return RealDate.now() + ${ahead};
   }
 };
+// A streamed answer of the Codex Responses endpoint with the given text, in
+// the events of a real GPT-6-Luna answer captured on 2026-11-02.
+const stream = (model, text) => {
+  const id = 'resp_09bbfa0984043937016ae822d27cf08191a424371743d31def';
+  const item = { type: 'message', id: 'msg_09bbfa0984043937016ae822d2ead48191aafda124fab9deca', role: 'assistant', phase: 'final_answer' };
+  const part = { type: 'output_text', text, annotations: [], logprobs: [] };
+  const done = { ...item, status: 'completed', content: [part] };
+  const response = (status, output) => ({ id, object: 'response', created_at: 1793598162, status, model, output, error: null, incomplete_details: null, service_tier: 'default' });
+  const position = { item_id: item.id, output_index: 0, content_index: 0 };
+  const events = [
+    { type: 'response.created', response: response('in_progress', []) },
+    { type: 'response.in_progress', response: response('in_progress', []) },
+    { type: 'response.output_item.added', output_index: 0, item: { ...item, status: 'in_progress', content: [] } },
+    { type: 'response.content_part.added', ...position, part: { ...part, text: '' } },
+    { type: 'response.output_text.delta', ...position, delta: text, logprobs: [] },
+    { type: 'response.output_text.done', ...position, text },
+    { type: 'response.content_part.done', ...position, part },
+    { type: 'response.output_item.done', output_index: 0, item: done },
+    { type: 'response.completed', response: { ...response('completed', [done]), usage: { input_tokens: 633, input_tokens_details: { cached_tokens: 0 }, output_tokens: 65, output_tokens_details: { reasoning_tokens: 0 }, total_tokens: 698 } } },
+  ];
+  return new HttpResponse(
+    events.map((event, sequence_number) => 'event: ' + event.type + '\\ndata: ' + JSON.stringify({ ...event, sequence_number }) + '\\n\\n').join(''),
+    { headers: { 'content-type': 'text/event-stream; charset=utf-8' } },
+  );
+};
 const fold = (text) => text.replace(/\\s+/gu, ' ').trim().toLowerCase();
 const asked = new Map();
 const { server } = new Msw().intercept(
   ...Object.entries(pages).map(([url, page]) =>
     http.get(url, () =>
-      'location' in page
-        ? new HttpResponse(null, { status: page.status, headers: { location: page.location } })
-        : new HttpResponse(page.body, { status: page.status, headers: { 'content-type': page.type } }),
+      'hold' in page
+        ? new Promise(() => {})
+        : 'location' in page
+          ? new HttpResponse(null, { status: page.status, headers: { location: page.location } })
+          : new HttpResponse(page.body, { status: page.status, headers: { 'content-type': page.type } }),
     ),
   ),
   http.get('*/robots.txt', () => new HttpResponse(null, { status: 404 })),
@@ -180,6 +251,32 @@ const { server } = new Msw().intercept(
       .flatMap(({ content }) => typeof content === 'string' ? [content] : content.map(({ text }) => text))
       .join('\\n');
     const page = /^URL: (\\S+)$/mu.exec(prompt)?.[1];
+    const properties = body.text?.format?.schema?.properties ?? {};
+    // A search asks for pages, with the web_search tool.
+    if ('pages' in properties) {
+      process.stderr.write('search ' + JSON.stringify({ model: body.model, tools: (body.tools ?? []).map(({ type }) => type), prompt }) + '\\n');
+      const answer = searches[searched++];
+      if (answer === undefined || !answer.for.every((criterion) => prompt.includes(criterion))) {
+        process.stderr.write('unplanned search ' + searched + '\\n');
+        return HttpResponse.error();
+      }
+      if ('status' in answer)
+        return HttpResponse.json(answer.body, { status: answer.status, headers: { 'retry-after': '0' } });
+      return stream(body.model, JSON.stringify({ pages: answer.pages }));
+    }
+    // A verdict on one criterion of one page.
+    if ('meets' in properties) {
+      const criterion = /^Criterion: (.+)$/mu.exec(prompt)?.[1];
+      process.stderr.write('verdict ' + JSON.stringify({ page, criterion, model: body.model }) + '\\n');
+      const answer = verdicts[page]?.[criterion];
+      if (answer === undefined) {
+        process.stderr.write('unplanned verdict on ' + criterion + ' for ' + page + '\\n');
+        return HttpResponse.error();
+      }
+      if ('status' in answer)
+        return HttpResponse.json(answer.body, { status: answer.status, headers: { 'retry-after': '0' } });
+      return stream(body.model, JSON.stringify(answer));
+    }
     process.stderr.write('model ' + JSON.stringify({ page, model: body.model, authorization: request.headers.get('authorization') }) + '\\n');
     const index = asked.get(page) ?? 0;
     asked.set(page, index + 1);
@@ -199,27 +296,7 @@ const { server } = new Msw().intercept(
             ...(answer.invented ?? []),
           ],
         });
-    const id = 'resp_09bbfa0984043937016ae822d27cf08191a424371743d31def';
-    const item = { type: 'message', id: 'msg_09bbfa0984043937016ae822d2ead48191aafda124fab9deca', role: 'assistant', phase: 'final_answer' };
-    const part = { type: 'output_text', text, annotations: [], logprobs: [] };
-    const done = { ...item, status: 'completed', content: [part] };
-    const response = (status, output) => ({ id, object: 'response', created_at: 1793598162, status, model: body.model, output, error: null, incomplete_details: null, service_tier: 'default' });
-    const position = { item_id: item.id, output_index: 0, content_index: 0 };
-    const events = [
-      { type: 'response.created', response: response('in_progress', []) },
-      { type: 'response.in_progress', response: response('in_progress', []) },
-      { type: 'response.output_item.added', output_index: 0, item: { ...item, status: 'in_progress', content: [] } },
-      { type: 'response.content_part.added', ...position, part: { ...part, text: '' } },
-      { type: 'response.output_text.delta', ...position, delta: text, logprobs: [] },
-      { type: 'response.output_text.done', ...position, text },
-      { type: 'response.content_part.done', ...position, part },
-      { type: 'response.output_item.done', output_index: 0, item: done },
-      { type: 'response.completed', response: { ...response('completed', [done]), usage: { input_tokens: 633, input_tokens_details: { cached_tokens: 0 }, output_tokens: 65, output_tokens_details: { reasoning_tokens: 0 }, total_tokens: 698 } } },
-    ];
-    return new HttpResponse(
-      events.map((event, sequence_number) => 'event: ' + event.type + '\\ndata: ' + JSON.stringify({ ...event, sequence_number }) + '\\n\\n').join(''),
-      { headers: { 'content-type': 'text/event-stream; charset=utf-8' } },
-    );
+    return stream(body.model, text);
   }),
   http.post('https://openrouter.ai/api/alpha/decisions', async ({ request }) => {
     const body = await request.json();
@@ -266,42 +343,88 @@ const askedSchema = z.object({
   authorization: z.string(),
 });
 type Asked = z.infer<typeof askedSchema>;
+// One request to the criterion model, and one to the search model.
+const judgedSchema = z.object({
+  page: z.string(),
+  criterion: z.string(),
+  model: z.string(),
+});
+type Judged = z.infer<typeof judgedSchema>;
+const searchedSchema = z.object({
+  model: z.string(),
+  tools: z.array(z.string()),
+  prompt: z.string(),
+});
+type Searched = z.infer<typeof searchedSchema>;
 
 // What ends a run before the app exits or thirty seconds pass, checked on
 // each line the app writes: until ends it when it holds; quietAfter ends it
 // two seconds after the app's last line once it holds, so a line that the
 // last answer causes is logged by then (the app checks its rows every
-// second).
+// second); during ends it when the test's calls to the API end.
 type Holds = (
   lines: readonly string[],
   asked: readonly Asked[],
   decided: readonly Asked[],
+  judged: readonly Judged[],
+  searched: readonly Searched[],
 ) => boolean;
-type End = { readonly until: Holds } | { readonly quietAfter: Holds };
+type End =
+  | { readonly until: Holds }
+  | { readonly quietAfter: Holds }
+  | { readonly during: (app: Serving) => Promise<void> };
+
+// The keys of the API's two consumers, which the app's environment names.
+const apiKey = 'sk_credits_test';
+const secondKey = 'sk_credits_second';
+
+// The running app as a test calls it: its API, with a consumer's key unless
+// the call gives another or none, and a wait that ends two seconds after the
+// app's last line once holds is true.
+type Serving = {
+  readonly api: (
+    path: string,
+    call?: {
+      readonly method?: string;
+      readonly body?: unknown;
+      readonly key?: string | null;
+    },
+  ) => Promise<{ readonly status: number; readonly body: unknown }>;
+  readonly quiet: (holds: Holds) => Promise<void>;
+  readonly requests: readonly string[];
+};
 
 // Runs the app with its files in the data folder until end holds, it exits,
 // or thirty seconds pass, then stops it as Ctrl-C does. Gives its lines, the URLs it requested, each
-// request to the offer model (asked) and to the decision model (decided), its
-// exit code or the signal that ended it, and stderr. A model request that the
-// test did not plan fails the test.
+// request to the offer model (asked), to the decision model (decided), to the
+// criterion model (judged) and to the search model (searched), its exit code
+// or the signal that ended it, and stderr. A model request that the test did
+// not plan fails the test, and so does a failed call of during.
 async function running(
   data: string,
   {
     pages,
     model,
     decisions,
+    searches = [],
+    verdicts = {},
     ahead,
     ...end
   }: {
     readonly pages: Readonly<Record<string, Page>>;
     readonly model: Readonly<Record<string, readonly Answer[]>>;
     readonly decisions: Readonly<Record<string, Decision>>;
+    readonly searches?: Internet['searches'];
+    readonly verdicts?: Internet['verdicts'];
     readonly ahead: number;
   } & End,
 ) {
   await using folder = await new TemporaryFiles().directory('internet-');
   const setup = join(folder.path, 'internet.mjs');
-  await writeFile(setup, internet(pages, model, decisions, ahead));
+  await writeFile(
+    setup,
+    internet({ pages, model, decisions, searches, verdicts, ahead }),
+  );
   await writeFile(join(folder.path, 'auth.json'), codexLogin, { mode: 0o600 });
   const ended = new AbortController();
   const app = spawn(
@@ -312,11 +435,14 @@ async function running(
       // Only what the app needs, and none of the developer's logins:
       // XDG_DATA_HOME, the test's own folder, holds the app's files,
       // CODEX_HOME holds the test's ChatGPT login, which the Codex provider
-      // reads, and the decision model sends OPENROUTER_API_KEY.
+      // reads, the decision model sends OPENROUTER_API_KEY, and the API
+      // takes the consumers' keys on any free port.
       env: {
         XDG_DATA_HOME: data,
         CODEX_HOME: folder.path,
         OPENROUTER_API_KEY: openRouterKey,
+        STARTUP_CREDITS_API_KEYS: `${apiKey},${secondKey}`,
+        PORT: '0',
       },
       signal: AbortSignal.any([ended.signal, AbortSignal.timeout(30_000)]),
       killSignal: 'SIGINT',
@@ -336,19 +462,88 @@ async function running(
   const requests: string[] = [];
   const asked: Asked[] = [];
   const decided: Asked[] = [];
+  const judged: Judged[] = [];
+  const searched: Searched[] = [];
   const unplanned: string[] = [];
   const errors: string[] = [];
+  const holds = (given: Holds) =>
+    given(lines, asked, decided, judged, searched);
   let quiet: NodeJS.Timeout | undefined;
+  const waits: { holds: Holds; resolve: () => void; timer?: NodeJS.Timeout }[] =
+    [];
   const check = () => {
     if ('until' in end) {
-      if (end.until(lines, asked, decided)) ended.abort();
-    } else if (end.quietAfter(lines, asked, decided)) {
+      if (holds(end.until)) ended.abort();
+    } else if ('quietAfter' in end && holds(end.quietAfter)) {
       clearTimeout(quiet);
       quiet = setTimeout(() => ended.abort(), 2_000);
     }
+    for (const wait of waits)
+      if (holds(wait.holds)) {
+        clearTimeout(wait.timer);
+        wait.timer = setTimeout(() => {
+          waits.splice(waits.indexOf(wait), 1);
+          wait.resolve();
+        }, 2_000);
+      }
+  };
+  // How the test's calls to the API ended: a run that stops before they end,
+  // such as at the thirty seconds, fails the test, as does a failed call.
+  const calls: { state: 'waiting' | 'done' | { readonly error: Error } } = {
+    state: 'waiting',
+  };
+  const serve = (base: string) => {
+    if (!('during' in end)) return;
+    end
+      .during({
+        api: async (path, call = {}) => {
+          const key = call.key === undefined ? apiKey : call.key;
+          const response = await fetch(`${base}${path}`, {
+            method: call.method ?? 'GET',
+            headers: {
+              ...(key === null ? {} : { authorization: `Bearer ${key}` }),
+              ...(call.body === undefined
+                ? {}
+                : { 'content-type': 'application/json' }),
+            },
+            body:
+              call.body === undefined ? undefined : JSON.stringify(call.body),
+          });
+          const text = await response.text();
+          return {
+            status: response.status,
+            body: response.headers
+              .get('content-type')
+              ?.startsWith('application/json')
+              ? JSON.parse(text)
+              : text,
+          };
+        },
+        quiet: (given) =>
+          new Promise<void>((resolve) => {
+            waits.push({ holds: given, resolve });
+            check();
+          }),
+        requests,
+      })
+      .then(
+        () => {
+          calls.state = 'done';
+          ended.abort();
+        },
+        (error: unknown) => {
+          calls.state = {
+            error: Error.isError(error) ? error : new Error(String(error)),
+          };
+          ended.abort();
+        },
+      );
   };
   createInterface({ input: app.stdout }).on('line', (line) => {
-    lines.push(line);
+    // The API's address is not one of the app's alert lines.
+    const api = /^API on (http:\/\/localhost:\d+)$/u.exec(line)?.[1];
+    if (api === undefined) lines.push(line);
+    else serve(api);
     check();
   });
   createInterface({ input: app.stderr }).on('line', (line) => {
@@ -360,18 +555,39 @@ async function running(
       decided.push(
         askedSchema.parse(JSON.parse(line.slice('decision '.length))),
       );
+    else if (line.startsWith('verdict '))
+      judged.push(
+        judgedSchema.parse(JSON.parse(line.slice('verdict '.length))),
+      );
+    else if (line.startsWith('search '))
+      searched.push(
+        searchedSchema.parse(JSON.parse(line.slice('search '.length))),
+      );
     else if (line.startsWith('unplanned ')) unplanned.push(line);
     else errors.push(line);
     check();
   });
   const { code, signal } = await exited;
   clearTimeout(quiet);
+  for (const wait of waits) clearTimeout(wait.timer);
+  if ('during' in end && calls.state === 'waiting')
+    assert.fail(
+      [
+        'The app stopped before the calls to its API ended.',
+        `lines: ${JSON.stringify(lines)}`,
+        `last requests: ${JSON.stringify(requests.slice(-8))}`,
+        ...errors,
+      ].join('\n'),
+    );
+  if (typeof calls.state === 'object') throw calls.state.error;
   assert.deepEqual(unplanned, [], errors.join('\n'));
   return {
     lines,
     requests,
     asked,
     decided,
+    judged,
+    searched,
     code,
     signal,
     errors: errors.join('\n'),
@@ -2163,4 +2379,1055 @@ test('copies whose pages disagree on which one is x-default still send one page 
     decided.map(({ page }) => page),
     [british],
   );
+});
+
+test('the API answers only its consumers: no key or a wrong key gets 401 and no programs, and each key that the app names gets the programs', async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  const microsoft = 'https://www.microsoft.com/en-us/startups';
+  await running(data.path, {
+    pages: {
+      ...lists([[microsoft, 'Microsoft', 'Up to $150,000']]),
+      [microsoft]: microsoftProgram,
+    },
+    model: { [microsoft]: [microsoftOffers] },
+    decisions: programs(microsoft),
+    ahead: 0,
+    during: async ({ api, quiet }) => {
+      await quiet(has('new program'));
+      const none = await api('/v1/programs', { key: null });
+      const wrong = await api('/v1/programs', { key: 'sk_credits_wrong' });
+      const first = await api('/v1/programs');
+      const second = await api('/v1/programs', { key: secondKey });
+
+      assert.deepEqual(
+        [none.status, wrong.status, first.status, second.status],
+        [401, 401, 200, 200],
+      );
+      assert.doesNotMatch(
+        JSON.stringify([none.body, wrong.body]),
+        /microsoft/u,
+      );
+      const urls = z
+        .object({ programs: z.array(z.object({ url: z.string() })) })
+        .transform(({ programs: listed }) => listed.map(({ url }) => url));
+      assert.deepEqual(urls.parse(first.body), [microsoft]);
+      assert.deepEqual(urls.parse(second.body), [microsoft]);
+    },
+  });
+});
+
+test('a query that comes while a pass runs is refused with crawl_running and is not kept, and no search runs for it', async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  // A program page that never answers, so the pass that reads the list does
+  // not end.
+  const held = 'https://slow.example.com/startups';
+  const { searched } = await running(data.path, {
+    pages: {
+      ...lists([[held, 'Slow', 'Up to $1,000']]),
+      [held]: { hold: true },
+    },
+    model: {},
+    decisions: {},
+    ahead: 0,
+    during: async ({ api, quiet, requests }) => {
+      await quiet(() => requests.includes(held));
+      const added = await api('/v1/queries', {
+        method: 'POST',
+        body: {
+          criteria: [
+            { name: 'credits', description: 'The program gives free credits' },
+          ],
+        },
+      });
+      const kept = await api('/v1/queries');
+
+      assert.equal(added.status, 409);
+      assert.equal(
+        z.object({ error: z.object({ code: z.string() }) }).parse(added.body)
+          .error.code,
+        'crawl_running',
+      );
+      assert.deepEqual(kept.body, { queries: [] });
+    },
+  });
+  assert.deepEqual(searched, []);
+});
+
+// A page of the event log, as /v1/events and a query's events give it.
+const eventsSchema = z.object({
+  events: z.array(
+    z.object({
+      cursor: z.string(),
+      type: z.string(),
+      data: z.unknown(),
+      previous: z.unknown(),
+    }),
+  ),
+  nextCursor: z.string(),
+});
+const errorCode = (body: unknown) =>
+  z.object({ error: z.object({ code: z.string() }) }).parse(body).error.code;
+
+test('after the event log starts again, a cursor of the old log is gone with resync_required, a cursor the API never gave is invalid, and the new log starts with the programs', async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  const microsoft = 'https://www.microsoft.com/en-us/startups';
+  const internet = {
+    pages: {
+      ...lists([[microsoft, 'Microsoft', 'Up to $150,000']]),
+      [microsoft]: microsoftProgram,
+    },
+    model: { [microsoft]: [microsoftOffers] },
+    decisions: programs(microsoft),
+    ahead: 0,
+  };
+  let old = '';
+  await running(data.path, {
+    ...internet,
+    during: async ({ api, quiet }) => {
+      await quiet(has('new program'));
+      old = eventsSchema.parse((await api('/v1/events')).body).nextCursor;
+    },
+  });
+  // Stored data is disposable: the fix for old output is a fresh run, which
+  // starts the API's file again.
+  await rm(join(data.path, 'startup-credits', 'api.sqlite'));
+
+  await running(data.path, {
+    ...internet,
+    during: async ({ api, quiet }) => {
+      await quiet(() => true);
+      const gone = await api(`/v1/events?cursor=${old}`);
+      const invalid = await api('/v1/events?cursor=not-a-cursor');
+      const fresh = eventsSchema.parse((await api('/v1/events')).body);
+
+      assert.deepEqual(
+        [gone.status, errorCode(gone.body)],
+        [410, 'resync_required'],
+      );
+      assert.deepEqual(
+        [invalid.status, errorCode(invalid.body)],
+        [400, 'invalid_cursor'],
+      );
+      assert.deepEqual(
+        fresh.events.map(({ type }) => type),
+        ['program.added'],
+      );
+    },
+  });
+});
+
+test('a search that fails leaves its query failed with the reason, and the API still serves the programs of the lists', async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  const microsoft = 'https://www.microsoft.com/en-us/startups';
+  // The endpoint's 500, as the AI SDK retries it twice before it gives up.
+  const failure: Search = {
+    for: ['The program gives free credits'],
+    status: 500,
+    body: {
+      error: {
+        message: 'The server had an error while processing your request.',
+        type: 'server_error',
+      },
+    },
+  };
+  await running(data.path, {
+    pages: {
+      ...lists([[microsoft, 'Microsoft', 'Up to $150,000']]),
+      [microsoft]: microsoftProgram,
+    },
+    model: { [microsoft]: [microsoftOffers] },
+    decisions: programs(microsoft),
+    searches: [failure, failure, failure],
+    // The query's criteria still judge the programs that the crawl holds.
+    verdicts: judgements,
+    ahead: 0,
+    during: async ({ api, quiet }) => {
+      await quiet(has('new program'));
+      const added = await api('/v1/queries', {
+        method: 'POST',
+        body: {
+          criteria: [
+            { name: 'credits', description: 'The program gives free credits' },
+          ],
+        },
+      });
+      const { id } = z.object({ id: z.string() }).parse(added.body);
+      await quiet(has('could not search'));
+      const query = await api(`/v1/queries/${id}`);
+      const listed = await api('/v1/programs');
+
+      assert.equal(added.status, 202);
+      const { search } = z
+        .object({ search: z.object({ state: z.string(), error: z.string() }) })
+        .parse(query.body);
+      assert.equal(search.state, 'failed');
+      assert.match(
+        search.error,
+        /The server had an error while processing your request\./u,
+      );
+      assert.deepEqual(
+        z
+          .object({ programs: z.array(z.object({ url: z.string() })) })
+          .parse(listed.body)
+          .programs.map(({ url }) => url),
+        [microsoft],
+      );
+    },
+  });
+});
+
+// A program as /v1/programs gives it, with the fields a consumer reads.
+const listedSchema = z.object({
+  programs: z.array(
+    z.object({
+      id: z.string(),
+      url: z.string(),
+      company: z.object({ domain: z.string(), name: z.string() }),
+      offers: z.array(z.record(z.string(), z.unknown())),
+    }),
+  ),
+  nextPageToken: z.string().nullable(),
+});
+
+test('a program carries its company, its offers with the money in cents and the quote that states each offer; a program with no offer is listed too; page_size and page_token page through every program', async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  const aws = 'https://aws.amazon.com/startups/credits';
+  const microsoft = 'https://www.microsoft.com/en-us/startups';
+  await running(data.path, {
+    pages: {
+      ...lists([
+        [aws, 'AWS', 'Up to $200,000'],
+        [microsoft, 'Microsoft', 'Up to $150,000'],
+      ]),
+      [aws]: awsProgram('$200,000'),
+      [microsoft]: microsoftProgram,
+    },
+    model: { [aws]: [{ offers: [] }], [microsoft]: [microsoftOffers] },
+    decisions: programs(aws, microsoft),
+    ahead: 0,
+    during: async ({ api, quiet }) => {
+      await quiet(
+        (lines) =>
+          lines.filter((line) => line.startsWith('new program')).length === 2,
+      );
+      const first = listedSchema.parse(
+        (await api('/v1/programs?page_size=1')).body,
+      );
+      assert.equal(first.programs.length, 1);
+      assert.equal(typeof first.nextPageToken, 'string');
+      const second = listedSchema.parse(
+        (
+          await api(
+            `/v1/programs?page_size=1&page_token=${first.nextPageToken}`,
+          )
+        ).body,
+      );
+      const invalid = await api('/v1/programs?page_token=not-a-token');
+
+      assert.equal(second.programs.length, 1);
+      assert.equal(second.nextPageToken, null);
+      assert.deepEqual(
+        [invalid.status, errorCode(invalid.body)],
+        [400, 'invalid_page_token'],
+      );
+      const [awsProgramListed, microsoftListed] = [
+        ...first.programs,
+        ...second.programs,
+      ];
+      assert.deepEqual(
+        { url: awsProgramListed?.url, offers: awsProgramListed?.offers },
+        { url: aws, offers: [] },
+      );
+      assert.equal(awsProgramListed?.company.domain, 'amazon.com');
+      assert.deepEqual(
+        {
+          url: microsoftListed?.url,
+          domain: microsoftListed?.company.domain,
+          offers: microsoftListed?.offers,
+        },
+        {
+          url: microsoft,
+          domain: 'microsoft.com',
+          offers: [
+            {
+              kind: 'credits',
+              value: { amount: 15_000_000, currency: 'usd' },
+              duration: null,
+              who: null,
+              evidence: { quote: 'up to $150,000 in credits' },
+            },
+          ],
+        },
+      );
+    },
+  });
+});
+
+test('two program pages on one registrable domain are one company', async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  const microsoft = 'https://www.microsoft.com/en-us/startups';
+  const learn = 'https://learn.microsoft.com/en-us/startups';
+  await running(data.path, {
+    pages: {
+      ...lists([
+        [microsoft, 'Microsoft', 'Up to $150,000'],
+        [learn, 'Microsoft Learn', 'Startups hub'],
+      ]),
+      [microsoft]: microsoftProgram,
+      [learn]: microsoftProgram,
+    },
+    model: { [microsoft]: [microsoftOffers], [learn]: [microsoftOffers] },
+    decisions: programs(microsoft, learn),
+    ahead: 0,
+    during: async ({ api, quiet }) => {
+      await quiet(
+        (lines) =>
+          lines.filter((line) => line.startsWith('new program')).length === 2,
+      );
+      const { companies } = z
+        .object({
+          companies: z.array(
+            z.object({
+              domain: z.string(),
+              programs: z.array(z.object({ url: z.string() })),
+            }),
+          ),
+        })
+        .parse((await api('/v1/companies')).body);
+
+      assert.deepEqual(
+        companies.map(({ domain, programs: listed }) => ({
+          domain,
+          urls: listed.map(({ url }) => url).toSorted(),
+        })),
+        [{ domain: 'microsoft.com', urls: [learn, microsoft] }],
+      );
+    },
+  });
+});
+
+test('calls to the API request no website: the API answers from what the crawl stored', async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  const microsoft = 'https://www.microsoft.com/en-us/startups';
+  await running(data.path, {
+    pages: {
+      ...lists([[microsoft, 'Microsoft', 'Up to $150,000']]),
+      [microsoft]: microsoftProgram,
+    },
+    model: { [microsoft]: [microsoftOffers] },
+    decisions: programs(microsoft),
+    ahead: 0,
+    during: async ({ api, quiet, requests }) => {
+      await quiet(has('new program'));
+      const before = requests.length;
+      const answers = await Promise.all(
+        [
+          '/v1/programs',
+          '/v1/companies',
+          '/v1/events',
+          '/v1/queries',
+          '/v1/coverage',
+        ].map(async (path) => (await api(path)).status),
+      );
+      // Any request that a call caused is written within this wait.
+      await quiet(() => true);
+
+      assert.deepEqual(answers, [200, 200, 200, 200, 200]);
+      assert.deepEqual(requests.slice(before), []);
+    },
+  });
+});
+
+test('the event log gives one program.added for each program; a later run that changes an amount adds one program.changed with the offers before it, which the old cursor reads alone; a restart that changes nothing adds no event', async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  const aws = 'https://aws.amazon.com/startups/credits';
+  const microsoft = 'https://www.microsoft.com/en-us/startups';
+  const rows = [
+    [aws, 'AWS', 'Up to $200,000'],
+    [microsoft, 'Microsoft', 'Up to $150,000'],
+  ] as const;
+  const quote = (amount: string) =>
+    `Apply for up to ${amount} in AWS Activate Credits`;
+  // The amounts of an offer list, as a consumer reads them.
+  const amounts = (offers: unknown) =>
+    z
+      .object({
+        offers: z.array(
+          z.object({ value: z.object({ amount: z.number() }).optional() }),
+        ),
+      })
+      .parse(offers)
+      .offers.map(({ value }) => value?.amount ?? null);
+  let added = '';
+  await running(data.path, {
+    pages: {
+      ...lists(rows),
+      [aws]: awsWithSupport('$200,000', 6),
+      [microsoft]: microsoftProgram,
+    },
+    model: {
+      [aws]: [awsOffers(200_000, quote('$200,000'), 6)],
+      [microsoft]: [microsoftOffers],
+    },
+    decisions: programs(aws, microsoft),
+    ahead: 0,
+    during: async ({ api, quiet }) => {
+      await quiet(
+        (lines) =>
+          lines.filter((line) => line.startsWith('new program')).length === 2,
+      );
+      const log = eventsSchema.parse((await api('/v1/events')).body);
+
+      assert.deepEqual(
+        log.events.map(({ type, data: program }) => [
+          type,
+          z.object({ url: z.string() }).parse(program).url,
+        ]),
+        [
+          ['program.added', aws],
+          ['program.added', microsoft],
+        ],
+      );
+      added = log.nextCursor;
+    },
+  });
+
+  let changed = '';
+  await running(data.path, {
+    pages: {
+      ...lists(rows),
+      [aws]: awsWithSupport('$100,000', 6),
+      [microsoft]: microsoftProgram,
+    },
+    model: { [aws]: [awsOffers(100_000, quote('$100,000'), 6)] },
+    decisions: programs(aws, microsoft),
+    ahead: 31 * 24 * 3_600_000,
+    during: async ({ api, quiet }) => {
+      await quiet(has('offers changed'));
+      const log = eventsSchema.parse(
+        (await api(`/v1/events?cursor=${added}`)).body,
+      );
+
+      assert.deepEqual(
+        log.events.map(({ type, data: program, previous }) => ({
+          type,
+          url: z.object({ url: z.string() }).parse(program).url,
+          now: amounts(program),
+          before: amounts(previous),
+        })),
+        [
+          {
+            type: 'program.changed',
+            url: aws,
+            now: [10_000_000, 500_000, null],
+            before: [20_000_000, 500_000, null],
+          },
+        ],
+      );
+      changed = log.nextCursor;
+    },
+  });
+
+  await running(data.path, {
+    pages: {
+      ...lists(rows),
+      [aws]: awsWithSupport('$100,000', 6),
+      [microsoft]: microsoftProgram,
+    },
+    model: {},
+    decisions: programs(aws, microsoft),
+    ahead: 62 * 24 * 3_600_000,
+    during: async ({ api, quiet, requests }) => {
+      await quiet(() => requests.includes(microsoft));
+      const log = eventsSchema.parse(
+        (await api(`/v1/events?cursor=${changed}`)).body,
+      );
+
+      assert.deepEqual(log.events, []);
+    },
+  });
+});
+
+// The page that the searches find and no list links (claudeProgram above),
+// and the program page that the list of the query tests links.
+const claude = 'https://claude.com/programs/startups';
+const microsoft = 'https://www.microsoft.com/en-us/startups';
+
+// The criteria of the queries, and what the criterion model answers for
+// each page: Anthropic trains its models and gives credits, Microsoft gives
+// credits.
+const aiLab = {
+  name: 'ai_lab',
+  description: 'The company trains its own AI models',
+};
+const givesCredits = {
+  name: 'credits',
+  description: 'The program gives free credits',
+};
+const claudeLab: Verdict = {
+  quote:
+    'Access discounts and credits worth up to $45,000 from companies building with Claude.',
+  meets: true,
+  reason: 'The program is run by the company that makes Claude.',
+};
+const claudeCredits: Verdict = {
+  quote:
+    'Access discounts and credits worth up to $45,000 from companies building with Claude.',
+  meets: true,
+  reason: 'Members can receive API credits.',
+};
+const microsoftLab: Verdict = {
+  quote: null,
+  meets: false,
+  reason: 'The page names no model that Microsoft trains.',
+};
+const microsoftCredits: Verdict = {
+  quote: 'up to $150,000 in credits',
+  meets: true,
+  reason: 'The program gives credits.',
+};
+const judgements = {
+  [claude]: {
+    [aiLab.description]: claudeLab,
+    [givesCredits.description]: claudeCredits,
+  },
+  [microsoft]: {
+    [aiLab.description]: microsoftLab,
+    [givesCredits.description]: microsoftCredits,
+  },
+};
+
+// The program page that the list links, and what the models answer for it
+// and for the pages that the searches find.
+const queried = {
+  pages: {
+    ...lists([[microsoft, 'Microsoft', 'Up to $150,000']]),
+    [microsoft]: microsoftProgram,
+    [claude]: claudeProgram,
+  },
+  model: { [microsoft]: [microsoftOffers], [claude]: [claudeOffers] },
+  decisions: programs(microsoft, claude),
+  verdicts: judgements,
+  ahead: 0,
+};
+
+// Asks the API for a new query with the given criteria, and gives its id.
+async function ask(
+  api: Serving['api'],
+  criteria: readonly { name: string; description: string }[],
+) {
+  const added = await api('/v1/queries', {
+    method: 'POST',
+    body: { criteria },
+  });
+  assert.equal(added.status, 202, JSON.stringify(added.body));
+  return { id: z.object({ id: z.string() }).parse(added.body).id, added };
+}
+
+// The programs that meet every criterion of a query, with their verdicts.
+const itemsSchema = z.object({
+  items: z.array(
+    z.object({
+      program: z.object({ url: z.string() }),
+      verdicts: z.array(z.record(z.string(), z.unknown())),
+    }),
+  ),
+});
+
+// True once the criterion model judged the page on the given number of
+// criteria.
+const judgedOn =
+  (page: string, criteria: number): Holds =>
+  (_lines, _asked, _decided, judged) =>
+    judged.filter((call) => call.page === page).length >= criteria;
+
+test('a query between passes is accepted with its progress, the pages that its search finds are crawled and judged with every program on each criterion, and its items are the programs that meet every criterion, with each reason and quote', async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  const { searched } = await running(data.path, {
+    ...queried,
+    searches: [
+      {
+        for: [aiLab.description, givesCredits.description],
+        pages: [{ url: claude, company: 'Anthropic' }],
+      },
+    ],
+    during: async ({ api, quiet }) => {
+      await quiet(has('new program'));
+      const { id, added } = await ask(api, [aiLab, givesCredits]);
+      await quiet(
+        (...seen) =>
+          judgedOn(claude, 2)(...seen) && judgedOn(microsoft, 2)(...seen),
+      );
+      const items = itemsSchema.parse(
+        (await api(`/v1/queries/${id}/items`)).body,
+      );
+      const query = await api(`/v1/queries/${id}`);
+      const listed = listedSchema.parse((await api('/v1/programs')).body);
+
+      assert.deepEqual(
+        z
+          .object({ search: z.unknown(), judging: z.unknown() })
+          .parse(added.body),
+        {
+          search: { state: 'pending' },
+          judging: { judged: 0, failed: 0, pending: 2 },
+        },
+      );
+      assert.deepEqual(items.items, [
+        {
+          program: items.items[0]?.program,
+          verdicts: [
+            { criterion: 'ai_lab', state: 'judged', ...claudeLab },
+            { criterion: 'credits', state: 'judged', ...claudeCredits },
+          ],
+        },
+      ]);
+      assert.equal(items.items[0]?.program.url, claude);
+      assert.deepEqual(
+        z
+          .object({
+            search: z.object({ state: z.string() }),
+            judging: z.unknown(),
+            seeds: z.array(z.object({ url: z.string(), crawl: z.unknown() })),
+          })
+          .parse(query.body),
+        {
+          search: { state: 'done' },
+          judging: { judged: 4, failed: 0, pending: 0 },
+          seeds: [{ url: claude, crawl: { state: 'read' } }],
+        },
+      );
+      assert.deepEqual(
+        listed.programs.map(({ url }) => url),
+        [claude, microsoft],
+      );
+    },
+  });
+  assert.deepEqual(
+    searched.map(({ model, tools }) => ({ model, tools })),
+    [{ model: 'gpt-6.1-terra', tools: ['web_search'] }],
+  );
+});
+
+test('a page that a search found and that does not load, such as a bot challenge, is failed with its reason in the coverage and in its query, beside the page that loaded', async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  const openai = 'https://openai.com/startups/';
+  await running(data.path, {
+    ...queried,
+    pages: { ...queried.pages, [openai]: cloudflareChallenge },
+    searches: [
+      {
+        for: [givesCredits.description],
+        pages: [
+          { url: openai, company: 'OpenAI' },
+          { url: claude, company: 'Anthropic' },
+        ],
+      },
+    ],
+    during: async ({ api, quiet, requests }) => {
+      await quiet(has('new program'));
+      const { id } = await ask(api, [givesCredits]);
+      // A starting URL that fails is the pass's failure, which the app
+      // records for the API and does not log.
+      await quiet(
+        (...seen) => requests.includes(openai) && judgedOn(claude, 1)(...seen),
+      );
+      const seeds = z.object({
+        seeds: z.array(
+          z.object({
+            url: z.string(),
+            company: z.string(),
+            crawl: z.object({
+              state: z.string(),
+              reason: z.string().optional(),
+            }),
+          }),
+        ),
+      });
+      const coverage = seeds.parse((await api('/v1/coverage')).body).seeds;
+      const query = seeds.parse((await api(`/v1/queries/${id}`)).body).seeds;
+
+      for (const listed of [coverage, query])
+        assert.deepEqual(listed, [
+          {
+            url: openai,
+            company: 'OpenAI',
+            crawl: {
+              state: 'failed',
+              reason:
+                'Request failed with status code 403 (Forbidden): GET https://openai.com/startups/',
+            },
+          },
+          { url: claude, company: 'Anthropic', crawl: { state: 'read' } },
+        ]);
+    },
+  });
+});
+
+test("a query's events give item.matched for each program that comes to meet its criteria, and none for one that does not", async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  await running(data.path, {
+    ...queried,
+    searches: [
+      {
+        for: [aiLab.description, givesCredits.description],
+        pages: [{ url: claude, company: 'Anthropic' }],
+      },
+    ],
+    during: async ({ api, quiet }) => {
+      await quiet(has('new program'));
+      const { id } = await ask(api, [aiLab, givesCredits]);
+      await quiet(
+        (...seen) =>
+          judgedOn(claude, 2)(...seen) && judgedOn(microsoft, 2)(...seen),
+      );
+      const log = eventsSchema.parse(
+        (await api(`/v1/queries/${id}/events`)).body,
+      );
+
+      assert.deepEqual(
+        log.events.map(({ type, data: item }) => [
+          type,
+          z.object({ program: z.object({ url: z.string() }) }).parse(item)
+            .program.url,
+        ]),
+        [['item.matched', claude]],
+      );
+    },
+  });
+});
+
+test('a verdict that quotes a sentence the page does not have keeps its answer and no quote', async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  await running(data.path, {
+    ...queried,
+    verdicts: {
+      ...judgements,
+      [claude]: {
+        ...judgements[claude],
+        [aiLab.description]: {
+          ...claudeLab,
+          quote: 'Anthropic trains Claude, its own family of models.',
+        },
+      },
+    },
+    searches: [
+      {
+        for: [aiLab.description],
+        pages: [{ url: claude, company: 'Anthropic' }],
+      },
+    ],
+    during: async ({ api, quiet }) => {
+      await quiet(has('new program'));
+      const { id } = await ask(api, [aiLab]);
+      await quiet(judgedOn(claude, 1));
+      const items = itemsSchema.parse(
+        (await api(`/v1/queries/${id}/items`)).body,
+      );
+
+      assert.deepEqual(
+        items.items.map(({ program, verdicts }) => [program.url, verdicts]),
+        [
+          [
+            claude,
+            [
+              {
+                criterion: 'ai_lab',
+                state: 'judged',
+                meets: true,
+                reason: claudeLab.reason,
+                quote: null,
+              },
+            ],
+          ],
+        ],
+      );
+    },
+  });
+});
+
+test('a program that the crawl stores after a query exists is judged on its criteria and becomes its item, and a restart that reads unchanged pages judges none of them again', async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  const aws = 'https://aws.amazon.com/startups/credits';
+  let id = '';
+  let after = '';
+  const first = await running(data.path, {
+    ...queried,
+    searches: [
+      {
+        for: [givesCredits.description],
+        pages: [{ url: claude, company: 'Anthropic' }],
+      },
+    ],
+    during: async ({ api, quiet }) => {
+      await quiet(has('new program'));
+      ({ id } = await ask(api, [givesCredits]));
+      await quiet(
+        (...seen) =>
+          judgedOn(claude, 1)(...seen) && judgedOn(microsoft, 1)(...seen),
+      );
+      after = eventsSchema.parse(
+        (await api(`/v1/queries/${id}/events`)).body,
+      ).nextCursor;
+    },
+  });
+  assert.deepEqual(first.judged.map(({ page }) => page).toSorted(), [
+    claude,
+    microsoft,
+  ]);
+
+  // A month later, when every page is due again, the list links AWS too.
+  const second = await running(data.path, {
+    ...queried,
+    pages: {
+      ...queried.pages,
+      ...lists([
+        [microsoft, 'Microsoft', 'Up to $150,000'],
+        [aws, 'AWS', 'Up to $200,000'],
+      ]),
+      [aws]: awsProgram('$200,000'),
+    },
+    model: {
+      [aws]: [
+        awsOffers(
+          200_000,
+          'Apply for up to $200,000 in AWS Activate Credits',
+          6,
+        ),
+      ],
+    },
+    decisions: programs(microsoft, claude, aws),
+    verdicts: {
+      ...judgements,
+      [aws]: {
+        [givesCredits.description]: {
+          quote: 'Up to $5,000 USD in Activate Credits',
+          meets: true,
+          reason: 'The program gives credits.',
+        },
+      },
+    },
+    ahead: 31 * 24 * 3_600_000,
+    during: async ({ api, quiet }) => {
+      await quiet(judgedOn(aws, 1));
+      const log = eventsSchema.parse(
+        (await api(`/v1/queries/${id}/events?cursor=${after}`)).body,
+      );
+      const items = itemsSchema.parse(
+        (await api(`/v1/queries/${id}/items`)).body,
+      );
+
+      assert.deepEqual(
+        log.events.map(({ type, data: item }) => [
+          type,
+          z.object({ program: z.object({ url: z.string() }) }).parse(item)
+            .program.url,
+        ]),
+        [['item.matched', aws]],
+      );
+      assert.deepEqual(
+        items.items.map(({ program }) => program.url),
+        [aws, claude, microsoft],
+      );
+    },
+  });
+  assert.deepEqual(
+    second.judged.map(({ page }) => page),
+    [aws],
+  );
+});
+
+test('two queries with different criteria over the same programs have different items', async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  await running(data.path, {
+    ...queried,
+    searches: [
+      {
+        for: [aiLab.description],
+        pages: [{ url: claude, company: 'Anthropic' }],
+      },
+      { for: [givesCredits.description], pages: [] },
+    ],
+    during: async ({ api, quiet }) => {
+      await quiet(has('new program'));
+      const labs = await ask(api, [aiLab]);
+      await quiet(
+        (...seen) =>
+          judgedOn(claude, 1)(...seen) && judgedOn(microsoft, 1)(...seen),
+      );
+      const credits = await ask(api, [givesCredits]);
+      await quiet(
+        (...seen) =>
+          judgedOn(claude, 2)(...seen) && judgedOn(microsoft, 2)(...seen),
+      );
+      const urls = async (queryId: string) =>
+        itemsSchema
+          .parse((await api(`/v1/queries/${queryId}/items`)).body)
+          .items.map(({ program }) => program.url);
+
+      assert.deepEqual(await urls(labs.id), [claude]);
+      assert.deepEqual(await urls(credits.id), [claude, microsoft]);
+    },
+  });
+});
+
+test('a verdict whose call fails is failed in the progress of its query, and its program is no item', async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  await running(data.path, {
+    ...queried,
+    verdicts: {
+      ...judgements,
+      // A request that the endpoint refuses, which the AI SDK does not retry.
+      [claude]: {
+        [givesCredits.description]: {
+          status: 400,
+          body: {
+            error: {
+              message: 'The request was not valid.',
+              type: 'invalid_request_error',
+            },
+          },
+        },
+      },
+    },
+    searches: [
+      {
+        for: [givesCredits.description],
+        pages: [{ url: claude, company: 'Anthropic' }],
+      },
+    ],
+    during: async ({ api, quiet }) => {
+      await quiet(has('new program'));
+      const { id } = await ask(api, [givesCredits]);
+      await quiet(
+        (...seen) =>
+          judgedOn(claude, 1)(...seen) && judgedOn(microsoft, 1)(...seen),
+      );
+      const items = itemsSchema.parse(
+        (await api(`/v1/queries/${id}/items`)).body,
+      );
+      const { judging } = z
+        .object({ judging: z.unknown() })
+        .parse((await api(`/v1/queries/${id}`)).body);
+      const log = eventsSchema.parse(
+        (await api(`/v1/queries/${id}/events`)).body,
+      );
+
+      assert.deepEqual(
+        items.items.map(({ program }) => program.url),
+        [microsoft],
+      );
+      assert.deepEqual(judging, { judged: 1, failed: 1, pending: 0 });
+      assert.deepEqual(
+        log.events.map(({ type, data: item }) => [
+          type,
+          z.object({ program: z.object({ url: z.string() }) }).parse(item)
+            .program.url,
+        ]),
+        [['item.matched', microsoft]],
+      );
+    },
+  });
+});
+
+test("a program whose page changes so that it no longer meets a query's criteria gives item.unmatched, and leaves the query's items", async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  let id = '';
+  let after = '';
+  await running(data.path, {
+    ...queried,
+    searches: [
+      {
+        for: [givesCredits.description],
+        pages: [{ url: claude, company: 'Anthropic' }],
+      },
+    ],
+    during: async ({ api, quiet }) => {
+      await quiet(has('new program'));
+      ({ id } = await ask(api, [givesCredits]));
+      await quiet(
+        (...seen) =>
+          judgedOn(claude, 1)(...seen) && judgedOn(microsoft, 1)(...seen),
+      );
+      after = eventsSchema.parse(
+        (await api(`/v1/queries/${id}/events`)).body,
+      ).nextCursor;
+    },
+  });
+
+  // A month later, Microsoft's page no longer offers credits.
+  await running(data.path, {
+    ...queried,
+    pages: {
+      ...queried.pages,
+      [microsoft]: ok(
+        microsoftProgram.body.replace(
+          '<b>up to $150,000 in credits</b>',
+          'mentorship',
+        ),
+      ),
+    },
+    model: { [microsoft]: [{ offers: [] }] },
+    verdicts: {
+      ...judgements,
+      [microsoft]: {
+        [givesCredits.description]: {
+          quote: null,
+          meets: false,
+          reason: 'The page offers mentorship and no credits.',
+        },
+      },
+    },
+    ahead: 31 * 24 * 3_600_000,
+    during: async ({ api, quiet }) => {
+      await quiet(judgedOn(microsoft, 1));
+      const log = eventsSchema.parse(
+        (await api(`/v1/queries/${id}/events?cursor=${after}`)).body,
+      );
+      const items = itemsSchema.parse(
+        (await api(`/v1/queries/${id}/items`)).body,
+      );
+
+      assert.deepEqual(
+        log.events.map(({ type, data: item }) => [
+          type,
+          z.object({ program: z.object({ url: z.string() }) }).parse(item)
+            .program.url,
+        ]),
+        [['item.unmatched', microsoft]],
+      );
+      assert.deepEqual(
+        items.items.map(({ program }) => program.url),
+        [claude],
+      );
+    },
+  });
+});
+
+test('a deleted query is gone: the API answers 204, then not_found for it, and lists no query', async () => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  await running(data.path, {
+    ...queried,
+    searches: [{ for: [givesCredits.description], pages: [] }],
+    during: async ({ api, quiet }) => {
+      await quiet(has('new program'));
+      const { id } = await ask(api, [givesCredits]);
+      await quiet(judgedOn(microsoft, 1));
+      const deleted = await api(`/v1/queries/${id}`, { method: 'DELETE' });
+      const query = await api(`/v1/queries/${id}`);
+      const items = await api(`/v1/queries/${id}/items`);
+      const listed = await api('/v1/queries');
+
+      assert.equal(deleted.status, 204);
+      assert.deepEqual(
+        [query.status, errorCode(query.body)],
+        [404, 'not_found'],
+      );
+      assert.deepEqual(
+        [items.status, errorCode(items.body)],
+        [404, 'not_found'],
+      );
+      assert.deepEqual(listed.body, { queries: [] });
+    },
+  });
 });
