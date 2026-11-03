@@ -2,8 +2,10 @@ import { readFileSync } from 'node:fs';
 
 import { z } from 'zod';
 
-import { type Span, ground, same } from '../src/ground.ts';
+import { type Span, ground } from '@workspace/quote-grounding';
+
 import { pageKinds } from '../src/rules/page-kinds.ts';
+import { same } from '../src/same.ts';
 import { type Label, answerKey, offerKinds } from './answer-key.ts';
 import { scoreKinds } from './kind-score.ts';
 import { pages } from './pages.ts';

@@ -1,0 +1,12 @@
+{
+  "name": "@workspace/quote-grounding",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/ground.d.ts",
+      "default": "./dist/ground.js"
+    }
+  }
+}

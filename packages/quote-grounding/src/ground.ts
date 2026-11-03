@@ -1,5 +1,5 @@
 // Where a text states something: offsets in UTF-16 units, end exclusive.
-type Span = { readonly start: number; readonly end: number };
+export type Span = { readonly start: number; readonly end: number };
 
 // The text in lower case with each run of white space as one space. For each
 // UTF-16 unit it keeps, the span of the original character, since spans count
@@ -22,8 +22,8 @@ function folded(text: string) {
 }
 
 // Where a quote occurs in the text, ignoring case and the kind and number of
-// spaces: the page text writes headings in capitals, many pages use
-// non-breaking spaces, and a model writes a line break as a space.
+// spaces: a text writes headings in capitals, many pages use non-breaking
+// spaces, and a model writes a line break as a space.
 export function ground(text: string, quote: string): Span | null {
   const needle = folded(quote).value.trim();
   if (needle === '') return null;

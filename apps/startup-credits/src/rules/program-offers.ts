@@ -11,8 +11,8 @@ import {
 import { z } from 'zod';
 
 import { type LoadedRow, Rule, type RuleResult } from '@workspace/elt';
+import { ground } from '@workspace/quote-grounding';
 
-import { ground, same } from '../ground.ts';
 import {
   type Offer,
   type StoredOffer,
@@ -20,6 +20,7 @@ import {
   offerValue,
   offersSchema,
 } from '../offer.ts';
+import { same } from '../same.ts';
 import model from './offer-model.ts';
 
 type Page = {

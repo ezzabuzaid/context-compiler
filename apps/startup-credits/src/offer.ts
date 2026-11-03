@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import type { Span } from './ground.ts';
+import type { Span } from '@workspace/quote-grounding';
 
 const money = z
   .object({ amount: z.number(), currency: z.string().regex(/^[A-Z]{3}$/u) })

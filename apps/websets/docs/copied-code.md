@@ -7,11 +7,6 @@ The Rule of Three counts places, not packages. Code that a second place needs is
 **`apps/what-is-going-on/src/directory.ts` → `src/directory.ts`, with the folder named `websets`.**
 The app keeps its files in a `websets` folder under `XDG_DATA_HOME`, or under `~/.local/share` when that is not set, and makes the folder when the app starts. Each test gives the app a temporary `XDG_DATA_HOME`. The places with this concept are listed in `apps/startup-credits/docs/copied-code.md`; it stays copied as a tiny helper (#3371).
 
-## Where a quote is in a text
-
-**`apps/ipay/src/rules/ground.ts` (`ground`) → `src/ground.ts`, unchanged.**
-An evaluation or a field keeps the model's quote only when the quote is in the page text, ignoring case and the kind and number of spaces. This is the third place, after `apps/startup-credits/src/ground.ts` and ipay: strike 3, so `ground` is extracted (#3677).
-
 ## Which model call failures fail a page
 
 **`apps/startup-credits/src/rules/program-offers.ts` (`ProgramOffers.#offers`) → `src/rules/evaluation.ts` (`pageFailure`), as a function that `Evaluation` and `FieldValue` share.**

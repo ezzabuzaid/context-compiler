@@ -2,11 +2,6 @@
 
 The Rule of Three counts places, not packages. Code that a second place needs is copied, and it is extracted only when a third place needs it. A tiny helper stays copied even then, as a little copying is better than a little dependency (backlog #3371). A fix in one copy is made in the other copies too, and the commit names each file.
 
-## Where a quote is in a text
-
-**`apps/startup-credits/src/ground.ts` (`ground`) → `src/rules/ground.ts`, without `same`, which ipay does not use.**
-A payment stays only when the model's quote of it is in the email text, ignoring case and the kind and number of spaces. Strike 2: the backlog item for a third place is #3677.
-
 ## Which model call failures fail an email
 
 **`apps/startup-credits/src/rules/program-offers.ts` (`ProgramOffers.#offers`) → `src/rules/invoice-payments.ts` (`InvoicePayments.#payments`), unchanged.**

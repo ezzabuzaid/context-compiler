@@ -109,6 +109,9 @@
     },
     {
       "path": "./apps/websets"
+    },
+    {
+      "path": "./packages/quote-grounding"
     }
   ]
 }

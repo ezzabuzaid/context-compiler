@@ -11,8 +11,8 @@ import {
 import { z } from 'zod';
 
 import { type LoadedRow, Rule, type RuleResult } from '@workspace/elt';
+import { ground } from '@workspace/quote-grounding';
 
-import { ground } from '../ground.ts';
 import model from './model.ts';
 
 export type Page = {

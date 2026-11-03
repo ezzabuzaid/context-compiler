@@ -3,7 +3,8 @@ import { join } from 'node:path';
 
 import { z } from 'zod';
 
-import type { Span } from '../src/ground.ts';
+import type { Span } from '@workspace/quote-grounding';
+
 import { pageKinds } from '../src/rules/page-kinds.ts';
 
 const span = z.object({

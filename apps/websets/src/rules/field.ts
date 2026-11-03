@@ -4,9 +4,9 @@ import { Output, generateText } from 'ai';
 import { z } from 'zod';
 
 import { type LoadedRow, Rule, type RuleResult } from '@workspace/elt';
+import { ground } from '@workspace/quote-grounding';
 
 import type { Field as Definition } from '../collection.ts';
-import { ground } from '../ground.ts';
 import {
   type Page,
   pageFailure,
