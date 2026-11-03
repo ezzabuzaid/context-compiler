@@ -22,6 +22,7 @@ import { z } from 'zod';
 
 import { builtInConnectors } from '@workspace/connector-manifest/built-in-connectors';
 import { Connectors } from '@workspace/connector-manifest/connectors';
+import type { FailureType } from '@workspace/elt';
 import { SQLiteSyncHistory } from '@workspace/elt-sqlite';
 import { StubEventKitHelper } from '@workspace/sdk-apple-eventkit/test';
 import { type Selection, importDirectory } from '@workspace/settings';
@@ -236,13 +237,13 @@ async function passes(plugin: Plugin, item: Selection) {
   // A server's pipeline installs its history before a pass; these passes
   // begin without one.
   const history = new SQLiteSyncHistory();
-  await history.install([connection]);
+  await history.install([connection], new Date());
   const copies = connection.steps.map((copy) => ({
     copy,
     coverage: connection.source.coverage(copy.from),
   }));
   return async () => {
-    const pass = await history.begin(connection, copies);
+    const pass = await history.begin(connection, copies, new Date());
     const end = (cancelled: boolean) =>
       pass.finish(
         copies.map(({ copy }) => ({
@@ -254,11 +255,13 @@ async function passes(plugin: Plugin, item: Selection) {
         })),
         // Every Notes stream reads a live upstream here.
         new Map(),
+        new Date(),
       );
     return {
       finish: () => end(false),
       cancel: () => end(true),
-      fail: pass.fail,
+      fail: (error: unknown, failureType: FailureType) =>
+        pass.fail(error, failureType, new Date()),
     };
   };
 }
