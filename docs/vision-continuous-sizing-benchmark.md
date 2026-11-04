@@ -74,5 +74,5 @@ What the runs show:
 ## Limits
 
 - Four runs for each version of the CLI import and two for each version of the long-lived pool, on a Mac that ran other sessions' builds and tests.
-- All runs ended with status `partial`: the stream `groupMembersChanges` returned one row twice in one scan (elt #3608). The other 31 streams and the attachments loaded.
+- All runs ended with status `partial`: the stream `groupMembersChanges` returned one row twice in one scan (elt #3608). The other 31 streams and the attachments loaded. elt 2963d54f fixed #3608 on 2026-11-04, after these runs.
 - The helper count counts live processes. A step with fewer workers keeps every worker alive, so it does not show in the count.
