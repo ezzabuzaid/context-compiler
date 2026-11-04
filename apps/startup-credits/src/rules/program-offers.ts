@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 
 import {
   APICallError,
+  type FinishReason,
   NoObjectGeneratedError,
   NoOutputGeneratedError,
   Output,
@@ -23,11 +24,24 @@ import {
 import { same } from '../same.ts';
 import model from './offer-model.ts';
 
-type Page = {
+export type Page = {
   readonly url: string;
   readonly title: string | null;
   readonly text: string;
 };
+
+// The model answered, but not with a list of offers that agrees with the
+// schema. text is the answer when the AI SDK kept it.
+export type InvalidAnswer = {
+  readonly message: string;
+  readonly text: string | undefined;
+  readonly finishReason: FinishReason | undefined;
+};
+
+export type OffersOutcome =
+  | { readonly offers: readonly StoredOffer[] }
+  | { readonly invalid: InvalidAnswer }
+  | { readonly failed: string };
 
 const system =
   'You read one web page of a startup program. List only the offers that the page states, each offer once. For each offer, first copy the one sentence of the page text that states it, word for word, as quote; never quote the URL or the title. Then read kind, value and the rest from that sentence. kind: credits (credits, a commitment amount or a balance to spend on the product), discount (a percentage or reduced price), free_period (free use of a paid plan for a fixed time), support (technical help, mentorship, training and learning resources, events and a founder community, introductions to investors, co-marketing), perks (deals from other companies). value: the amount and its ISO 4217 currency code when the sentence states one, else null; read $100K as 100000. months: the length of a free period in months when the sentence states one, else null; a year is 12. If the page states no offer, return an empty list. Each tier of a program is its own offer. A part or a first step of one offer is not a separate offer: for "up to $5,000" and "Start with $1,000", state only the $5,000 offer.';
@@ -112,50 +126,69 @@ export class ProgramOffers extends Rule<Page, string> {
     pages: readonly Page[],
     signal?: AbortSignal,
   ): Promise<readonly RuleResult<Readonly<Record<string, string>>>[]> {
-    return Promise.all(pages.map((page) => this.#offers(page, signal)));
+    return Promise.all(
+      pages.map(async (page) => {
+        const outcome = await this.outcome(page, signal);
+        if ('failed' in outcome) return { error: outcome.failed };
+        if ('invalid' in outcome) return { error: outcome.invalid.message };
+        return outcome.offers.length === 0
+          ? { empty: true }
+          : { value: { offers: JSON.stringify(outcome.offers) } };
+      }),
+    );
   }
 
-  async #offers(
+  // What the model gave for one page: the offers whose quotes are in the
+  // page text, an answer that is not a list of offers (a refusal, an answer
+  // cut at maxOutputTokens, or text that does not agree with the schema), or
+  // a call that failed after the AI SDK's retries. compute() stores the last
+  // two as the page's failure; an eval scores an invalid answer apart from a
+  // failed call (#3762). A rejected token throws: every page would fail, so
+  // the dataset fails. A stop throws too: it is no failure.
+  async outcome(
     page: Page,
     signal: AbortSignal | undefined,
-  ): Promise<RuleResult<Readonly<Record<string, string>>>> {
-    let offers;
+  ): Promise<OffersOutcome> {
+    let generated;
     try {
-      ({
-        output: { offers },
-      } = await generateText({
+      generated = await generateText({
         model,
         instructions: system,
         prompt: prompt(page),
         output: Output.object({ schema: offersSchema }),
         ...settings,
         abortSignal: signal,
-      }));
+      });
     } catch (error) {
-      // An answer with no offers in it, such as a refusal or an answer cut
-      // at maxOutputTokens, and a call that failed after the AI SDK's
-      // retries, are this page's failure. A rejected token is not: every
-      // page would fail, so the dataset fails. A stop is no failure.
-      if (
-        NoObjectGeneratedError.isInstance(error) ||
-        NoOutputGeneratedError.isInstance(error)
-      )
-        return { error: error.message };
+      if (NoObjectGeneratedError.isInstance(error))
+        return {
+          invalid: {
+            message: error.message,
+            text: error.text,
+            finishReason: error.finishReason,
+          },
+        };
+      if (NoOutputGeneratedError.isInstance(error))
+        return {
+          invalid: {
+            message: error.message,
+            text: undefined,
+            finishReason: undefined,
+          },
+        };
       // A RetryError holds the failure of each call; the last one is why.
       const call = RetryError.isInstance(error) ? error.lastError : error;
       if (APICallError.isInstance(call) && call.statusCode !== 401)
-        return { error: call.message };
+        return { failed: call.message };
       throw error;
     }
     const kept: StoredOffer[] = [];
-    for (const offer of offers) {
+    for (const offer of generated.output.offers) {
       const span = ground(page.text, offer.quote);
       if (span === null) continue;
       const stored = { ...waived(offer), span };
       if (!kept.some((other) => repeats(stored, other))) kept.push(stored);
     }
-    return kept.length === 0
-      ? { empty: true }
-      : { value: { offers: JSON.stringify(kept) } };
+    return { offers: kept };
   }
 }

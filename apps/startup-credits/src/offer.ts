@@ -44,7 +44,8 @@ const offer = z.union([
 export const offersSchema = z.object({ offers: z.array(offer) });
 export type Offer = z.infer<typeof offer>;
 
-const span = z.object({
+// Where a quote is in the page text, in UTF-16 offsets.
+export const spanSchema = z.object({
   start: z.number().int(),
   end: z.number().int(),
 }) satisfies z.ZodType<Span>;
@@ -52,7 +53,7 @@ const span = z.object({
 // An offer as the dataset keeps it: the model's offer and where its quote is
 // in the page text.
 export const storedOffersSchema = z.array(
-  z.intersection(offer, z.object({ span })),
+  z.intersection(offer, z.object({ span: spanSchema })),
 );
 export type StoredOffer = z.infer<typeof storedOffersSchema>[number];
 

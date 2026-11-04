@@ -22,6 +22,14 @@ Sources, SDKs, codecs, destinations and elt itself live in [ezzabuzaid/elt](http
 - Connector packages in `packages/connectors` are not islands. They describe and import the user's Mac apps, and `Connector` writes to the import store.
 - In this repository, "app" means only the real macOS application. The things that users set up, select and import through are connectors. Tool arguments, CLI flags and stored names say connector.
 
+## structured-eval lives in mutex
+
+The promptfoo eval of `apps/startup-credits` scores records with `@zukhruf/structured-eval`. It is a private package of zukhruf, so it is not on npm. Check zukhruf out at `../mutex`.
+
+- The npm workspaces of this repository include the exact path `../mutex/packages/structured-eval`. Do not change it to `../mutex/packages/*`: a glob takes every @zukhruf package from mutex in place of the npm copies.
+- The package exports `dist`. Build it in mutex after you change it (`npx nx run structured-eval:build` in `../mutex`).
+- After a change to its `package.json`, run `npm install` here again and commit the lockfile. Install here only after the mutex change is committed.
+
 ## Stored data is disposable
 
 Every import and checkpoint can be rebuilt by rerunning the pipeline from scratch. Treat that data as cheap.

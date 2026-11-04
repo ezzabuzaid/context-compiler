@@ -1,0 +1,15 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+description: The offers that the app's ProgramOffers rule states on a startup program page
+
+# The input of the harness is the page to read.
+prompts:
+  - '{{url}}'
+
+providers:
+  - id: file://providers/program-offers.ts
+    label: ProgramOffers
+
+# One row for each page: its URL and the frozen page in pages/ (git-ignored:
+# the repository keeps no publisher text) as vars, and the offers that the
+# page states as the config of its offers assertion.
+tests: file://tests/offers.jsonl

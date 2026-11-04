@@ -1,0 +1,21 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // promptfoo 0.125.1's dist/src/index.d.ts imports drizzle-orm (0.45.4
+    // here), whose gel, mysql and singlestore declarations import peers that
+    // are not installed ('gel', 'mysql2/promise') and do not type-check, so
+    // their declarations are not checked.
+    "skipLibCheck": true,
+    "rootDir": "promptfoo",
+    "outDir": "dist/promptfoo",
+    "emitDeclarationOnly": true,
+    "rewriteRelativeImportExtensions": false,
+    "tsBuildInfoFile": "dist/promptfoo/tsconfig.promptfoo.tsbuildinfo"
+  },
+  "include": ["promptfoo/**/*.ts"],
+  "references": [
+    {
+      "path": "./tsconfig.lib.json"
+    }
+  ]
+}

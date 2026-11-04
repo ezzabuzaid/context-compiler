@@ -11,6 +11,9 @@
     },
     {
       "path": "./tsconfig.eval.json"
+    },
+    {
+      "path": "./tsconfig.promptfoo.json"
     }
   ]
 }
