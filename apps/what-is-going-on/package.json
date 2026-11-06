@@ -11,7 +11,7 @@
     "@workspace/elt-sqlite": "0.0.1",
     "@workspace/sdk-web-crawler": "0.0.1",
     "@workspace/source-web-pages": "0.0.1",
-    "@zukhruf/async": "0.6.15",
+    "@zukhruf/async": "0.8.0",
     "@zukhruf/embeddings": "0.6.15",
     "@zukhruf/event-detection": "0.6.15",
     "@zukhruf/relevance-filtering": "0.6.15",
