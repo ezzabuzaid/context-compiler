@@ -11,7 +11,8 @@
     "../elt/packages/sdks/*/*",
     "../elt/packages/codecs/*",
     "../elt/packages/sources/*/*",
-    "../mutex/packages/structured-eval"
+    "../mutex/packages/structured-eval",
+    "../mutex/packages/python"
   ],
   "scripts": {
     "prepare": "git config core.hooksPath .husky || exit 0"
