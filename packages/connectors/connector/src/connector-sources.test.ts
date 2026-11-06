@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 
+import { open } from '@zukhruf/sqlite-open';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import {
@@ -170,7 +170,7 @@ function selected(
 }
 
 function read(database: string, sql: string) {
-  using data = new DatabaseSync(database, { readOnly: true });
+  using data = open(database, { readOnly: true });
   return data
     .prepare(sql)
     .all()

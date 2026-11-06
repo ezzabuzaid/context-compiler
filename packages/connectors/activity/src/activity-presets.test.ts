@@ -2,11 +2,11 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { crc32 } from 'node:zlib';
 
+import { RollbackJournal, open } from '@zukhruf/sqlite-open';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import type { Connector, Preset } from '@workspace/connector/connector';
@@ -323,15 +323,18 @@ test('Activity presets pair each start with its end into sessions, visits and sp
   ]);
   mkdirSync(join(home, 'Library/Biome/sync'), { recursive: true });
   {
-    using devices = new DatabaseSync(join(home, 'Library/Biome/sync/sync.db'));
+    using devices = open(join(home, 'Library/Biome/sync/sync.db'), {
+      journal: new RollbackJournal(),
+    });
     devices.exec(devicesSchema);
   }
   mkdirSync(join(home, 'Library/Application Support/Knowledge'), {
     recursive: true,
   });
   {
-    using knowledge = new DatabaseSync(
+    using knowledge = open(
       join(home, 'Library/Application Support/Knowledge/knowledgeC.db'),
+      { journal: new RollbackJournal() },
     );
     knowledge.exec(knowledgeSchema);
   }

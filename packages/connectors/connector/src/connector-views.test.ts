@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
 import { rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 
+import { open } from '@zukhruf/sqlite-open';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import {
@@ -154,7 +154,7 @@ async function imports(directory: string, views: readonly ViewSpec[]) {
     repair: () => rm(broken),
     import: () => connector.import(settings, selection),
     views: () => {
-      using database = new DatabaseSync(settings.database(selection), {
+      using database = open(settings.database(selection), {
         readOnly: true,
       });
       return database

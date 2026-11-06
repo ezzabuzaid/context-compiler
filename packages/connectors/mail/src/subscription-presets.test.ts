@@ -2,10 +2,10 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import { RollbackJournal, open } from '@zukhruf/sqlite-open';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
@@ -22,7 +22,7 @@ test('subscription evidence combines read-only imports without confusing their m
   // without attachmentRef. The existing mail-presets test runs the real Mail
   // source and pipeline and checks the mail_messages projection underneath.
   {
-    using database = new DatabaseSync(mail);
+    using database = open(mail, { journal: new RollbackJournal() });
     database.exec(`
       CREATE TABLE messages (id TEXT);
       CREATE TABLE evidence_mail (
@@ -42,7 +42,7 @@ test('subscription evidence combines read-only imports without confusing their m
     `);
   }
   {
-    using database = new DatabaseSync(messages);
+    using database = open(messages, { journal: new RollbackJournal() });
     database.exec(`
       CREATE TABLE messages (guid TEXT, date TEXT, handle TEXT, handleService TEXT, subject TEXT, text TEXT, isFromMe INTEGER, service TEXT);
       CREATE TABLE message_attachments (messageGuid TEXT, attachmentGuid TEXT);
@@ -57,7 +57,7 @@ test('subscription evidence combines read-only imports without confusing their m
     `);
   }
   {
-    using database = new DatabaseSync(notes);
+    using database = open(notes, { journal: new RollbackJournal() });
     database.exec(`
       CREATE TABLE notes (id TEXT, title TEXT, text TEXT, markdown TEXT, modifiedAt TEXT, accountId TEXT, folderId TEXT, locked INTEGER);
       CREATE TABLE attachments (id TEXT, noteId TEXT, filename TEXT, type TEXT, availableLocally INTEGER, summary TEXT, ocrText TEXT, handwritingText TEXT, transcript TEXT);

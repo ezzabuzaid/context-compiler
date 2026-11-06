@@ -3,10 +3,10 @@ import { spawn } from 'node:child_process';
 import { once } from 'node:events';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { pathToFileURL } from 'node:url';
 
+import { open } from '@zukhruf/sqlite-open';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import {
@@ -211,7 +211,7 @@ test(
     assert.equal(failure, undefined);
     assert.deepEqual(next, { status: 'imported' });
     assert.deepEqual(reads.slice(1), [{ after: 1 }]);
-    using database = new DatabaseSync(settings.database(selection), {
+    using database = open(settings.database(selection), {
       readOnly: true,
     });
     assert.deepEqual(
@@ -320,7 +320,7 @@ test(
 
     assert.deepEqual(next, { status: 'imported' });
     assert.deepEqual(reads, [{ after: 1 }]);
-    using database = new DatabaseSync(settings.database(selection), {
+    using database = open(settings.database(selection), {
       readOnly: true,
     });
     assert.deepEqual(
@@ -374,7 +374,7 @@ test(
       permissions: () => connector.guidance(),
     });
     const texts = () => {
-      using database = new DatabaseSync(settings.database(selection), {
+      using database = open(settings.database(selection), {
         readOnly: true,
       });
       return database

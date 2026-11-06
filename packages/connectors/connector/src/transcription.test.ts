@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import { Fixed, LeaderFirst, NoEviction, Pool } from '@zukhruf/pool';
+import { open } from '@zukhruf/sqlite-open';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import {
@@ -171,7 +171,7 @@ test('an existing import pipeline reads audio with a model saved or disabled by 
     derived,
   });
   const status = () => {
-    using data = new DatabaseSync(join(imported, 'data.sqlite'), {
+    using data = open(join(imported, 'data.sqlite'), {
       readOnly: true,
     });
     return data.prepare('SELECT status FROM attachment_text').get()?.status;

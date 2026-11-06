@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import { open } from '@zukhruf/sqlite-open';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { Msw } from '@zukhruf/testing/msw';
 import { HttpResponse, http } from 'msw';
@@ -172,7 +172,7 @@ test('an import of the categories chosen in setup loads their listings and the c
   const outcome = await opensooq.import(settings, selection);
 
   assert.deepEqual(outcome, { status: 'imported' });
-  using database = new DatabaseSync(settings.database(selection), {
+  using database = open(settings.database(selection), {
     readOnly: true,
   });
   assert.deepEqual(

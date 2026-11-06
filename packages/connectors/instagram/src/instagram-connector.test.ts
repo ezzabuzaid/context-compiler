@@ -3,11 +3,11 @@ import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import { Fixed, LeaderFirst, NoEviction, Pool } from '@zukhruf/pool';
+import { open } from '@zukhruf/sqlite-open';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { Msw } from '@zukhruf/testing/msw';
 import { HttpResponse, http } from 'msw';
@@ -403,7 +403,7 @@ test('an import that keeps attachments, as setup does by default, makes the text
     derived,
   }).run();
 
-  using database = new DatabaseSync(join(imports.path, 'data.sqlite'), {
+  using database = open(join(imports.path, 'data.sqlite'), {
     readOnly: true,
   });
   const found = database

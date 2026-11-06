@@ -2,10 +2,10 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import { RollbackJournal, open } from '@zukhruf/sqlite-open';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import type { Connector, Preset } from '@workspace/connector/connector';
@@ -102,8 +102,7 @@ const described = (preset: Preset) =>
     ([, name]) => name,
   );
 
-const envelopeIndexSchema = `PRAGMA journal_mode = WAL;
-CREATE TABLE messages (ROWID INTEGER PRIMARY KEY AUTOINCREMENT,
+const envelopeIndexSchema = `CREATE TABLE messages (ROWID INTEGER PRIMARY KEY AUTOINCREMENT,
 message_id INTEGER NOT NULL DEFAULT 0,
 global_message_id INTEGER NOT NULL,
 remote_id INTEGER,
@@ -298,8 +297,9 @@ test('mail_messages reads each message with both body formats, recipients, subje
   const mailbox = join(root, 'V10/ACCOUNT/Inbox.mbox');
   mkdirSync(join(scratch.path, 'Library/Accounts'), { recursive: true });
   {
-    using accounts = new DatabaseSync(
+    using accounts = open(
       join(scratch.path, 'Library/Accounts/Accounts4.sqlite'),
+      { journal: new RollbackJournal() },
     );
     accounts.exec(`
       CREATE TABLE ZACCOUNT ( Z_PK INTEGER PRIMARY KEY, Z_ENT INTEGER, Z_OPT INTEGER, ZACTIVE INTEGER, ZAUTHENTICATED INTEGER, ZSUPPORTSAUTHENTICATION INTEGER, ZVISIBLE INTEGER, ZWARMINGUP INTEGER, ZACCOUNTTYPE INTEGER, ZPARENTACCOUNT INTEGER, ZDATE TIMESTAMP, ZLASTCREDENTIALRENEWALREJECTIONDATE TIMESTAMP, ZACCOUNTDESCRIPTION VARCHAR, ZAUTHENTICATIONTYPE VARCHAR, ZCREDENTIALTYPE VARCHAR, ZIDENTIFIER VARCHAR, ZMODIFICATIONID VARCHAR, ZOWNINGBUNDLEID VARCHAR, ZUSERNAME VARCHAR, ZDATACLASSPROPERTIES BLOB );
@@ -393,7 +393,7 @@ test('mail_messages reads each message with both body formats, recipients, subje
   ]);
   // Message 4 has no file on this Mac: Mail keeps only its index row.
   {
-    using index = new DatabaseSync(join(root, 'V10/MailData/Envelope Index'));
+    using index = open(join(root, 'V10/MailData/Envelope Index'));
     index.exec(envelopeIndexSchema);
     index.exec(`
       INSERT INTO mailboxes(ROWID, url) VALUES (1, 'imap://ACCOUNT/INBOX');

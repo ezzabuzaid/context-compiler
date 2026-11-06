@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { mkdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import { open } from '@zukhruf/sqlite-open';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import type { Connector } from '@workspace/connector/connector';
@@ -49,8 +49,8 @@ function whatsappContainer(home: string): void {
   const store = (file: string, sql: string) => {
     const path = join(container, file);
     mkdirSync(dirname(path), { recursive: true });
-    using database = new DatabaseSync(path);
-    database.exec(`PRAGMA journal_mode = WAL; ${sql}`);
+    using database = open(path);
+    database.exec(sql);
   };
   store(
     'ChatStorage.sqlite',
@@ -118,7 +118,7 @@ async function importWhatsApp(
     // The stores this container lacks fail their streams; the rest load.
     if (!(error instanceof PipelineError)) throw error;
   }
-  using database = new DatabaseSync(join(directory, 'data.sqlite'), {
+  using database = open(join(directory, 'data.sqlite'), {
     readOnly: true,
   });
   return Object.fromEntries(

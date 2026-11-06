@@ -12,10 +12,10 @@ import {
 } from 'node:fs/promises';
 import { availableParallelism } from 'node:os';
 import { basename, dirname, extname, join } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 
 import { Latch } from '@zukhruf/async';
+import { open } from '@zukhruf/sqlite-open';
 import { timebox } from '@zukhruf/testing/async';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { MockTranscriptionModelV4 } from 'ai/test';
@@ -192,7 +192,7 @@ async function importStore(
     });
   };
   const read = (sql: string) => {
-    using database = new DatabaseSync(path, { readOnly: true });
+    using database = open(path, { readOnly: true });
     return database
       .prepare(sql)
       .all()

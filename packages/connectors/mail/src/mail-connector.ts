@@ -1,3 +1,5 @@
+import { open } from '@zukhruf/sqlite-open';
+
 import {
   type Choice,
   type Row,
@@ -5,7 +7,7 @@ import {
   byId,
 } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
-import { type SQLiteDestination, readSQLite } from '@workspace/elt-sqlite';
+import type { SQLiteDestination } from '@workspace/elt-sqlite';
 import {
   AccountsStore,
   accountsStorePath,
@@ -54,7 +56,7 @@ export default class MailConnector extends Connector {
   }
 
   override contentStatus(path: string): readonly string[] {
-    using database = readSQLite(path);
+    using database = open(path, { readOnly: true, timeout: 30_000 });
     const boundary =
       'This import reads the local Mail store. Cloud inbox freshness is unknown.';
     if (
