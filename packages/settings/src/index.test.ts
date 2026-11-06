@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, renameSync } from 'node:fs';
+import { chmodSync, mkdirSync, renameSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 
+import { PersistentWriteAheadLog, open } from '@zukhruf/sqlite-open';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import {
@@ -154,6 +154,58 @@ test('readers find each selected import, where it lives and what access it needs
   );
 });
 
+test(
+  'settings.sqlite and its -wal and -shm files are readable by their owner only',
+  { skip: process.platform === 'win32' },
+  async () => {
+    await using scratch = await new TemporaryFiles().directory('store-');
+    using store = new Settings(scratch.path);
+    store.select(
+      [{ connector: 'notes', scope: {}, includeAttachments: true }],
+      options,
+    );
+
+    const modes = ['', '-wal', '-shm'].map(
+      (suffix) =>
+        statSync(join(scratch.path, `settings.sqlite${suffix}`)).mode & 0o777,
+    );
+
+    assert.deepEqual(modes, [0o600, 0o600, 0o600]);
+  },
+);
+
+test(
+  'after the settings close, a reader that cannot write their folder reads the selection',
+  {
+    skip: process.platform === 'win32' || process.getuid?.() === 0,
+  },
+  async () => {
+    await using scratch = await new TemporaryFiles().directory('store-');
+    {
+      using store = new Settings(scratch.path);
+      store.select(
+        [{ connector: 'notes', scope: {}, includeAttachments: true }],
+        options,
+      );
+    }
+    chmodSync(scratch.path, 0o555);
+    try {
+      using reader = open(join(scratch.path, 'settings.sqlite'), {
+        readOnly: true,
+      });
+
+      const connectors = reader
+        .prepare('SELECT connector FROM selected_connectors')
+        .all()
+        .map(({ connector }) => connector);
+
+      assert.deepEqual(connectors, ['notes']);
+    } finally {
+      chmodSync(scratch.path, 0o700);
+    }
+  },
+);
+
 test('a store moved to another folder still names its imports, their failures and their databases', async () => {
   await using scratch = await new TemporaryFiles().directory('store-');
   const notes = { connector: 'notes', scope: {}, includeAttachments: true };
@@ -199,7 +251,7 @@ test('readers find selected_connectors empty in a new store and in one whose tab
     );
   }
   {
-    using database = new DatabaseSync(settings);
+    using database = open(settings, { journal: new PersistentWriteAheadLog() });
     database.exec(`DROP TABLE connection_failures;
       CREATE TABLE connection_failures (directory TEXT PRIMARY KEY, error TEXT NOT NULL)`);
   }

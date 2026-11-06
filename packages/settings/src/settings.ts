@@ -1,9 +1,10 @@
 import { createHash } from 'node:crypto';
 import { chmodSync, mkdirSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
+import type { DatabaseSync } from 'node:sqlite';
 
 import { Declaration } from '@zukhruf/sqlite-drift';
+import { PersistentWriteAheadLog, open } from '@zukhruf/sqlite-open';
 import { transaction } from '@zukhruf/sqlite-transaction';
 
 import type { FailureType } from '@workspace/elt';
@@ -116,7 +117,12 @@ export class Settings implements Disposable {
     mkdirSync(root, { recursive: true, mode: 0o700 });
     chmodSync(root, 0o700);
     const path = this.#path;
-    this.settings = new DatabaseSync(path, { timeout: writerWaitMs });
+    // Agents read settings.sqlite with sqlite3 -readonly in a sandbox that
+    // cannot write this folder, so its -wal and -shm files stay at the close.
+    this.settings = open(path, {
+      timeout: writerWaitMs,
+      journal: new PersistentWriteAheadLog(),
+    });
     try {
       chmodSync(path, 0o600);
       const built = settingsTables.drift(this.settings) !== 'fits';
@@ -269,7 +275,7 @@ export class Settings implements Disposable {
     },
   ): Disposable & { readonly signal: AbortSignal } {
     const folder = importFolder(selection);
-    const watcher = new DatabaseSync(this.#path, {
+    const watcher = open(this.#path, {
       readOnly: true,
       timeout: writerWaitMs,
     });
