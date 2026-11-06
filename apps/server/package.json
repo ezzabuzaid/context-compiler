@@ -44,6 +44,7 @@
     "@zukhruf/single-flight": "0.6.15",
     "@zukhruf/sqlite-drift": "0.6.15",
     "@zukhruf/sqlite-federation": "0.6.15",
+    "@zukhruf/sqlite-open": "0.7.0",
     "@zukhruf/sqlite-transaction": "0.6.15",
     "react": "19.3.0",
     "react-dom": "19.3.0",

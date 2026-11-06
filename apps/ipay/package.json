@@ -13,7 +13,7 @@
     "@zukhruf/shutdown": "0.6.15",
     "@zukhruf/snapshot-differential": "0.6.15",
     "@zukhruf/sqlite-data-version": "0.6.15",
-    "@zukhruf/sqlite-reader": "0.6.15",
+    "@zukhruf/sqlite-open": "0.7.0",
     "@zukhruf/sqlite-snapshot": "0.6.15",
     "ai": "7.0.162",
     "html-to-text": "10.0.1",

@@ -17,6 +17,7 @@
     "@zukhruf/relevance-filtering": "0.6.15",
     "@zukhruf/shutdown": "0.6.15",
     "@zukhruf/sqlite-drift": "0.6.15",
+    "@zukhruf/sqlite-open": "0.7.0",
     "@zukhruf/sqlite-transaction": "0.6.15",
     "ai": "7.0.156",
     "feedscout": "2.2.1",
