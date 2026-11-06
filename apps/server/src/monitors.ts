@@ -8,7 +8,7 @@ import {
   statSync,
 } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
+import type { DatabaseSync } from 'node:sqlite';
 import { pathToFileURL } from 'node:url';
 import { promisify } from 'node:util';
 
@@ -18,6 +18,7 @@ import {
   type Locate,
   type Query,
 } from '@zukhruf/sqlite-federation';
+import { open } from '@zukhruf/sqlite-open';
 import { transaction } from '@zukhruf/sqlite-transaction';
 import { z } from 'zod';
 
@@ -294,9 +295,8 @@ export class Monitors {
 
   #open(): DatabaseSync {
     mkdirSync(dirname(this.#store), { recursive: true });
-    const store = new DatabaseSync(this.#store, { timeout: 30_000 });
+    const store = open(this.#store, { timeout: 30_000 });
     try {
-      store.exec('PRAGMA foreign_keys = ON');
       monitorTables.apply(store);
       return store;
     } catch (error) {

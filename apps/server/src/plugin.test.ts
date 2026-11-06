@@ -11,11 +11,15 @@ import {
 import { chmod, mkdir, writeFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { join, relative, resolve } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 
+import {
+  PersistentWriteAheadLog,
+  RollbackJournal,
+  open,
+} from '@zukhruf/sqlite-open';
 import { timebox } from '@zukhruf/testing/async';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { z } from 'zod';
@@ -220,7 +224,9 @@ const queued = (thread: string, ...keys: string[]) => [
 function imported(directory: string, item: Selection) {
   const path = importDirectory(directory, item);
   mkdirSync(path, { recursive: true });
-  using database = new DatabaseSync(join(path, 'data.sqlite'));
+  using database = open(join(path, 'data.sqlite'), {
+    journal: new RollbackJournal(),
+  });
   database.exec("CREATE TABLE notes(id TEXT); INSERT INTO notes VALUES('n1');");
   return join(path, 'data.sqlite');
 }
@@ -1425,7 +1431,7 @@ test('two servers importing one selection at once load it in one pass, the secon
   const settled = await Promise.race([both, sleep(30_000).then(() => null)]);
 
   if (settled === null) assert.fail('an import never settled');
-  using data = new DatabaseSync(
+  using data = open(
     join(importDirectory(plugin.directory, photos), 'data.sqlite'),
     { readOnly: true },
   );
@@ -1552,7 +1558,7 @@ test('a chat never calls an import empty while it holds rows that a pass loaded 
   await (await begin()).cancel();
   const cancelled = chatStatus(plugin, pageUri).text;
 
-  using data = new DatabaseSync(
+  using data = open(
     join(importDirectory(plugin.directory, photos), 'data.sqlite'),
     { readOnly: true },
   );
@@ -1605,7 +1611,7 @@ test('the Context Compiler page and chat report Mail local freshness and content
   // body without opening the user's real Mail store.
   const path = plugin.status().connectors[0]?.database;
   assert.ok(path);
-  using database = new DatabaseSync(path);
+  using database = open(path, { journal: new PersistentWriteAheadLog() });
   database.exec(`CREATE TABLE counts (
     message_count INTEGER, latest_received_at TEXT,
     missing_message_files INTEGER, missing_text_bodies INTEGER,

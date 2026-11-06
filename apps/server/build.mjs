@@ -60,7 +60,9 @@ await build({
   // node:sqlite driver, so this import never runs under Node. jsdom, which the
   // web crawler reads pages with, loads its own files from beside its code
   // and does not support bundlers, so it ships below as node_modules.
-  external: ['bun:sqlite', 'jsdom'],
+  // @zukhruf/sqlite-open loads the native library of persistent WAL from its
+  // own lib folder, so it ships there too.
+  external: ['bun:sqlite', 'jsdom', '@zukhruf/sqlite-open'],
   target: 'node24.19',
   outExtension: { '.js': '.mjs' },
   chunkNames: 'chunks/[name]-[hash]',
@@ -103,6 +105,7 @@ ship(
   'jsdom',
   dirname(fileURLToPath(import.meta.resolve('@workspace/sdk-web-crawler'))),
 );
+ship('@zukhruf/sqlite-open', fileURLToPath(new URL('.', import.meta.url)));
 
 const { version } = JSON.parse(
   readFileSync('plugins/context-compiler/.codex-plugin/plugin.json', 'utf8'),
