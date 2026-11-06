@@ -1,4 +1,4 @@
-import { pollChanges } from '@zukhruf/async';
+import { ChangeWatcher } from '@zukhruf/async';
 import { ClosedWorld } from '@zukhruf/snapshot-differential';
 import { DataVersion } from '@zukhruf/sqlite-data-version';
 import { UnavailableError, open } from '@zukhruf/sqlite-open';
@@ -89,16 +89,29 @@ export class ImportsSource extends Source<ImportsScan> {
     if (signal.aborted) return;
     using mail = new DataVersion(this.#paths.mail);
     using messages = new DataVersion(this.#paths.messages);
-    for await (const changed of pollChanges(
-      new Map<ImportConnector, () => Promise<unknown>>([
-        ['mail', async () => mail.current],
-        ['messages', async () => messages.current],
-      ]),
-      { interval: pollIntervalMs, signal, clock },
-    ))
+    const versions: readonly (readonly [ImportConnector, DataVersion])[] = [
+      ['mail', mail],
+      ['messages', messages],
+    ];
+    // The reads are local, so a check that takes the whole interval is stuck.
+    const watcher = new ChangeWatcher([mail, messages], {
+      interval: pollIntervalMs,
+      timeout: pollIntervalMs,
+      clock,
+    });
+    for await (const outcomes of watcher.watch(signal)) {
+      const changedVersions = new Set<DataVersion>();
+      for (const [version, outcome] of outcomes) {
+        if (outcome.state === 'failed') throw outcome.error;
+        if (outcome.state === 'changed') changedVersions.add(version);
+      }
+      const changed = versions
+        .filter(([, version]) => changedVersions.has(version))
+        .map(([connector]) => connector);
       yield streams.filter((stream) =>
-        changed.has(this.#reader(stream).connector),
+        changed.includes(this.#reader(stream).connector),
       );
+    }
   }
 
   protected override async *extract(

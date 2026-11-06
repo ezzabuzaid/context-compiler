@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 
-import { pollChanges } from '@zukhruf/async';
+import { ChangeWatcher } from '@zukhruf/async';
 import { DataVersion } from '@zukhruf/sqlite-data-version';
 import { open } from '@zukhruf/sqlite-open';
 
@@ -18,15 +18,19 @@ export const sql = open(warehousePath, { readOnly: true }).createTagStore();
 
 // Each commit that elt makes, as the data version of the file shows it,
 // checked every second; the first check is one, so a start reads what the
-// warehouse holds.
+// warehouse holds. The read is local, so a check that takes the whole
+// interval is stuck.
 export async function* commits(signal: AbortSignal): AsyncGenerator<void> {
   using version = new DataVersion(warehousePath);
-  for await (const changed of pollChanges(
-    new Map([['warehouse', async () => version.current]]),
-    { interval: 1_000, signal, clock: globalThis },
-  )) {
-    if (changed.size > 0) {
-      yield;
+  const watcher = new ChangeWatcher([version], {
+    interval: 1_000,
+    timeout: 1_000,
+    clock: globalThis,
+  });
+  for await (const outcomes of watcher.watch(signal)) {
+    for (const outcome of outcomes.values()) {
+      if (outcome.state === 'failed') throw outcome.error;
+      if (outcome.state === 'changed') yield;
     }
   }
 }
