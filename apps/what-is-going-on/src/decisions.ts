@@ -1,5 +1,4 @@
 import { join } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
 
 import {
   CoalescingDecisionModel,
@@ -8,6 +7,7 @@ import {
   type Stream,
 } from '@zukhruf/relevance-filtering';
 import { Declaration } from '@zukhruf/sqlite-drift';
+import { open } from '@zukhruf/sqlite-open';
 import {
   APICallError,
   Experimental_DecisionRefusalError,
@@ -34,9 +34,7 @@ const declaration = new Declaration(
   ],
   { rows: 'replace' },
 );
-const db = new DatabaseSync(join(directory, 'decisions.sqlite'), {
-  timeout: 5_000,
-});
+const db = open(join(directory, 'decisions.sqlite'));
 declaration.apply(db);
 const read = db.prepare(
   'SELECT probability FROM decision WHERE state = ? AND question = ?',

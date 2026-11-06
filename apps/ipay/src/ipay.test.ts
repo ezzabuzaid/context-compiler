@@ -11,10 +11,11 @@ import {
 } from 'node:fs';
 import { findPackageJSON } from 'node:module';
 import { dirname, join } from 'node:path';
-import { DatabaseSync, type SQLOutputValue } from 'node:sqlite';
+import type { SQLOutputValue } from 'node:sqlite';
 import test, { type TestContext } from 'node:test';
 import { setTimeout as sleep } from 'node:timers/promises';
 
+import { RollbackJournal, open } from '@zukhruf/sqlite-open';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { z } from 'zod';
 
@@ -54,8 +55,7 @@ type Text = {
 
 // Mail's store on macOS 27, copied from the Mail connector's own preset test
 // (packages/connectors/mail/src/mail-presets.test.ts).
-const envelopeIndexSchema = `PRAGMA journal_mode = WAL;
-CREATE TABLE messages (ROWID INTEGER PRIMARY KEY AUTOINCREMENT,
+const envelopeIndexSchema = `CREATE TABLE messages (ROWID INTEGER PRIMARY KEY AUTOINCREMENT,
 message_id INTEGER NOT NULL DEFAULT 0,
 global_message_id INTEGER NOT NULL,
 remote_id INTEGER,
@@ -303,7 +303,7 @@ function mailStore(home: string, mails: readonly Mail[]) {
   const accounts = join(home, 'Library/Accounts/Accounts4.sqlite');
   if (!existsSync(accounts)) {
     mkdirSync(dirname(accounts), { recursive: true });
-    using database = new DatabaseSync(accounts);
+    using database = open(accounts, { journal: new RollbackJournal() });
     database.exec(`
       CREATE TABLE ZACCOUNT ( Z_PK INTEGER PRIMARY KEY, Z_ENT INTEGER, Z_OPT INTEGER, ZACTIVE INTEGER, ZAUTHENTICATED INTEGER, ZSUPPORTSAUTHENTICATION INTEGER, ZVISIBLE INTEGER, ZWARMINGUP INTEGER, ZACCOUNTTYPE INTEGER, ZPARENTACCOUNT INTEGER, ZDATE TIMESTAMP, ZLASTCREDENTIALRENEWALREJECTIONDATE TIMESTAMP, ZACCOUNTDESCRIPTION VARCHAR, ZAUTHENTICATIONTYPE VARCHAR, ZCREDENTIALTYPE VARCHAR, ZIDENTIFIER VARCHAR, ZMODIFICATIONID VARCHAR, ZOWNINGBUNDLEID VARCHAR, ZUSERNAME VARCHAR, ZDATACLASSPROPERTIES BLOB );
       CREATE TABLE Z_2ENABLEDDATACLASSES ( Z_2ENABLEDACCOUNTS INTEGER, Z_7ENABLEDDATACLASSES INTEGER, PRIMARY KEY (Z_2ENABLEDACCOUNTS, Z_7ENABLEDDATACLASSES) );
@@ -332,7 +332,7 @@ function mailStore(home: string, mails: readonly Mail[]) {
     writeFileSync(join(messages, `${mail.id}.emlx`), emlx(mime(mail)));
   const path = join(root, 'V10/MailData/Envelope Index');
   const created = !existsSync(path);
-  using index = new DatabaseSync(path);
+  using index = open(path);
   if (created) {
     index.exec(envelopeIndexSchema);
     index.exec(
@@ -375,7 +375,6 @@ function mailStore(home: string, mails: readonly Mail[]) {
 // Messages' own table definitions, copied from the Messages source's test
 // (../elt/packages/sources/apple/messages/src/messages-source.test.ts).
 const chatSchema = `
-  PRAGMA journal_mode = WAL;
   CREATE TABLE chat (ROWID INTEGER PRIMARY KEY AUTOINCREMENT, guid TEXT UNIQUE NOT NULL, style INTEGER, state INTEGER, account_id TEXT, properties BLOB, chat_identifier TEXT, service_name TEXT, room_name TEXT, account_login TEXT, is_archived INTEGER DEFAULT 0, last_addressed_handle TEXT, display_name TEXT, group_id TEXT, is_filtered INTEGER DEFAULT 0, successful_query INTEGER, engram_id TEXT, server_change_token TEXT, ck_sync_state INTEGER DEFAULT 0, original_group_id TEXT, last_read_message_timestamp INTEGER DEFAULT 0, cloudkit_record_id TEXT, last_addressed_sim_id TEXT, is_blackholed INTEGER DEFAULT 0, syndication_date INTEGER DEFAULT 0, syndication_type INTEGER DEFAULT 0, is_recovered INTEGER DEFAULT 0, is_deleting_incoming_messages INTEGER DEFAULT 0, is_pending_review INTEGER DEFAULT 0);
   CREATE TABLE handle (ROWID INTEGER PRIMARY KEY AUTOINCREMENT UNIQUE, id TEXT NOT NULL, country TEXT, service TEXT NOT NULL, uncanonicalized_id TEXT, person_centric_id TEXT, UNIQUE (id, service) );
   CREATE TABLE message (ROWID INTEGER PRIMARY KEY AUTOINCREMENT, guid TEXT UNIQUE NOT NULL, text TEXT, replace INTEGER DEFAULT 0, service_center TEXT, handle_id INTEGER DEFAULT 0, subject TEXT, country TEXT, attributedBody BLOB, version INTEGER DEFAULT 0, type INTEGER DEFAULT 0, service TEXT, account TEXT, account_guid TEXT, error INTEGER DEFAULT 0, date INTEGER, date_read INTEGER, date_delivered INTEGER, is_delivered INTEGER DEFAULT 0, is_finished INTEGER DEFAULT 0, is_emote INTEGER DEFAULT 0, is_from_me INTEGER DEFAULT 0, is_empty INTEGER DEFAULT 0, is_delayed INTEGER DEFAULT 0, is_auto_reply INTEGER DEFAULT 0, is_prepared INTEGER DEFAULT 0, is_read INTEGER DEFAULT 0, is_system_message INTEGER DEFAULT 0, is_sent INTEGER DEFAULT 0, has_dd_results INTEGER DEFAULT 0, is_service_message INTEGER DEFAULT 0, is_forward INTEGER DEFAULT 0, was_downgraded INTEGER DEFAULT 0, is_archive INTEGER DEFAULT 0, cache_has_attachments INTEGER DEFAULT 0, cache_roomnames TEXT, was_data_detected INTEGER DEFAULT 0, was_deduplicated INTEGER DEFAULT 0, is_audio_message INTEGER DEFAULT 0, is_played INTEGER DEFAULT 0, date_played INTEGER, item_type INTEGER DEFAULT 0, other_handle INTEGER DEFAULT 0, group_title TEXT, group_action_type INTEGER DEFAULT 0, share_status INTEGER DEFAULT 0, share_direction INTEGER DEFAULT 0, is_expirable INTEGER DEFAULT 0, expire_state INTEGER DEFAULT 0, message_action_type INTEGER DEFAULT 0, message_source INTEGER DEFAULT 0, associated_message_guid TEXT, associated_message_type INTEGER DEFAULT 0, balloon_bundle_id TEXT, payload_data BLOB, expressive_send_style_id TEXT, associated_message_range_location INTEGER DEFAULT 0, associated_message_range_length INTEGER DEFAULT 0, time_expressive_send_played INTEGER, message_summary_info BLOB, ck_sync_state INTEGER DEFAULT 0, ck_record_id TEXT, ck_record_change_tag TEXT, destination_caller_id TEXT, is_corrupt INTEGER DEFAULT 0, reply_to_guid TEXT, sort_id INTEGER, is_spam INTEGER DEFAULT 0, has_unseen_mention INTEGER DEFAULT 0, thread_originator_guid TEXT, thread_originator_part TEXT, syndication_ranges TEXT, synced_syndication_ranges TEXT, was_delivered_quietly INTEGER DEFAULT 0, did_notify_recipient INTEGER DEFAULT 0, date_retracted INTEGER, date_edited INTEGER, was_detonated INTEGER DEFAULT 0, part_count INTEGER, is_stewie INTEGER DEFAULT 0, is_sos INTEGER DEFAULT 0, is_critical INTEGER DEFAULT 0, bia_reference_id TEXT, is_kt_verified INTEGER DEFAULT 0, fallback_hash TEXT, associated_message_emoji TEXT, is_pending_satellite_send INTEGER DEFAULT 0, needs_relay INTEGER DEFAULT 0, schedule_type INTEGER DEFAULT 0, schedule_state INTEGER DEFAULT 0, sent_or_received_off_grid INTEGER DEFAULT 0, date_recovered INTEGER DEFAULT 0, is_time_sensitive INTEGER DEFAULT 0, ck_chat_id TEXT, index_state INTEGER DEFAULT 0, filter_action INTEGER DEFAULT 0, filter_sub_action INTEGER DEFAULT 0, is_preview_sent INTEGER DEFAULT 0, is_preview_delivered INTEGER DEFAULT 0, date_preview_sent INTEGER, date_preview_delivered INTEGER, date_updated INTEGER, retry_count INTEGER);
@@ -398,7 +397,7 @@ function chatStore(home: string, texts: readonly Text[]) {
   const path = join(home, 'Library/Messages/chat.db');
   const created = !existsSync(path);
   mkdirSync(dirname(path), { recursive: true });
-  using database = new DatabaseSync(path);
+  using database = open(path);
   if (created) {
     database.exec(chatSchema);
     database.exec(`
@@ -493,7 +492,8 @@ async function contextCompilerSync(
 }
 
 // Every file under a folder, by its path in the folder, with the SHA-256 of
-// its bytes.
+// its bytes. A -shm file is the wal-index of a write-ahead log, where every
+// reader writes its read mark, so only its presence counts.
 function files(folder: string): Record<string, string> {
   return Object.fromEntries(
     readdirSync(folder, { recursive: true, withFileTypes: true })
@@ -502,7 +502,9 @@ function files(folder: string): Record<string, string> {
         const path = join(entry.parentPath, entry.name);
         return [
           path.slice(folder.length + 1),
-          createHash('sha256').update(readFileSync(path)).digest('hex'),
+          path.endsWith('-shm')
+            ? 'wal-index'
+            : createHash('sha256').update(readFileSync(path)).digest('hex'),
         ];
       })
       .sort(([a], [b]) => a.localeCompare(b)),
@@ -707,7 +709,7 @@ type Read = (sql: string) => Record<string, SQLOutputValue>[];
 const reading =
   (home: string): Read =>
   (sql) => {
-    using database = new DatabaseSync(ipayDatabase(home), {
+    using database = open(ipayDatabase(home), {
       readOnly: true,
       timeout: 10_000,
     });
@@ -1994,13 +1996,13 @@ test("ipay's rows are as current as the imports they come from, not as the run",
   await contextCompilerSync(home.path, ['mail', 'messages']);
   const imports = join(contextCompiler(home.path), 'Imports');
   const importOf = (connector: string) => {
-    using settings = new DatabaseSync(join(imports, 'settings.sqlite'), {
+    using settings = open(join(imports, 'settings.sqlite'), {
       readOnly: true,
     });
     const { database } = settings
       .prepare('SELECT database FROM selected_connectors WHERE connector = ?')
       .get(connector)!;
-    return new DatabaseSync(join(imports, String(database)), {
+    return open(join(imports, String(database)), {
       readOnly: true,
     });
   };

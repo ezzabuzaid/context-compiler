@@ -1,5 +1,7 @@
-import { DatabaseSync, type SQLTagStore } from 'node:sqlite';
+import type { DatabaseSync, SQLTagStore } from 'node:sqlite';
 import { setTimeout } from 'node:timers/promises';
+
+import { open } from '@zukhruf/sqlite-open';
 
 // The app's SQLite file that the alerts read, read only. A commit is any
 // change another connection commits there, the copies' and the offer rule's,
@@ -13,8 +15,8 @@ export class CreditsWarehouse implements Disposable {
 
   constructor(path: string) {
     // A first run has no file yet; elt fills the one this makes.
-    new DatabaseSync(path).close();
-    this.#database = new DatabaseSync(path, { readOnly: true });
+    open(path).close();
+    this.#database = open(path, { readOnly: true });
     this.sql = this.#database.createTagStore();
   }
 

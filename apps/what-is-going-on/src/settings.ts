@@ -1,7 +1,7 @@
 import { join } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
 
 import { Declaration } from '@zukhruf/sqlite-drift';
+import { open } from '@zukhruf/sqlite-open';
 import { z } from 'zod';
 
 import directory from './directory.ts';
@@ -42,9 +42,7 @@ const declaration = new Declaration(
   { rows: 'keep' },
 );
 
-const db = new DatabaseSync(join(directory, 'settings.sqlite'), {
-  timeout: 5_000,
-});
+const db = open(join(directory, 'settings.sqlite'));
 declaration.apply(db);
 
 export type Interest = {

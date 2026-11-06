@@ -1,9 +1,8 @@
 import { join } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
 
 import { pollChanges } from '@zukhruf/async';
 import { DataVersion } from '@zukhruf/sqlite-data-version';
-import { openReader } from '@zukhruf/sqlite-reader';
+import { open } from '@zukhruf/sqlite-open';
 
 import directory from './directory.ts';
 
@@ -12,10 +11,10 @@ import directory from './directory.ts';
 export const warehousePath = join(directory, 'warehouse.sqlite');
 
 // A first start has no file yet; elt fills the one this makes.
-new DatabaseSync(warehousePath).close();
+open(warehousePath).close();
 
 // The API reads the warehouse on a read-only connection.
-export const sql = openReader(warehousePath).createTagStore();
+export const sql = open(warehousePath, { readOnly: true }).createTagStore();
 
 // Each commit that elt makes, as the data version of the file shows it,
 // checked every second; the first check is one, so a start reads what the

@@ -1,7 +1,7 @@
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 
-import { openReader } from '@zukhruf/sqlite-reader';
+import { open } from '@zukhruf/sqlite-open';
 
 // Where Context Compiler keeps its files in this home folder, as its CLI and
 // server do. ipay keeps its own files in a folder beside its imports.
@@ -30,7 +30,7 @@ export class ImportUnavailableError extends Error {
 // only reads: the settings file belongs to Context Compiler.
 export function importPaths(): Readonly<Record<ImportConnector, string>> {
   const settings = join(contextCompiler, 'Imports/settings.sqlite');
-  using database = openReader(settings);
+  using database = open(settings, { readOnly: true });
   const rows = database
     .prepare(
       "SELECT connector, database FROM selected_connectors WHERE connector IN ('mail', 'messages')",

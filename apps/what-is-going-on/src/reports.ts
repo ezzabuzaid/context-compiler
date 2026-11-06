@@ -1,9 +1,9 @@
-import { existsSync } from 'node:fs';
-import { DatabaseSync } from 'node:sqlite';
+import type { DatabaseSync } from 'node:sqlite';
 
 import { Collection } from '@zukhruf/embeddings';
 import { EventDetector, design3152b } from '@zukhruf/event-detection';
 import { Declaration } from '@zukhruf/sqlite-drift';
+import { UnavailableError, open } from '@zukhruf/sqlite-open';
 import { transaction } from '@zukhruf/sqlite-transaction';
 import { z } from 'zod';
 
@@ -98,8 +98,7 @@ export class Reports extends DerivedDataset<SQLiteTable> {
         ]),
       ),
     );
-    using database = new DatabaseSync(this.#path, { timeout: 30_000 });
-    database.exec('PRAGMA journal_mode = WAL');
+    using database = open(this.#path, { timeout: 30_000 });
     declaration.apply(database);
     const upsert = database.prepare(
       `INSERT INTO report (id, url, title, lead, source, kind, publisher, published_at, stored_at)
@@ -215,16 +214,9 @@ export class Reports extends DerivedDataset<SQLiteTable> {
 // title are not reports.
 function articles(connections: readonly Connection<SQLiteTable>[]) {
   return connections.flatMap(({ destination, steps }) => {
-    // A destination's file appears with its first pass's first record.
-    if (
-      !(destination instanceof SQLiteDestination) ||
-      !existsSync(destination.path)
-    )
-      return [];
-    using database = new DatabaseSync(destination.path, {
-      readOnly: true,
-      timeout: 30_000,
-    });
+    if (!(destination instanceof SQLiteDestination)) return [];
+    using database = destinationReader(destination.path);
+    if (database === undefined) return [];
     return steps.flatMap(({ to }) => {
       const relation = to.readerView ?? to.name;
       if (
@@ -242,4 +234,15 @@ function articles(connections: readonly Connection<SQLiteTable>[]) {
         .map((row) => articleSchema.parse(row));
     });
   });
+}
+
+// A reader of a destination's file, which appears with its first pass's first
+// record: undefined before it.
+function destinationReader(path: string): DatabaseSync | undefined {
+  try {
+    return open(path, { readOnly: true, timeout: 30_000 });
+  } catch (error) {
+    if (error instanceof UnavailableError) return undefined;
+    throw error;
+  }
 }

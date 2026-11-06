@@ -1,7 +1,7 @@
 import { pollChanges } from '@zukhruf/async';
 import { ClosedWorld } from '@zukhruf/snapshot-differential';
 import { DataVersion } from '@zukhruf/sqlite-data-version';
-import { UnavailableError, openReader } from '@zukhruf/sqlite-reader';
+import { UnavailableError, open } from '@zukhruf/sqlite-open';
 
 import {
   Catalog,
@@ -70,7 +70,7 @@ export class ImportsSource extends Source<ImportsScan> {
   // by the import's own stream_status.
   override async currentAsOf(stream: Stream): Promise<Date | null> {
     const reader = this.#reader(stream);
-    using database = openReader(this.#paths[reader.connector]);
+    using database = open(this.#paths[reader.connector], { readOnly: true });
     const [row] = database
       .prepare(
         `SELECT min(current_as_of) AS at, count(current_as_of) AS known FROM stream_status WHERE stream IN (${reader.reads.map(() => '?').join(', ')})`,

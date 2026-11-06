@@ -2,10 +2,10 @@ import assert from 'node:assert/strict';
 import { once } from 'node:events';
 import type { AddressInfo } from 'node:net';
 import { join } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
 import test from 'node:test';
 
 import { serve } from '@hono/node-server';
+import { open } from '@zukhruf/sqlite-open';
 import { timebox } from '@zukhruf/testing/async';
 import { HttpServer } from '@zukhruf/testing/http';
 
@@ -302,10 +302,9 @@ function twentyPosts(lab: string) {
 // in decisions.sqlite so that a page asks the model once (#3430), so a test
 // of that reads the file.
 function answers(sentence: string, about = '') {
-  using database = new DatabaseSync(
-    join(data, 'what-is-going-on', 'decisions.sqlite'),
-    { readOnly: true, timeout: 5_000 },
-  );
+  using database = open(join(data, 'what-is-going-on', 'decisions.sqlite'), {
+    readOnly: true,
+  });
   return Number(
     database
       .prepare(

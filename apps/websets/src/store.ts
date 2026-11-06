@@ -1,8 +1,9 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { join } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
+import type { DatabaseSync } from 'node:sqlite';
 
 import { Declaration } from '@zukhruf/sqlite-drift';
+import { open } from '@zukhruf/sqlite-open';
 import { transaction } from '@zukhruf/sqlite-transaction';
 import { z } from 'zod';
 
@@ -151,8 +152,7 @@ class Store {
   readonly #epoch: string;
 
   constructor(path: string) {
-    this.#db = new DatabaseSync(path, { timeout: 5_000 });
-    this.#db.exec('PRAGMA foreign_keys = ON');
+    this.#db = open(path);
     asked.apply(this.#db);
     told.apply(this.#db);
     const epoch = z
