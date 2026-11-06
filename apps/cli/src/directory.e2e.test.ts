@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, realpathSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 
+import { RollbackJournal, open } from '@zukhruf/sqlite-open';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 const entry = join(import.meta.dirname, '../dist/main.js');
@@ -60,9 +60,7 @@ for (const mode of ['default', 'relative', 'absolute'])
     // Seed a real import to exercise the reader without needing the Mac's
     // private Notes store; the connector's tests cover producing its records.
     {
-      using settings = new DatabaseSync(join(root, 'settings.sqlite'), {
-        readOnly: true,
-      });
+      using settings = open(join(root, 'settings.sqlite'), { readOnly: true });
       const database = settings
         .prepare('SELECT database FROM selected_connectors WHERE connector = ?')
         .get('notes')?.database;
@@ -70,7 +68,7 @@ for (const mode of ['default', 'relative', 'absolute'])
       assert.match(database, /^notes\/[0-9a-f]{16}\/data\.sqlite$/);
       const path = join(root, database);
       mkdirSync(dirname(path), { recursive: true });
-      using imported = new DatabaseSync(path);
+      using imported = open(path, { journal: new RollbackJournal() });
       imported.exec(
         "CREATE TABLE notes (title TEXT); INSERT INTO notes VALUES ('Chosen store')",
       );

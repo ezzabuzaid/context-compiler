@@ -3,9 +3,9 @@ import { type ChildProcess, spawn } from 'node:child_process';
 import { once } from 'node:events';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 
+import { open } from '@zukhruf/sqlite-open';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { type ElectronApplication, _electron } from 'playwright';
 
@@ -316,9 +316,8 @@ test(
 );
 
 function imported(store: string): string {
-  using settings = new DatabaseSync(join(store, 'settings.sqlite'), {
+  using settings = open(join(store, 'settings.sqlite'), {
     readOnly: true,
-    timeout: 5_000,
   });
   const row = settings
     .prepare(
@@ -330,7 +329,7 @@ function imported(store: string): string {
 }
 
 function rows(path: string) {
-  using database = new DatabaseSync(path, { readOnly: true });
+  using database = open(path, { readOnly: true });
   return database
     .prepare('SELECT id, title FROM photos ORDER BY id')
     .all()

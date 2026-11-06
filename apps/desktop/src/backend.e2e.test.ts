@@ -9,12 +9,12 @@ import {
 } from 'node:fs';
 import { type FileHandle, open } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
 import { test } from 'node:test';
 import { setTimeout as sleep } from 'node:timers/promises';
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { open as openDatabase } from '@zukhruf/sqlite-open';
 import { settleWithin, timebox } from '@zukhruf/testing/async';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { type ElectronApplication, _electron } from 'playwright';
@@ -205,7 +205,7 @@ test(
         .waitFor({ timeout: 30_000 });
       assert.ok(performance.now() - started > 60_000);
       assert.equal(await page.getByRole('alert').count(), 0);
-      using database = new DatabaseSync(path, { readOnly: true });
+      using database = openDatabase(path, { readOnly: true });
       assert.deepEqual(
         database
           .prepare('SELECT status FROM sync_attempts ORDER BY attempt_id')
@@ -336,7 +336,7 @@ function imported(home: string): string {
     home,
     'Library/Application Support/Context Compiler/Imports',
   );
-  using settings = new DatabaseSync(join(store, 'settings.sqlite'), {
+  using settings = openDatabase(join(store, 'settings.sqlite'), {
     readOnly: true,
   });
   const row = settings

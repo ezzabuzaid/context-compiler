@@ -11,11 +11,7 @@ import type { Locate } from '@zukhruf/sqlite-federation';
 
 import { userConnectors } from '@workspace/connector-manifest/user-connectors';
 import type { ChoiceOptions, Connector } from '@workspace/connector/connector';
-import {
-  type PassState,
-  readPassStatus,
-  readSQLite,
-} from '@workspace/elt-sqlite';
+import { type PassState, readPassStatus } from '@workspace/elt-sqlite';
 import { type Selection, Settings } from '@workspace/settings';
 
 import type { Parsing } from './parsing.ts';
@@ -156,8 +152,7 @@ export class Imports {
     });
   }
 
-  // Locates known imports and recovers interrupted writes before a reader opens
-  // them; unknown names have no path.
+  // Locates known imports; unknown names have no path.
   readonly locate: Locate = (name) => {
     const connector = this.#loaded(name);
     if (connector === undefined) return undefined;
@@ -170,7 +165,6 @@ export class Imports {
     const path = settings.database(selection);
     if (!existsSync(path))
       throw new Error(`${connector.title} has not synced yet; run: sync`);
-    readSQLite(path).close();
     return path;
   };
 
