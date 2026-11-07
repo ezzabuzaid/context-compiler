@@ -1148,3 +1148,69 @@ test('a search whose web search fails answers 502 search_failed', async () => {
     },
   });
 });
+
+// A fetch's answer as a consumer reads it.
+const fetchSchema = z.object({
+  results: z.array(
+    z.object({
+      url: z.string(),
+      finalUrl: z.string(),
+      title: z.string().nullable(),
+      text: z.string(),
+      markdown: z.string(),
+      fetchedAt: z.string(),
+    }),
+  ),
+  errors: z.array(z.object({ url: z.string(), reason: z.string() })),
+});
+
+test("a fetch answers the article of each page now and keeps no dataset; a page that the website's robots.txt disallows is an error and is never requested, and a missing page is an error with its reason", async () => {
+  await using data = await new TemporaryFiles().directory('websets-data-');
+  const missing = 'https://claude.com/programs/missing';
+  const { requests } = await running(data.path, {
+    pages: {
+      ...pages,
+      'https://papers.example.com/robots.txt': {
+        status: 200,
+        type: 'text/plain',
+        body: 'User-agent: *\nDisallow: /agent-memory',
+      },
+      [missing]: { status: 404, type: 'text/html', body: 'Not found' },
+    },
+    ahead: 0,
+    during: async ({ api }) => {
+      const answer = await api('/v1/fetch', {
+        method: 'POST',
+        body: { urls: [claude, paper, missing] },
+      });
+      const datasets = await api('/v1/datasets');
+      const { results, errors } = fetchSchema.parse(answer.body);
+
+      assert.equal(answer.status, 200);
+      assert.deepEqual(
+        results.map(({ url, finalUrl, title, text }) => ({
+          url,
+          finalUrl,
+          title,
+          credits: text.includes('up to $45,000'),
+        })),
+        [
+          {
+            url: claude,
+            finalUrl: claude,
+            title: 'Claude for Startups',
+            credits: true,
+          },
+        ],
+      );
+      assert.deepEqual(
+        errors.map(({ url }) => url),
+        [paper, missing],
+      );
+      assert.match(errors[0]!.reason, /robots\.txt .* disallows/u);
+      assert.match(errors[1]!.reason, /404/u);
+      assert.deepEqual(datasets.body, { data: [] });
+    },
+  });
+  assert.equal(requests.includes(paper), false);
+});

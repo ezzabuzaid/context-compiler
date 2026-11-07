@@ -23,6 +23,7 @@ import { Evaluation } from './rules/evaluation.ts';
 import { FieldValue } from './rules/field.ts';
 import type { Crawled } from './store.ts';
 import { warehousePath } from './warehouse.ts';
+import client from './web-client.ts';
 
 const destination = new SQLiteDestination({ path: warehousePath });
 // One process runs the passes, so a pass left running belongs to one that
@@ -86,12 +87,7 @@ export default async function pipeline(datasets: readonly Crawled[]) {
           },
         ]),
   ];
-  const source = new WebSource({
-    streams,
-    // The crawler's name, which robots.txt groups match (RFC 9309).
-    userAgent: 'Websets/0.1 (+https://github.com/ezzabuzaid/context-compiler)',
-    cachePath: join(directory, 'web-http.sqlite'),
-  });
+  const source = new WebSource({ streams, client });
   const catalog = await source.discover();
   const tables = streams.map(({ stream }) => stream.name);
   const storedPages = new View({

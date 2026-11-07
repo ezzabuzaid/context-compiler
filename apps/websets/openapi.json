@@ -17,6 +17,9 @@
       "name": "events"
     },
     {
+      "name": "fetch"
+    },
+    {
       "name": "items"
     },
     {
@@ -2008,6 +2011,150 @@
             }
           },
           "410": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/fetch": {
+      "post": {
+        "operationId": "fetch",
+        "parameters": [],
+        "tags": ["fetch"],
+        "description": "The article of each page, read now with the crawl's rules: the website's robots.txt, its delay, the crawler's name and the HTTP cache. Nothing else is stored. A page that cannot be read, such as a 403 or a page that robots.txt disallows, is an error with its reason.",
+        "summary": "Read pages now",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": ["urls"],
+                "type": "object",
+                "properties": {
+                  "urls": {
+                    "minItems": 1,
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Response for 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "reason": {
+                            "type": "string"
+                          },
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["reason", "url"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "results": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "fetchedAt": {
+                            "type": "string"
+                          },
+                          "finalUrl": {
+                            "type": "string"
+                          },
+                          "markdown": {
+                            "type": "string"
+                          },
+                          "text": {
+                            "type": "string"
+                          },
+                          "title": {
+                            "anyOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "fetchedAt",
+                          "finalUrl",
+                          "markdown",
+                          "text",
+                          "url"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": ["errors", "results"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
             "description": "An error, in the shape that every error of the API has",
             "content": {
               "application/json": {

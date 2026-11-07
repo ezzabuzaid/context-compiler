@@ -6,6 +6,7 @@ import { z } from 'zod';
 
 import datasetsRoute from './routes/datasets.route.ts';
 import eventsRoute from './routes/events.route.ts';
+import fetchRoute from './routes/fetch.route.ts';
 import itemsRoute from './routes/items.route.ts';
 import searchRoute from './routes/search.route.ts';
 
@@ -59,7 +60,13 @@ app.use(
   }),
   etag(),
 );
-for (const route of [datasetsRoute, itemsRoute, eventsRoute, searchRoute]) {
+for (const route of [
+  datasetsRoute,
+  itemsRoute,
+  eventsRoute,
+  searchRoute,
+  fetchRoute,
+]) {
   route(app);
 }
 app.notFound((c) =>

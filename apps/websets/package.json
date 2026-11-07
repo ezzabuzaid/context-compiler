@@ -10,6 +10,7 @@
     "@workspace/elt": "0.0.1",
     "@workspace/elt-sqlite": "0.0.1",
     "@workspace/quote-grounding": "0.0.1",
+    "@workspace/sdk-web-article": "0.0.1",
     "@workspace/sdk-web-crawler": "0.0.1",
     "@workspace/source-web-pages": "0.0.1",
     "@zukhruf/async": "0.8.0",

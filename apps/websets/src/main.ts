@@ -14,6 +14,7 @@ import queue, { searches } from './queue.ts';
 import { runSearch } from './searching.ts';
 import store, { type Crawled } from './store.ts';
 import { commits } from './warehouse.ts';
+import client from './web-client.ts';
 
 using shutdown = new Shutdown();
 
@@ -118,6 +119,7 @@ await Promise.all([
   })(),
 ]);
 await queue.stop();
+await client[Symbol.asyncDispose]();
 if (failed.signal.aborted && !shutdown.signal.aborted) {
   throw failed.signal.reason;
 }
