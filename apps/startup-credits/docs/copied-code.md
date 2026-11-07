@@ -8,3 +8,21 @@ The Rule of Three counts places, not packages. Code that a second place needs is
 The app keeps its files in a `startup-credits` folder under `XDG_DATA_HOME`, or under `~/.local/share` when that is not set, and makes the folder when the app starts. Each test gives the app a temporary `XDG_DATA_HOME`.
 
 `datahub` (`apps/semantic-layer/elt/src/directory.ts`) has the same concept with one difference: its folder is `outputs/`, next to its code.
+
+## The latest result of each test
+
+**`offers-evals` `src/evals/sob/summary/latest-results.ts` → `promptfoo/summary/latest-results.ts`, with the same code and shorter comments.**
+After a retry, promptfoo gives the `afterAll` hook each error result next to the result of its retry. `latestResults` keeps one result for each test: the result that is not an error, or one error result when the error results have the same scores. The page-kinds summary reads only these results. A third place that reads the results of `afterAll` after a retry extracts the function, probably into `@zukhruf/evals/promptfoo` (backlog #3996).
+
+## The answer of a page whose call failed
+
+**`promptfoo/providers/program-offers.ts` → `promptfoo/providers/page-kinds.ts`, with a label in place of a record.**
+A page whose call failed gives the answer `"null"`, and the provider puts the failure in `metadata.failed`. promptfoo does not grade a result that has no answer, so the expected values of that page would leave the denominators. offers-evals has the same rule in another form: `src/evals/sob/failed-answer.ts` grades the error result again with the answer `null`, because SOB's provider is promptfoo's own. That is the third place, so the rule is due for extraction into `@zukhruf/evals/promptfoo` (backlog #3970).
+
+## Test helpers
+
+Each helper below is in two tests of this app. When a third test needs a helper, the helper moves into `src/testing/`, next to `promptfoo.ts` (backlog #3972). The runner of the promptfoo CLI moved there in this way.
+
+- **The Codex Responses stub:** `src/startup-credits.test.ts` → `promptfoo/test-pages.test.ts`. msw answers at the wire with the SSE events of the Responses API, and a fake JWT login in a temporary `CODEX_HOME` signs in the calls.
+- **The OpenRouter Decisions stub:** `src/startup-credits.test.ts` → `promptfoo/page-kinds.test.ts`. msw answers only a call that has the test key and the text of the page.
+- **The answer key and cache builders** (`answerKeyOf`, `cacheOf`, `sha256`): `promptfoo/test-pages.test.ts` → `promptfoo/page-kinds.test.ts`. The page-kinds copy keeps the kinds only, with no offers or lookalikes.
