@@ -7,7 +7,7 @@
     "emitDeclarationOnly": true,
     "rewriteRelativeImportExtensions": false
   },
-  "include": ["src/**/*.test.ts"],
+  "include": ["src/**/*.test.ts", "src/testing/**/*.ts"],
   "references": [
     {
       "path": "./tsconfig.lib.json"

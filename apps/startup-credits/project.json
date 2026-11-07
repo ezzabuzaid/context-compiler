@@ -33,6 +33,19 @@
         }
       }
     },
+    "promptfoo-kinds": {
+      "dependsOn": ["^build"],
+      "command": "promptfoo eval -c promptfoo/page-kinds.config.ts --tag commit=$(git rev-parse --short HEAD)$(test -z \"$(git status --porcelain -- .)\" || echo -dirty) {args}",
+      "options": {
+        "cwd": "apps/startup-credits",
+        "env": {
+          "PROMPTFOO_PASS_RATE_THRESHOLD": "0",
+          "PROMPTFOO_DISABLE_TELEMETRY": "1",
+          "PROMPTFOO_DISABLE_UPDATE": "1",
+          "PROMPTFOO_DISABLE_SHARING": "true"
+        }
+      }
+    },
     "promptfoo-view": {
       "command": "promptfoo view {args}",
       "options": {

@@ -21,7 +21,7 @@ export default {
     },
   ],
   tests: {
-    path: `file://${join(import.meta.dirname, 'tests.ts')}:load`,
+    path: `file://${join(import.meta.dirname, 'tests.ts')}:offers`,
     config: { answerKey: answerKeyFile, pages: cache },
   },
   // As many calls at once as the app makes.

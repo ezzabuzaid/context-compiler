@@ -1,19 +1,12 @@
 import assert from 'node:assert/strict';
-import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readFile, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { promisify } from 'node:util';
+import { join } from 'node:path';
 
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { describe, test } from '@zukhruf/testing/node';
 
-// promptfoo's command line, beside its main module (dist/src/index.js).
-const promptfoo = join(
-  dirname(fileURLToPath(import.meta.resolve('promptfoo'))),
-  'entrypoint.js',
-);
+import { promptfoo } from '../src/testing/promptfoo.ts';
 
 // What the Codex Responses endpoint answers to one request about a page: the
 // answer text of GPT-6-Luna, an error status, or an answer cut at
@@ -235,12 +228,10 @@ export default {
 };
 `,
   );
-  const { stderr } = await promisify(execFile)(
-    process.execPath,
+  // The test's ChatGPT login, which the provider reads.
+  const { stderr } = await promptfoo(
+    folder.path,
     [
-      '--import',
-      join(folder.path, 'internet.mjs'),
-      promptfoo,
       'eval',
       '-c',
       'promptfooconfig.mjs',
@@ -250,20 +241,8 @@ export default {
       'out.json',
     ],
     {
-      cwd: folder.path,
-      timeout: 120_000,
-      // Only what promptfoo needs: its own data folder, the test's ChatGPT
-      // login, and nothing sent out.
-      env: {
-        PATH: process.env['PATH'],
-        HOME: folder.path,
-        CODEX_HOME: folder.path,
-        PROMPTFOO_CONFIG_DIR: join(folder.path, '.promptfoo'),
-        PROMPTFOO_DISABLE_TELEMETRY: '1',
-        PROMPTFOO_DISABLE_UPDATE: '1',
-        PROMPTFOO_DISABLE_SHARING: 'true',
-        PROMPTFOO_PASS_RATE_THRESHOLD: '0',
-      },
+      imports: [join(folder.path, 'internet.mjs')],
+      env: { CODEX_HOME: folder.path },
     },
   );
   assert.doesNotMatch(stderr, /unplanned model request/u, stderr);

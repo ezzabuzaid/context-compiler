@@ -1,18 +1,11 @@
 import assert from 'node:assert/strict';
-import { execFile } from 'node:child_process';
 import { readFile, writeFile } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { join } from 'node:path';
 import test from 'node:test';
-import { fileURLToPath } from 'node:url';
-import { promisify } from 'node:util';
 
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 
-// promptfoo's command line, beside its main module (dist/src/index.js).
-const promptfoo = join(
-  dirname(fileURLToPath(import.meta.resolve('promptfoo'))),
-  'entrypoint.js',
-);
+import { promptfoo } from '../src/testing/promptfoo.ts';
 
 const mention = { start: 1701, end: 1868 };
 const credits = {
@@ -70,33 +63,15 @@ export default class Fixed {
     }),
   );
 
-  await promisify(execFile)(
-    process.execPath,
-    [
-      promptfoo,
-      'eval',
-      '-c',
-      'promptfooconfig.yaml',
-      '--no-write',
-      '--no-cache',
-      '-o',
-      'out.json',
-    ],
-    {
-      cwd: folder.path,
-      timeout: 120_000,
-      // Only what promptfoo needs: its own data folder, and nothing sent out.
-      env: {
-        PATH: process.env['PATH'],
-        HOME: folder.path,
-        PROMPTFOO_CONFIG_DIR: join(folder.path, '.promptfoo'),
-        PROMPTFOO_DISABLE_TELEMETRY: '1',
-        PROMPTFOO_DISABLE_UPDATE: '1',
-        PROMPTFOO_DISABLE_SHARING: 'true',
-        PROMPTFOO_PASS_RATE_THRESHOLD: '0',
-      },
-    },
-  );
+  await promptfoo(folder.path, [
+    'eval',
+    '-c',
+    'promptfooconfig.yaml',
+    '--no-write',
+    '--no-cache',
+    '-o',
+    'out.json',
+  ]);
   const out: {
     readonly results: {
       readonly prompts: readonly {
