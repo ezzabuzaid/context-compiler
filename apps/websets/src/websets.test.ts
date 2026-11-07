@@ -713,7 +713,7 @@ test("a collection's search finds pages with the query and the criteria, the cra
   });
   assert.deepEqual(
     searched.map(({ model, tools }) => ({ model, tools })),
-    [{ model: 'gpt-6.1-terra', tools: ['web_search'] }],
+    [{ model: 'gpt-6-luna', tools: ['web_search'] }],
   );
 });
 
