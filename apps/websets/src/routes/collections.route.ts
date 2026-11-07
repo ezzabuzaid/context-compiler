@@ -98,6 +98,7 @@ function refuseWhilePassing() {
 export default function (router: Hono) {
   /**
    * @openapi createCollection
+   * @summary Create a collection
    * @tags collections
    * @description Keep a new collection current: the pages that meet every criterion, found by its search, given as pages or linked from its lists, each with its fields. Answers with the collection and its progress; the search, the crawl and the judging run in the background.
    */
@@ -196,6 +197,7 @@ export default function (router: Hono) {
 
   /**
    * @openapi listCollections
+   * @summary List collections
    * @tags collections
    * @description The collections, oldest first, each with its progress.
    */
@@ -209,6 +211,7 @@ export default function (router: Hono) {
 
   /**
    * @openapi getCollection
+   * @summary Get a collection
    * @tags collections
    * @description A collection with its progress: its search, each page that its search found, its pages, items and evaluations.
    */
@@ -224,6 +227,7 @@ export default function (router: Hono) {
 
   /**
    * @openapi deleteCollection
+   * @summary Delete a collection
    * @tags collections
    * @description Stop keeping a collection current. Its events stay in the log.
    */

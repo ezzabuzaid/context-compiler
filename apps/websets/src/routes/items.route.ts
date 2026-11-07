@@ -35,6 +35,7 @@ function offsetOf(given: string): number {
 export default function (router: Hono) {
   /**
    * @openapi listItems
+   * @summary List a collection's items
    * @tags items
    * @description The pages of a collection that meet every criterion, each with its evaluations and fields, as Exa lists the items of a webset. An item reaches the API with the event that announces it.
    */

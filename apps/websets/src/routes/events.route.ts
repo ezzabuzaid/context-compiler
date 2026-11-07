@@ -8,6 +8,7 @@ import store from '../store.ts';
 export default function (router: Hono) {
   /**
    * @openapi listEvents
+   * @summary List a collection's events
    * @tags events
    * @description What happened to a collection's items after the consumer's cursor, as a delta query answers: item.created, item.updated (with the fields before it) and item.removed. A cursor of an earlier log answers 410 resync_required.
    */
