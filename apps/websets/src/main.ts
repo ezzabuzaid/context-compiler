@@ -1,3 +1,4 @@
+import { once } from 'node:events';
 import { aborted } from 'node:util';
 
 import { serve } from '@hono/node-server';
@@ -61,8 +62,13 @@ await Promise.all([
       const built = await pipeline(collections);
       const ends = AbortSignal.any([watching, rebuilt]);
       if (built === null) {
-        // No collection has a starting URL yet.
-        await aborted(ends, collections);
+        // No collection has a starting URL yet: wait for one, or for the
+        // stop, on the signal itself. util.aborted() holds its resource
+        // weakly and never ends once a GC took it (#3929), and once() never
+        // sees an abort that came before it, as a search's rebuild can.
+        if (!ends.aborted) {
+          await once(ends, 'abort');
+        }
         continue;
       }
       try {

@@ -229,6 +229,9 @@ const searches = ${JSON.stringify(searches)};
 const evaluations = ${JSON.stringify(judged)};
 const fields = ${JSON.stringify(fields)};
 let searched = 0;
+// A garbage collection every 50 ms, as a long-running app has them: an
+// object that the app holds only weakly is gone by the stop.
+setInterval(() => globalThis.gc(), 50).unref();
 const RealDate = Date;
 globalThis.Date = class extends RealDate {
   constructor(...args) {
@@ -377,9 +380,11 @@ async function running(
   await writeFile(setup, internet(planned));
   await writeFile(join(folder.path, 'auth.json'), codexLogin, { mode: 0o600 });
   const ended = new AbortController();
+  // The thirty seconds after which the harness sends a second SIGINT.
+  const deadline = AbortSignal.timeout(30_000);
   const app = spawn(
     process.execPath,
-    ['--import', setup, join(import.meta.dirname, 'main.ts')],
+    ['--expose-gc', '--import', setup, join(import.meta.dirname, 'main.ts')],
     {
       stdio: ['ignore', 'pipe', 'pipe'],
       // Only what the app needs, and none of the developer's logins:
@@ -392,16 +397,16 @@ async function running(
         WEBSETS_API_KEYS: `${apiKey},${secondKey}`,
         PORT: '0',
       },
-      signal: AbortSignal.any([ended.signal, AbortSignal.timeout(30_000)]),
-      killSignal: 'SIGINT',
     },
   );
-  // The abort that stops the app is an error event of its child process.
-  const exited = new Promise<void>((resolve, reject) => {
-    app.once('exit', () => resolve());
-    app.once('error', (error) => {
-      if (error.name !== 'AbortError') reject(error);
-    });
+  // SIGINT when the calls end, as Ctrl-C stops the app, and another at the
+  // deadline, as a second Ctrl-C ends a stop that hangs.
+  for (const stop of [ended.signal, deadline]) {
+    stop.addEventListener('abort', () => app.kill('SIGINT'), { once: true });
+  }
+  const exited = new Promise<NodeJS.Signals | null>((resolve, reject) => {
+    app.once('exit', (_, signal) => resolve(signal));
+    app.once('error', reject);
   });
   const seen: {
     lines: string[];
@@ -490,7 +495,7 @@ async function running(
     else errors.push(line);
     check();
   });
-  await exited;
+  const signal = await exited;
   for (const wait of waits) clearTimeout(wait.timer);
   if (calls.state === 'waiting')
     assert.fail(
@@ -503,6 +508,14 @@ async function running(
     );
   if (typeof calls.state === 'object') throw calls.state.error;
   assert.deepEqual(unplanned, [], errors.join('\n'));
+  // The first SIGINT stops the app, and it dies by it, as a shell and a
+  // container expect, not only when the harness sends another at its
+  // deadline (#3929).
+  assert.deepEqual(
+    { signal, beforeTheDeadline: !deadline.aborted },
+    { signal: 'SIGINT', beforeTheDeadline: true },
+    errors.join('\n'),
+  );
   return seen;
 }
 
