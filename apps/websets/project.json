@@ -7,6 +7,13 @@
     "start": {
       "dependsOn": ["build"],
       "command": "node apps/websets/dist/main.js"
+    },
+    "openapi": {
+      "command": "node apps/websets/openapi.ts",
+      "outputs": [
+        "{projectRoot}/openapi.json",
+        "{workspaceRoot}/packages/websets-client/src"
+      ]
     }
   }
 }

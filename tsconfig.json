@@ -112,6 +112,9 @@
     },
     {
       "path": "./packages/quote-grounding"
+    },
+    {
+      "path": "./packages/websets-client"
     }
   ]
 }

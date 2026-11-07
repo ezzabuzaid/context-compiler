@@ -574,6 +574,10 @@ test('the API answers only its consumers: no key or a wrong key gets 401, and ea
         [none.status, wrong.status, first.status, second.status],
         [401, 401, 200, 200],
       );
+      assert.deepEqual(
+        [errorCode(none.body), errorCode(wrong.body)],
+        ['unauthenticated', 'unauthenticated'],
+      );
       assert.deepEqual(first.body, { data: [] });
     },
   });

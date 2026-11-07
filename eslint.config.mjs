@@ -11,7 +11,13 @@ export default defineConfig(
   {
     // Flat config never reads .gitignore, so build output and the bundled
     // plugin server are listed here.
-    ignores: ['**/dist', '**/out-tsc', 'plugins/context-compiler/server'],
+    ignores: [
+      '**/dist',
+      '**/out-tsc',
+      'plugins/context-compiler/server',
+      // sdk-it generates it from apps/websets/openapi.ts.
+      'packages/websets-client/src',
+    ],
   },
   // The React preset comes before the zukhruf configs, so base's changes to
   // third-party rules win.

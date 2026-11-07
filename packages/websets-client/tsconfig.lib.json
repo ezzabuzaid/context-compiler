@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "tsBuildInfoFile": "dist/tsconfig.lib.tsbuildinfo",
+    // sdk-it 0.46.11 generates src; its http/dispatcher.ts and
+    // http/request.ts read array elements without an undefined check.
+    "noUncheckedIndexedAccess": false
+  },
+  "include": ["src/**/*.ts"]
+}

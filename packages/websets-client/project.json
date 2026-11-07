@@ -1,0 +1,8 @@
+{
+  "name": "websets-client",
+  "sourceRoot": "packages/websets-client/src",
+  "projectType": "library",
+  "targets": {
+    "format": {}
+  }
+}

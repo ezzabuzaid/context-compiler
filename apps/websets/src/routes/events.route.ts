@@ -5,21 +5,24 @@ import { z } from 'zod';
 
 import store from '../store.ts';
 
-const limit = z.coerce.number().int().min(1).max(500).default(100);
-const cursor = z.string().optional();
-
 export default function (router: Hono) {
-  // What happened to a collection's items after the consumer's cursor, as a
-  // delta query answers: item.created, item.updated (with the fields before
-  // it) and item.removed.
+  /**
+   * @openapi listEvents
+   * @tags events
+   * @description What happened to a collection's items after the consumer's cursor, as a delta query answers: item.created, item.updated (with the fields before it) and item.removed. A cursor of an earlier log answers 410 resync_required.
+   */
   router.get(
     '/v1/collections/:id/events',
     validate((payload) => ({
-      limit: { select: payload.query.limit, against: limit },
-      cursor: { select: payload.query.cursor, against: cursor },
+      id: { select: payload.params.id, against: z.string() },
+      limit: {
+        select: payload.query.limit,
+        against: z.coerce.number().int().min(1).max(500).default(100),
+      },
+      cursor: { select: payload.query.cursor, against: z.string().optional() },
     })),
     (c) => {
-      const id = c.req.param('id');
+      const { id } = c.var.input;
       if (store.collection(id) === undefined) {
         throw new HTTPException(404, {
           message: 'No such collection',

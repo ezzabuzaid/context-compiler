@@ -6,8 +6,6 @@ import { z } from 'zod';
 import { candidates, itemResource } from '../items.ts';
 import store from '../store.ts';
 
-const limit = z.coerce.number().int().min(1).max(100).default(20);
-const cursor = z.string().optional();
 // An items cursor is the offset of its page, opaque to the consumer.
 const cursorSchema = z.object({ offset: z.number().int().nonnegative() });
 
@@ -35,19 +33,25 @@ function offsetOf(given: string): number {
 }
 
 export default function (router: Hono) {
-  // The pages of a collection that meet every criterion, each with its
-  // evaluations and fields, as Exa lists the items of a webset. An item
-  // reaches the API with the event that announces it.
+  /**
+   * @openapi listItems
+   * @tags items
+   * @description The pages of a collection that meet every criterion, each with its evaluations and fields, as Exa lists the items of a webset. An item reaches the API with the event that announces it.
+   */
   router.get(
     '/v1/collections/:id/items',
     validate((payload) => ({
-      limit: { select: payload.query.limit, against: limit },
-      cursor: { select: payload.query.cursor, against: cursor },
+      id: { select: payload.params.id, against: z.string() },
+      limit: {
+        select: payload.query.limit,
+        against: z.coerce.number().int().min(1).max(100).default(20),
+      },
+      cursor: { select: payload.query.cursor, against: z.string().optional() },
     })),
     (c) => {
       const collection = store
         .crawled()
-        .find(({ id }) => id === c.req.param('id'));
+        .find(({ id }) => id === c.var.input.id);
       if (collection === undefined) {
         throw new HTTPException(404, {
           message: 'No such collection',

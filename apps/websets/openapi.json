@@ -1,0 +1,2373 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Websets",
+    "version": "0.1.0"
+  },
+  "tags": [
+    {
+      "name": "collections"
+    },
+    {
+      "name": "events"
+    },
+    {
+      "name": "items"
+    }
+  ],
+  "security": [
+    {
+      "bearer": []
+    }
+  ],
+  "paths": {
+    "/v1/collections": {
+      "post": {
+        "operationId": "createCollection",
+        "parameters": [],
+        "tags": ["collections"],
+        "description": "Keep a new collection current: the pages that meet every criterion, found by its search, given as pages or linked from its lists, each with its fields. Answers with the collection and its progress; the search, the crawl and the judging run in the background.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "required": ["criteria", "title"],
+                "type": "object",
+                "properties": {
+                  "criteria": {
+                    "minItems": 1,
+                    "maxItems": 5,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "description": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 1000
+                        }
+                      },
+                      "required": ["description"],
+                      "additionalProperties": false
+                    }
+                  },
+                  "fields": {
+                    "default": [],
+                    "maxItems": 10,
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_]{0,62}$"
+                            },
+                            "description": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 1000
+                            },
+                            "format": {
+                              "type": "string",
+                              "const": "text"
+                            }
+                          },
+                          "required": ["name", "description", "format"],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_]{0,62}$"
+                            },
+                            "description": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 1000
+                            },
+                            "format": {
+                              "type": "string",
+                              "const": "number"
+                            }
+                          },
+                          "required": ["name", "description", "format"],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_]{0,62}$"
+                            },
+                            "description": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 1000
+                            },
+                            "format": {
+                              "type": "string",
+                              "const": "date"
+                            }
+                          },
+                          "required": ["name", "description", "format"],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_]{0,62}$"
+                            },
+                            "description": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 1000
+                            },
+                            "format": {
+                              "type": "string",
+                              "const": "url"
+                            }
+                          },
+                          "required": ["name", "description", "format"],
+                          "additionalProperties": false
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "pattern": "^[a-z][a-z0-9_]{0,62}$"
+                            },
+                            "description": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 1000
+                            },
+                            "format": {
+                              "type": "string",
+                              "const": "options"
+                            },
+                            "options": {
+                              "minItems": 2,
+                              "maxItems": 150,
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 200
+                              }
+                            }
+                          },
+                          "required": [
+                            "name",
+                            "description",
+                            "format",
+                            "options"
+                          ],
+                          "additionalProperties": false
+                        }
+                      ]
+                    }
+                  },
+                  "lists": {
+                    "default": [],
+                    "maxItems": 100,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  },
+                  "monitor": {
+                    "type": "object",
+                    "properties": {
+                      "cron": {
+                        "type": "string",
+                        "minLength": 9,
+                        "maxLength": 100
+                      }
+                    },
+                    "required": ["cron"],
+                    "additionalProperties": false
+                  },
+                  "pages": {
+                    "default": [],
+                    "maxItems": 1000,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uri"
+                    }
+                  },
+                  "search": {
+                    "type": "object",
+                    "properties": {
+                      "query": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 5000
+                      },
+                      "count": {
+                        "default": 10,
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 50
+                      }
+                    },
+                    "required": ["query"],
+                    "additionalProperties": false
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 200
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Response for 201",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "createdAt": {
+                      "type": "string"
+                    },
+                    "criteria": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "description": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["description"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "fields": {
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "description": {
+                                "type": "string"
+                              },
+                              "format": {
+                                "anyOf": [
+                                  {
+                                    "enum": ["number"],
+                                    "type": "string"
+                                  },
+                                  {
+                                    "enum": ["text"],
+                                    "type": "string"
+                                  },
+                                  {
+                                    "enum": ["date"],
+                                    "type": "string"
+                                  },
+                                  {
+                                    "enum": ["url"],
+                                    "type": "string"
+                                  }
+                                ]
+                              },
+                              "name": {
+                                "type": "string"
+                              }
+                            },
+                            "required": ["description", "format", "name"],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "description": {
+                                "type": "string"
+                              },
+                              "format": {
+                                "enum": ["options"],
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "options": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "required": [
+                              "description",
+                              "format",
+                              "name",
+                              "options"
+                            ],
+                            "additionalProperties": false
+                          }
+                        ]
+                      }
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "lists": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "monitor": {
+                      "type": "object",
+                      "properties": {
+                        "cron": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["cron"],
+                      "additionalProperties": false
+                    },
+                    "pages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "progress": {
+                      "type": "object",
+                      "properties": {
+                        "evaluations": {
+                          "type": "object",
+                          "properties": {
+                            "failed": {
+                              "type": "number"
+                            },
+                            "judged": {
+                              "type": "number"
+                            },
+                            "pending": {
+                              "type": "number"
+                            }
+                          },
+                          "required": ["failed", "judged", "pending"],
+                          "additionalProperties": false
+                        },
+                        "items": {
+                          "type": "number"
+                        },
+                        "pages": {
+                          "type": "number"
+                        },
+                        "search": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": ["none"],
+                                  "type": "string"
+                                }
+                              },
+                              "required": ["state"],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": ["pending"],
+                                  "type": "string"
+                                }
+                              },
+                              "required": ["state"],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "at": {
+                                  "type": "string"
+                                },
+                                "state": {
+                                  "enum": ["done"],
+                                  "type": "string"
+                                }
+                              },
+                              "required": ["at", "state"],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "at": {
+                                  "type": "string"
+                                },
+                                "error": {
+                                  "type": "string"
+                                },
+                                "state": {
+                                  "enum": ["failed"],
+                                  "type": "string"
+                                }
+                              },
+                              "required": ["at", "error", "state"],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "seeds": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "crawl": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "state": {
+                                        "anyOf": [
+                                          {
+                                            "enum": ["pending"],
+                                            "type": "string"
+                                          },
+                                          {
+                                            "enum": ["read"],
+                                            "type": "string"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "required": ["state"],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "failedAt": {
+                                        "type": "string"
+                                      },
+                                      "reason": {
+                                        "type": "string"
+                                      },
+                                      "state": {
+                                        "enum": ["failed"],
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": ["failedAt", "reason", "state"],
+                                    "additionalProperties": false
+                                  }
+                                ]
+                              },
+                              "rank": {
+                                "type": "number"
+                              },
+                              "url": {
+                                "type": "string"
+                              }
+                            },
+                            "required": ["crawl", "rank", "url"],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "evaluations",
+                        "items",
+                        "pages",
+                        "search",
+                        "seeds"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "search": {
+                      "type": "object",
+                      "properties": {
+                        "count": {
+                          "type": "number"
+                        },
+                        "query": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["count", "query"],
+                      "additionalProperties": false
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "createdAt",
+                    "criteria",
+                    "fields",
+                    "id",
+                    "lists",
+                    "pages",
+                    "progress",
+                    "title"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "headers": {
+              "Location": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "operationId": "listCollections",
+        "parameters": [],
+        "tags": ["collections"],
+        "description": "The collections, oldest first, each with its progress.",
+        "responses": {
+          "200": {
+            "description": "Response for 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "createdAt": {
+                            "type": "string"
+                          },
+                          "criteria": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "description": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": ["description"],
+                              "additionalProperties": false
+                            }
+                          },
+                          "fields": {
+                            "type": "array",
+                            "items": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "description": {
+                                      "type": "string"
+                                    },
+                                    "format": {
+                                      "anyOf": [
+                                        {
+                                          "enum": ["number"],
+                                          "type": "string"
+                                        },
+                                        {
+                                          "enum": ["text"],
+                                          "type": "string"
+                                        },
+                                        {
+                                          "enum": ["date"],
+                                          "type": "string"
+                                        },
+                                        {
+                                          "enum": ["url"],
+                                          "type": "string"
+                                        }
+                                      ]
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": ["description", "format", "name"],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "description": {
+                                      "type": "string"
+                                    },
+                                    "format": {
+                                      "enum": ["options"],
+                                      "type": "string"
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "options": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string"
+                                      }
+                                    }
+                                  },
+                                  "required": [
+                                    "description",
+                                    "format",
+                                    "name",
+                                    "options"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "lists": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "monitor": {
+                            "type": "object",
+                            "properties": {
+                              "cron": {
+                                "type": "string"
+                              }
+                            },
+                            "required": ["cron"],
+                            "additionalProperties": false
+                          },
+                          "pages": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "progress": {
+                            "type": "object",
+                            "properties": {
+                              "evaluations": {
+                                "type": "object",
+                                "properties": {
+                                  "failed": {
+                                    "type": "number"
+                                  },
+                                  "judged": {
+                                    "type": "number"
+                                  },
+                                  "pending": {
+                                    "type": "number"
+                                  }
+                                },
+                                "required": ["failed", "judged", "pending"],
+                                "additionalProperties": false
+                              },
+                              "items": {
+                                "type": "number"
+                              },
+                              "pages": {
+                                "type": "number"
+                              },
+                              "search": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "state": {
+                                        "enum": ["none"],
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": ["state"],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "state": {
+                                        "enum": ["pending"],
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": ["state"],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "at": {
+                                        "type": "string"
+                                      },
+                                      "state": {
+                                        "enum": ["done"],
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": ["at", "state"],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "at": {
+                                        "type": "string"
+                                      },
+                                      "error": {
+                                        "type": "string"
+                                      },
+                                      "state": {
+                                        "enum": ["failed"],
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": ["at", "error", "state"],
+                                    "additionalProperties": false
+                                  }
+                                ]
+                              },
+                              "seeds": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "crawl": {
+                                      "anyOf": [
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "state": {
+                                              "anyOf": [
+                                                {
+                                                  "enum": ["pending"],
+                                                  "type": "string"
+                                                },
+                                                {
+                                                  "enum": ["read"],
+                                                  "type": "string"
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          "required": ["state"],
+                                          "additionalProperties": false
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "failedAt": {
+                                              "type": "string"
+                                            },
+                                            "reason": {
+                                              "type": "string"
+                                            },
+                                            "state": {
+                                              "enum": ["failed"],
+                                              "type": "string"
+                                            }
+                                          },
+                                          "required": [
+                                            "failedAt",
+                                            "reason",
+                                            "state"
+                                          ],
+                                          "additionalProperties": false
+                                        }
+                                      ]
+                                    },
+                                    "rank": {
+                                      "type": "number"
+                                    },
+                                    "url": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": ["crawl", "rank", "url"],
+                                  "additionalProperties": false
+                                }
+                              }
+                            },
+                            "required": [
+                              "evaluations",
+                              "items",
+                              "pages",
+                              "search",
+                              "seeds"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "search": {
+                            "type": "object",
+                            "properties": {
+                              "count": {
+                                "type": "number"
+                              },
+                              "query": {
+                                "type": "string"
+                              }
+                            },
+                            "required": ["count", "query"],
+                            "additionalProperties": false
+                          },
+                          "title": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "createdAt",
+                          "criteria",
+                          "fields",
+                          "id",
+                          "lists",
+                          "pages",
+                          "progress",
+                          "title"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": ["data"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/collections/{id}": {
+      "get": {
+        "operationId": "getCollection",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": ["collections"],
+        "description": "A collection with its progress: its search, each page that its search found, its pages, items and evaluations.",
+        "responses": {
+          "200": {
+            "description": "Response for 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "createdAt": {
+                      "type": "string"
+                    },
+                    "criteria": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "description": {
+                            "type": "string"
+                          }
+                        },
+                        "required": ["description"],
+                        "additionalProperties": false
+                      }
+                    },
+                    "fields": {
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "description": {
+                                "type": "string"
+                              },
+                              "format": {
+                                "anyOf": [
+                                  {
+                                    "enum": ["number"],
+                                    "type": "string"
+                                  },
+                                  {
+                                    "enum": ["text"],
+                                    "type": "string"
+                                  },
+                                  {
+                                    "enum": ["date"],
+                                    "type": "string"
+                                  },
+                                  {
+                                    "enum": ["url"],
+                                    "type": "string"
+                                  }
+                                ]
+                              },
+                              "name": {
+                                "type": "string"
+                              }
+                            },
+                            "required": ["description", "format", "name"],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "description": {
+                                "type": "string"
+                              },
+                              "format": {
+                                "enum": ["options"],
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "options": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string"
+                                }
+                              }
+                            },
+                            "required": [
+                              "description",
+                              "format",
+                              "name",
+                              "options"
+                            ],
+                            "additionalProperties": false
+                          }
+                        ]
+                      }
+                    },
+                    "id": {
+                      "type": "string"
+                    },
+                    "lists": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "monitor": {
+                      "type": "object",
+                      "properties": {
+                        "cron": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["cron"],
+                      "additionalProperties": false
+                    },
+                    "pages": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "progress": {
+                      "type": "object",
+                      "properties": {
+                        "evaluations": {
+                          "type": "object",
+                          "properties": {
+                            "failed": {
+                              "type": "number"
+                            },
+                            "judged": {
+                              "type": "number"
+                            },
+                            "pending": {
+                              "type": "number"
+                            }
+                          },
+                          "required": ["failed", "judged", "pending"],
+                          "additionalProperties": false
+                        },
+                        "items": {
+                          "type": "number"
+                        },
+                        "pages": {
+                          "type": "number"
+                        },
+                        "search": {
+                          "anyOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": ["none"],
+                                  "type": "string"
+                                }
+                              },
+                              "required": ["state"],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "state": {
+                                  "enum": ["pending"],
+                                  "type": "string"
+                                }
+                              },
+                              "required": ["state"],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "at": {
+                                  "type": "string"
+                                },
+                                "state": {
+                                  "enum": ["done"],
+                                  "type": "string"
+                                }
+                              },
+                              "required": ["at", "state"],
+                              "additionalProperties": false
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "at": {
+                                  "type": "string"
+                                },
+                                "error": {
+                                  "type": "string"
+                                },
+                                "state": {
+                                  "enum": ["failed"],
+                                  "type": "string"
+                                }
+                              },
+                              "required": ["at", "error", "state"],
+                              "additionalProperties": false
+                            }
+                          ]
+                        },
+                        "seeds": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "crawl": {
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "state": {
+                                        "anyOf": [
+                                          {
+                                            "enum": ["pending"],
+                                            "type": "string"
+                                          },
+                                          {
+                                            "enum": ["read"],
+                                            "type": "string"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    "required": ["state"],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "failedAt": {
+                                        "type": "string"
+                                      },
+                                      "reason": {
+                                        "type": "string"
+                                      },
+                                      "state": {
+                                        "enum": ["failed"],
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": ["failedAt", "reason", "state"],
+                                    "additionalProperties": false
+                                  }
+                                ]
+                              },
+                              "rank": {
+                                "type": "number"
+                              },
+                              "url": {
+                                "type": "string"
+                              }
+                            },
+                            "required": ["crawl", "rank", "url"],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "evaluations",
+                        "items",
+                        "pages",
+                        "search",
+                        "seeds"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "search": {
+                      "type": "object",
+                      "properties": {
+                        "count": {
+                          "type": "number"
+                        },
+                        "query": {
+                          "type": "string"
+                        }
+                      },
+                      "required": ["count", "query"],
+                      "additionalProperties": false
+                    },
+                    "title": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "createdAt",
+                    "criteria",
+                    "fields",
+                    "id",
+                    "lists",
+                    "pages",
+                    "progress",
+                    "title"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteCollection",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": ["collections"],
+        "description": "Stop keeping a collection current. Its events stay in the log.",
+        "responses": {
+          "204": {
+            "description": "Response for 204",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/collections/{id}/events": {
+      "get": {
+        "operationId": "listEvents",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "x-zod-type": "coerce-number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": ["events"],
+        "description": "What happened to a collection's items after the consumer's cursor, as a delta query answers: item.created, item.updated (with the fields before it) and item.removed. A cursor of an earlier log answers 410 resync_required.",
+        "responses": {
+          "200": {
+            "description": "Response for 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "anyOf": [
+                          {
+                            "allOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "data": {
+                                    "type": "object",
+                                    "properties": {
+                                      "evaluations": {
+                                        "type": "array",
+                                        "items": {
+                                          "anyOf": [
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "criterion": {
+                                                  "type": "string"
+                                                },
+                                                "state": {
+                                                  "enum": ["pending"],
+                                                  "type": "string"
+                                                }
+                                              },
+                                              "required": [
+                                                "criterion",
+                                                "state"
+                                              ],
+                                              "additionalProperties": false
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "criterion": {
+                                                  "type": "string"
+                                                },
+                                                "error": {
+                                                  "type": "string"
+                                                },
+                                                "state": {
+                                                  "enum": ["failed"],
+                                                  "type": "string"
+                                                }
+                                              },
+                                              "required": [
+                                                "criterion",
+                                                "error",
+                                                "state"
+                                              ],
+                                              "additionalProperties": false
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "criterion": {
+                                                  "type": "string"
+                                                },
+                                                "quote": {
+                                                  "anyOf": [
+                                                    {
+                                                      "type": "null"
+                                                    },
+                                                    {
+                                                      "type": "string"
+                                                    }
+                                                  ]
+                                                },
+                                                "reasoning": {
+                                                  "type": "string"
+                                                },
+                                                "satisfied": {
+                                                  "anyOf": [
+                                                    {
+                                                      "enum": ["yes"],
+                                                      "type": "string"
+                                                    },
+                                                    {
+                                                      "enum": ["no"],
+                                                      "type": "string"
+                                                    },
+                                                    {
+                                                      "enum": ["unclear"],
+                                                      "type": "string"
+                                                    }
+                                                  ]
+                                                },
+                                                "state": {
+                                                  "enum": ["judged"],
+                                                  "type": "string"
+                                                }
+                                              },
+                                              "required": [
+                                                "criterion",
+                                                "quote",
+                                                "reasoning",
+                                                "satisfied",
+                                                "state"
+                                              ],
+                                              "additionalProperties": false
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "fields": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                          "anyOf": [
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "state": {
+                                                  "enum": ["pending"],
+                                                  "type": "string"
+                                                }
+                                              },
+                                              "required": ["state"],
+                                              "additionalProperties": false
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "error": {
+                                                  "type": "string"
+                                                },
+                                                "state": {
+                                                  "enum": ["failed"],
+                                                  "type": "string"
+                                                }
+                                              },
+                                              "required": ["error", "state"],
+                                              "additionalProperties": false
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "quote": {
+                                                  "anyOf": [
+                                                    {
+                                                      "type": "null"
+                                                    },
+                                                    {
+                                                      "type": "string"
+                                                    }
+                                                  ]
+                                                },
+                                                "state": {
+                                                  "enum": ["read"],
+                                                  "type": "string"
+                                                },
+                                                "value": {}
+                                              },
+                                              "required": [
+                                                "quote",
+                                                "state",
+                                                "value"
+                                              ],
+                                              "additionalProperties": false
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "id": {
+                                        "type": "string"
+                                      },
+                                      "loadedAt": {
+                                        "type": "string"
+                                      },
+                                      "source": {
+                                        "anyOf": [
+                                          {
+                                            "enum": ["search"],
+                                            "type": "string"
+                                          },
+                                          {
+                                            "enum": ["page"],
+                                            "type": "string"
+                                          },
+                                          {
+                                            "enum": ["list"],
+                                            "type": "string"
+                                          }
+                                        ]
+                                      },
+                                      "title": {
+                                        "anyOf": [
+                                          {
+                                            "type": "null"
+                                          },
+                                          {
+                                            "type": "string"
+                                          }
+                                        ]
+                                      },
+                                      "url": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "evaluations",
+                                      "fields",
+                                      "id",
+                                      "loadedAt",
+                                      "source",
+                                      "title",
+                                      "url"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "previous": {
+                                    "type": "null"
+                                  },
+                                  "type": {
+                                    "anyOf": [
+                                      {
+                                        "enum": ["item.created"],
+                                        "type": "string"
+                                      },
+                                      {
+                                        "enum": ["item.removed"],
+                                        "type": "string"
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": ["data", "previous", "type"],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "createdAt": {
+                                    "type": "string"
+                                  },
+                                  "cursor": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": ["createdAt", "cursor"],
+                                "additionalProperties": false
+                              }
+                            ]
+                          },
+                          {
+                            "allOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "data": {
+                                    "type": "object",
+                                    "properties": {
+                                      "evaluations": {
+                                        "type": "array",
+                                        "items": {
+                                          "anyOf": [
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "criterion": {
+                                                  "type": "string"
+                                                },
+                                                "state": {
+                                                  "enum": ["pending"],
+                                                  "type": "string"
+                                                }
+                                              },
+                                              "required": [
+                                                "criterion",
+                                                "state"
+                                              ],
+                                              "additionalProperties": false
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "criterion": {
+                                                  "type": "string"
+                                                },
+                                                "error": {
+                                                  "type": "string"
+                                                },
+                                                "state": {
+                                                  "enum": ["failed"],
+                                                  "type": "string"
+                                                }
+                                              },
+                                              "required": [
+                                                "criterion",
+                                                "error",
+                                                "state"
+                                              ],
+                                              "additionalProperties": false
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "criterion": {
+                                                  "type": "string"
+                                                },
+                                                "quote": {
+                                                  "anyOf": [
+                                                    {
+                                                      "type": "null"
+                                                    },
+                                                    {
+                                                      "type": "string"
+                                                    }
+                                                  ]
+                                                },
+                                                "reasoning": {
+                                                  "type": "string"
+                                                },
+                                                "satisfied": {
+                                                  "anyOf": [
+                                                    {
+                                                      "enum": ["yes"],
+                                                      "type": "string"
+                                                    },
+                                                    {
+                                                      "enum": ["no"],
+                                                      "type": "string"
+                                                    },
+                                                    {
+                                                      "enum": ["unclear"],
+                                                      "type": "string"
+                                                    }
+                                                  ]
+                                                },
+                                                "state": {
+                                                  "enum": ["judged"],
+                                                  "type": "string"
+                                                }
+                                              },
+                                              "required": [
+                                                "criterion",
+                                                "quote",
+                                                "reasoning",
+                                                "satisfied",
+                                                "state"
+                                              ],
+                                              "additionalProperties": false
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "fields": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                          "anyOf": [
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "state": {
+                                                  "enum": ["pending"],
+                                                  "type": "string"
+                                                }
+                                              },
+                                              "required": ["state"],
+                                              "additionalProperties": false
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "error": {
+                                                  "type": "string"
+                                                },
+                                                "state": {
+                                                  "enum": ["failed"],
+                                                  "type": "string"
+                                                }
+                                              },
+                                              "required": ["error", "state"],
+                                              "additionalProperties": false
+                                            },
+                                            {
+                                              "type": "object",
+                                              "properties": {
+                                                "quote": {
+                                                  "anyOf": [
+                                                    {
+                                                      "type": "null"
+                                                    },
+                                                    {
+                                                      "type": "string"
+                                                    }
+                                                  ]
+                                                },
+                                                "state": {
+                                                  "enum": ["read"],
+                                                  "type": "string"
+                                                },
+                                                "value": {}
+                                              },
+                                              "required": [
+                                                "quote",
+                                                "state",
+                                                "value"
+                                              ],
+                                              "additionalProperties": false
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "id": {
+                                        "type": "string"
+                                      },
+                                      "loadedAt": {
+                                        "type": "string"
+                                      },
+                                      "source": {
+                                        "anyOf": [
+                                          {
+                                            "enum": ["search"],
+                                            "type": "string"
+                                          },
+                                          {
+                                            "enum": ["page"],
+                                            "type": "string"
+                                          },
+                                          {
+                                            "enum": ["list"],
+                                            "type": "string"
+                                          }
+                                        ]
+                                      },
+                                      "title": {
+                                        "anyOf": [
+                                          {
+                                            "type": "null"
+                                          },
+                                          {
+                                            "type": "string"
+                                          }
+                                        ]
+                                      },
+                                      "url": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "evaluations",
+                                      "fields",
+                                      "id",
+                                      "loadedAt",
+                                      "source",
+                                      "title",
+                                      "url"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  "previous": {
+                                    "type": "object",
+                                    "properties": {
+                                      "fields": {
+                                        "type": "object",
+                                        "additionalProperties": {}
+                                      }
+                                    },
+                                    "required": ["fields"],
+                                    "additionalProperties": false
+                                  },
+                                  "type": {
+                                    "enum": ["item.updated"],
+                                    "type": "string"
+                                  }
+                                },
+                                "required": ["data", "previous", "type"],
+                                "additionalProperties": false
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "createdAt": {
+                                    "type": "string"
+                                  },
+                                  "cursor": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": ["createdAt", "cursor"],
+                                "additionalProperties": false
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    },
+                    "hasMore": {
+                      "type": "boolean"
+                    },
+                    "nextCursor": {
+                      "type": "string"
+                    }
+                  },
+                  "required": ["data", "hasMore", "nextCursor"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/collections/{id}/items": {
+      "get": {
+        "operationId": "listItems",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 20,
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "x-zod-type": "coerce-number"
+            }
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "tags": ["items"],
+        "description": "The pages of a collection that meet every criterion, each with its evaluations and fields, as Exa lists the items of a webset. An item reaches the API with the event that announces it.",
+        "responses": {
+          "200": {
+            "description": "Response for 200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "evaluations": {
+                            "type": "array",
+                            "items": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "criterion": {
+                                      "type": "string"
+                                    },
+                                    "state": {
+                                      "enum": ["pending"],
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": ["criterion", "state"],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "criterion": {
+                                      "type": "string"
+                                    },
+                                    "error": {
+                                      "type": "string"
+                                    },
+                                    "state": {
+                                      "enum": ["failed"],
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": ["criterion", "error", "state"],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "criterion": {
+                                      "type": "string"
+                                    },
+                                    "quote": {
+                                      "anyOf": [
+                                        {
+                                          "type": "null"
+                                        },
+                                        {
+                                          "type": "string"
+                                        }
+                                      ]
+                                    },
+                                    "reasoning": {
+                                      "type": "string"
+                                    },
+                                    "satisfied": {
+                                      "anyOf": [
+                                        {
+                                          "enum": ["yes"],
+                                          "type": "string"
+                                        },
+                                        {
+                                          "enum": ["no"],
+                                          "type": "string"
+                                        },
+                                        {
+                                          "enum": ["unclear"],
+                                          "type": "string"
+                                        }
+                                      ]
+                                    },
+                                    "state": {
+                                      "enum": ["judged"],
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "criterion",
+                                    "quote",
+                                    "reasoning",
+                                    "satisfied",
+                                    "state"
+                                  ],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "fields": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "anyOf": [
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "state": {
+                                      "enum": ["pending"],
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": ["state"],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "error": {
+                                      "type": "string"
+                                    },
+                                    "state": {
+                                      "enum": ["failed"],
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": ["error", "state"],
+                                  "additionalProperties": false
+                                },
+                                {
+                                  "type": "object",
+                                  "properties": {
+                                    "quote": {
+                                      "anyOf": [
+                                        {
+                                          "type": "null"
+                                        },
+                                        {
+                                          "type": "string"
+                                        }
+                                      ]
+                                    },
+                                    "state": {
+                                      "enum": ["read"],
+                                      "type": "string"
+                                    },
+                                    "value": {}
+                                  },
+                                  "required": ["quote", "state", "value"],
+                                  "additionalProperties": false
+                                }
+                              ]
+                            }
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "loadedAt": {
+                            "type": "string"
+                          },
+                          "source": {
+                            "anyOf": [
+                              {
+                                "enum": ["search"],
+                                "type": "string"
+                              },
+                              {
+                                "enum": ["page"],
+                                "type": "string"
+                              },
+                              {
+                                "enum": ["list"],
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "title": {
+                            "anyOf": [
+                              {
+                                "type": "null"
+                              },
+                              {
+                                "type": "string"
+                              }
+                            ]
+                          },
+                          "url": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "evaluations",
+                          "fields",
+                          "id",
+                          "loadedAt",
+                          "source",
+                          "title",
+                          "url"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "hasMore": {
+                      "type": "boolean"
+                    },
+                    "nextCursor": {
+                      "anyOf": [
+                        {
+                          "type": "null"
+                        },
+                        {
+                          "type": "string"
+                        }
+                      ]
+                    }
+                  },
+                  "required": ["data", "hasMore", "nextCursor"],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "415": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An error, in the shape that every error of the API has",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ApiError": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": ["code", "message"],
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "invalid_argument, invalid_cursor, unauthenticated, not_found, crawl_running, resync_required or internal"
+              },
+              "message": {
+                "type": "string"
+              },
+              "detail": {
+                "description": "For an invalid input, the errors of each field under fields."
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

@@ -181,3 +181,4 @@ export const itemResource = (
   id: string,
   { matches: _, ...page }: Candidate,
 ) => ({ id, ...page });
+export type Item = ReturnType<typeof itemResource>;

@@ -7,8 +7,9 @@ import { open } from '@zukhruf/sqlite-open';
 import { transaction } from '@zukhruf/sqlite-transaction';
 import { z } from 'zod';
 
-import { type Definition, collectionSchema } from './collection.ts';
+import type { Definition } from './collection.ts';
 import directory from './directory.ts';
+import type { Item } from './items.ts';
 import type { Found } from './search.ts';
 
 // What the consumers asked for: their collections, and the pages that the
@@ -91,10 +92,17 @@ const itemRow = z.object({
 });
 const eventRow = z.object({
   seq: z.number(),
-  type: z.string(),
+  type: z.enum(['item.created', 'item.updated', 'item.removed']),
   data: z.string(),
   previous: z.string().nullable(),
   created_at: z.string(),
+});
+const logRow = z.object({ epoch: z.string() });
+const itemIdRow = z.object({ article_url: z.string(), id: z.string() });
+const failureRow = z.object({
+  url: z.string(),
+  reason: z.string(),
+  failed_at: z.string(),
 });
 const cursorSchema = z.object({ epoch: z.string(), seq: z.number().int() });
 
@@ -113,13 +121,24 @@ type Collection = Definition & {
 // A collection with the pages that its search found, as the crawl reads it.
 export type Crawled = Collection & { readonly seeds: readonly string[] };
 
-type Event = {
-  readonly cursor: string;
-  readonly type: string;
-  readonly data: unknown;
-  readonly previous: unknown;
-  readonly createdAt: string;
-};
+// The fields that the model has read from an item, by name.
+type Fields = Readonly<Record<string, unknown>>;
+
+// A change to an item, as the event log reports it: the item after it, and
+// for item.updated the fields before it.
+type Change =
+  | {
+      readonly type: 'item.created' | 'item.removed';
+      readonly data: Item;
+      readonly previous: null;
+    }
+  | {
+      readonly type: 'item.updated';
+      readonly data: Item;
+      readonly previous: { readonly fields: Fields };
+    };
+
+type Event = Change & { readonly cursor: string; readonly createdAt: string };
 
 const now = () => new Date().toISOString();
 
@@ -135,8 +154,10 @@ function collection(row: unknown): Collection {
   } else {
     searched = { state: 'failed', at: parsed.at, error: parsed.error };
   }
+  // As addCollection stored it, after the route validated it.
+  const definition: Definition = JSON.parse(parsed.definition);
   return {
-    ...collectionSchema.parse(JSON.parse(parsed.definition)),
+    ...definition,
     id: parsed.id,
     createdAt: parsed.created_at,
     searched,
@@ -155,8 +176,7 @@ class Store {
     this.#db = open(path);
     asked.apply(this.#db);
     told.apply(this.#db);
-    const epoch = z
-      .object({ epoch: z.string() })
+    const epoch = logRow
       .optional()
       .parse(this.#db.prepare('SELECT epoch FROM log').get());
     this.#epoch = epoch?.epoch ?? randomUUID();
@@ -264,7 +284,7 @@ class Store {
     | {
         readonly id: string;
         readonly matches: boolean;
-        readonly fields: unknown;
+        readonly fields: Fields;
       }
     | undefined {
     const row = this.#db
@@ -289,9 +309,7 @@ class Store {
         .prepare('SELECT article_url, id FROM item WHERE collection = ?')
         .all(collectionId)
         .map((row) => {
-          const parsed = z
-            .object({ article_url: z.string(), id: z.string() })
-            .parse(row);
+          const parsed = itemIdRow.parse(row);
           return [parsed.article_url, parsed.id] as const;
         }),
     );
@@ -300,10 +318,7 @@ class Store {
   saveItem(
     collectionId: string,
     articleUrl: string,
-    {
-      matches,
-      fields,
-    }: { readonly matches: boolean; readonly fields: unknown },
+    { matches, fields }: { readonly matches: boolean; readonly fields: Fields },
   ): string {
     const id =
       this.item(collectionId, articleUrl)?.id ??
@@ -323,12 +338,7 @@ class Store {
     return id;
   }
 
-  append(event: {
-    readonly collection: string;
-    readonly type: string;
-    readonly data: unknown;
-    readonly previous: unknown;
-  }): void {
+  append(event: Change & { readonly collection: string }): void {
     this.#db
       .prepare(
         'INSERT INTO event (collection, type, data, previous, created_at) VALUES (?, ?, ?, ?, ?)',
@@ -395,13 +405,7 @@ class Store {
         .prepare('SELECT url, reason, failed_at FROM failure')
         .all()
         .map((row) => {
-          const parsed = z
-            .object({
-              url: z.string(),
-              reason: z.string(),
-              failed_at: z.string(),
-            })
-            .parse(row);
+          const parsed = failureRow.parse(row);
           return [
             parsed.url,
             { reason: parsed.reason, failedAt: parsed.failed_at },

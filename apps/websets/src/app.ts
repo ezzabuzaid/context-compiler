@@ -30,7 +30,34 @@ const validationSchema = z.object({
 });
 
 const app = new Hono();
-app.use('/v1/*', bearerAuth({ token: keys }), etag());
+// bearerAuth answers in the API's error shape, beside its WWW-Authenticate
+// challenge: 401 unauthenticated without a key or with a wrong one, and 400
+// when the Authorization header is not a bearer token.
+const unauthenticated = {
+  message: {
+    error: {
+      code: 'unauthenticated',
+      message: 'Give an API key of this API as a bearer token',
+    },
+  },
+};
+app.use(
+  '/v1/*',
+  bearerAuth({
+    token: keys,
+    noAuthenticationHeader: unauthenticated,
+    invalidToken: unauthenticated,
+    invalidAuthenticationHeader: {
+      message: {
+        error: {
+          code: 'invalid_argument',
+          message: 'The Authorization header is not a bearer token',
+        },
+      },
+    },
+  }),
+  etag(),
+);
 for (const route of [collectionsRoute, itemsRoute, eventsRoute]) {
   route(app);
 }

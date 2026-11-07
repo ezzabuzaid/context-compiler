@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // The declarations that @sdk-it/core 0.46.11 publishes import ./deriver
+    // and ./paths without a file extension, which nodenext rejects.
+    "skipLibCheck": true,
+    "rootDir": ".",
+    "outDir": "dist/openapi",
+    "emitDeclarationOnly": true,
+    "rewriteRelativeImportExtensions": false,
+    "tsBuildInfoFile": "dist/openapi/tsconfig.openapi.tsbuildinfo"
+  },
+  "include": ["openapi.ts"]
+}

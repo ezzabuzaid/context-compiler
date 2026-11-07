@@ -3,21 +3,21 @@ import type { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
 
-import { collectionSchema } from '../collection.ts';
 import crawl from '../crawl.ts';
+import * as inputs from '../inputs.ts';
 import { candidates } from '../items.ts';
 import queue, { searches } from '../queue.ts';
 import store, { type Crawled } from '../store.ts';
 import { sql } from '../warehouse.ts';
 
-const shape = collectionSchema.shape;
+const storedPageRow = z.object({ inputUrl: z.string() });
 
 // The pages that the crawl stored, by the starting URL that led to them.
 function storedInputs(): ReadonlySet<string> {
   try {
     return new Set(
       sql.all`SELECT DISTINCT inputUrl FROM stored_pages`.map(
-        (row) => z.object({ inputUrl: z.string() }).parse(row).inputUrl,
+        (row) => storedPageRow.parse(row).inputUrl,
       ),
     );
   } catch (error) {
@@ -28,31 +28,40 @@ function storedInputs(): ReadonlySet<string> {
   }
 }
 
+// How the crawl went for a page that a search found: read, failed with the
+// reason of its last visit, or pending.
+type SeedCrawl =
+  | { readonly state: 'read' | 'pending' }
+  | {
+      readonly state: 'failed';
+      readonly reason: string;
+      readonly failedAt: string;
+    };
+
 // A collection with how far it is: its search, each page that its search
-// found (read, failed with the reason of its last visit, or pending), its
-// pages and items, and its evaluations.
+// found, its pages and items, and its evaluations.
 function collectionResource(collection: Crawled) {
   const { seeds: _, searched, ...definition } = collection;
   const pages = candidates(collection);
   const evaluations = pages.flatMap(({ evaluations: given }) => given);
   const read = storedInputs();
   const failures = store.failures();
+  const crawlOf = (url: string): SeedCrawl => {
+    if (read.has(url)) {
+      return { state: 'read' };
+    }
+    const failure = failures.get(url);
+    return failure === undefined
+      ? { state: 'pending' }
+      : { state: 'failed', ...failure };
+  };
   return {
     ...definition,
     progress: {
       search: searched,
-      seeds: store.seeds(collection.id).map(({ url, rank }) => {
-        const failure = failures.get(url);
-        return {
-          url,
-          rank,
-          crawl: read.has(url)
-            ? { state: 'read' }
-            : failure === undefined
-              ? { state: 'pending' }
-              : { state: 'failed', ...failure },
-        };
-      }),
+      seeds: store
+        .seeds(collection.id)
+        .map(({ url, rank }) => ({ url, rank, crawl: crawlOf(url) })),
       pages: pages.length,
       items: pages.filter(({ matches }) => matches).length,
       evaluations: {
@@ -87,30 +96,78 @@ function refuseWhilePassing() {
 }
 
 export default function (router: Hono) {
+  /**
+   * @openapi createCollection
+   * @tags collections
+   * @description Keep a new collection current: the pages that meet every criterion, found by its search, given as pages or linked from its lists, each with its fields. Answers with the collection and its progress; the search, the crawl and the judging run in the background.
+   */
   router.post(
     '/v1/collections',
     validate((payload) => ({
-      title: { select: payload.body.title, against: shape.title },
-      search: { select: payload.body.search, against: shape.search },
-      criteria: { select: payload.body.criteria, against: shape.criteria },
-      pages: { select: payload.body.pages, against: shape.pages },
-      lists: { select: payload.body.lists, against: shape.lists },
-      fields: { select: payload.body.fields, against: shape.fields },
-      monitor: { select: payload.body.monitor, against: shape.monitor },
+      title: {
+        select: payload.body.title,
+        against: z.string().trim().min(1).max(200),
+      },
+      search: {
+        select: payload.body.search,
+        against: z
+          .object({
+            query: z.string().trim().min(1).max(5000),
+            count: z.number().int().min(1).max(50).default(10),
+          })
+          .optional(),
+      },
+      criteria: {
+        select: payload.body.criteria,
+        against: z
+          .array(z.object({ description: inputs.description }))
+          .min(1)
+          .max(5),
+      },
+      pages: {
+        select: payload.body.pages,
+        against: z.array(inputs.webUrl).max(1000).default([]),
+      },
+      lists: {
+        select: payload.body.lists,
+        against: z.array(inputs.webUrl).max(100).default([]),
+      },
+      fields: {
+        select: payload.body.fields,
+        against: z
+          .array(inputs.field)
+          .max(10)
+          .default([])
+          .refine(
+            (fields) =>
+              new Set(fields.map(({ name }) => name)).size === fields.length,
+            { error: 'Each field needs its own name' },
+          ),
+      },
+      monitor: {
+        select: payload.body.monitor,
+        against: z
+          .object({ cron: z.string().trim().min(9).max(100) })
+          .optional(),
+      },
     })),
     async (c) => {
-      const definition = collectionSchema.safeParse(c.var.input);
-      if (!definition.success) {
+      const definition = c.var.input;
+      const { search, pages, lists, monitor } = definition;
+      if (search === undefined && pages.length === 0 && lists.length === 0) {
         throw new HTTPException(400, {
-          message: definition.error.issues
-            .map(({ message }) => message)
-            .join('; '),
+          message: 'A collection needs a search, pages or lists',
+          cause: { code: 'invalid_argument' },
+        });
+      }
+      if (monitor !== undefined && search === undefined) {
+        throw new HTTPException(400, {
+          message: 'A monitor searches again, so it needs a search',
           cause: { code: 'invalid_argument' },
         });
       }
       refuseWhilePassing();
-      const collection = store.addCollection(definition.data);
-      const { monitor } = definition.data;
+      const collection = store.addCollection(definition);
       if (monitor !== undefined) {
         try {
           await queue.schedule(
@@ -127,7 +184,7 @@ export default function (router: Hono) {
           });
         }
       }
-      if (definition.data.search !== undefined) {
+      if (search !== undefined) {
         await queue.send(searches, { collection: collection.id });
       }
       crawl.rebuild();
@@ -137,20 +194,51 @@ export default function (router: Hono) {
     },
   );
 
-  router.get('/v1/collections', (c) =>
-    c.json({ data: store.crawled().map(collectionResource) }),
+  /**
+   * @openapi listCollections
+   * @tags collections
+   * @description The collections, oldest first, each with its progress.
+   */
+  router.get(
+    '/v1/collections',
+    validate(() => ({})),
+    (c) => {
+      return c.json({ data: store.crawled().map(collectionResource) });
+    },
   );
 
-  router.get('/v1/collections/:id', (c) =>
-    c.json(collectionResource(found(c.req.param('id')))),
+  /**
+   * @openapi getCollection
+   * @tags collections
+   * @description A collection with its progress: its search, each page that its search found, its pages, items and evaluations.
+   */
+  router.get(
+    '/v1/collections/:id',
+    validate((payload) => ({
+      id: { select: payload.params.id, against: z.string() },
+    })),
+    (c) => {
+      return c.json(collectionResource(found(c.var.input.id)));
+    },
   );
 
-  router.delete('/v1/collections/:id', async (c) => {
-    const { id } = found(c.req.param('id'));
-    refuseWhilePassing();
-    await queue.unschedule(searches, id);
-    store.deleteCollection(id);
-    crawl.rebuild();
-    return c.body(null, 204);
-  });
+  /**
+   * @openapi deleteCollection
+   * @tags collections
+   * @description Stop keeping a collection current. Its events stay in the log.
+   */
+  router.delete(
+    '/v1/collections/:id',
+    validate((payload) => ({
+      id: { select: payload.params.id, against: z.string() },
+    })),
+    async (c) => {
+      const { id } = found(c.var.input.id);
+      refuseWhilePassing();
+      await queue.unschedule(searches, id);
+      store.deleteCollection(id);
+      crawl.rebuild();
+      return c.body(null, 204);
+    },
+  );
 }

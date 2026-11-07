@@ -24,6 +24,8 @@
     "zod": "4.6.5"
   },
   "devDependencies": {
+    "@sdk-it/generic": "0.46.11",
+    "@sdk-it/typescript": "0.46.11",
     "@zukhruf/testing": "0.6.15",
     "msw": "^3.0.3"
   }
