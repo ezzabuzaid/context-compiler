@@ -9,8 +9,9 @@ import { CrawlError } from '@workspace/sdk-web-crawler';
 import app from './app.ts';
 import crawl from './crawl.ts';
 import { recordEvents } from './events.ts';
+import { runMonitor } from './monitoring.ts';
 import pipeline, { pagesOf } from './pipeline.ts';
-import queue, { searches } from './queue.ts';
+import queue, { monitors, searches } from './queue.ts';
 import { runSearch } from './searching.ts';
 import store, { type Crawled } from './store.ts';
 import { commits } from './warehouse.ts';
@@ -42,6 +43,8 @@ queue.on('error', (error) => console.error(`queue: ${reasonOf(error)}`));
 await queue.start();
 await queue.createQueue(searches);
 await queue.work(searches, async ([job]) => runSearch(job?.data, watching));
+await queue.createQueue(monitors);
+await queue.work(monitors, async ([job]) => runMonitor(job?.data, watching));
 // The event log is the API's, so it catches up with what the warehouse holds
 // now, which the log did not report.
 recordEvents();

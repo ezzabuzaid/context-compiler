@@ -30,7 +30,11 @@ export default function (router: Hono) {
           cause: { code: 'not_found' },
         });
       }
-      const events = store.events(id, c.var.input.cursor, c.var.input.limit);
+      const events = store.datasetEvents(
+        id,
+        c.var.input.cursor,
+        c.var.input.limit,
+      );
       if (events === 'gone') {
         throw new HTTPException(410, {
           message:

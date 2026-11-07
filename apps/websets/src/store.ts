@@ -10,11 +10,12 @@ import { z } from 'zod';
 import type { Definition } from './dataset.ts';
 import directory from './directory.ts';
 import type { Item } from './items.ts';
+import type { MonitorDefinition } from './monitor.ts';
 import type { Found } from './search.ts';
 
-// What the consumers asked for: their datasets, and the pages that the
-// search of each found. No pipeline run can rebuild them, so a changed
-// declaration keeps the rows.
+// What the consumers asked for: their datasets, the pages that the search of
+// each found, and their monitors with how each last ran. No pipeline run can
+// rebuild them, so a changed declaration keeps the rows.
 const asked = new Declaration(
   [
     `CREATE TABLE dataset (
@@ -36,14 +37,26 @@ const asked = new Declaration(
       rank INTEGER NOT NULL,
       PRIMARY KEY (dataset, url)
     ) STRICT`,
+    `CREATE TABLE monitor (
+      id TEXT PRIMARY KEY,
+      definition TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    ) STRICT`,
+    `CREATE TABLE last_run (
+      monitor TEXT PRIMARY KEY REFERENCES monitor (id) ON DELETE CASCADE,
+      at TEXT NOT NULL,
+      error TEXT
+    ) STRICT`,
   ],
   { rows: 'keep' },
 );
 
 // What the API told: the id it gave each item and the fields that its last
-// event reported; the event log; and why a page did not load. A changed
-// declaration starts a new log with a new epoch, so every cursor of the old
-// log is gone.
+// event reported; what each monitor's last run read, which its next run
+// compares with: a page's text, and every page that a search found; the
+// event log of the datasets and the monitors; and why a page did not load. A
+// changed declaration starts a new log with a new epoch, so every cursor of
+// the old log is gone, and each monitor takes its baseline again.
 const told = new Declaration(
   [
     'CREATE TABLE log (epoch TEXT NOT NULL) STRICT',
@@ -55,9 +68,18 @@ const told = new Declaration(
       fields TEXT NOT NULL,
       PRIMARY KEY (dataset, article_url)
     ) STRICT`,
+    `CREATE TABLE snapshot (
+      monitor TEXT PRIMARY KEY,
+      text TEXT NOT NULL,
+      read_at TEXT NOT NULL
+    ) STRICT`,
+    `CREATE TABLE sighted (
+      monitor TEXT PRIMARY KEY,
+      urls TEXT NOT NULL
+    ) STRICT`,
     `CREATE TABLE event (
       seq INTEGER PRIMARY KEY AUTOINCREMENT,
-      dataset TEXT NOT NULL,
+      resource TEXT NOT NULL,
       type TEXT NOT NULL,
       data TEXT NOT NULL,
       previous TEXT,
@@ -90,9 +112,18 @@ const itemRow = z.object({
   matches: z.union([z.literal(0), z.literal(1)]),
   fields: z.string(),
 });
+const monitorRow = z.object({
+  id: z.string(),
+  definition: z.string(),
+  created_at: z.string(),
+  at: z.string().nullable(),
+  error: z.string().nullable(),
+});
+const snapshotRow = z.object({ text: z.string(), read_at: z.string() });
+const sightedRow = z.object({ urls: z.string() });
 const eventRow = z.object({
   seq: z.number(),
-  type: z.enum(['item.created', 'item.updated', 'item.removed']),
+  type: z.string(),
   data: z.string(),
   previous: z.string().nullable(),
   created_at: z.string(),
@@ -105,10 +136,12 @@ const failureRow = z.object({
   failed_at: z.string(),
 });
 const cursorSchema = z.object({ epoch: z.string(), seq: z.number().int() });
+const itemEventType = z.enum(['item.created', 'item.updated', 'item.removed']);
+const monitorEventType = z.enum(['page.changed', 'search.found']);
 
 // A dataset with how its search went: none when it has no search,
 // pending until the search ends, and done or failed with the time.
-type Dataset = Definition & {
+export type Dataset = Definition & {
   readonly id: string;
   readonly createdAt: string;
   readonly searched:
@@ -124,9 +157,20 @@ export type Crawled = Dataset & { readonly seeds: readonly string[] };
 // The fields that the model has read from an item, by name.
 type Fields = Readonly<Record<string, unknown>>;
 
+// A monitor with how its last run went: none yet, done, or failed with its
+// reason, as Exa's monitors give their last run.
+type Monitor = MonitorDefinition & {
+  readonly id: string;
+  readonly createdAt: string;
+  readonly lastRun:
+    | null
+    | { readonly state: 'done'; readonly at: string }
+    | { readonly state: 'failed'; readonly at: string; readonly error: string };
+};
+
 // A change to an item, as the event log reports it: the item after it, and
 // for item.updated the fields before it.
-type Change =
+type ItemChange =
   | {
       readonly type: 'item.created' | 'item.removed';
       readonly data: Item;
@@ -138,7 +182,29 @@ type Change =
       readonly previous: { readonly fields: Fields };
     };
 
-type Event = Change & { readonly cursor: string; readonly createdAt: string };
+// What a monitor's run found changed: a page's text, as a unified diff, or
+// the pages that its search had never found.
+export type MonitorChange =
+  | {
+      readonly type: 'page.changed';
+      readonly data: { readonly url: string; readonly diff: string };
+    }
+  | {
+      readonly type: 'search.found';
+      readonly data: { readonly urls: readonly string[] };
+    };
+
+type Logged = { readonly cursor: string; readonly createdAt: string };
+
+// One page of a resource's events, oldest first, and whether more follow.
+type Events<T> =
+  | {
+      readonly data: readonly (T & Logged)[];
+      readonly hasMore: boolean;
+      readonly nextCursor: string;
+    }
+  | 'gone'
+  | 'invalid';
 
 const now = () => new Date().toISOString();
 
@@ -166,6 +232,29 @@ function dataset(row: unknown): Dataset {
 
 const selectDatasets = `SELECT d.id, d.definition, d.created_at, s.state, s.error, s.at
   FROM dataset d LEFT JOIN search s ON s.dataset = d.id`;
+
+function monitor(row: unknown): Monitor {
+  const parsed = monitorRow.parse(row);
+  let lastRun: Monitor['lastRun'];
+  if (parsed.at === null) {
+    lastRun = null;
+  } else if (parsed.error === null) {
+    lastRun = { state: 'done', at: parsed.at };
+  } else {
+    lastRun = { state: 'failed', at: parsed.at, error: parsed.error };
+  }
+  // As addMonitor stored it, after the route validated it.
+  const definition: MonitorDefinition = JSON.parse(parsed.definition);
+  return {
+    ...definition,
+    id: parsed.id,
+    createdAt: parsed.created_at,
+    lastRun,
+  };
+}
+
+const selectMonitors = `SELECT m.id, m.definition, m.created_at, r.at, r.error
+  FROM monitor m LEFT JOIN last_run r ON r.monitor = m.id`;
 
 // The API's own file, api.sqlite, beside the warehouse that elt fills.
 class Store {
@@ -229,9 +318,117 @@ class Store {
     }));
   }
 
-  // The dataset and its seeds go; its events and items stay in the log.
+  // The dataset, its seeds and its monitors go; its events and items stay in
+  // the log.
   deleteDataset(id: string): void {
-    this.#db.prepare('DELETE FROM dataset WHERE id = ?').run(id);
+    this.transaction(() => {
+      for (const { id: watching } of this.monitorsOf(id)) {
+        this.deleteMonitor(watching);
+      }
+      this.#db.prepare('DELETE FROM dataset WHERE id = ?').run(id);
+    });
+  }
+
+  addMonitor(definition: MonitorDefinition): Monitor {
+    const id = `mon_${randomBytes(8).toString('hex')}`;
+    this.#db
+      .prepare(
+        'INSERT INTO monitor (id, definition, created_at) VALUES (?, ?, ?)',
+      )
+      .run(id, JSON.stringify(definition), now());
+    return this.monitor(id)!;
+  }
+
+  monitors(): readonly Monitor[] {
+    return this.#db
+      .prepare(`${selectMonitors} ORDER BY m.created_at, m.id`)
+      .all()
+      .map(monitor);
+  }
+
+  monitor(id: string): Monitor | undefined {
+    const row = this.#db.prepare(`${selectMonitors} WHERE m.id = ?`).get(id);
+    return row === undefined ? undefined : monitor(row);
+  }
+
+  // The monitors that run a dataset's search again.
+  monitorsOf(datasetId: string): readonly Monitor[] {
+    return this.#db
+      .prepare(
+        `${selectMonitors} WHERE m.definition ->> '$.target.dataset' = ? ORDER BY m.created_at, m.id`,
+      )
+      .all(datasetId)
+      .map(monitor);
+  }
+
+  // The monitor and what its runs read go; its events stay in the log.
+  deleteMonitor(id: string): void {
+    this.transaction(() => {
+      for (const table of ['snapshot', 'sighted']) {
+        this.#db.prepare(`DELETE FROM ${table} WHERE monitor = ?`).run(id);
+      }
+      this.#db.prepare('DELETE FROM monitor WHERE id = ?').run(id);
+    });
+  }
+
+  checked(id: string): void {
+    this.#db
+      .prepare(
+        'INSERT INTO last_run (monitor, at, error) VALUES (?, ?, NULL) ON CONFLICT (monitor) DO UPDATE SET at = excluded.at, error = NULL',
+      )
+      .run(id, now());
+  }
+
+  checkFailed(id: string, error: string): void {
+    this.#db
+      .prepare(
+        'INSERT INTO last_run (monitor, at, error) VALUES (?, ?, ?) ON CONFLICT (monitor) DO UPDATE SET at = excluded.at, error = excluded.error',
+      )
+      .run(id, now(), error);
+  }
+
+  // The text of a page monitor's page at its last run that read it.
+  snapshot(
+    id: string,
+  ): { readonly text: string; readonly readAt: string } | undefined {
+    const row = this.#db
+      .prepare('SELECT text, read_at FROM snapshot WHERE monitor = ?')
+      .get(id);
+    if (row === undefined) {
+      return undefined;
+    }
+    const parsed = snapshotRow.parse(row);
+    return { text: parsed.text, readAt: parsed.read_at };
+  }
+
+  saveSnapshot(
+    id: string,
+    { text, readAt }: { readonly text: string; readonly readAt: string },
+  ): void {
+    this.#db
+      .prepare(
+        'INSERT INTO snapshot (monitor, text, read_at) VALUES (?, ?, ?) ON CONFLICT (monitor) DO UPDATE SET text = excluded.text, read_at = excluded.read_at',
+      )
+      .run(id, text, readAt);
+  }
+
+  // Every page that a search monitor's runs found, or none before its first.
+  sighted(id: string): readonly string[] | undefined {
+    const row = this.#db
+      .prepare('SELECT urls FROM sighted WHERE monitor = ?')
+      .get(id);
+    // As saveSighted stored it.
+    return row === undefined
+      ? undefined
+      : JSON.parse(sightedRow.parse(row).urls);
+  }
+
+  saveSighted(id: string, urls: readonly string[]): void {
+    this.#db
+      .prepare(
+        'INSERT INTO sighted (monitor, urls) VALUES (?, ?) ON CONFLICT (monitor) DO UPDATE SET urls = excluded.urls',
+      )
+      .run(id, JSON.stringify(urls));
   }
 
   searching(id: string): void {
@@ -330,57 +527,62 @@ class Store {
     return id;
   }
 
-  append(event: Change & { readonly dataset: string }): void {
+  // An event of a dataset or a monitor, by its id.
+  append(resource: string, change: ItemChange | MonitorChange): void {
     this.#db
       .prepare(
-        'INSERT INTO event (dataset, type, data, previous, created_at) VALUES (?, ?, ?, ?, ?)',
+        'INSERT INTO event (resource, type, data, previous, created_at) VALUES (?, ?, ?, ?, ?)',
       )
       .run(
-        event.dataset,
-        event.type,
-        JSON.stringify(event.data),
-        event.previous === null ? null : JSON.stringify(event.previous),
+        resource,
+        change.type,
+        JSON.stringify(change.data),
+        'previous' in change && change.previous !== null
+          ? JSON.stringify(change.previous)
+          : null,
         now(),
       );
   }
 
-  // The events of a dataset after the cursor, oldest first, and whether
-  // more follow. A cursor of an earlier log is gone; one that this API never
-  // gave is invalid.
-  events(
-    datasetId: string,
+  datasetEvents(
+    id: string,
     cursor: string | undefined,
     limit: number,
-  ):
-    | {
-        readonly data: readonly Event[];
-        readonly hasMore: boolean;
-        readonly nextCursor: string;
-      }
-    | 'gone'
-    | 'invalid' {
-    const after = cursor === undefined ? 0 : this.#after(cursor);
-    if (after === 'gone' || after === 'invalid') {
-      return after;
-    }
-    const rows = this.#db
-      .prepare(
-        'SELECT * FROM event WHERE dataset = ? AND seq > ? ORDER BY seq LIMIT ?',
-      )
-      .all(datasetId, after, limit + 1)
-      .map((row) => eventRow.parse(row));
-    const data = rows.slice(0, limit).map((row) => ({
-      cursor: this.#cursor(row.seq),
-      type: row.type,
-      data: JSON.parse(row.data),
-      previous: row.previous === null ? null : JSON.parse(row.previous),
-      createdAt: row.created_at,
-    }));
-    return {
-      data,
-      hasMore: rows.length > limit,
-      nextCursor: data.at(-1)?.cursor ?? this.#cursor(after),
-    };
+  ): Events<ItemChange> {
+    const page = this.#events(id, cursor, limit);
+    return typeof page === 'string'
+      ? page
+      : {
+          data: page.rows.map((row) => ({
+            cursor: this.#cursor(row.seq),
+            type: itemEventType.parse(row.type),
+            data: JSON.parse(row.data),
+            previous: row.previous === null ? null : JSON.parse(row.previous),
+            createdAt: row.created_at,
+          })),
+          hasMore: page.hasMore,
+          nextCursor: page.nextCursor,
+        };
+  }
+
+  monitorEvents(
+    id: string,
+    cursor: string | undefined,
+    limit: number,
+  ): Events<MonitorChange> {
+    const page = this.#events(id, cursor, limit);
+    return typeof page === 'string'
+      ? page
+      : {
+          data: page.rows.map((row) => ({
+            cursor: this.#cursor(row.seq),
+            type: monitorEventType.parse(row.type),
+            data: JSON.parse(row.data),
+            createdAt: row.created_at,
+          })),
+          hasMore: page.hasMore,
+          nextCursor: page.nextCursor,
+        };
   }
 
   failed(url: string, reason: string): void {
@@ -404,6 +606,28 @@ class Store {
           ] as const;
         }),
     );
+  }
+
+  // The events of a dataset or a monitor after the cursor, oldest first, and
+  // whether more follow. A cursor of an earlier log is gone; one that this
+  // API never gave is invalid.
+  #events(resource: string, cursor: string | undefined, limit: number) {
+    const after = cursor === undefined ? 0 : this.#after(cursor);
+    if (after === 'gone' || after === 'invalid') {
+      return after;
+    }
+    const rows = this.#db
+      .prepare(
+        'SELECT * FROM event WHERE resource = ? AND seq > ? ORDER BY seq LIMIT ?',
+      )
+      .all(resource, after, limit + 1)
+      .map((row) => eventRow.parse(row));
+    const page = rows.slice(0, limit);
+    return {
+      rows: page,
+      hasMore: rows.length > limit,
+      nextCursor: this.#cursor(page.at(-1)?.seq ?? after),
+    };
   }
 
   #cursor(seq: number): string {

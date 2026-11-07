@@ -8,6 +8,8 @@ import datasetsRoute from './routes/datasets.route.ts';
 import eventsRoute from './routes/events.route.ts';
 import fetchRoute from './routes/fetch.route.ts';
 import itemsRoute from './routes/items.route.ts';
+import monitorEventsRoute from './routes/monitor-events.route.ts';
+import monitorsRoute from './routes/monitors.route.ts';
 import searchRoute from './routes/search.route.ts';
 
 // The key of each consumer that may call the API, separated by commas. The
@@ -66,6 +68,8 @@ for (const route of [
   eventsRoute,
   searchRoute,
   fetchRoute,
+  monitorsRoute,
+  monitorEventsRoute,
 ]) {
   route(app);
 }

@@ -6,7 +6,7 @@ import { z } from 'zod';
 import crawl from '../crawl.ts';
 import * as inputs from '../inputs.ts';
 import { candidates } from '../items.ts';
-import queue, { searches } from '../queue.ts';
+import queue, { monitors, searches } from '../queue.ts';
 import store, { type Crawled } from '../store.ts';
 import { sql } from '../warehouse.ts';
 
@@ -111,12 +111,7 @@ export default function (router: Hono) {
       },
       search: {
         select: payload.body.search,
-        against: z
-          .object({
-            query: inputs.searchQuery,
-            count: z.number().int().min(1).max(50).default(10),
-          })
-          .optional(),
+        against: inputs.search.optional(),
       },
       criteria: {
         select: payload.body.criteria,
@@ -145,46 +140,18 @@ export default function (router: Hono) {
             { error: 'Each field needs its own name' },
           ),
       },
-      monitor: {
-        select: payload.body.monitor,
-        against: z
-          .object({ cron: z.string().trim().min(9).max(100) })
-          .optional(),
-      },
     })),
     async (c) => {
       const definition = c.var.input;
-      const { search, pages, lists, monitor } = definition;
+      const { search, pages, lists } = definition;
       if (search === undefined && pages.length === 0 && lists.length === 0) {
         throw new HTTPException(400, {
           message: 'A dataset needs a search, pages or lists',
           cause: { code: 'invalid_argument' },
         });
       }
-      if (monitor !== undefined && search === undefined) {
-        throw new HTTPException(400, {
-          message: 'A monitor searches again, so it needs a search',
-          cause: { code: 'invalid_argument' },
-        });
-      }
       refuseWhilePassing();
       const dataset = store.addDataset(definition);
-      if (monitor !== undefined) {
-        try {
-          await queue.schedule(
-            searches,
-            monitor.cron,
-            { dataset: dataset.id },
-            { key: dataset.id },
-          );
-        } catch (error) {
-          store.deleteDataset(dataset.id);
-          throw new HTTPException(400, {
-            message: `The monitor's cron is not valid: ${Error.isError(error) ? error.message : String(error)}`,
-            cause: { code: 'invalid_argument' },
-          });
-        }
-      }
       if (search !== undefined) {
         await queue.send(searches, { dataset: dataset.id });
       }
@@ -229,7 +196,7 @@ export default function (router: Hono) {
    * @openapi deleteDataset
    * @summary Delete a dataset
    * @tags datasets
-   * @description Stop keeping a dataset current. Its events stay in the log.
+   * @description Stop keeping a dataset current, with its monitors. Its events stay in the log.
    */
   router.delete(
     '/v1/datasets/:id',
@@ -239,7 +206,9 @@ export default function (router: Hono) {
     async (c) => {
       const { id } = found(c.var.input.id);
       refuseWhilePassing();
-      await queue.unschedule(searches, id);
+      for (const monitor of store.monitorsOf(id)) {
+        await queue.unschedule(monitors, monitor.id);
+      }
       store.deleteDataset(id);
       crawl.rebuild();
       return c.body(null, 204);

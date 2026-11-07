@@ -21,6 +21,7 @@
     "@zukhruf/sqlite-queue": "0.6.15",
     "@zukhruf/sqlite-transaction": "0.6.15",
     "ai": "7.0.158",
+    "diff": "9.0.0",
     "hono": "4.13.14",
     "zod": "4.6.5"
   },

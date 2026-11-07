@@ -11,6 +11,13 @@ export const description = z.string().trim().min(1).max(1000);
 // What a web search looks for.
 export const searchQuery = z.string().trim().min(1).max(5000);
 
+// A web search that a dataset or a monitor runs: what it looks for, and how
+// many pages it lists, 10 unless it asks, at most 50.
+export const search = z.object({
+  query: searchQuery,
+  count: z.number().int().min(1).max(50).default(10),
+});
+
 // A page to read, or a list whose links are the pages to read.
 export const webUrl = z.url({ protocol: /^https?$/u });
 

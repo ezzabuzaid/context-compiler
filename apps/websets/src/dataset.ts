@@ -16,7 +16,7 @@ export type Field =
 // What a consumer asks: the pages that meet every criterion, found by a web
 // search, given as pages, or linked from lists, each with the fields to
 // extract, as Exa's Websets take a search with criteria, imports and
-// enrichments. A monitor searches again on a cron, at most once a day.
+// enrichments.
 export type Definition = {
   readonly title: string;
   readonly search?: { readonly query: string; readonly count: number };
@@ -24,5 +24,4 @@ export type Definition = {
   readonly pages: readonly string[];
   readonly lists: readonly string[];
   readonly fields: readonly Field[];
-  readonly monitor?: { readonly cron: string };
 };

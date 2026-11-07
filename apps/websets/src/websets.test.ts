@@ -973,33 +973,20 @@ test("a search that fails is failed with its reason in the dataset's progress, a
   });
 });
 
-test('a dataset that the API cannot keep is refused with invalid_argument and not kept: no criteria, a monitor without a search, a cron that is not one', async () => {
+test('a dataset that the API cannot keep is refused with invalid_argument and not kept: no criteria', async () => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   await running(data.path, {
     pages,
     ahead: 0,
     during: async ({ api }) => {
-      const refused = [];
-      for (const body of [
-        { ...creditsDataset, criteria: [] },
-        { ...creditsDataset, monitor: { cron: '0 9 * * 1' } },
-        {
-          ...creditsDataset,
-          search: { query: 'credits' },
-          monitor: { cron: 'not a cron at all' },
-        },
-      ]) {
-        refused.push(await api('/v1/datasets', { method: 'POST', body }));
-      }
-      const [noCriteria] = refused;
+      const refused = await api('/v1/datasets', {
+        method: 'POST',
+        body: { ...creditsDataset, criteria: [] },
+      });
 
       assert.deepEqual(
-        refused.map(({ status, body }) => [status, errorCode(body)]),
-        [
-          [400, 'invalid_argument'],
-          [400, 'invalid_argument'],
-          [400, 'invalid_argument'],
-        ],
+        [refused.status, errorCode(refused.body)],
+        [400, 'invalid_argument'],
       );
       assert.deepEqual(
         Object.keys(
@@ -1009,7 +996,7 @@ test('a dataset that the API cannot keep is refused with invalid_argument and no
                 detail: z.object({ fields: z.record(z.string(), z.unknown()) }),
               }),
             })
-            .parse(noCriteria?.body).error.detail.fields,
+            .parse(refused.body).error.detail.fields,
         ),
         ['criteria'],
       );
@@ -1213,4 +1200,618 @@ test("a fetch answers the article of each page now and keeps no dataset; a page 
     },
   });
   assert.equal(requests.includes(paper), false);
+});
+
+// A monitor as a consumer reads it, and its events.
+const monitorSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  target: z.unknown(),
+  cron: z.string(),
+  createdAt: z.string(),
+  lastRun: z.union([
+    z.null(),
+    z.object({ state: z.literal('done'), at: z.string() }),
+    z.object({ state: z.literal('failed'), at: z.string(), error: z.string() }),
+  ]),
+});
+const monitorEventsSchema = z.object({
+  data: z.array(
+    z.object({
+      cursor: z.string(),
+      type: z.string(),
+      data: z.unknown(),
+      createdAt: z.string(),
+    }),
+  ),
+  hasMore: z.boolean(),
+  nextCursor: z.string(),
+});
+// Every day at midnight UTC: a run that the app missed while it was stopped
+// runs once after the start, so a test runs the app again a day later.
+const daily = '0 0 * * *';
+const day = 24 * 3_600_000;
+
+// Asks the API for a new monitor, and gives its id.
+async function watch(api: Serving['api'], body: unknown) {
+  const created = await api('/v1/monitors', { method: 'POST', body });
+  assert.equal(created.status, 201, JSON.stringify(created.body));
+  return monitorSchema.parse(created.body).id;
+}
+const lastRun = async (api: Serving['api'], id: string) =>
+  monitorSchema.parse((await api(`/v1/monitors/${id}`)).body).lastRun;
+const monitorEvents = async (
+  api: Serving['api'],
+  id: string,
+  cursor?: string,
+) =>
+  monitorEventsSchema.parse(
+    (
+      await api(
+        `/v1/monitors/${id}/events${cursor === undefined ? '' : `?cursor=${cursor}`}`,
+      )
+    ).body,
+  );
+// True once the app requested the page the given number of times.
+const requested =
+  (url: string, times: number): Holds =>
+  ({ requests }) =>
+    requests.filter((request) => request === url).length >= times;
+
+test('a monitor whose target cannot be read records the failed run with its reason and reports nothing: a missing page, a page that its website disallows, which is never requested, and a web search that fails', async () => {
+  await using data = await new TemporaryFiles().directory('websets-data-');
+  const missing = 'https://claude.com/programs/missing';
+  const query = 'AI labs that give startups free credits';
+  // The endpoint's 500, as the AI SDK retries it twice before it gives up.
+  const failure: Search = {
+    for: [query],
+    status: 500,
+    body: {
+      error: {
+        message: 'The server had an error while processing your request.',
+        type: 'server_error',
+      },
+    },
+  };
+  const { requests } = await running(data.path, {
+    pages: {
+      ...pages,
+      'https://papers.example.com/robots.txt': {
+        status: 200,
+        type: 'text/plain',
+        body: 'User-agent: *\nDisallow: /agent-memory',
+      },
+      [missing]: { status: 404, type: 'text/html', body: 'Not found' },
+    },
+    searches: [failure, failure, failure],
+    ahead: 0,
+    during: async ({ api, quiet }) => {
+      const ids: string[] = [];
+      for (const target of [
+        { page: missing },
+        { page: paper },
+        { search: { query } },
+      ]) {
+        ids.push(await watch(api, { name: 'Unreadable', target, cron: daily }));
+      }
+      await quiet(
+        ({ lines }) =>
+          lines.filter((line) => line.startsWith('could not check')).length >=
+          3,
+      );
+      const runs = [];
+      const events = [];
+      for (const id of ids) {
+        runs.push(await lastRun(api, id));
+        events.push((await monitorEvents(api, id)).data);
+      }
+
+      assert.deepEqual(
+        runs.map((run) => run?.state),
+        ['failed', 'failed', 'failed'],
+      );
+      const [gone, disallowed, unsearched] = runs.map((run) =>
+        run?.state === 'failed' ? run.error : '',
+      );
+      assert.match(gone!, /404/u);
+      assert.match(disallowed!, /robots\.txt .* disallows/u);
+      assert.match(
+        unsearched!,
+        /The server had an error while processing your request\./u,
+      );
+      assert.deepEqual(events, [[], [], []]);
+    },
+  });
+  assert.equal(requests.includes(paper), false);
+});
+
+test('a monitor that the API cannot keep is refused with invalid_argument and not kept: a cron that is not one, a target of two kinds, a dataset that does not exist, and a dataset with no search', async () => {
+  await using data = await new TemporaryFiles().directory('websets-data-');
+  await running(data.path, {
+    pages,
+    evaluations,
+    fields: fieldAnswers,
+    ahead: 0,
+    during: async ({ api }) => {
+      // A dataset of a list, which has no search to run again.
+      const listed = await create(api, creditsDataset);
+      const refused = [];
+      for (const body of [
+        { name: 'Claude', target: { page: claude }, cron: 'not a cron at all' },
+        {
+          name: 'Claude',
+          target: { page: claude, search: { query: 'startup credits' } },
+          cron: daily,
+        },
+        {
+          name: 'Credits',
+          target: { dataset: 'ds_0000000000000000' },
+          cron: daily,
+        },
+        { name: 'Credits', target: { dataset: listed }, cron: daily },
+      ]) {
+        refused.push(await api('/v1/monitors', { method: 'POST', body }));
+      }
+
+      assert.deepEqual(
+        refused.map(({ status, body }) => [status, errorCode(body)]),
+        [
+          [400, 'invalid_argument'],
+          [400, 'invalid_argument'],
+          [400, 'invalid_argument'],
+          [400, 'invalid_argument'],
+        ],
+      );
+      assert.deepEqual((await api('/v1/monitors')).body, { data: [] });
+    },
+  });
+});
+
+// The lines of a unified diff that a change removed or added.
+const changedLines = (diff: string) =>
+  diff.split('\n').filter((line) => /^[-+](?![-+]{2} )/u.test(line));
+const pageChangedSchema = z.object({
+  type: z.literal('page.changed'),
+  data: z.object({ url: z.string(), diff: z.string() }),
+});
+
+test("a page monitor's first run reads its baseline and reports nothing; a later run reports page.changed with a unified diff of the page's text when it changed, and nothing when it did not; a cursor reads only the changes after it", async () => {
+  await using data = await new TemporaryFiles().directory('websets-data-');
+  const credits =
+    'Access discounts and credits worth up to $45,000 from companies building with Claude.';
+  const community = 'Join a community of founders building with Claude.';
+  const moreCredits =
+    'Access discounts and credits worth up to $60,000 from companies building with Claude.';
+  const claudeSays = (sentence: string) =>
+    ok(claudeProgram.body.replace(credits, sentence));
+  let watched = '';
+  let unchanged = '';
+  let after = '';
+  await running(data.path, {
+    pages,
+    ahead: 0,
+    during: async ({ api, quiet }) => {
+      const created = await api('/v1/monitors', {
+        method: 'POST',
+        body: {
+          name: 'Claude for Startups',
+          target: { page: claude },
+          cron: daily,
+        },
+      });
+      watched = monitorSchema.parse(created.body).id;
+      unchanged = await watch(api, {
+        name: 'Microsoft for Startups',
+        target: { page: microsoft },
+        cron: daily,
+      });
+      await quiet(all(requested(claude, 1), requested(microsoft, 1)));
+      const read = await api(`/v1/monitors/${watched}`);
+      const log = await monitorEvents(api, watched);
+      const {
+        id: _,
+        createdAt: __,
+        ...answered
+      } = monitorSchema.parse(created.body);
+
+      assert.equal(created.status, 201);
+      assert.deepEqual(answered, {
+        name: 'Claude for Startups',
+        target: { page: claude },
+        cron: daily,
+        lastRun: null,
+      });
+      assert.equal(monitorSchema.parse(read.body).lastRun?.state, 'done');
+      assert.deepEqual(log.data, []);
+      after = log.nextCursor;
+    },
+  });
+
+  // A day later, at the next run: Claude's page no longer gives credits, and
+  // Microsoft's page is the same.
+  await running(data.path, {
+    pages: { ...pages, [claude]: claudeSays(community) },
+    ahead: day,
+    during: async ({ api, quiet }) => {
+      await quiet(all(requested(claude, 1), requested(microsoft, 1)));
+      const log = await monitorEvents(api, watched, after);
+      const [changed] = log.data.map((event) => pageChangedSchema.parse(event));
+
+      assert.equal(log.data.length, 1);
+      assert.equal(changed!.data.url, claude);
+      const [from, to] = changed!.data.diff.split('\n');
+      assert.match(
+        from!,
+        /^--- https:\/\/claude\.com\/programs\/startups\t\d{4}-\d\d-\d\dT[\d:.]+Z$/u,
+      );
+      assert.match(
+        to!,
+        /^\+\+\+ https:\/\/claude\.com\/programs\/startups\t\d{4}-\d\d-\d\dT[\d:.]+Z$/u,
+      );
+      // Each header gives when its text was read: the old one, a day before.
+      const readAt = (header: string) => header.split('\t')[1]!;
+      assert.ok(readAt(from!) < readAt(to!), `${from}\n${to}`);
+      assert.deepEqual(changedLines(changed!.data.diff), [
+        `-${credits}`,
+        `+${community}`,
+      ]);
+      assert.deepEqual((await monitorEvents(api, unchanged)).data, []);
+      after = log.nextCursor;
+    },
+  });
+
+  // Two days later: the page gives credits again, a larger amount.
+  await running(data.path, {
+    pages: { ...pages, [claude]: claudeSays(moreCredits) },
+    ahead: 2 * day,
+    during: async ({ api, quiet }) => {
+      await quiet(requested(claude, 1));
+      const log = await monitorEvents(api, watched, after);
+      const invalid = await api(
+        `/v1/monitors/${watched}/events?cursor=not-a-cursor`,
+      );
+
+      assert.deepEqual(
+        log.data.map((event) =>
+          changedLines(pageChangedSchema.parse(event).data.diff),
+        ),
+        [[`-${community}`, `+${moreCredits}`]],
+      );
+      assert.deepEqual(
+        [invalid.status, errorCode(invalid.body)],
+        [400, 'invalid_cursor'],
+      );
+    },
+  });
+});
+
+const searchFoundSchema = z.object({
+  type: z.literal('search.found'),
+  data: z.object({ urls: z.array(z.string()) }),
+});
+
+test("a search monitor's first run reads its baseline and reports nothing; a later run reports search.found with only the pages that no earlier run found, searched for its query alone; a failed run is recorded with its reason and keeps what the runs found", async () => {
+  await using data = await new TemporaryFiles().directory('websets-data-');
+  const query = 'AI labs that give startups free credits';
+  // The endpoint's 500, as the AI SDK retries it twice before it gives up.
+  const failure: Search = {
+    for: [query],
+    status: 500,
+    body: {
+      error: {
+        message: 'The server had an error while processing your request.',
+        type: 'server_error',
+      },
+    },
+  };
+  let id = '';
+  let after = '';
+  await running(data.path, {
+    pages,
+    searches: [{ for: [query], pages: [{ url: claude }] }],
+    ahead: 0,
+    during: async ({ api, quiet }) => {
+      id = await watch(api, {
+        name: 'AI lab credits',
+        target: { search: { query, count: 5 } },
+        cron: daily,
+      });
+      await quiet(({ searched }) => searched.length >= 1);
+      const log = await monitorEvents(api, id);
+
+      assert.equal((await lastRun(api, id))?.state, 'done');
+      assert.deepEqual(log.data, []);
+      after = log.nextCursor;
+    },
+  });
+
+  // A day later, the search finds Microsoft's program in place of Claude's.
+  const { searched } = await running(data.path, {
+    pages,
+    searches: [{ for: [query], pages: [{ url: microsoft }] }],
+    ahead: day,
+    during: async ({ api, quiet }) => {
+      await quiet(({ searched: made }) => made.length >= 1);
+      const log = await monitorEvents(api, id, after);
+
+      assert.deepEqual(
+        log.data.map((event) => searchFoundSchema.parse(event).data),
+        [{ urls: [microsoft] }],
+      );
+      after = log.nextCursor;
+    },
+  });
+  assert.deepEqual(
+    searched.map(({ model, tools, prompt }) => ({
+      model,
+      tools,
+      count: prompt.includes('At most 5 pages.'),
+      criteria: prompt.includes('Criteria:'),
+    })),
+    [
+      {
+        model: 'gpt-6-luna',
+        tools: ['web_search'],
+        count: true,
+        criteria: false,
+      },
+    ],
+  );
+
+  // Two days later, the web search fails.
+  await running(data.path, {
+    pages,
+    searches: [failure, failure, failure],
+    ahead: 2 * day,
+    during: async ({ api, quiet }) => {
+      await quiet(({ lines }) =>
+        lines.some((line) => line.startsWith('could not check')),
+      );
+      const run = await lastRun(api, id);
+
+      assert.equal(run?.state, 'failed');
+      assert.match(
+        run?.state === 'failed' ? run.error : '',
+        /The server had an error while processing your request\./u,
+      );
+      assert.deepEqual((await monitorEvents(api, id, after)).data, []);
+    },
+  });
+
+  // Three days later, the search finds Claude's program again, which the
+  // first run found, and a paper.
+  await running(data.path, {
+    pages,
+    searches: [{ for: [query], pages: [{ url: claude }, { url: paper }] }],
+    ahead: 3 * day,
+    during: async ({ api, quiet }) => {
+      await quiet(({ searched: made }) => made.length >= 1);
+      const log = await monitorEvents(api, id, after);
+
+      assert.deepEqual(
+        log.data.map((event) => searchFoundSchema.parse(event).data),
+        [{ urls: [paper] }],
+      );
+      assert.equal((await lastRun(api, id))?.state, 'done');
+    },
+  });
+});
+
+test("a dataset monitor runs the dataset's search again with its query and criteria; the pages that the dataset did not have become its pages and items, and search.found reports them; a failed search is recorded in the monitor's run and the dataset's progress; deleting the dataset deletes its monitors", async () => {
+  await using data = await new TemporaryFiles().directory('websets-data-');
+  const query = 'AI labs that give startups free credits';
+  // The endpoint's 500, as the AI SDK retries it twice before it gives up.
+  const failure: Search = {
+    for: [query, givesCredits],
+    status: 500,
+    body: {
+      error: {
+        message: 'The server had an error while processing your request.',
+        type: 'server_error',
+      },
+    },
+  };
+  let dataset = '';
+  let id = '';
+  let after = '';
+  await running(data.path, {
+    pages,
+    evaluations,
+    searches: [{ for: [query, givesCredits], pages: [{ url: claude }] }],
+    ahead: 0,
+    during: async ({ api, quiet }) => {
+      dataset = await create(api, {
+        title: 'AI lab credits',
+        search: { query, count: 5 },
+        criteria: [{ description: givesCredits }],
+      });
+      await quiet(evaluatedOn(claude, 1));
+      id = await watch(api, {
+        name: 'More AI lab credits',
+        target: { dataset },
+        cron: daily,
+      });
+      await quiet(() => true);
+
+      // Its baseline is the dataset's pages, so nothing runs before its cron.
+      assert.equal(await lastRun(api, id), null);
+    },
+  });
+
+  // A day later, the dataset's search finds Microsoft's program too.
+  const { searched } = await running(data.path, {
+    pages,
+    evaluations,
+    searches: [
+      {
+        for: [query, givesCredits],
+        pages: [{ url: claude }, { url: microsoft }],
+      },
+    ],
+    ahead: day,
+    during: async ({ api, quiet }) => {
+      await quiet(evaluatedOn(microsoft, 1));
+      const log = await monitorEvents(api, id);
+      const items = itemsSchema.parse(
+        (await api(`/v1/datasets/${dataset}/items`)).body,
+      );
+      const { progress } = z
+        .object({
+          progress: z.object({
+            seeds: z.array(z.object({ url: z.string() })),
+          }),
+        })
+        .parse((await api(`/v1/datasets/${dataset}`)).body);
+
+      assert.deepEqual(
+        log.data.map((event) => searchFoundSchema.parse(event).data),
+        [{ urls: [microsoft] }],
+      );
+      assert.deepEqual(
+        progress.seeds.map(({ url }) => url),
+        [claude, microsoft],
+      );
+      assert.deepEqual(
+        items.data.map(({ url, source }) => [url, source]),
+        [
+          [claude, 'search'],
+          [microsoft, 'search'],
+        ],
+      );
+      after = log.nextCursor;
+    },
+  });
+  assert.deepEqual(
+    searched.map(({ prompt }) => prompt.includes('At most 5 pages.')),
+    [true],
+  );
+
+  // Two days later, the dataset's search fails.
+  await running(data.path, {
+    pages,
+    evaluations,
+    searches: [failure, failure, failure],
+    ahead: 2 * day,
+    during: async ({ api, quiet }) => {
+      await quiet(({ lines }) =>
+        lines.some((line) => line.startsWith('could not check')),
+      );
+      const run = await lastRun(api, id);
+      const { progress } = z
+        .object({
+          progress: z.object({
+            search: z.object({ state: z.string(), error: z.string() }),
+          }),
+        })
+        .parse((await api(`/v1/datasets/${dataset}`)).body);
+
+      assert.equal(run?.state, 'failed');
+      assert.match(
+        run?.state === 'failed' ? run.error : '',
+        /The server had an error while processing your request\./u,
+      );
+      assert.equal(progress.search.state, 'failed');
+      assert.match(
+        progress.search.error,
+        /The server had an error while processing your request\./u,
+      );
+      assert.deepEqual((await monitorEvents(api, id, after)).data, []);
+
+      const deleted = await api(`/v1/datasets/${dataset}`, {
+        method: 'DELETE',
+      });
+      const watching = await api(`/v1/monitors/${id}`);
+
+      assert.equal(deleted.status, 204);
+      assert.deepEqual(
+        [watching.status, errorCode(watching.body)],
+        [404, 'not_found'],
+      );
+    },
+  });
+});
+
+test('a deleted monitor is gone: 204, then not_found, it is not listed, and it does not run again', async () => {
+  await using data = await new TemporaryFiles().directory('websets-data-');
+  let kept = '';
+  await running(data.path, {
+    pages,
+    ahead: 0,
+    during: async ({ api, quiet }) => {
+      const deleted = await watch(api, {
+        name: 'Claude for Startups',
+        target: { page: claude },
+        cron: daily,
+      });
+      kept = await watch(api, {
+        name: 'Microsoft for Startups',
+        target: { page: microsoft },
+        cron: daily,
+      });
+      await quiet(all(requested(claude, 1), requested(microsoft, 1)));
+      const removed = await api(`/v1/monitors/${deleted}`, {
+        method: 'DELETE',
+      });
+      const read = await api(`/v1/monitors/${deleted}`);
+      const listed = z
+        .object({ data: z.array(monitorSchema) })
+        .parse((await api('/v1/monitors')).body);
+
+      assert.equal(removed.status, 204);
+      assert.deepEqual([read.status, errorCode(read.body)], [404, 'not_found']);
+      assert.deepEqual(
+        listed.data.map(({ id }) => id),
+        [kept],
+      );
+    },
+  });
+
+  // A day later, the kept monitor runs, and the deleted one does not.
+  const { requests } = await running(data.path, {
+    pages,
+    ahead: day,
+    during: async ({ quiet }) => {
+      await quiet(requested(microsoft, 1));
+    },
+  });
+  assert.equal(requests.includes(claude), false);
+});
+
+test("after the event log starts again, a monitor's cursor of the old log is gone with resync_required", async () => {
+  await using data = await new TemporaryFiles().directory('websets-data-');
+  let old = '';
+  await running(data.path, {
+    pages,
+    ahead: 0,
+    during: async ({ api, quiet }) => {
+      const id = await watch(api, {
+        name: 'Claude for Startups',
+        target: { page: claude },
+        cron: daily,
+      });
+      await quiet(requested(claude, 1));
+      old = (await monitorEvents(api, id)).nextCursor;
+    },
+  });
+  // The fix for old output is a fresh run: a new event log, in a new file.
+  await rm(join(data.path, 'websets', 'api.sqlite'));
+  // The monitor went with the file, so the run makes it again.
+  await running(data.path, {
+    pages,
+    ahead: 0,
+    during: async ({ api, quiet }) => {
+      const again = await watch(api, {
+        name: 'Claude for Startups',
+        target: { page: claude },
+        cron: daily,
+      });
+      await quiet(requested(claude, 1));
+      const gone = await api(`/v1/monitors/${again}/events?cursor=${old}`);
+
+      assert.deepEqual(
+        [gone.status, errorCode(gone.body)],
+        [410, 'resync_required'],
+      );
+    },
+  });
 });

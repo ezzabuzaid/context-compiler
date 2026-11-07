@@ -31,8 +31,7 @@ export function recordEvents(): void {
             matches: true,
             fields,
           });
-          store.append({
-            dataset,
+          store.append(dataset, {
             type: 'item.created',
             data: itemResource(id, page),
             previous: null,
@@ -43,8 +42,7 @@ export function recordEvents(): void {
           JSON.stringify(known.fields) !== JSON.stringify(fields)
         ) {
           store.saveItem(dataset, page.url, { matches: true, fields });
-          store.append({
-            dataset,
+          store.append(dataset, {
             type: 'item.updated',
             data: itemResource(known.id, page),
             previous: { fields: known.fields },
@@ -54,8 +52,7 @@ export function recordEvents(): void {
             matches: false,
             fields: known.fields,
           });
-          store.append({
-            dataset,
+          store.append(dataset, {
             type: 'item.removed',
             data: itemResource(known.id, page),
             previous: null,

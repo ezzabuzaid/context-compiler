@@ -89,7 +89,6 @@ export default {
             'criteria',
             'fields',
             'lists',
-            'monitor',
             'pages',
             'search',
             'title',

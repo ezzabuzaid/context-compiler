@@ -37,7 +37,6 @@ export const createDatasetSchema = z.object({
     .optional()
     .default([]),
   lists: z.array(z.url()).optional().default([]),
-  monitor: z.object({ cron: z.string() }).optional(),
   pages: z.array(z.url()).optional().default([]),
   search: z
     .object({
