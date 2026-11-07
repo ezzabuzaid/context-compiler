@@ -3,14 +3,8 @@ import { join } from 'node:path';
 
 import { z } from 'zod';
 
-import type { Span } from '@workspace/quote-grounding';
-
+import { spanSchema } from '../src/offer.ts';
 import { pageKinds } from '../src/rules/page-kinds.ts';
-
-const span = z.object({
-  start: z.number().int().nonnegative(),
-  end: z.number().int().positive(),
-}) satisfies z.ZodType<Span>;
 
 export const offerKinds = [
   'credits',
@@ -29,10 +23,10 @@ const offer = z.object({
   duration: z.string().nullable(),
   who: z.string().nullable(),
   // Every place where the page states this offer; the first is the clearest.
-  mentions: z.array(span).nonempty(),
+  mentions: z.array(spanSchema).nonempty(),
 });
 
-const lookalike = span.extend({
+const lookalike = spanSchema.extend({
   reason: z.enum([
     'eligibility',
     'how_to_apply',

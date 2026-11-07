@@ -4,11 +4,12 @@ import { z } from 'zod';
 
 import { type Span, ground } from '@workspace/quote-grounding';
 
+import { spanSchema } from '../src/offer.ts';
 import { pageKinds } from '../src/rules/page-kinds.ts';
 import { same } from '../src/same.ts';
 import { type Label, answerKey, offerKinds } from './answer-key.ts';
 import { scoreKinds } from './kind-score.ts';
-import { pages } from './pages.ts';
+import { testPages } from './pages.ts';
 
 // What an extractor answered for each page it read: its offers, each with
 // the span it was grounded to or the quote it gave, and the page kind when
@@ -25,10 +26,7 @@ const predictionsSchema = z.object({
           value: z
             .object({ amount: z.number(), currency: z.string() })
             .nullable(),
-          span: z
-            .object({ start: z.number().int(), end: z.number().int() })
-            .nullable()
-            .optional(),
+          span: spanSchema.nullable().optional(),
           quote: z.string().optional(),
         }),
       ),
@@ -111,7 +109,6 @@ if (file === undefined)
   throw new Error('Give the file of predictions to score');
 
 const key = answerKey();
-const texts = pages();
 const predictions = predictionsSchema.parse(
   JSON.parse(readFileSync(file, 'utf8')),
 );
@@ -125,13 +122,10 @@ const tally: Tally = {
   amounts: 0,
   amountsRight: 0,
 };
-const tests = key.pages.filter(({ role }) => role === 'test');
-for (const label of tests) {
+const tests = testPages(key);
+for (const { label, page } of tests) {
   const prediction = answered.get(label.url);
-  const page = texts.get(label.url);
-  if (prediction === undefined || page === undefined) continue;
-  if (page.sha256 !== label.sha256)
-    throw new Error(`${label.url}: the cache holds other text than the labels`);
+  if (prediction === undefined) continue;
   scorePage(label, page.text, prediction, tally);
 }
 const kinds = scoreKinds(
@@ -147,7 +141,7 @@ const wrong = [...tally.wrong.values()].reduce((sum, count) => sum + count, 0);
 const percent = (part: number, whole: number) =>
   whole === 0 ? '–' : `${Math.round((part / whole) * 100)}%`;
 console.log(
-  `extractor: ${predictions.extractor}; answered ${tests.filter(({ url }) => answered.has(url)).length} of ${tests.length} test pages`,
+  `extractor: ${predictions.extractor}; answered ${tests.filter(({ label }) => answered.has(label.url)).length} of ${tests.length} test pages`,
 );
 console.log(
   `offers found ${tally.found}/${tally.labelled} (recall ${percent(tally.found, tally.labelled)}), right kind ${tally.kindRight}`,

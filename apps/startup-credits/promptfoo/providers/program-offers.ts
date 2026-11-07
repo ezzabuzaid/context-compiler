@@ -53,24 +53,14 @@ export default class ProgramOffersProvider implements ApiProvider {
     );
     if ('failed' in outcome) return { error: outcome.failed, metadata };
     // An invalid answer is the harness's output, not an error: the
-    // assertion scores it as invalid, and its expected offers stay in the
-    // denominators (#3762).
+    // assertion reads its text as json.loads reads it and scores it as
+    // invalid, and its expected offers stay in the denominators (#3762). The
+    // AI SDK keeps no text for an answer that never came.
     if ('invalid' in outcome)
       return {
         metadata: { ...metadata, invalid: outcome.invalid },
-        output: answerOf(outcome.invalid.text),
+        output: outcome.invalid.text ?? null,
       };
     return { metadata, output: { offers: outcome.offers } };
-  }
-}
-
-// The model's answer as JSON when it parses, else as text.
-function answerOf(text: string | undefined): unknown {
-  if (text === undefined) return null;
-  try {
-    return JSON.parse(text);
-  } catch (error) {
-    if (error instanceof SyntaxError) return text;
-    throw error;
   }
 }

@@ -46,8 +46,8 @@ export type Offer = z.infer<typeof offer>;
 
 // Where a quote is in the page text, in UTF-16 offsets.
 export const spanSchema = z.object({
-  start: z.number().int(),
-  end: z.number().int(),
+  start: z.number().int().nonnegative(),
+  end: z.number().int().positive(),
 }) satisfies z.ZodType<Span>;
 
 // An offer as the dataset keeps it: the model's offer and where its quote is

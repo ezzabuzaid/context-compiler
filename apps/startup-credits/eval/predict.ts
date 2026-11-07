@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { storedOffersSchema } from '../src/offer.ts';
 import { ProgramOffers } from '../src/rules/program-offers.ts';
 import { answerKey } from './answer-key.ts';
-import { pages } from './pages.ts';
+import { testPages } from './pages.ts';
 
 // Runs the app's own offer rule on each test page of the cache and writes
 // its offers in the format of score.ts to the file that the first argument
@@ -19,8 +19,7 @@ using shutdown = new Shutdown();
 
 const rule = new ProgramOffers();
 const identity = await rule.identity();
-const texts = pages();
-const tests = answerKey().pages.filter(({ role }) => role === 'test');
+const tests = testPages(answerKey());
 
 type Predicted = {
   url: string;
@@ -33,12 +32,7 @@ const predicted: Predicted[] = [];
 const queue = tests.values();
 await Promise.all(
   Array.from({ length: rule.concurrency }, async () => {
-    for (const label of queue) {
-      const page = texts.get(label.url);
-      if (page?.sha256 !== label.sha256)
-        throw new Error(
-          `${label.url}: the cache holds other text than the labels`,
-        );
+    for (const { page } of queue) {
       const [result] = await rule.compute(
         [{ url: page.url, title: page.title, text: page.text }],
         shutdown.signal,

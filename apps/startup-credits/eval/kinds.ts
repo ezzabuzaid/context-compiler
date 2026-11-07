@@ -9,7 +9,7 @@ import { openRouterDecisionModel } from '../src/rules/decision-model.ts';
 import { pageKindQuestions, pageState } from '../src/rules/page-kinds.ts';
 import { answerKey } from './answer-key.ts';
 import { scoreKinds } from './kind-score.ts';
-import { pages } from './pages.ts';
+import { testPages } from './pages.ts';
 
 const { values } = parseArgs({ options: { model: { type: 'string' } } });
 const name = values.model;
@@ -25,14 +25,7 @@ const model = openRouterDecisionModel(name);
 const inFlight = 16;
 
 const key = answerKey();
-const texts = pages();
-const tests = key.pages.flatMap((label) => {
-  if (label.role !== 'test') return [];
-  const page = texts.get(label.url);
-  if (page?.sha256 !== label.sha256)
-    throw new Error(`${label.url}: the cache holds other text than the labels`);
-  return [{ label, page }];
-});
+const tests = testPages(key);
 const ranAt = new Date().toISOString();
 const runs = join(import.meta.dirname, 'runs');
 const file = `${ranAt.slice(0, 19).replaceAll(':', '-')}-${name.replaceAll('/', '_')}.json`;
