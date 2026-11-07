@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@cfworker/json-schema": "4.1.4",
-    "@zukhruf/evals": "^0.8.3",
+    "@zukhruf/evals": "^0.8.4",
     "@zukhruf/python": "*",
     "@zukhruf/testing": "0.6.15",
     "msw": "^3.0.3",

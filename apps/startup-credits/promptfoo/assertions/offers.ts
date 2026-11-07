@@ -1,4 +1,11 @@
-import { F1, Penalized, Precision, Recall, type Scorer } from '@zukhruf/evals';
+import {
+  F1,
+  Penalized,
+  Precision,
+  Recall,
+  type Scorer,
+  ScorerSet,
+} from '@zukhruf/evals';
 import { PromptfooAssertion } from '@zukhruf/evals/promptfoo';
 import {
   AllMatched,
@@ -13,8 +20,8 @@ import {
   PathMatches,
   PerField,
   SchemaCompliance,
-  ScorerSet,
   TokenF1,
+  TreeWalk,
   TypePrecision,
   ValueMatches,
 } from '@zukhruf/evals/structured';
@@ -100,7 +107,7 @@ const offerScorer = new ScorerSet(
     'presence f1 by field': new PerField(penalized(new F1(present))),
     'token f1 by field': new PerField(penalized(words)),
   },
-  { spec: offerSpec },
+  { comparer: new TreeWalk(offerSpec) },
 );
 
 // The schema is that of the offers that the harness stores, each with the
