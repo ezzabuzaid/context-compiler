@@ -1,0 +1,12 @@
+{
+  "name": "ambient",
+  "sourceRoot": "apps/ambient/src",
+  "projectType": "application",
+  "targets": {
+    "format": {},
+    "start": {
+      "dependsOn": ["build"],
+      "command": "node apps/ambient/dist/server.js"
+    }
+  }
+}

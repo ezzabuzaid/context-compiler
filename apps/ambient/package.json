@@ -1,0 +1,30 @@
+{
+  "name": "@workspace/ambient",
+  "description": "A one-way proactive observer using LFM3-Omni and Deepagents, informed by Proactive Agent.",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@ai-sdk/openai-compatible": "3.0.86",
+    "@deepagents/compaction": "7.4.0",
+    "@deepagents/context": "7.4.0",
+    "@deepagents/experimental": "7.4.0",
+    "@electric-sql/pglite": "0.5.4",
+    "@hono/node-server": "2.1.5",
+    "@zukhruf/async": "0.8.0",
+    "@zukhruf/shutdown": "0.6.15",
+    "@zukhruf/sqlite-changefeed": "0.8.4",
+    "@zukhruf/sqlite-data-version": "0.8.0",
+    "@zukhruf/sqlite-drift": "0.6.15",
+    "@zukhruf/sqlite-federation": "0.8.4",
+    "@zukhruf/sqlite-open": "0.7.0",
+    "@zukhruf/sqlite-transaction": "0.6.15",
+    "ai": "7.0.164",
+    "hono": "4.13.14",
+    "microsandbox": "0.7.8",
+    "pg-boss": "12.29.0",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@zukhruf/testing": "0.6.15"
+  }
+}

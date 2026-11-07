@@ -114,6 +114,9 @@
       "path": "./packages/quote-grounding"
     },
     {
+      "path": "./apps/ambient"
+    },
+    {
       "path": "./packages/websets-client"
     }
   ]
