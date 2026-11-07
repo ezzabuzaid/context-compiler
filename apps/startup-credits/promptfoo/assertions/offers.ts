@@ -1,27 +1,24 @@
-import { type JsonData, toJsonParseValue } from '@zukhruf/python';
+import { F1, Penalized, Precision, Recall, type Scorer } from '@zukhruf/evals';
+import { PromptfooAssertion } from '@zukhruf/evals/promptfoo';
 import {
   AllMatched,
   ByBestMatch,
+  type Comparison,
   ComparisonSpec,
   ConfigCase,
-  F1,
   ItemMatches,
   JsonSchema,
   JsonValue,
   type Match,
   PathMatches,
-  Penalized,
   PerField,
-  Precision,
-  Recall,
   SchemaCompliance,
-  type Scorer,
   ScorerSet,
   TokenF1,
   TypePrecision,
   ValueMatches,
-} from '@zukhruf/structured-eval';
-import { PromptfooAssertion } from '@zukhruf/structured-eval/promptfoo';
+} from '@zukhruf/evals/structured';
+import { type JsonData, toJsonParseValue } from '@zukhruf/python';
 import { z } from 'zod';
 
 import { spanSchema, storedOffersSchema } from '../../src/offer.ts';
@@ -71,7 +68,7 @@ const present = new PathMatches({ nullIsMissing: true });
 const items = new ItemMatches();
 // An invalid record keeps its expected and its stated values in the wholes,
 // with no hits.
-const penalized = (scorer: Scorer) => new Penalized(scorer, valid);
+const penalized = (scorer: Scorer<Comparison>) => new Penalized(scorer, valid);
 const words = new TokenF1({
   whenNoWords: 1,
   absentAs: null,
