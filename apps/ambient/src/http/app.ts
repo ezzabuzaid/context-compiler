@@ -8,7 +8,7 @@ export default function app(journal: Journal) {
   app.get('/notifications', (context) => context.json(journal.notifications()));
   app.get('/decisions', (context) => context.json(journal.decisions()));
   app.get('/health', (context) =>
-    context.json({ status: 'ready', model: 'lfm3-omni-2b' }),
+    context.json({ status: 'ready', model: 'gpt-6-luna' }),
   );
   app.get('/', (context) => context.html(feedPage));
   app.onError((error, context) => context.json({ error: error.message }, 400));

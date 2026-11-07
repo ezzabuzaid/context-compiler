@@ -8,7 +8,7 @@ This implements the inference architecture of [Proactive Agent (ICLR 2025)](http
 
 ## Run
 
-The model is **LFM3-Omni-2B** on the Mac mini: the llama.cpp router at `http://mac-mini.tailf1764a.ts.net:9931/v1`, over Tailscale, serves it as `LiquidAI/LFM3-Omni-2B-GGUF:Q4_0` and loads it on the first call. `src/model/lfm3-omni-2b.ts` holds both values.
+The model is **GPT-6-Luna**, through the Codex provider of `@deepagents/experimental` and your ChatGPT login of Codex (`~/.codex/auth.json`, or `CODEX_HOME/auth.json`). Run `codex login` once if you have no login. `src/model/gpt-6-luna.ts` holds the model id. Each change of the warehouse is one turn, so Ambient uses Luna, not Sol, to keep the quota of the subscription.
 
 From the Context Compiler root:
 
@@ -54,7 +54,7 @@ The installed `just-bash@3.2.0` package, transitively exposed by Deepagents' roo
 
 `src/` follows the layout of Zukhruf (`@deepagents/experimental/zukhruf`). The Zukhruf parts are at the root:
 
-- `agent.ts`: the `defineAgent` declaration. It uses the fixed LFM3-Omni-2B model for inference and compaction and owns the changes plugin.
+- `agent.ts`: the `defineAgent` declaration. It uses the fixed GPT-6-Luna model for inference and compaction and owns the changes plugin.
 - `instructions.ts`: the prompt, as `defineInstructions`.
 - `sandbox.ts`: the named Microsandbox microVM of the state folder, as `defineSandbox`.
 - `stack.ts`: the infrastructure, as `defineStack`: the PGlite queue, the SQLite stores and the plugin bindings. It finds the state folder and the warehouse under the home folder. It also exports the state folder path, which `sandbox.ts` uses for the microVM name.
@@ -64,7 +64,7 @@ The installed `just-bash@3.2.0` package, transitively exposed by Deepagents' roo
 
 The other parts are in folders by concept:
 
-- `model/lfm3-omni-2b.ts`: the fixed model on the Mac mini.
+- `model/gpt-6-luna.ts`: the fixed model, through the ChatGPT login of Codex.
 - `warehouse/warehouse.ts`: reads the selected sources and runs read-only federated SQL. `warehouse/follow-warehouse.ts`: follows each selected source's changefeed and the selection.
 - `journal/journal.ts`: the application ledger of changes, turns, decisions and notifications. `journal/tables.ts`: its schema.
 - `contracts/`: the shared shapes: `evidence.ts`, `notification.ts` and `decision.ts`.
@@ -74,7 +74,7 @@ The other parts are in folders by concept:
 
 ## Evaluate
 
-The tests are black-box. Each test makes a temporary home with a real warehouse in its Imports folder (a `settings.sqlite` and WAL imports). Then it starts `src/server.ts` as a child process with only `HOME`, `MSB_HOME` (the developer's Microsandbox home, which holds the runtime and the images) and a free `AMBIENT_PORT`. It reads the results through `GET /health` and `/decisions`. Everything runs for real, the model on the Mac mini included, so the tests need Tailscale. The model decides freely, so the tests assert only what Ambient does around a decision: which changes become turns, and that each turn ends in a recorded decision or failure. Each test stops its child process, removes its temporary home and removes its microVM.
+The tests are black-box. Each test makes a temporary home with a real warehouse in its Imports folder (a `settings.sqlite` and WAL imports). Then it starts `src/server.ts` as a child process with only `HOME`, `MSB_HOME` (the developer's Microsandbox home, which holds the runtime and the images), `CODEX_HOME` (the developer's Codex home, which holds the ChatGPT login) and a free `AMBIENT_PORT`. It reads the results through `GET /health` and `/decisions`. Everything runs for real, GPT-6-Luna included, so the tests need a ChatGPT login of Codex and use its quota. The model decides freely, so the tests assert only what Ambient does around a decision: which changes become turns, and that each turn ends in a recorded decision or failure. Each test stops its child process, removes its temporary home and removes its microVM.
 
 These behaviors have no test, because each needs a model answer that the real model does not give on demand: invalid citations fail closed; several `notify` calls in one step deliver nothing; warehouse reads stay read-only, and the queried evidence reaches the notification; a queued change cannot see later evidence, and a turn stops at six steps; a `bash` call runs inside the microVM.
 

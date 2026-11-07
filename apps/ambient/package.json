@@ -1,10 +1,9 @@
 {
   "name": "@workspace/ambient",
-  "description": "A one-way proactive observer using LFM3-Omni and Deepagents, informed by Proactive Agent.",
+  "description": "A one-way proactive observer using GPT-6-Luna and Deepagents, informed by Proactive Agent.",
   "private": true,
   "type": "module",
   "dependencies": {
-    "@ai-sdk/openai-compatible": "3.0.86",
     "@deepagents/compaction": "7.4.0",
     "@deepagents/context": "7.4.0",
     "@deepagents/experimental": "7.4.0",

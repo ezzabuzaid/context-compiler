@@ -3,7 +3,7 @@ import { defineAgent } from '@deepagents/experimental/zukhruf';
 import { hasToolCall, isStepCount } from 'ai';
 
 import instructions from './instructions.ts';
-import model from './model/lfm3-omni-2b.ts';
+import model from './model/gpt-6-luna.ts';
 import changes from './plugins/changes/index.ts';
 import sandbox from './sandbox.ts';
 

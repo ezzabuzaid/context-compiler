@@ -16,10 +16,10 @@ import { z } from 'zod';
 
 import { Journal } from './journal/journal.ts';
 
-// Ambient runs as it runs on a Mac, with the real LFM3-Omni-2B on the Mac
-// mini. The model decides freely, so these tests assert only what Ambient
-// does around a decision: which changes become turns, and that each turn
-// ends in a recorded decision or failure.
+// Ambient runs as it runs on a Mac, with the real GPT-6-Luna through the
+// developer's Codex login. The model decides freely, so these tests assert
+// only what Ambient does around a decision: which changes become turns, and
+// that each turn ends in a recorded decision or failure.
 
 const imports = (home: string) =>
   join(home, 'Library/Application Support/Context Compiler/Imports');
@@ -67,6 +67,8 @@ async function ambient(t: TestContext, home: string) {
         // Microsandbox keeps its runtime, images and microVMs in its own
         // home, which defaults to ~/.microsandbox; this one is the developer's.
         MSB_HOME: process.env.MSB_HOME ?? join(homedir(), '.microsandbox'),
+        // The developer's ChatGPT login of Codex, which the model uses.
+        CODEX_HOME: process.env.CODEX_HOME ?? join(homedir(), '.codex'),
         AMBIENT_PORT: String(port),
       },
     },
@@ -114,7 +116,7 @@ async function ambient(t: TestContext, home: string) {
       async () =>
         assert.deepEqual(await get('/health'), {
           status: 'ready',
-          model: 'lfm3-omni-2b',
+          model: 'gpt-6-luna',
         }),
       { timeout: 5000, interval: 50 },
     );

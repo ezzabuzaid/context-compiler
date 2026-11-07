@@ -42,6 +42,7 @@ async function ambient(t: TestContext, home: string) {
         // Microsandbox keeps its runtime, images and microVMs in its own
         // home, which defaults to ~/.microsandbox; this one is the developer's.
         MSB_HOME: process.env.MSB_HOME ?? join(homedir(), '.microsandbox'),
+        CODEX_HOME: process.env.CODEX_HOME ?? join(homedir(), '.codex'),
         AMBIENT_PORT: String(port),
       },
     },
@@ -89,7 +90,7 @@ async function ambient(t: TestContext, home: string) {
       async () =>
         assert.deepEqual(await get('/health'), {
           status: 'ready',
-          model: 'lfm3-omni-2b',
+          model: 'gpt-6-luna',
         }),
       { timeout: 5000, interval: 50 },
     );
@@ -124,7 +125,7 @@ async function removeMicroVm(home: string) {
 // Complete fictional stream, including ordinary activity. These expected labels
 // are engineering judgments, not user feedback or the paper's benchmark labels.
 test(
-  'local Omni replays a chronological stream',
+  'GPT-6-Luna replays a chronological stream',
   {
     // The replay writes its report to AMBIENT_REPLAY_OUTPUT.
     skip: process.env.AMBIENT_REPLAY_OUTPUT
@@ -248,8 +249,7 @@ test(
         }
       } finally {
         const report = {
-          model: 'lfm3-omni-2b',
-          temperature: 0,
+          model: 'gpt-6-luna',
           capturedAt: new Date().toISOString(),
           protocol:
             'Same eight fictional facts, now committed to real warehouse tables and delivered by the native changefeed. One calendar insert, after each source took its baseline, precedes the eight cases. Expected labels are author judgments; this is not an identical-prompt comparison or a published benchmark.',
