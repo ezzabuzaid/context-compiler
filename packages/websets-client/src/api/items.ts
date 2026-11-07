@@ -30,7 +30,7 @@ import {
 } from '../pagination/index.ts';
 
 export default {
-  'GET /v1/collections/{id}/items': {
+  'GET /v1/datasets/{id}/items': {
     security: [{ bearer: [] }] as readonly Record<string, readonly string[]>[],
     schema: items.listItemsSchema,
     output: [
@@ -43,7 +43,7 @@ export default {
     ],
     toRequest(input: z.input<typeof items.listItemsSchema>) {
       return toRequest(
-        'GET /v1/collections/{id}/items',
+        'GET /v1/datasets/{id}/items',
         empty(input, {
           inputHeaders: [],
           inputQuery: ['cursor', 'limit'],

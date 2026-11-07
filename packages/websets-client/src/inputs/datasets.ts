@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
-export const listCollectionsSchema = z.object({}).catchall(z.unknown());
-export const createCollectionSchema = z.object({
+export const listDatasetsSchema = z.object({}).catchall(z.unknown());
+export const createDatasetSchema = z.object({
   criteria: z.array(z.object({ description: z.string() })),
   fields: z
     .array(
@@ -47,5 +47,5 @@ export const createCollectionSchema = z.object({
     .optional(),
   title: z.string(),
 });
-export const getCollectionSchema = z.object({ id: z.string() });
-export const deleteCollectionSchema = z.object({ id: z.string() });
+export const getDatasetSchema = z.object({ id: z.string() });
+export const deleteDatasetSchema = z.object({ id: z.string() });

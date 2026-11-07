@@ -3,7 +3,7 @@ import { z } from 'zod';
 import type { Crawled } from './store.ts';
 import { sql } from './warehouse.ts';
 
-// Rows of a view that the first pipeline with a collection makes, and none
+// Rows of a view that the first pipeline makes for the datasets, and none
 // before it.
 function rows(read: () => Record<string, unknown>[]) {
   try {
@@ -85,7 +85,7 @@ type FieldResult =
       readonly quote: string | null;
     };
 
-// A page of a collection: where it came from, how each criterion went, and,
+// A page of a dataset: where it came from, how each criterion went, and,
 // once it meets every criterion, its fields.
 export type Candidate = {
   readonly url: string;
@@ -97,12 +97,12 @@ export type Candidate = {
   readonly fields: Readonly<Record<string, FieldResult>>;
 };
 
-export function candidates(collection: Crawled): readonly Candidate[] {
-  const { id, criteria, fields, seeds, pages } = collection;
+export function candidates(dataset: Crawled): readonly Candidate[] {
+  const { id, criteria, fields, seeds, pages } = dataset;
   const evaluations = new Map(
     rows(
       () =>
-        sql.all`SELECT criterion, articleUrl, status, error, satisfied, reasoning, quote FROM evaluations WHERE collection = ${id}`,
+        sql.all`SELECT criterion, articleUrl, status, error, satisfied, reasoning, quote FROM evaluations WHERE dataset = ${id}`,
     ).map((row) => {
       const parsed = evaluationRow.parse(row);
       return [`${parsed.criterion}\n${parsed.articleUrl}`, parsed] as const;
@@ -111,7 +111,7 @@ export function candidates(collection: Crawled): readonly Candidate[] {
   const values = new Map(
     rows(
       () =>
-        sql.all`SELECT field, articleUrl, status, error, value, quote FROM field_values WHERE collection = ${id}`,
+        sql.all`SELECT field, articleUrl, status, error, value, quote FROM field_values WHERE dataset = ${id}`,
     ).map((row) => {
       const parsed = fieldRow.parse(row);
       return [`${parsed.field}\n${parsed.articleUrl}`, parsed] as const;
@@ -119,7 +119,7 @@ export function candidates(collection: Crawled): readonly Candidate[] {
   );
   return rows(
     () =>
-      sql.all`SELECT inputUrl, articleUrl, title, loaded_at FROM candidates WHERE collection = ${id} ORDER BY articleUrl`,
+      sql.all`SELECT inputUrl, articleUrl, title, loaded_at FROM candidates WHERE dataset = ${id} ORDER BY articleUrl`,
   ).map((row) => {
     const page = candidateRow.parse(row);
     const judged = criteria.map(({ description }, index): Evaluation => {
@@ -175,7 +175,7 @@ export function candidates(collection: Crawled): readonly Candidate[] {
   });
 }
 
-// An item as the API gives it: a page of the collection, with the id that the
+// An item as the API gives it: a page of the dataset, with the id that the
 // event log gave it.
 export const itemResource = (
   id: string,

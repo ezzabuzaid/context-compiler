@@ -35,12 +35,12 @@ function offsetOf(given: string): number {
 export default function (router: Hono) {
   /**
    * @openapi listItems
-   * @summary List a collection's items
+   * @summary List a dataset's items
    * @tags items
-   * @description The pages of a collection that meet every criterion, each with its evaluations and fields, as Exa lists the items of a webset. An item reaches the API with the event that announces it.
+   * @description The pages of a dataset that meet every criterion, each with its evaluations and fields, as Exa lists the items of a webset. An item reaches the API with the event that announces it.
    */
   router.get(
-    '/v1/collections/:id/items',
+    '/v1/datasets/:id/items',
     validate((payload) => ({
       id: { select: payload.params.id, against: z.string() },
       limit: {
@@ -50,17 +50,15 @@ export default function (router: Hono) {
       cursor: { select: payload.query.cursor, against: z.string().optional() },
     })),
     (c) => {
-      const collection = store
-        .crawled()
-        .find(({ id }) => id === c.var.input.id);
-      if (collection === undefined) {
+      const dataset = store.crawled().find(({ id }) => id === c.var.input.id);
+      if (dataset === undefined) {
         throw new HTTPException(404, {
-          message: 'No such collection',
+          message: 'No such dataset',
           cause: { code: 'not_found' },
         });
       }
-      const ids = store.itemIds(collection.id);
-      const items = candidates(collection).flatMap((page) => {
+      const ids = store.itemIds(dataset.id);
+      const items = candidates(dataset).flatMap((page) => {
         const id = ids.get(page.url);
         return page.matches && id !== undefined ? [itemResource(id, page)] : [];
       });

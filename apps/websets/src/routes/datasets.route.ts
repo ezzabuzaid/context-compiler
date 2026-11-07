@@ -38,11 +38,11 @@ type SeedCrawl =
       readonly failedAt: string;
     };
 
-// A collection with how far it is: its search, each page that its search
+// A dataset with how far it is: its search, each page that its search
 // found, its pages and items, and its evaluations.
-function collectionResource(collection: Crawled) {
-  const { seeds: _, searched, ...definition } = collection;
-  const pages = candidates(collection);
+function datasetResource(dataset: Crawled) {
+  const { seeds: _, searched, ...definition } = dataset;
+  const pages = candidates(dataset);
   const evaluations = pages.flatMap(({ evaluations: given }) => given);
   const read = storedInputs();
   const failures = store.failures();
@@ -60,7 +60,7 @@ function collectionResource(collection: Crawled) {
     progress: {
       search: searched,
       seeds: store
-        .seeds(collection.id)
+        .seeds(dataset.id)
         .map(({ url, rank }) => ({ url, rank, crawl: crawlOf(url) })),
       pages: pages.length,
       items: pages.filter(({ matches }) => matches).length,
@@ -74,22 +74,22 @@ function collectionResource(collection: Crawled) {
 }
 
 function found(id: string): Crawled {
-  const collection = store.crawled().find((given) => given.id === id);
-  if (collection === undefined) {
+  const dataset = store.crawled().find((given) => given.id === id);
+  if (dataset === undefined) {
     throw new HTTPException(404, {
-      message: 'No such collection',
+      message: 'No such dataset',
       cause: { code: 'not_found' },
     });
   }
-  return collection;
+  return dataset;
 }
 
-// The crawl builds its pipeline again for a new or deleted collection,
+// The crawl builds its pipeline again for a new or deleted dataset,
 // which elt cannot do while a pass runs (elt #3679).
 function refuseWhilePassing() {
   if (crawl.passing) {
     throw new HTTPException(409, {
-      message: 'A crawl is running; change the collections once it ends',
+      message: 'A crawl is running; change the datasets once it ends',
       cause: { code: 'crawl_running' },
     });
   }
@@ -97,13 +97,13 @@ function refuseWhilePassing() {
 
 export default function (router: Hono) {
   /**
-   * @openapi createCollection
-   * @summary Create a collection
-   * @tags collections
-   * @description Keep a new collection current: the pages that meet every criterion, found by its search, given as pages or linked from its lists, each with its fields. Answers with the collection and its progress; the search, the crawl and the judging run in the background.
+   * @openapi createDataset
+   * @summary Create a dataset
+   * @tags datasets
+   * @description Keep a new dataset current: the pages that meet every criterion, found by its search, given as pages or linked from its lists, each with its fields. Answers with the dataset and its progress; the search, the crawl and the judging run in the background.
    */
   router.post(
-    '/v1/collections',
+    '/v1/datasets',
     validate((payload) => ({
       title: {
         select: payload.body.title,
@@ -157,7 +157,7 @@ export default function (router: Hono) {
       const { search, pages, lists, monitor } = definition;
       if (search === undefined && pages.length === 0 && lists.length === 0) {
         throw new HTTPException(400, {
-          message: 'A collection needs a search, pages or lists',
+          message: 'A dataset needs a search, pages or lists',
           cause: { code: 'invalid_argument' },
         });
       }
@@ -168,17 +168,17 @@ export default function (router: Hono) {
         });
       }
       refuseWhilePassing();
-      const collection = store.addCollection(definition);
+      const dataset = store.addDataset(definition);
       if (monitor !== undefined) {
         try {
           await queue.schedule(
             searches,
             monitor.cron,
-            { collection: collection.id },
-            { key: collection.id },
+            { dataset: dataset.id },
+            { key: dataset.id },
           );
         } catch (error) {
-          store.deleteCollection(collection.id);
+          store.deleteDataset(dataset.id);
           throw new HTTPException(400, {
             message: `The monitor's cron is not valid: ${Error.isError(error) ? error.message : String(error)}`,
             cause: { code: 'invalid_argument' },
@@ -186,53 +186,53 @@ export default function (router: Hono) {
         }
       }
       if (search !== undefined) {
-        await queue.send(searches, { collection: collection.id });
+        await queue.send(searches, { dataset: dataset.id });
       }
       crawl.rebuild();
-      return c.json(collectionResource(found(collection.id)), 201, {
-        Location: `/v1/collections/${collection.id}`,
+      return c.json(datasetResource(found(dataset.id)), 201, {
+        Location: `/v1/datasets/${dataset.id}`,
       });
     },
   );
 
   /**
-   * @openapi listCollections
-   * @summary List collections
-   * @tags collections
-   * @description The collections, oldest first, each with its progress.
+   * @openapi listDatasets
+   * @summary List datasets
+   * @tags datasets
+   * @description The datasets, oldest first, each with its progress.
    */
   router.get(
-    '/v1/collections',
+    '/v1/datasets',
     validate(() => ({})),
     (c) => {
-      return c.json({ data: store.crawled().map(collectionResource) });
+      return c.json({ data: store.crawled().map(datasetResource) });
     },
   );
 
   /**
-   * @openapi getCollection
-   * @summary Get a collection
-   * @tags collections
-   * @description A collection with its progress: its search, each page that its search found, its pages, items and evaluations.
+   * @openapi getDataset
+   * @summary Get a dataset
+   * @tags datasets
+   * @description A dataset with its progress: its search, each page that its search found, its pages, items and evaluations.
    */
   router.get(
-    '/v1/collections/:id',
+    '/v1/datasets/:id',
     validate((payload) => ({
       id: { select: payload.params.id, against: z.string() },
     })),
     (c) => {
-      return c.json(collectionResource(found(c.var.input.id)));
+      return c.json(datasetResource(found(c.var.input.id)));
     },
   );
 
   /**
-   * @openapi deleteCollection
-   * @summary Delete a collection
-   * @tags collections
-   * @description Stop keeping a collection current. Its events stay in the log.
+   * @openapi deleteDataset
+   * @summary Delete a dataset
+   * @tags datasets
+   * @description Stop keeping a dataset current. Its events stay in the log.
    */
   router.delete(
-    '/v1/collections/:id',
+    '/v1/datasets/:id',
     validate((payload) => ({
       id: { select: payload.params.id, against: z.string() },
     })),
@@ -240,7 +240,7 @@ export default function (router: Hono) {
       const { id } = found(c.var.input.id);
       refuseWhilePassing();
       await queue.unschedule(searches, id);
-      store.deleteCollection(id);
+      store.deleteDataset(id);
       crawl.rebuild();
       return c.body(null, 204);
     },

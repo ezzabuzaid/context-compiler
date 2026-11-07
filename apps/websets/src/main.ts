@@ -22,14 +22,14 @@ const reasonOf = (error: unknown) =>
 
 // The starting URLs, criteria and fields that a pipeline is built from:
 // when they change, the watch builds the pipeline again.
-const shapeOf = (collections: readonly Crawled[]) =>
+const shapeOf = (datasets: readonly Crawled[]) =>
   JSON.stringify(
-    collections.map((collection) => [
-      collection.id,
-      pagesOf(collection),
-      collection.lists,
-      collection.criteria,
-      collection.fields,
+    datasets.map((dataset) => [
+      dataset.id,
+      pagesOf(dataset),
+      dataset.lists,
+      dataset.criteria,
+      dataset.fields,
     ]),
   );
 
@@ -53,16 +53,16 @@ const server = serve(
 );
 await Promise.all([
   (async () => {
-    // Each round watches one pipeline, until a collection changes its
+    // Each round watches one pipeline, until a dataset changes its
     // starting URLs, criteria or fields.
     while (!watching.aborted) {
       const rebuilt = crawl.watch();
-      const collections = store.crawled();
-      const shape = shapeOf(collections);
-      const built = await pipeline(collections);
+      const datasets = store.crawled();
+      const shape = shapeOf(datasets);
+      const built = await pipeline(datasets);
       const ends = AbortSignal.any([watching, rebuilt]);
       if (built === null) {
-        // No collection has a starting URL yet: wait for one, or for the
+        // No dataset has a starting URL yet: wait for one, or for the
         // stop, on the signal itself. util.aborted() holds its resource
         // weakly and never ends once a GC took it (#3929), and once() never
         // sees an abort that came before it, as a search's rebuild can.
@@ -81,7 +81,7 @@ await Promise.all([
                 error instanceof AggregateError ? error.errors : [error];
               for (const reason of reasons) {
                 if (reason instanceof CrawlError) {
-                  // A collection's progress names why a page that its search
+                  // A dataset's progress names why a page that its search
                   // found did not load, such as a bot challenge.
                   store.failed(reason.url, reasonOf(reason.cause));
                   console.log(

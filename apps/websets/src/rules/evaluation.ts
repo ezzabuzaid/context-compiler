@@ -67,7 +67,7 @@ export function pageFailure(error: unknown): { readonly error: string } {
   throw error;
 }
 
-// Whether each page of a collection meets one of its criteria, as
+// Whether each page of a dataset meets one of its criteria, as
 // GPT-6-Luna reads the page. The quote stays only when it is in the page
 // text, so an invented sentence is never the evidence of an evaluation.
 export class Evaluation extends Rule<Page, string> {

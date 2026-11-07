@@ -23,7 +23,7 @@ const ok = (body: string): Served => ({
 });
 
 // A list of links on a page of its own, as a reading list or an awesome list
-// is: the pages it links are the candidates of a collection that names it.
+// is: the pages it links are the candidates of a dataset that names it.
 const list = 'https://lists.example.com/ai-reading';
 const claude = 'https://claude.com/programs/startups';
 const microsoft = 'https://www.microsoft.com/en-us/startups';
@@ -47,7 +47,7 @@ const paperPage =
   ok(`<!doctype html><html><head><title>Agentic memory for language model agents</title></head><body>
 <main><h1>Agentic memory for language model agents</h1><p>We present a memory system that lets language model agents organize and recall their past experiences.</p></main></body></html>`);
 
-// The two consumers' collections over the same list: startup credit
+// The two consumers' datasets over the same list: startup credit
 // programs, with their amount and who runs them, and papers about memory
 // for agents, with their title.
 const givesCredits = 'The program gives startups free credits';
@@ -55,7 +55,7 @@ const aboutMemory = 'The page is about memory for AI agents';
 const amount = 'The largest amount of credits, in US dollars';
 const runBy = 'Who runs the program';
 const titled = 'The title of the paper';
-const creditsCollection = {
+const creditsDataset = {
   title: 'Startup credit programs',
   criteria: [{ description: givesCredits }],
   lists: [list],
@@ -69,7 +69,7 @@ const creditsCollection = {
     },
   ],
 };
-const memoryCollection = {
+const memoryDataset = {
   title: 'Memory papers',
   criteria: [{ description: aboutMemory }],
   lists: [list],
@@ -229,7 +229,7 @@ const searches = ${JSON.stringify(searches)};
 const evaluations = ${JSON.stringify(judged)};
 const fields = ${JSON.stringify(fields)};
 let searched = 0;
-// A garbage collection every 50 ms, as a long-running app has them: an
+// A garbage dataset every 50 ms, as a long-running app has them: an
 // object that the app holds only weakly is gone by the stop.
 setInterval(() => globalThis.gc(), 50).unref();
 const RealDate = Date;
@@ -533,14 +533,14 @@ const all =
   (seen) =>
     holds.every((given) => given(seen));
 
-// Asks the API for a new collection, and gives its id.
+// Asks the API for a new dataset, and gives its id.
 async function create(api: Serving['api'], body: unknown) {
-  const created = await api('/v1/collections', { method: 'POST', body });
+  const created = await api('/v1/datasets', { method: 'POST', body });
   assert.equal(created.status, 201, JSON.stringify(created.body));
   return z.object({ id: z.string() }).parse(created.body).id;
 }
 
-// The items of a collection as a consumer reads them.
+// The items of a dataset as a consumer reads them.
 const itemsSchema = z.object({
   data: z.array(
     z.object({
@@ -572,16 +572,16 @@ const errorCode = (body: unknown) =>
 const urls = (body: unknown) =>
   itemsSchema.parse(body).data.map(({ url }) => url);
 
-test('the API answers only its consumers: no key or a wrong key gets 401, and each key that the app names gets the collections', async () => {
+test('the API answers only its consumers: no key or a wrong key gets 401, and each key that the app names gets the datasets', async () => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   await running(data.path, {
     pages,
     ahead: 0,
     during: async ({ api }) => {
-      const none = await api('/v1/collections', { key: null });
-      const wrong = await api('/v1/collections', { key: 'sk_websets_wrong' });
-      const first = await api('/v1/collections');
-      const second = await api('/v1/collections', { key: secondKey });
+      const none = await api('/v1/datasets', { key: null });
+      const wrong = await api('/v1/datasets', { key: 'sk_websets_wrong' });
+      const first = await api('/v1/datasets');
+      const second = await api('/v1/datasets', { key: secondKey });
 
       assert.deepEqual(
         [none.status, wrong.status, first.status, second.status],
@@ -596,7 +596,7 @@ test('the API answers only its consumers: no key or a wrong key gets 401, and ea
   });
 });
 
-test("a collection's items are the pages its list links that meet every criterion, each with its evaluations and its fields in their formats", async () => {
+test("a dataset's items are the pages its list links that meet every criterion, each with its evaluations and its fields in their formats", async () => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   await running(data.path, {
     pages,
@@ -604,7 +604,7 @@ test("a collection's items are the pages its list links that meet every criterio
     fields: fieldAnswers,
     ahead: 0,
     during: async ({ api, quiet }) => {
-      const id = await create(api, creditsCollection);
+      const id = await create(api, creditsDataset);
       await quiet(
         all(
           evaluatedOn(claude, 1),
@@ -615,7 +615,7 @@ test("a collection's items are the pages its list links that meet every criterio
         ),
       );
       const items = itemsSchema.parse(
-        (await api(`/v1/collections/${id}/items`)).body,
+        (await api(`/v1/datasets/${id}/items`)).body,
       );
 
       assert.deepEqual(
@@ -672,7 +672,7 @@ test("a collection's items are the pages its list links that meet every criterio
   });
 });
 
-test("a collection's search finds pages with the query and the criteria, the crawl reads them, and they become its items, with the search and its pages in the collection's progress", async () => {
+test("a dataset's search finds pages with the query and the criteria, the crawl reads them, and they become its items, with the search and its pages in the dataset's progress", async () => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   const query = 'AI labs that give startups free credits';
   const { searched } = await running(data.path, {
@@ -688,7 +688,7 @@ test("a collection's search finds pages with the query and the criteria, the cra
       });
       await quiet(evaluatedOn(claude, 1));
       const items = itemsSchema.parse(
-        (await api(`/v1/collections/${id}/items`)).body,
+        (await api(`/v1/datasets/${id}/items`)).body,
       );
       const { progress } = z
         .object({
@@ -698,7 +698,7 @@ test("a collection's search finds pages with the query and the criteria, the cra
             items: z.number(),
           }),
         })
-        .parse((await api(`/v1/collections/${id}`)).body);
+        .parse((await api(`/v1/datasets/${id}`)).body);
 
       assert.deepEqual(
         items.data.map(({ url, source }) => [url, source]),
@@ -717,7 +717,7 @@ test("a collection's search finds pages with the query and the criteria, the cra
   );
 });
 
-test('two collections over the same list have the items of their own criteria', async () => {
+test('two datasets over the same list have the items of their own criteria', async () => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   await running(data.path, {
     pages,
@@ -725,39 +725,38 @@ test('two collections over the same list have the items of their own criteria', 
     fields: fieldAnswers,
     ahead: 0,
     during: async ({ api, quiet }) => {
-      const credits = await create(api, creditsCollection);
+      const credits = await create(api, creditsDataset);
       await quiet(all(readOn(claude, 2), readOn(microsoft, 2)));
-      const memory = await create(api, memoryCollection);
+      const memory = await create(api, memoryDataset);
       await quiet(readOn(paper, 1));
 
       assert.deepEqual(
-        urls((await api(`/v1/collections/${credits}/items`)).body),
+        urls((await api(`/v1/datasets/${credits}/items`)).body),
         [claude, microsoft],
       );
-      assert.deepEqual(
-        urls((await api(`/v1/collections/${memory}/items`)).body),
-        [paper],
-      );
+      assert.deepEqual(urls((await api(`/v1/datasets/${memory}/items`)).body), [
+        paper,
+      ]);
     },
   });
 });
 
-test('a collection that comes while a pass runs is refused with crawl_running and is not kept', async () => {
+test('a dataset that comes while a pass runs is refused with crawl_running and is not kept', async () => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   const held = 'https://slow.example.com/startups';
   await running(data.path, {
     pages: { ...pages, [list]: listPage([held]), [held]: { hold: true } },
     ahead: 0,
     during: async ({ api, quiet }) => {
-      await create(api, creditsCollection);
+      await create(api, creditsDataset);
       await quiet(({ requests }) => requests.includes(held));
-      const refused = await api('/v1/collections', {
+      const refused = await api('/v1/datasets', {
         method: 'POST',
-        body: memoryCollection,
+        body: memoryDataset,
       });
       const kept = z
         .object({ data: z.array(z.object({ title: z.string() })) })
-        .parse((await api('/v1/collections')).body);
+        .parse((await api('/v1/datasets')).body);
 
       assert.deepEqual(
         [refused.status, errorCode(refused.body)],
@@ -765,7 +764,7 @@ test('a collection that comes while a pass runs is refused with crawl_running an
       );
       assert.deepEqual(
         kept.data.map(({ title }) => title),
-        [creditsCollection.title],
+        [creditsDataset.title],
       );
     },
   });
@@ -781,13 +780,13 @@ test('the events give item.created for each page that comes to meet the criteria
     fields: fieldAnswers,
     ahead: 0,
     during: async ({ api, quiet }) => {
-      id = await create(api, creditsCollection);
+      id = await create(api, creditsDataset);
       await quiet(all(readOn(claude, 2), readOn(microsoft, 2)));
       const log = eventsSchema.parse(
-        (await api(`/v1/collections/${id}/events`)).body,
+        (await api(`/v1/datasets/${id}/events`)).body,
       );
       const items = itemsSchema.parse(
-        (await api(`/v1/collections/${id}/items`)).body,
+        (await api(`/v1/datasets/${id}/items`)).body,
       );
 
       assert.deepEqual(
@@ -850,7 +849,7 @@ test('the events give item.created for each page that comes to meet the criteria
     during: async ({ api, quiet }) => {
       await quiet(all(evaluatedOn(claude, 1), readOn(microsoft, 2)));
       const log = eventsSchema.parse(
-        (await api(`/v1/collections/${id}/events?cursor=${after}`)).body,
+        (await api(`/v1/datasets/${id}/events?cursor=${after}`)).body,
       );
 
       assert.deepEqual(
@@ -884,27 +883,27 @@ test('after the event log starts again, a cursor of the old log is gone with res
     fields: fieldAnswers,
     ahead: 0,
     during: async ({ api, quiet }) => {
-      id = await create(api, creditsCollection);
+      id = await create(api, creditsDataset);
       await quiet(all(readOn(claude, 2), readOn(microsoft, 2)));
       old = eventsSchema.parse(
-        (await api(`/v1/collections/${id}/events`)).body,
+        (await api(`/v1/datasets/${id}/events`)).body,
       ).nextCursor;
     },
   });
   // The fix for old output is a fresh run: a new event log, in a new file.
   await rm(join(data.path, 'websets', 'api.sqlite'));
-  // The collection went with the file, so the run makes it again.
+  // The dataset went with the file, so the run makes it again.
   await running(data.path, {
     pages,
     evaluations,
     fields: fieldAnswers,
     ahead: 0,
     during: async ({ api, quiet }) => {
-      const again = await create(api, creditsCollection);
+      const again = await create(api, creditsDataset);
       await quiet(() => true);
-      const gone = await api(`/v1/collections/${again}/events?cursor=${old}`);
+      const gone = await api(`/v1/datasets/${again}/events?cursor=${old}`);
       const invalid = await api(
-        `/v1/collections/${again}/events?cursor=not-a-cursor`,
+        `/v1/datasets/${again}/events?cursor=not-a-cursor`,
       );
 
       assert.equal(gone.status, 410);
@@ -915,7 +914,7 @@ test('after the event log starts again, a cursor of the old log is gone with res
   });
 });
 
-test("a search that fails is failed with its reason in the collection's progress, and the pages of its list are still judged", async () => {
+test("a search that fails is failed with its reason in the dataset's progress, and the pages of its list are still judged", async () => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   const query = 'AI labs that give startups free credits';
   // The endpoint's 500, as the AI SDK retries it twice before it gives up.
@@ -937,7 +936,7 @@ test("a search that fails is failed with its reason in the collection's progress
     ahead: 0,
     during: async ({ api, quiet }) => {
       const id = await create(api, {
-        ...creditsCollection,
+        ...creditsDataset,
         search: { query, count: 5 },
       });
       await quiet(
@@ -953,14 +952,14 @@ test("a search that fails is failed with its reason in the collection's progress
             search: z.object({ state: z.string(), error: z.string() }),
           }),
         })
-        .parse((await api(`/v1/collections/${id}`)).body);
+        .parse((await api(`/v1/datasets/${id}`)).body);
 
       assert.equal(progress.search.state, 'failed');
       assert.match(
         progress.search.error,
         /The server had an error while processing your request\./u,
       );
-      assert.deepEqual(urls((await api(`/v1/collections/${id}/items`)).body), [
+      assert.deepEqual(urls((await api(`/v1/datasets/${id}/items`)).body), [
         claude,
         microsoft,
       ]);
@@ -968,7 +967,7 @@ test("a search that fails is failed with its reason in the collection's progress
   });
 });
 
-test('a collection that the API cannot keep is refused with invalid_argument and not kept: no criteria, a monitor without a search, a cron that is not one', async () => {
+test('a dataset that the API cannot keep is refused with invalid_argument and not kept: no criteria, a monitor without a search, a cron that is not one', async () => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   await running(data.path, {
     pages,
@@ -976,15 +975,15 @@ test('a collection that the API cannot keep is refused with invalid_argument and
     during: async ({ api }) => {
       const refused = [];
       for (const body of [
-        { ...creditsCollection, criteria: [] },
-        { ...creditsCollection, monitor: { cron: '0 9 * * 1' } },
+        { ...creditsDataset, criteria: [] },
+        { ...creditsDataset, monitor: { cron: '0 9 * * 1' } },
         {
-          ...creditsCollection,
+          ...creditsDataset,
           search: { query: 'credits' },
           monitor: { cron: 'not a cron at all' },
         },
       ]) {
-        refused.push(await api('/v1/collections', { method: 'POST', body }));
+        refused.push(await api('/v1/datasets', { method: 'POST', body }));
       }
       const [noCriteria] = refused;
 
@@ -1008,12 +1007,12 @@ test('a collection that the API cannot keep is refused with invalid_argument and
         ),
         ['criteria'],
       );
-      assert.deepEqual((await api('/v1/collections')).body, { data: [] });
+      assert.deepEqual((await api('/v1/datasets')).body, { data: [] });
     },
   });
 });
 
-test('a deleted collection is gone: 204, then not_found, and no collection is listed', async () => {
+test('a deleted dataset is gone: 204, then not_found, and no dataset is listed', async () => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   await running(data.path, {
     pages,
@@ -1021,15 +1020,15 @@ test('a deleted collection is gone: 204, then not_found, and no collection is li
     fields: fieldAnswers,
     ahead: 0,
     during: async ({ api, quiet }) => {
-      const id = await create(api, creditsCollection);
+      const id = await create(api, creditsDataset);
       await quiet(all(readOn(claude, 2), readOn(microsoft, 2)));
-      const deleted = await api(`/v1/collections/${id}`, { method: 'DELETE' });
-      const read = await api(`/v1/collections/${id}`);
+      const deleted = await api(`/v1/datasets/${id}`, { method: 'DELETE' });
+      const read = await api(`/v1/datasets/${id}`);
 
       assert.equal(deleted.status, 204);
       assert.equal(read.status, 404);
       assert.equal(errorCode(read.body), 'not_found');
-      assert.deepEqual((await api('/v1/collections')).body, { data: [] });
+      assert.deepEqual((await api('/v1/datasets')).body, { data: [] });
     },
   });
 });
@@ -1042,7 +1041,7 @@ test('calls to the API request no website: it answers from what the crawl stored
     fields: fieldAnswers,
     ahead: 0,
     during: async ({ api, quiet }) => {
-      const id = await create(api, creditsCollection);
+      const id = await create(api, creditsDataset);
       await quiet(all(readOn(claude, 2), readOn(microsoft, 2)));
       const seen: string[] = [];
       await quiet(({ requests }) => {
@@ -1051,10 +1050,10 @@ test('calls to the API request no website: it answers from what the crawl stored
       });
       const answers = await Promise.all(
         [
-          '/v1/collections',
-          `/v1/collections/${id}`,
-          `/v1/collections/${id}/items`,
-          `/v1/collections/${id}/events`,
+          '/v1/datasets',
+          `/v1/datasets/${id}`,
+          `/v1/datasets/${id}/items`,
+          `/v1/datasets/${id}/events`,
         ].map(async (path) => (await api(path)).status),
       );
       let after: readonly string[] = [];

@@ -2,7 +2,7 @@ import { openai } from '@ai-sdk/openai';
 import { Output, generateText } from 'ai';
 import { z } from 'zod';
 
-import type { Definition } from './collection.ts';
+import type { Definition } from './dataset.ts';
 import model from './search-model.ts';
 
 // A page that a search found.
@@ -13,9 +13,9 @@ const answerSchema = z.object({
 });
 
 const instructions =
-  'You find web pages for a collection. Use web search. List the pages that the query asks for and that meet every criterion, the best first. Give the page itself, not a search result page, and each page once.';
+  'You find web pages for a dataset. Use web search. List the pages that the query asks for and that meet every criterion, the best first. Give the page itself, not a search result page, and each page once.';
 
-// The pages that a web search finds for a collection, best first: the
+// The pages that a web search finds for a dataset, best first: the
 // starting URLs that the crawl then reads. A URL that is not http or https
 // is no page, and a page is listed once.
 export async function search(

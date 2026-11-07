@@ -18,21 +18,21 @@ const read = ({ fields }: Candidate) =>
 // longer meets every criterion. Changes between two checks come as one
 // event, so fields read by then come with item.created.
 export function recordEvents(): void {
-  const collections = store
+  const datasets = store
     .crawled()
-    .map((collection) => [collection, candidates(collection)] as const);
+    .map((dataset) => [dataset, candidates(dataset)] as const);
   store.transaction(() => {
-    for (const [{ id: collection }, pages] of collections) {
+    for (const [{ id: dataset }, pages] of datasets) {
       for (const page of pages) {
-        const known = store.item(collection, page.url);
+        const known = store.item(dataset, page.url);
         const fields = read(page);
         if (page.matches && (known === undefined || !known.matches)) {
-          const id = store.saveItem(collection, page.url, {
+          const id = store.saveItem(dataset, page.url, {
             matches: true,
             fields,
           });
           store.append({
-            collection,
+            dataset,
             type: 'item.created',
             data: itemResource(id, page),
             previous: null,
@@ -42,20 +42,20 @@ export function recordEvents(): void {
           known !== undefined &&
           JSON.stringify(known.fields) !== JSON.stringify(fields)
         ) {
-          store.saveItem(collection, page.url, { matches: true, fields });
+          store.saveItem(dataset, page.url, { matches: true, fields });
           store.append({
-            collection,
+            dataset,
             type: 'item.updated',
             data: itemResource(known.id, page),
             previous: { fields: known.fields },
           });
         } else if (!page.matches && known?.matches === true) {
-          store.saveItem(collection, page.url, {
+          store.saveItem(dataset, page.url, {
             matches: false,
             fields: known.fields,
           });
           store.append({
-            collection,
+            dataset,
             type: 'item.removed',
             data: itemResource(known.id, page),
             previous: null,

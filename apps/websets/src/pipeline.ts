@@ -34,19 +34,19 @@ const checkpoints = new SQLiteCheckpointStore({
 
 const literal = (value: string) => `'${value.replaceAll("'", "''")}'`;
 
-// The starting URLs of a collection that are pages: those that it gives and
+// The starting URLs of a dataset that are pages: those that it gives and
 // those that its search found.
 export const pagesOf = ({ pages, seeds }: Crawled) => [...pages, ...seeds];
 
-// The pipeline that the collections shape: their pages and the pages of
+// The pipeline that the datasets shape: their pages and the pages of
 // their searches are read as pages, their lists as lists, and each criterion
-// and field of a collection is a dataset of its pages. A WebSource takes its
-// inputs when it is made, so the app builds the pipeline again when a
-// collection changes them (elt #3679). No input, no pipeline.
-export default async function pipeline(collections: readonly Crawled[]) {
-  const pages = [...new Set(collections.flatMap(pagesOf))].toSorted();
+// and field of a dataset is an elt computed dataset over its pages. A
+// WebSource takes its inputs when it is made, so the app builds the pipeline
+// again when a dataset changes them (elt #3679). No input, no pipeline.
+export default async function pipeline(datasets: readonly Crawled[]) {
+  const pages = [...new Set(datasets.flatMap(pagesOf))].toSorted();
   const lists = [
-    ...new Set(collections.flatMap(({ lists: of }) => of)),
+    ...new Set(datasets.flatMap(({ lists: of }) => of)),
   ].toSorted();
   if (pages.length === 0 && lists.length === 0) {
     return null;
@@ -117,14 +117,14 @@ export default async function pipeline(collections: readonly Crawled[]) {
   const candidates: string[] = [];
   const evaluations: string[] = [];
   const values: string[] = [];
-  for (const collection of collections) {
-    const { id, criteria, fields } = collection;
-    const inputs = [...pagesOf(collection), ...collection.lists];
+  for (const dataset of datasets) {
+    const { id, criteria, fields } = dataset;
+    const inputs = [...pagesOf(dataset), ...dataset.lists];
     // A page that two starting URLs led to is one candidate, as last stored.
     const candidate = new View({
       into: destination,
       name: `${id}_candidates`,
-      description: `The pages of collection ${id}.`,
+      description: `The pages of dataset ${id}.`,
       columns: {
         inputUrl: 'The starting URL that led to the page.',
         articleUrl: 'The article URL of the page.',
@@ -137,27 +137,27 @@ export default async function pipeline(collections: readonly Crawled[]) {
     });
     derived.push(candidate);
     candidates.push(
-      `SELECT ${literal(id)} AS collection, inputUrl, articleUrl, title, loaded_at FROM ${id}_candidates`,
+      `SELECT ${literal(id)} AS dataset, inputUrl, articleUrl, title, loaded_at FROM ${id}_candidates`,
     );
     for (const [index, { description }] of criteria.entries()) {
       derived.push(
         new ComputedDataset({
           into: destination,
           name: `${id}_criterion_${index}`,
-          description: `Whether each page of collection ${id} meets: ${description}`,
+          description: `Whether each page of dataset ${id} meets: ${description}`,
           from: [candidate],
           compute: new Evaluation(description),
         }),
       );
       evaluations.push(
-        `SELECT ${literal(id)} AS collection, ${index} AS criterion, articleUrl, status, error, satisfied, reasoning, quote FROM ${id}_criterion_${index}`,
+        `SELECT ${literal(id)} AS dataset, ${index} AS criterion, articleUrl, status, error, satisfied, reasoning, quote FROM ${id}_criterion_${index}`,
       );
     }
     // Fields are read only from the pages that meet every criterion.
     const matches = new View({
       into: destination,
       name: `${id}_matches`,
-      description: `The pages of collection ${id} that meet every criterion.`,
+      description: `The pages of dataset ${id} that meet every criterion.`,
       columns: {
         articleUrl: 'The article URL of the page.',
         title: 'The title of the page, or NULL.',
@@ -176,25 +176,25 @@ export default async function pipeline(collections: readonly Crawled[]) {
         new ComputedDataset({
           into: destination,
           name: `${id}_field_${field.name}`,
-          description: `The ${field.name} of each page of collection ${id} that meets every criterion.`,
+          description: `The ${field.name} of each page of dataset ${id} that meets every criterion.`,
           from: [matches],
           compute: new FieldValue(field),
         }),
       );
       values.push(
-        `SELECT ${literal(id)} AS collection, ${literal(field.name)} AS field, articleUrl, status, error, value, quote FROM ${id}_field_${field.name}`,
+        `SELECT ${literal(id)} AS dataset, ${literal(field.name)} AS field, articleUrl, status, error, value, quote FROM ${id}_field_${field.name}`,
       );
     }
   }
-  // The API reads every collection through these views, so it binds a
-  // collection id instead of naming its tables.
+  // The API reads every dataset through these views, so it binds a
+  // dataset id instead of naming its tables.
   derived.push(
     new View({
       into: destination,
       name: 'candidates',
-      description: 'The pages of each collection.',
+      description: 'The pages of each dataset.',
       columns: {
-        collection: 'The id of the collection.',
+        dataset: 'The id of the dataset.',
         inputUrl: 'The starting URL that led to the page.',
         articleUrl: 'The article URL of the page.',
         title: 'The title of the page, or NULL.',
@@ -205,10 +205,10 @@ export default async function pipeline(collections: readonly Crawled[]) {
     new View({
       into: destination,
       name: 'evaluations',
-      description: 'Whether each page of each collection meets each criterion.',
+      description: 'Whether each page of each dataset meets each criterion.',
       columns: {
-        collection: 'The id of the collection.',
-        criterion: 'The position of the criterion in the collection, from 0.',
+        dataset: 'The id of the dataset.',
+        criterion: 'The position of the criterion in the dataset, from 0.',
         articleUrl: 'The article URL of the page.',
         status: 'computed: the model judged the page. failed: error says why.',
         error: 'Why the call failed. NULL unless status is failed.',
@@ -226,7 +226,7 @@ export default async function pipeline(collections: readonly Crawled[]) {
         name: 'field_values',
         description: 'Each field of each page that meets every criterion.',
         columns: {
-          collection: 'The id of the collection.',
+          dataset: 'The id of the dataset.',
           field: 'The name of the field.',
           articleUrl: 'The article URL of the page.',
           status: 'computed: the model read the field. failed: error says why.',

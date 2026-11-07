@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { type LoadedRow, Rule, type RuleResult } from '@workspace/elt';
 import { ground } from '@workspace/quote-grounding';
 
-import type { Field as Definition } from '../collection.ts';
+import type { Field as Definition } from '../dataset.ts';
 import {
   type Page,
   pageFailure,
@@ -47,7 +47,7 @@ const formats = {
 const system =
   'You read one web page and extract one field from it. First copy, word for word, the one sentence of the page text that states the field, as quote; null when no sentence does. Never quote the URL or the title. Then give value in the format asked, read from that sentence; null when the page does not state it.';
 
-// One field of the items of a collection, as GPT-6-Luna reads each item's
+// One field of the items of a dataset, as GPT-6-Luna reads each item's
 // page. The quote stays only when it is in the page text.
 export class FieldValue extends Rule<Page, string> {
   readonly #field: Definition;

@@ -11,7 +11,7 @@
   ],
   "tags": [
     {
-      "name": "collections"
+      "name": "datasets"
     },
     {
       "name": "events"
@@ -26,13 +26,13 @@
     }
   ],
   "paths": {
-    "/v1/collections": {
+    "/v1/datasets": {
       "post": {
-        "operationId": "createCollection",
+        "operationId": "createDataset",
         "parameters": [],
-        "tags": ["collections"],
-        "description": "Keep a new collection current: the pages that meet every criterion, found by its search, given as pages or linked from its lists, each with its fields. Answers with the collection and its progress; the search, the crawl and the judging run in the background.",
-        "summary": "Create a collection",
+        "tags": ["datasets"],
+        "description": "Keep a new dataset current: the pages that meet every criterion, found by its search, given as pages or linked from its lists, each with its fields. Answers with the dataset and its progress; the search, the crawl and the judging run in the background.",
+        "summary": "Create a dataset",
         "requestBody": {
           "required": true,
           "content": {
@@ -607,11 +607,11 @@
         }
       },
       "get": {
-        "operationId": "listCollections",
+        "operationId": "listDatasets",
         "parameters": [],
-        "tags": ["collections"],
-        "description": "The collections, oldest first, each with its progress.",
-        "summary": "List collections",
+        "tags": ["datasets"],
+        "description": "The datasets, oldest first, each with its progress.",
+        "summary": "List datasets",
         "responses": {
           "200": {
             "description": "Response for 200",
@@ -966,9 +966,9 @@
         }
       }
     },
-    "/v1/collections/{id}": {
+    "/v1/datasets/{id}": {
       "get": {
-        "operationId": "getCollection",
+        "operationId": "getDataset",
         "parameters": [
           {
             "in": "path",
@@ -979,9 +979,9 @@
             }
           }
         ],
-        "tags": ["collections"],
-        "description": "A collection with its progress: its search, each page that its search found, its pages, items and evaluations.",
-        "summary": "Get a collection",
+        "tags": ["datasets"],
+        "description": "A dataset with its progress: its search, each page that its search found, its pages, items and evaluations.",
+        "summary": "Get a dataset",
         "responses": {
           "200": {
             "description": "Response for 200",
@@ -1332,7 +1332,7 @@
         }
       },
       "delete": {
-        "operationId": "deleteCollection",
+        "operationId": "deleteDataset",
         "parameters": [
           {
             "in": "path",
@@ -1343,9 +1343,9 @@
             }
           }
         ],
-        "tags": ["collections"],
-        "description": "Stop keeping a collection current. Its events stay in the log.",
-        "summary": "Delete a collection",
+        "tags": ["datasets"],
+        "description": "Stop keeping a dataset current. Its events stay in the log.",
+        "summary": "Delete a dataset",
         "responses": {
           "204": {
             "description": "Response for 204",
@@ -1428,7 +1428,7 @@
         }
       }
     },
-    "/v1/collections/{id}/events": {
+    "/v1/datasets/{id}/events": {
       "get": {
         "operationId": "listEvents",
         "parameters": [
@@ -1462,8 +1462,8 @@
           }
         ],
         "tags": ["events"],
-        "description": "What happened to a collection's items after the consumer's cursor, as a delta query answers: item.created, item.updated (with the fields before it) and item.removed. A cursor of an earlier log answers 410 resync_required.",
-        "summary": "List a collection's events",
+        "description": "What happened to a dataset's items after the consumer's cursor, as a delta query answers: item.created, item.updated (with the fields before it) and item.removed. A cursor of an earlier log answers 410 resync_required.",
+        "summary": "List a dataset's events",
         "responses": {
           "200": {
             "description": "Response for 200",
@@ -2037,7 +2037,7 @@
         }
       }
     },
-    "/v1/collections/{id}/items": {
+    "/v1/datasets/{id}/items": {
       "get": {
         "operationId": "listItems",
         "parameters": [
@@ -2071,8 +2071,8 @@
           }
         ],
         "tags": ["items"],
-        "description": "The pages of a collection that meet every criterion, each with its evaluations and fields, as Exa lists the items of a webset. An item reaches the API with the event that announces it.",
-        "summary": "List a collection's items",
+        "description": "The pages of a dataset that meet every criterion, each with its evaluations and fields, as Exa lists the items of a webset. An item reaches the API with the event that announces it.",
+        "summary": "List a dataset's items",
         "responses": {
           "200": {
             "description": "Response for 200",

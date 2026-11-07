@@ -21,7 +21,7 @@ import {
 } from '../http/request.ts';
 import * as http from '../http/response.ts';
 import { type SSEListener, sse } from '../http/sse.ts';
-import * as collections from '../inputs/collections.ts';
+import * as datasets from '../inputs/datasets.ts';
 import * as outputs from '../outputs/index.ts';
 import {
   CursorPagination,
@@ -30,19 +30,19 @@ import {
 } from '../pagination/index.ts';
 
 export default {
-  'GET /v1/collections': {
+  'GET /v1/datasets': {
     security: [{ bearer: [] }] as readonly Record<string, readonly string[]>[],
-    schema: collections.listCollectionsSchema,
+    schema: datasets.listDatasetsSchema,
     output: [
-      http.Ok<outputs.ListCollections>,
+      http.Ok<outputs.ListDatasets>,
       http.BadRequest<outputs.ApiError>,
       http.Unauthorized<outputs.ApiError>,
       http.UnsupportedMediaType<outputs.ApiError>,
       http.InternalServerError<outputs.ApiError>,
     ],
-    toRequest(input: z.input<typeof collections.listCollectionsSchema>) {
+    toRequest(input: z.input<typeof datasets.listDatasetsSchema>) {
       return toRequest(
-        'GET /v1/collections',
+        'GET /v1/datasets',
         empty(input, {
           inputHeaders: [],
           inputQuery: [],
@@ -52,7 +52,7 @@ export default {
       );
     },
     async dispatch(
-      input: z.input<typeof collections.listCollectionsSchema>,
+      input: z.input<typeof datasets.listDatasetsSchema>,
       options: {
         signal?: AbortSignal;
         interceptors: Interceptor[];
@@ -67,11 +67,11 @@ export default {
       );
     },
   },
-  'POST /v1/collections': {
+  'POST /v1/datasets': {
     security: [{ bearer: [] }] as readonly Record<string, readonly string[]>[],
-    schema: collections.createCollectionSchema,
+    schema: datasets.createDatasetSchema,
     output: [
-      http.Created<outputs.CreateCollection201>,
+      http.Created<outputs.CreateDataset201>,
       http.BadRequest<outputs.ApiError>,
       http.Unauthorized<outputs.ApiError>,
       http.NotFound<outputs.ApiError>,
@@ -79,9 +79,9 @@ export default {
       http.UnsupportedMediaType<outputs.ApiError>,
       http.InternalServerError<outputs.ApiError>,
     ],
-    toRequest(input: z.input<typeof collections.createCollectionSchema>) {
+    toRequest(input: z.input<typeof datasets.createDatasetSchema>) {
       return toRequest(
-        'POST /v1/collections',
+        'POST /v1/datasets',
         json(input, {
           inputHeaders: [],
           inputQuery: [],
@@ -99,7 +99,7 @@ export default {
       );
     },
     async dispatch(
-      input: z.input<typeof collections.createCollectionSchema>,
+      input: z.input<typeof datasets.createDatasetSchema>,
       options: {
         signal?: AbortSignal;
         interceptors: Interceptor[];
@@ -114,20 +114,20 @@ export default {
       );
     },
   },
-  'GET /v1/collections/{id}': {
+  'GET /v1/datasets/{id}': {
     security: [{ bearer: [] }] as readonly Record<string, readonly string[]>[],
-    schema: collections.getCollectionSchema,
+    schema: datasets.getDatasetSchema,
     output: [
-      http.Ok<outputs.GetCollection>,
+      http.Ok<outputs.GetDataset>,
       http.BadRequest<outputs.ApiError>,
       http.Unauthorized<outputs.ApiError>,
       http.NotFound<outputs.ApiError>,
       http.UnsupportedMediaType<outputs.ApiError>,
       http.InternalServerError<outputs.ApiError>,
     ],
-    toRequest(input: z.input<typeof collections.getCollectionSchema>) {
+    toRequest(input: z.input<typeof datasets.getDatasetSchema>) {
       return toRequest(
-        'GET /v1/collections/{id}',
+        'GET /v1/datasets/{id}',
         empty(input, {
           inputHeaders: [],
           inputQuery: [],
@@ -137,7 +137,7 @@ export default {
       );
     },
     async dispatch(
-      input: z.input<typeof collections.getCollectionSchema>,
+      input: z.input<typeof datasets.getDatasetSchema>,
       options: {
         signal?: AbortSignal;
         interceptors: Interceptor[];
@@ -152,9 +152,9 @@ export default {
       );
     },
   },
-  'DELETE /v1/collections/{id}': {
+  'DELETE /v1/datasets/{id}': {
     security: [{ bearer: [] }] as readonly Record<string, readonly string[]>[],
-    schema: collections.deleteCollectionSchema,
+    schema: datasets.deleteDatasetSchema,
     output: [
       http.NoContent,
       http.BadRequest<outputs.ApiError>,
@@ -164,9 +164,9 @@ export default {
       http.UnsupportedMediaType<outputs.ApiError>,
       http.InternalServerError<outputs.ApiError>,
     ],
-    toRequest(input: z.input<typeof collections.deleteCollectionSchema>) {
+    toRequest(input: z.input<typeof datasets.deleteDatasetSchema>) {
       return toRequest(
-        'DELETE /v1/collections/{id}',
+        'DELETE /v1/datasets/{id}',
         empty(input, {
           inputHeaders: [],
           inputQuery: [],
@@ -176,7 +176,7 @@ export default {
       );
     },
     async dispatch(
-      input: z.input<typeof collections.deleteCollectionSchema>,
+      input: z.input<typeof datasets.deleteDatasetSchema>,
       options: {
         signal?: AbortSignal;
         interceptors: Interceptor[];

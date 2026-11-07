@@ -4,7 +4,7 @@ import { etag } from 'hono/etag';
 import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
 
-import collectionsRoute from './routes/collections.route.ts';
+import datasetsRoute from './routes/datasets.route.ts';
 import eventsRoute from './routes/events.route.ts';
 import itemsRoute from './routes/items.route.ts';
 
@@ -58,7 +58,7 @@ app.use(
   }),
   etag(),
 );
-for (const route of [collectionsRoute, itemsRoute, eventsRoute]) {
+for (const route of [datasetsRoute, itemsRoute, eventsRoute]) {
   route(app);
 }
 app.notFound((c) =>
