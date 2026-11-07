@@ -60,7 +60,7 @@ function summarize(rows: readonly EvaluateResult[]) {
 // not ratios of sums, so no column of promptfoo shows them. Written to
 // results/<eval id>.json in the folder that promptfoo runs in, as -o writes
 // its output. A row that is an error has no answer to score, so a run with
-// one writes no summary until --retry-errors runs it again.
+// one writes no summary until promptfoo retry runs its error rows again.
 export async function afterAll(
   context: AfterAllExtensionHookContext,
 ): Promise<void> {
@@ -70,7 +70,7 @@ export async function afterAll(
   );
   if (errors.length > 0) {
     console.log(
-      `\nNo summary: ${errors.length} rows are errors. Run them again with promptfoo eval --retry-errors.`,
+      `\nNo summary: ${errors.length} rows are errors. Run them again with nx run startup-credits:promptfoo-retry --args=${context.evalId}`,
     );
     return;
   }

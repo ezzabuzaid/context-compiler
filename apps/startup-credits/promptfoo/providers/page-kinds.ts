@@ -52,7 +52,7 @@ export default class PageKindsProvider implements ApiProvider {
     // the harness that gave it.
     const metadata = { harness: await this.#rule.identity() };
     // A rejected key throws, as it fails the app's dataset: the row is an
-    // error, which --retry-errors runs again.
+    // error, which promptfoo retry <eval id> runs again.
     const [result] = await this.#rule.compute(
       [row.input],
       options?.abortSignal,

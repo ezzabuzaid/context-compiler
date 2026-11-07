@@ -6,11 +6,12 @@ import { type EvaluateResult, ResultFailureReason } from 'promptfoo';
 // has a repeatIndex only when its test repeats (promptfoo's EvaluateResult),
 // so one without is the first run.
 //
-// promptfoo 0.125.1 gives afterAll every row of the eval, and after
-// --retry-errors that is each stale error row beside its retried row:
-// afterAll reads the rows inside evaluate() (dist/src/evaluator-BxCmvGtv.js:
-// 10196-10205), and the stale rows are deleted only after it returns
-// (dist/src/main.js:5112-5116). A row is an error by its failureReason, as
+// promptfoo 0.125.1 gives afterAll every row of the eval, and after a retry
+// (promptfoo retry <eval id>, or eval --retry-errors) that is each stale
+// error row beside its retried row: afterAll reads the rows inside
+// evaluate() (dist/src/evaluator-BxCmvGtv.js:10196-10205), and the stale
+// rows are deleted only after it returns (dist/src/main.js:4587 for retry,
+// 5112-5116 for --retry-errors). A row is an error by its failureReason, as
 // the retry selects them (main.js:4448-4450); a failed assertion also sets
 // error. A retry runs again only a test that has no row that is not an
 // error (evalResult-DzOq5wt9.js:1139-1146, evaluator-BxCmvGtv.js:9145-9153),

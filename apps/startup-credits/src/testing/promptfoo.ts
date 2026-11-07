@@ -11,7 +11,7 @@ const entrypoint = join(
 
 // Runs promptfoo's command line in a test's own folder, with only what
 // promptfoo needs: its data folder in the folder, so a second command of the
-// same folder (--retry-errors) reads the eval of the first, nothing sent
+// same folder (promptfoo retry) reads the eval of the first, nothing sent
 // out, and every OpenAI URL at a closed port. imports are loaded into
 // promptfoo's process before promptfoo (the stub of an endpoint at the
 // wire), and env adds what the harness reads (its login or key). Rejects

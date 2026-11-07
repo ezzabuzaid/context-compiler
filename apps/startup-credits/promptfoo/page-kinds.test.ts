@@ -108,6 +108,7 @@ const cacheOf = (pages: readonly Frozen[]) =>
   }));
 
 type Run = {
+  readonly evalId: string;
   readonly results: {
     readonly prompts: readonly {
       readonly metrics: {
@@ -128,6 +129,7 @@ type Run = {
 };
 
 type Summary = {
+  readonly eval_id: string;
   readonly summaries: readonly Readonly<Record<string, unknown>>[];
 };
 
@@ -159,11 +161,9 @@ export default {
   return folder;
 }
 
-// Runs promptfoo eval with these arguments in the folder, with the Decisions
-// API answering as planned. Gives the output file, the pooled score of each
-// named score as [hits, whole], and what promptfoo printed. A run writes its
-// eval to the folder's promptfoo database, which --retry-errors reads.
-async function evaluate(
+// Runs promptfoo with these arguments in the folder, with the Decisions API
+// answering as planned, and gives what promptfoo printed.
+async function answering(
   folder: string,
   pages: readonly Frozen[],
   decisions: Readonly<Record<string, Decision>>,
@@ -178,12 +178,33 @@ async function evaluate(
       Object.fromEntries(pages.map((page) => [page.url, textOf(page)])),
     ),
   );
-  const { stdout, stderr } = await promptfoo(
-    folder,
-    ['eval', ...args, '--no-cache', '--no-table', '-o', 'out.json'],
-    { imports: [stub], env: { OPENROUTER_API_KEY: openRouterKey } },
-  );
+  const { stdout, stderr } = await promptfoo(folder, args, {
+    imports: [stub],
+    env: { OPENROUTER_API_KEY: openRouterKey },
+  });
   assert.doesNotMatch(stderr, /unplanned decision/u, stderr);
+  return stdout;
+}
+
+// Runs promptfoo eval with these arguments in the folder, with the Decisions
+// API answering as planned. Gives the output file, the pooled score of each
+// named score as [hits, whole], and what promptfoo printed. A run writes its
+// eval to the folder's promptfoo database, which promptfoo retry <eval id>
+// reads.
+async function evaluate(
+  folder: string,
+  pages: readonly Frozen[],
+  decisions: Readonly<Record<string, Decision>>,
+  args: readonly string[],
+) {
+  const stdout = await answering(folder, pages, decisions, [
+    'eval',
+    ...args,
+    '--no-cache',
+    '--no-table',
+    '-o',
+    'out.json',
+  ]);
   const run: Run = JSON.parse(await readFile(join(folder, 'out.json'), 'utf8'));
   const [prompt] = run.results.prompts;
   assert.ok(prompt);
@@ -333,18 +354,27 @@ void describe(
         { ...answered, [home.url]: rejected },
         ['-c', 'promptfooconfig.mjs'],
       );
-      const again = await evaluate(
-        folder.path,
-        three,
-        { ...answered, [home.url]: rejected },
-        ['--retry-errors'],
-      );
-      const before = await summariesIn(folder.path);
+      const { evalId } = first.run;
+      // A newer eval in the same database, over the first two pages, with an
+      // error row of its own: a retry of the latest eval retries that one.
       await evaluate(
         folder.path,
         three,
+        { ...answered, [home.url]: rejected },
+        ['-c', 'promptfooconfig.mjs', '--filter-first-n', '2'],
+      );
+      const again = await answering(
+        folder.path,
+        three,
+        { ...answered, [home.url]: rejected },
+        ['retry', evalId],
+      );
+      const before = await summariesIn(folder.path);
+      await answering(
+        folder.path,
+        three,
         { ...answered, [home.url]: { kind: 'home' } },
-        ['--retry-errors'],
+        ['retry', evalId],
       );
 
       const row = first.run.results.results.find(
@@ -353,11 +383,16 @@ void describe(
       // ResultFailureReason.ERROR
       assert.equal(row?.failureReason, 2);
       assert.match(String(row?.error), /User not found/u);
-      assert.match(first.stdout, /No summary: 1 rows are errors/u);
-      assert.match(again.stdout, /No summary: 1 rows are errors/u);
+      const retry = new RegExp(
+        `^No summary: 1 rows are errors\\. Run them again with nx run startup-credits:promptfoo-retry --args=${RegExp.escape(evalId)}$`,
+        'mu',
+      );
+      assert.match(first.stdout, retry);
+      assert.match(again, retry);
       assert.deepEqual(before, []);
       const [summary, ...others] = await summariesIn(folder.path);
       assert.deepEqual(others, []);
+      assert.equal(summary?.eval_id, evalId);
       const [scores] = summary?.summaries ?? [];
       assert.equal(scores?.['pages'], three.length);
       assert.deepEqual(scores?.['support'], {

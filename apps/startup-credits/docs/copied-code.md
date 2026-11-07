@@ -11,7 +11,7 @@ The app keeps its files in a `startup-credits` folder under `XDG_DATA_HOME`, or 
 
 ## The latest result of each test
 
-**`offers-evals` `src/evals/sob/summary/latest-results.ts` → `promptfoo/summary/latest-results.ts`, with the same code and shorter comments.**
+**`offers-evals` `src/evals/sob/summary/latest-results.ts` → `promptfoo/summary/latest-results.ts`, with the same code; only the comments differ.**
 After a retry, promptfoo gives the `afterAll` hook each error result next to the result of its retry. `latestResults` keeps one result for each test: the result that is not an error, or one error result when the error results have the same scores. The page-kinds summary reads only these results. A third place that reads the results of `afterAll` after a retry extracts the function, probably into `@zukhruf/evals/promptfoo` (backlog #3996).
 
 ## The answer of a page whose call failed

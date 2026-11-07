@@ -46,6 +46,19 @@
         }
       }
     },
+    "promptfoo-retry": {
+      "dependsOn": ["^build"],
+      "command": "promptfoo retry {args}",
+      "options": {
+        "cwd": "apps/startup-credits",
+        "env": {
+          "PROMPTFOO_PASS_RATE_THRESHOLD": "0",
+          "PROMPTFOO_DISABLE_TELEMETRY": "1",
+          "PROMPTFOO_DISABLE_UPDATE": "1",
+          "PROMPTFOO_DISABLE_SHARING": "true"
+        }
+      }
+    },
     "promptfoo-view": {
       "command": "promptfoo view {args}",
       "options": {
