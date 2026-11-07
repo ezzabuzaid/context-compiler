@@ -655,4 +655,7 @@ class Store {
   }
 }
 
-export default new Store(join(directory, 'api.sqlite'));
+// The API's own file, which the pipeline's definitions read.
+export const storePath = join(directory, 'api.sqlite');
+
+export default new Store(storePath);

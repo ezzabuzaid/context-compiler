@@ -14,8 +14,8 @@ A call that failed after the AI SDK's retries is the failure of that call (one p
 
 ## A rule's identity
 
-**`apps/startup-credits/src/rules/program-offers.ts` (`identity`) → `src/rules/evaluation.ts` (`Evaluation.identity`) and `src/rules/field.ts` (`FieldValue.identity`), with the criterion or the field in place of the program's prompt.**
-The identity is the model's id and the SHA-256 of the instructions, the prompt, the schema and the settings, so a changed prompt judges or reads every page again. The other places are `PageKinds` (the model's id and the hash of its questions) and `InvoicePayments` (`apps/ipay/src/rules/invoice-payments.ts`). It stays copied: one expression, and a shared home would be a new dependency of each app.
+**`apps/startup-credits/src/rules/program-offers.ts` (`identity`) → `src/rules/evaluation.ts` (`Evaluation.identity`) and `src/rules/field.ts` (`FieldValue.identity`), with placeholders in place of the page and of the criterion or the field, which are inputs of these rules.**
+The identity is the model's id and the SHA-256 of the instructions, the prompt, the schema and the settings, so a changed prompt judges or reads every page again. A changed page, criterion or field is a changed input instead, which the computed dataset finds by the hash of the input. The other places are `PageKinds` (the model's id and the hash of its questions) and `InvoicePayments` (`apps/ipay/src/rules/invoice-payments.ts`). It stays copied: one expression, and a shared home would be a new dependency of each app.
 
 ## How a page's article is read on demand
 
@@ -26,3 +26,8 @@ A page is read with `WebArticle` (Markdown first, then HTML) through the client 
 
 **`src/routes/events.route.ts` → `src/routes/monitor-events.route.ts`, with the monitor's events in place of the dataset's.**
 A cursor of an earlier log answers 410 `resync_required`, and a cursor that the API never gave answers 400 `invalid_cursor`. The dataset's 410 message tells the consumer to list the items again; a monitor has no items, so its message tells it only to read the events from the new start. A third place extracts it (backlog #3976).
+
+## A data version that opens at its first read
+
+**elt `packages/sdks/macos/app-database/src/app-database-version.ts` (`AppDatabaseVersion`) → `src/definitions/store-version.ts` (`StoreVersion`), without the unavailable state.**
+A change signal's gauge opens what it reads at its first read (elt ADR 0020), and `DataVersion` of `@zukhruf/sqlite-data-version` opens its database when it is made, so the gauge holds a closed state that opens a `DataVersion` at the first read and an open state that reads it. `AppDatabaseVersion` also reads an app's store that is missing or that the process cannot open as `'unavailable'`; api.sqlite is always there, since the API makes it before the pipeline starts, so `StoreVersion` has no such state. A third place extracts it (backlog #3998).

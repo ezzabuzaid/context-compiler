@@ -307,7 +307,7 @@ const { server } = new Msw().intercept(
       return planned(answer) ?? stream(body.model, JSON.stringify(answer));
     }
     const field = /^Field: (.+)$/mu.exec(prompt)?.[1];
-    process.stderr.write('field ' + JSON.stringify({ page, about: field, model: body.model }) + '\\n');
+    process.stderr.write('field ' + JSON.stringify({ page, about: field, model: body.model, prompt }) + '\\n');
     const answer = fields[page]?.[field];
     if (answer === undefined) {
       process.stderr.write('unplanned field ' + field + ' for ' + page + '\\n');
@@ -327,6 +327,9 @@ const askedSchema = z.object({
   model: z.string(),
 });
 type Asked = z.infer<typeof askedSchema>;
+// A field request names its prompt too, which holds what the field asks.
+const readSchema = askedSchema.extend({ prompt: z.string() });
+type Read = z.infer<typeof readSchema>;
 const searchedSchema = z.object({
   model: z.string(),
   tools: z.array(z.string()),
@@ -339,7 +342,7 @@ type Holds = (seen: {
   readonly lines: readonly string[];
   readonly requests: readonly string[];
   readonly evaluated: readonly Asked[];
-  readonly read: readonly Asked[];
+  readonly read: readonly Read[];
   readonly searched: readonly Searched[];
 }) => boolean;
 
@@ -418,7 +421,7 @@ async function running(
     lines: string[];
     requests: string[];
     evaluated: Asked[];
-    read: Asked[];
+    read: Read[];
     searched: Searched[];
   } = { lines: [], requests: [], evaluated: [], read: [], searched: [] };
   const unplanned: string[] = [];
@@ -494,7 +497,7 @@ async function running(
     else if (kind === 'evaluation')
       seen.evaluated.push(askedSchema.parse(JSON.parse(rest)));
     else if (kind === 'field')
-      seen.read.push(askedSchema.parse(JSON.parse(rest)));
+      seen.read.push(readSchema.parse(JSON.parse(rest)));
     else if (kind === 'search')
       seen.searched.push(searchedSchema.parse(JSON.parse(rest)));
     else if (kind === 'unplanned') unplanned.push(line);
@@ -723,6 +726,55 @@ test("a dataset's search finds pages with the query and the criteria, the crawl 
   );
 });
 
+test('an options field is asked with its options, and a value outside them is a failed field, not a value', async () => {
+  await using data = await new TemporaryFiles().directory('websets-data-');
+  const { read } = await running(data.path, {
+    pages: { ...pages, [list]: listPage([claude]) },
+    evaluations,
+    fields: {
+      [claude]: {
+        ...fieldAnswers[claude],
+        [runBy]: { quote: null, value: 'bank' },
+      },
+    },
+    ahead: 0,
+    during: async ({ api, quiet }) => {
+      const id = await create(api, creditsDataset);
+      await quiet(readOn(claude, 2));
+      const items = itemsSchema.parse(
+        (await api(`/v1/datasets/${id}/items`)).body,
+      );
+      const [item] = items.data;
+
+      assert.equal(item?.url, claude);
+      assert.deepEqual(
+        z.object({ state: z.string() }).parse(item.fields['run_by']).state,
+        'failed',
+      );
+      assert.deepEqual(item.fields['amount'], {
+        state: 'read',
+        value: 45_000,
+        quote:
+          'Access discounts and credits worth up to $45,000 from companies building with Claude.',
+      });
+    },
+  });
+  // A failed field is asked again after the pass (elt-sqlite ADR 0007), and
+  // each ask names the options.
+  const asks = read.filter(({ about }) => about === runBy);
+  assert.ok(asks.length > 0);
+  assert.deepEqual(
+    [
+      ...new Set(
+        asks.map(({ prompt }) =>
+          prompt.includes('Options: ai_lab | cloud | other'),
+        ),
+      ),
+    ],
+    [true],
+  );
+});
+
 test('two datasets over the same list have the items of their own criteria', async () => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   await running(data.path, {
@@ -747,18 +799,22 @@ test('two datasets over the same list have the items of their own criteria', asy
   });
 });
 
-test('a dataset that comes while a pass runs is refused with crawl_running and is not kept', async () => {
+test('a change that adds or drops a starting URL while a pass runs is refused with crawl_running: a new dataset of another list is not kept, and the only dataset of a list stays', async () => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   const held = 'https://slow.example.com/startups';
+  const otherList = 'https://lists.example.com/agent-memory';
   await running(data.path, {
     pages: { ...pages, [list]: listPage([held]), [held]: { hold: true } },
     ahead: 0,
     during: async ({ api, quiet }) => {
-      await create(api, creditsDataset);
+      const only = await create(api, creditsDataset);
       await quiet(({ requests }) => requests.includes(held));
       const refused = await api('/v1/datasets', {
         method: 'POST',
-        body: memoryDataset,
+        body: { ...memoryDataset, lists: [otherList] },
+      });
+      const undeleted = await api(`/v1/datasets/${only}`, {
+        method: 'DELETE',
       });
       const kept = z
         .object({ data: z.array(z.object({ title: z.string() })) })
@@ -769,10 +825,78 @@ test('a dataset that comes while a pass runs is refused with crawl_running and i
         [409, 'crawl_running'],
       );
       assert.deepEqual(
+        [undeleted.status, errorCode(undeleted.body)],
+        [409, 'crawl_running'],
+      );
+      assert.deepEqual(
         kept.data.map(({ title }) => title),
         [creditsDataset.title],
       );
     },
+  });
+});
+
+test('a dataset over pages that the crawl read is judged while a pass runs, and is deleted, with no new pipeline, and a criterion that two datasets ask is judged once for each page', async () => {
+  await using data = await new TemporaryFiles().directory('websets-data-');
+  const held = 'https://slow.example.com/startups';
+  await running(data.path, {
+    pages: {
+      ...pages,
+      [list]: listPage([claude, paper, held]),
+      [held]: { hold: true },
+    },
+    evaluations,
+    ahead: 0,
+    during: async ({ api, quiet }) => {
+      await create(api, {
+        title: 'Startup credit programs',
+        criteria: [{ description: givesCredits }],
+        lists: [list],
+      });
+      await quiet(
+        all(evaluatedOn(claude, 1), evaluatedOn(paper, 1), ({ requests }) =>
+          requests.includes(held),
+        ),
+      );
+      // The pass still waits for the held page.
+      const second = await create(api, {
+        title: 'Credit papers',
+        criteria: [{ description: givesCredits }, { description: aboutMemory }],
+        lists: [list],
+      });
+      await quiet(all(evaluatedOn(claude, 2), evaluatedOn(paper, 2)));
+      const { progress } = z
+        .object({
+          progress: z.object({ evaluations: z.record(z.string(), z.number()) }),
+        })
+        .parse((await api(`/v1/datasets/${second}`)).body);
+
+      assert.deepEqual(progress.evaluations, {
+        judged: 4,
+        failed: 0,
+        pending: 0,
+      });
+      // The first dataset keeps the list, so the second goes with no new
+      // pipeline either.
+      const deleted = await api(`/v1/datasets/${second}`, {
+        method: 'DELETE',
+      });
+      await quiet(() => true);
+
+      assert.equal(deleted.status, 204);
+    },
+  }).then(({ evaluated, requests }) => {
+    assert.deepEqual(
+      evaluated.map(({ page, about }) => `${about} on ${page}`).toSorted(),
+      [
+        `${aboutMemory} on ${claude}`,
+        `${aboutMemory} on ${paper}`,
+        `${givesCredits} on ${claude}`,
+        `${givesCredits} on ${paper}`,
+      ],
+    );
+    // A new pipeline would read the held page again.
+    assert.equal(requests.filter((url) => url === held).length, 1);
   });
 });
 

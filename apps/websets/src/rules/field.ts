@@ -7,13 +7,41 @@ import { type LoadedRow, Rule, type RuleResult } from '@workspace/elt';
 import { ground } from '@workspace/quote-grounding';
 
 import { callFailure } from '../call-failure.ts';
-import type { Field as Definition } from '../dataset.ts';
-import { type Page, prompt, readPage, settings } from './evaluation.ts';
+import {
+  type Page,
+  placeholder,
+  prompt,
+  readPage,
+  settings,
+} from './evaluation.ts';
 import model from './model.ts';
+
+// What a field asks of a page, whatever the name that a dataset gives it.
+const fieldSchema = z.discriminatedUnion('format', [
+  z.object({
+    description: z.string(),
+    format: z.enum(['text', 'number', 'date', 'url']),
+  }),
+  z.object({
+    description: z.string(),
+    format: z.literal('options'),
+    // As the definitions keep it: a JSON array of strings.
+    options: z
+      .string()
+      .transform((options): readonly string[] =>
+        z.array(z.string()).parse(JSON.parse(options)),
+      ),
+  }),
+]);
+type Field = z.infer<typeof fieldSchema>;
+
+// A page that meets every criterion of a dataset, and a field that the
+// dataset reads from it.
+type Asked = { readonly page: Page; readonly field: Field };
 
 // The value of a field in its format: text, a number, an ISO 8601 date, a
 // URL or one of its options; null when the page does not state it.
-function valueSchema(field: Definition) {
+function valueSchema(field: Field) {
   switch (field.format) {
     case 'number':
       return z.number().nullable();
@@ -28,7 +56,7 @@ function valueSchema(field: Definition) {
 
 // What the model answers: the quote first, so it copies the sentence that
 // states the value before it reads the value.
-const answerSchema = (field: Definition) =>
+const answerSchema = (field: Field) =>
   z.object({ quote: z.string().nullable(), value: valueSchema(field) });
 
 const formats = {
@@ -42,15 +70,23 @@ const formats = {
 const system =
   'You read one web page and extract one field from it. First copy, word for word, the one sentence of the page text that states the field, as quote; null when no sentence does. Never quote the URL or the title. Then give value in the format asked, read from that sentence; null when the page does not state it.';
 
-// One field of the items of a dataset, as GPT-6-Luna reads each item's
-// page. The quote stays only when it is in the page text.
-export class FieldValue extends Rule<Page, string> {
-  readonly #field: Definition;
-  readonly #schema: ReturnType<typeof answerSchema>;
+const instruction = (field: Field) =>
+  [
+    `Field: ${field.description}`,
+    `Format: ${formats[field.format]}`,
+    ...(field.format === 'options'
+      ? [`Options: ${field.options.join(' | ')}`]
+      : []),
+  ].join('\n');
 
+// A field of a page that meets every criterion, as GPT-6-Luna reads the
+// page. Each page and field is one input, whatever the datasets that read
+// it. The quote stays only when it is in the page text.
+export class FieldValue extends Rule<Asked, string> {
   override readonly key = {
-    name: 'articleUrl',
-    description: 'The article URL of the page.',
+    name: 'pair',
+    description:
+      'The article URL of the page and the field, as a JSON array of the URL, the description, the format and the options.',
   };
   override readonly output = {
     value: {
@@ -67,53 +103,41 @@ export class FieldValue extends Rule<Page, string> {
   override readonly batch = 1;
   override readonly concurrency = 4;
 
-  constructor(field: Definition) {
-    super();
-    this.#field = field;
-    this.#schema = answerSchema(field);
-  }
-
   override read(row: LoadedRow) {
-    return readPage(row);
+    const read = readPage(row);
+    const field = fieldSchema.safeParse(row);
+    return read === null || !field.success
+      ? null
+      : { key: read.pair, input: { page: read.page, field: field.data } };
   }
 
-  #instruction(): string {
-    const { description, format } = this.#field;
-    return [
-      `Field: ${description}`,
-      `Format: ${formats[format]}`,
-      ...(this.#field.format === 'options'
-        ? [`Options: ${this.#field.options.join(' | ')}`]
-        : []),
-    ].join('\n');
-  }
-
+  // The model and everything that it reads besides the page and the field:
+  // the prompt and the schema of each format.
   override async identity(): Promise<string> {
+    const asked = (format: Field['format']): Field =>
+      format === 'options'
+        ? { description: '{description}', format, options: ['{option}'] }
+        : { description: '{description}', format };
+    const shapes = (['text', 'number', 'date', 'url', 'options'] as const).map(
+      (format) => ({
+        prompt: prompt(instruction(asked(format)), placeholder),
+        schema: z.toJSONSchema(answerSchema(asked(format))),
+      }),
+    );
     return `${model.modelId}:${createHash('sha256')
-      .update(
-        JSON.stringify({
-          system,
-          prompt: prompt(this.#instruction(), {
-            url: '{url}',
-            title: '{title}',
-            text: '{text}',
-          }),
-          schema: z.toJSONSchema(this.#schema),
-          settings,
-        }),
-      )
+      .update(JSON.stringify({ system, shapes, settings }))
       .digest('hex')}`;
   }
 
   override async compute(
-    pages: readonly Page[],
+    inputs: readonly Asked[],
     signal?: AbortSignal,
   ): Promise<readonly RuleResult<Readonly<Record<string, string>>>[]> {
-    return Promise.all(pages.map((page) => this.#extract(page, signal)));
+    return Promise.all(inputs.map((input) => this.#extract(input, signal)));
   }
 
   async #extract(
-    page: Page,
+    { page, field }: Asked,
     signal: AbortSignal | undefined,
   ): Promise<RuleResult<Readonly<Record<string, string>>>> {
     let answer;
@@ -121,8 +145,8 @@ export class FieldValue extends Rule<Page, string> {
       ({ output: answer } = await generateText({
         model,
         instructions: system,
-        prompt: prompt(this.#instruction(), page),
-        output: Output.object({ schema: this.#schema }),
+        prompt: prompt(instruction(field), page),
+        output: Output.object({ schema: answerSchema(field) }),
         ...settings,
         abortSignal: signal,
       }));

@@ -10,7 +10,7 @@ import app from './app.ts';
 import crawl from './crawl.ts';
 import { recordEvents } from './events.ts';
 import { runMonitor } from './monitoring.ts';
-import pipeline, { pagesOf } from './pipeline.ts';
+import pipeline, { startingUrls } from './pipeline.ts';
 import queue, { monitors, searches } from './queue.ts';
 import { runSearch } from './searching.ts';
 import store, { type Crawled } from './store.ts';
@@ -22,18 +22,10 @@ using shutdown = new Shutdown();
 const reasonOf = (error: unknown) =>
   Error.isError(error) ? error.message : String(error);
 
-// The starting URLs, criteria and fields that a pipeline is built from:
-// when they change, the watch builds the pipeline again.
+// The starting URLs that a pipeline is built from: when they change, the
+// watch builds the pipeline again.
 const shapeOf = (datasets: readonly Crawled[]) =>
-  JSON.stringify(
-    datasets.map((dataset) => [
-      dataset.id,
-      pagesOf(dataset),
-      dataset.lists,
-      dataset.criteria,
-      dataset.fields,
-    ]),
-  );
+  JSON.stringify(startingUrls(datasets));
 
 // Either loop that fails stops the other, the queue and the API.
 const failed = new AbortController();
@@ -57,8 +49,8 @@ const server = serve(
 );
 await Promise.all([
   (async () => {
-    // Each round watches one pipeline, until a dataset changes its
-    // starting URLs, criteria or fields.
+    // Each round watches one pipeline, until the starting URLs of the
+    // datasets change.
     while (!watching.aborted) {
       const rebuilt = crawl.watch();
       const datasets = store.crawled();

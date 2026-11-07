@@ -32,26 +32,39 @@ export const prompt = (instruction: string, { url, title, text }: Page) =>
 // Thinking counts toward maxOutputTokens, so the limit leaves room for it.
 export const settings = { maxOutputTokens: 16_000 } as const;
 
+// The pair of a row of judgment_inputs or field_inputs, and its page.
 export function readPage(
   row: LoadedRow,
-): { readonly key: string; readonly input: Page } | null {
-  const { articleUrl, title, textContent } = row;
-  return typeof articleUrl === 'string' &&
+): { readonly pair: string; readonly page: Page } | null {
+  const { pair, articleUrl, title, textContent } = row;
+  return typeof pair === 'string' &&
+    typeof articleUrl === 'string' &&
     (typeof title === 'string' || title === null) &&
     typeof textContent === 'string'
-    ? { key: articleUrl, input: { url: articleUrl, title, text: textContent } }
+    ? { pair, page: { url: articleUrl, title, text: textContent } }
     : null;
 }
 
-// Whether each page of a dataset meets one of its criteria, as
-// GPT-6-Luna reads the page. The quote stays only when it is in the page
-// text, so an invented sentence is never the evidence of an evaluation.
-export class Evaluation extends Rule<Page, string> {
-  readonly #criterion: string;
+// A page and a criterion that a dataset of the page asks.
+type Judged = { readonly page: Page; readonly criterion: string };
 
+// The text that a prompt shows in place of the page, for an identity.
+export const placeholder: Page = {
+  url: '{url}',
+  title: '{title}',
+  text: '{text}',
+};
+
+// Whether a page meets a criterion, as GPT-6-Luna reads the page. Each page
+// and criterion is one input, whatever the datasets that ask it, so a pair
+// that two datasets share is judged once. The quote stays only when it is in
+// the page text, so an invented sentence is never the evidence of an
+// evaluation.
+export class Evaluation extends Rule<Judged, string> {
   override readonly key = {
-    name: 'articleUrl',
-    description: 'The article URL of the page.',
+    name: 'pair',
+    description:
+      'The article URL of the page and the criterion, as a JSON array.',
   };
   override readonly output = {
     satisfied: {
@@ -74,27 +87,23 @@ export class Evaluation extends Rule<Page, string> {
   override readonly batch = 1;
   override readonly concurrency = 4;
 
-  constructor(criterion: string) {
-    super();
-    this.#criterion = criterion;
-  }
-
   override read(row: LoadedRow) {
-    return readPage(row);
+    const read = readPage(row);
+    const { criterion } = row;
+    return read === null || typeof criterion !== 'string'
+      ? null
+      : { key: read.pair, input: { page: read.page, criterion } };
   }
 
-  // The model and everything that it reads besides the page, so a changed
-  // prompt, schema or setting judges every page again.
+  // The model and everything that it reads besides the page and the
+  // criterion, so a changed prompt, schema or setting judges every page
+  // again; a changed page or criterion is a changed input.
   override async identity(): Promise<string> {
     return `${model.modelId}:${createHash('sha256')
       .update(
         JSON.stringify({
           system,
-          prompt: prompt(`Criterion: ${this.#criterion}`, {
-            url: '{url}',
-            title: '{title}',
-            text: '{text}',
-          }),
+          prompt: prompt('Criterion: {criterion}', placeholder),
           schema: z.toJSONSchema(answerSchema),
           settings,
         }),
@@ -103,14 +112,14 @@ export class Evaluation extends Rule<Page, string> {
   }
 
   override async compute(
-    pages: readonly Page[],
+    inputs: readonly Judged[],
     signal?: AbortSignal,
   ): Promise<readonly RuleResult<Readonly<Record<string, string>>>[]> {
-    return Promise.all(pages.map((page) => this.#evaluate(page, signal)));
+    return Promise.all(inputs.map((input) => this.#evaluate(input, signal)));
   }
 
   async #evaluate(
-    page: Page,
+    { page, criterion }: Judged,
     signal: AbortSignal | undefined,
   ): Promise<RuleResult<Readonly<Record<string, string>>>> {
     let answer;
@@ -118,7 +127,7 @@ export class Evaluation extends Rule<Page, string> {
       ({ output: answer } = await generateText({
         model,
         instructions: system,
-        prompt: prompt(`Criterion: ${this.#criterion}`, page),
+        prompt: prompt(`Criterion: ${criterion}`, page),
         output: Output.object({ schema: answerSchema }),
         ...settings,
         abortSignal: signal,

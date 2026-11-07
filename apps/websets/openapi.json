@@ -282,11 +282,11 @@
                                     "type": "string"
                                   },
                                   {
-                                    "enum": ["date"],
+                                    "enum": ["url"],
                                     "type": "string"
                                   },
                                   {
-                                    "enum": ["url"],
+                                    "enum": ["date"],
                                     "type": "string"
                                   }
                                 ]
@@ -649,11 +649,11 @@
                                           "type": "string"
                                         },
                                         {
-                                          "enum": ["date"],
+                                          "enum": ["url"],
                                           "type": "string"
                                         },
                                         {
-                                          "enum": ["url"],
+                                          "enum": ["date"],
                                           "type": "string"
                                         }
                                       ]
@@ -1004,11 +1004,11 @@
                                     "type": "string"
                                   },
                                   {
-                                    "enum": ["date"],
+                                    "enum": ["url"],
                                     "type": "string"
                                   },
                                   {
-                                    "enum": ["url"],
+                                    "enum": ["date"],
                                     "type": "string"
                                   }
                                 ]
