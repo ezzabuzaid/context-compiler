@@ -9,6 +9,9 @@
   "exclude": ["src/**/*.test.ts", "src/testing/**"],
   "references": [
     {
+      "path": "../../packages/model-calls/tsconfig.lib.json"
+    },
+    {
       "path": "../../packages/quote-grounding/tsconfig.lib.json"
     }
   ]

@@ -1,0 +1,8 @@
+{
+  "name": "model-calls",
+  "sourceRoot": "packages/model-calls/src",
+  "projectType": "library",
+  "targets": {
+    "format": {}
+  }
+}

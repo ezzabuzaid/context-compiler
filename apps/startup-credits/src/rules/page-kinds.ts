@@ -1,14 +1,12 @@
-import { createHash } from 'node:crypto';
-
 import {
-  APICallError,
   Experimental_DecisionRefusalError,
   InvalidResponseDataError,
-  RetryError,
   experimental_decide as decide,
 } from 'ai';
 
 import { type LoadedRow, Rule, type RuleResult } from '@workspace/elt';
+import { CallFailures } from '@workspace/model-calls/call-failures';
+import { ruleIdentity } from '@workspace/model-calls/rule-identity';
 
 import { openRouterDecisionModel } from './decision-model.ts';
 
@@ -50,6 +48,13 @@ export function pageState(url: string, title: string | null, text: string) {
 }
 
 const modelId = 'typesafe/jev-1.14';
+
+// A refused or malformed answer, and a call that failed after the AI SDK's
+// retries, are this page's failure.
+const failures = new CallFailures(
+  Experimental_DecisionRefusalError,
+  InvalidResponseDataError,
+);
 
 // The kind of each stored page, labelled by Jev: the app reads offers only
 // from the pages labelled program.
@@ -95,11 +100,7 @@ export class PageKinds extends Rule<string, string> {
   // The model and the question make every label, so a new model or a
   // reworded question labels every page again.
   override async identity(): Promise<string> {
-    const questionHash = createHash('sha256')
-      .update(JSON.stringify(pageKindQuestions))
-      .digest('hex')
-      .slice(0, 16);
-    return `${modelId}:${questionHash}`;
+    return ruleIdentity(modelId, pageKindQuestions, { digits: 16 });
   }
 
   override async compute(
@@ -122,18 +123,7 @@ export class PageKinds extends Rule<string, string> {
             },
           };
         } catch (error) {
-          // A refused or malformed answer, and a call that failed after the
-          // AI SDK's retries, are this page's failure. A rejected key is not:
-          // every page would fail, so the dataset fails. A stop is no failure.
-          if (
-            Experimental_DecisionRefusalError.isInstance(error) ||
-            InvalidResponseDataError.isInstance(error)
-          )
-            return { error: error.message };
-          const call = RetryError.isInstance(error) ? error.lastError : error;
-          if (APICallError.isInstance(call) && call.statusCode !== 401)
-            return { error: call.message };
-          throw error;
+          return { error: failures.reason(error) };
         }
       }),
     );

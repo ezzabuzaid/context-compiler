@@ -1,0 +1,24 @@
+{
+  "name": "@workspace/model-calls",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./call-failures": {
+      "types": "./dist/call-failures.d.ts",
+      "default": "./dist/call-failures.js"
+    },
+    "./rule-identity": {
+      "types": "./dist/rule-identity.d.ts",
+      "default": "./dist/rule-identity.js"
+    }
+  },
+  "peerDependencies": {
+    "ai": "^7.0.158"
+  },
+  "devDependencies": {
+    "@ai-sdk/openai-compatible": "3.0.80",
+    "ai": "7.0.164",
+    "zod": "4.6.5"
+  }
+}

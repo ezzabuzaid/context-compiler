@@ -1,16 +1,14 @@
-import { createHash } from 'node:crypto';
-
 import {
-  APICallError,
   NoObjectGeneratedError,
   NoOutputGeneratedError,
   Output,
-  RetryError,
   generateText,
 } from 'ai';
 import { z } from 'zod';
 
 import { type LoadedRow, Rule, type RuleResult } from '@workspace/elt';
+import { CallFailures } from '@workspace/model-calls/call-failures';
+import { ruleIdentity } from '@workspace/model-calls/rule-identity';
 import { ground } from '@workspace/quote-grounding';
 
 import { emailText } from './email-text.ts';
@@ -39,15 +37,19 @@ const settings = { maxOutputTokens: 16_000 } as const;
 
 // The model and everything that it reads besides the email, so a changed
 // prompt, schema or setting makes every output again.
-const identity = `${model.modelId}:${createHash('sha256')
-  .update(
-    JSON.stringify({
-      system,
-      schema: z.toJSONSchema(paymentsSchema),
-      settings,
-    }),
-  )
-  .digest('hex')}`;
+const identity = ruleIdentity(model.modelId, {
+  system,
+  schema: z.toJSONSchema(paymentsSchema),
+  settings,
+});
+
+// An answer with no payments in it, such as a refusal or an answer cut at
+// maxOutputTokens, and a call that failed after the AI SDK's retries, are
+// this email's failure.
+const failures = new CallFailures(
+  NoObjectGeneratedError,
+  NoOutputGeneratedError,
+);
 
 // The payments that each email Jev decided payment confirms, as GPT-6-Luna
 // reads them. A payment stays only when its quote is in the email, so an
@@ -106,20 +108,7 @@ export class InvoicePayments extends Rule<Email, string> {
         abortSignal: signal,
       }));
     } catch (error) {
-      // An answer with no payments in it, such as a refusal or an answer cut
-      // at maxOutputTokens, and a call that failed after the AI SDK's
-      // retries, are this email's failure. A rejected token is not: every
-      // email would fail, so the dataset fails. A stop is no failure.
-      if (
-        NoObjectGeneratedError.isInstance(error) ||
-        NoOutputGeneratedError.isInstance(error)
-      )
-        return { error: error.message };
-      // A RetryError holds the failure of each call; the last one is why.
-      const call = RetryError.isInstance(error) ? error.lastError : error;
-      if (APICallError.isInstance(call) && call.statusCode !== 401)
-        return { error: call.message };
-      throw error;
+      return { error: failures.reason(error) };
     }
     const kept = payments.flatMap((payment) => {
       const span = ground(email.text, payment.quote);

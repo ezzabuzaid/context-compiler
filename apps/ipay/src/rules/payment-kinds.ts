@@ -1,15 +1,13 @@
-import { createHash } from 'node:crypto';
-
 import {
-  APICallError,
   Experimental_DecisionRefusalError,
   InvalidResponseDataError,
   LoadAPIKeyError,
-  RetryError,
   experimental_decide as decide,
 } from 'ai';
 
 import { type LoadedRow, Rule, type RuleResult } from '@workspace/elt';
+import { CallFailures } from '@workspace/model-calls/call-failures';
+import { ruleIdentity } from '@workspace/model-calls/rule-identity';
 
 import { openRouterDecisionModel } from './decision-model.ts';
 import { emailText } from './email-text.ts';
@@ -65,6 +63,13 @@ const choices = (question: keyof typeof paymentQuestions) =>
 
 const modelId = 'typesafe/jev-1.14';
 
+// A refused or malformed answer, and a call that failed after the AI SDK's
+// retries, are this email's failure.
+const failures = new CallFailures(
+  Experimental_DecisionRefusalError,
+  InvalidResponseDataError,
+);
+
 // What each candidate email says about the user's money, as Jev decides it:
 // ipay reads payments only from the emails decided payment.
 export class PaymentKinds extends Rule<string, string> {
@@ -110,11 +115,7 @@ export class PaymentKinds extends Rule<string, string> {
   // The model and the questions make every decision, so a new model or a
   // reworded question decides every email again.
   override async identity(): Promise<string> {
-    const questionHash = createHash('sha256')
-      .update(JSON.stringify(paymentQuestions))
-      .digest('hex')
-      .slice(0, 16);
-    return `${modelId}:${questionHash}`;
+    return ruleIdentity(modelId, paymentQuestions, { digits: 16 });
   }
 
   override async compute(
@@ -146,19 +147,7 @@ export class PaymentKinds extends Rule<string, string> {
               "ipay asks OpenRouter's Decisions API about each candidate email: set OPENROUTER_API_KEY to your OpenRouter key",
               { cause: error },
             );
-          // A refused or malformed answer, and a call that failed after the
-          // AI SDK's retries, are this email's failure. A rejected key is
-          // not: every email would fail, so the dataset fails. A stop is no
-          // failure.
-          if (
-            Experimental_DecisionRefusalError.isInstance(error) ||
-            InvalidResponseDataError.isInstance(error)
-          )
-            return { error: error.message };
-          const call = RetryError.isInstance(error) ? error.lastError : error;
-          if (APICallError.isInstance(call) && call.statusCode !== 401)
-            return { error: call.message };
-          throw error;
+          return { error: failures.reason(error) };
         }
       }),
     );

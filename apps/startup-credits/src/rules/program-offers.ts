@@ -1,17 +1,15 @@
-import { createHash } from 'node:crypto';
-
 import {
-  APICallError,
   type FinishReason,
   NoObjectGeneratedError,
   NoOutputGeneratedError,
   Output,
-  RetryError,
   generateText,
 } from 'ai';
 import { z } from 'zod';
 
 import { type LoadedRow, Rule, type RuleResult } from '@workspace/elt';
+import { CallFailures } from '@workspace/model-calls/call-failures';
+import { ruleIdentity } from '@workspace/model-calls/rule-identity';
 import { ground } from '@workspace/quote-grounding';
 
 import {
@@ -57,16 +55,16 @@ const settings = { maxOutputTokens: 16_000 } as const;
 
 // The model and everything that the model reads besides the page, so a
 // changed prompt, schema or setting makes every output again.
-const identity = `${model.modelId}:${createHash('sha256')
-  .update(
-    JSON.stringify({
-      system,
-      prompt: prompt({ url: '{url}', title: '{title}', text: '{text}' }),
-      schema: z.toJSONSchema(offersSchema),
-      settings,
-    }),
-  )
-  .digest('hex')}`;
+const identity = ruleIdentity(model.modelId, {
+  system,
+  prompt: prompt({ url: '{url}', title: '{title}', text: '{text}' }),
+  schema: z.toJSONSchema(offersSchema),
+  settings,
+});
+
+// The answer errors of generateText are an invalid answer, apart from a
+// failed call, so this rule reads them before it asks failures.
+const failures = new CallFailures();
 
 // Whether a second offer repeats one that the page already has: the same
 // kind and value, and, for an offer that states no value, such as support,
@@ -181,11 +179,7 @@ export class ProgramOffers extends Rule<Page, string> {
             finishReason: undefined,
           },
         };
-      // A RetryError holds the failure of each call; the last one is why.
-      const call = RetryError.isInstance(error) ? error.lastError : error;
-      if (APICallError.isInstance(call) && call.statusCode !== 401)
-        return { failed: call.message };
-      throw error;
+      return { failed: failures.reason(error) };
     }
     const kept: StoredOffer[] = [];
     for (const offer of answered.offers) {

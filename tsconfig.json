@@ -111,6 +111,9 @@
       "path": "./apps/websets"
     },
     {
+      "path": "./packages/model-calls"
+    },
+    {
       "path": "./packages/quote-grounding"
     },
     {
