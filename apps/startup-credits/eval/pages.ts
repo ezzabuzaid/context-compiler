@@ -20,18 +20,19 @@ const pageSchema = z.object({
 });
 export type Page = z.infer<typeof pageSchema>;
 
-function pages(): ReadonlyMap<string, Page> {
-  const all = z
-    .array(pageSchema)
-    .parse(JSON.parse(readFileSync(cache, 'utf8')));
+function pages(file: string): ReadonlyMap<string, Page> {
+  const all = z.array(pageSchema).parse(JSON.parse(readFileSync(file, 'utf8')));
   return new Map(all.map((page) => [page.url, page]));
 }
 
 // The test pages of the answer key, each with its frozen page. The spans of
 // a label index into the text that it names by sha256, so a test page that
-// the cache lacks or holds with other text stops the script.
-export function testPages(key: AnswerKey): { label: Label; page: Page }[] {
-  const texts = pages();
+// the cache file lacks or holds with other text stops the script.
+export function testPages(
+  key: AnswerKey,
+  file: string,
+): { label: Label; page: Page }[] {
+  const texts = pages(file);
   return key.pages.flatMap((label) => {
     if (label.role !== 'test') return [];
     const page = texts.get(label.url);

@@ -7,9 +7,14 @@ import { type Span, ground } from '@workspace/quote-grounding';
 import { spanSchema } from '../src/offer.ts';
 import { pageKinds } from '../src/rules/page-kinds.ts';
 import { same } from '../src/same.ts';
-import { type Label, answerKey, offerKinds } from './answer-key.ts';
+import {
+  type Label,
+  answerKey,
+  answerKeyFile,
+  offerKinds,
+} from './answer-key.ts';
 import { scoreKinds } from './kind-score.ts';
-import { testPages } from './pages.ts';
+import { cache, testPages } from './pages.ts';
 
 // What an extractor answered for each page it read: its offers, each with
 // the span it was grounded to or the quote it gave, and the page kind when
@@ -108,7 +113,7 @@ const file = process.argv[2];
 if (file === undefined)
   throw new Error('Give the file of predictions to score');
 
-const key = answerKey();
+const key = answerKey(answerKeyFile);
 const predictions = predictionsSchema.parse(
   JSON.parse(readFileSync(file, 'utf8')),
 );
@@ -122,7 +127,7 @@ const tally: Tally = {
   amounts: 0,
   amountsRight: 0,
 };
-const tests = testPages(key);
+const tests = testPages(key, cache);
 for (const { label, page } of tests) {
   const prediction = answered.get(label.url);
   if (prediction === undefined) continue;

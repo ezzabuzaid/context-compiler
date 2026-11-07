@@ -63,10 +63,8 @@ const answerKeySchema = z.object({
 });
 export type AnswerKey = z.infer<typeof answerKeySchema>;
 
-export function answerKey(): AnswerKey {
-  return answerKeySchema.parse(
-    JSON.parse(
-      readFileSync(join(import.meta.dirname, 'answer-key.json'), 'utf8'),
-    ),
-  );
+export const answerKeyFile = join(import.meta.dirname, 'answer-key.json');
+
+export function answerKey(file: string): AnswerKey {
+  return answerKeySchema.parse(JSON.parse(readFileSync(file, 'utf8')));
 }

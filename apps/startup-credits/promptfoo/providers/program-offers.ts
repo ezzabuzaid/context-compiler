@@ -12,18 +12,18 @@ import { ProgramOffers } from '../../src/rules/program-offers.ts';
 // The harness under test: the app's ProgramOffers rule, as the app runs it
 // on a stored page (the prompt, GPT-6-Luna through the Codex login, the
 // grounding of each quote, and the removal of repeated offers). A test gives
-// the page in its vars: the URL and the frozen page (title and text) from
-// pages/.
-
-// promptfoo gives a var from a file as the file's text, so the page comes
-// as JSON text.
+// the frozen page in its vars: its URL, title and text.
 const varsSchema = z.object({
   url: z.string(),
-  page: z
-    .string()
-    .transform((json): unknown => JSON.parse(json))
-    .pipe(z.object({ title: z.string(), text: z.string() })),
+  title: z.string(),
+  text: z.string(),
 });
+
+// The answer of a page whose call failed or whose answer has no text: the
+// text "null", which the assertion reads as an invalid record, as SOB's
+// runner keeps None. promptfoo does not grade a row with no output, so its
+// expected offers would leave the denominators and raise recall.
+const nothing = 'null';
 
 export default class ProgramOffersProvider implements ApiProvider {
   readonly label: string | undefined;
@@ -42,16 +42,17 @@ export default class ProgramOffersProvider implements ApiProvider {
     context?: CallApiContextParams,
     options?: CallApiOptionsParams,
   ): Promise<ProviderResponse> {
-    const { url, page } = varsSchema.parse(context?.vars);
+    const page = varsSchema.parse(context?.vars);
     // The version of the harness that answered: its model and a hash of its
     // prompt, schema and settings. Each run is compared with a baseline run,
     // so each row names the harness that gave it.
     const metadata = { harness: await this.#rule.identity() };
-    const outcome = await this.#rule.outcome(
-      { url, title: page.title, text: page.text },
-      options?.abortSignal,
-    );
-    if ('failed' in outcome) return { error: outcome.failed, metadata };
+    const outcome = await this.#rule.outcome(page, options?.abortSignal);
+    if ('failed' in outcome)
+      return {
+        metadata: { ...metadata, failed: outcome.failed },
+        output: nothing,
+      };
     // An invalid answer is the harness's output, not an error: the
     // assertion reads its text as json.loads reads it and scores it as
     // invalid, and its expected offers stay in the denominators (#3762). The
@@ -59,7 +60,7 @@ export default class ProgramOffersProvider implements ApiProvider {
     if ('invalid' in outcome)
       return {
         metadata: { ...metadata, invalid: outcome.invalid },
-        output: outcome.invalid.text ?? null,
+        output: outcome.invalid.text ?? nothing,
       };
     return { metadata, output: { offers: outcome.offers } };
   }

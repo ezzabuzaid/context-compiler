@@ -149,16 +149,21 @@ export class ProgramOffers extends Rule<Page, string> {
     page: Page,
     signal: AbortSignal | undefined,
   ): Promise<OffersOutcome> {
-    let generated;
+    let answered;
     try {
-      generated = await generateText({
-        model,
-        instructions: system,
-        prompt: prompt(page),
-        output: Output.object({ schema: offersSchema }),
-        ...settings,
-        abortSignal: signal,
-      });
+      // The output, not only the call, is in the try: an answer that ends
+      // with no text, such as one cut at maxOutputTokens before any text,
+      // throws NoOutputGeneratedError when its output is read.
+      answered = (
+        await generateText({
+          model,
+          instructions: system,
+          prompt: prompt(page),
+          output: Output.object({ schema: offersSchema }),
+          ...settings,
+          abortSignal: signal,
+        })
+      ).output;
     } catch (error) {
       if (NoObjectGeneratedError.isInstance(error))
         return {
@@ -183,7 +188,7 @@ export class ProgramOffers extends Rule<Page, string> {
       throw error;
     }
     const kept: StoredOffer[] = [];
-    for (const offer of generated.output.offers) {
+    for (const offer of answered.offers) {
       const span = ground(page.text, offer.quote);
       if (span === null) continue;
       const stored = { ...waived(offer), span };

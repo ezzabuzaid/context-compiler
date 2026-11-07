@@ -7,9 +7,9 @@ import { z } from 'zod';
 
 import { openRouterDecisionModel } from '../src/rules/decision-model.ts';
 import { pageKindQuestions, pageState } from '../src/rules/page-kinds.ts';
-import { answerKey } from './answer-key.ts';
+import { answerKey, answerKeyFile } from './answer-key.ts';
 import { scoreKinds } from './kind-score.ts';
-import { testPages } from './pages.ts';
+import { cache, testPages } from './pages.ts';
 
 const { values } = parseArgs({ options: { model: { type: 'string' } } });
 const name = values.model;
@@ -24,8 +24,8 @@ const model = openRouterDecisionModel(name);
 // OpenRouter answered 16 requests at once with no refusal (2026-10-31).
 const inFlight = 16;
 
-const key = answerKey();
-const tests = testPages(key);
+const key = answerKey(answerKeyFile);
+const tests = testPages(key, cache);
 const ranAt = new Date().toISOString();
 const runs = join(import.meta.dirname, 'runs');
 const file = `${ranAt.slice(0, 19).replaceAll(':', '-')}-${name.replaceAll('/', '_')}.json`;
