@@ -22,6 +22,7 @@ export type {
   SecurityCredentialValue,
 } from './http/security.ts';
 
+export const servers = ['http://localhost:4340'] as const;
 const optionsSchema = z.object({
   credentials: credentialsSchema
     .optional()
@@ -36,6 +37,7 @@ const optionsSchema = z.object({
         (value) => typeof value === 'function',
       ),
     ])
+    .default(servers[0])
     .transform(async (baseUrl, ctx) => {
       const value = typeof baseUrl === 'function' ? await baseUrl() : baseUrl;
       if (typeof value !== 'string') {
@@ -61,6 +63,7 @@ const optionsSchema = z.object({
       'Skip request input validation. Client options and TypeScript types still enforce correct usage.',
     ),
 });
+export type Servers = (typeof servers)[number];
 
 type WebsetsOptions = z.input<typeof optionsSchema>;
 

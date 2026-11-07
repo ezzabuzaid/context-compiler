@@ -54,6 +54,8 @@ const schemas = Object.fromEntries(
 const spec = {
   openapi: '3.1.0',
   info: { title: 'Websets', version: '0.1.0' },
+  // main.ts's default port, so an imported spec has its host.
+  servers: [{ url: 'http://localhost:4340' }],
   tags: tags.map((name) => ({ name })),
   security: [{ bearer: [] }],
   paths,

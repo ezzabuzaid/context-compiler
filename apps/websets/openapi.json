@@ -4,6 +4,11 @@
     "title": "Websets",
     "version": "0.1.0"
   },
+  "servers": [
+    {
+      "url": "http://localhost:4340"
+    }
+  ],
   "tags": [
     {
       "name": "collections"
