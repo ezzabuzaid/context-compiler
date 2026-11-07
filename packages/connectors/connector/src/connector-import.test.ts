@@ -6,12 +6,12 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 import { pathToFileURL } from 'node:url';
 
-import { Gauge } from '@zukhruf/async';
 import { open } from '@zukhruf/sqlite-open';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import {
   Catalog,
+  Gauge,
   PassFinished,
   Source,
   type SourceMessage,
@@ -266,8 +266,7 @@ test(
     // first note and then waits until the process is killed, as a process
     // that runs out of memory or is quit mid-pass leaves its pass.
     const pass = `
-      const { Catalog, Source, Stream } = await import('@workspace/elt');
-      const { Gauge } = await import('@zukhruf/async');
+      const { Catalog, Gauge, Source, Stream } = await import('@workspace/elt');
       class Unchanging extends Gauge { async read() { return 0; } }
       const { Settings } = await import('@workspace/settings');
       const { MacOSDocumentParser } = await import('@workspace/source-apple-macos/macos-document-parser');

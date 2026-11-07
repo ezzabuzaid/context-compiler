@@ -4,13 +4,13 @@ import { rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { test } from 'node:test';
 
-import { Gauge } from '@zukhruf/async';
 import { open } from '@zukhruf/sqlite-open';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import {
   Catalog,
   type CopyConfiguration,
+  Gauge,
   Source,
   type SourceMessage,
   Stream,

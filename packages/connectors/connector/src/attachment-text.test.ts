@@ -14,7 +14,7 @@ import { availableParallelism } from 'node:os';
 import { basename, dirname, extname, join } from 'node:path';
 import { test } from 'node:test';
 
-import { Gauge, Latch } from '@zukhruf/async';
+import { Latch } from '@zukhruf/async';
 import { open } from '@zukhruf/sqlite-open';
 import { timebox } from '@zukhruf/testing/async';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
@@ -24,6 +24,7 @@ import {
   Catalog,
   type CopyConfiguration,
   DocumentParser,
+  Gauge,
   PassFinished,
   Pipeline,
   Source,
