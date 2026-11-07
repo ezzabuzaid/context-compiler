@@ -4,9 +4,9 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@deepagents/compaction": "7.4.0",
-    "@deepagents/context": "7.4.0",
-    "@deepagents/experimental": "7.4.0",
+    "@deepagents/compaction": "7.5.0",
+    "@deepagents/context": "7.5.0",
+    "@deepagents/experimental": "7.5.0",
     "@electric-sql/pglite": "0.5.4",
     "@hono/node-server": "2.1.5",
     "@workspace/elt-sqlite": "0.0.1",
