@@ -9,7 +9,6 @@
     "@workspace/elt": "0.0.1",
     "@workspace/elt-sqlite": "0.0.1",
     "@workspace/quote-grounding": "0.0.1",
-    "@zukhruf/async": "0.8.0",
     "@zukhruf/shutdown": "0.6.15",
     "@zukhruf/snapshot-differential": "0.6.15",
     "@zukhruf/sqlite-data-version": "0.8.0",

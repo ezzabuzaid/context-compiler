@@ -1,4 +1,3 @@
-import { ChangeWatcher } from '@zukhruf/async';
 import { ClosedWorld } from '@zukhruf/snapshot-differential';
 import { DataVersion } from '@zukhruf/sqlite-data-version';
 import { UnavailableError, open } from '@zukhruf/sqlite-open';
@@ -10,7 +9,6 @@ import {
   type Properties,
   Source,
   type SourceMessage,
-  type SourceWatchOptions,
   type Stream,
   diffSnapshot,
 } from '@workspace/elt';
@@ -81,37 +79,19 @@ export class ImportsSource extends Source<ImportsScan> {
     return new Date(row.at);
   }
 
-  protected override async *observe({
-    streams,
-    signal,
-    clock,
-  }: SourceWatchOptions): AsyncGenerator<readonly Stream[]> {
-    if (signal.aborted) return;
-    using mail = new DataVersion(this.#paths.mail);
-    using messages = new DataVersion(this.#paths.messages);
-    const versions: readonly (readonly [ImportConnector, DataVersion])[] = [
-      ['mail', mail],
-      ['messages', messages],
-    ];
-    // The reads are local, so a check that takes the whole interval is stuck.
-    const watcher = new ChangeWatcher([mail, messages], {
-      interval: pollIntervalMs,
-      timeout: pollIntervalMs,
-      clock,
-    });
-    for await (const outcomes of watcher.watch(signal)) {
-      const changedVersions = new Set<DataVersion>();
-      for (const [version, outcome] of outcomes) {
-        if (outcome.state === 'failed') throw outcome.error;
-        if (outcome.state === 'changed') changedVersions.add(version);
-      }
-      const changed = versions
-        .filter(([, version]) => changedVersions.has(version))
-        .map(([connector]) => connector);
-      yield streams.filter((stream) =>
-        changed.includes(this.#reader(stream).connector),
-      );
-    }
+  // One change signal for each import that the streams read. The reads are
+  // local, so a check that takes the whole interval is stuck. DataVersion
+  // opens its import when it is made, so an import file that is missing stops
+  // the connection.
+  override changeSignals(streams: readonly Stream[]) {
+    return Map.groupBy(streams, (stream) => this.#reader(stream).connector)
+      .entries()
+      .map(([connector, watched]) => ({
+        gauge: new DataVersion(this.#paths[connector]),
+        streams: watched,
+        interval: pollIntervalMs,
+        timeout: pollIntervalMs,
+      }));
   }
 
   protected override async *extract(

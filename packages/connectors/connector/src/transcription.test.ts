@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import { Gauge } from '@zukhruf/async';
 import { Fixed, LeaderFirst, NoEviction, Pool } from '@zukhruf/pool';
 import { open } from '@zukhruf/sqlite-open';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
@@ -13,7 +14,6 @@ import {
   Pipeline,
   Source,
   type SourceMessage,
-  type SourceWatchOptions,
   Stream,
 } from '@workspace/elt';
 import { SQLiteSyncHistory } from '@workspace/elt-sqlite';
@@ -23,6 +23,14 @@ import { VisionWorker } from '@workspace/source-apple-macos/vision';
 
 import { Connector, type ConnectorHost } from './connector.ts';
 import { Transcription } from './transcription.ts';
+
+// A store that the first check of a watch reads as changed, and that never
+// changes after it.
+class Unchanging extends Gauge {
+  protected async read() {
+    return 0;
+  }
+}
 
 // An app with one voice note in its store, whose copy the import stores.
 class VoiceNoteSource extends Source {
@@ -61,8 +69,10 @@ class VoiceNoteSource extends Source {
     return new AsyncDisposableStack();
   }
 
-  protected override async *observe({ streams }: SourceWatchOptions) {
-    yield streams;
+  override changeSignals(streams: readonly Stream[]) {
+    return [
+      { gauge: new Unchanging(), streams, interval: 1000, timeout: 1000 },
+    ];
   }
 
   protected override async *extract(): AsyncGenerator<SourceMessage> {

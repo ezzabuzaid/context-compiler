@@ -3,6 +3,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { test } from 'node:test';
 
+import { Gauge } from '@zukhruf/async';
 import { open } from '@zukhruf/sqlite-open';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 
@@ -11,7 +12,6 @@ import {
   PassFinished,
   Source,
   type SourceMessage,
-  type SourceWatchOptions,
   Stream,
   passChannels,
 } from '@workspace/elt';
@@ -21,6 +21,14 @@ import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-documen
 
 import type { Choice } from './choice.ts';
 import { Connector } from './connector.ts';
+
+// A store that the first check of a watch reads as changed, and that never
+// changes after it.
+class Unchanging extends Gauge {
+  protected async read() {
+    return 0;
+  }
+}
 
 // What an SDK throws when macOS denies its store; each store throws its own.
 class StoreDeniedError extends Error {}
@@ -87,8 +95,10 @@ class Store extends Source {
     return new AsyncDisposableStack();
   }
 
-  protected override async *observe({ streams }: SourceWatchOptions) {
-    yield streams;
+  override changeSignals(streams: readonly Stream[]) {
+    return [
+      { gauge: new Unchanging(), streams, interval: 1000, timeout: 1000 },
+    ];
   }
 
   // A read that resumes from the cursor of a read that ended finds nothing

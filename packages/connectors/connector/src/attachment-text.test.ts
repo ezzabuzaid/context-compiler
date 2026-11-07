@@ -14,7 +14,7 @@ import { availableParallelism } from 'node:os';
 import { basename, dirname, extname, join } from 'node:path';
 import { test } from 'node:test';
 
-import { Latch } from '@zukhruf/async';
+import { Gauge, Latch } from '@zukhruf/async';
 import { open } from '@zukhruf/sqlite-open';
 import { timebox } from '@zukhruf/testing/async';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
@@ -28,7 +28,6 @@ import {
   Pipeline,
   Source,
   type SourceMessage,
-  type SourceWatchOptions,
   Stream,
   passChannels,
 } from '@workspace/elt';
@@ -46,6 +45,19 @@ abstract class LiveSource<
 > extends Source<Context> {
   override async currentAsOf() {
     return null;
+  }
+}
+
+// Counts the changes that the test reports.
+class Changes extends Gauge {
+  #count = 0;
+
+  add() {
+    this.#count += 1;
+  }
+
+  protected async read() {
+    return this.#count;
   }
 }
 
@@ -73,7 +85,7 @@ class FolderSource extends LiveSource {
     }),
   ]);
   readonly #folder: string;
-  #change = new Latch();
+  readonly #changes = new Changes();
 
   constructor(folder: string) {
     super();
@@ -81,7 +93,7 @@ class FolderSource extends LiveSource {
   }
 
   changed() {
-    this.#change.open();
+    this.#changes.add();
   }
 
   override coverage() {
@@ -92,17 +104,8 @@ class FolderSource extends LiveSource {
     return new AsyncDisposableStack();
   }
 
-  protected override async *observe({ streams, signal }: SourceWatchOptions) {
-    yield streams;
-    const stopped = new Promise((resolve) =>
-      signal.addEventListener('abort', resolve, { once: true }),
-    );
-    while (!signal.aborted) {
-      await Promise.race([this.#change.wait(), stopped]);
-      if (signal.aborted) return;
-      this.#change = new Latch();
-      yield streams;
-    }
+  override changeSignals(streams: readonly Stream[]) {
+    return [{ gauge: this.#changes, streams, interval: 10, timeout: 1000 }];
   }
 
   // Every file each run, and a deletion for each file gone since the last.

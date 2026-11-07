@@ -243,8 +243,8 @@ export class Imports {
   // or SIGTERM stops it. One process owns an import at a time: a watch that
   // finds another owner, a sync running a pass or another watch, waits and
   // owns the import once that one ends or dies. An import's watch ends on its
-  // own once another setup removes its connector or its source stops
-  // reporting changes.
+  // own once another setup removes its connector, or once its source's change
+  // signals cannot be declared or break the contract.
   async watch(
     only: readonly string[] | undefined,
     observer: WatchObserver,

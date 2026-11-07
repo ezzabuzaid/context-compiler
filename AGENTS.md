@@ -81,7 +81,7 @@ Define a term in the message before a question uses it; an option label never ca
 
 ## Place each job with whoever can know it
 
-Before proposing where a fix lives, split the requirement into its jobs and name, for each, who can actually know it: the source, the elt engine, the destination, the connector, the plugin server, or the agent. A job belongs to that owner. A slow Mail answer, for example, split into three jobs: whether a message changed (only the Mail source in elt knows), turning changes into upserts and deletions (a shared elt helper the source calls), and when to refresh (the source's `observe()`, run by the plugin server, not a skill telling the agent to sync).
+Before proposing where a fix lives, split the requirement into its jobs and name, for each, who can actually know it: the source, the elt engine, the destination, the connector, the plugin server, or the agent. A job belongs to that owner. A slow Mail answer, for example, split into three jobs: whether a message changed (only the Mail source in elt knows), turning changes into upserts and deletions (a shared elt helper the source calls), and when to refresh (the source's change signals, which the pipeline reads in the plugin server, not a skill telling the agent to sync).
 
 ## Follow the vendor's own current source, not only its docs
 

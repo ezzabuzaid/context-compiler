@@ -1784,32 +1784,38 @@ async function withWatchedPhotos(home: string) {
     'Library/Application Support/Context Compiler/Connectors/photos/photos-connector.ts',
   );
   const imports = "import { readFile } from 'node:fs/promises';";
-  const watcher =
-    '  protected async *observe({ streams }: SourceWatchOptions) {\n    yield streams;\n  }';
-  const source = readFileSync(connector, 'utf8');
+  const source = 'class PhotosSource extends Source {';
+  const signal =
+    'gauge: new Unchanging(), streams, interval: 1000, timeout: 1000';
+  const fixture = readFileSync(connector, 'utf8');
   assert.ok(
-    source.includes(imports) && source.includes(watcher),
+    [imports, source, signal].every((text) => fixture.includes(text)),
     'the Photos fixture watches another way',
   );
   writeFileSync(
     connector,
-    source
+    fixture
       .replace(imports, "import { readFile, stat } from 'node:fs/promises';")
       .replace(
-        watcher,
-        `  protected async *observe({ streams, signal }: SourceWatchOptions) {
-    yield streams;
-    const library = join(this.#home, 'Pictures/photos.json');
-    let seen = (await stat(library)).mtimeMs;
-    while (!signal.aborted) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      const { mtimeMs } = await stat(library);
-      if (mtimeMs !== seen) {
-        seen = mtimeMs;
-        yield streams;
-      }
-    }
-  }`,
+        source,
+        `class Library extends Gauge<number> {
+  readonly #path: string;
+
+  constructor(path: string) {
+    super();
+    this.#path = path;
+  }
+
+  protected async read(): Promise<number> {
+    return (await stat(this.#path)).mtimeMs;
+  }
+}
+
+${source}`,
+      )
+      .replace(
+        signal,
+        "gauge: new Library(join(this.#home, 'Pictures/photos.json')), streams, interval: 100, timeout: 1000",
       ),
   );
 }

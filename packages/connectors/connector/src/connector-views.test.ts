@@ -4,6 +4,7 @@ import { rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { test } from 'node:test';
 
+import { Gauge } from '@zukhruf/async';
 import { open } from '@zukhruf/sqlite-open';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 
@@ -12,7 +13,6 @@ import {
   type CopyConfiguration,
   Source,
   type SourceMessage,
-  type SourceWatchOptions,
   Stream,
 } from '@workspace/elt';
 import { type SQLiteDestination, View } from '@workspace/elt-sqlite';
@@ -20,6 +20,14 @@ import { Settings } from '@workspace/settings';
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
 
 import { Connector } from './connector.ts';
+
+// A store that the first check of a watch reads as changed, and that never
+// changes after it.
+class Unchanging extends Gauge {
+  protected async read() {
+    return 0;
+  }
+}
 
 // A source whose upstream is current whenever it is read.
 abstract class LiveSource<
@@ -64,8 +72,10 @@ class TwoStoreSource extends LiveSource {
     return new AsyncDisposableStack();
   }
 
-  protected override async *observe({ streams }: SourceWatchOptions) {
-    yield streams;
+  override changeSignals(streams: readonly Stream[]) {
+    return [
+      { gauge: new Unchanging(), streams, interval: 1000, timeout: 1000 },
+    ];
   }
 
   protected override async *extract({

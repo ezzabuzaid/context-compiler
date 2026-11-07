@@ -389,9 +389,9 @@ export abstract class Connector {
   // change its source reports, each recorded in the import's sync history.
   // The pipeline refreshes the import's derived data after each pass, in the
   // background, so the import never waits on it.
-  // Ends once the user removes the connector, once the source stops
-  // reporting changes, or quietly once signal aborts; otherwise it lasts as
-  // long as the process.
+  // Ends once the user removes the connector, once its source's change
+  // signals cannot be declared or break the contract, or quietly once signal
+  // aborts; otherwise it lasts as long as the process.
   async watch(
     settings: Settings,
     selection: Selection,

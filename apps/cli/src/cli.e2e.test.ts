@@ -2380,13 +2380,24 @@ test('a second sync watch of a connector another one keeps current waits without
   }
 });
 
-test('a connector whose watch ends stops alone and says so, while the others keep loading what changes', async () => {
+test('a connector whose change signals break the contract stops alone and says so, while the others keep loading what changes', async () => {
   await using mac = await new TemporaryFiles().directory('cli-e2e-', {
     parent: homes,
   });
   const history = await withSafari(mac.path);
-  // Photos reports a change once, for its first pass, and never again.
   await withConnectors(mac.path);
+  // Photos as a connector whose change signal tells about no stream.
+  const photos = join(
+    mac.path,
+    'Library/Application Support/Context Compiler/Connectors/photos/photos-connector.ts',
+  );
+  const signal = 'streams, interval: 1000';
+  const source = await readFile(photos, 'utf8');
+  assert.ok(source.includes(signal), 'the Photos fixture watches another way');
+  await writeFile(
+    photos,
+    source.replace(signal, 'streams: [], interval: 1000'),
+  );
   cli(mac.path, 'setup', '--connector', 'safari', '--connector', 'photos');
   const watch = started(mac.path, 'sync', 'watch', '--json');
   try {
@@ -2405,12 +2416,16 @@ test('a connector whose watch ends stops alone and says so, while the others kee
         ),
     );
 
+    const photosLines = watch
+      .printed()
+      .filter(({ connector }) => connector === 'photos');
     assert.deepEqual(
-      watch
-        .printed()
-        .filter(({ connector }) => connector === 'photos')
-        .map(({ status }) => status),
-      ['succeeded', 'stopped'],
+      photosLines.map(({ status }) => status),
+      ['failed', 'stopped'],
+    );
+    assert.match(
+      String(photosLines[0]?.error),
+      /No change signal tells about stream photos/,
     );
     assert.equal(watch.child.exitCode, null, 'the watch stopped altogether');
   } finally {
@@ -2419,35 +2434,54 @@ test('a connector whose watch ends stops alone and says so, while the others kee
   }
 });
 
-test('a connector whose watcher fails for a system reason is reported failed with its error and watches again about ten seconds later, while the others keep loading what changes', async () => {
+test('a connector whose change signal fails for a system reason is reported failed with its error and read again at the next check, while the others keep loading what changes', async () => {
   await using mac = await new TemporaryFiles().directory('cli-e2e-', {
     parent: homes,
   });
   const history = await withSafari(mac.path);
   await withConnectors(mac.path);
-  // Photos as a connector whose watcher fails once its library is gone.
+  // Photos as a connector whose change signal fails once its library is gone.
   const photos = join(
     mac.path,
     'Library/Application Support/Context Compiler/Connectors/photos/photos-connector.ts',
   );
-  const watcher =
-    '  protected async *observe({ streams }: SourceWatchOptions) {\n    yield streams;\n  }';
-  const source = await readFile(photos, 'utf8');
-  assert.ok(source.includes(watcher), 'the Photos fixture watches another way');
+  const imports = "import { readFile } from 'node:fs/promises';";
+  const sourceClass = 'class PhotosSource extends Source {';
+  const signal =
+    'gauge: new Unchanging(), streams, interval: 1000, timeout: 1000';
+  const fixture = await readFile(photos, 'utf8');
+  assert.ok(
+    [imports, sourceClass, signal].every((text) => fixture.includes(text)),
+    'the Photos fixture watches another way',
+  );
   await writeFile(
     photos,
-    source.replace(
-      watcher,
-      `  protected async *observe({ streams }: SourceWatchOptions) {
-    yield streams;
-    for (;;) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      await readFile(join(this.#home, 'Pictures/photos.json')).catch(() => {
-        throw new Error('The photo library went away');
-      });
-    }
-  }`,
-    ),
+    fixture
+      .replace(imports, "import { readFile, stat } from 'node:fs/promises';")
+      .replace(
+        sourceClass,
+        `class Library extends Gauge<number> {
+  readonly #path: string;
+
+  constructor(path: string) {
+    super();
+    this.#path = path;
+  }
+
+  protected async read(): Promise<number> {
+    const { mtimeMs } = await stat(this.#path).catch(() => {
+      throw new Error('The photo library went away');
+    });
+    return mtimeMs;
+  }
+}
+
+${sourceClass}`,
+      )
+      .replace(
+        signal,
+        "gauge: new Library(join(this.#home, 'Pictures/photos.json')), streams, interval: 100, timeout: 1000",
+      ),
   );
   cli(mac.path, 'setup', '--connector', 'safari', '--connector', 'photos');
   const watch = started(mac.path, 'sync', 'watch', '--json');
@@ -2500,7 +2534,6 @@ test('sync watch --connector watches only the connectors it names', async () => 
   await withConnectors(mac.path);
   cli(mac.path, 'setup', '--connector', 'safari', '--connector', 'photos');
 
-  // Photos reports a change once, so a watch of Photos alone ends after it.
   const watch = started(
     mac.path,
     'sync',
@@ -2510,20 +2543,20 @@ test('sync watch --connector watches only the connectors it names', async () => 
     'photos',
   );
   try {
+    await watch.prints(({ connector }) => connector === 'photos');
+    // A watch passes every connector it watches at once, side by side, so a
+    // watched Safari would pass within moments of Photos.
+    await sleep(2_000);
+    watch.child.kill('SIGTERM');
     const ended = await Promise.race([
       watch.exited,
-      sleep(30_000).then(() => null),
+      sleep(10_000).then(() => null),
     ]);
 
-    if (ended === null)
-      assert.fail('the watch kept watching another connector');
-    assert.equal(ended.status, 0, ended.stderr);
+    if (ended === null) assert.fail('the watch still ran 10 s after SIGTERM');
     assert.deepEqual(
       lines(ended.stdout).map(({ connector, status }) => [connector, status]),
-      [
-        ['photos', 'succeeded'],
-        ['photos', 'stopped'],
-      ],
+      [['photos', 'succeeded']],
     );
   } finally {
     watch.child.kill('SIGKILL');
@@ -2741,27 +2774,6 @@ test('sync watch exits 1 and names the error when an import’s sync history can
   });
   const history = await withSafari(mac.path);
   await withConnectors(mac.path);
-  // Photos as a connector that watches until the watch stops.
-  const photos = join(
-    mac.path,
-    'Library/Application Support/Context Compiler/Connectors/photos/photos-connector.ts',
-  );
-  const watcher =
-    '  protected async *observe({ streams }: SourceWatchOptions) {\n    yield streams;\n  }';
-  const source = await readFile(photos, 'utf8');
-  assert.ok(source.includes(watcher), 'the Photos fixture watches another way');
-  await writeFile(
-    photos,
-    source.replace(
-      watcher,
-      `  protected async *observe({ streams, signal }: SourceWatchOptions) {
-    yield streams;
-    await new Promise((resolve) =>
-      signal.addEventListener('abort', resolve, { once: true }),
-    );
-  }`,
-    ),
-  );
   cli(mac.path, 'setup', '--connector', 'safari', '--connector', 'photos');
   const watch = started(mac.path, 'sync', 'watch', '--json');
   try {
@@ -2863,7 +2875,7 @@ test('a sync watch started while a sync runs a pass of the connector waits for t
       ]);
       // The pipe is read again by the watch's own pass.
       await feed(pictures, JSON.stringify([{ id: 'p2', title: 'Snow' }]));
-      await watch.prints(({ status }) => status === 'stopped');
+      await watch.prints(({ status }) => status === 'succeeded');
 
       if (synced === null) assert.fail('the sync never ended its pass');
       assert.equal(synced.status, 0, synced.stderr);
@@ -2872,7 +2884,6 @@ test('a sync watch started while a sync runs a pass of the connector waits for t
         [
           ['photos', 'waiting'],
           ['photos', 'succeeded'],
-          ['photos', 'stopped'],
         ],
       );
       assert.equal(attempts(mac.path, 'photos'), 2);

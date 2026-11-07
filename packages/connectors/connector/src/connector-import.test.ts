@@ -6,6 +6,7 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 import { pathToFileURL } from 'node:url';
 
+import { Gauge } from '@zukhruf/async';
 import { open } from '@zukhruf/sqlite-open';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 
@@ -14,7 +15,6 @@ import {
   PassFinished,
   Source,
   type SourceMessage,
-  type SourceWatchOptions,
   Stream,
   passChannels,
 } from '@workspace/elt';
@@ -22,6 +22,14 @@ import { Settings } from '@workspace/settings';
 import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
 
 import { Connector } from './connector.ts';
+
+// A store that the first check of a watch reads as changed, and that never
+// changes after it.
+class Unchanging extends Gauge {
+  protected async read() {
+    return 0;
+  }
+}
 
 // A source whose upstream is current whenever it is read.
 abstract class LiveSource<
@@ -68,8 +76,10 @@ class TwoNotesSource extends LiveSource {
     return new AsyncDisposableStack();
   }
 
-  protected override async *observe({ streams }: SourceWatchOptions) {
-    yield streams;
+  override changeSignals(streams: readonly Stream[]) {
+    return [
+      { gauge: new Unchanging(), streams, interval: 1000, timeout: 1000 },
+    ];
   }
 
   protected override async *extract(
@@ -125,8 +135,10 @@ class OneFileSource extends LiveSource {
     return new AsyncDisposableStack();
   }
 
-  protected override async *observe({ streams }: SourceWatchOptions) {
-    yield streams;
+  override changeSignals(streams: readonly Stream[]) {
+    return [
+      { gauge: new Unchanging(), streams, interval: 1000, timeout: 1000 },
+    ];
   }
 
   protected override async *extract(): AsyncGenerator<SourceMessage> {
@@ -255,6 +267,8 @@ test(
     // that runs out of memory or is quit mid-pass leaves its pass.
     const pass = `
       const { Catalog, Source, Stream } = await import('@workspace/elt');
+      const { Gauge } = await import('@zukhruf/async');
+      class Unchanging extends Gauge { async read() { return 0; } }
       const { Settings } = await import('@workspace/settings');
       const { MacOSDocumentParser } = await import('@workspace/source-apple-macos/macos-document-parser');
       const { Connector } = await import(process.env.CONNECTOR);
@@ -275,7 +289,7 @@ test(
         coverage() { return { description: 'Every note.', selection: {} }; }
         async currentAsOf() { return null; }
         async open() { return new AsyncDisposableStack(); }
-        async *observe({ streams }) { yield streams; }
+        changeSignals(streams) { return [{ gauge: new Unchanging(), streams, interval: 1000, timeout: 1000 }]; }
         async *extract() {
           yield { stream: 'notes', data: { id: 'n1' } };
           yield { type: 'STATE', stream: 'notes', state: { after: 1 } };

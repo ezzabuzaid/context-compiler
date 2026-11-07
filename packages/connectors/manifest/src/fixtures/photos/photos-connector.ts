@@ -5,9 +5,10 @@ import type { Choice } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
 import {
   Catalog,
+  type ChangeSignal,
   type ExtractionCoverage,
+  Gauge,
   Source,
-  type SourceWatchOptions,
   Stream,
 } from '@workspace/elt';
 
@@ -32,6 +33,14 @@ const photos = new Stream({
   supportedSyncModes: ['full_refresh', 'incremental'],
 });
 
+// Photos reports a change once, at the first check of a watch, and never
+// again.
+class Unchanging extends Gauge<number> {
+  protected async read(): Promise<number> {
+    return 0;
+  }
+}
+
 class PhotosSource extends Source {
   readonly identity = 'photos';
   readonly #home: string;
@@ -54,8 +63,10 @@ class PhotosSource extends Source {
     return new AsyncDisposableStack();
   }
 
-  protected async *observe({ streams }: SourceWatchOptions) {
-    yield streams;
+  changeSignals(streams: readonly Stream[]): ChangeSignal[] {
+    return [
+      { gauge: new Unchanging(), streams, interval: 1000, timeout: 1000 },
+    ];
   }
 
   protected async *extract() {
