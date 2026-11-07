@@ -11,6 +11,8 @@ import {
 } from '@zukhruf/sqlite-changefeed';
 import { DataVersion } from '@zukhruf/sqlite-data-version';
 
+import { isReserved } from '@workspace/elt-sqlite';
+
 import type { Warehouse } from './warehouse.ts';
 
 // Own subscriptions, not change detection: the native feed owns snapshots,
@@ -65,7 +67,10 @@ export async function followWarehouse(
           signal: sourceSignal,
           clock: globalThis,
         })) {
-          await accept(source.name, changes);
+          // elt's own tables (sync history, coverage, descriptions, file
+          // chunks) record the pipeline, not the user's data.
+          const data = changes.filter((change) => !isReserved(change.table));
+          if (data.length > 0) await accept(source.name, data);
         }
       })().catch((error) => {
         if (sourceSignal.aborted && error === sourceSignal.reason) return;

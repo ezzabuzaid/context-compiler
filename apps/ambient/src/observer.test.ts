@@ -218,6 +218,32 @@ test('committed warehouse writes reach the agent without an event publisher', as
   }
 });
 
+test("a change of elt's own tables gives no turn, and a change of the data after it gives one", async (t) => {
+  await using directory = await new TemporaryFiles().directory(
+    'ambient-reserved-',
+  );
+  const home = directory.path;
+  using databases = new DisposableStack();
+  const { mail } = await warehouse(databases, home);
+  try {
+    await using app = await ambient(t, home);
+    await baselines();
+    mail.exec(
+      "CREATE TABLE _elt_sync_attempts(id INTEGER PRIMARY KEY,status TEXT); INSERT INTO _elt_sync_attempts VALUES(1,'running')",
+    );
+    mail.exec("UPDATE _elt_sync_attempts SET status='succeeded' WHERE id=1");
+    await setTimeout(2100);
+    assert.deepEqual(await app.decisions(), []);
+    mail.exec("INSERT INTO messages VALUES(1,'Venue changed')");
+    await settled(t, app, 1);
+    assert.partialDeepStrictEqual(await app.decisions(), [
+      { event: { data: { table: 'messages', op: 'insert' } } },
+    ]);
+  } finally {
+    await removeMicroVm(home);
+  }
+});
+
 test('a row from before the first run gives no turn, and updates, recurrence, deletes and offline catch-up preserve native history', async (t) => {
   await using directory = await new TemporaryFiles().directory('ambient-');
   const home = directory.path;

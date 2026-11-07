@@ -9,6 +9,7 @@
     "@deepagents/experimental": "7.4.0",
     "@electric-sql/pglite": "0.5.4",
     "@hono/node-server": "2.1.5",
+    "@workspace/elt-sqlite": "0.0.1",
     "@zukhruf/async": "0.8.0",
     "@zukhruf/shutdown": "0.6.15",
     "@zukhruf/sqlite-changefeed": "0.8.4",
