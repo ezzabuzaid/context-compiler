@@ -8,6 +8,9 @@ import { z } from 'zod';
 // What a criterion or a field asks, in words a model reads.
 export const description = z.string().trim().min(1).max(1000);
 
+// What a web search looks for.
+export const searchQuery = z.string().trim().min(1).max(5000);
+
 // A page to read, or a list whose links are the pages to read.
 export const webUrl = z.url({ protocol: /^https?$/u });
 

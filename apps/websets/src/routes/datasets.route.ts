@@ -113,7 +113,7 @@ export default function (router: Hono) {
         select: payload.body.search,
         against: z
           .object({
-            query: z.string().trim().min(1).max(5000),
+            query: inputs.searchQuery,
             count: z.number().int().min(1).max(50).default(10),
           })
           .optional(),

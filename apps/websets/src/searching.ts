@@ -24,7 +24,13 @@ export async function runSearch(data: unknown, signal: AbortSignal) {
   try {
     store.searched(
       id,
-      await search({ ...dataset, search: dataset.search }, signal),
+      await search(
+        {
+          ...dataset.search,
+          criteria: dataset.criteria.map(({ description }) => description),
+        },
+        signal,
+      ),
     );
   } catch (error) {
     if (signal.aborted) {

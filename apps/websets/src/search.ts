@@ -2,7 +2,6 @@ import { openai } from '@ai-sdk/openai';
 import { Output, generateText } from 'ai';
 import { z } from 'zod';
 
-import type { Definition } from './dataset.ts';
 import model from './search-model.ts';
 
 // A page that a search found.
@@ -13,24 +12,31 @@ const answerSchema = z.object({
 });
 
 const instructions =
-  'You find web pages for a dataset. Use web search. List the pages that the query asks for and that meet every criterion, the best first. Give the page itself, not a search result page, and each page once.';
+  'You find web pages. Use web search. List the pages that the query asks for, and that meet every criterion when criteria are given, the best first. Give the page itself, not a search result page, and each page once.';
 
-// The pages that a web search finds for a dataset, best first: the
-// starting URLs that the crawl then reads. A URL that is not http or https
-// is no page, and a page is listed once.
+// The pages that a web search finds for a query, best first; a dataset also
+// gives its criteria. A URL that is not http or https is no page, and a page
+// is listed once.
 export async function search(
   {
-    search: { query, count },
+    query,
+    count,
     criteria,
-  }: Definition & {
-    readonly search: NonNullable<Definition['search']>;
+  }: {
+    readonly query: string;
+    readonly count: number;
+    readonly criteria: readonly string[];
   },
   signal: AbortSignal,
 ): Promise<readonly Found[]> {
+  const lines = [`Query: ${query}`, `At most ${count} pages.`];
+  if (criteria.length > 0) {
+    lines.push('Criteria:', ...criteria.map((criterion) => `- ${criterion}`));
+  }
   const { output } = await generateText({
     model,
     instructions,
-    prompt: `Query: ${query}\nAt most ${count} pages.\nCriteria:\n${criteria.map(({ description }) => `- ${description}`).join('\n')}`,
+    prompt: lines.join('\n'),
     tools: { web_search: openai.tools.webSearch({}) },
     output: Output.object({ schema: answerSchema }),
     abortSignal: signal,

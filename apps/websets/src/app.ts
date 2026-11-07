@@ -7,6 +7,7 @@ import { z } from 'zod';
 import datasetsRoute from './routes/datasets.route.ts';
 import eventsRoute from './routes/events.route.ts';
 import itemsRoute from './routes/items.route.ts';
+import searchRoute from './routes/search.route.ts';
 
 // The key of each consumer that may call the API, separated by commas. The
 // API is private: a consumer is someone Ezz gave a key.
@@ -58,7 +59,7 @@ app.use(
   }),
   etag(),
 );
-for (const route of [datasetsRoute, itemsRoute, eventsRoute]) {
+for (const route of [datasetsRoute, itemsRoute, eventsRoute, searchRoute]) {
   route(app);
 }
 app.notFound((c) =>

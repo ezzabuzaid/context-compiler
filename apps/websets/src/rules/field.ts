@@ -6,14 +6,9 @@ import { z } from 'zod';
 import { type LoadedRow, Rule, type RuleResult } from '@workspace/elt';
 import { ground } from '@workspace/quote-grounding';
 
+import { callFailure } from '../call-failure.ts';
 import type { Field as Definition } from '../dataset.ts';
-import {
-  type Page,
-  pageFailure,
-  prompt,
-  readPage,
-  settings,
-} from './evaluation.ts';
+import { type Page, prompt, readPage, settings } from './evaluation.ts';
 import model from './model.ts';
 
 // The value of a field in its format: text, a number, an ISO 8601 date, a
@@ -132,7 +127,7 @@ export class FieldValue extends Rule<Page, string> {
         abortSignal: signal,
       }));
     } catch (error) {
-      return pageFailure(error);
+      return callFailure(error);
     }
     const { quote } = answer;
     const grounded = quote !== null && ground(page.text, quote) !== null;

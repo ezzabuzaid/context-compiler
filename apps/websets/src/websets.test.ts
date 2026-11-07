@@ -391,11 +391,17 @@ async function running(
       // XDG_DATA_HOME, the test's own folder, holds the app's files,
       // CODEX_HOME holds the test's ChatGPT login, which the Codex provider
       // reads, and the API takes the consumers' keys on any free port.
+      // NODE_OPTIONS and WRITE_TEST_MUTANT are what the write-test skill's
+      // mutate.mjs sets for the processes of a proof, so a mutant of the
+      // app's code loads into the app too; a test run outside a proof has no
+      // WRITE_TEST_MUTANT, and an unset variable is not passed.
       env: {
         XDG_DATA_HOME: data,
         CODEX_HOME: folder.path,
         WEBSETS_API_KEYS: `${apiKey},${secondKey}`,
         PORT: '0',
+        NODE_OPTIONS: process.env.NODE_OPTIONS,
+        WRITE_TEST_MUTANT: process.env.WRITE_TEST_MUTANT,
       },
     },
   );
@@ -1064,6 +1070,81 @@ test('calls to the API request no website: it answers from what the crawl stored
 
       assert.deepEqual(answers, [200, 200, 200, 200]);
       assert.deepEqual(after.slice(seen.length), []);
+    },
+  });
+});
+
+test('a search answers the pages that the web search found, best first, for its query alone, and keeps no dataset', async () => {
+  await using data = await new TemporaryFiles().directory('websets-data-');
+  const query = 'AI labs that give startups free credits';
+  const { searched } = await running(data.path, {
+    pages,
+    searches: [{ for: [query], pages: [{ url: claude }, { url: microsoft }] }],
+    ahead: 0,
+    during: async ({ api }) => {
+      const answer = await api(
+        `/v1/search?query=${encodeURIComponent(query)}&count=5`,
+      );
+      const datasets = await api('/v1/datasets');
+
+      assert.deepEqual(
+        [answer.status, answer.body],
+        [
+          200,
+          {
+            results: [
+              { position: 1, url: claude },
+              { position: 2, url: microsoft },
+            ],
+          },
+        ],
+      );
+      assert.deepEqual(datasets.body, { data: [] });
+    },
+  });
+  assert.deepEqual(
+    searched.map(({ model, tools, prompt }) => ({
+      model,
+      tools,
+      count: prompt.includes('At most 5 pages.'),
+      criteria: prompt.includes('Criteria:'),
+    })),
+    [
+      {
+        model: 'gpt-6-luna',
+        tools: ['web_search'],
+        count: true,
+        criteria: false,
+      },
+    ],
+  );
+});
+
+test('a search whose web search fails answers 502 search_failed', async () => {
+  await using data = await new TemporaryFiles().directory('websets-data-');
+  const query = 'AI labs that give startups free credits';
+  // The endpoint's 500, as the AI SDK retries it twice before it gives up.
+  const failure: Search = {
+    for: [query],
+    status: 500,
+    body: {
+      error: {
+        message: 'The server had an error while processing your request.',
+        type: 'server_error',
+      },
+    },
+  };
+  await running(data.path, {
+    pages,
+    searches: [failure, failure, failure],
+    ahead: 0,
+    during: async ({ api }) => {
+      const answer = await api(`/v1/search?query=${encodeURIComponent(query)}`);
+
+      assert.deepEqual(
+        [answer.status, errorCode(answer.body)],
+        [502, 'search_failed'],
+      );
     },
   });
 });

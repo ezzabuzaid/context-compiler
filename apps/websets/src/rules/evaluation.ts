@@ -1,18 +1,12 @@
 import { createHash } from 'node:crypto';
 
-import {
-  APICallError,
-  NoObjectGeneratedError,
-  NoOutputGeneratedError,
-  Output,
-  RetryError,
-  generateText,
-} from 'ai';
+import { Output, generateText } from 'ai';
 import { z } from 'zod';
 
 import { type LoadedRow, Rule, type RuleResult } from '@workspace/elt';
 import { ground } from '@workspace/quote-grounding';
 
+import { callFailure } from '../call-failure.ts';
 import model from './model.ts';
 
 export type Page = {
@@ -47,24 +41,6 @@ export function readPage(
     typeof textContent === 'string'
     ? { key: articleUrl, input: { url: articleUrl, title, text: textContent } }
     : null;
-}
-
-// A call that failed after the AI SDK's retries is the failure of one page,
-// as startup-credits' ProgramOffers decides (docs/copied-code.md); a
-// rejected token fails every page, so it fails the dataset. A stop is no
-// failure.
-export function pageFailure(error: unknown): { readonly error: string } {
-  if (
-    NoObjectGeneratedError.isInstance(error) ||
-    NoOutputGeneratedError.isInstance(error)
-  ) {
-    return { error: error.message };
-  }
-  const call = RetryError.isInstance(error) ? error.lastError : error;
-  if (APICallError.isInstance(call) && call.statusCode !== 401) {
-    return { error: call.message };
-  }
-  throw error;
 }
 
 // Whether each page of a dataset meets one of its criteria, as
@@ -148,7 +124,7 @@ export class Evaluation extends Rule<Page, string> {
         abortSignal: signal,
       }));
     } catch (error) {
-      return pageFailure(error);
+      return callFailure(error);
     }
     const { quote } = answer;
     const grounded = quote !== null && ground(page.text, quote) !== null;

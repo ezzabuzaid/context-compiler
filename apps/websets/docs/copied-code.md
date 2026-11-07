@@ -9,8 +9,8 @@ The app keeps its files in a `websets` folder under `XDG_DATA_HOME`, or under `~
 
 ## Which model call failures fail a page
 
-**`apps/startup-credits/src/rules/program-offers.ts` (`ProgramOffers.#offers`) → `src/rules/evaluation.ts` (`pageFailure`), as a function that `Evaluation` and `FieldValue` share.**
-A call that failed after the AI SDK's retries is the failure of one page: the rule takes the last error of a `RetryError` and returns the message of an `APICallError`. A 401 fails the dataset, as every page would fail. `NoObjectGeneratedError` and `NoOutputGeneratedError` are a page's failure. The other places are `PageKinds` (`apps/startup-credits/src/rules/page-kinds.ts`) and `InvoicePayments` (`apps/ipay/src/rules/invoice-payments.ts`). It stays copied: six lines, and a shared home would be a new dependency of each app.
+**`apps/startup-credits/src/rules/program-offers.ts` (`ProgramOffers.#offers`) → `src/call-failure.ts` (`callFailure`), as a function that `Evaluation`, `FieldValue` and the search route share.**
+A call that failed after the AI SDK's retries is the failure of that call (one page, or one search): the rule takes the last error of a `RetryError` and returns the message of an `APICallError`. A 401 fails the dataset, as every page would fail. `NoObjectGeneratedError` and `NoOutputGeneratedError` are a page's failure. The other places are `PageKinds` (`apps/startup-credits/src/rules/page-kinds.ts`) and `InvoicePayments` (`apps/ipay/src/rules/invoice-payments.ts`). It stays copied: six lines, and a shared home would be a new dependency of each app.
 
 ## A rule's identity
 
