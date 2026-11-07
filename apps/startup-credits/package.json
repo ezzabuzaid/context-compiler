@@ -19,8 +19,9 @@
   },
   "devDependencies": {
     "@cfworker/json-schema": "4.1.4",
-    "@zukhruf/evals": "^0.8.4",
-    "@zukhruf/python": "*",
+    "@stdlib/blas-ext-base-gsumpw": "^0.3.1",
+    "@zukhruf/evals": "^0.8.5",
+    "@zukhruf/python": "^0.8.5",
     "@zukhruf/testing": "0.6.15",
     "msw": "^3.0.3",
     "munkres": "^2.1.1",

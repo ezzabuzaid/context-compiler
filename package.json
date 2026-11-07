@@ -10,8 +10,7 @@
     "../elt/packages/destinations/*",
     "../elt/packages/sdks/*/*",
     "../elt/packages/codecs/*",
-    "../elt/packages/sources/*/*",
-    "../mutex/packages/python"
+    "../elt/packages/sources/*/*"
   ],
   "scripts": {
     "prepare": "git config core.hooksPath .husky || exit 0"
