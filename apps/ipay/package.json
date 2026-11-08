@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@ai-sdk/typesafe-ai": "3.0.33",
-    "@deepagents/experimental": "7.3.0",
+    "@ai-sdk/typesafe-ai": "^3.0.35",
+    "@deepagents/experimental": "7.5.2",
     "@workspace/connector-apple-mail": "0.0.1",
     "@workspace/elt": "0.0.1",
     "@workspace/elt-sqlite": "0.0.1",
@@ -15,7 +15,7 @@
     "@zukhruf/sqlite-data-version": "^0.8.10",
     "@zukhruf/sqlite-open": "^0.8.10",
     "@zukhruf/sqlite-snapshot": "^0.8.10",
-    "ai": "7.0.162",
+    "ai": "^7.0.165",
     "html-to-text": "10.0.1",
     "zod": "4.6.7"
   },

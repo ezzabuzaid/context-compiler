@@ -32,6 +32,6 @@
   "devDependencies": {
     "@zukhruf/sqlite-open": "^0.8.10",
     "@zukhruf/testing": "^0.8.10",
-    "ai": "7.0.164"
+    "ai": "^7.0.165"
   }
 }
