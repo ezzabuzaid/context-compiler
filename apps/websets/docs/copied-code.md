@@ -1,11 +1,11 @@
 # Code copied into this app
 
-The Rule of Three counts places, not packages. Code that a second place needs is copied, and it is extracted only when a third place needs it. A tiny helper stays copied even then, as a little copying is better than a little dependency (backlog #3371). A fix in one copy is made in the other copies too, and the commit names each file.
+The Rule of Three counts places, not packages. Code that a second place needs is copied, and it is extracted only when a third place needs it. A tiny helper stays copied even then only when its shared home would give a consumer a dependency that the consumer does not have yet, such as a third-party package: a little copying is better than a little dependency. The rule says: "Tiny helpers in a package with a different dependency profile stay copied" (backlog #4003). A fix in one copy is made in the other copies too, and the commit names each file.
 
 ## The data folder
 
 **`apps/what-is-going-on/src/directory.ts` → `src/directory.ts`, with the folder named `websets`.**
-The app keeps its files in a `websets` folder under `XDG_DATA_HOME`, or under `~/.local/share` when that is not set, and makes the folder when the app starts. Each test gives the app a temporary `XDG_DATA_HOME`. The places with this concept are listed in `apps/startup-credits/docs/copied-code.md`; it stays copied as a tiny helper (#3371).
+The app keeps its files in a `websets` folder under `XDG_DATA_HOME`, or under `~/.local/share` when that is not set, and makes the folder when the app starts. Each test gives the app a temporary `XDG_DATA_HOME`. The same module is in `apps/what-is-going-on`, `apps/startup-credits` and `apps/logful`, so it is in 4 places. It uses only Node's own modules, so a shared home gives no app a new dependency, and its extraction is due (backlog #4012).
 
 ## How a page's article is read on demand
 
