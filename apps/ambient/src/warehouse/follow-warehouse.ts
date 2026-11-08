@@ -69,7 +69,9 @@ export async function followWarehouse(
         })) {
           // elt's own tables (sync history, coverage, descriptions, file
           // chunks) record the pipeline, not the user's data.
-          const data = changes.filter((change) => !isReserved(change.table));
+          const data = changes.events.filter(
+            (change) => !isReserved(change.table),
+          );
           if (data.length > 0) await accept(source.name, data);
         }
       })().catch((error) => {

@@ -268,13 +268,31 @@ test('a row from before the first run gives no turn, and updates, recurrence, de
       assert.partialDeepStrictEqual(await app.decisions(), [
         { event: { data: { op: 'delete', key: { id: '1' } } } },
         {
-          event: { data: { op: 'update', after: { body: 'South building' } } },
+          event: {
+            data: {
+              op: 'update',
+              changed: ['body'],
+              after: { body: 'South building' },
+            },
+          },
         },
         {
-          event: { data: { op: 'update', after: { body: 'North building' } } },
+          event: {
+            data: {
+              op: 'update',
+              changed: ['body'],
+              after: { body: 'North building' },
+            },
+          },
         },
         {
-          event: { data: { op: 'update', after: { body: 'South building' } } },
+          event: {
+            data: {
+              op: 'update',
+              changed: ['body'],
+              after: { body: 'South building' },
+            },
+          },
         },
       ]);
     }
