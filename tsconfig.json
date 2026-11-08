@@ -111,6 +111,9 @@
       "path": "./apps/websets"
     },
     {
+      "path": "./packages/data-folder"
+    },
+    {
       "path": "./packages/model-calls"
     },
     {

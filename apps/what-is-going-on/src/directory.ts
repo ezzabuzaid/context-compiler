@@ -1,11 +1,3 @@
-import { mkdir } from 'node:fs/promises';
-import { homedir } from 'node:os';
-import { join } from 'node:path';
+import { dataFolder } from '@workspace/data-folder';
 
-const directory = join(
-  process.env.XDG_DATA_HOME ?? join(homedir(), '.local', 'share'),
-  'what-is-going-on',
-);
-await mkdir(directory, { recursive: true });
-
-export default directory;
+export default await dataFolder('what-is-going-on', process.env);

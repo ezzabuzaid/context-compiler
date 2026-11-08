@@ -13,6 +13,9 @@
   "exclude": ["src/**/*.test.ts"],
   "references": [
     {
+      "path": "../../packages/data-folder/tsconfig.lib.json"
+    },
+    {
       "path": "../../packages/model-calls/tsconfig.lib.json"
     },
     {

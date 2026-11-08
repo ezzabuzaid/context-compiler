@@ -9,6 +9,9 @@
   "exclude": ["src/**/*.test.ts", "src/testing/**"],
   "references": [
     {
+      "path": "../../packages/data-folder/tsconfig.lib.json"
+    },
+    {
       "path": "../../packages/model-calls/tsconfig.lib.json"
     },
     {

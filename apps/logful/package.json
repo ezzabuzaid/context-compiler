@@ -10,6 +10,7 @@
     "@opentelemetry/sdk-logs": "3.0.0",
     "@opentelemetry/sdk-metrics": "3.0.0",
     "@opentelemetry/sdk-node": "0.300.0",
+    "@workspace/data-folder": "0.0.1",
     "@workspace/elt": "0.0.1",
     "@workspace/elt-opentelemetry": "0.0.1",
     "@workspace/elt-sqlite": "0.0.1",

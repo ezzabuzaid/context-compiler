@@ -1,7 +1,6 @@
-import { mkdir } from 'node:fs/promises';
-import { homedir } from 'node:os';
 import { join } from 'node:path';
 
+import { dataFolder } from '@workspace/data-folder';
 import { Connection, Copy, Pipeline } from '@workspace/elt';
 import {
   SQLiteCheckpointStore,
@@ -13,11 +12,7 @@ import { ArticleExtractor } from '@workspace/source-web-pages/article-extractor'
 import { WebSource } from '@workspace/source-web-pages/web-source';
 import { WebStream } from '@workspace/source-web-pages/web-stream';
 
-const directory = join(
-  process.env.XDG_DATA_HOME ?? join(homedir(), '.local', 'share'),
-  'logful',
-);
-await mkdir(directory, { recursive: true });
+const directory = await dataFolder('logful', process.env);
 
 // The news of anthropic.com: the /news list and the sitemap that its
 // robots.txt names, which lists every post.

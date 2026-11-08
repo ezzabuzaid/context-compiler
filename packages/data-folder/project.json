@@ -1,0 +1,5 @@
+{
+  "name": "data-folder",
+  "sourceRoot": "packages/data-folder/src",
+  "projectType": "library"
+}
