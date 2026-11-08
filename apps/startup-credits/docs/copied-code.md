@@ -21,3 +21,7 @@ Each helper below is in two tests of this app. When a third test needs a helper,
 - **The Codex Responses stub:** `src/startup-credits.test.ts` → `promptfoo/test-pages.test.ts`. msw answers at the wire with the SSE events of the Responses API, and a fake JWT login in a temporary `CODEX_HOME` signs in the calls.
 - **The OpenRouter Decisions stub:** `src/startup-credits.test.ts` → `promptfoo/page-kinds.test.ts`. msw answers only a call that has the test key and the text of the page.
 - **The answer key and cache builders** (`answerKeyOf`, `cacheOf`, `sha256`): `promptfoo/test-pages.test.ts` → `promptfoo/page-kinds.test.ts`. The page-kinds copy keeps the kinds only, with no offers or lookalikes.
+
+## Copied out to offers-evals
+
+offers-evals copies the offers eval of this app into its `apps/offers` at context-compiler 2f5ee6c (offers-evals 17f5308): `promptfoo/promptfooconfig.ts`, `promptfoo/providers/program-offers.ts`, `promptfoo/tests.ts`, `promptfoo/assertions/offers.ts`, the dataset in `promptfoo/dataset/`, `promptfoo/offers.test.ts`, `promptfoo/test-pages.test.ts` and `src/testing/promptfoo.ts`. Its ledger `apps/offers/docs/copied-from-startup-credits.md` names each copy and what changed. Make a fix to one of these files in both repositories, and name both files in each commit. The copies go when this app takes the published `@offers-evals/extract` (offers-evals backlog #4017).
