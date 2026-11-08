@@ -1,7 +1,9 @@
 import {
   F1,
+  Grouped,
   Penalized,
   Precision,
+  Ratio,
   Recall,
   type Scorer,
   ScorerSet,
@@ -13,6 +15,7 @@ import {
   type Comparison,
   ComparisonSpec,
   ConfigCase,
+  type Item,
   ItemMatches,
   JsonSchema,
   JsonValue,
@@ -29,7 +32,9 @@ import { type JsonData, toJsonParseValue } from '@zukhruf/python';
 import { z } from 'zod';
 
 import { spanSchema, storedOffersSchema } from '../../src/offer.ts';
+import { pageKinds } from '../../src/rules/page-kinds.ts';
 import { same } from '../../src/same.ts';
+import { lookalikeSchema } from '../dataset/answer-key.ts';
 
 const statedOffer = z.object({ span: spanSchema });
 const expectedOffer = z.object({ mentions: z.array(spanSchema) });
@@ -55,10 +60,14 @@ class SameSentence implements Match {
 }
 
 // The quote and its span are publisher text and its position; who and
-// duration are free text, not compared yet.
+// duration are free text, not compared yet. The kind and the lookalikes of
+// the page are labels, not stated values: FalseAlarmsByReason reads them.
+const sameSentence = new SameSentence();
 const offerSpec = new ComparisonSpec({
-  arrays: { '$.offers': new ByBestMatch(new SameSentence()) },
+  arrays: { '$.offers': new ByBestMatch(sameSentence) },
   exclude: [
+    '$.kind',
+    '$.lookalikes',
     '$.offers[*].quote',
     '$.offers[*].span',
     '$.offers[*].mentions',
@@ -66,6 +75,78 @@ const offerSpec = new ComparisonSpec({
     '$.offers[*].duration',
   ],
 });
+
+// Why a stated offer is a false alarm, in the order that the reason rule
+// asks: an invalid answer has no hits, a page that is not a program states
+// no offers, the pairing gives each labelled offer one stated offer, so a
+// second offer from a labelled sentence is a duplicate, then the reason of
+// the lookalike on its sentence, else a sentence that no label marks.
+const reasons = [
+  'invalid answer',
+  ...pageKinds.flatMap((kind) => (kind === 'program' ? [] : [`${kind} page`])),
+  'duplicate',
+  ...lookalikeSchema.shape.reason.options,
+  'unlabelled',
+];
+const labelSchema = z.object({
+  kind: z.enum(pageKinds),
+  lookalikes: z.array(lookalikeSchema),
+});
+
+// The stated offers of one reason, of all stated offers.
+type Share = { readonly part: number; readonly whole: number };
+
+// The false alarms of a record by reason: each reason of the closed list,
+// also with no false alarm, so the whole of each reason is the whole of
+// items precision and the parts add up to that whole minus the hits.
+class FalseAlarmsByReason extends Grouped<Comparison, Share> {
+  protected *groups(comparison: Comparison): Iterable<[string, Share]> {
+    const offers = comparison
+      .arrays()
+      .find((items) => `${items.field}` === '$.offers');
+    if (offers === undefined)
+      throw new Error('The expected record of an offers case has no offers');
+    const label = labelSchema.parse(toJsonParseValue(comparison.case.expected));
+    const expected = [
+      ...offers.pairs.map((pair) => pair.expected),
+      ...offers.unpairedExpected,
+    ];
+    // An invalid record has no hits (Penalized), so each of its stated
+    // offers is a false alarm.
+    const falseAlarms = comparison.compliant
+      ? offers.unpairedStated.map(({ value }) =>
+          this.#reason(value, label, expected),
+        )
+      : Array.from({ length: offers.stated }, () => 'invalid answer');
+    for (const reason of reasons)
+      yield [
+        reason,
+        {
+          part: falseAlarms.filter((other) => other === reason).length,
+          whole: offers.stated,
+        },
+      ];
+  }
+
+  #reason(
+    offer: JsonData,
+    label: z.infer<typeof labelSchema>,
+    expected: readonly Item[],
+  ): string {
+    if (label.kind !== 'program') return `${label.kind} page`;
+    if (expected.some(({ value }) => sameSentence.canPair(offer, value)))
+      return 'duplicate';
+    const { span } = statedOffer.parse(toJsonParseValue(offer));
+    return (
+      label.lookalikes.find((lookalike) => same(lookalike, span))?.reason ??
+      'unlabelled'
+    );
+  }
+}
+
+const share: Scorer<Share> = {
+  score: ({ part, whole }) => new Ratio(part, whole),
+};
 
 // A support offer has no value: its label writes `value: null`, and the
 // harness writes no key. So each scorer reads null as no value.
@@ -106,6 +187,7 @@ const offerScorer = new ScorerSet(
     'presence recall by field': new PerField(penalized(new Recall(present))),
     'presence f1 by field': new PerField(penalized(new F1(present))),
     'token f1 by field': new PerField(penalized(words)),
+    'false alarms': new FalseAlarmsByReason(share),
   },
   { comparer: new TreeWalk(offerSpec) },
 );

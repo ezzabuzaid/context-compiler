@@ -10,9 +10,6 @@
       "path": "./tsconfig.spec.json"
     },
     {
-      "path": "./tsconfig.eval.json"
-    },
-    {
       "path": "./tsconfig.promptfoo.json"
     }
   ]

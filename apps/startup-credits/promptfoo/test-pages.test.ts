@@ -186,8 +186,10 @@ type Run = {
     readonly results: readonly {
       readonly vars: Readonly<Record<string, unknown>>;
       readonly response?: {
+        readonly output?: unknown;
         readonly metadata?: Readonly<Record<string, unknown>>;
       };
+      readonly score: number;
       readonly testCase: {
         readonly metadata?: Readonly<Record<string, unknown>>;
       };
@@ -547,6 +549,14 @@ void describe(
           ),
           [scenario.failed],
         );
+        // A failed call answers the text null (FailedCall.answer of
+        // @zukhruf/evals/promptfoo).
+        assert.deepEqual(
+          run.results.results
+            .filter(({ response }) => response?.metadata?.['failed'])
+            .map(({ response }) => response?.output),
+          scenario.failed === undefined ? [] : ['null'],
+        );
       }),
     );
 
@@ -560,11 +570,10 @@ void describe(
         ),
       );
 
-      // score.ts counts the same 7 offers found of 13 labelled (the failed,
-      // the cut and the invalid page keep their 4 in the 13), 6 with the
-      // right kind.
-      // It counts 2 wrong offers, the lookalike and the home page; the offer
-      // of the invalid answer is the third here (ADR 0011).
+      // 7 offers found of 13 labelled (the failed, the cut and the invalid
+      // page keep their 4 in the 13), 6 with the right kind. 3 wrong offers:
+      // the lookalike, the home page and the offer of the invalid answer
+      // (ADR 0011).
       assert.deepEqual(scoresOf(pooled), {
         valid: [8, 11],
         'items recall': [7, 13],
@@ -643,3 +652,216 @@ void describe(
     });
   },
 );
+
+// Each reason of a wrong offer, in the order the assertion asks them: an
+// invalid answer, a page that is not a program, a second offer from a
+// labelled sentence, the reason of a lookalike, and a sentence that no label
+// marks.
+const reasons = [
+  'invalid answer',
+  'home page',
+  'list page',
+  'article page',
+  'other_program page',
+  'investor page',
+  'other page',
+  'duplicate',
+  'eligibility',
+  'how_to_apply',
+  'regular_pricing',
+  'testimonial',
+  'product',
+  'partner_list',
+  'marketing',
+  'faq',
+  'other',
+  'unlabelled',
+];
+// The pooled false alarms of each reason as [part, whole]: the given parts,
+// and 0 for every other reason.
+const falseAlarms = (
+  whole: number,
+  parts: Readonly<Record<string, number>> = {},
+) =>
+  Object.fromEntries(
+    reasons.map((reason) => [
+      `${reason} false alarms`,
+      [parts[reason] ?? 0, whole],
+    ]),
+  );
+const falseAlarmsOf = (pooled: Readonly<Record<string, unknown>>) =>
+  Object.fromEntries(
+    Object.entries(pooled).filter(([name]) => name.endsWith(' false alarms')),
+  );
+
+void describe('the wrong offers by reason', { concurrency: 4 }, () => {
+  void test('the offers of an invalid answer are all invalid answer false alarms', async () => {
+    // A list page: its offers would be list page false alarms if the
+    // answer were valid.
+    const page: Frozen = {
+      ...programPage('https://invalid.example/startups', [
+        { kind: 'credits', value: thirtyThousand, in: [credits] },
+      ]),
+      kind: 'list',
+    };
+
+    const { pooled } = await evaluate(answerKeyOf([page]), cacheOf([page]), {
+      [page.url]: [
+        { text: '{"offers":[{"kind":"credits"},{"kind":"support"}]}' },
+      ],
+    });
+
+    assert.deepEqual(
+      falseAlarmsOf(pooled),
+      falseAlarms(2, { 'invalid answer': 2 }),
+    );
+  });
+
+  void test('an offer on a home page is a home page false alarm, also when the page has labelled offers and a lookalike on that sentence', async () => {
+    const page: Frozen = {
+      ...programPage('https://home.example/', [
+        { kind: 'credits', value: thirtyThousand, in: [credits] },
+      ]),
+      kind: 'home',
+      lookalikes: [{ in: credits, reason: 'marketing' }],
+    };
+
+    const { pooled } = await evaluate(answerKeyOf([page]), cacheOf([page]), {
+      [page.url]: [offers(statedCredits(credits, thirtyThousand))],
+    });
+
+    assert.deepEqual(falseAlarmsOf(pooled), falseAlarms(1, { 'home page': 1 }));
+  });
+
+  void test('an offer on a page of each other kind that is not a program is a false alarm of that kind of page', async () => {
+    const pages = ['list', 'article', 'other_program', 'investor', 'other'].map(
+      (kind): Frozen => ({
+        ...programPage(`https://${kind}.example/startups`, []),
+        kind,
+      }),
+    );
+
+    const { pooled } = await evaluate(
+      answerKeyOf(pages),
+      cacheOf(pages),
+      Object.fromEntries(
+        pages.map(({ url }) => [
+          url,
+          [offers(statedCredits(credits, thirtyThousand))],
+        ]),
+      ),
+    );
+
+    assert.deepEqual(
+      falseAlarmsOf(pooled),
+      falseAlarms(5, {
+        'list page': 1,
+        'article page': 1,
+        'other_program page': 1,
+        'investor page': 1,
+        'other page': 1,
+      }),
+    );
+  });
+
+  void test('a second offer from a labelled sentence is a duplicate false alarm, also when a lookalike marks that sentence', async () => {
+    const page: Frozen = {
+      ...programPage('https://twice.example/startups', [
+        { kind: 'credits', value: thirtyThousand, in: [credits] },
+      ]),
+      lookalikes: [{ in: credits, reason: 'marketing' }],
+    };
+
+    const { pooled } = await evaluate(answerKeyOf([page]), cacheOf([page]), {
+      [page.url]: [
+        offers(statedCredits(credits, thirtyThousand), statedSupport(credits)),
+      ],
+    });
+
+    assert.deepEqual(falseAlarmsOf(pooled), falseAlarms(2, { duplicate: 1 }));
+  });
+
+  void test('an offer from a lookalike sentence is a false alarm of the reason of that lookalike', async () => {
+    const eligibility =
+      'Startups must have raised less than $5,000,000 to apply.';
+    const pricing = 'The Pro plan costs $20 a month.';
+    const page: Frozen = {
+      ...programPage(
+        'https://lookalike.example/startups',
+        [{ kind: 'credits', value: thirtyThousand, in: [credits] }],
+        [eligibility, pricing],
+      ),
+      lookalikes: [
+        { in: eligibility, reason: 'eligibility' },
+        { in: pricing, reason: 'regular_pricing' },
+      ],
+    };
+
+    const { pooled } = await evaluate(answerKeyOf([page]), cacheOf([page]), {
+      [page.url]: [
+        offers(
+          statedCredits(eligibility, { amount: 5_000_000, currency: 'USD' }),
+          statedCredits(pricing, { amount: 20, currency: 'USD' }),
+        ),
+      ],
+    });
+
+    assert.deepEqual(
+      falseAlarmsOf(pooled),
+      falseAlarms(2, { eligibility: 1, regular_pricing: 1 }),
+    );
+  });
+
+  void test('an offer from a sentence that no label marks is an unlabelled false alarm', async () => {
+    const page = programPage('https://unlabelled.example/startups', [
+      { kind: 'credits', value: thirtyThousand, in: [credits] },
+    ]);
+
+    const { pooled } = await evaluate(answerKeyOf([page]), cacheOf([page]), {
+      [page.url]: [offers(statedSupport(community))],
+    });
+
+    assert.deepEqual(falseAlarmsOf(pooled), falseAlarms(1, { unlabelled: 1 }));
+  });
+
+  void test('an offer stated as labelled is no false alarm of any reason, and the score of its row stays 1', async () => {
+    const page: Frozen = {
+      ...programPage('https://exact.example/startups', [
+        { kind: 'credits', value: thirtyThousand, in: [credits] },
+      ]),
+      lookalikes: [{ in: community, reason: 'testimonial' }],
+    };
+
+    const { run, pooled } = await evaluate(
+      answerKeyOf([page]),
+      cacheOf([page]),
+      { [page.url]: [offers(statedCredits(credits, thirtyThousand))] },
+    );
+
+    assert.deepEqual(falseAlarmsOf(pooled), falseAlarms(1));
+    assert.deepEqual(
+      run.results.results.map(({ score }) => score),
+      [1],
+    );
+  });
+
+  void test('all pages in one run, also the failed and the cut page that state no offers: each reason has the whole of items precision, and the parts add up to that whole minus the hits', async () => {
+    const pages = scenarios.map(({ page }) => page);
+
+    const { pooled } = await evaluate(
+      answerKeyOf(pages),
+      cacheOf(pages),
+      Object.fromEntries(
+        scenarios.map(({ page, answers }) => [page.url, answers]),
+      ),
+    );
+
+    // 10 stated offers, 7 of them hits: the invalid answer, the home page
+    // and the eligibility lookalike give the other 3.
+    assert.deepEqual(pooled['items precision'], [7, 10]);
+    assert.deepEqual(
+      falseAlarmsOf(pooled),
+      falseAlarms(10, { 'invalid answer': 1, 'home page': 1, eligibility: 1 }),
+    );
+  });
+});

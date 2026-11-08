@@ -57,8 +57,12 @@ export default class Fixed {
       prompts: ['{{url}}'],
       providers: [`file://${join(folder.path, 'provider.mjs')}`],
       tests: [
-        row('a', { offers: [credits, support] }),
-        row('b', { offers: [credits] }),
+        row('a', {
+          offers: [credits, support],
+          kind: 'program',
+          lookalikes: [],
+        }),
+        row('b', { offers: [credits], kind: 'program', lookalikes: [] }),
       ],
     }),
   );

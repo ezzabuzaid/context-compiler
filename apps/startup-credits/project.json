@@ -11,12 +11,6 @@
     "eval-seed": {
       "command": "node apps/startup-credits/promptfoo/dataset/seed.ts"
     },
-    "eval": {
-      "command": "node apps/startup-credits/eval/score.ts {args}"
-    },
-    "eval-predict": {
-      "command": "node apps/startup-credits/eval/predict.ts {args}"
-    },
     "promptfoo": {
       "dependsOn": ["^build"],
       "command": "promptfoo eval -c promptfoo/promptfooconfig.ts --tag commit=$(git rev-parse --short HEAD)$(test -z \"$(git status --porcelain -- .)\" || echo -dirty) {args}",

@@ -35,10 +35,16 @@ function rows(
 }
 
 // The offers that each page states. A page that is not a program states no
-// offers, so an offer stated on it counts against precision.
+// offers, so an offer stated on it counts against precision. The kind and
+// the lookalikes of the page are not compared: the assertion reads them to
+// give the reason of each wrong offer.
 export function offers(paths: Paths): TestCase[] {
   return rows(paths, 'offers.ts', (label) => ({
-    expected: { offers: label.kind === 'program' ? label.offers : [] },
+    expected: {
+      offers: label.kind === 'program' ? label.offers : [],
+      kind: label.kind,
+      lookalikes: label.lookalikes,
+    },
   }));
 }
 

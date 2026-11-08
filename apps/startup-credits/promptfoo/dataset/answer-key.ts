@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { spanSchema } from '../../src/offer.ts';
 import { pageKinds } from '../../src/rules/page-kinds.ts';
 
-export const offerKinds = [
+const offerKinds = [
   'credits',
   'discount',
   'free_period',
@@ -26,7 +26,7 @@ const offer = z.object({
   mentions: z.array(spanSchema).nonempty(),
 });
 
-const lookalike = spanSchema.extend({
+export const lookalikeSchema = spanSchema.extend({
   reason: z.enum([
     'eligibility',
     'how_to_apply',
@@ -48,7 +48,7 @@ const label = z.object({
   role: z.enum(['test', 'example']),
   kind: z.enum(pageKinds),
   offers: z.array(offer),
-  lookalikes: z.array(lookalike),
+  lookalikes: z.array(lookalikeSchema),
   note: z.string().optional(),
 });
 export type Label = z.infer<typeof label>;
