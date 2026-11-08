@@ -2,8 +2,8 @@ import { join } from 'node:path';
 
 import type { TestCase } from 'promptfoo';
 
-import { type Label, answerKey } from '../eval/answer-key.ts';
-import { testPages } from '../eval/pages.ts';
+import { type Label, answerKey } from './dataset/answer-key.ts';
+import { testPages } from './dataset/pages.ts';
 
 type Paths = { readonly answerKey: string; readonly pages: string };
 

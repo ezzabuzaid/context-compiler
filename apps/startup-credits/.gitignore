@@ -1,4 +1,4 @@
 # The text of the labelled pages: the repository keeps no publisher text.
-/eval/cache/
+/promptfoo/dataset/cache/
 # The summaries of the page-kinds eval, one for each eval id.
 /results/

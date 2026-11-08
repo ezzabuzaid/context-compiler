@@ -3,8 +3,8 @@ import { join } from 'node:path';
 
 import { z } from 'zod';
 
-import { spanSchema } from '../src/offer.ts';
-import { pageKinds } from '../src/rules/page-kinds.ts';
+import { spanSchema } from '../../src/offer.ts';
+import { pageKinds } from '../../src/rules/page-kinds.ts';
 
 export const offerKinds = [
   'credits',

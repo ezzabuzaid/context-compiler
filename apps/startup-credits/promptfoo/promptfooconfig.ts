@@ -2,9 +2,9 @@ import { join } from 'node:path';
 
 import type { UnifiedConfig } from 'promptfoo';
 
-import { answerKeyFile } from '../eval/answer-key.ts';
-import { cache } from '../eval/pages.ts';
 import { ProgramOffers } from '../src/rules/program-offers.ts';
+import { answerKeyFile } from './dataset/answer-key.ts';
+import { cache } from './dataset/pages.ts';
 
 // The paths are absolute, so a config that spreads this one from another
 // folder, as the eval's test does with its own answer key and cache, names

@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path';
 import { open } from '@zukhruf/sqlite-open';
 import { z } from 'zod';
 
-import directory from '../src/directory.ts';
+import directory from '../../src/directory.ts';
 import { cache } from './pages.ts';
 
 // Freezes the pages of the app's last run into the cache, one entry for each

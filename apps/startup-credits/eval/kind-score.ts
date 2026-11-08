@@ -1,4 +1,4 @@
-import type { Label } from './answer-key.ts';
+import type { Label } from '../promptfoo/dataset/answer-key.ts';
 
 // How many page kinds a model got right on the test pages it answered, and
 // each wrong answer as "labelled → answered".

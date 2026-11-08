@@ -4,17 +4,17 @@ import { z } from 'zod';
 
 import { type Span, ground } from '@workspace/quote-grounding';
 
-import { spanSchema } from '../src/offer.ts';
-import { pageKinds } from '../src/rules/page-kinds.ts';
-import { same } from '../src/same.ts';
 import {
   type Label,
   answerKey,
   answerKeyFile,
   offerKinds,
-} from './answer-key.ts';
+} from '../promptfoo/dataset/answer-key.ts';
+import { cache, testPages } from '../promptfoo/dataset/pages.ts';
+import { spanSchema } from '../src/offer.ts';
+import { pageKinds } from '../src/rules/page-kinds.ts';
+import { same } from '../src/same.ts';
 import { scoreKinds } from './kind-score.ts';
-import { cache, testPages } from './pages.ts';
 
 // What an extractor answered for each page it read: its offers, each with
 // the span it was grounded to or the quote it gave, and the page kind when

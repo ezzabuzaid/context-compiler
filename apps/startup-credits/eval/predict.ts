@@ -3,10 +3,10 @@ import { writeFileSync } from 'node:fs';
 import { Shutdown } from '@zukhruf/shutdown';
 import { z } from 'zod';
 
+import { answerKey, answerKeyFile } from '../promptfoo/dataset/answer-key.ts';
+import { cache, testPages } from '../promptfoo/dataset/pages.ts';
 import { storedOffersSchema } from '../src/offer.ts';
 import { ProgramOffers } from '../src/rules/program-offers.ts';
-import { answerKey, answerKeyFile } from './answer-key.ts';
-import { cache, testPages } from './pages.ts';
 
 // Runs the app's own offer rule on each test page of the cache and writes
 // its offers in the format of score.ts to the file that the first argument

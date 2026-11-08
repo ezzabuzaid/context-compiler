@@ -82,8 +82,8 @@ const textOf = (page: Frozen) =>
 const sha256 = (text: string) =>
   createHash('sha256').update(text).digest('hex');
 
-// The answer key and the cache of the frozen pages, as eval/seed.ts and the
-// annotator write them.
+// The answer key and the cache of the frozen pages, as
+// promptfoo/dataset/seed.ts and the annotator write them.
 const answerKeyOf = (pages: readonly Frozen[]) => ({
   frozenAt: '2026-11-01T00:00:00Z',
   annotator: 'test',
