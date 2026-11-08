@@ -3,6 +3,7 @@ import { chmodSync, mkdirSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import type { DatabaseSync } from 'node:sqlite';
 
+import { DataVersion } from '@zukhruf/sqlite-data-version';
 import { Declaration } from '@zukhruf/sqlite-drift';
 import { PersistentWriteAheadLog, open } from '@zukhruf/sqlite-open';
 import { transaction } from '@zukhruf/sqlite-transaction';
@@ -264,9 +265,11 @@ export class Settings implements Disposable {
   }
 
   // Aborts with ConnectorRemovedError once the selection no longer names this
-  // import. It reads the settings again only when PRAGMA data_version says
-  // another connection committed, on each heartbeat of clock: an app gives
-  // globalThis.
+  // import. It reads the settings again only when the data version says a
+  // connection committed, on each heartbeat of clock: an app gives globalThis.
+  // The data version's connection runs no other query (its ADR 0001), and it
+  // sees the commits of this store's connection too, so the selection reads
+  // here. Every host keeps its Settings open past the end of the import.
   removal(
     selection: Selection,
     clock: {
@@ -275,20 +278,20 @@ export class Settings implements Disposable {
     },
   ): Disposable & { readonly signal: AbortSignal } {
     const folder = importFolder(selection);
-    const watcher = open(this.#path, {
-      readOnly: true,
-      timeout: writerWaitMs,
-    });
-    const version = watcher.prepare('PRAGMA data_version');
-    const selected = watcher.prepare(
+    const selected = this.settings.prepare(
       'SELECT 1 FROM selections WHERE directory = ?',
     );
+    const held = new DisposableStack();
+    const version = held.use(new DataVersion(this.#path));
     const controller = new AbortController();
-    let seen: unknown;
+    controller.signal.addEventListener('abort', () => held.dispose(), {
+      once: true,
+    });
+    let seen: number | undefined;
     // A timer's error would end the process; the import stops with it instead.
     const check = () => {
       try {
-        const current = version.get()?.data_version;
+        const current = version.current;
         if (current === seen) return;
         seen = current;
         if (selected.get(folder) === undefined)
@@ -297,19 +300,18 @@ export class Settings implements Disposable {
         controller.abort(error);
       }
     };
-    check();
+    let heartbeat: unknown;
+    held.defer(() => clock.clearTimeout(heartbeat));
     const beat = () => {
       check();
       if (!controller.signal.aborted)
         heartbeat = clock.setTimeout(beat, heartbeatMs);
     };
-    let heartbeat = clock.setTimeout(beat, heartbeatMs);
-    const stop = () => {
-      clock.clearTimeout(heartbeat);
-      if (watcher.isOpen) watcher.close();
+    beat();
+    return {
+      signal: controller.signal,
+      [Symbol.dispose]: () => held.dispose(),
     };
-    controller.signal.addEventListener('abort', stop, { once: true });
-    return { signal: controller.signal, [Symbol.dispose]: stop };
   }
 
   // Publishes selected_connectors and the catalog listing it; safe to repeat.

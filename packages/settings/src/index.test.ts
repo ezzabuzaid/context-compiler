@@ -376,6 +376,55 @@ test('a selection that keeps a connector never stops its import', async () => {
   assert.equal(removal.signal.aborted, false);
 });
 
+test('a selection that no longer names the import stops it before the first heartbeat', async () => {
+  await using scratch = await new TemporaryFiles().directory('store-');
+  const notes = { connector: 'notes', scope: {}, includeAttachments: true };
+  using store = new Settings(scratch.path);
+  store.select([], options);
+
+  using removal = store.removal(notes, globalThis);
+
+  assert.ok(removal.signal.reason instanceof ConnectorRemovedError);
+});
+
+test('a selection that cannot be read stops the import with its error and leaves the process running', async () => {
+  await using scratch = await new TemporaryFiles().directory('store-');
+  const notes = { connector: 'notes', scope: {}, includeAttachments: true };
+  using store = new Settings(scratch.path);
+  store.select([notes], options);
+  using removal = store.removal(notes, globalThis);
+  const stopped = Promise.withResolvers<unknown>();
+  removal.signal.addEventListener(
+    'abort',
+    () => stopped.resolve(removal.signal.reason),
+    { once: true },
+  );
+
+  // Only another program can take the table away; no operation of Settings does.
+  {
+    using other = open(join(scratch.path, 'settings.sqlite'));
+    other.exec('DROP TABLE selections');
+  }
+  const reason = await stopped.promise;
+
+  assert.ok(reason instanceof Error);
+  assert.match(reason.message, /no such table: selections/);
+});
+
+test('a disposed removal checks no more', async () => {
+  await using scratch = await new TemporaryFiles().directory('store-');
+  const notes = { connector: 'notes', scope: {}, includeAttachments: true };
+  using store = new Settings(scratch.path);
+  store.select([notes], options);
+  const removal = store.removal(notes, globalThis);
+
+  removal[Symbol.dispose]();
+  store.select([], options);
+  await new Promise((resolve) => setTimeout(resolve, 1_500));
+
+  assert.equal(removal.signal.aborted, false);
+});
+
 test('the transcription choice persists independently of connector selections and can be turned off', async () => {
   await using directory = await new TemporaryFiles().directory(
     'transcription-settings-',
