@@ -41,28 +41,33 @@ const builtIns = readdirSync(builtInConnectors)
     ),
   }));
 
+// @keyv/sqlite's Bun driver: the web source opens its HTTP cache with the
+// node:sqlite driver, so this import never runs under Node. jsdom, which the
+// web crawler reads pages with, loads its own files from beside its code
+// and does not support bundlers, so it ships below as node_modules.
+// @zukhruf/sqlite-open loads the native library of persistent WAL from its
+// own lib folder, so it ships there too.
+const external = ['bun:sqlite', 'jsdom', '@zukhruf/sqlite-open'];
+const isExternal = ({ specifier }) => external.includes(specifier);
+
 rmSync(outdir, { recursive: true, force: true });
 await build({
   entryPoints: [
     { in: 'apps/server/src/main.ts', out: 'main' },
     ...builtIns.map(({ in: source, out }) => ({ in: source, out })),
-    ...hostModules.map(({ specifier, file }) => ({
-      in: fileURLToPath(import.meta.resolve(specifier)),
-      out: join('modules', file),
-    })),
+    ...hostModules
+      .filter((hostModule) => !isExternal(hostModule))
+      .map(({ specifier, file }) => ({
+        in: fileURLToPath(import.meta.resolve(specifier)),
+        out: join('modules', file),
+      })),
   ],
   outdir,
   bundle: true,
   splitting: true,
   format: 'esm',
   platform: 'node',
-  // @keyv/sqlite's Bun driver: the web source opens its HTTP cache with the
-  // node:sqlite driver, so this import never runs under Node. jsdom, which the
-  // web crawler reads pages with, loads its own files from beside its code
-  // and does not support bundlers, so it ships below as node_modules.
-  // @zukhruf/sqlite-open loads the native library of persistent WAL from its
-  // own lib folder, so it ships there too.
-  external: ['bun:sqlite', 'jsdom', '@zukhruf/sqlite-open'],
+  external,
   target: 'node24.19',
   outExtension: { '.js': '.mjs' },
   chunkNames: 'chunks/[name]-[hash]',
@@ -106,6 +111,21 @@ ship(
   dirname(fileURLToPath(import.meta.resolve('@workspace/sdk-web-crawler'))),
 );
 ship('@zukhruf/sqlite-open', fileURLToPath(new URL('.', import.meta.url)));
+// A bundled copy of an external host module would hold a second copy of its
+// classes, so a connector's UnavailableError would not be the server's. It
+// names the shipped file by path: the server's resolve hook answers the
+// specifier with this very module.
+for (const { specifier, file } of hostModules.filter(isExternal)) {
+  const resolved = fileURLToPath(import.meta.resolve(specifier));
+  const modules = `node_modules${sep}`;
+  const shipped = resolved.slice(
+    resolved.lastIndexOf(modules) + modules.length,
+  );
+  writeFileSync(
+    join(outdir, 'modules', `${file}.mjs`),
+    `export * from '../node_modules/${shipped}';\n`,
+  );
+}
 
 const { version } = JSON.parse(
   readFileSync('plugins/context-compiler/.codex-plugin/plugin.json', 'utf8'),

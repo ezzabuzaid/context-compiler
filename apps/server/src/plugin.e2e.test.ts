@@ -1127,6 +1127,169 @@ async function withConnectors(home: string) {
 }
 
 test(
+  "a store that a user connector cannot open through the host's sqlite-open is the user's to fix, with the host's own UnavailableError",
+  { timeout: 120_000 },
+  async (t) => {
+    await using scratch = await new TemporaryFiles().directory('plugin-e2e-', {
+      parent: homes,
+    });
+    const plugin = join(scratch.path, 'plugin');
+    cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
+    const connector = join(
+      scratch.path,
+      'Library/Application Support/Context Compiler/Connectors/locked',
+    );
+    mkdirSync(connector, { recursive: true });
+    await writeFile(
+      join(connector, 'package.json'),
+      JSON.stringify({
+        type: 'module',
+        exports: './locked-connector.ts',
+        contextCompiler: { name: 'locked', title: 'Locked' },
+      }),
+    );
+    await writeFile(
+      join(connector, 'locked-connector.ts'),
+      `import { join } from 'node:path';
+
+import { Connector } from '@workspace/connector/connector';
+import { Catalog, Gauge, Source, Stream } from '@workspace/elt';
+import { UnavailableError, open } from '@zukhruf/sqlite-open';
+
+const items = new Stream({
+  name: 'items',
+  jsonSchema: {
+    type: 'object',
+    description: 'One item.',
+    properties: { id: { type: 'string', description: 'The identifier.' } },
+  },
+  primaryKey: ['id'],
+  sourceDefinedCursor: true,
+  supportedSyncModes: ['full_refresh', 'incremental'],
+});
+
+class Unchanging extends Gauge {
+  async read() {
+    return 0;
+  }
+}
+
+class LockedSource extends Source {
+  identity = 'locked';
+  catalog = new Catalog([items]);
+  configErrors = [UnavailableError];
+  #home;
+
+  constructor(home) {
+    super();
+    this.#home = home;
+  }
+
+  coverage() {
+    return { description: 'every item', selection: {} };
+  }
+
+  async currentAsOf() {
+    return null;
+  }
+
+  async open() {
+    return new AsyncDisposableStack();
+  }
+
+  changeSignals(streams) {
+    return [{ gauge: new Unchanging(), streams, interval: 1000, timeout: 1000 }];
+  }
+
+  async *extract() {
+    using database = open(join(this.#home, 'locked.sqlite'), { readOnly: true });
+    for (const row of database.prepare('SELECT id FROM items').all())
+      yield { stream: 'items', data: { id: String(row.id) } };
+  }
+}
+
+export default class LockedConnector extends Connector {
+  datedBy = null;
+  fullDiskAccess = false;
+  choices = [];
+  unscoped = [];
+  storeCopies = [];
+
+  access() {
+    return 'Open Locked once.';
+  }
+
+  sources() {
+    return [new LockedSource(this.host.home)];
+  }
+}
+`,
+    );
+    const store = join(scratch.path, 'locked.sqlite');
+    openDatabase(store).close();
+    chmodSync(store, 0o000);
+    const runtime =
+      process.env.CODEX_MCP_NODE_PATH ??
+      join(
+        homedir(),
+        '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node',
+      );
+    const {
+      mcpServers: { 'context-compiler': launcher },
+    } = JSON.parse(readFileSync(join(plugin, '.mcp.json'), 'utf8'));
+    const transport = new StdioClientTransport({
+      command: join(plugin, launcher.command),
+      args: launcher.args,
+      cwd: join(plugin, launcher.cwd),
+      env: { HOME: scratch.path, CODEX_MCP_NODE_PATH: runtime, PATH: '' },
+      stderr: 'pipe',
+    });
+    const client = new Client({ name: 'plugin-e2e', version: '1.0.0' });
+    await client.connect(transport, { signal: t.signal, timeout: 10_000 });
+    try {
+      const configured = await client.callTool({
+        name: 'configure',
+        arguments: { connectors: [{ connector: 'locked' }] },
+      });
+      assert.notEqual(
+        configured.isError,
+        true,
+        JSON.stringify(configured.content),
+      );
+      const attempt = await timebox(
+        () => {
+          const database = importOf(scratch.path, 'locked');
+          assert.ok(database, 'Locked has no import');
+          const [row] = read(
+            database,
+            "SELECT status, failure_type FROM sync_attempts WHERE status = 'failed'",
+          ).rows;
+          assert.ok(row, 'Locked has no failed pass');
+          return row;
+        },
+        {
+          minTimeout: 500,
+          maxRetryTime: 30_000,
+          shouldRetry: ({ error }) =>
+            error instanceof assert.AssertionError ||
+            (error instanceof Error && /no such table/.test(error.message)),
+        },
+      );
+
+      assert.deepEqual(attempt, { status: 'failed', failure_type: 'config' });
+      const server = join(plugin, 'server');
+      const provided = await import(join(server, 'modules/sqlite-open.mjs'));
+      const shipped = await import(
+        join(server, 'node_modules/@zukhruf/sqlite-open/dist/index.js')
+      );
+      assert.equal(provided.UnavailableError, shipped.UnavailableError);
+    } finally {
+      await client.close();
+    }
+  },
+);
+
+test(
   'a connector the user adds while the server runs imports through it on its own elt and Connector, an edit to it and a preset added to it reach the same chat, and a chat hears of one that does not load',
   { timeout: 120_000 },
   async (t) => {

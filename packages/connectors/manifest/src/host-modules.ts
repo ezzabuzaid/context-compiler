@@ -12,6 +12,7 @@ export const hostModules = [
     file: 'connector',
   },
   { specifier: '@workspace/connector/choice', file: 'choice' },
+  { specifier: '@zukhruf/sqlite-open', file: 'sqlite-open' },
 ] as const;
 
 export type HostModule = (typeof hostModules)[number];
