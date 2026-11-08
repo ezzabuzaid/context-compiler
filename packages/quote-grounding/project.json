@@ -1,8 +1,5 @@
 {
   "name": "quote-grounding",
   "sourceRoot": "packages/quote-grounding/src",
-  "projectType": "library",
-  "targets": {
-    "format": {}
-  }
+  "projectType": "library"
 }

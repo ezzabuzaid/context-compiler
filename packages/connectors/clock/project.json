@@ -1,8 +1,5 @@
 {
   "name": "connector-apple-clock",
   "sourceRoot": "packages/connectors/clock/src",
-  "projectType": "library",
-  "targets": {
-    "format": {}
-  }
+  "projectType": "library"
 }

@@ -3,7 +3,6 @@
   "sourceRoot": "apps/websets/src",
   "projectType": "application",
   "targets": {
-    "format": {},
     "start": {
       "dependsOn": ["build"],
       "command": "node apps/websets/dist/main.js"

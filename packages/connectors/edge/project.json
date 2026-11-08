@@ -1,8 +1,5 @@
 {
   "name": "connector-chromium-edge",
   "sourceRoot": "packages/connectors/edge/src",
-  "projectType": "library",
-  "targets": {
-    "format": {}
-  }
+  "projectType": "library"
 }

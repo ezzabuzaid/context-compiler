@@ -1,8 +1,5 @@
 {
   "name": "settings",
   "sourceRoot": "packages/settings/src",
-  "projectType": "library",
-  "targets": {
-    "format": {}
-  }
+  "projectType": "library"
 }

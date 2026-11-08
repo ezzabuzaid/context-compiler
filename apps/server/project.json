@@ -3,7 +3,6 @@
   "sourceRoot": "apps/server/src",
   "projectType": "application",
   "targets": {
-    "format": {},
     "bundle": {
       "command": "node apps/server/build.mjs",
       "dependsOn": ["^build"],

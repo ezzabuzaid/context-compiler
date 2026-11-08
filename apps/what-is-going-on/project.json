@@ -3,7 +3,6 @@
   "sourceRoot": "apps/what-is-going-on/src",
   "projectType": "application",
   "targets": {
-    "format": {},
     "start": {
       "dependsOn": ["build"],
       "command": "node apps/what-is-going-on/dist/main.js"

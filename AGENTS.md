@@ -8,7 +8,7 @@ Never leave anything staged in the shared `.git/index`: a peer's plain `git comm
 
 When a peer's unfinished work breaks a test, ask that peer; do not copy the tree to get around it.
 
-The pre-commit hook (`.husky/pre-commit.ts`) runs `nx sync` and checks the format of the staged files. It does not lint or type-check. Run `npx nx run <project>:typecheck` for each project you changed before you commit. That target formats, lints and type-checks the project.
+The pre-commit hook (`.husky/pre-commit.ts`) runs `nx sync` and checks the format of the staged files. It does not lint or type-check. Run `npx nx run <project>:typecheck` for each project you changed before you commit. That target checks the format, lints and type-checks the project, and writes no file. Run `npx nx run <project>:format` to format a project in which no other session has uncommitted files, or `npx prettier --write <file>` by path.
 
 ## The library lives in elt
 

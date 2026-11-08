@@ -1,8 +1,5 @@
 {
   "name": "connector-microsoft-teams",
   "sourceRoot": "packages/connectors/teams/src",
-  "projectType": "library",
-  "targets": {
-    "format": {}
-  }
+  "projectType": "library"
 }

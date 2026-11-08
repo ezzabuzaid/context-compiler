@@ -3,7 +3,6 @@
   "sourceRoot": "packages/connectors/mail/src",
   "projectType": "library",
   "targets": {
-    "format": {},
     "test": {
       "inputs": [
         "default",

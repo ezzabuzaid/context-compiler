@@ -1,8 +1,5 @@
 {
   "name": "connector",
   "sourceRoot": "packages/connectors/connector/src",
-  "projectType": "library",
-  "targets": {
-    "format": {}
-  }
+  "projectType": "library"
 }

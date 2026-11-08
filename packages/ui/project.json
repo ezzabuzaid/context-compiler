@@ -1,8 +1,5 @@
 {
   "name": "ui",
   "sourceRoot": "packages/ui/src",
-  "projectType": "library",
-  "targets": {
-    "format": {}
-  }
+  "projectType": "library"
 }

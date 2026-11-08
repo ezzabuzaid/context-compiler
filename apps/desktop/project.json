@@ -3,7 +3,6 @@
   "sourceRoot": "apps/desktop/src",
   "projectType": "application",
   "targets": {
-    "format": {},
     "bundle-main": {
       "executor": "@nx/esbuild:esbuild",
       "cache": true,

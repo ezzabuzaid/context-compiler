@@ -1,8 +1,5 @@
 {
   "name": "connector-whatsapp-desktop",
   "sourceRoot": "packages/connectors/whatsapp/src",
-  "projectType": "library",
-  "targets": {
-    "format": {}
-  }
+  "projectType": "library"
 }

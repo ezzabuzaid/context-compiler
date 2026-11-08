@@ -1,8 +1,5 @@
 {
   "name": "connector-manifest",
   "sourceRoot": "packages/connectors/manifest/src",
-  "projectType": "library",
-  "targets": {
-    "format": {}
-  }
+  "projectType": "library"
 }

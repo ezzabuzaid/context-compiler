@@ -3,7 +3,6 @@
   "sourceRoot": "apps/startup-credits/src",
   "projectType": "application",
   "targets": {
-    "format": {},
     "start": {
       "dependsOn": ["build"],
       "command": "node apps/startup-credits/dist/main.js"

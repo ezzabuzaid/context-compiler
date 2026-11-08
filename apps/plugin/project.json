@@ -2,7 +2,6 @@
   "name": "plugin",
   "projectType": "application",
   "targets": {
-    "format": {},
     "bundle": {
       "command": "node apps/plugin/build.mjs",
       "dependsOn": [
