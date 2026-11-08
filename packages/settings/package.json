@@ -13,11 +13,11 @@
     "@workspace/elt": "0.0.1",
     "@workspace/elt-sqlite": "0.0.1",
     "@workspace/source-apple-macos": "0.0.1",
-    "@zukhruf/sqlite-drift": "0.6.15",
-    "@zukhruf/sqlite-open": "0.7.0",
-    "@zukhruf/sqlite-transaction": "0.6.15"
+    "@zukhruf/sqlite-drift": "^0.8.10",
+    "@zukhruf/sqlite-open": "^0.8.10",
+    "@zukhruf/sqlite-transaction": "^0.8.10"
   },
   "devDependencies": {
-    "@zukhruf/testing": "0.6.15"
+    "@zukhruf/testing": "^0.8.10"
   }
 }
