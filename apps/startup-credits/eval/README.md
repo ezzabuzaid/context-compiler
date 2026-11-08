@@ -75,18 +75,21 @@ It calls the real model through the Codex provider of `@deepagents/experimental`
 
 The extractor name in the file is the model and the first 12 characters of the hash in the rule identity. A page that the rule failed on is in the file with its error and no offers, and the run writes the error to stderr.
 
-## Page-kind benchmark
+## Page kinds
 
-A decision model labels the kind of each page. To compare decision models, run each one on the test pages with the same question:
+The app labels the kind of each page with the `PageKinds` rule (`src/rules/page-kinds.ts`). promptfoo scores that rule on the test pages:
 
 ```sh
-npx nx run startup-credits:eval-kinds -- --model typesafe/jev-1.14
+npx nx run startup-credits:promptfoo-kinds
 ```
 
-`--model` is the id of a decision model on the OpenRouter Decisions API; `https://openrouter.ai/api/v1/models?output_modalities=decisions` lists them. Give a pinned version, such as `typesafe/jev-1.14`, not `~typesafe/jev-latest`, so a run can be repeated. The runner reads `OPENROUTER_API_KEY` from the environment; Nx loads the root `.env`. It sends 16 requests at once.
+The config is `promptfoo/page-kinds.config.ts`. After the run, its `afterAll` summary writes `apps/startup-credits/results/<eval id>.json`: the accuracy, the macro and weighted averages of the precision, the recall and the F1, the support of each kind and the confusion matrix.
 
-The question is the one that the app asks (`pageKindQuestions` in `src/rules/page-kinds.ts`): one `choice` with a criterion for each page kind of the labels. The state is the URL, the title and the page text, at most 20,000 characters (`pageState`).
+The answer of the rule to a page that sits between two kinds can change from one run to the next. On 2026-10-30 and 2026-10-31, six runs of `typesafe/jev-1.14` (`typesafe/jev-1.14-20261014`) were right on 113, 112, 111, 113, 113 and 113 of 121 pages. Four pages changed kind between runs:
 
-A run writes its answers to `runs/<time>-<model>.json` in the order of the labels, in the format of `eval`, and adds one row to `scoreboard.json`: the model, the model ids that the provider gave, the time, the pages answered and failed, the right answers and each confusion. The first three rows name the model `jev-1.14`, which is `typesafe/jev-1.14`.
+- `stripe.com/atlas` (labelled program): program, home, home, program, home, home.
+- `sentry.io/for/startups/` (labelled other): other, other, program, other, other, other.
+- `www.figma.com/education/` (labelled other_program): home, home, home, home, other_program, home.
+- `www.techstars.com/` (labelled investor): home, home, home, home, home, investor.
 
-Jev's answer to a page that sits between two kinds can change from one run to the next. On 2026-10-31, three runs of `jev-1.14` (`typesafe/jev-1.14-20261014`) were right on 113, 112 and 111 of 121 pages, and two pages changed kind between runs (`stripe.com/atlas`: program, home, home; `sentry.io/for/startups/`: other, other, program). Compare models over more than one run.
+Compare rules over more than one run. The answers of the six runs are in Git history: `apps/startup-credits/eval/runs/` at commit `6ffbce3`.

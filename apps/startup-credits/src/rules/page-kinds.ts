@@ -21,9 +21,8 @@ export const pageKinds = [
   'other',
 ] as const;
 
-// The question that labels a page, with one criterion for each kind. The
-// page-kind benchmark (eval/) asks the same question.
-export const pageKindQuestions = {
+// The question that labels a page, with one criterion for each kind.
+const pageKindQuestions = {
   kind: {
     type: 'choice',
     instructions: 'What kind of web page is this?',
@@ -39,13 +38,6 @@ export const pageKindQuestions = {
     } satisfies Record<(typeof pageKinds)[number], string>,
   },
 } as const;
-
-// What the model reads of a page: its URL, its title and its text, at most
-// 20,000 characters. ArticleExtractor gives no title for some pages
-// (source-web-pages article-extractor.ts: title is nullable text).
-export function pageState(url: string, title: string | null, text: string) {
-  return `URL: ${url}\nTitle: ${title ?? ''}\n\n${text}`.slice(0, 20_000);
-}
 
 const modelId = 'typesafe/jev-1.14';
 
@@ -88,13 +80,20 @@ export class PageKinds extends Rule<string, string> {
     return typeof articleUrl === 'string' && typeof textContent === 'string'
       ? {
           key: articleUrl,
-          input: pageState(
+          input: PageKinds.#state(
             articleUrl,
             typeof title === 'string' ? title : null,
             textContent,
           ),
         }
       : null;
+  }
+
+  // What the model reads of a page: its URL, its title and its text, at most
+  // 20,000 characters. ArticleExtractor gives no title for some pages
+  // (source-web-pages article-extractor.ts: title is nullable text).
+  static #state(url: string, title: string | null, text: string): string {
+    return `URL: ${url}\nTitle: ${title ?? ''}\n\n${text}`.slice(0, 20_000);
   }
 
   // The model and the question make every label, so a new model or a
