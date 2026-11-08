@@ -12,9 +12,9 @@ import { TemporaryFiles } from '@zukhruf/testing/fs';
 // report of each test shows in this run's output.
 test(
   'the reader tests pass with a data folder of their own',
-  // About three times the 126 s that the 24 cases took on 2026-10-31, so a
-  // loaded machine does not end the run before its cases' own bounds do.
-  { timeout: 400_000 },
+  // About three times the 1.7 s that the child process with its 2 cases took
+  // on 2026-11-08, so a loaded machine does not end the run early.
+  { timeout: 5_000 },
   async () => {
     await using data = await new TemporaryFiles().directory(
       'what-is-going-on-',
