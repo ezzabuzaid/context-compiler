@@ -74,7 +74,7 @@ const spec = {
               code: {
                 type: 'string',
                 description:
-                  'invalid_argument, invalid_cursor, unauthenticated, not_found, crawl_running, resync_required, search_failed or internal',
+                  'invalid_argument, invalid_cursor, unauthenticated, not_found, resync_required, search_failed or internal',
               },
               message: { type: 'string' },
               detail: {

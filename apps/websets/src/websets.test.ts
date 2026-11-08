@@ -799,7 +799,7 @@ test('two datasets over the same list have the items of their own criteria', asy
   });
 });
 
-test('a change that adds or drops a starting URL while a pass runs is refused with crawl_running: a new dataset of another list is not kept, and the only dataset of a list stays', async () => {
+test('a change that adds or drops a starting URL while a pass runs is no longer refused: a new dataset of another list is made, and the only dataset of a list is deleted', async () => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   const held = 'https://slow.example.com/startups';
   const otherList = 'https://lists.example.com/agent-memory';
@@ -809,28 +809,22 @@ test('a change that adds or drops a starting URL while a pass runs is refused wi
     during: async ({ api, quiet }) => {
       const only = await create(api, creditsDataset);
       await quiet(({ requests }) => requests.includes(held));
-      const refused = await api('/v1/datasets', {
+      const made = await api('/v1/datasets', {
         method: 'POST',
         body: { ...memoryDataset, lists: [otherList] },
       });
-      const undeleted = await api(`/v1/datasets/${only}`, {
+      const deleted = await api(`/v1/datasets/${only}`, {
         method: 'DELETE',
       });
       const kept = z
         .object({ data: z.array(z.object({ title: z.string() })) })
         .parse((await api('/v1/datasets')).body);
 
-      assert.deepEqual(
-        [refused.status, errorCode(refused.body)],
-        [409, 'crawl_running'],
-      );
-      assert.deepEqual(
-        [undeleted.status, errorCode(undeleted.body)],
-        [409, 'crawl_running'],
-      );
+      assert.equal(made.status, 201);
+      assert.equal(deleted.status, 204);
       assert.deepEqual(
         kept.data.map(({ title }) => title),
-        [creditsDataset.title],
+        [memoryDataset.title],
       );
     },
   });

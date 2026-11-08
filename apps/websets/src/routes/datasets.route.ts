@@ -3,10 +3,10 @@ import type { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
 
-import crawl from '../crawl.ts';
+import { webInput } from '@workspace/source-web-pages/web-source';
+
 import * as inputs from '../inputs.ts';
 import { candidates } from '../items.ts';
-import { startingUrls } from '../pipeline.ts';
 import queue, { monitors, searches } from '../queue.ts';
 import store, { type Crawled } from '../store.ts';
 import { sql } from '../warehouse.ts';
@@ -85,26 +85,6 @@ function found(id: string): Crawled {
   return dataset;
 }
 
-// Whether the datasets after a change start the crawl from other URLs. A
-// WebSource takes its starting URLs when it is made, so only a new pipeline
-// reads them, and elt cannot build one while a pass runs (elt #3679): such a
-// change is refused during a pass. The criteria and the fields need no new
-// pipeline, since the pipeline reads them as data.
-function restarts(
-  after: readonly Pick<Crawled, 'pages' | 'seeds' | 'lists'>[],
-) {
-  const changes =
-    JSON.stringify(startingUrls(after)) !==
-    JSON.stringify(startingUrls(store.crawled()));
-  if (changes && crawl.passing) {
-    throw new HTTPException(409, {
-      message: 'A crawl is running; change the starting URLs once it ends',
-      cause: { code: 'crawl_running' },
-    });
-  }
-  return changes;
-}
-
 export default function (router: Hono) {
   /**
    * @openapi createDataset
@@ -160,17 +140,17 @@ export default function (router: Hono) {
           cause: { code: 'invalid_argument' },
         });
       }
-      // The pages that a search finds come later, with their own rebuild.
-      const restart = restarts([
-        ...store.crawled(),
-        { pages, lists, seeds: [] },
-      ]);
-      const dataset = store.addDataset(definition);
+      // The crawl reads the new pages and lists from api.sqlite in its next
+      // pass. They are kept as the crawl keeps its inputs, in the form that
+      // the URL standard gives them, so the pages that the crawl stores under
+      // an input join the dataset that names it.
+      const dataset = store.addDataset({
+        ...definition,
+        pages: pages.map(webInput),
+        lists: lists.map(webInput),
+      });
       if (search !== undefined) {
         await queue.send(searches, { dataset: dataset.id });
-      }
-      if (restart) {
-        crawl.rebuild();
       }
       return c.json(datasetResource(found(dataset.id)), 201, {
         Location: `/v1/datasets/${dataset.id}`,
@@ -221,16 +201,10 @@ export default function (router: Hono) {
     })),
     async (c) => {
       const { id } = found(c.var.input.id);
-      const restart = restarts(
-        store.crawled().filter((dataset) => dataset.id !== id),
-      );
       for (const monitor of store.monitorsOf(id)) {
         await queue.unschedule(monitors, monitor.id);
       }
       store.deleteDataset(id);
-      if (restart) {
-        crawl.rebuild();
-      }
       return c.body(null, 204);
     },
   );

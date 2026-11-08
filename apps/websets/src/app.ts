@@ -24,7 +24,7 @@ if (keys.length === 0) {
   );
 }
 
-// The code that an error names beside its status, such as crawl_running.
+// The code that an error names beside its status, such as not_found.
 const causeSchema = z.object({ code: z.string() });
 // sdk-it's validate fails an input with its own code and the errors of each
 // field; the API names every invalid input invalid_argument.

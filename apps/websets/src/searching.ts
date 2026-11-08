@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
 import type { Read } from './checks/check.ts';
-import crawl from './crawl.ts';
 import { type Found, search } from './search.ts';
 import store, { type Dataset } from './store.ts';
 
@@ -41,10 +40,8 @@ export async function searchFor(
 }
 
 // The search of a new dataset: the pages that it finds become the dataset's
-// seeds, and the crawl reads them once the pipeline is built again. A failed
-// search keeps its reason, and the job ends, as a monitor of the dataset
-// searches again. While a pass runs, the watch builds the pipeline again
-// after the pass.
+// seeds, and the crawl reads them in its next pass. A failed search keeps
+// its reason, and the job ends, as a monitor of the dataset searches again.
 export async function runSearch(data: unknown, signal: AbortSignal) {
   const { dataset: id } = jobSchema.parse(data);
   const dataset = store.dataset(id);
@@ -54,8 +51,5 @@ export async function runSearch(data: unknown, signal: AbortSignal) {
   const searched = await searchFor(dataset, dataset.search, signal);
   if ('value' in searched) {
     store.searched(id, searched.value);
-  }
-  if (!crawl.passing) {
-    crawl.rebuild();
   }
 }

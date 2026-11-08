@@ -3,10 +3,12 @@ import { Latch } from '@zukhruf/async';
 import pipeline from './pipeline.ts';
 import type { Source } from './sources.ts';
 
-// The watch of the pipeline that reads the sources. A WebSource's inputs are
-// fixed at construction, so a new site stops the watch and starts a new
-// pipeline over the full list (elt's apps/web builds its pipeline per sync for
-// the same reason). The checkpoints carry each input's crawl over.
+// The watch of the pipeline that reads the sources. A blog's posts pattern is
+// in the include of its web stream, and the sources make its revisit policy,
+// which a WebStream takes when it is made, so a new site stops the watch and
+// starts a new pipeline over the full list (elt's apps/web builds its pipeline
+// per sync for its include patterns). The checkpoints carry each input's crawl
+// over.
 class Reading {
   #state: Idle | Watching | Stopped = new Idle();
 

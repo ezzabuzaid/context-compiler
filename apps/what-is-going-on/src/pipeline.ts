@@ -92,7 +92,8 @@ async function connection(
 }
 
 // Built from the sources the user added as they are now, as well as the
-// given ones, because a WebSource's inputs cannot change after construction.
+// given ones, because a WebStream takes its include patterns and its revisit
+// policy when it is made.
 export default async function pipeline(options: {
   sources: readonly Source[];
 }) {

@@ -15,14 +15,14 @@ import {
   StartReader,
 } from '@workspace/sdk-web-crawler';
 import { ArticleExtractor } from '@workspace/source-web-pages/article-extractor';
-import { WebSource } from '@workspace/source-web-pages/web-source';
+import { WebSource, webInput } from '@workspace/source-web-pages/web-source';
 import { WebStream } from '@workspace/source-web-pages/web-stream';
 
 import { DefinitionsSource } from './definitions/definitions-source.ts';
 import directory from './directory.ts';
 import { Evaluation } from './rules/evaluation.ts';
 import { FieldValue } from './rules/field.ts';
-import { type Crawled, storePath } from './store.ts';
+import store, { type Crawled, storePath } from './store.ts';
 import { warehousePath } from './warehouse.ts';
 import client from './web-client.ts';
 
@@ -41,66 +41,48 @@ const pagesOf = ({ pages, seeds }: Pick<Crawled, 'pages' | 'seeds'>) => [
   ...seeds,
 ];
 
-// The starting URLs of the datasets, which a WebSource takes when it is made:
-// the pages, and the lists. The criteria and the fields are not among them,
-// since the pipeline reads them as data.
-export function startingUrls(
-  datasets: readonly Pick<Crawled, 'pages' | 'seeds' | 'lists'>[],
-) {
-  return {
-    pages: [...new Set(datasets.flatMap(pagesOf))].toSorted(),
-    lists: [...new Set(datasets.flatMap(({ lists }) => lists))].toSorted(),
-  };
-}
-
-// The pipeline of the datasets: their pages and the pages of their searches
-// are read as pages, their lists as lists, and what each dataset asks comes
-// from api.sqlite through the definitions, so each criterion of each page and
-// each field of each item is judged or read by one computed dataset, and a
-// page and a criterion that two datasets share are judged once. A WebSource
-// takes its starting URLs when it is made, so the app builds the pipeline
-// again when they change (elt #3679). No starting URL, no pipeline.
-export default async function pipeline(
-  datasets: readonly Pick<Crawled, 'pages' | 'seeds' | 'lists'>[],
-) {
-  const { pages, lists } = startingUrls(datasets);
-  if (pages.length === 0 && lists.length === 0) {
-    return null;
-  }
+// The pipeline of the datasets, made once: the pages of each dataset and the
+// pages that its search found are read as pages, its lists as lists, and
+// what each dataset asks comes from api.sqlite through the definitions, so
+// each criterion of each page and each field of each item is judged or read
+// by one computed dataset, and a page and a criterion that two datasets share
+// are judged once. The web source reads the starting URLs from api.sqlite as
+// each read opens and at each check of its watch, so a new dataset, or a
+// page that a search found, is crawled in the pass that the next check asks
+// for, after a pass that runs then (elt ADR 0018 of source-web-pages).
+export default async function pipeline() {
   const streams = [
     // A page is read itself; the crawl follows none of its links.
-    ...(pages.length === 0
-      ? []
-      : [
-          {
-            stream: new WebStream({
-              name: 'pages',
-              primaryKey: ['articleUrl'],
-              readers: [new StartReader()],
-              extractor: new ArticleExtractor(),
-            }),
-            inputs: pages,
-          },
-        ]),
+    {
+      stream: new WebStream({
+        name: 'pages',
+        primaryKey: ['articleUrl'],
+        readers: [new StartReader()],
+        extractor: new ArticleExtractor(),
+      }),
+      inputs: () => new Set(store.crawled().flatMap(pagesOf).map(webInput)),
+    },
     // A list hands back the pages it links on every website, as the crawler
     // recipe "Follow a list to other websites" reads a list of links.
-    ...(lists.length === 0
-      ? []
-      : [
-          {
-            stream: new WebStream({
-              name: 'listed',
-              primaryKey: ['articleUrl'],
-              readers: [
-                new PaginationReader({ strategy: 'all' }),
-                new ListingReader(),
-                new LinkReader({ maxDepth: 0, maxPages: 0 }),
-              ],
-              extractor: new ArticleExtractor(),
-            }),
-            inputs: lists,
-          },
-        ]),
+    {
+      stream: new WebStream({
+        name: 'listed',
+        primaryKey: ['articleUrl'],
+        readers: [
+          new PaginationReader({ strategy: 'all' }),
+          new ListingReader(),
+          new LinkReader({ maxDepth: 0, maxPages: 0 }),
+        ],
+        extractor: new ArticleExtractor(),
+      }),
+      inputs: () =>
+        new Set(
+          store
+            .crawled()
+            .flatMap(({ lists }) => lists)
+            .map(webInput),
+        ),
+    },
   ];
   const source = new WebSource({ streams, client });
   const catalog = await source.discover();

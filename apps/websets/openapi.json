@@ -282,11 +282,11 @@
                                     "type": "string"
                                   },
                                   {
-                                    "enum": ["url"],
+                                    "enum": ["date"],
                                     "type": "string"
                                   },
                                   {
-                                    "enum": ["date"],
+                                    "enum": ["url"],
                                     "type": "string"
                                   }
                                 ]
@@ -561,16 +561,6 @@
               }
             }
           },
-          "409": {
-            "description": "An error, in the shape that every error of the API has",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiError"
-                }
-              }
-            }
-          },
           "415": {
             "description": "An error, in the shape that every error of the API has",
             "content": {
@@ -649,11 +639,11 @@
                                           "type": "string"
                                         },
                                         {
-                                          "enum": ["url"],
+                                          "enum": ["date"],
                                           "type": "string"
                                         },
                                         {
-                                          "enum": ["date"],
+                                          "enum": ["url"],
                                           "type": "string"
                                         }
                                       ]
@@ -1004,11 +994,11 @@
                                     "type": "string"
                                   },
                                   {
-                                    "enum": ["url"],
+                                    "enum": ["date"],
                                     "type": "string"
                                   },
                                   {
-                                    "enum": ["date"],
+                                    "enum": ["url"],
                                     "type": "string"
                                   }
                                 ]
@@ -1353,16 +1343,6 @@
             }
           },
           "404": {
-            "description": "An error, in the shape that every error of the API has",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiError"
-                }
-              }
-            }
-          },
-          "409": {
             "description": "An error, in the shape that every error of the API has",
             "content": {
               "application/json": {
@@ -3498,7 +3478,7 @@
             "properties": {
               "code": {
                 "type": "string",
-                "description": "invalid_argument, invalid_cursor, unauthenticated, not_found, crawl_running, resync_required, search_failed or internal"
+                "description": "invalid_argument, invalid_cursor, unauthenticated, not_found, resync_required, search_failed or internal"
               },
               "message": {
                 "type": "string"
