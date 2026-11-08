@@ -20,7 +20,7 @@ The assertion (`assertions/offers.ts`) gives these named scores, each pooled ove
 
 - `items recall` and `items precision`: the labelled offers that the rule found, and the stated offers that are a labelled offer.
 - `precision`, `recall` and `f1` of the values, and each of them by field, such as `$.offers[*].kind recall by field`.
-- `valid`: the answers that agree with the schema. An answer that does not agree has no hits, so each of its offers is wrong.
+- `valid`: the pages that the harness answered. The provider decides this: an invalid answer or a failed call is no answer. A page with no answer has no hits, so each offer of its invalid answer is wrong.
 - `<reason> false alarms`: the stated offers that are wrong for that reason, of all stated offers. The reasons are, in this order: `invalid answer`; `<kind> page`, for an offer on a page of a kind that is not `program`; `duplicate`, for a second offer from a sentence of a labelled offer; the reason of the lookalike on the sentence of the offer, such as `eligibility`; and `unlabelled`, for a sentence that no label marks. Each reason has the whole of `items precision`, also when it has no false alarms. So the parts of all reasons add up to that whole minus the hits of `items precision`. The false alarms are not in the score of a row.
 
 ## Retry

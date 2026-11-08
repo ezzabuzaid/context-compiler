@@ -1,5 +1,7 @@
 import {
+  type CaseReader,
   F1,
+  Gate,
   Grouped,
   Penalized,
   Precision,
@@ -12,26 +14,23 @@ import { PromptfooAssertion } from '@zukhruf/evals/promptfoo';
 import {
   AllMatched,
   ByBestMatch,
+  Case,
   type Comparison,
   ComparisonSpec,
-  ConfigCase,
   type Item,
   ItemMatches,
-  JsonSchema,
   JsonValue,
   type Match,
   PathMatches,
   PerField,
-  SchemaCompliance,
   TokenF1,
   TreeWalk,
-  TypePrecision,
   ValueMatches,
 } from '@zukhruf/evals/structured';
 import { type JsonData, toJsonParseValue } from '@zukhruf/python';
 import { z } from 'zod';
 
-import { spanSchema, storedOffersSchema } from '../../src/offer.ts';
+import { spanSchema } from '../../src/offer.ts';
 import { pageKinds } from '../../src/rules/page-kinds.ts';
 import { same } from '../../src/same.ts';
 import { lookalikeSchema } from '../dataset/answer-key.ts';
@@ -93,6 +92,37 @@ const labelSchema = z.object({
   lookalikes: z.array(lookalikeSchema),
 });
 
+// The case of a page: its label, and why the harness did not answer it, or
+// null when it did. The provider decides that, not a schema: it gives an
+// invalid answer `invalid` in its metadata, and FailedCall gives a failed
+// call `failed`.
+class OffersCase extends Case {
+  readonly unanswered: string | null;
+
+  constructor(expected: JsonData, unanswered: string | null) {
+    super({ expected, weight: 1 });
+    this.unanswered = unanswered;
+  }
+}
+
+function pageOf({ case: page }: Comparison): OffersCase {
+  if (page instanceof OffersCase) return page;
+  throw new Error('The case of an offers comparison is not an offers page');
+}
+
+// Whether the harness answered the page. A page that it did not answer has
+// no hits (Penalized), and its expected offers stay in the wholes.
+class Answered extends Gate<Comparison> {
+  holds(comparison: Comparison): boolean {
+    return pageOf(comparison).unanswered === null;
+  }
+
+  explain(comparison: Comparison): string {
+    return `the harness did not answer: ${pageOf(comparison).unanswered}`;
+  }
+}
+const answered = new Answered();
+
 // The stated offers of one reason, of all stated offers.
 type Share = { readonly part: number; readonly whole: number };
 
@@ -111,9 +141,9 @@ class FalseAlarmsByReason extends Grouped<Comparison, Share> {
       ...offers.pairs.map((pair) => pair.expected),
       ...offers.unpairedExpected,
     ];
-    // An invalid record has no hits (Penalized), so each of its stated
-    // offers is a false alarm.
-    const falseAlarms = comparison.compliant
+    // A page that the harness did not answer has no hits, so each offer of
+    // its invalid answer is a false alarm.
+    const falseAlarms = answered.holds(comparison)
       ? offers.unpairedStated.map(({ value }) =>
           this.#reason(value, label, expected),
         )
@@ -150,13 +180,11 @@ const share: Scorer<Share> = {
 
 // A support offer has no value: its label writes `value: null`, and the
 // harness writes no key. So each scorer reads null as no value.
-const valid = new SchemaCompliance();
 const values = new ValueMatches({ nullIsMissing: true });
 const present = new PathMatches({ nullIsMissing: true });
 const items = new ItemMatches();
-// An invalid record keeps its expected and its stated values in the wholes,
-// with no hits.
-const penalized = (scorer: Scorer<Comparison>) => new Penalized(scorer, valid);
+const penalized = (scorer: Scorer<Comparison>) =>
+  new Penalized(scorer, answered);
 const words = new TokenF1({
   whenNoWords: 1,
   absentAs: null,
@@ -165,7 +193,7 @@ const words = new TokenF1({
 
 const offerScorer = new ScorerSet(
   {
-    valid,
+    valid: answered,
     perfect: new AllMatched({ nullIsMissing: true }),
     precision: penalized(new Precision(values)),
     recall: penalized(new Recall(values)),
@@ -174,7 +202,6 @@ const offerScorer = new ScorerSet(
     'presence recall': penalized(new Recall(present)),
     'presence f1': penalized(new F1(present)),
     'token f1': penalized(words),
-    'type precision': new TypePrecision({ nullIsMissing: true }),
     'items precision': penalized(new Precision(items)),
     'items recall': penalized(new Recall(items)),
     'items f1': penalized(new F1(items)),
@@ -192,13 +219,46 @@ const offerScorer = new ScorerSet(
   { comparer: new TreeWalk(offerSpec) },
 );
 
-// The schema is that of the offers that the harness stores, each with the
-// span of its quote.
-export default new PromptfooAssertion(
-  offerScorer,
-  new ConfigCase({
-    schema: new JsonSchema(
-      JsonValue.from(z.toJSONSchema(z.object({ offers: storedOffersSchema }))),
-    ),
-  }),
-).grade;
+// A case reads its label as ConfigCase does: as a JavaScript value, so an
+// integral float such as 7.0 is already 7, and with the weight 1.
+const configSchema = z.object({
+  expected: z.json(),
+  unanswered: z.string().nullable(),
+});
+const pages: CaseReader<OffersCase> = {
+  from(config) {
+    const { expected, unanswered } = configSchema.parse(config);
+    return new OffersCase(JsonValue.from(expected).value, unanswered);
+  },
+};
+
+const assertion = new PromptfooAssertion(offerScorer, pages);
+
+// promptfoo gives the assertion the metadata of the provider's response.
+const unansweredSchema = z.union([
+  z
+    .object({ invalid: z.object({ message: z.string() }) })
+    .transform(({ invalid }) => invalid.message),
+  z.object({ failed: z.string() }).transform(({ failed }) => failed),
+]);
+
+// PromptfooAssertion reads its case from the assertion's config, so why the
+// harness did not answer goes there beside the label.
+export default (
+  output: unknown,
+  {
+    config,
+    metadata,
+  }: {
+    readonly config?: Readonly<Record<string, unknown>>;
+    readonly metadata?: unknown;
+  },
+) => {
+  const unanswered = unansweredSchema.safeParse(metadata);
+  return assertion.grade(output, {
+    config: {
+      ...config,
+      unanswered: unanswered.success ? unanswered.data : null,
+    },
+  });
+};
