@@ -20,7 +20,7 @@ import { type EvaluateResult, ResultFailureReason } from 'promptfoo';
 // a row has no time and a random id (evalResult-DzOq5wt9.js:1030,
 // 1254-1280), so they are one when their scores are the same.
 //
-// A copy of offers-evals src/evals/sob/summary/latest-results.ts (strike 2):
+// A copy of offers-evals apps/sob/src/summary/latest-results.ts (strike 2):
 // mirror every fix in both.
 export function latestResults(
   results: readonly EvaluateResult[],
