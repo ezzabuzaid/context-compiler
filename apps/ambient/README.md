@@ -18,7 +18,7 @@ npx nx run ambient:test
 node apps/ambient/dist/server.js
 ```
 
-Open `http://127.0.0.1:4325`. `AMBIENT_PORT` changes the port; it is the only environment variable that Ambient reads. Ambient reads the warehouse in Context Compiler's Imports folder, `~/Library/Application Support/Context Compiler/Imports`. It keeps its private runtime state (the SQLite stores, the disk-backed PGlite queue and the changefeed positions) in `~/Library/Application Support/Context Compiler/Ambient`, which it creates with mode 0700. The app binds only to loopback.
+Open `http://127.0.0.1:4325`. The page has two screens. Notifications shows each notification with the changes that it cites. Decisions shows the last 100 changes that Ambient received and what it did with each: notified, silent or failed. The page reads the GET routes again every five seconds. `AMBIENT_PORT` changes the port; it is the only environment variable that Ambient reads. Ambient reads the warehouse in Context Compiler's Imports folder, `~/Library/Application Support/Context Compiler/Imports`. It keeps its private runtime state (the SQLite stores, the disk-backed PGlite queue and the changefeed positions) in `~/Library/Application Support/Context Compiler/Ambient`, which it creates with mode 0700. The app binds only to loopback.
 
 Ambient takes Deepagents 7.4.0 from npm: `@deepagents/experimental` 7.4.0 gives `defineAgent` its `stopWhen`. No framework fork is copied here. Microsandbox 0.7.8 must be installed on an Apple Silicon Mac or Linux host with KVM. The state folder has one named microVM, `ambient-<the first 16 hex digits of the SHA-256 of the state folder path>`, with no network and no host mounts. `msb ls` shows it. Each turn re-attaches to it by name. The microVM keeps its files across restarts; Microsandbox stops it but does not remove it. Remove it with `msb rm <name>`. Each test runs Ambient with its own temporary home, thus its own state folder and its own microVM, so the tests never attach to the microVM of a running Ambient.
 
@@ -68,7 +68,7 @@ The other parts are in folders by concept:
 - `warehouse/warehouse.ts`: reads the selected sources and runs read-only federated SQL. `warehouse/follow-warehouse.ts`: follows each selected source's changefeed and the selection.
 - `journal/journal.ts`: the application ledger of changes, turns, decisions and notifications. `journal/tables.ts`: its schema.
 - `contracts/`: the shared shapes: `evidence.ts`, `notification.ts` and `decision.ts`.
-- `http/app.ts`: the routes. `http/feed-page.ts`: the notification feed page.
+- `http/app.ts`: the routes. `http/feed/`: the page at `/`. `page.ts` is the markup, `styles.ts` the styles and `script.ts` the script of the page, which reads `/notifications`, `/decisions` and `/health`.
 
 `channels/`, `connections/`, `schedules/`, `skills/` and `subagents/` are Zukhruf's reserved declaration slots. They are empty. Ambient has no `tools/` folder at the root, because Zukhruf keeps it for tools that `agent.ts` imports. The tools of Ambient come from the changes plugin.
 

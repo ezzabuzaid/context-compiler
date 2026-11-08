@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 
 import type { Journal } from '../journal/journal.ts';
-import feedPage from './feed-page.ts';
+import feedPage from './feed/page.ts';
 
 export default function app(journal: Journal) {
   const app = new Hono();
