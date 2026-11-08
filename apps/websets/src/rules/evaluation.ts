@@ -1,12 +1,11 @@
-import { createHash } from 'node:crypto';
-
 import { Output, generateText } from 'ai';
 import { z } from 'zod';
 
 import { type LoadedRow, Rule, type RuleResult } from '@workspace/elt';
+import { ruleIdentity } from '@workspace/model-calls/rule-identity';
 import { ground } from '@workspace/quote-grounding';
 
-import { callFailure } from '../call-failure.ts';
+import { callFailures } from '../call-failure.ts';
 import model from './model.ts';
 
 export type Page = {
@@ -99,16 +98,12 @@ export class Evaluation extends Rule<Judged, string> {
   // criterion, so a changed prompt, schema or setting judges every page
   // again; a changed page or criterion is a changed input.
   override async identity(): Promise<string> {
-    return `${model.modelId}:${createHash('sha256')
-      .update(
-        JSON.stringify({
-          system,
-          prompt: prompt('Criterion: {criterion}', placeholder),
-          schema: z.toJSONSchema(answerSchema),
-          settings,
-        }),
-      )
-      .digest('hex')}`;
+    return ruleIdentity(model.modelId, {
+      system,
+      prompt: prompt('Criterion: {criterion}', placeholder),
+      schema: z.toJSONSchema(answerSchema),
+      settings,
+    });
   }
 
   override async compute(
@@ -133,7 +128,7 @@ export class Evaluation extends Rule<Judged, string> {
         abortSignal: signal,
       }));
     } catch (error) {
-      return callFailure(error);
+      return { error: callFailures.reason(error) };
     }
     const { quote } = answer;
     const grounded = quote !== null && ground(page.text, quote) !== null;

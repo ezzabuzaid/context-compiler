@@ -1,4 +1,4 @@
-import { callFailure } from '../call-failure.ts';
+import { callFailures } from '../call-failure.ts';
 import { type Found, search } from '../search.ts';
 import store from '../store.ts';
 import { Check, type Read } from './check.ts';
@@ -30,7 +30,7 @@ export class SearchCheck extends Check<readonly Found[]> {
       );
       return { value: found };
     } catch (error) {
-      return { failure: callFailure(error).error };
+      return { failure: callFailures.reason(error) };
     }
   }
 

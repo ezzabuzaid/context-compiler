@@ -1,12 +1,11 @@
-import { createHash } from 'node:crypto';
-
 import { Output, generateText } from 'ai';
 import { z } from 'zod';
 
 import { type LoadedRow, Rule, type RuleResult } from '@workspace/elt';
+import { ruleIdentity } from '@workspace/model-calls/rule-identity';
 import { ground } from '@workspace/quote-grounding';
 
-import { callFailure } from '../call-failure.ts';
+import { callFailures } from '../call-failure.ts';
 import {
   type Page,
   placeholder,
@@ -124,9 +123,7 @@ export class FieldValue extends Rule<Asked, string> {
         schema: z.toJSONSchema(answerSchema(asked(format))),
       }),
     );
-    return `${model.modelId}:${createHash('sha256')
-      .update(JSON.stringify({ system, shapes, settings }))
-      .digest('hex')}`;
+    return ruleIdentity(model.modelId, { system, shapes, settings });
   }
 
   override async compute(
@@ -151,7 +148,7 @@ export class FieldValue extends Rule<Asked, string> {
         abortSignal: signal,
       }));
     } catch (error) {
-      return callFailure(error);
+      return { error: callFailures.reason(error) };
     }
     const { quote } = answer;
     const grounded = quote !== null && ground(page.text, quote) !== null;

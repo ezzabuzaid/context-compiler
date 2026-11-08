@@ -7,16 +7,6 @@ The Rule of Three counts places, not packages. Code that a second place needs is
 **`apps/what-is-going-on/src/directory.ts` → `src/directory.ts`, with the folder named `websets`.**
 The app keeps its files in a `websets` folder under `XDG_DATA_HOME`, or under `~/.local/share` when that is not set, and makes the folder when the app starts. Each test gives the app a temporary `XDG_DATA_HOME`. The places with this concept are listed in `apps/startup-credits/docs/copied-code.md`; it stays copied as a tiny helper (#3371).
 
-## Which model call failures fail a page
-
-**`apps/startup-credits/src/rules/program-offers.ts` (`ProgramOffers.#offers`) → `src/call-failure.ts` (`callFailure`), as a function that `Evaluation`, `FieldValue` and the search route share.**
-A call that failed after the AI SDK's retries is the failure of that call (one page, or one search): the rule takes the last error of a `RetryError` and returns the message of an `APICallError`. A 401 fails the dataset, as every page would fail. `NoObjectGeneratedError` and `NoOutputGeneratedError` are a page's failure. The other places are `PageKinds` (`apps/startup-credits/src/rules/page-kinds.ts`) and `InvoicePayments` (`apps/ipay/src/rules/invoice-payments.ts`). It stays copied: six lines, and a shared home would be a new dependency of each app.
-
-## A rule's identity
-
-**`apps/startup-credits/src/rules/program-offers.ts` (`identity`) → `src/rules/evaluation.ts` (`Evaluation.identity`) and `src/rules/field.ts` (`FieldValue.identity`), with placeholders in place of the page and of the criterion or the field, which are inputs of these rules.**
-The identity is the model's id and the SHA-256 of the instructions, the prompt, the schema and the settings, so a changed prompt judges or reads every page again. A changed page, criterion or field is a changed input instead, which the computed dataset finds by the hash of the input. The other places are `PageKinds` (the model's id and the hash of its questions) and `InvoicePayments` (`apps/ipay/src/rules/invoice-payments.ts`). It stays copied: one expression, and a shared home would be a new dependency of each app.
-
 ## How a page's article is read on demand
 
 **`src/routes/fetch.route.ts` → `src/checks/page-check.ts` (`PageCheck.read`), with a failed read in place of an error entry.**

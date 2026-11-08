@@ -3,7 +3,7 @@ import type { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
 
-import { callFailure } from '../call-failure.ts';
+import { callFailures } from '../call-failure.ts';
 import * as inputs from '../inputs.ts';
 import { search } from '../search.ts';
 
@@ -31,7 +31,7 @@ export default function (router: Hono) {
       } catch (error) {
         // The web search is an upstream: its failure is a bad gateway.
         throw new HTTPException(502, {
-          message: `The web search failed: ${callFailure(error).error}`,
+          message: `The web search failed: ${callFailures.reason(error)}`,
           cause: { code: 'search_failed' },
         });
       }
