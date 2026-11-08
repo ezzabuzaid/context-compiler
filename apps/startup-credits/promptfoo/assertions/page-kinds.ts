@@ -8,12 +8,14 @@ import {
 } from '@zukhruf/evals/classification';
 import { PromptfooAssertion } from '@zukhruf/evals/promptfoo';
 
-// The kind that the harness chose against the kind of the label. A page whose
-// call failed answers the label "null", so it stays in the wholes. The
-// classes of each column are the labels that the answers and the labels hold,
-// as scikit-learn's labels=None: a kind that no page has and no answer
-// chooses has no column. Each ratio keeps its whole, so promptfoo's column
-// of a class is the ratio of sums over the rows.
+import { pageKinds } from '../../src/rules/page-kinds.ts';
+
+// The kind that the harness chose against the kind of the label. The classes
+// are the app's page kinds (ADR 0006 of @zukhruf/evals): a page whose call
+// failed answers the label "null", which is a miss of its kind and no class
+// of its own. A kind that no page has and no answer chooses has no column.
+// Each ratio keeps its whole, so promptfoo's column of a class is the ratio
+// of sums over the rows.
 export default new PromptfooAssertion(
   new ScorerSet(
     {
@@ -22,7 +24,7 @@ export default new PromptfooAssertion(
       recall: new PerClass(new Recall(new AllClassMatches())),
       f1: new PerClass(new F1(new AllClassMatches())),
     },
-    { comparer: new LabelComparer() },
+    { comparer: new LabelComparer({ labels: pageKinds }) },
   ),
   new LabelConfigCase(),
 ).grade;

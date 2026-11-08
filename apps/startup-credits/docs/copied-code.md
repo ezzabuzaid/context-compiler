@@ -14,11 +14,6 @@ The app keeps its files in a `startup-credits` folder under `XDG_DATA_HOME`, or 
 **`offers-evals` `src/evals/sob/summary/latest-results.ts` → `promptfoo/summary/latest-results.ts`, with the same code; only the comments differ.**
 After a retry, promptfoo gives the `afterAll` hook each error result next to the result of its retry. `latestResults` keeps one result for each test: the result that is not an error, or one error result when the error results have the same scores. The page-kinds summary reads only these results. A third place that reads the results of `afterAll` after a retry extracts the function, probably into `@zukhruf/evals/promptfoo` (backlog #3996).
 
-## The answer of a page whose call failed
-
-**`promptfoo/providers/program-offers.ts` → `promptfoo/providers/page-kinds.ts`, with a label in place of a record.**
-A page whose call failed gives the answer `"null"`, and the provider puts the failure in `metadata.failed`. promptfoo does not grade a result that has no answer, so the expected values of that page would leave the denominators. offers-evals has the same rule in another form: `src/evals/sob/failed-answer.ts` grades the error result again with the answer `null`, because SOB's provider is promptfoo's own. That is the third place, so the rule is due for extraction into `@zukhruf/evals/promptfoo` (backlog #3970).
-
 ## Test helpers
 
 Each helper below is in two tests of this app. When a third test needs a helper, the helper moves into `src/testing/`, next to `promptfoo.ts` (backlog #3972). The runner of the promptfoo CLI moved there in this way.

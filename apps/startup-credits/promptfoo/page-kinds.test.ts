@@ -255,7 +255,7 @@ void describe(
   // Three runs at once, as the CI runner has four CPUs.
   { concurrency: 3 },
   () => {
-    void test('each column pools a score over the pages, for the kinds that the labels and the answers hold, and a page whose call failed is graded as the label null', async () => {
+    void test('each column pools a score over the pages, for the page kinds that the labels and the answers hold, and a page whose call failed answers null, a miss of its kind with no column of its own', async () => {
       await using folder = await evalFolder(pages);
       const { run, pooled } = await evaluate(folder.path, pages, decisions, [
         '-c',
@@ -272,8 +272,6 @@ void describe(
         'investor f1': [2, 2],
         'list recall': [0, 1],
         'list f1': [0, 1],
-        'null precision': [0, 1],
-        'null f1': [0, 1],
         'program precision': [1, 3],
         'program recall': [1, 2],
         'program f1': [2, 5],
@@ -306,9 +304,10 @@ void describe(
         'promptfooconfig.mjs',
       ]);
 
-      // scikit-learn 1.9.1 with labels=None on the labels [program, home,
-      // program, list, investor, home] and the answers [program, program,
-      // home, null, investor, program].
+      // scikit-learn 1.9.1 with labels=pageKinds (zero_division=0) on the
+      // labels [program, home, program, list, investor, home] and the answers
+      // [program, program, home, null, investor, program]: the answer null is
+      // a miss of list and no pair of the matrix.
       const [summary, ...others] = await summariesIn(folder.path);
       assert.deepEqual(others, []);
       assert.deepEqual(summary?.summaries, [
@@ -318,20 +317,38 @@ void describe(
           pages: 6,
           accuracy: 0.3333333333333333,
           precision: {
-            macro: 0.26666666666666666,
+            macro: 0.19047619047619047,
             weighted: 0.27777777777777773,
           },
-          recall: { macro: 0.3, weighted: 0.3333333333333333 },
-          f1: { macro: 0.27999999999999997, weighted: 0.3 },
-          support: { home: 2, investor: 1, list: 1, null: 0, program: 2 },
+          recall: { macro: 0.21428571428571427, weighted: 0.3333333333333333 },
+          f1: { macro: 0.19999999999999998, weighted: 0.3 },
+          support: {
+            program: 2,
+            home: 2,
+            list: 1,
+            article: 0,
+            other_program: 0,
+            investor: 1,
+            other: 0,
+          },
           confusion_matrix: {
-            labels: ['home', 'investor', 'list', 'null', 'program'],
+            labels: [
+              'program',
+              'home',
+              'list',
+              'article',
+              'other_program',
+              'investor',
+              'other',
+            ],
             rows: [
-              [0, 0, 0, 0, 2],
-              [0, 1, 0, 0, 0],
-              [0, 0, 0, 1, 0],
-              [0, 0, 0, 0, 0],
-              [1, 0, 0, 0, 1],
+              [1, 1, 0, 0, 0, 0, 0],
+              [2, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0, 1, 0],
+              [0, 0, 0, 0, 0, 0, 0],
             ],
           },
         },
@@ -396,9 +413,13 @@ void describe(
       const [scores] = summary?.summaries ?? [];
       assert.equal(scores?.['pages'], three.length);
       assert.deepEqual(scores?.['support'], {
-        home: 1,
-        investor: 1,
         program: 1,
+        home: 1,
+        list: 0,
+        article: 0,
+        other_program: 0,
+        investor: 1,
+        other: 0,
       });
       assert.equal(scores?.['accuracy'], 2 / 3);
     });

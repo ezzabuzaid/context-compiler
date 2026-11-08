@@ -15,20 +15,22 @@ import {
 } from 'promptfoo';
 import { z } from 'zod';
 
+import { pageKinds } from '../../src/rules/page-kinds.ts';
 import { latestResults } from './latest-results.ts';
 
 // The kind of the label, which tests.ts gives each row as metadata.
 const metadataSchema = z.object({ kind: z.string() });
 
-const comparer = new LabelComparer();
+const comparer = new LabelComparer({ labels: pageKinds });
 const macro = new MacroAverage();
 const weighted = new WeightedAverage();
 
 // The scores of one prompt (a prompt and a provider) over its pages, as
-// scikit-learn gives them with labels=None: the classes are the kinds that
-// the labels and the answers hold, in sorted order.
+// scikit-learn gives them with labels=pageKinds: the classes are the app's
+// page kinds, in their order, and a failed page's "null" is a miss of its
+// kind and no class of its own (ADR 0006 of @zukhruf/evals).
 function summarize(rows: readonly EvaluateResult[]) {
-  const counts = new ClassCounts({ multilabel: false });
+  const counts = new ClassCounts({ labels: pageKinds, multilabel: false });
   for (const row of rows) {
     const testCase = new LabelCase({
       expected: metadataSchema.parse(row.testCase.metadata).kind,

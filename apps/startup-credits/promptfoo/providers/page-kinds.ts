@@ -1,3 +1,4 @@
+import { FailedCall } from '@zukhruf/evals/promptfoo';
 import type {
   ApiProvider,
   CallApiContextParams,
@@ -57,13 +58,10 @@ export default class PageKindsProvider implements ApiProvider {
       [row.input],
       options?.abortSignal,
     );
-    // A page whose call failed answers the label "null": promptfoo does not
-    // grade a row with no output, so its label would leave the denominators.
+    // A page whose call failed answers null, a miss of its kind, so its label
+    // stays in the denominators (ADR 0005 of @zukhruf/evals).
     if (result !== undefined && 'error' in result)
-      return {
-        metadata: { ...metadata, failed: result.error },
-        output: 'null',
-      };
+      return new FailedCall(result.error).response(metadata);
     if (result === undefined || !('value' in result))
       throw new Error(`PageKinds gave no kind for ${page.url}`);
     const { kind, answer } = decidedSchema.parse(result.value);

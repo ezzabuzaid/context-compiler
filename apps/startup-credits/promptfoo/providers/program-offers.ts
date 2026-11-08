@@ -1,3 +1,4 @@
+import { FailedCall } from '@zukhruf/evals/promptfoo';
 import type {
   ApiProvider,
   CallApiContextParams,
@@ -18,12 +19,6 @@ const varsSchema = z.object({
   title: z.string(),
   text: z.string(),
 });
-
-// The answer of a page whose call failed or whose answer has no text: the
-// text "null", which the assertion reads as an invalid record, as SOB's
-// runner keeps None. promptfoo does not grade a row with no output, so its
-// expected offers would leave the denominators and raise recall.
-const nothing = 'null';
 
 export default class ProgramOffersProvider implements ApiProvider {
   readonly label: string | undefined;
@@ -48,19 +43,19 @@ export default class ProgramOffersProvider implements ApiProvider {
     // so each row names the harness that gave it.
     const metadata = { harness: await this.#rule.identity() };
     const outcome = await this.#rule.outcome(page, options?.abortSignal);
+    // A failed call answers null, so its expected offers stay in the
+    // denominators (ADR 0005 of @zukhruf/evals).
     if ('failed' in outcome)
-      return {
-        metadata: { ...metadata, failed: outcome.failed },
-        output: nothing,
-      };
+      return new FailedCall(outcome.failed).response(metadata);
     // An invalid answer is the harness's output, not an error: the
     // assertion reads its text as json.loads reads it and scores it as
     // invalid, and its expected offers stay in the denominators (#3762). The
-    // AI SDK keeps no text for an answer that never came.
+    // AI SDK keeps no text for an answer that never came, which is the answer
+    // null.
     if ('invalid' in outcome)
       return {
         metadata: { ...metadata, invalid: outcome.invalid },
-        output: outcome.invalid.text ?? nothing,
+        output: outcome.invalid.text ?? FailedCall.answer,
       };
     return { metadata, output: { offers: outcome.offers } };
   }
