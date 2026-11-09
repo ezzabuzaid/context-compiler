@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 import { categories } from '@eltjs/source-opensooq-web/categories';
 import { listings } from '@eltjs/source-opensooq-web/listings';
-import { InputError, WebSource } from '@eltjs/source-web-pages/web-source';
+import { WebSource } from '@eltjs/source-web-pages/web-source';
 import type { Choice } from '@workspace/connector/choice';
 import { Connector, type Selection } from '@workspace/connector/connector';
 
@@ -18,7 +18,7 @@ export default class OpenSooqConnector extends Connector {
   readonly datedBy = null;
   readonly fullDiskAccess = false;
   override readonly note =
-    'OpenSooq has no Mac app, so the import reads jo.opensooq.com, the OpenSooq site for Jordan. Pick at least one category. A listing that was sold keeps its row, so some listings may no longer be for sale.';
+    'OpenSooq has no Mac app, so the import reads jo.opensooq.com, the OpenSooq site for Jordan. Pick the categories to import; with none, the import loads the category list alone. A listing that was sold keeps its row, so some listings may no longer be for sale.';
   protected readonly choices: readonly Choice[] = [
     {
       stream: categories.name,
@@ -32,7 +32,7 @@ export default class OpenSooqConnector extends Connector {
   protected readonly storeCopies = [];
 
   protected access(): string {
-    return 'Choose at least one OpenSooq category when you set up the connector.';
+    return 'Choose the OpenSooq categories to import when you set up the connector.';
   }
 
   // The categories alone, for the choices. The home page sends no ETag or
@@ -51,21 +51,17 @@ export default class OpenSooqConnector extends Connector {
     ];
   }
 
-  // The listings of the chosen categories, beside the categories. A stream
-  // with no input reads nothing, so with no category chosen the import would
-  // load no listing and report success. WebSource classes InputError as the
-  // user's to fix, so access() tells them to choose one.
+  // The listings of the chosen categories, beside the categories. With no
+  // category chosen, the listings stream has no input and reads nothing.
   protected override importSources(
     { scope }: Selection,
     directory: string,
   ): readonly [WebSource] {
-    if (!scope.collectionIds)
-      throw new InputError('No OpenSooq category is chosen.');
     return [
       new WebSource({
         streams: [
           { stream: categories, inputs: [home] },
-          { stream: listings, inputs: scope.collectionIds },
+          { stream: listings, inputs: scope.collectionIds ?? [] },
         ],
         cachePath: join(directory, 'web-http.sqlite'),
       }),

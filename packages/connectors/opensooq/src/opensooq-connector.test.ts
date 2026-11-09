@@ -101,7 +101,7 @@ function openSooq() {
   );
 }
 
-test('an import with no category chosen fails as the user’s to fix, and requests nothing', async () => {
+test('an import with no category chosen loads the categories alone, and requests no category page', async () => {
   await using scratch = await new TemporaryFiles().directory('opensooq-');
   using wire = openSooq();
   const opensooq = connector();
@@ -118,17 +118,27 @@ test('an import with no category chosen fails as the user’s to fix, and reques
 
   const outcome = await opensooq.import(settings, selection);
 
-  assert.equal(outcome.status, 'unconnected');
-  const failure = settings.connectionFailure(selection);
-  assert.equal(failure?.failureType, 'config');
-  assert.match(
-    opensooq.failure(
-      outcome.status === 'unconnected' ? outcome.error : undefined,
-      failure?.failureType,
-    ),
-    /category/i,
+  assert.deepEqual(outcome, { status: 'imported' });
+  assert.equal(settings.connectionFailure(selection), undefined);
+  using database = open(settings.database(selection), { readOnly: true });
+  assert.ok(
+    Number(
+      database
+        .prepare('SELECT count(*) AS count FROM opensooq_categories')
+        .get()?.count,
+    ) > 0,
   );
-  assert.deepEqual(wire.requests, []);
+  assert.equal(
+    database.prepare('SELECT count(*) AS count FROM opensooq_listings').get()
+      ?.count,
+    0,
+  );
+  assert.deepEqual(
+    [
+      ...new Set(wire.requests.map((request) => new URL(request.url).pathname)),
+    ].sort(),
+    ['/en', '/robots.txt'],
+  );
 });
 
 test('setup offers the categories of OpenSooq Jordan, each under its top-level category', async () => {
