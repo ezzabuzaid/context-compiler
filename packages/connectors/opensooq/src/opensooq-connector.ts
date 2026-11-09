@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 import { categories } from '@eltjs/source-opensooq-web/categories';
 import { listings } from '@eltjs/source-opensooq-web/listings';
-import { WebSource } from '@eltjs/source-web-pages/web-source';
+import { InputError, WebSource } from '@eltjs/source-web-pages/web-source';
 import type { Choice } from '@workspace/connector/choice';
 import { Connector, type Selection } from '@workspace/connector/connector';
 
@@ -51,18 +51,21 @@ export default class OpenSooqConnector extends Connector {
     ];
   }
 
-  // The listings of the chosen categories, beside the categories. With no
-  // category chosen, the listings stream has no input, which the source
-  // refuses as the user's to fix.
+  // The listings of the chosen categories, beside the categories. A stream
+  // with no input reads nothing, so with no category chosen the import would
+  // load no listing and report success. WebSource classes InputError as the
+  // user's to fix, so access() tells them to choose one.
   protected override importSources(
     { scope }: Selection,
     directory: string,
   ): readonly [WebSource] {
+    if (!scope.collectionIds)
+      throw new InputError('No OpenSooq category is chosen.');
     return [
       new WebSource({
         streams: [
           { stream: categories, inputs: [home] },
-          { stream: listings, inputs: scope.collectionIds ?? [] },
+          { stream: listings, inputs: scope.collectionIds },
         ],
         cachePath: join(directory, 'web-http.sqlite'),
       }),
