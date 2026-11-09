@@ -1,5 +1,6 @@
 import nx from '@nx/eslint-plugin';
 import zukhruf from '@zukhruf/eslint';
+import modernNode from '@zukhruf/eslint/modern-node';
 import island, { manifest, moduleBoundaries } from '@zukhruf/eslint/nx';
 import react from '@zukhruf/eslint/react';
 import { defineConfig } from 'eslint/config';
@@ -54,6 +55,22 @@ export default defineConfig(
         },
       ],
     },
+  },
+  // Modern Node is for code that runs on Node. packages/ui and the two frontends
+  // run in a browser page, where a fix such as Error.isError can throw: MDN marks
+  // it limited availability. apps/startup-credits stays out because the user
+  // said: "don't change anything on startupcredit". These globs resolve from the
+  // folder of the config that ESLint loads, so they match nothing under
+  // apps/ambient, which spreads this config. That is correct: it runs on Node.
+  {
+    ignores: [
+      'packages/ui/**',
+      'apps/desktop/frontend/**',
+      'apps/server/src/page/**',
+      'apps/startup-credits/**',
+    ],
+    plugins: { 'modern-node': modernNode },
+    extends: ['modern-node/recommended'],
   },
   // The React components of packages/ui wait on the timers of the browser. How
   // a component gets a clock is not decided yet (zukhruf #3600), so
