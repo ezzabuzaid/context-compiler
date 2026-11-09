@@ -1,16 +1,16 @@
 import { type Clock, Latch } from '@zukhruf/async';
 import { Fixed, IdleTimeout, Parallel, Pool } from '@zukhruf/pool';
 
-import type { DocumentParser } from '@workspace/elt';
-import type { SpeechModels } from '@workspace/sdk-macos-speech-models';
+import type { DocumentParser } from '@eltjs/elt';
+import type { SpeechModels } from '@eltjs/sdk-macos-speech-models';
+import { AudioFormat } from '@eltjs/source-apple-macos/audio-format';
+import type { DocumentFormat } from '@eltjs/source-apple-macos/document-format';
+import { ImageFormat } from '@eltjs/source-apple-macos/image-format';
+import { MacOSDocumentParser } from '@eltjs/source-apple-macos/macos-document-parser';
+import type { VisionWorker } from '@eltjs/source-apple-macos/vision';
+import { LocalTranscriptionModel } from '@eltjs/transcription-local';
+import { TranscriptionWorker } from '@eltjs/transcription-local/transcription-worker';
 import { Settings } from '@workspace/settings';
-import { AudioFormat } from '@workspace/source-apple-macos/audio-format';
-import type { DocumentFormat } from '@workspace/source-apple-macos/document-format';
-import { ImageFormat } from '@workspace/source-apple-macos/image-format';
-import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
-import type { VisionWorker } from '@workspace/source-apple-macos/vision';
-import { LocalTranscriptionModel } from '@workspace/transcription-local';
-import { TranscriptionWorker } from '@workspace/transcription-local/transcription-worker';
 
 // The hosts share the user's saved choice: the file name of a speech model,
 // which each host finds wherever it is installed on its own Mac. Each host

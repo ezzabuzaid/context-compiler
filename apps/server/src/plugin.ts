@@ -8,20 +8,20 @@ import { SingleFlight } from '@zukhruf/single-flight';
 import type { Locate } from '@zukhruf/sqlite-federation';
 import { z } from 'zod';
 
+import { PassFinished, passChannels } from '@eltjs/elt';
+import { type PassStatus, readPassStatus } from '@eltjs/elt-sqlite';
+import type { ImportScope } from '@eltjs/source-apple-macos/import-scope';
 import type {
   BrokenConnector,
   Connectors,
 } from '@workspace/connector-manifest/connectors';
 import { userConnectors } from '@workspace/connector-manifest/user-connectors';
 import type { Connector, ConnectorHost } from '@workspace/connector/connector';
-import { PassFinished, passChannels } from '@workspace/elt';
-import { type PassStatus, readPassStatus } from '@workspace/elt-sqlite';
 import {
   type ConnectorFacts,
   type Selection,
   Settings,
 } from '@workspace/settings';
-import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 
 import type { Monitors } from './monitors.ts';
 

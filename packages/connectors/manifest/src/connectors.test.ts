@@ -3,7 +3,7 @@ import { homedir } from 'node:os';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
+import { MacOSDocumentParser } from '@eltjs/source-apple-macos/macos-document-parser';
 
 import { builtInConnectors } from './built-in-connectors.ts';
 import { Connectors } from './connectors.ts';
@@ -22,7 +22,7 @@ test('every connector folder loads as its connector for the host, and one that c
     grantee: 'Terminal',
     documentParser: new MacOSDocumentParser(),
     eventKitHelper: fileURLToPath(
-      import.meta.resolve('@workspace/sdk-apple-eventkit/eventkit-helper'),
+      import.meta.resolve('@eltjs/sdk-apple-eventkit/eventkit-helper'),
     ),
   });
 

@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@workspace/connector": "0.0.1",
-    "@workspace/sdk-apple-wallet": "0.0.1",
-    "@workspace/source-apple-wallet": "0.0.1"
+    "@eltjs/sdk-apple-wallet": "0.0.1",
+    "@eltjs/source-apple-wallet": "0.0.1"
   }
 }

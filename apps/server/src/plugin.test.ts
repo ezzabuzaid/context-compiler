@@ -24,13 +24,13 @@ import { timebox } from '@zukhruf/testing/async';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { z } from 'zod';
 
+import type { FailureType } from '@eltjs/elt';
+import { SQLiteSyncHistory } from '@eltjs/elt-sqlite';
+import { StubEventKitHelper } from '@eltjs/sdk-apple-eventkit/test';
+import { MacOSDocumentParser } from '@eltjs/source-apple-macos/macos-document-parser';
 import { builtInConnectors } from '@workspace/connector-manifest/built-in-connectors';
 import { Connectors } from '@workspace/connector-manifest/connectors';
-import type { FailureType } from '@workspace/elt';
-import { SQLiteSyncHistory } from '@workspace/elt-sqlite';
-import { StubEventKitHelper } from '@workspace/sdk-apple-eventkit/test';
 import { type Selection, importDirectory } from '@workspace/settings';
-import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
 import { connectorsResult } from '@workspace/ui/contract';
 
 import { chatStatus } from './chat-status.ts';
@@ -64,7 +64,7 @@ const host = {
   grantee: 'ChatGPT',
   documentParser: new MacOSDocumentParser(),
   eventKitHelper: fileURLToPath(
-    import.meta.resolve('@workspace/sdk-apple-eventkit/eventkit-helper'),
+    import.meta.resolve('@eltjs/sdk-apple-eventkit/eventkit-helper'),
   ),
 };
 

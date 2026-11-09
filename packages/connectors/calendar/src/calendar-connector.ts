@@ -1,20 +1,20 @@
 import {
+  GMAIL_READONLY_SCOPE,
+  GOOGLE_DRIVE_READONLY_SCOPE,
+} from '@eltjs/google-auth/scopes';
+import { CalendarStore } from '@eltjs/sdk-apple-eventkit';
+import {
+  AppleCalendarSource,
+  type CalendarAttachmentFetcher,
+} from '@eltjs/source-apple-calendar/apple-calendar-source';
+import type { ImportScope } from '@eltjs/source-apple-macos/import-scope';
+import {
   type Choice,
   accounts,
   collections,
   name,
 } from '@workspace/connector/choice';
 import { Connector, type Selection } from '@workspace/connector/connector';
-import {
-  GMAIL_READONLY_SCOPE,
-  GOOGLE_DRIVE_READONLY_SCOPE,
-} from '@workspace/google-auth/scopes';
-import { CalendarStore } from '@workspace/sdk-apple-eventkit';
-import {
-  AppleCalendarSource,
-  type CalendarAttachmentFetcher,
-} from '@workspace/source-apple-calendar/apple-calendar-source';
-import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 
 export default class CalendarConnector extends Connector {
   readonly datedBy =
@@ -59,7 +59,7 @@ export default class CalendarConnector extends Connector {
       GMAIL_READONLY_SCOPE,
     ]);
     const { googleCalendarAttachments } =
-      await import('@workspace/source-apple-calendar/google-calendar-attachments');
+      await import('@eltjs/source-apple-calendar/google-calendar-attachments');
     return [this.#calendar(scope, googleCalendarAttachments(google))] as const;
   }
 

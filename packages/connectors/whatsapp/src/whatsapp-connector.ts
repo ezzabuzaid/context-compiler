@@ -1,8 +1,8 @@
+import { whatsappContainer } from '@eltjs/sdk-whatsapp-desktop';
+import type { ImportScope } from '@eltjs/source-apple-macos/import-scope';
+import { WhatsAppDesktopSource } from '@eltjs/source-whatsapp-desktop/whatsapp-desktop-source';
 import type { Choice } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
-import { whatsappContainer } from '@workspace/sdk-whatsapp-desktop';
-import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
-import { WhatsAppDesktopSource } from '@workspace/source-whatsapp-desktop/whatsapp-desktop-source';
 
 export default class WhatsAppConnector extends Connector {
   readonly datedBy = 'date sent';

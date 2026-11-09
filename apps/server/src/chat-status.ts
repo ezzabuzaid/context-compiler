@@ -1,6 +1,6 @@
 import { relative } from 'node:path';
 
-import type { PassStatus } from '@workspace/elt-sqlite';
+import type { PassStatus } from '@eltjs/elt-sqlite';
 import { connectorPath } from '@workspace/ui/contract';
 
 import { passFailure } from './pass-failure.ts';

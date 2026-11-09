@@ -5,7 +5,7 @@ import {
   experimental_decide as decide,
 } from 'ai';
 
-import { type LoadedRow, Rule, type RuleResult } from '@workspace/elt';
+import { type LoadedRow, Rule, type RuleResult } from '@eltjs/elt';
 import { CallFailures } from '@workspace/model-calls/call-failures';
 import { ruleIdentity } from '@workspace/model-calls/rule-identity';
 

@@ -6,7 +6,7 @@ import { registerHooks } from 'node:module';
 // passes the host's checks, and its streams and records are the ones the
 // host's elt runs.
 export const hostModules = [
-  { specifier: '@workspace/elt', file: 'elt' },
+  { specifier: '@eltjs/elt', file: 'elt' },
   {
     specifier: '@workspace/connector/connector',
     file: 'connector',

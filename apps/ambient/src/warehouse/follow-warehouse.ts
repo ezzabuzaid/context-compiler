@@ -11,7 +11,7 @@ import {
 } from '@zukhruf/sqlite-changefeed';
 import { DataVersion } from '@zukhruf/sqlite-data-version';
 
-import { isReserved } from '@workspace/elt-sqlite';
+import { isReserved } from '@eltjs/elt-sqlite';
 
 import type { Warehouse } from './warehouse.ts';
 

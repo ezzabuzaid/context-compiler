@@ -1,9 +1,9 @@
+import type { Source } from '@eltjs/elt';
+import type { ChromiumBrowser } from '@eltjs/sdk-chromium-browser';
+import type { ImportScope } from '@eltjs/source-apple-macos/import-scope';
+import { ChromiumSource } from '@eltjs/source-chromium-browser/chromium-source';
 import { type Choice, byId } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
-import type { Source } from '@workspace/elt';
-import type { ChromiumBrowser } from '@workspace/sdk-chromium-browser';
-import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
-import { ChromiumSource } from '@workspace/source-chromium-browser/chromium-source';
 
 // A Chromium browser on this Mac. Its history, downloads, searches and
 // bookmarks are in the profile files every Chromium browser keeps, which

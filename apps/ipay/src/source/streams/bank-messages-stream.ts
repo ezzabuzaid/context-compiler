@@ -1,4 +1,4 @@
-import type { RecordDraft } from '@workspace/elt';
+import type { RecordDraft } from '@eltjs/elt';
 
 import { bankSenders } from '../../rules/arab-bank-sms.ts';
 import { type ImportRow, ImportStream } from '../import-stream.ts';

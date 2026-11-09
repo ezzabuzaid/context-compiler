@@ -1,4 +1,4 @@
-import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
+import type { ImportScope } from '@eltjs/source-apple-macos/import-scope';
 
 // One connector's import: what it covers, and whether it copies attachment
 // files.

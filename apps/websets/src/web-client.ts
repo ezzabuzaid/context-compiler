@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 
-import { WebClient } from '@workspace/source-web-pages/web-client';
+import { WebClient } from '@eltjs/source-web-pages/web-client';
 
 import directory from './directory.ts';
 

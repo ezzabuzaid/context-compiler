@@ -7,8 +7,8 @@ import { UnavailableError, open } from '@zukhruf/sqlite-open';
 import { transaction } from '@zukhruf/sqlite-transaction';
 import { z } from 'zod';
 
-import { type Connection, DerivedDataset } from '@workspace/elt';
-import { SQLiteDestination, type SQLiteTable } from '@workspace/elt-sqlite';
+import { type Connection, DerivedDataset } from '@eltjs/elt';
+import { SQLiteDestination, type SQLiteTable } from '@eltjs/elt-sqlite';
 
 import { articleText, score } from './decisions.ts';
 import model from './embedding-model.ts';

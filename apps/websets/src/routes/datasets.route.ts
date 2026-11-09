@@ -3,7 +3,7 @@ import type { Hono } from 'hono';
 import { HTTPException } from 'hono/http-exception';
 import { z } from 'zod';
 
-import { webInput } from '@workspace/source-web-pages/web-source';
+import { webInput } from '@eltjs/source-web-pages/web-source';
 
 import * as inputs from '../inputs.ts';
 import { candidates } from '../items.ts';

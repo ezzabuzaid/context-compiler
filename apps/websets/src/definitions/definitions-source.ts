@@ -4,7 +4,7 @@ import {
   Source,
   type SourceMessage,
   type Stream,
-} from '@workspace/elt';
+} from '@eltjs/elt';
 
 import { DefinitionsScan } from './definitions-scan.ts';
 import type { DefinitionsReader } from './definitions-stream.ts';

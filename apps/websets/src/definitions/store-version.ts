@@ -1,6 +1,6 @@
 import { DataVersion } from '@zukhruf/sqlite-data-version';
 
-import { Gauge } from '@workspace/elt';
+import { Gauge } from '@eltjs/elt';
 
 // What tells the pipeline that the consumers changed what they asked: the
 // data version of api.sqlite, which each commit of the API changes. It opens

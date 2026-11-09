@@ -1,22 +1,22 @@
 import { join } from 'node:path';
 
-import { Connection, Copy, Pipeline } from '@workspace/elt';
+import { Connection, Copy, Pipeline } from '@eltjs/elt';
 import {
   ComputedDataset,
   SQLiteCheckpointStore,
   SQLiteDestination,
   SQLiteSyncHistory,
   View,
-} from '@workspace/elt-sqlite';
+} from '@eltjs/elt-sqlite';
 import {
   LinkReader,
   ListingReader,
   PaginationReader,
   StartReader,
-} from '@workspace/sdk-web-crawler';
-import { ArticleExtractor } from '@workspace/source-web-pages/article-extractor';
-import { WebSource, webInput } from '@workspace/source-web-pages/web-source';
-import { WebStream } from '@workspace/source-web-pages/web-stream';
+} from '@eltjs/sdk-web-crawler';
+import { ArticleExtractor } from '@eltjs/source-web-pages/article-extractor';
+import { WebSource, webInput } from '@eltjs/source-web-pages/web-source';
+import { WebStream } from '@eltjs/source-web-pages/web-stream';
 
 import { DefinitionsSource } from './definitions/definitions-source.ts';
 import directory from './directory.ts';

@@ -17,9 +17,9 @@ import {
   type SourceMessage,
   Stream,
   passChannels,
-} from '@workspace/elt';
+} from '@eltjs/elt';
+import { MacOSDocumentParser } from '@eltjs/source-apple-macos/macos-document-parser';
 import { Settings } from '@workspace/settings';
-import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
 
 import { Connector } from './connector.ts';
 
@@ -266,10 +266,10 @@ test(
     // first note and then waits until the process is killed, as a process
     // that runs out of memory or is quit mid-pass leaves its pass.
     const pass = `
-      const { Catalog, Gauge, Source, Stream } = await import('@workspace/elt');
+      const { Catalog, Gauge, Source, Stream } = await import('@eltjs/elt');
       class Unchanging extends Gauge { async read() { return 0; } }
       const { Settings } = await import('@workspace/settings');
-      const { MacOSDocumentParser } = await import('@workspace/source-apple-macos/macos-document-parser');
+      const { MacOSDocumentParser } = await import('@eltjs/source-apple-macos/macos-document-parser');
       const { Connector } = await import(process.env.CONNECTOR);
       class TwoNotesSource extends Source {
         identity = 'two-notes';

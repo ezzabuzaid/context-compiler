@@ -10,7 +10,7 @@ description: Adds a connector for a Mac app the Context Compiler plugin does not
 - A connector is a folder in `~/Library/Application Support/Context Compiler/Connectors/<name>/` holding two files: a `package.json` and the entry point it names. The plugin reads that folder on every tool call, so a connector you add or edit is used in this chat; nothing restarts.
 - `package.json` is `{ "type": "module", "exports": "./<name>-connector.ts", "contextCompiler": { "name": "<name>", "title": "<Title>" } }`. `name` is lowercase letters, digits and dashes, and must not repeat a connector the plugin already has. `title` is what the user sees. The connector class takes both from here; it does not declare them.
 - The entry is TypeScript that Node runs as written, without a compiler. Its default export is a class that extends `Connector`. Its `sources()` returns a list of one or more elt `Source`s that read the app's own data on this Mac. Most apps need one source. Give a second source only for a second store of the app, and give each source its own stream names: two sources that declare one stream fail the import.
-- The entry may import only Node built-ins (`node:fs`, `node:sqlite`, `node:child_process`, ...) and four modules the plugin provides: `@workspace/elt` (`Source`, `Stream`, `Catalog`, `Gauge` and their types), `@workspace/connector/connector` (`Connector`) `@workspace/connector/choice` (`accounts`, `collections`, `byId`, `name`, `Choice`) and `@zukhruf/sqlite-open` (`open`, `UnavailableError`). There is no `node_modules`, so no npm package resolves.
+- The entry may import only Node built-ins (`node:fs`, `node:sqlite`, `node:child_process`, ...) and four modules the plugin provides: `@eltjs/elt` (`Source`, `Stream`, `Catalog`, `Gauge` and their types), `@workspace/connector/connector` (`Connector`) `@workspace/connector/choice` (`accounts`, `collections`, `byId`, `name`, `Choice`) and `@zukhruf/sqlite-open` (`open`, `UnavailableError`). There is no `node_modules`, so no npm package resolves.
 - The plugin imports each stream into `raw_<stream>` in the connector's own `data.sqlite`, read through a view named after the stream in snake case (`photoAssets` reads as `photo_assets`). `$query` reads it like any other connector.
 - The connector runs inside the plugin, with every macOS permission ChatGPT has, Full Disk Access included.
 - A connector that cannot load is listed in the Context Compiler status of every chat as `- <Title> could not be loaded: <error>`.
@@ -28,8 +28,6 @@ description: Adds a connector for a Mac app the Context Compiler plugin does not
 
    import { UnavailableError, open } from '@zukhruf/sqlite-open';
 
-   import type { Choice } from '@workspace/connector/choice';
-   import { Connector } from '@workspace/connector/connector';
    import {
      Catalog,
      type ChangeSignal,
@@ -37,7 +35,9 @@ description: Adds a connector for a Mac app the Context Compiler plugin does not
      Gauge,
      Source,
      Stream,
-   } from '@workspace/elt';
+   } from '@eltjs/elt';
+   import type { Choice } from '@workspace/connector/choice';
+   import { Connector } from '@workspace/connector/connector';
 
    const store = join(homedir(), 'Library/<where the app keeps its store>');
 

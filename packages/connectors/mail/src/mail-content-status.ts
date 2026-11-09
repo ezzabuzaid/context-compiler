@@ -1,4 +1,4 @@
-import { type SQLiteDestination, View } from '@workspace/elt-sqlite';
+import { type SQLiteDestination, View } from '@eltjs/elt-sqlite';
 
 // Availability in the selected local copy, not a cloud inbox watermark.
 export function mailContentStatus(into: SQLiteDestination): View {

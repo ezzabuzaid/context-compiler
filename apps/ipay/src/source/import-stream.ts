@@ -7,7 +7,7 @@ import {
   Stream,
   type SyncMode,
   validateRecords,
-} from '@workspace/elt';
+} from '@eltjs/elt';
 
 import type { ImportConnector } from '../imports.ts';
 import type { ImportsScan } from './imports-scan.ts';

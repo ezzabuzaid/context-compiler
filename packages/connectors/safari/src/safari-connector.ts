@@ -1,8 +1,8 @@
+import { safariContainer, safariDirectory } from '@eltjs/sdk-apple-safari';
+import type { ImportScope } from '@eltjs/source-apple-macos/import-scope';
+import { AppleSafariSource } from '@eltjs/source-apple-safari/apple-safari-source';
 import { type Choice, byId } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
-import { safariContainer, safariDirectory } from '@workspace/sdk-apple-safari';
-import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
-import { AppleSafariSource } from '@workspace/source-apple-safari/apple-safari-source';
 
 export default class SafariConnector extends Connector {
   readonly datedBy = 'visit time';

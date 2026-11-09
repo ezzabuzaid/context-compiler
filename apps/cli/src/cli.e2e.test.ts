@@ -35,7 +35,7 @@ import {
 import { timebox } from '@zukhruf/testing/async';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 
-import { IndexedDBWriter } from '@workspace/codec-chromium-indexeddb/test';
+import { IndexedDBWriter } from '@eltjs/codec-chromium-indexeddb/test';
 
 // The workspace root: the tests read its fixtures and builds from any
 // working directory.

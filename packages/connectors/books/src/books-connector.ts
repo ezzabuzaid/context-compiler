@@ -1,7 +1,7 @@
+import { booksLocation } from '@eltjs/sdk-apple-books';
+import { AppleBooksSource } from '@eltjs/source-apple-books/apple-books-source';
 import type { Choice } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
-import { booksLocation } from '@workspace/sdk-apple-books';
-import { AppleBooksSource } from '@workspace/source-apple-books/apple-books-source';
 
 export default class BooksConnector extends Connector {
   readonly datedBy = null;

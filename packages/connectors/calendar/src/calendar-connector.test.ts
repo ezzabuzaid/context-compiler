@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 
-import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
+import { MacOSDocumentParser } from '@eltjs/source-apple-macos/macos-document-parser';
 
 import CalendarConnector from './calendar-connector.ts';
 

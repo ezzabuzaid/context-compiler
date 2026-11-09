@@ -11,9 +11,9 @@
   },
   "dependencies": {
     "@workspace/connector": "0.0.1",
-    "@workspace/elt": "0.0.1",
-    "@workspace/sdk-chromium-browser": "0.0.1",
-    "@workspace/source-apple-macos": "0.0.1",
-    "@workspace/source-chromium-browser": "0.0.1"
+    "@eltjs/elt": "*",
+    "@eltjs/sdk-chromium-browser": "0.0.1",
+    "@eltjs/source-apple-macos": "0.0.1",
+    "@eltjs/source-chromium-browser": "0.0.1"
   }
 }

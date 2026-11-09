@@ -7,11 +7,11 @@ import { fileURLToPath } from 'node:url';
 import { open } from '@zukhruf/sqlite-open';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 
+import { Pipeline, PipelineError } from '@eltjs/elt';
+import { SQLiteSyncHistory } from '@eltjs/elt-sqlite';
+import type { ImportScope } from '@eltjs/source-apple-macos/import-scope';
+import { MacOSDocumentParser } from '@eltjs/source-apple-macos/macos-document-parser';
 import type { Connector } from '@workspace/connector/connector';
-import { Pipeline, PipelineError } from '@workspace/elt';
-import { SQLiteSyncHistory } from '@workspace/elt-sqlite';
-import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
-import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
 
 import WhatsAppConnector from './whatsapp-connector.ts';
 

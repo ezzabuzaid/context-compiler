@@ -6,7 +6,7 @@ import { PeriodicExportingMetricReader } from '@opentelemetry/sdk-metrics';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { Shutdown } from '@zukhruf/shutdown';
 
-import { EltInstrumentation } from '@workspace/elt-opentelemetry';
+import { EltInstrumentation } from '@eltjs/elt-opentelemetry';
 
 import pipeline from './pipeline.ts';
 

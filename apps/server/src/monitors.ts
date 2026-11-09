@@ -22,7 +22,7 @@ import { open } from '@zukhruf/sqlite-open';
 import { transaction } from '@zukhruf/sqlite-transaction';
 import { z } from 'zod';
 
-import { type Condition, Eca, type Rule } from '@workspace/eca';
+import { type Condition, Eca, type Rule } from '@eltjs/eca';
 
 // A monitor package's package.json: what the page shows of it, read without
 // running its code, and the entry whose default export has evaluate(sql).

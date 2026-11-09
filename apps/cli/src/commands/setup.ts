@@ -15,9 +15,9 @@ import {
   Option,
 } from 'commander';
 
+import type { ImportScope } from '@eltjs/source-apple-macos/import-scope';
 import type { ChoiceOptions, Connector } from '@workspace/connector/connector';
 import { selectionProblems } from '@workspace/settings';
-import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 
 import type { Selection } from '../imports.ts';
 import { SyncReport } from '../sync-report.ts';

@@ -9,8 +9,8 @@ import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { Msw } from '@zukhruf/testing/msw';
 import { HttpResponse, http } from 'msw';
 
+import { MacOSDocumentParser } from '@eltjs/source-apple-macos/macos-document-parser';
 import { Settings } from '@workspace/settings';
-import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
 
 import OpenSooqConnector from './opensooq-connector.ts';
 

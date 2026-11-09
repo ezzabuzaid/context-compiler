@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 
 import { HillClimbing, IdleTimeout, LeaderFirst, Pool } from '@zukhruf/pool';
 
-import { VisionWorker } from '@workspace/source-apple-macos/vision';
+import { VisionWorker } from '@eltjs/source-apple-macos/vision';
 
 // Start recognition while the server registers its tools. Reads wait for a
 // ready worker; closing MCP also stops a worker still warming up. The CLI

@@ -1,3 +1,6 @@
+import { teamsDirectory } from '@eltjs/sdk-microsoft-teams';
+import type { ImportScope } from '@eltjs/source-apple-macos/import-scope';
+import { TeamsSource } from '@eltjs/source-microsoft-teams/teams-source';
 import {
   type Choice,
   type Row,
@@ -5,9 +8,6 @@ import {
   byId,
 } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
-import { teamsDirectory } from '@workspace/sdk-microsoft-teams';
-import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
-import { TeamsSource } from '@workspace/source-microsoft-teams/teams-source';
 
 // An account by its organization's first domain.
 const account: Choice['label'] = (row) => {

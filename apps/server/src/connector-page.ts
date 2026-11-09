@@ -1,4 +1,4 @@
-import type { PassStatus } from '@workspace/elt-sqlite';
+import type { PassStatus } from '@eltjs/elt-sqlite';
 import type { Selection } from '@workspace/settings';
 import type {
   ConnectorChoices,

@@ -14,10 +14,10 @@ import {
   Source,
   type SourceMessage,
   Stream,
-} from '@workspace/elt';
-import { type SQLiteDestination, View } from '@workspace/elt-sqlite';
+} from '@eltjs/elt';
+import { type SQLiteDestination, View } from '@eltjs/elt-sqlite';
+import { MacOSDocumentParser } from '@eltjs/source-apple-macos/macos-document-parser';
 import { Settings } from '@workspace/settings';
-import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
 
 import { Connector } from './connector.ts';
 

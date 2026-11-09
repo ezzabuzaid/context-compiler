@@ -1,7 +1,7 @@
 import { type SpinnerResult, intro, log, outro, spinner } from '@clack/prompts';
 
+import type { CopyProgress } from '@eltjs/elt';
 import type { Connector } from '@workspace/connector/connector';
-import type { CopyProgress } from '@workspace/elt';
 
 import type { SyncObserver } from './imports.ts';
 import type { PassSummary } from './sync.ts';

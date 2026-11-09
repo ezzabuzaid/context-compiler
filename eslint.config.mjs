@@ -77,7 +77,7 @@ export default defineConfig(
           // splitting, while the plugin bundle splits per module. Matched as
           // an unanchored regex, hence the anchors.
           checkDynamicDependenciesExceptions: [
-            '^@workspace/source-apple-calendar(/.*)?$',
+            '^@eltjs/source-apple-calendar(/.*)?$',
           ],
         }),
       ],

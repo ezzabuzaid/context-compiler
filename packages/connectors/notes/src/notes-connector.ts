@@ -1,3 +1,6 @@
+import { noteStorePath } from '@eltjs/sdk-apple-notes';
+import type { ImportScope } from '@eltjs/source-apple-macos/import-scope';
+import { AppleNotesSource } from '@eltjs/source-apple-notes/apple-notes-source';
 import {
   type Choice,
   accounts,
@@ -5,9 +8,6 @@ import {
   name,
 } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
-import { noteStorePath } from '@workspace/sdk-apple-notes';
-import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
-import { AppleNotesSource } from '@workspace/source-apple-notes/apple-notes-source';
 
 export default class NotesConnector extends Connector {
   readonly datedBy = 'date last edited';

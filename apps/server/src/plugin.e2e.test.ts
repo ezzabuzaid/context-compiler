@@ -1153,7 +1153,7 @@ test(
       `import { join } from 'node:path';
 
 import { Connector } from '@workspace/connector/connector';
-import { Catalog, Gauge, Source, Stream } from '@workspace/elt';
+import { Catalog, Gauge, Source, Stream } from '@eltjs/elt';
 import { UnavailableError, open } from '@zukhruf/sqlite-open';
 
 const items = new Stream({

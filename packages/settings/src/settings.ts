@@ -8,11 +8,8 @@ import { Declaration } from '@zukhruf/sqlite-drift';
 import { PersistentWriteAheadLog, open } from '@zukhruf/sqlite-open';
 import { transaction } from '@zukhruf/sqlite-transaction';
 
-import type { FailureType } from '@workspace/elt';
-import {
-  installSQLiteCatalog,
-  publishSQLiteViews,
-} from '@workspace/elt-sqlite';
+import type { FailureType } from '@eltjs/elt';
+import { installSQLiteCatalog, publishSQLiteViews } from '@eltjs/elt-sqlite';
 
 import {
   type ConnectorFacts,

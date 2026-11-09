@@ -1,7 +1,7 @@
+import { arc } from '@eltjs/sdk-chromium-browser';
+import type { ImportScope } from '@eltjs/source-apple-macos/import-scope';
+import { ArcDesktopSource } from '@eltjs/source-arc-desktop/arc-desktop-source';
 import { ChromiumConnector } from '@workspace/connector-chromium/chromium-connector';
-import { arc } from '@workspace/sdk-chromium-browser';
-import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
-import { ArcDesktopSource } from '@workspace/source-arc-desktop/arc-desktop-source';
 
 export default class ArcConnector extends ChromiumConnector {
   protected readonly browser = arc;

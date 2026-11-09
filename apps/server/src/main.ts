@@ -10,11 +10,11 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { Shutdown } from '@zukhruf/shutdown';
 import { z } from 'zod';
 
+import { SpeechModels } from '@eltjs/sdk-macos-speech-models';
 import { Connectors } from '@workspace/connector-manifest/connectors';
 import { provideHostModules } from '@workspace/connector-manifest/host-modules';
 import { userConnectors } from '@workspace/connector-manifest/user-connectors';
 import { Transcription } from '@workspace/connector/transcription';
-import { SpeechModels } from '@workspace/sdk-macos-speech-models';
 import {
   choicesResult,
   connectorsResult,

@@ -2,7 +2,7 @@ import { join } from 'node:path';
 
 import { Shutdown } from '@zukhruf/shutdown';
 
-import { CrawlError } from '@workspace/sdk-web-crawler';
+import { CrawlError } from '@eltjs/sdk-web-crawler';
 
 import { MissingPrograms } from './alerts/missing-programs.ts';
 import { ModelFailures } from './alerts/model-failures.ts';

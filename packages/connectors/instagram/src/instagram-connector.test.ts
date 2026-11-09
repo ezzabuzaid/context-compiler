@@ -12,12 +12,12 @@ import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { Msw } from '@zukhruf/testing/msw';
 import { HttpResponse, http } from 'msw';
 
-import { type DocumentParser, Pipeline } from '@workspace/elt';
-import { SQLiteSyncHistory } from '@workspace/elt-sqlite';
-import { ScratchMac } from '@workspace/sdk-chromium-cookies/test';
-import { ImageFormat } from '@workspace/source-apple-macos/image-format';
-import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
-import { VisionWorker } from '@workspace/source-apple-macos/vision';
+import { type DocumentParser, Pipeline } from '@eltjs/elt';
+import { SQLiteSyncHistory } from '@eltjs/elt-sqlite';
+import { ScratchMac } from '@eltjs/sdk-chromium-cookies/test';
+import { ImageFormat } from '@eltjs/source-apple-macos/image-format';
+import { MacOSDocumentParser } from '@eltjs/source-apple-macos/macos-document-parser';
+import { VisionWorker } from '@eltjs/source-apple-macos/vision';
 
 import InstagramConnector from './instagram-connector.ts';
 
@@ -363,7 +363,7 @@ test('an import that keeps attachments, as setup does by default, makes the text
     create: () =>
       new VisionWorker(
         fileURLToPath(
-          import.meta.resolve('@workspace/source-apple-macos/vision-worker'),
+          import.meta.resolve('@eltjs/source-apple-macos/vision-worker'),
         ),
         globalThis,
       ),

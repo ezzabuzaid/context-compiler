@@ -1,6 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 
-import type { Connector } from '@workspace/connector/connector';
 import {
   type CopyOutcome,
   CopyProgress,
@@ -14,7 +13,8 @@ import {
   passError,
   passFailureType,
   passStatus,
-} from '@workspace/elt';
+} from '@eltjs/elt';
+import type { Connector } from '@workspace/connector/connector';
 
 // How one pass of one connector ended, as sync reports it.
 export type PassSummary = {

@@ -10,13 +10,13 @@
   },
   "dependencies": {
     "@workspace/connector": "0.0.1",
-    "@workspace/source-apple-macos": "0.0.1",
-    "@workspace/source-instagram-web": "0.0.1"
+    "@eltjs/source-apple-macos": "0.0.1",
+    "@eltjs/source-instagram-web": "0.0.1"
   },
   "devDependencies": {
-    "@workspace/elt": "0.0.1",
-    "@workspace/elt-sqlite": "0.0.1",
-    "@workspace/sdk-chromium-cookies": "0.0.1",
+    "@eltjs/elt": "*",
+    "@eltjs/elt-sqlite": "*",
+    "@eltjs/sdk-chromium-cookies": "0.0.1",
     "@zukhruf/pool": "^0.8.10",
     "@zukhruf/sqlite-open": "^0.8.10",
     "@zukhruf/testing": "^0.8.10",

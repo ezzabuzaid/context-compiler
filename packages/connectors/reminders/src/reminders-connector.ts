@@ -1,3 +1,6 @@
+import { RemindersStore } from '@eltjs/sdk-apple-eventkit';
+import type { ImportScope } from '@eltjs/source-apple-macos/import-scope';
+import { AppleRemindersSource } from '@eltjs/source-apple-reminders/apple-reminders-source';
 import {
   type Choice,
   accounts,
@@ -5,9 +8,6 @@ import {
   name,
 } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
-import { RemindersStore } from '@workspace/sdk-apple-eventkit';
-import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
-import { AppleRemindersSource } from '@workspace/source-apple-reminders/apple-reminders-source';
 
 export default class RemindersConnector extends Connector {
   readonly datedBy = null;

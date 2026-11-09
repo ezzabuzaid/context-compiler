@@ -1,5 +1,5 @@
+import { edge } from '@eltjs/sdk-chromium-browser';
 import { ChromiumConnector } from '@workspace/connector-chromium/chromium-connector';
-import { edge } from '@workspace/sdk-chromium-browser';
 
 export default class EdgeConnector extends ChromiumConnector {
   protected readonly browser = edge;

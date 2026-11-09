@@ -5,7 +5,7 @@ import {
   HTMLExtraction,
   MarkdownExtraction,
   WebArticle,
-} from '@workspace/sdk-web-article';
+} from '@eltjs/sdk-web-article';
 
 import store from '../store.ts';
 import client from '../web-client.ts';

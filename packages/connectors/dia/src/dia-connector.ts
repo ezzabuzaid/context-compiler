@@ -1,7 +1,7 @@
+import { dia } from '@eltjs/sdk-chromium-browser';
+import type { ImportScope } from '@eltjs/source-apple-macos/import-scope';
+import { DiaDesktopSource } from '@eltjs/source-dia-desktop/dia-desktop-source';
 import { ChromiumConnector } from '@workspace/connector-chromium/chromium-connector';
-import { dia } from '@workspace/sdk-chromium-browser';
-import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
-import { DiaDesktopSource } from '@workspace/source-dia-desktop/dia-desktop-source';
 
 export default class DiaConnector extends ChromiumConnector {
   protected readonly browser = dia;

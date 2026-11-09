@@ -1,6 +1,6 @@
+import type { Source } from '@eltjs/elt';
 import type { Choice } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
-import type { Source } from '@workspace/elt';
 
 // A second connector named notes.
 export default class NotesAgainConnector extends Connector {

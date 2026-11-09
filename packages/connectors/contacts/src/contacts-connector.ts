@@ -1,11 +1,11 @@
-import { type Choice, byId, name } from '@workspace/connector/choice';
-import { Connector } from '@workspace/connector/connector';
 import {
   addressBookDirectory,
   globalPreferences,
-} from '@workspace/sdk-apple-contacts';
-import { AppleContactsSource } from '@workspace/source-apple-contacts/apple-contacts-source';
-import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
+} from '@eltjs/sdk-apple-contacts';
+import { AppleContactsSource } from '@eltjs/source-apple-contacts/apple-contacts-source';
+import type { ImportScope } from '@eltjs/source-apple-macos/import-scope';
+import { type Choice, byId, name } from '@workspace/connector/choice';
+import { Connector } from '@workspace/connector/connector';
 
 export default class ContactsConnector extends Connector {
   readonly datedBy = null;

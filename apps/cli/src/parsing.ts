@@ -4,10 +4,10 @@ import { fileURLToPath } from 'node:url';
 
 import { HillClimbing, IdleTimeout, LeaderFirst, Pool } from '@zukhruf/pool';
 
+import type { DocumentParser } from '@eltjs/elt';
+import { SpeechModels } from '@eltjs/sdk-macos-speech-models';
+import { VisionWorker } from '@eltjs/source-apple-macos/vision';
 import { Transcription } from '@workspace/connector/transcription';
-import type { DocumentParser } from '@workspace/elt';
-import { SpeechModels } from '@workspace/sdk-macos-speech-models';
-import { VisionWorker } from '@workspace/source-apple-macos/vision';
 
 // The OCR workers and the speech engine that read the files an import
 // stores. The CLI starts them only for a command that reads files, so query,
@@ -74,7 +74,7 @@ class Started implements AsyncDisposable {
       create: () =>
         new VisionWorker(
           fileURLToPath(
-            import.meta.resolve('@workspace/source-apple-macos/vision-worker'),
+            import.meta.resolve('@eltjs/source-apple-macos/vision-worker'),
           ),
           globalThis,
         ),
@@ -87,7 +87,7 @@ class Started implements AsyncDisposable {
       }),
       this.#ocr,
       fileURLToPath(
-        import.meta.resolve('@workspace/transcription-local/transcribe-local'),
+        import.meta.resolve('@eltjs/transcription-local/transcribe-local'),
       ),
       globalThis,
     );

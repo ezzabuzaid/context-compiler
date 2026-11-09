@@ -11,7 +11,7 @@ import {
   type SourceMessage,
   type Stream,
   diffSnapshot,
-} from '@workspace/elt';
+} from '@eltjs/elt';
 
 import { type ImportConnector, ImportUnavailableError } from '../imports.ts';
 import type { ImportStream } from './import-stream.ts';

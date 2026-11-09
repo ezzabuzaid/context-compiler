@@ -1,7 +1,7 @@
+import { clockLocation } from '@eltjs/sdk-apple-clock/clock-store';
+import { AppleClockSource } from '@eltjs/source-apple-clock/apple-clock-source';
 import type { Choice } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
-import { clockLocation } from '@workspace/sdk-apple-clock/clock-store';
-import { AppleClockSource } from '@workspace/source-apple-clock/apple-clock-source';
 
 export default class ClockConnector extends Connector {
   readonly datedBy = null;

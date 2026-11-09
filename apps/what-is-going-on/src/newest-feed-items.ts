@@ -1,4 +1,4 @@
-import { ListingReader } from '@workspace/sdk-web-crawler';
+import { ListingReader } from '@eltjs/sdk-web-crawler';
 
 // Feeds list their newest items first. A feed can hold a lab's whole
 // archive (OpenAI's lists 1,332 posts), so a first crawl reads only its

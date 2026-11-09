@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@workspace/connector": "0.0.1",
-    "@workspace/sdk-apple-books": "0.0.1",
-    "@workspace/source-apple-books": "0.0.1"
+    "@eltjs/sdk-apple-books": "0.0.1",
+    "@eltjs/source-apple-books": "0.0.1"
   }
 }

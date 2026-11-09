@@ -3,7 +3,7 @@ import { aborted } from 'node:util';
 import { serve } from '@hono/node-server';
 import { Shutdown } from '@zukhruf/shutdown';
 
-import { CrawlError } from '@workspace/sdk-web-crawler';
+import { CrawlError } from '@eltjs/sdk-web-crawler';
 
 import app from './app.ts';
 import { recordEvents } from './events.ts';

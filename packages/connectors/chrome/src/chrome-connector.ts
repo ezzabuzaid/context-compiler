@@ -1,5 +1,5 @@
+import { chrome } from '@eltjs/sdk-chromium-browser';
 import { ChromiumConnector } from '@workspace/connector-chromium/chromium-connector';
-import { chrome } from '@workspace/sdk-chromium-browser';
 
 export default class ChromeConnector extends ChromiumConnector {
   protected readonly browser = chrome;

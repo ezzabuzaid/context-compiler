@@ -14,10 +14,10 @@ import {
   type SourceMessage,
   Stream,
   passChannels,
-} from '@workspace/elt';
-import { readPassStatus } from '@workspace/elt-sqlite';
+} from '@eltjs/elt';
+import { readPassStatus } from '@eltjs/elt-sqlite';
+import { MacOSDocumentParser } from '@eltjs/source-apple-macos/macos-document-parser';
 import { Settings } from '@workspace/settings';
-import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
 
 import type { Choice } from './choice.ts';
 import { Connector } from './connector.ts';

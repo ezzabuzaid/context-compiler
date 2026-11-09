@@ -10,11 +10,11 @@
   },
   "dependencies": {
     "@workspace/connector": "0.0.1",
-    "@workspace/elt-sqlite": "0.0.1",
-    "@workspace/sdk-apple-accounts": "0.0.1",
-    "@workspace/sdk-apple-mail": "0.0.1",
-    "@workspace/source-apple-macos": "0.0.1",
-    "@workspace/source-apple-mail": "0.0.1",
+    "@eltjs/elt-sqlite": "*",
+    "@eltjs/sdk-apple-accounts": "0.0.1",
+    "@eltjs/sdk-apple-mail": "0.0.1",
+    "@eltjs/source-apple-macos": "0.0.1",
+    "@eltjs/source-apple-mail": "0.0.1",
     "@zukhruf/sqlite-open": "^0.8.10"
   },
   "devDependencies": {

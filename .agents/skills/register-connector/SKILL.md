@@ -5,7 +5,7 @@ description: Registers a built-in connector in context-compiler, so that the CLI
 
 # Register a connector
 
-Paths are relative to the repository root. The _source_ is the elt package that reads the app (`@workspace/source-<platform>-<name>`, such as `source-apple-mail` or `source-slack-desktop`). The _connector_ is the hosts' use of it: a package in `packages/connectors/<name>` that both hosts load.
+Paths are relative to the repository root. The _source_ is the elt package that reads the app (`@eltjs/source-<platform>-<name>`, such as `source-apple-mail` or `source-slack-desktop`). The _connector_ is the hosts' use of it: a package in `packages/connectors/<name>` that both hosts load.
 
 ## What you need to know
 

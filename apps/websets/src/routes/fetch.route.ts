@@ -8,7 +8,7 @@ import {
   HTMLExtraction,
   MarkdownExtraction,
   WebArticle,
-} from '@workspace/sdk-web-article';
+} from '@eltjs/sdk-web-article';
 
 import * as inputs from '../inputs.ts';
 import client from '../web-client.ts';

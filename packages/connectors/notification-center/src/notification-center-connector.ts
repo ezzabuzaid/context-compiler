@@ -1,8 +1,8 @@
+import { notificationCenterStorePath } from '@eltjs/sdk-apple-notification-center';
+import type { ImportScope } from '@eltjs/source-apple-macos/import-scope';
+import { AppleNotificationCenterSource } from '@eltjs/source-apple-notification-center/apple-notification-center-source';
 import type { Choice } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
-import { notificationCenterStorePath } from '@workspace/sdk-apple-notification-center';
-import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
-import { AppleNotificationCenterSource } from '@workspace/source-apple-notification-center/apple-notification-center-source';
 
 export default class NotificationCenterConnector extends Connector {
   readonly datedBy = 'delivery date';

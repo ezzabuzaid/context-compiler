@@ -5,7 +5,7 @@ import {
   Stream,
   type SyncMode,
   validateRecords,
-} from '@workspace/elt';
+} from '@eltjs/elt';
 
 import type { Asked, DefinitionsScan } from './definitions-scan.ts';
 

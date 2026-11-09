@@ -211,7 +211,7 @@ Rejected: a new CDC/WAL engine (no complete native feed), shared payload cache
 checkpoint compatibility shims (import output is disposable), and new package
 dependencies (the installed packages already provide the required behavior).
 
-Discovery: `@workspace/elt` publicly exports `diffSnapshot` and
+Discovery: `@eltjs/elt` publicly exports `diffSnapshot` and
 `diffGroupedSnapshot`; `@zukhruf/snapshot-differential` 0.3.28 exports
 `SnapshotGroup`, `GroupedSnapshotState`, `ClosedWorld` and `Retention`.
 `@zukhruf/sqlite-snapshot` 0.3.31 provides `Snapshot.iterate`, `all` and

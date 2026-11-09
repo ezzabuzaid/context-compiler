@@ -1,4 +1,4 @@
-import type { FailureType } from '@workspace/elt';
+import type { FailureType } from '@eltjs/elt';
 
 // A pass's error, followed by what the user can grant only when granting it
 // is what fixes the failure.

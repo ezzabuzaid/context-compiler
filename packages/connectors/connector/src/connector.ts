@@ -20,7 +20,7 @@ import {
   type Stream,
   StreamStatus,
   WatchError,
-} from '@workspace/elt';
+} from '@eltjs/elt';
 import {
   ComputedDataset,
   SQLiteCheckpointStore,
@@ -28,14 +28,14 @@ import {
   SQLiteDestination,
   SQLiteSyncHistory,
   type SQLiteTable,
-} from '@workspace/elt-sqlite';
-import type { GoogleRequester } from '@workspace/google-auth';
+} from '@eltjs/elt-sqlite';
+import type { GoogleRequester } from '@eltjs/google-auth';
+import type { ImportScope } from '@eltjs/source-apple-macos/import-scope';
 import {
   ConnectorRemovedError,
   type Selection,
   type Settings,
 } from '@workspace/settings';
-import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 
 import { type Choice, type Row, type Rows, isRow } from './choice.ts';
 
@@ -54,7 +54,7 @@ export type ConnectorHost = {
   // that launched the CLI.
   readonly grantee: string;
   // The compiled EventKit helper Calendar and Reminders read through: beside
-  // the plugin's bundled server, or in @workspace/sdk-apple-eventkit's dist.
+  // the plugin's bundled server, or in @eltjs/sdk-apple-eventkit's dist.
   readonly eventKitHelper: string;
   // The clock of every pipeline a connector builds: a host gives globalThis,
   // a test a fake clock that it moves (elt ADR 0019).

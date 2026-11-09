@@ -10,9 +10,9 @@
   },
   "dependencies": {
     "@workspace/connector": "0.0.1",
-    "@workspace/source-apple-macos": "0.0.1",
-    "@workspace/source-opensooq-web": "0.0.1",
-    "@workspace/source-web-pages": "0.0.1"
+    "@eltjs/source-apple-macos": "0.0.1",
+    "@eltjs/source-opensooq-web": "0.0.1",
+    "@eltjs/source-web-pages": "0.0.1"
   },
   "devDependencies": {
     "@workspace/settings": "0.0.1",

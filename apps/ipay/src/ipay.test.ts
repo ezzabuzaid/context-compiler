@@ -19,12 +19,12 @@ import { RollbackJournal, open } from '@zukhruf/sqlite-open';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { z } from 'zod';
 
+import { Pipeline } from '@eltjs/elt';
+import { SQLiteSyncHistory } from '@eltjs/elt-sqlite';
+import { MacOSDocumentParser } from '@eltjs/source-apple-macos/macos-document-parser';
 import MailConnector from '@workspace/connector-apple-mail';
 import MessagesConnector from '@workspace/connector-apple-messages';
-import { Pipeline } from '@workspace/elt';
-import { SQLiteSyncHistory } from '@workspace/elt-sqlite';
 import { Settings } from '@workspace/settings';
-import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
 
 // Where Context Compiler keeps its settings, imports and ipay's files under
 // a home folder.

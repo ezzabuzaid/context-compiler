@@ -1,7 +1,7 @@
+import { walletStorePath } from '@eltjs/sdk-apple-wallet';
+import { AppleWalletSource } from '@eltjs/source-apple-wallet/apple-wallet-source';
 import type { Choice } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
-import { walletStorePath } from '@workspace/sdk-apple-wallet';
-import { AppleWalletSource } from '@workspace/source-apple-wallet/apple-wallet-source';
 
 export default class WalletConnector extends Connector {
   // Wallet has no accounts or collections, and a pass's dates say when it is

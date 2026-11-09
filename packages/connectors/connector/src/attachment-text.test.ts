@@ -31,10 +31,10 @@ import {
   type SourceMessage,
   Stream,
   passChannels,
-} from '@workspace/elt';
-import { SQLiteSyncHistory } from '@workspace/elt-sqlite';
-import { AudioFormat } from '@workspace/source-apple-macos/audio-format';
-import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
+} from '@eltjs/elt';
+import { SQLiteSyncHistory } from '@eltjs/elt-sqlite';
+import { AudioFormat } from '@eltjs/source-apple-macos/audio-format';
+import { MacOSDocumentParser } from '@eltjs/source-apple-macos/macos-document-parser';
 
 import { Connector } from './connector.ts';
 

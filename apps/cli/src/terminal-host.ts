@@ -3,9 +3,9 @@ import { homedir } from 'node:os';
 import { basename, extname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import type { DocumentParser } from '@eltjs/elt';
+import { type GoogleRequester, googleSession } from '@eltjs/google-auth';
 import type { ConnectorHost } from '@workspace/connector/connector';
-import type { DocumentParser } from '@workspace/elt';
-import { type GoogleRequester, googleSession } from '@workspace/google-auth';
 
 // The CLI as the host of the connectors: macOS grants access to the
 // terminal that launched it, and Google content is read with the user's own
@@ -27,7 +27,7 @@ export class TerminalHost implements ConnectorHost {
   readonly env = process.env;
 
   readonly eventKitHelper = fileURLToPath(
-    import.meta.resolve('@workspace/sdk-apple-eventkit/eventkit-helper'),
+    import.meta.resolve('@eltjs/sdk-apple-eventkit/eventkit-helper'),
   );
 
   // The app macOS asks for access on behalf of: the one that launched this

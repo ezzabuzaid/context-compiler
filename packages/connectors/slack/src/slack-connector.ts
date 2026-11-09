@@ -1,8 +1,8 @@
+import { slackDesktopDirectory } from '@eltjs/sdk-slack-desktop';
+import type { ImportScope } from '@eltjs/source-apple-macos/import-scope';
+import { SlackDesktopSource } from '@eltjs/source-slack-desktop/slack-desktop-source';
 import { type Choice, byId, name } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
-import { slackDesktopDirectory } from '@workspace/sdk-slack-desktop';
-import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
-import { SlackDesktopSource } from '@workspace/source-slack-desktop/slack-desktop-source';
 
 // A conversation's workspace, then the conversation as Slack's sidebar names
 // it; a direct message is named by the other person's member ID.

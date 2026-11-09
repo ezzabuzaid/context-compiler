@@ -1,8 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import type { Choice } from '@workspace/connector/choice';
-import { Connector } from '@workspace/connector/connector';
 import {
   Catalog,
   type ChangeSignal,
@@ -10,7 +8,9 @@ import {
   Gauge,
   Source,
   Stream,
-} from '@workspace/elt';
+} from '@eltjs/elt';
+import type { Choice } from '@workspace/connector/choice';
+import { Connector } from '@workspace/connector/connector';
 
 // A connector outside the library, as an agent writes one: TypeScript that
 // Node runs as written, on the host's elt and Connector. It reads

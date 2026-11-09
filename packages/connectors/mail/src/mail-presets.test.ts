@@ -8,16 +8,11 @@ import { fileURLToPath } from 'node:url';
 import { RollbackJournal, open } from '@zukhruf/sqlite-open';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 
+import { CopyProgress, PassStarted, Pipeline, passChannels } from '@eltjs/elt';
+import { SQLiteSyncHistory } from '@eltjs/elt-sqlite';
+import { MacOSDocumentParser } from '@eltjs/source-apple-macos/macos-document-parser';
 import type { Connector, Preset } from '@workspace/connector/connector';
-import {
-  CopyProgress,
-  PassStarted,
-  Pipeline,
-  passChannels,
-} from '@workspace/elt';
-import { SQLiteSyncHistory } from '@workspace/elt-sqlite';
 import { Settings } from '@workspace/settings';
-import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
 
 import MailConnector from './mail-connector.ts';
 

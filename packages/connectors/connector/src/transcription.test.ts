@@ -15,11 +15,11 @@ import {
   Source,
   type SourceMessage,
   Stream,
-} from '@workspace/elt';
-import { SQLiteSyncHistory } from '@workspace/elt-sqlite';
-import { SpeechModels } from '@workspace/sdk-macos-speech-models';
+} from '@eltjs/elt';
+import { SQLiteSyncHistory } from '@eltjs/elt-sqlite';
+import { SpeechModels } from '@eltjs/sdk-macos-speech-models';
+import { VisionWorker } from '@eltjs/source-apple-macos/vision';
 import { Settings } from '@workspace/settings';
-import { VisionWorker } from '@workspace/source-apple-macos/vision';
 
 import { Connector, type ConnectorHost } from './connector.ts';
 import { Transcription } from './transcription.ts';
@@ -132,7 +132,7 @@ test('an existing import pipeline reads audio with a model saved or disabled by 
     create: () =>
       new VisionWorker(
         fileURLToPath(
-          import.meta.resolve('@workspace/source-apple-macos/vision-worker'),
+          import.meta.resolve('@eltjs/source-apple-macos/vision-worker'),
         ),
         globalThis,
       ),
@@ -145,7 +145,7 @@ test('an existing import pipeline reads audio with a model saved or disabled by 
     }),
     ocr,
     fileURLToPath(
-      import.meta.resolve('@workspace/transcription-local/transcribe-local'),
+      import.meta.resolve('@eltjs/transcription-local/transcribe-local'),
     ),
     globalThis,
   );

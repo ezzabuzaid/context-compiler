@@ -9,9 +9,9 @@ import {
 } from '@zukhruf/single-flight';
 import type { Locate } from '@zukhruf/sqlite-federation';
 
+import { type PassState, readPassStatus } from '@eltjs/elt-sqlite';
 import { userConnectors } from '@workspace/connector-manifest/user-connectors';
 import type { ChoiceOptions, Connector } from '@workspace/connector/connector';
-import { type PassState, readPassStatus } from '@workspace/elt-sqlite';
 import { type Selection, Settings } from '@workspace/settings';
 
 import type { Parsing } from './parsing.ts';

@@ -1,5 +1,13 @@
 import { open } from '@zukhruf/sqlite-open';
 
+import type { SQLiteDestination } from '@eltjs/elt-sqlite';
+import { AccountsStore, accountsStorePath } from '@eltjs/sdk-apple-accounts';
+import { MailChangingError, mailDirectory } from '@eltjs/sdk-apple-mail';
+import type { ImportScope } from '@eltjs/source-apple-macos/import-scope';
+import {
+  AppleMailSource,
+  restrictedMailStreams,
+} from '@eltjs/source-apple-mail/apple-mail-source';
 import {
   type Choice,
   type Row,
@@ -7,17 +15,6 @@ import {
   byId,
 } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
-import type { SQLiteDestination } from '@workspace/elt-sqlite';
-import {
-  AccountsStore,
-  accountsStorePath,
-} from '@workspace/sdk-apple-accounts';
-import { MailChangingError, mailDirectory } from '@workspace/sdk-apple-mail';
-import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
-import {
-  AppleMailSource,
-  restrictedMailStreams,
-} from '@workspace/source-apple-mail/apple-mail-source';
 
 import { mailContentStatus } from './mail-content-status.ts';
 

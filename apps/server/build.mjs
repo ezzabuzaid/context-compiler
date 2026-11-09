@@ -108,7 +108,7 @@ function ship(name, from, shipped = new Set()) {
 }
 ship(
   'jsdom',
-  dirname(fileURLToPath(import.meta.resolve('@workspace/sdk-web-crawler'))),
+  dirname(fileURLToPath(import.meta.resolve('@eltjs/sdk-web-crawler'))),
 );
 ship('@zukhruf/sqlite-open', fileURLToPath(new URL('.', import.meta.url)));
 // A bundled copy of an external host module would hold a second copy of its
@@ -154,21 +154,19 @@ for (const { manifest, out } of builtIns) {
 // main.ts hands this path to the Calendar and Reminders connectors.
 copyFileSync(
   fileURLToPath(
-    import.meta.resolve('@workspace/sdk-apple-eventkit/eventkit-helper'),
+    import.meta.resolve('@eltjs/sdk-apple-eventkit/eventkit-helper'),
   ),
   join(outdir, 'eventkit-helper'),
 );
 // startup.ts owns the Vision worker for this server's lifetime.
 copyFileSync(
-  fileURLToPath(
-    import.meta.resolve('@workspace/source-apple-macos/vision-worker'),
-  ),
+  fileURLToPath(import.meta.resolve('@eltjs/source-apple-macos/vision-worker')),
   join(outdir, 'vision-worker'),
 );
 // The native worker links ONNX Runtime statically; the executable is enough.
 copyFileSync(
   fileURLToPath(
-    import.meta.resolve('@workspace/transcription-local/transcribe-local'),
+    import.meta.resolve('@eltjs/transcription-local/transcribe-local'),
   ),
   join(outdir, 'transcribe-local'),
 );

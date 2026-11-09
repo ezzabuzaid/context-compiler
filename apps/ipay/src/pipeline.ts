@@ -1,14 +1,14 @@
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { Connection, Copy, Pipeline } from '@workspace/elt';
+import { Connection, Copy, Pipeline } from '@eltjs/elt';
 import {
   ComputedDataset,
   SQLiteCheckpointStore,
   SQLiteDestination,
   SQLiteSyncHistory,
   View,
-} from '@workspace/elt-sqlite';
+} from '@eltjs/elt-sqlite';
 
 import { contextCompiler, importPaths } from './imports.ts';
 import { BankCharges } from './rules/bank-charges.ts';

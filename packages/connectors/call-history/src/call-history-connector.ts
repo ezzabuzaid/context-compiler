@@ -1,8 +1,8 @@
+import { callHistoryStorePath } from '@eltjs/sdk-apple-call-history';
+import { AppleCallHistorySource } from '@eltjs/source-apple-call-history/apple-call-history-source';
+import type { ImportScope } from '@eltjs/source-apple-macos/import-scope';
 import type { Choice } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
-import { callHistoryStorePath } from '@workspace/sdk-apple-call-history';
-import { AppleCallHistorySource } from '@workspace/source-apple-call-history/apple-call-history-source';
-import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
 
 export default class CallHistoryConnector extends Connector {
   readonly datedBy = 'call date';

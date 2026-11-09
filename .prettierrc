@@ -4,7 +4,7 @@
     "./startup",
     "^node:(.*)$",
     "<THIRD_PARTY_MODULES>",
-    "^@workspace/(.*)$",
+    "^@(eltjs|workspace)/(.*)$",
     "^[./]"
   ],
   "plugins": ["@trivago/prettier-plugin-sort-imports"],

@@ -1,4 +1,4 @@
-import { type LoadedRow, Rule, type RuleResult } from '@workspace/elt';
+import { type LoadedRow, Rule, type RuleResult } from '@eltjs/elt';
 
 import { movement, parser } from './arab-bank-sms.ts';
 

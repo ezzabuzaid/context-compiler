@@ -1,8 +1,8 @@
+import { chatDatabasePath } from '@eltjs/sdk-apple-messages';
+import type { ImportScope } from '@eltjs/source-apple-macos/import-scope';
+import { AppleMessagesSource } from '@eltjs/source-apple-messages/apple-messages-source';
 import type { Choice } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
-import { chatDatabasePath } from '@workspace/sdk-apple-messages';
-import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
-import { AppleMessagesSource } from '@workspace/source-apple-messages/apple-messages-source';
 
 export default class MessagesConnector extends Connector {
   readonly datedBy = 'message date';

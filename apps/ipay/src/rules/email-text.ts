@@ -1,6 +1,6 @@
 import { convert } from 'html-to-text';
 
-import type { LoadedRow } from '@workspace/elt';
+import type { LoadedRow } from '@eltjs/elt';
 
 const strings = (value: unknown): string[] =>
   typeof value === 'string'

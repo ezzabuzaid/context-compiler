@@ -1,11 +1,11 @@
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+import { categories } from '@eltjs/source-opensooq-web/categories';
+import { listings } from '@eltjs/source-opensooq-web/listings';
+import { WebSource } from '@eltjs/source-web-pages/web-source';
 import type { Choice } from '@workspace/connector/choice';
 import { Connector, type Selection } from '@workspace/connector/connector';
-import { categories } from '@workspace/source-opensooq-web/categories';
-import { listings } from '@workspace/source-opensooq-web/listings';
-import { WebSource } from '@workspace/source-web-pages/web-source';
 
 // The home page of OpenSooq Jordan, whose hidden menu links every category.
 const home = 'https://jo.opensooq.com/en';

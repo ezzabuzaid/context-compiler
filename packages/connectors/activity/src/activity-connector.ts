@@ -1,8 +1,8 @@
+import { biomeDirectory } from '@eltjs/sdk-apple-biome';
+import { knowledgeStorePath } from '@eltjs/sdk-apple-knowledge';
+import { AppleActivitySource } from '@eltjs/source-apple-activity/apple-activity-source';
 import type { Choice } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
-import { biomeDirectory } from '@workspace/sdk-apple-biome';
-import { knowledgeStorePath } from '@workspace/sdk-apple-knowledge';
-import { AppleActivitySource } from '@workspace/source-apple-activity/apple-activity-source';
 
 export default class ActivityConnector extends Connector {
   readonly datedBy = null;

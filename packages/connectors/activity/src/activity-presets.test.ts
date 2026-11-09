@@ -9,10 +9,10 @@ import { crc32 } from 'node:zlib';
 import { RollbackJournal, open } from '@zukhruf/sqlite-open';
 import { TemporaryFiles } from '@zukhruf/testing/fs';
 
+import { Pipeline } from '@eltjs/elt';
+import { SQLiteSyncHistory } from '@eltjs/elt-sqlite';
+import { MacOSDocumentParser } from '@eltjs/source-apple-macos/macos-document-parser';
 import type { Connector, Preset } from '@workspace/connector/connector';
-import { Pipeline } from '@workspace/elt';
-import { SQLiteSyncHistory } from '@workspace/elt-sqlite';
-import { MacOSDocumentParser } from '@workspace/source-apple-macos/macos-document-parser';
 
 import ActivityConnector from './activity-connector.ts';
 

@@ -10,12 +10,12 @@
   },
   "dependencies": {
     "@workspace/connector": "0.0.1",
-    "@workspace/sdk-apple-biome": "0.0.1",
-    "@workspace/sdk-apple-knowledge": "0.0.1",
-    "@workspace/source-apple-activity": "0.0.1"
+    "@eltjs/sdk-apple-biome": "0.0.1",
+    "@eltjs/sdk-apple-knowledge": "0.0.1",
+    "@eltjs/source-apple-activity": "0.0.1"
   },
   "devDependencies": {
-    "@workspace/source-apple-macos": "0.0.1",
+    "@eltjs/source-apple-macos": "0.0.1",
     "@zukhruf/sqlite-open": "^0.8.10",
     "@zukhruf/testing": "^0.8.10"
   }

@@ -1,10 +1,10 @@
-import { type Choice, byId } from '@workspace/connector/choice';
-import { Connector, type Selection } from '@workspace/connector/connector';
-import type { ImportScope } from '@workspace/source-apple-macos/import-scope';
+import type { ImportScope } from '@eltjs/source-apple-macos/import-scope';
 import {
   type InstagramWebOptions,
   InstagramWebSource,
-} from '@workspace/source-instagram-web/instagram-web-source';
+} from '@eltjs/source-instagram-web/instagram-web-source';
+import { type Choice, byId } from '@workspace/connector/choice';
+import { Connector, type Selection } from '@workspace/connector/connector';
 
 // A followed account as Instagram's following list shows it: the username,
 // then the name it shows.

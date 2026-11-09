@@ -42,7 +42,7 @@ Copied with changes: `protobuf` and `Field`. The copy has no `bytes` and no `mes
 
 Copied without changes: `chatSchema`.
 
-Copied with changes: `appleNanoseconds`. The copy writes `Date.UTC(2001, 0, 1)`. The elt test takes the epoch from `@workspace/codec-apple-reference-date`.
+Copied with changes: `appleNanoseconds`. The copy writes `Date.UTC(2001, 0, 1)`. The elt test takes the epoch from `@eltjs/codec-apple-reference-date`.
 
 ## Mail
 
