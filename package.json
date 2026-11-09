@@ -41,5 +41,14 @@
     "prettier": "3.9.9",
     "typescript": "npm:@typescript/typescript6@6.0.2",
     "typescript-eslint": "8.72.1"
+  },
+  "allowScripts": {
+    "esbuild": true,
+    "@mongodb-js/zstd": true,
+    "node-liblzma": true,
+    "nx": false,
+    "unrs-resolver": false,
+    "fsevents": false,
+    "protobufjs": false
   }
 }
