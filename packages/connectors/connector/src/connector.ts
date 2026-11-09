@@ -220,7 +220,7 @@ export abstract class Connector {
     error: unknown,
     failureType: FailureType | null = this.failureType(error),
   ): string {
-    const message = error instanceof Error ? error.message : String(error);
+    const message = Error.isError(error) ? error.message : String(error);
     return failureType === 'config'
       ? `${message} — ${this.guidance()}`
       : message;
@@ -428,7 +428,7 @@ export abstract class Connector {
     } catch (error) {
       settings.saveConnectionFailure(
         selection,
-        error instanceof Error ? error.message : String(error),
+        Error.isError(error) ? error.message : String(error),
         this.failureType(error),
       );
       return { status: 'unconnected', error };
@@ -462,7 +462,7 @@ export abstract class Connector {
       // install, so the settings keep it where status reads it.
       settings.saveConnectionFailure(
         selection,
-        error instanceof Error ? error.message : String(error),
+        Error.isError(error) ? error.message : String(error),
         this.failureType(error),
       );
       throw error;

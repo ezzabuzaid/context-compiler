@@ -168,8 +168,10 @@ test('subscription evidence combines read-only imports without confusing their m
   assert.match(String(row('notes', '2').text), /تجديد الاشتراك/);
 
   for (const file of files) {
-    const described = [...readFileSync(file, 'utf8').matchAll(/^-- (\w+): /gm)]
-      .slice(1)
+    const described = readFileSync(file, 'utf8')
+      .matchAll(/^-- (\w+): /gm)
+      .drop(1)
+      .toArray()
       .map(([, column]) => column);
     assert.deepEqual(described, Object.keys(row('mail', '1')));
   }

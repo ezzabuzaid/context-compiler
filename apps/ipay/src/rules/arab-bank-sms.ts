@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { hash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 
 // What Arab Bank texts its customers about each movement of their accounts,
@@ -8,9 +8,7 @@ import { readFileSync } from 'node:fs';
 
 // What reads the texts: this module's own code, so a change to how a text is
 // read makes every movement again.
-export const parser = `arab-bank-sms:${createHash('sha256')
-  .update(readFileSync(import.meta.filename))
-  .digest('hex')}`;
+export const parser = `arab-bank-sms:${hash('sha256', readFileSync(import.meta.filename))}`;
 
 // The names Messages gives the bank's texts: Arab Bank, and ArabBank until
 // March 2024.

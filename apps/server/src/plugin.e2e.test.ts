@@ -107,7 +107,7 @@ const noteBody = (runs: NoteRun[]) => {
               ...(run.todo === undefined
                 ? []
                 : protobuf.bytes(5, [
-                    ...protobuf.bytes(1, Buffer.from(run.todo.id, 'hex')),
+                    ...protobuf.bytes(1, Uint8Array.fromHex(run.todo.id)),
                     ...protobuf.number(2, run.todo.done ? 1 : 0),
                   ])),
             ])),
@@ -1272,7 +1272,7 @@ export default class LockedConnector extends Connector {
           maxRetryTime: 30_000,
           shouldRetry: ({ error }) =>
             error instanceof assert.AssertionError ||
-            (error instanceof Error && /no such table/.test(error.message)),
+            (Error.isError(error) && /no such table/.test(error.message)),
         },
       );
 
@@ -2179,11 +2179,9 @@ test(
     scene.leader.send('SIGKILL');
     await scene.leader.closed;
     await scene.photos.close();
-    const fed = await readerOf(scene.pipe);
-    try {
+    {
+      await using fed = await readerOf(scene.pipe);
       await fed.writeFile(JSON.stringify([{ id: 'p3', title: 'Dunes' }]));
-    } finally {
-      await fed.close();
     }
     const synced = await replaced;
 

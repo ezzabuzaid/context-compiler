@@ -1,4 +1,4 @@
-import { createHash, randomUUID } from 'node:crypto';
+import { hash, randomUUID } from 'node:crypto';
 import type { DatabaseSync } from 'node:sqlite';
 
 import type { ChangeEvent } from '@zukhruf/sqlite-changefeed';
@@ -22,7 +22,7 @@ export class Journal implements Disposable {
     const serialized = JSON.stringify(change, (_, value: unknown) =>
       typeof value === 'bigint' ? value.toString() : value,
     );
-    const fingerprint = createHash('sha256').update(serialized).digest('hex');
+    const fingerprint = hash('sha256', serialized);
     const data: unknown = JSON.parse(serialized);
     const key =
       change.op === 'truncate'

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
+import { hash } from 'node:crypto';
 import { chmodSync } from 'node:fs';
 import {
   chmod,
@@ -587,10 +587,7 @@ test('a reader finds a stored file by its text: text and PDF files load their te
       ]),
     Object.entries(contents)
       .sort(([a], [b]) => a.localeCompare(b))
-      .map(([name, content]) => [
-        name,
-        createHash('sha256').update(content).digest('hex'),
-      ]),
+      .map(([name, content]) => [name, hash('sha256', content)]),
   );
   assert.deepEqual(
     store.read(

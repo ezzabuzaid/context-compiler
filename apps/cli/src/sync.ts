@@ -218,4 +218,4 @@ export function failed(
 }
 
 const message = (error: unknown) =>
-  error instanceof Error ? error.message : String(error);
+  Error.isError(error) ? error.message : String(error);

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { type ChildProcess, execFile, spawn } from 'node:child_process';
-import { createHash } from 'node:crypto';
+import { hash } from 'node:crypto';
 import { once } from 'node:events';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
@@ -109,7 +109,7 @@ async function ambient(t: TestContext, home: string) {
 }
 // The microVM that Ambient names after its state directory.
 const microVm = (home: string) =>
-  `ambient-${createHash('sha256').update(state(home)).digest('hex').slice(0, 16)}`;
+  `ambient-${hash('sha256', state(home)).slice(0, 16)}`;
 const run = promisify(execFile);
 const msb = (args: string[]) => run('msb', args);
 async function removeMicroVm(home: string) {

@@ -55,7 +55,7 @@ export abstract class Command {
           );
       } catch (error) {
         declaration.error(
-          `error: ${error instanceof Error ? error.message : String(error)}`,
+          `error: ${Error.isError(error) ? error.message : String(error)}`,
         );
       }
     });

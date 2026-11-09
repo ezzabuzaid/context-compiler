@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { hash } from 'node:crypto';
 import { chmodSync, mkdirSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import type { DatabaseSync } from 'node:sqlite';
@@ -50,10 +50,10 @@ const keyDigits = 16;
 const importKey = new RegExp(`^[0-9a-f]{${keyDigits}}$`);
 
 function importFolder(selection: Selection): string {
-  const key = createHash('sha256')
-    .update(JSON.stringify([selection.scope, selection.includeAttachments]))
-    .digest('hex')
-    .slice(0, keyDigits);
+  const key = hash(
+    'sha256',
+    JSON.stringify([selection.scope, selection.includeAttachments]),
+  ).slice(0, keyDigits);
   return join(selection.connector, key);
 }
 

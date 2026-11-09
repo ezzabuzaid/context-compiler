@@ -407,7 +407,7 @@ test('a selection that cannot be read stops the import with its error and leaves
   }
   const reason = await stopped.promise;
 
-  assert.ok(reason instanceof Error);
+  assert.ok(Error.isError(reason));
   assert.match(reason.message, /no such table: selections/);
 });
 

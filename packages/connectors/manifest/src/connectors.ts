@@ -31,7 +31,7 @@ export class Connectors {
       const failed = (title: string, error: unknown) =>
         broken.push({
           title,
-          error: error instanceof Error ? error.message : String(error),
+          error: Error.isError(error) ? error.message : String(error),
         });
       let manifest: ConnectorManifest | undefined;
       try {

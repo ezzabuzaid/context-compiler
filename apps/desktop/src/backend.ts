@@ -92,7 +92,7 @@ export class Backend {
       this.#lifecycle = running;
       this.#setState({ status: 'ready' });
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = Error.isError(error) ? error.message : String(error);
       await running.close();
       this.#lifecycle = new Stopped();
       this.#setState({

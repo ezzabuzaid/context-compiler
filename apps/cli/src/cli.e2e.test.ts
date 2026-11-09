@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFile, spawn, spawnSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
+import { hash } from 'node:crypto';
 import {
   constants,
   existsSync,
@@ -116,7 +116,7 @@ const noteBody = (runs: NoteRun[]) => {
               ...(run.todo === undefined
                 ? []
                 : protobuf.bytes(5, [
-                    ...protobuf.bytes(1, Buffer.from(run.todo.id, 'hex')),
+                    ...protobuf.bytes(1, Uint8Array.fromHex(run.todo.id)),
                     ...protobuf.number(2, run.todo.done ? 1 : 0),
                   ])),
             ])),
@@ -1167,7 +1167,7 @@ async function passRunning(mac: string) {
 // never came would hang the whole run instead of failing this test.
 async function feed(pipe: string, content: string): Promise<void> {
   // ENXIO: no process has the pipe open to read yet.
-  const handle = await timebox(
+  await using handle = await timebox(
     () => open(pipe, constants.O_WRONLY | constants.O_NONBLOCK),
     {
       minTimeout: 100,
@@ -1175,11 +1175,7 @@ async function feed(pipe: string, content: string): Promise<void> {
       shouldRetry: ({ error }) => 'code' in error && error.code === 'ENXIO',
     },
   );
-  try {
-    await handle.writeFile(content);
-  } finally {
-    await handle.close();
-  }
+  await handle.writeFile(content);
 }
 
 const ctrlC = '\x03';
@@ -3007,7 +3003,7 @@ async function withNotificationCenter(mac: string) {
     INSERT INTO app VALUES (1, 'com.apple.mobilesms', 1);
   `);
   for (const [index, [id, delivered, title]] of deliveries.entries()) {
-    const uuid = Uint8Array.from(Buffer.from(id.replaceAll('-', ''), 'hex'));
+    const uuid = Uint8Array.fromHex(id.replaceAll('-', ''));
     store
       .prepare(
         'INSERT INTO record (rec_id, app_id, uuid, data, delivered_date, presented, style) VALUES (?, 1, ?, ?, ?, 0, 1)',
@@ -3092,7 +3088,7 @@ function withWallet(mac: string) {
   writeFileSync(
     join(bundle, 'manifest.json'),
     JSON.stringify({
-      'pass.json': createHash('sha1').update(pass).digest('hex'),
+      'pass.json': hash('sha1', pass),
     }),
   );
   using store = openDatabase(join(directory, 'passes23.sqlite'), {
@@ -3129,7 +3125,7 @@ test('sync watch reads the files an import stores, with no command of its own', 
     join(bundle, 'manifest.json'),
     JSON.stringify({
       ...manifest,
-      'icon.png': createHash('sha1').update(icon).digest('hex'),
+      'icon.png': hash('sha1', icon),
     }),
   );
   const setup = cli(mac.path, 'setup', '--connector', 'wallet');

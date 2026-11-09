@@ -283,7 +283,7 @@ class Store {
   // A dataset id is a SQL identifier too: the pipeline names the views
   // and computed datasets of each dataset after it.
   addDataset(definition: Definition): Dataset {
-    const id = `ds_${randomBytes(8).toString('hex')}`;
+    const id = `ds_${randomBytes(8).toHex()}`;
     this.transaction(() => {
       this.#db
         .prepare(
@@ -330,7 +330,7 @@ class Store {
   }
 
   addMonitor(definition: MonitorDefinition): Monitor {
-    const id = `mon_${randomBytes(8).toString('hex')}`;
+    const id = `mon_${randomBytes(8).toHex()}`;
     this.#db
       .prepare(
         'INSERT INTO monitor (id, definition, created_at) VALUES (?, ?, ?)',
@@ -516,8 +516,7 @@ class Store {
     { matches, fields }: { readonly matches: boolean; readonly fields: Fields },
   ): string {
     const id =
-      this.item(datasetId, articleUrl)?.id ??
-      `itm_${randomBytes(8).toString('hex')}`;
+      this.item(datasetId, articleUrl)?.id ?? `itm_${randomBytes(8).toHex()}`;
     this.#db
       .prepare(
         `INSERT INTO item (dataset, article_url, id, matches, fields) VALUES (?, ?, ?, ?, ?)

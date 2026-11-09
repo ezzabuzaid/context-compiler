@@ -110,7 +110,7 @@ ship(
   'jsdom',
   dirname(fileURLToPath(import.meta.resolve('@eltjs/sdk-web-crawler'))),
 );
-ship('@zukhruf/sqlite-open', fileURLToPath(new URL('.', import.meta.url)));
+ship('@zukhruf/sqlite-open', import.meta.dirname);
 // A bundled copy of an external host module would hold a second copy of its
 // classes, so a connector's UnavailableError would not be the server's. It
 // names the shipped file by path: the server's resolve hook answers the

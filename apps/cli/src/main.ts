@@ -54,7 +54,7 @@ if (transcriptionModel !== undefined)
   await parsing
     .configure(transcriptionModel === 'off' ? null : transcriptionModel)
     .catch((error: unknown) =>
-      program.error(error instanceof Error ? error.message : String(error)),
+      program.error(Error.isError(error) ? error.message : String(error)),
     );
 
 const { connectors, broken } = await new Connectors([

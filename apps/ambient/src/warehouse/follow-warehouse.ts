@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { hash } from 'node:crypto';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 
@@ -51,10 +51,7 @@ export async function followWarehouse(
       if (sources.has(key)) continue;
       const stop = new AbortController();
       const sourceSignal = AbortSignal.any([lifetime, stop.signal]);
-      const position = join(
-        directory,
-        `${createHash('sha256').update(key).digest('hex')}.sqlite`,
-      );
+      const position = join(directory, `${hash('sha256', key)}.sqlite`);
       const done = (async () => {
         // A notice is about a change, not about the rows that were there
         // before Ambient first ran: the first pass is a baseline.

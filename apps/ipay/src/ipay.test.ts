@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { createHash } from 'node:crypto';
+import { hash } from 'node:crypto';
 import {
   existsSync,
   mkdirSync,
@@ -504,7 +504,7 @@ function files(folder: string): Record<string, string> {
           path.slice(folder.length + 1),
           path.endsWith('-shm')
             ? 'wal-index'
-            : createHash('sha256').update(readFileSync(path)).digest('hex'),
+            : hash('sha256', readFileSync(path)),
         ];
       })
       .sort(([a], [b]) => a.localeCompare(b)),

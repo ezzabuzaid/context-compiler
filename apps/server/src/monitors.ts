@@ -65,7 +65,7 @@ const now = () => new Date().toISOString();
 // monitor's new keys go in messages of at most 256 KiB.
 const messageBytes = 256 * 1024;
 const messageOf = (error: unknown) =>
-  error instanceof Error ? error.message : String(error);
+  Error.isError(error) ? error.message : String(error);
 
 type MonitorState =
   | { readonly state: 'inactive' }

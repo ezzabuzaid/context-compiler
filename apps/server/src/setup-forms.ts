@@ -97,7 +97,7 @@ export async function setUpWithForms(
     } catch (error) {
       unavailable.push({
         connector,
-        error: error instanceof Error ? error.message : String(error),
+        error: Error.isError(error) ? error.message : String(error),
         permissions:
           blocked.includes(connector) || loaded.failureType(error) === 'config'
             ? loaded.guidance()

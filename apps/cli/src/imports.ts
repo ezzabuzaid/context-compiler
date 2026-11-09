@@ -232,7 +232,7 @@ export class Imports {
         errors,
         errors
           .map((error) =>
-            error instanceof Error ? error.message : String(error),
+            Error.isError(error) ? error.message : String(error),
           )
           .join('\n'),
       );
