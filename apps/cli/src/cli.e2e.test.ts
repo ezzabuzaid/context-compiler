@@ -3155,9 +3155,8 @@ test('sync watch reads the files an import stores, with no command of its own', 
         return answer;
       },
       // Vision compiles its models on the first run of a new helper binary,
-      // which took up to about 195 s (VisionWorker in elt), and a worker stops
-      // when this test gives up, so each run that gives up starts cold again.
-      // The wait sits above that and under the test's 240 s limit (#3427).
+      // which took 85 s here and up to about 195 s (VisionWorker in elt), so the
+      // wait sits above that and under the test's 240 s limit (#3427).
       { interval: 1000, timeout: 200_000 },
     );
 
