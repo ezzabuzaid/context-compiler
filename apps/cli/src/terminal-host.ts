@@ -7,15 +7,19 @@ import type { DocumentParser } from '@eltjs/elt';
 import { type GoogleRequester, googleSession } from '@eltjs/google-auth';
 import type { ConnectorHost } from '@workspace/connector/connector';
 
+import type { BackgroundWatch } from './background-watch.ts';
+
 // The CLI as the host of the connectors: macOS grants access to the
-// terminal that launched it, and Google content is read with the user's own
-// OAuth client.
+// terminal that launched it, or to the node of the background watch once one
+// is installed, and Google content is read with the user's own OAuth client.
 export class TerminalHost implements ConnectorHost {
   readonly #parser: () => DocumentParser;
+  readonly #background: BackgroundWatch;
   readonly clock = globalThis;
 
-  constructor(parser: () => DocumentParser) {
+  constructor(parser: () => DocumentParser, background: BackgroundWatch) {
     this.#parser = parser;
+    this.#background = background;
   }
 
   get documentParser(): DocumentParser {
@@ -30,10 +34,14 @@ export class TerminalHost implements ConnectorHost {
     import.meta.resolve('@eltjs/sdk-apple-eventkit/eventkit-helper'),
   );
 
-  // The app macOS asks for access on behalf of: the one that launched this
-  // process. TERM_PROGRAM cannot name it; cmux, for one, reports ghostty.
-  // Spotlight answers only when guidance is shown.
+  // The program macOS asks for access on behalf of. With a background watch
+  // installed, that watch loads the imports, so it is the node launchd runs
+  // for it. Otherwise it is the app that launched this process. TERM_PROGRAM
+  // cannot name it; cmux, for one, reports ghostty. Spotlight answers only
+  // when guidance is shown.
   get grantee(): string {
+    const node = this.#background.node();
+    if (node !== undefined) return node;
     const bundle = process.env.__CFBundleIdentifier;
     if (bundle !== undefined && /^[\w.-]+$/.test(bundle))
       try {

@@ -21,6 +21,7 @@ import {
   rm,
   writeFile,
 } from 'node:fs/promises';
+import { userInfo } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { type TestContext, test } from 'node:test';
 import { setTimeout as sleep } from 'node:timers/promises';
@@ -3820,4 +3821,283 @@ test('a Mac copied to another home resumes its imports from their checkpoints, w
     ),
     'attached words',
   );
+});
+
+// Waits, for a minute, until status shows the connector's latest pass in the
+// state given; resolves with what status says of the connector. A wait that
+// gives up says what the background watch wrote to its log, or that launchd
+// never started it.
+async function reaches(
+  mac: string,
+  connector: string,
+  state: 'succeeded' | 'failed',
+): Promise<{ error: string | null }> {
+  const log = join(
+    mac,
+    'Library/Application Support/Context Compiler/Imports/sync-watch.log',
+  );
+  return timebox(
+    () => {
+      const status = JSON.parse(cli(mac, 'status', '--json').stdout).find(
+        (status: { connector: string }) => status.connector === connector,
+      );
+      assert.equal(
+        status?.state,
+        state,
+        `${connector} is not ${state} after a minute; ${existsSync(log) ? `the watch wrote:\n${readFileSync(log, 'utf8')}` : 'launchd never started the watch'}`,
+      );
+      return status;
+    },
+    {
+      minTimeout: 100,
+      maxRetryTime: 60_000,
+      shouldRetry: ({ error }) => error instanceof assert.AssertionError,
+    },
+  );
+}
+
+// Waits, for a minute, until the Safari import holds this many visits of
+// April 2026, which no fixture has.
+async function holdsAprilVisits(mac: string, count: number): Promise<void> {
+  await timebox(
+    () =>
+      assert.equal(
+        JSON.parse(
+          cli(
+            mac,
+            'query',
+            'safari',
+            "SELECT count(*) AS n FROM history_visits WHERE visitedAt LIKE '2026-04-%'",
+            '--json',
+          ).stdout,
+        )[0].n,
+        count,
+      ),
+    {
+      minTimeout: 100,
+      maxRetryTime: 60_000,
+      shouldRetry: ({ error }) => error instanceof assert.AssertionError,
+    },
+  );
+}
+
+// The process launchd runs now for the background watch installed on this
+// Mac, if any. launchd knows the job by the name of its property list.
+function jobProcess(mac: string): number | undefined {
+  const [plist] = readdirSync(join(mac, 'Library/LaunchAgents'));
+  if (plist === undefined) return undefined;
+  const { stdout } = spawnSync(
+    '/bin/launchctl',
+    ['print', `gui/${userInfo().uid}/${plist.replace(/\.plist$/, '')}`],
+    { encoding: 'utf8' },
+  );
+  const pid = /^\tpid = (\d+)$/m.exec(stdout)?.[1];
+  return pid === undefined ? undefined : Number(pid);
+}
+
+test('once a background watch is installed, status names the node it runs under as the program to allow for a store that watch cannot open', async () => {
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
+  // No store under HOME: SQLite cannot open it, as under a privacy denial.
+  cli(mac.path, 'setup', '--connector', 'call-history');
+  // Another node than the one that asks for the status, as after a Node.js
+  // upgrade: the same program at its own path.
+  const node = join(mac.path, 'node');
+  await cp(process.execPath, node, { mode: constants.COPYFILE_FICLONE });
+  try {
+    const installed = spawnSync(node, [entry, 'sync', 'watch', 'install'], {
+      cwd: mac.path,
+      env: { ...process.env, HOME: mac.path },
+      encoding: 'utf8',
+    });
+
+    assert.equal(installed.status, 0, installed.stderr);
+    const { error } = await reaches(mac.path, 'call-history', 'failed');
+    assert.ok(
+      error?.includes(`Turn on ${node} in System Settings`),
+      String(error),
+    );
+  } finally {
+    cli(mac.path, 'sync', 'watch', 'uninstall');
+  }
+});
+
+test('a background watch whose process is killed comes back and loads what changed meanwhile', async () => {
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
+  const history = await withSafari(mac.path);
+  cli(mac.path, 'setup', '--connector', 'safari');
+  try {
+    cli(mac.path, 'sync', 'watch', 'install');
+    await reaches(mac.path, 'safari', 'succeeded');
+    const watching = jobProcess(mac.path);
+    assert.ok(watching !== undefined, 'launchd runs no process for the job');
+
+    process.kill(watching, 'SIGKILL');
+    visit(history, '2026-04-02T00:00:00Z');
+
+    await holdsAprilVisits(mac.path, 1);
+  } finally {
+    cli(mac.path, 'sync', 'watch', 'uninstall');
+  }
+});
+
+test('sync watch install with no connector set up fails, says to run setup, and installs no job', async () => {
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
+  try {
+    const installed = cli(mac.path, 'sync', 'watch', 'install');
+
+    assert.equal(installed.status, 1);
+    assert.match(installed.stderr, /No connectors are set up; run: setup/);
+    assert.equal(existsSync(join(mac.path, 'Library/LaunchAgents')), false);
+  } finally {
+    cli(mac.path, 'sync', 'watch', 'uninstall');
+  }
+});
+
+test('after sync watch uninstall a sync runs its own pass again, and nothing is left for launchd to start at login', async () => {
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
+  await withSafari(mac.path);
+  cli(mac.path, 'setup', '--connector', 'safari');
+  try {
+    cli(mac.path, 'sync', 'watch', 'install');
+    await reaches(mac.path, 'safari', 'succeeded');
+    const watched = cli(mac.path, 'sync', '--json');
+
+    const uninstalled = cli(mac.path, 'sync', 'watch', 'uninstall');
+
+    assert.equal(uninstalled.status, 0, uninstalled.stderr);
+    assert.deepEqual(lines(watched.stdout), [
+      { connector: 'safari', status: 'watched' },
+    ]);
+    const synced = cli(mac.path, 'sync', '--json');
+    assert.deepEqual(
+      lines(synced.stdout).map(({ connector, status }) => [connector, status]),
+      [['safari', 'succeeded']],
+    );
+    assert.deepEqual(readdirSync(join(mac.path, 'Library/LaunchAgents')), []);
+  } finally {
+    cli(mac.path, 'sync', 'watch', 'uninstall');
+  }
+});
+
+test("a background watch installed for one store keeps loading that store's changes after another store installs its own", async () => {
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
+  await using other = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
+  const history = await withSafari(mac.path);
+  await withSafari(other.path);
+  cli(mac.path, 'setup', '--connector', 'safari');
+  cli(other.path, 'setup', '--connector', 'safari');
+  try {
+    cli(mac.path, 'sync', 'watch', 'install');
+    await reaches(mac.path, 'safari', 'succeeded');
+
+    const installed = cli(other.path, 'sync', 'watch', 'install');
+
+    assert.equal(installed.status, 0, installed.stderr);
+    await reaches(other.path, 'safari', 'succeeded');
+    visit(history, '2026-04-03T00:00:00Z');
+    await holdsAprilVisits(mac.path, 1);
+  } finally {
+    cli(mac.path, 'sync', 'watch', 'uninstall');
+    cli(other.path, 'sync', 'watch', 'uninstall');
+  }
+});
+
+test('sync watch install loads every connector that is set up and then each change, with no process of a terminal', async () => {
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
+  const history = await withSafari(mac.path);
+  await withConnectors(mac.path);
+  cli(mac.path, 'setup', '--connector', 'safari', '--connector', 'photos');
+  try {
+    const installed = cli(mac.path, 'sync', 'watch', 'install');
+
+    assert.equal(installed.status, 0, installed.stderr);
+    await reaches(mac.path, 'safari', 'succeeded');
+    await reaches(mac.path, 'photos', 'succeeded');
+    visit(history, '2026-04-04T00:00:00Z');
+    await holdsAprilVisits(mac.path, 1);
+    assert.deepEqual(
+      JSON.parse(
+        cli(
+          mac.path,
+          'query',
+          'photos',
+          'SELECT id FROM photos ORDER BY id',
+          '--json',
+        ).stdout,
+      ),
+      [{ id: 'p1' }, { id: 'p2' }],
+    );
+  } finally {
+    cli(mac.path, 'sync', 'watch', 'uninstall');
+  }
+});
+
+test('a second sync watch install, after a setup added a connector, takes the place of the first and loads the new connector too', async () => {
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
+  const history = await withSafari(mac.path);
+  await withConnectors(mac.path);
+  cli(mac.path, 'setup', '--connector', 'safari');
+  try {
+    cli(mac.path, 'sync', 'watch', 'install');
+    await reaches(mac.path, 'safari', 'succeeded');
+    cli(mac.path, 'setup', '--connector', 'safari', '--connector', 'photos');
+
+    const again = cli(mac.path, 'sync', 'watch', 'install');
+
+    assert.equal(again.status, 0, again.stderr);
+    await reaches(mac.path, 'photos', 'succeeded');
+    visit(history, '2026-04-05T00:00:00Z');
+    await holdsAprilVisits(mac.path, 1);
+  } finally {
+    cli(mac.path, 'sync', 'watch', 'uninstall');
+  }
+});
+
+test('a background watch runs under the node that installed it, the one the user gives access to', async () => {
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
+  await withSafari(mac.path);
+  cli(mac.path, 'setup', '--connector', 'safari');
+  // Another node than the one this test runs under: the same program at its
+  // own path.
+  const node = join(mac.path, 'node');
+  await cp(process.execPath, node, { mode: constants.COPYFILE_FICLONE });
+  try {
+    const installed = spawnSync(node, [entry, 'sync', 'watch', 'install'], {
+      cwd: mac.path,
+      env: { ...process.env, HOME: mac.path },
+      encoding: 'utf8',
+    });
+    await reaches(mac.path, 'safari', 'succeeded');
+
+    const watching = jobProcess(mac.path);
+
+    assert.ok(watching !== undefined, 'launchd runs no process for the job');
+    const { stdout } = spawnSync(
+      '/bin/ps',
+      ['-o', 'comm=', '-p', String(watching)],
+      { encoding: 'utf8' },
+    );
+    assert.equal(stdout.trim(), node);
+    assert.equal(JSON.parse(installed.stdout).node, node);
+  } finally {
+    cli(mac.path, 'sync', 'watch', 'uninstall');
+  }
 });

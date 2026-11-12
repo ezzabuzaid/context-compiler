@@ -14,6 +14,7 @@ import { userConnectors } from '@workspace/connector-manifest/user-connectors';
 import type { ChoiceOptions, Connector } from '@workspace/connector/connector';
 import { type Selection, Settings } from '@workspace/settings';
 
+import type { BackgroundWatch } from './background-watch.ts';
 import type { Parsing } from './parsing.ts';
 import {
   type PassReport,
@@ -90,15 +91,18 @@ export class Imports {
   readonly root: string;
   readonly connectors: readonly Connector[];
   readonly #parsing: Parsing;
+  readonly #background: BackgroundWatch;
 
   constructor(
     connectors: readonly Connector[],
     directory: string,
     parsing: Parsing,
+    background: BackgroundWatch,
   ) {
     this.connectors = connectors;
     this.root = resolve(directory);
     this.#parsing = parsing;
+    this.#background = background;
   }
 
   get names(): string[] {
@@ -275,6 +279,21 @@ export class Imports {
     });
   }
 
+  // Keeps every selected connector current with no terminal, as watch does:
+  // from now on, from each login on, and again whenever that watch dies. It
+  // takes the place of the one installed before, which is how a connector
+  // set up since then comes to be watched.
+  async installWatch(): Promise<BackgroundWatch> {
+    using settings = new Settings(this.root);
+    selected(settings);
+    await this.#background.install();
+    return this.#background;
+  }
+
+  async uninstallWatch(): Promise<void> {
+    await this.#background.uninstall();
+  }
+
   // What sync and watch share: the selection, less the imports it no longer
   // names; each selected connector, or each one named, run side by side and
   // shown through the observer; Ctrl-C and SIGTERM; and the exit status.
@@ -284,9 +303,7 @@ export class Imports {
     each: (run: ImportRun) => Promise<void>,
   ): Promise<void> {
     using settings = new Settings(this.root);
-    const selections = settings.selections();
-    if (selections.length === 0)
-      throw new Error('No connectors are set up; run: setup');
+    const selections = selected(settings);
     // Syncs and watches read the files they store.
     await this.#parsing.prepare();
     await using flights = this.#flights();
@@ -448,6 +465,14 @@ export class Imports {
         })),
     ];
   }
+}
+
+// The selection a sync or a watch runs, which must name a connector.
+function selected(settings: Settings): Selection[] {
+  const selections = settings.selections();
+  if (selections.length === 0)
+    throw new Error('No connectors are set up; run: setup');
+  return selections;
 }
 
 // Why a selected connector cannot be used, and what to do about it.

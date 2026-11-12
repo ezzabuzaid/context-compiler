@@ -8,6 +8,7 @@ import { Connectors } from '@workspace/connector-manifest/connectors';
 import { provideHostModules } from '@workspace/connector-manifest/host-modules';
 import { userConnectors } from '@workspace/connector-manifest/user-connectors';
 
+import { BackgroundWatch } from './background-watch.ts';
 import { OptionsCommand } from './commands/options.ts';
 import { QueryCommand } from './commands/query.ts';
 import { SetupCommand } from './commands/setup.ts';
@@ -57,15 +58,16 @@ if (transcriptionModel !== undefined)
       program.error(Error.isError(error) ? error.message : String(error)),
     );
 
+const background = new BackgroundWatch(directory, import.meta.filename);
 const { connectors, broken } = await new Connectors([
   builtInConnectors,
   userConnectors,
-]).load(new TerminalHost(() => parsing.parser));
+]).load(new TerminalHost(() => parsing.parser, background));
 
 for (const { title, error } of broken)
   process.stderr.write(`${title} could not be loaded: ${error}\n`);
 
-const imports = new Imports(connectors, directory, parsing);
+const imports = new Imports(connectors, directory, parsing, background);
 
 for (const command of [
   new SetupCommand(imports),
