@@ -1,3 +1,4 @@
+import { setDefaultAutoSelectFamilyAttemptTimeout } from 'node:net';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 
@@ -20,6 +21,12 @@ import { TerminalHost } from './terminal-host.ts';
 
 if (process.platform !== 'darwin')
   throw new Error('The connectors read apps on a Mac.');
+
+// Node gives each address of a host 250 ms to connect, then drops it for the
+// next. A connection that takes longer, as one to Google took 200 to 400 ms
+// on a Mac whose network has no IPv6 route, then fails on every address.
+// RFC 8305 allows such an attempt 2 seconds at most.
+setDefaultAutoSelectFamilyAttemptTimeout(2_000);
 
 // The user's own connectors import elt and Connector from this CLI's copies.
 provideHostModules(({ specifier }) => import.meta.resolve(specifier));
