@@ -43,7 +43,7 @@
     "@zukhruf/shutdown": "^0.8.10",
     "@zukhruf/single-flight": "^0.8.10",
     "@zukhruf/sqlite-drift": "^0.8.10",
-    "@zukhruf/sqlite-federation": "^0.8.10",
+    "@zukhruf/sqlite-federation": "^0.8.18",
     "@zukhruf/sqlite-open": "^0.8.10",
     "@zukhruf/sqlite-transaction": "^0.8.10",
     "react": "19.3.0",

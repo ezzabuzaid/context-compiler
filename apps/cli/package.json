@@ -40,7 +40,7 @@
     "@zukhruf/election": "^0.8.10",
     "@zukhruf/pool": "^0.8.10",
     "@zukhruf/single-flight": "^0.8.10",
-    "@zukhruf/sqlite-federation": "^0.8.10",
+    "@zukhruf/sqlite-federation": "^0.8.18",
     "commander": "15.0.0"
   },
   "devDependencies": {

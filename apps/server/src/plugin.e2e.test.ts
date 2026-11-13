@@ -1667,7 +1667,7 @@ test(
 
 export default {
   async evaluate(sql: Query) {
-    return sql.all\`SELECT id FROM photos.photos\`.map((row) => ({ key: String(row.id), data: null }));
+    return sql.all\`SELECT id FROM photos_photos\`.map((row) => ({ key: String(row.id), data: null }));
   },
 };`,
     );
@@ -2652,7 +2652,7 @@ test(
 
 export default {
   async evaluate(sql: Query) {
-    return sql.all\`SELECT id FROM photos.photos\`.map((row) => ({ key: String(row.id), data: null }));
+    return sql.all\`SELECT id FROM photos_photos\`.map((row) => ({ key: String(row.id), data: null }));
   },
 };`,
     );

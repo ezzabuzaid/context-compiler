@@ -172,7 +172,7 @@ const newPhotos = `import type { Query } from '@zukhruf/sqlite-federation';
 
 export default {
   async evaluate(sql: Query) {
-    return sql.all\`SELECT id FROM photos.photos\`.map((row) => ({ key: String(row.id), data: null }));
+    return sql.all\`SELECT id FROM photos_photos\`.map((row) => ({ key: String(row.id), data: null }));
   },
 };`;
 
@@ -791,6 +791,81 @@ test('a monitor keeps what it sent across a restart: a match that arrived while 
     queued('chat-1', 'p2'),
     queued('chat-1', 'p3'),
   ]);
+});
+
+test('a match that stopped and matched again while no server checked the monitors is queued again at the next sync', async () => {
+  await using scratch = await new TemporaryFiles().directory('monitor-');
+  const { codex, root, plugin, imports, store, home } = await monitoredPhotos(
+    scratch.path,
+  );
+  // Photos keeps each photo it loaded, so a photo stops matching when its
+  // title changes.
+  await writeMonitor(
+    root,
+    'new-photos',
+    `import type { Query } from '@zukhruf/sqlite-federation';
+
+export default {
+  async evaluate(sql: Query) {
+    return sql.all\`SELECT id FROM photos_photos WHERE title = 'Snow'\`.map((row) => ({ key: String(row.id), data: null }));
+  },
+};`,
+  );
+  const titled = (title: string) =>
+    writeFile(
+      join(home, 'Pictures/photos.json'),
+      JSON.stringify([
+        { id: 'p1', title: 'Beach' },
+        { id: 'p2', title },
+      ]),
+    );
+  await plugin.import(imports);
+  await plugin.addMonitor('new-photos', 'chat-1');
+  await titled('Snow');
+  await plugin.import(imports);
+  // A launcher with no chat delivery imports while no server checks.
+  const unmonitored = await photosPlugin(store, home);
+  await titled('Dunes');
+  await unmonitored.import(imports);
+  await titled('Snow');
+  await unmonitored.import(imports);
+
+  await plugin.import(imports);
+
+  assert.deepEqual(codex.calls(), [
+    queued('chat-1', 'p2'),
+    queued('chat-1', 'p2'),
+  ]);
+});
+
+test('a monitor whose import was made again starts again from now and says so, then queues what comes after', async () => {
+  await using scratch = await new TemporaryFiles().directory('monitor-');
+  const { codex, root, plugin, imports, photos } = await monitoredPhotos(
+    scratch.path,
+  );
+  await writeMonitor(root, 'new-photos', newPhotos);
+  assert.ok(plugin.monitors !== null);
+  await plugin.import(imports);
+  await plugin.addMonitor('new-photos', 'chat-1');
+  const [photosImport] = imports;
+  assert.ok(photosImport !== undefined);
+  const folder = importDirectory(plugin.directory, photosImport);
+  rmSync(join(folder, 'data.sqlite'));
+  rmSync(join(folder, 'checkpoints.sqlite'));
+  await photos('p1', 'p2');
+  await plugin.import(imports);
+  const [restarted] = await plugin.monitors.status();
+  await photos('p1', 'p2', 'p3');
+
+  await plugin.import(imports);
+
+  assert.match(
+    String(restarted?.state === 'watching' && restarted.failure),
+    /^Started again from now: The photos import: Position \S+ is of an earlier numbering/,
+  );
+  assert.deepEqual(codex.calls(), [queued('chat-1', 'p3')]);
+  const [after] = await plugin.monitors.status();
+  assert.equal(after?.state === 'watching' && after.failure, null);
 });
 
 test('matches whose message could not be sent are all sent again at the next sync, and until then the monitor says why', async () => {

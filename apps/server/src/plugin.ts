@@ -5,7 +5,6 @@ import { setTimeout as sleep } from 'node:timers/promises';
 
 import { SqliteElection } from '@zukhruf/election';
 import { SingleFlight } from '@zukhruf/single-flight';
-import type { Locate } from '@zukhruf/sqlite-federation';
 import { z } from 'zod';
 
 import { PassFinished, passChannels } from '@eltjs/elt';
@@ -321,13 +320,13 @@ export class Plugin {
   }
 
   // One check at a time across the servers: one that imports while another
-  // checks joins that check, so both read the keys it saved and a match is
-  // sent once. What its own import brought is checked at the next import.
+  // checks joins that check, so both read the cursors it saved and a match
+  // is sent once. What its own import brought is checked at the next import.
   async #check(): Promise<void> {
     const monitors = this.monitors;
     if (monitors === null) return;
     await using flights = this.flights();
-    await flights.run('monitors', () => monitors.check(() => this.#locate()));
+    await flights.run('monitors', () => monitors.check(() => this.#imports()));
   }
 
   // Switches a connector to be kept current, or back to Sync only; every
@@ -418,27 +417,22 @@ export class Plugin {
       throw new Error(
         'This launcher does not provide chat delivery for monitors.',
       );
-    await this.monitors.add(name, thread, this.#locate());
+    await this.monitors.add(name, thread, this.#imports());
   }
 
-  // Where each selected connector's import is, for monitors that name it as a
-  // schema; one not imported yet is not found.
-  #locate(): Locate {
+  // Where each selected connector's import is, by the connector's name, for
+  // the monitors; one not imported yet is not there.
+  #imports(): ReadonlyMap<string, string> {
     using settings = this.#open();
-    const imports = new Map(
+    return new Map(
       settings
         .selections()
-        .map((selection) => [
+        .map((selection): [string, string] => [
           selection.connector,
           settings.database(selection),
-        ]),
+        ])
+        .filter(([, database]) => existsSync(database)),
     );
-    return (name) => {
-      const database = imports.get(name);
-      return database !== undefined && existsSync(database)
-        ? database
-        : undefined;
-    };
   }
 
   async options(name: string) {

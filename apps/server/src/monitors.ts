@@ -13,16 +13,14 @@ import { pathToFileURL } from 'node:url';
 import { promisify } from 'node:util';
 
 import { Declaration } from '@zukhruf/sqlite-drift';
-import {
-  Federation,
-  type Locate,
-  type Query,
-} from '@zukhruf/sqlite-federation';
+import type { Query } from '@zukhruf/sqlite-federation';
 import { open } from '@zukhruf/sqlite-open';
 import { transaction } from '@zukhruf/sqlite-transaction';
 import { z } from 'zod';
 
 import { type Condition, Eca, type Rule } from '@eltjs/eca';
+
+import { ImportsWarehouse } from './imports-warehouse.ts';
 
 // A monitor package's package.json: what the page shows of it, read without
 // running its code, and the entry whose default export has evaluate(sql).
@@ -41,20 +39,25 @@ const manifestSchema = z.object({
 // eca only sees the condition's own claims.
 const matchesSchema = z.array(z.object({ key: z.string(), data: z.unknown() }));
 
+type Match = z.infer<typeof matchesSchema>[number];
+
 type MonitorManifest = z.infer<typeof manifestSchema>['contextCompiler'] & {
   readonly folder: string;
 };
 
 type Loaded = MonitorManifest & {
-  readonly condition: Condition<Query, unknown>;
+  readonly condition: Condition<Query, Match>;
 };
 
-// Each registered monitor: the chat its instruction goes to, and its last
-// run and failure as the page shows them.
+// Each registered monitor: the chat its instruction goes to, its eca cursor,
+// and its last run and failure as the page shows them. Its messages wait in
+// monitor_messages from the evaluation that found them until they are sent,
+// a transactional outbox: they are saved with the cursor that moved past
+// their matches, so a stop between the two neither loses nor doubles them.
 const monitorTables = new Declaration(
   [
-    'CREATE TABLE monitors (name TEXT PRIMARY KEY, thread TEXT NOT NULL, added_at TEXT NOT NULL, ran_at TEXT, failure TEXT, failed_at TEXT)',
-    'CREATE TABLE monitor_keys (name TEXT NOT NULL REFERENCES monitors (name) ON DELETE CASCADE, key TEXT NOT NULL, PRIMARY KEY (name, key)) WITHOUT ROWID',
+    'CREATE TABLE monitors (name TEXT PRIMARY KEY, thread TEXT NOT NULL, added_at TEXT NOT NULL, cursor TEXT NOT NULL, ran_at TEXT, failure TEXT, failed_at TEXT)',
+    'CREATE TABLE monitor_messages (id INTEGER PRIMARY KEY, name TEXT NOT NULL REFERENCES monitors (name) ON DELETE CASCADE, text TEXT NOT NULL)',
   ],
   { rows: 'replace' },
 );
@@ -84,11 +87,17 @@ export type MonitorStatus = {
   readonly instruction: string | null;
 } & MonitorState;
 
+// A registered monitor that loads, as the eca rule of one check.
+type Checked = Rule<Query, Match> & {
+  readonly registered: Registered;
+  readonly monitor: Loaded;
+};
+
 // The monitors in the folder the plugin reads, what each registered one
 // last did, and the check that runs after each import: every registered
-// monitor's condition over the imports, and its new matches sent to its chat
-// through `codex queue` as one message: the monitor's instruction and their
-// keys.
+// monitor's condition over the imports from its cursor, and its new matches
+// sent to its chat through `codex queue` as messages: the monitor's
+// instruction and their keys.
 export class Monitors {
   readonly #root: string;
   readonly #store: string;
@@ -104,12 +113,16 @@ export class Monitors {
     this.#codex = options.codex;
   }
 
-  // Registers a monitor for the chat it was added from. Its condition's
-  // matches now are its baseline, so only what starts to match later is sent.
-  async add(name: string, thread: string, locate: Locate): Promise<void> {
+  // Registers a monitor for the chat it was added from, from the imports'
+  // newest positions now, so only what starts to match later is sent.
+  // imports: the data.sqlite of each selected connector, by its name.
+  async add(
+    name: string,
+    thread: string,
+    imports: ReadonlyMap<string, string>,
+  ): Promise<void> {
     const { loaded, broken } = await this.#load();
-    const monitor = loaded.get(name);
-    if (monitor === undefined) {
+    if (!loaded.has(name)) {
       // A monitor whose file failed to load is named in broken, with why.
       const failure = broken.get(name);
       throw new Error(
@@ -118,96 +131,90 @@ export class Monitors {
           : failure,
       );
     }
-    using federation = new Federation({ main: ':memory:', locate });
-    const eca = new Eca<Query, unknown>({ warehouse: once(federation.sql) });
-    const rule = { condition: monitor.condition };
-    await eca.add(rule);
+    const cursor = await new Eca<Query, Match>({
+      warehouse: new ImportsWarehouse(imports),
+      clock: globalThis,
+    }).start();
     using store = this.#open();
     transaction(
       store,
       () => {
+        store.prepare('DELETE FROM monitor_messages WHERE name = ?').run(name);
         store
           .prepare(
-            'INSERT INTO monitors (name, thread, added_at) VALUES (?, ?, ?) ON CONFLICT (name) DO UPDATE SET thread = excluded.thread, added_at = excluded.added_at, ran_at = NULL, failure = NULL, failed_at = NULL',
+            'INSERT INTO monitors (name, thread, added_at, cursor) VALUES (?, ?, ?, ?) ON CONFLICT (name) DO UPDATE SET thread = excluded.thread, added_at = excluded.added_at, cursor = excluded.cursor, ran_at = NULL, failure = NULL, failed_at = NULL',
           )
-          .run(name, thread, now());
-        replaceKeys(store, name, eca.keys(rule));
+          .run(name, thread, now(), cursor);
       },
       { mode: 'immediate' },
     );
   }
 
-  // Evaluates every registered monitor that loads, from the keys it saved.
-  // Each monitor's new matches go to its chat in messages that name their
-  // keys, as many as fit one command, each sent before its keys are saved, so
-  // a stop in between sends them
-  // again and never loses them. A send that fails, as to a deleted chat, fails
-  // only its monitor, whose matches come again at the next check. What
-  // it writes afterwards goes to the registration it read, so a monitor
-  // removed or added again meanwhile keeps what that change wrote.
-  async check(locate: () => Locate): Promise<void> {
+  // Evaluates every registered monitor that loads from its cursor, saves the
+  // messages of its new matches with its new cursor, and then sends each
+  // monitor's waiting messages to its chat in turn, deleting each once it
+  // went. A send that fails, as to a deleted chat, fails only its monitor,
+  // whose messages go at the next check. A cursor the imports can no longer
+  // read, as after an import made again, starts again from now, and the
+  // monitor says so. What a check writes goes to the registration it read,
+  // so a monitor removed or added again meanwhile keeps what that change
+  // wrote.
+  async check(imports: () => ReadonlyMap<string, string>): Promise<void> {
     const { loaded } = await this.#load();
     using store = this.#open();
-    const rules = new Map<
-      Rule<Query, unknown>,
-      Registered & { readonly monitor: Loaded }
-    >();
+    const rules: { rule: Checked; cursor: string }[] = [];
     for (const registered of registeredMonitors(store)) {
       const monitor = loaded.get(registered.name);
       if (monitor !== undefined)
-        rules.set({ condition: monitor.condition }, { ...registered, monitor });
+        rules.push({
+          rule: { condition: monitor.condition, registered, monitor },
+          cursor: registered.cursor,
+        });
     }
-    if (rules.size === 0) return;
-    let where: Locate;
+    if (rules.length === 0) return;
+    const failed = new Set<string>();
+    let eca: Eca<Query, Match>;
     try {
-      where = locate();
+      eca = new Eca({
+        warehouse: new ImportsWarehouse(imports()),
+        clock: globalThis,
+      });
     } catch (error) {
       // No import can be found, as with settings that cannot be read: each
       // monitor says why, and the next import checks it again.
-      for (const registered of rules.values())
-        fail(store, registered, `Last check failed: ${messageOf(error)}`);
+      for (const { rule } of rules)
+        fail(store, rule.registered, `Last check failed: ${messageOf(error)}`);
       return;
     }
-    using federation = new Federation({ main: ':memory:', locate: where });
-    const eca = new Eca<Query, unknown>({ warehouse: once(federation.sql) });
-    for (const [rule, { name }] of rules)
-      await eca.add(rule, { keys: savedKeys(store, name) });
-    const failed = new Set<string>();
-    // Each monitor's new keys until its message is sent. eca moves past them
-    // as the watch goes on, so a key still here when the keys are saved is
-    // left out of them and comes again at the next check.
-    const unsent = new Map<Rule<Query, unknown>, string[]>();
-    // The warehouse commits once, so the watch ends after that evaluation.
-    for await (const found of eca.watch({
-      signal: new AbortController().signal,
-    })) {
-      const registered = rules.get(found.rule);
-      if (registered === undefined) continue;
-      if ('error' in found) {
+    for await (const outcome of eca.evaluate(rules)) {
+      const { registered, monitor } = outcome.rule;
+      if ('expired' in outcome) {
         failed.add(registered.name);
-        fail(store, registered, `Last check failed: ${messageOf(found.error)}`);
+        save(store, registered, {
+          cursor: await eca.start(),
+          messages: [],
+          failure: `Started again from now: ${outcome.expired}. What changed since its last check was not checked.`,
+        });
         continue;
       }
-      unsent.set(found.rule, [...(unsent.get(found.rule) ?? []), found.key]);
+      const failure =
+        'error' in outcome
+          ? `Last check failed: ${messageOf(outcome.error)}`
+          : null;
+      if (failure !== null) failed.add(registered.name);
+      save(store, registered, {
+        cursor: outcome.cursor,
+        messages: messages(
+          monitor,
+          outcome.matches.map(({ key }) => key),
+        ),
+        failure,
+      });
     }
-    for (const [rule, registered] of rules) {
-      const keys = unsent.get(rule);
-      if (keys === undefined) continue;
+    for (const { rule } of rules) {
+      const { registered } = rule;
       try {
-        let sent = 0;
-        for (const message of messages(registered.monitor, keys)) {
-          await promisify(execFile)(this.#codex, [
-            'queue',
-            '--thread',
-            registered.thread,
-            '--message',
-            message.text,
-          ]);
-          // A message's keys are saved once it went, so a send that fails
-          // later leaves only the keys of that message and those after it.
-          sent += message.keys.length;
-          unsent.set(rule, keys.slice(sent));
-        }
+        await this.#deliver(store, registered);
       } catch (error) {
         failed.add(registered.name);
         fail(
@@ -217,33 +224,39 @@ export class Monitors {
         );
         continue;
       }
-      unsent.delete(rule);
+      if (!failed.has(registered.name))
+        store
+          .prepare(
+            'UPDATE monitors SET failure = NULL, failed_at = NULL WHERE name = ? AND added_at = ?',
+          )
+          .run(registered.name, registered.addedAt);
+    }
+  }
+
+  // Sends a monitor's waiting messages in the order they were saved, each
+  // deleted once it went, so a send that fails leaves it and those after it.
+  async #deliver(store: DatabaseSync, registered: Registered): Promise<void> {
+    const waiting = store
+      .prepare(
+        'SELECT id, text FROM monitor_messages WHERE name = ? ORDER BY id',
+      )
+      .all(registered.name);
+    for (const { id, text } of waiting) {
+      await promisify(execFile)(this.#codex, [
+        'queue',
+        '--thread',
+        registered.thread,
+        '--message',
+        String(text),
+      ]);
+      store
+        .prepare('DELETE FROM monitor_messages WHERE id = ?')
+        .run(Number(id));
       store
         .prepare(
           'UPDATE monitors SET ran_at = ? WHERE name = ? AND added_at = ?',
         )
         .run(now(), registered.name, registered.addedAt);
-    }
-    for (const [rule, registered] of rules) {
-      transaction(
-        store,
-        () => {
-          if (stillAdded(store, registered)) {
-            replaceKeys(
-              store,
-              registered.name,
-              eca.keys(rule).difference(new Set(unsent.get(rule))),
-            );
-            if (!failed.has(registered.name))
-              store
-                .prepare(
-                  'UPDATE monitors SET failure = NULL, failed_at = NULL WHERE name = ?',
-                )
-                .run(registered.name);
-          }
-        },
-        { mode: 'immediate' },
-      );
     }
   }
 
@@ -351,6 +364,7 @@ type Registered = {
   readonly name: string;
   readonly thread: string;
   readonly addedAt: string;
+  readonly cursor: string;
   readonly ranAt: string | null;
   readonly failure: string | null;
 };
@@ -358,46 +372,49 @@ type Registered = {
 function registeredMonitors(store: DatabaseSync): Registered[] {
   return store
     .prepare(
-      'SELECT name, thread, added_at, ran_at, failure FROM monitors ORDER BY name',
+      'SELECT name, thread, added_at, cursor, ran_at, failure FROM monitors ORDER BY name',
     )
     .all()
     .map((row) => ({
       name: String(row.name),
       thread: String(row.thread),
       addedAt: String(row.added_at),
+      cursor: String(row.cursor),
       ranAt: row.ran_at === null ? null : String(row.ran_at),
       failure: row.failure === null ? null : String(row.failure),
     }));
 }
 
-function savedKeys(store: DatabaseSync, name: string): string[] {
-  return store
-    .prepare('SELECT key FROM monitor_keys WHERE name = ?')
-    .all(name)
-    .map((row) => String(row.key));
-}
-
-// Whether the registration a check read is still there: not removed, and not
-// added again since.
-function stillAdded(store: DatabaseSync, registered: Registered): boolean {
-  return (
-    store
-      .prepare('SELECT 1 FROM monitors WHERE name = ? AND added_at = ?')
-      .get(registered.name, registered.addedAt) !== undefined
-  );
-}
-
-// Inside the caller's transaction.
-function replaceKeys(
+// Saves one evaluation of a monitor in one transaction: the messages of its
+// new matches, the cursor past them, and its failure, if the registration it
+// read is still there: not removed, and not added again since.
+function save(
   store: DatabaseSync,
-  name: string,
-  keys: ReadonlySet<string>,
+  registered: Registered,
+  evaluated: {
+    readonly cursor: string;
+    readonly messages: readonly string[];
+    readonly failure: string | null;
+  },
 ) {
-  store.prepare('DELETE FROM monitor_keys WHERE name = ?').run(name);
-  const insert = store.prepare(
-    'INSERT INTO monitor_keys (name, key) VALUES (?, ?)',
+  transaction(
+    store,
+    () => {
+      const { changes } = store
+        .prepare(
+          'UPDATE monitors SET cursor = ? WHERE name = ? AND added_at = ?',
+        )
+        .run(evaluated.cursor, registered.name, registered.addedAt);
+      if (changes === 0) return;
+      const insert = store.prepare(
+        'INSERT INTO monitor_messages (name, text) VALUES (?, ?)',
+      );
+      for (const text of evaluated.messages) insert.run(registered.name, text);
+      if (evaluated.failure !== null)
+        fail(store, registered, evaluated.failure);
+    },
+    { mode: 'immediate' },
   );
-  for (const key of keys) insert.run(name, key);
 }
 
 function fail(store: DatabaseSync, registered: Registered, failure: string) {
@@ -408,14 +425,9 @@ function fail(store: DatabaseSync, registered: Registered, failure: string) {
     .run(failure, now(), registered.name, registered.addedAt);
 }
 
-// What codex said when it refused, rather than the command line Node puts
-// before it.
 // A monitor's new keys as the messages its chat reads in turn, each naming
 // the monitor and as many keys as fit in messageBytes.
-function messages(
-  monitor: Loaded,
-  keys: readonly string[],
-): { readonly text: string; readonly keys: readonly string[] }[] {
+function messages(monitor: Loaded, keys: readonly string[]): string[] {
   const head = `Monitor "${monitor.title}" triggered: ${monitor.instruction}\nNew matches:`;
   const batches: string[][] = [];
   let batch: string[] = [];
@@ -431,12 +443,13 @@ function messages(
     size += line;
   }
   if (batch.length > 0) batches.push(batch);
-  return batches.map((keys) => ({
-    keys,
-    text: [head, ...keys.map((key) => `- ${key}`)].join('\n'),
-  }));
+  return batches.map((keys) =>
+    [head, ...keys.map((key) => `- ${key}`)].join('\n'),
+  );
 }
 
+// What codex said when it refused, rather than the command line Node puts
+// before it.
 function reasonOf(error: unknown): string {
   const said =
     typeof error === 'object' && error !== null && 'stderr' in error
@@ -445,19 +458,10 @@ function reasonOf(error: unknown): string {
   return said === '' ? messageOf(error) : said;
 }
 
-// The warehouse of one check: the imports as they are now, committed once.
-function once(sql: Query) {
-  return {
-    sql,
-    async *commits() {
-      yield;
-    },
-  };
-}
-
-// A monitor module's default export: an object with evaluate(sql), as eca's
-// Condition, whose matches are checked before eca reads them.
-function conditionOf(exported: unknown): Condition<Query, unknown> {
+// A monitor module's default export: an object with evaluate(sql) that gives
+// the keys true in the imports a handle reads, checked at the boundary. As an
+// eca condition, a step's matches are the keys true after and not before.
+function conditionOf(exported: unknown): Condition<Query, Match> {
   const evaluate: unknown =
     typeof exported === 'object' && exported !== null && 'evaluate' in exported
       ? exported.evaluate
@@ -466,8 +470,18 @@ function conditionOf(exported: unknown): Condition<Query, unknown> {
     throw new TypeError(
       'Its entry does not export an object with evaluate(sql) by default.',
     );
+  const matching = async (sql: Query) =>
+    new Map(
+      matchesSchema
+        .parse(await Reflect.apply(evaluate, exported, [sql]))
+        .map((match) => [match.key, match]),
+    );
   return {
-    evaluate: async (sql) =>
-      matchesSchema.parse(await Reflect.apply(evaluate, exported, [sql])),
+    async evaluate(before, after) {
+      const was = await matching(before.sql);
+      return [...(await matching(after.sql)).values()].filter(
+        ({ key }) => !was.has(key),
+      );
+    },
   };
 }

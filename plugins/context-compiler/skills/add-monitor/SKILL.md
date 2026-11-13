@@ -9,8 +9,9 @@ description: Adds a monitor that watches the imports and, after each sync, sends
 
 - A monitor is a folder in `~/Library/Application Support/Context Compiler/Monitors/<name>/` holding two files: a `package.json` and the entry point it names.
 - `package.json` is `{ "type": "module", "exports": "./<name>-monitor.ts", "contextCompiler": { "name": "<name>", "title": "<Title>", "description": "<what it watches, in the user's words>", "instruction": "<what to do when it matches>" } }`. `name` is lowercase letters, digits and dashes. The Context Compiler page shows the title, the description and the instruction.
-- The entry is TypeScript that Node runs as written. Its default export is an object with `async evaluate(sql)`. `sql` is a read-only handle with `all` and `get` tagged templates over every import: name an import as a schema, by its connector name, as in `` sql.all`SELECT … FROM mail.messages` ``. A statement may name at most 10 imports.
-- `evaluate` returns the matches that are true now: `[{ key, data }]`. The key names one thing across checks, such as a message id or an order id, and the turn uses it to find that thing. Each key is sent once while it keeps matching.
+- The entry is TypeScript that Node runs as written. Its default export is an object with `async evaluate(sql)`. `sql` is a read-only handle with `all` and `get` tagged templates over every import. Each table and view of an import is named `<connector>_<name>`, as in `` sql.all`SELECT … FROM mail_messages` ``. A statement may read the views of at most 10 imports.
+- `evaluate` returns the matches that are true in what `sql` reads: `[{ key, data }]`. The key names one thing across checks, such as a message id or an order id, and the turn uses it to find that thing.
+- After each sync, the plugin calls `evaluate` on the imports as they were at each commit since the last check, in the order of the commits. A key that is true at a commit and was not true at the commit before it is new. So a key that stops matching and matches again is sent again, also when that happened while no chat ran.
 - After each sync, the plugin evaluates every added monitor. When a monitor has new keys, the plugin queues one message into the chat that added the monitor: the line `Monitor "<title>" triggered: <instruction>`, then `New matches:` and one `- <key>` line for each new key. That chat runs the message as a user turn. The message carries no other data: the turn finds the row of each key in the imports itself, as `$query` describes.
 - When you add a monitor, what it matches now is its baseline and is not sent. Only what starts to match later is sent.
 - A monitor runs inside the plugin, with every macOS permission ChatGPT has.
@@ -28,9 +29,9 @@ description: Adds a monitor that watches the imports and, after each sync, sends
    export default {
      async evaluate(sql: Query) {
        return sql.all`
-         SELECT m.id FROM mail.messages m
-         JOIN mail.addresses a ON a.id = m.sender
-         JOIN mail.subjects s ON s.id = m.subject
+         SELECT m.id FROM mail_messages m
+         JOIN mail_addresses a ON a.id = m.sender
+         JOIN mail_subjects s ON s.id = m.subject
          WHERE a.address = 'email@transactional.careem.com'
            AND s.subject LIKE 'Your Delivery%' AND m.deleted = 0`.map(
          (row) => ({
@@ -54,7 +55,10 @@ description: Adds a monitor that watches the imports and, after each sync, sends
 - When the entry uses an `enum`, a `namespace` or a constructor parameter property, Node cannot run it as written and the monitor does not load. Use plain objects and functions.
 - When the entry imports a module other than a Node built-in, it does not load. `import type` lines are erased and are allowed.
 - When the key changes between checks for the same thing, such as a key built from the current time, the same thing is sent again at every sync. Build the key from the data.
-- When the condition reads a preset, such as Mail's `mail_messages`, the check fails with `no such table`. Presets exist only for one `$query` query; read the import's own views, which `catalog` lists.
+- When the condition names an import as a schema, as in `mail.messages`, it reads the import as it is now, not as it was at each commit, and a match that came and went between two checks is lost. Name `mail_messages`.
+- When the condition reads a `$query` preset, the check fails with `no such table`. Presets exist only for one `$query` query; read the import's own tables and views, which `catalog` lists, as `<connector>_<name>`.
+- When the condition reads an import's sync history, such as `mail_sync_status`, the check fails: the history is not kept as of each commit.
+- When an import is made again, as after its data was deleted, the monitor cannot read the commits before, starts again from now, and the Context Compiler page shows `Started again from now: …` until the next check. What changed since its last check is not sent.
 - When one statement names more than 10 imports, the check fails. Split it into statements of 10 or fewer.
 - When the chat that added a monitor is closed, its instruction waits until the user opens that chat. Add the monitor from a chat the user keeps.
 - When a check throws, the Context Compiler page shows `Last check failed: <error>`, and the monitor tries again at the next sync. Fix the file; you do not need to add it again.
