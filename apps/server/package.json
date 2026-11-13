@@ -31,7 +31,7 @@
     "@workspace/connector-opensooq-web": "0.0.1",
     "@workspace/connector-slack-desktop": "0.0.1",
     "@workspace/connector-whatsapp-desktop": "0.0.1",
-    "@eltjs/eca": "0.0.1",
+    "@eltjs/eca": "*",
     "@eltjs/elt": "*",
     "@eltjs/elt-sqlite": "*",
     "@eltjs/sdk-macos-speech-models": "0.0.1",
