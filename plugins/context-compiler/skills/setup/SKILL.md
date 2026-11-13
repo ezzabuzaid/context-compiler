@@ -24,7 +24,7 @@ Say only what the user needs now. Write every reply as the `wait-what` skill tea
 1. Call `setup`. It shows the user one form to choose connectors, and a second one only when chosen connectors need Full Disk Access that ChatGPT lacks. Each chosen connector imports all its accounts, folders and dates with attachments (Calendar: from 2000 until a year after each import); a connector narrowed earlier keeps that selection. It saves the answers and returns; the import runs in the background. The answers come from the user; do not ask the same questions in chat, and do not ask about accounts, folders or dates unless the user brings them up.
 2. Read its result:
    - `changed: false`: the user cancelled; nothing changed.
-   - `unavailable`: connectors that could not be read, each named by its `connector` with its `error`. When one has `permissions`, macOS access is what is missing: give that guidance as steps. Treat these connectors as inaccessible, never as empty.
+   - `unavailable`: connectors that could not be read, each named by its `connector` with its `error`. Its `error` says what failed and, when macOS access is missing, what to turn on. When one has `permissions`, the check before any read found Full Disk Access missing: give that guidance as steps. Treat these connectors as inaccessible, never as empty.
    - `openedFullDiskAccess`: present when chosen connectors need Full Disk Access, which has no macOS prompt. The second form offered to open its list in System Settings; `true` means it opened. Either way the user turns on ChatGPT there, then quits and reopens ChatGPT, which ends this chat, so tell them to run Set up Context Compiler again afterwards.
 3. If anything changed, report as described in "Report the result". The import runs in the background; do not wait for it.
 
@@ -64,7 +64,7 @@ Read each connector's state as `$query` describes. Then reply in this shape, and
 1. One line for each connector: its name and its state.
    - Importing: its database does not open yet, has no `sync_status` row, or has no `last_successful_sync_at`. Say "importing", never "empty".
    - Synced: give the local time of `last_successful_sync_at`. A partial sync is incomplete: name the streams that did not load.
-   - Failed: it has a `connection_error` or a failed pass. Give the error in one sentence. Give its `permissions` guidance as numbered steps only when the user can fix the failure: `connection_failure_type`, or the pass's `failure_type`, is `config`.
+   - Failed: it has a `connection_error` or a failed pass. Give the error in one sentence. The error carries what the user does to fix it, such as the macOS access to turn on; give that remedy as numbered steps when `connection_failure_type`, or the pass's `failure_type`, is `config`.
 2. One sentence: the imports stay on this Mac, and Codex reads them only to answer the user.
 3. When this chat's context has no Context Compiler status, ChatGPT does not run the plugin's hooks yet. End the reply with the block below, unchanged.
 

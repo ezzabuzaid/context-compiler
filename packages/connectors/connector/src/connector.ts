@@ -213,19 +213,6 @@ export abstract class Connector {
       : 'system';
   }
 
-  // What failed, and, when it is the user's to fix, what macOS access the app
-  // needs. A failure the history or settings kept passes the type they
-  // stored; null, for a stopped pass, has nothing for the user to fix.
-  failure(
-    error: unknown,
-    failureType: FailureType | null = this.failureType(error),
-  ): string {
-    const message = Error.isError(error) ? error.message : String(error);
-    return failureType === 'config'
-      ? `${message} — ${this.guidance()}`
-      : message;
-  }
-
   // What a selection of this connector covers, in a person's words.
   describe(scope: ImportScope): string {
     const parts = [

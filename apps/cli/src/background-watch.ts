@@ -1,6 +1,6 @@
 import { execFileSync } from 'node:child_process';
 import { hash } from 'node:crypto';
-import { chmodSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { chmodSync, mkdirSync, rmSync } from 'node:fs';
 import { homedir, userInfo } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
@@ -25,6 +25,8 @@ export class BackgroundWatch {
   readonly #label: string;
   // Where the job's own errors go; its passes show in status.
   readonly log: string;
+  // The node the job runs, which needs the access the terminal app had.
+  readonly node = process.execPath;
   readonly #plist: string;
   readonly #program: string[];
   readonly #domain = `gui/${userInfo().uid}`;
@@ -39,14 +41,7 @@ export class BackgroundWatch {
       'Library/LaunchAgents',
       `${this.#label}.plist`,
     );
-    this.#program = [
-      process.execPath,
-      entry,
-      '--directory',
-      root,
-      'sync',
-      'watch',
-    ];
+    this.#program = [this.node, entry, '--directory', root, 'sync', 'watch'];
   }
 
   // Starts the job now and at each login, in place of the one installed
@@ -80,23 +75,6 @@ export class BackgroundWatch {
   async uninstall(): Promise<void> {
     await this.#stop();
     rmSync(this.#plist, { force: true });
-  }
-
-  // The node the installed job runs; undefined while none is installed.
-  node(): string | undefined {
-    let plist: Buffer;
-    try {
-      plist = readFileSync(this.#plist);
-    } catch (error) {
-      if (Error.isError(error) && 'code' in error && error.code === 'ENOENT')
-        return undefined;
-      throw error;
-    }
-    return execFileSync(
-      '/usr/bin/plutil',
-      ['-extract', 'ProgramArguments.0', 'raw', '-o', '-', '-'],
-      { input: plist, encoding: 'utf8' },
-    ).trim();
   }
 
   // Ends the job's process and takes the job out of launchd. launchd answers

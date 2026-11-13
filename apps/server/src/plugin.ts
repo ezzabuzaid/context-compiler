@@ -272,7 +272,6 @@ export class Plugin {
     settings.select(requested.connectors, {
       facts: (name) =>
         this.#loaded(name) ?? unchanged(name, stored, requested.connectors),
-      permissions: ({ connector }) => this.#permissions(connector),
     });
     await using flights = this.flights();
     await this.#removeStale(settings, flights);

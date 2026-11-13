@@ -33,6 +33,7 @@
     "@eltjs/elt-sqlite": "*",
     "@eltjs/google-auth": "0.0.1",
     "@eltjs/sdk-apple-eventkit": "0.0.1",
+    "@eltjs/sdk-macos-app-database": "0.0.1",
     "@eltjs/sdk-macos-speech-models": "0.0.1",
     "@workspace/settings": "0.0.1",
     "@eltjs/source-apple-macos": "0.0.1",

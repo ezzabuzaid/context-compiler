@@ -377,7 +377,7 @@ test('agents read the selected connectors, where each import lives and what macO
       '-readonly',
       '-json',
       join(scratch.path, 'settings.sqlite'),
-      'SELECT connector, scope, include_attachments, database, connection_error, permissions FROM selected_connectors',
+      'SELECT connector, scope, include_attachments, database, connection_error FROM selected_connectors',
     ],
     { encoding: 'utf8' },
   );
@@ -392,7 +392,6 @@ test('agents read the selected connectors, where each import lives and what macO
         join(importDirectory(scratch.path, notes), 'data.sqlite'),
       ),
       connection_error: null,
-      permissions: plugin.connector('notes').guidance(),
     },
     {
       connector: 'mail',
@@ -410,7 +409,6 @@ test('agents read the selected connectors, where each import lives and what macO
         ),
       ),
       connection_error: null,
-      permissions: plugin.connector('mail').guidance(),
     },
   ]);
 });
@@ -1599,9 +1597,7 @@ test('a chat hears of a pass only when it changes what a reader can do with the 
   await (await begin()).fail(new Error('Notes crashed.'), 'system');
   const crashed = chatStatus(plugin, pageUri);
   assert.ok(
-    failed.text.includes(
-      `: Notes could not be opened. ${plugin.connector('notes').guidance()}; data as of `,
-    ),
+    failed.text.includes(': Notes could not be opened.; data as of '),
     failed.text,
   );
   assert.notEqual(failed.state, synced.state);
@@ -1818,12 +1814,12 @@ test('the sidebar page describes each connector’s import and switches one conn
   const begin = await passes(plugin, notes);
   await (await begin()).finish();
   assert.equal(described('notes'), 'Synced just now · 1 folder.');
-  // The page adds the connector's permissions guidance to the error once,
-  // and offers to open Full Disk Access, since granting it is the fix.
+  // The page shows the error as it is, and offers to open Full Disk Access,
+  // since granting it is the fix.
   await (await begin()).fail(new Error('Notes could not be opened.'), 'config');
   assert.partialDeepStrictEqual(statusOf('notes'), {
     state: 'failed',
-    text: `Last sync failed: Notes could not be opened. ${plugin.connector('notes').guidance()}`,
+    text: 'Last sync failed: Notes could not be opened.',
     fullDiskAccess: true,
   });
   // A failure granting access cannot fix shows only what went wrong.
@@ -1853,7 +1849,7 @@ test('the sidebar page describes each connector’s import and switches one conn
   ).fail(new Error('Contacts could not be opened.'), 'config');
   assert.partialDeepStrictEqual(statusOf('contacts'), {
     state: 'failed',
-    text: `Last sync failed: Contacts could not be opened. ${plugin.connector('contacts').guidance()}`,
+    text: 'Last sync failed: Contacts could not be opened.',
     fullDiskAccess: false,
   });
   await updateConnector(plugin, 'contacts', null);

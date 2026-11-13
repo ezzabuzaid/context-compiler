@@ -593,7 +593,6 @@ test('mail_messages reads each message with both body formats, recipients, subje
         };
         settings.select([selection], {
           facts: () => connector,
-          permissions: () => connector.guidance(),
         });
         const file = join(mailbox, 'UUID/Data/Messages/1.emlx');
         const original = readFileSync(file);

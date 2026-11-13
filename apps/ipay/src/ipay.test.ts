@@ -474,7 +474,6 @@ async function contextCompilerSync(
   }));
   settings.select(selections, {
     facts: of,
-    permissions: (selection) => of(selection.connector).guidance(),
   });
   for (const selection of selections) {
     const { connections, derived } = await of(selection.connector).connections(

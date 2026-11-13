@@ -10,7 +10,6 @@ import { TemporaryFiles } from '@zukhruf/testing/fs';
 import {
   type ConnectorFacts,
   ConnectorRemovedError,
-  type Selection,
   Settings,
   selectionProblems,
 } from './index.ts';
@@ -23,10 +22,7 @@ const facts = (connector: string): ConnectorFacts => ({
     (connector === 'contacts' && kind === 'collectionIds'),
   datedBy: connector === 'notes' ? 'last modified' : null,
 });
-const options = {
-  facts,
-  permissions: ({ connector }: Selection) => `Allow ${connector}.`,
-};
+const options = { facts };
 
 // The sqlite3 shell agents read with, refused writes and untrusted schemas.
 function shell(database: string, sql: string) {
@@ -113,7 +109,7 @@ test('readers find each selected import, where it lives and what access it needs
 
   const { rows, stderr } = shell(
     join(scratch.path, 'settings.sqlite'),
-    'SELECT connector, scope, include_attachments, database, connection_error, connection_failure_type, permissions FROM selected_connectors',
+    'SELECT connector, scope, include_attachments, database, connection_error, connection_failure_type FROM selected_connectors',
   );
 
   assert.equal(stderr, '');
@@ -126,7 +122,6 @@ test('readers find each selected import, where it lives and what access it needs
       database: relative(scratch.path, store.database(notes)),
       connection_error: 'Notes could not be opened.',
       connection_failure_type: 'config',
-      permissions: 'Allow notes.',
     },
     {
       connector: 'books',
@@ -142,7 +137,6 @@ test('readers find each selected import, where it lives and what access it needs
       ),
       connection_error: null,
       connection_failure_type: null,
-      permissions: 'Allow books.',
     },
   ]);
   assert.deepEqual(

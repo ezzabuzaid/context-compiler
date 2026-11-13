@@ -3,7 +3,6 @@ import { relative } from 'node:path';
 import type { PassStatus } from '@eltjs/elt-sqlite';
 import { connectorPath } from '@workspace/ui/contract';
 
-import { passFailure } from './pass-failure.ts';
 import type { Plugin } from './plugin.ts';
 
 // What a chat's hooks add to the model's context: each selected connector,
@@ -11,7 +10,7 @@ import type { Plugin } from './plugin.ts';
 // load. A chat keeps it until it changes, so times are instants, not "minutes
 // ago".
 
-const progress = (sync: PassStatus | null, guidance: string): string => {
+const progress = (sync: PassStatus | null): string => {
   if (sync === null) return 'waiting for its first import';
   // currentAsOf is the oldest stream's current_as_of, so it is null while any
   // stream has not loaded completely, even when others already hold rows.
@@ -27,9 +26,9 @@ const progress = (sync: PassStatus | null, guidance: string): string => {
     case 'cancelled':
       return `its last pass was stopped before it finished; ${since}`;
     case 'partial':
-      return `partly synced at ${sync.completedAt}: ${passFailure(sync, guidance)}; ${since}`;
+      return `partly synced at ${sync.completedAt}: ${sync.error}; ${since}`;
     case 'failed':
-      return `last sync failed at ${sync.completedAt}: ${passFailure(sync, guidance)}; ${since}`;
+      return `last sync failed at ${sync.completedAt}: ${sync.error}; ${since}`;
   }
 };
 
@@ -117,7 +116,7 @@ export function chatStatus(
                   `  Presets in "${loaded.presetsFolder}": ${presets.map(({ name }) => name).join(', ')}`,
                 ];
           return [
-            `- ${title}: ${progress(sync, permissions)}. ${where}${fix}`,
+            `- ${title}: ${progress(sync)}. ${where}${fix}`,
             ...content.map((line) => `  ${line}`),
             ...presetsLine,
           ].join('\n');

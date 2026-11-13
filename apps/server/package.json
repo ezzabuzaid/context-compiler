@@ -34,6 +34,7 @@
     "@eltjs/eca": "*",
     "@eltjs/elt": "*",
     "@eltjs/elt-sqlite": "*",
+    "@eltjs/sdk-macos-app-database": "0.0.1",
     "@eltjs/sdk-macos-speech-models": "0.0.1",
     "@workspace/settings": "0.0.1",
     "@eltjs/source-apple-macos": "0.0.1",

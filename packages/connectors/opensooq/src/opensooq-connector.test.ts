@@ -113,7 +113,6 @@ test('an import with no category chosen loads the categories alone, and requests
   };
   settings.select([selection], {
     facts: () => opensooq,
-    permissions: () => opensooq.guidance(),
   });
 
   const outcome = await opensooq.import(settings, selection);
@@ -176,7 +175,6 @@ test('an import of the categories chosen in setup loads their listings and the c
   };
   settings.select([selection], {
     facts: () => opensooq,
-    permissions: () => opensooq.guidance(),
   });
 
   const outcome = await opensooq.import(settings, selection);

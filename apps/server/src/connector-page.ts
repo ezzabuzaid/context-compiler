@@ -6,7 +6,6 @@ import type {
   ConnectorSelection,
 } from '@workspace/ui/contract';
 
-import { passFailure } from './pass-failure.ts';
 import { type Plugin, configurationSchema } from './plugin.ts';
 
 // What the Context Compiler page shows and changes: one row per connector, described by
@@ -37,12 +36,7 @@ export function when(instant: string, now: Date): string {
   return `${new Date(instant).toLocaleString('en', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })} (${ago(instant, now)})`;
 }
 
-function describe(
-  sync: PassStatus,
-  covers: string,
-  permissions: string,
-  now: Date,
-): string {
+function describe(sync: PassStatus, covers: string, now: Date): string {
   switch (sync.state) {
     // A pass a killed process left reads running until the next pass, so its
     // date and age show it is not today's.
@@ -53,9 +47,9 @@ function describe(
     case 'succeeded':
       return `Synced ${ago(sync.completedAt, now)} · ${covers}.`;
     case 'partial':
-      return `Partly synced ${ago(sync.completedAt, now)}: ${passFailure(sync, permissions)}`;
+      return `Partly synced ${ago(sync.completedAt, now)}: ${sync.error}`;
     case 'failed':
-      return `Last sync failed: ${passFailure(sync, permissions)}`;
+      return `Last sync failed: ${sync.error}`;
   }
 }
 
@@ -82,12 +76,7 @@ function loadedStatus(
     };
   return {
     state: item.sync.state,
-    text: describe(
-      item.sync,
-      connector.describe(item.scope),
-      item.permissions,
-      now,
-    ),
+    text: describe(item.sync, connector.describe(item.scope), now),
     fullDiskAccess:
       connector.fullDiskAccess && item.sync.failureType === 'config',
     details: [

@@ -122,10 +122,7 @@ export class Imports {
   // What a connector can be narrowed to; opening it is also what makes macOS
   // ask for access.
   async options(name: string): Promise<ChoiceOptions[]> {
-    const connector = this.connector(name);
-    return connector.listChoices().catch((error: unknown) => {
-      throw new Error(connector.failure(error));
-    });
+    return this.connector(name).listChoices();
   }
 
   selections(): Selection[] {
@@ -140,7 +137,6 @@ export class Imports {
     using settings = new Settings(this.root);
     settings.select(selections, {
       facts: (name) => this.connector(name),
-      permissions: ({ connector }) => this.connector(connector).guidance(),
     });
     await using flights = this.#flights();
     await removeStale(settings, flights);
@@ -417,10 +413,7 @@ export class Imports {
           ...never,
           state: 'failed' as const,
           completedAt: failure.failedAt,
-          error: connector.failure(
-            new Error(failure.error),
-            failure.failureType,
-          ),
+          error: failure.error,
         };
       const { pass, streams } = readPassStatus(path);
       // Not synced yet, or no pass began.
@@ -431,10 +424,7 @@ export class Imports {
         completedAt: pass.completedAt,
         lastSuccessAt: pass.lastSucceededAt,
         currentAsOf: pass.currentAsOf,
-        error:
-          pass.error === null
-            ? null
-            : connector.failure(new Error(pass.error), pass.failureType),
+        error: pass.error,
         streams: streams.map(
           ({ stream, state, lastSucceededAt, currentAsOf }) => ({
             stream,

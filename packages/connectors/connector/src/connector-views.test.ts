@@ -155,7 +155,6 @@ async function imports(directory: string, views: readonly ViewSpec[]) {
   };
   settings.select([selection], {
     facts: () => connector,
-    permissions: () => connector.guidance(),
   });
   return {
     settings,

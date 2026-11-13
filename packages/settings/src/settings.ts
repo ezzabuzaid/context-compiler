@@ -30,7 +30,7 @@ const heartbeatMs = 1_000;
 // root, so a store moved to another folder still names its imports.
 const settingsTables = new Declaration(
   [
-    'CREATE TABLE selections (position INTEGER PRIMARY KEY, connector TEXT NOT NULL UNIQUE, scope TEXT NOT NULL, include_attachments INTEGER NOT NULL, directory TEXT NOT NULL, permissions TEXT NOT NULL)',
+    'CREATE TABLE selections (position INTEGER PRIMARY KEY, connector TEXT NOT NULL UNIQUE, scope TEXT NOT NULL, include_attachments INTEGER NOT NULL, directory TEXT NOT NULL)',
     "CREATE TABLE connection_failures (directory TEXT PRIMARY KEY, error TEXT NOT NULL, failure_type TEXT NOT NULL CHECK (failure_type IN ('config', 'system')), failed_at TEXT NOT NULL)",
     'CREATE TABLE watched (connector TEXT PRIMARY KEY)',
     'CREATE TABLE transcription (id INTEGER PRIMARY KEY CHECK (id = 1), model TEXT NOT NULL)',
@@ -92,13 +92,12 @@ const selectedConnectors = {
     connection_error:
       'Why the import last failed in a way sync_status cannot record, such as missing macOS access or a database it could not write; NULL when sync_status has the outcome. A connector with an error is inaccessible, not empty.',
     connection_failure_type:
-      'config when the user can fix connection_error by giving access or changing what they set up, and permissions says how; system for any other reason; NULL when sync_status has the outcome.',
+      'config when the user can fix connection_error by giving access or changing what they set up, and connection_error says how; system for any other reason; NULL when sync_status has the outcome.',
     connection_failed_at:
       'When the import last failed in a way sync_status cannot record, as an ISO 8601 UTC timestamp; NULL when sync_status has the outcome.',
-    permissions: 'What the user can do in macOS to give access to this app.',
   },
   query: `SELECT s."connector", s."scope", s."include_attachments", s."directory" || '/data.sqlite' AS "database",
-      f."error" AS "connection_error", f."failure_type" AS "connection_failure_type", f."failed_at" AS "connection_failed_at", s."permissions"
+      f."error" AS "connection_error", f."failure_type" AS "connection_failure_type", f."failed_at" AS "connection_failed_at"
     FROM "selections" s LEFT JOIN "connection_failures" f ON f."directory" = s."directory"
     ORDER BY s."position"`,
 };
@@ -198,18 +197,12 @@ export class Settings implements Disposable {
       .run(connector);
   }
 
-  // Saves a selection that has no problems, with what macOS needs granted for
-  // each connector, forgets the failures of every other import and publishes
-  // what readers see. The imports it no longer names are left stale.
-  select<Selected extends Selection>(
-    selections: readonly Selected[],
-    {
-      facts,
-      permissions,
-    }: {
-      facts: (connector: string) => ConnectorFacts;
-      permissions: (selection: Selected) => string;
-    },
+  // Saves a selection that has no problems, forgets the failures of every
+  // other import and publishes what readers see. The imports it no longer
+  // names are left stale.
+  select(
+    selections: readonly Selection[],
+    { facts }: { facts: (connector: string) => ConnectorFacts },
   ): void {
     const problems = selectionProblems(selections, facts);
     if (problems.length > 0) throw new Error(problems.join('\n'));
@@ -218,7 +211,7 @@ export class Settings implements Disposable {
       () => {
         this.settings.exec('DELETE FROM selections');
         const insert = this.settings.prepare(
-          'INSERT INTO selections VALUES(?,?,?,?,?,?)',
+          'INSERT INTO selections VALUES(?,?,?,?,?)',
         );
         for (const [position, selection] of selections.entries())
           insert.run(
@@ -227,7 +220,6 @@ export class Settings implements Disposable {
             JSON.stringify(selection.scope),
             selection.includeAttachments ? 1 : 0,
             importFolder(selection),
-            permissions(selection),
           );
         this.settings.exec(
           'DELETE FROM connection_failures WHERE directory NOT IN (SELECT directory FROM selections)',

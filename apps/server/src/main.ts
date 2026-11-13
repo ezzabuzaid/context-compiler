@@ -10,6 +10,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { Shutdown } from '@zukhruf/shutdown';
 import { z } from 'zod';
 
+import { macOSAccess } from '@eltjs/sdk-macos-app-database';
 import { SpeechModels } from '@eltjs/sdk-macos-speech-models';
 import { Connectors } from '@workspace/connector-manifest/connectors';
 import { provideHostModules } from '@workspace/connector-manifest/host-modules';
@@ -48,6 +49,7 @@ if (!grantee)
   throw new Error(
     'Context Compiler requires CONTEXT_COMPILER_GRANTEE: set it to the name of the app receiving macOS permissions.',
   );
+macOSAccess.install({ program: grantee });
 const pageUri = process.env.CONTEXT_COMPILER_PAGE_URI?.trim() || null;
 const chatUri = process.env.CONTEXT_COMPILER_CHAT_URI?.trim() || null;
 const codex = process.env.CODEX_CLI_PATH?.trim();

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import {
+  chmodSync,
   constants,
   mkdirSync,
   readFileSync,
@@ -24,8 +25,8 @@ import { type ElectronApplication, _electron } from 'playwright';
 const workspace = resolve(import.meta.dirname, '../../..');
 
 test(
-  'Call History access failures name Context Compiler in the desktop even after ChatGPT configured the import',
-  { timeout: 90_000 },
+  'a Call History access failure names the program whose pass failed: ChatGPT for its own pass, Context Compiler once the desktop syncs',
+  { timeout: 90_000, skip: process.getuid?.() === 0 },
   async () => {
     await using homeDirectory = await new TemporaryFiles().directory(
       'cc-permission-',
@@ -34,6 +35,10 @@ test(
       },
     );
     const home = homeDirectory.path;
+    // macOS keeps CallHistoryDB from the server: no one but root can list it.
+    const callHistory = join(home, 'Library/Application Support/CallHistoryDB');
+    mkdirSync(callHistory, { recursive: true });
+    chmodSync(callHistory, 0o000);
     let application: ElectronApplication | undefined;
     const client = new Client({ name: 'permission-test', version: '1.0.0' });
     const transport = new StdioClientTransport({
@@ -54,8 +59,6 @@ test(
         name: 'configure',
         arguments: { connectors: [{ connector: 'call-history' }] },
       });
-      // No CallHistory.storedata under this HOME: the real source reports the
-      // same unreadable-store failure as macOS denying Full Disk Access.
       await client.callTool({
         name: 'sync',
         arguments: { connector: 'call-history' },
@@ -64,7 +67,10 @@ test(
         name: 'connectors',
         arguments: {},
       });
-      assert.match(JSON.stringify(before), /Turn on ChatGPT/);
+      assert.match(
+        JSON.stringify(before),
+        /Turn on ChatGPT in System Settings › Privacy & Security › Full Disk Access\./,
+      );
 
       application = await _electron.launch({
         args: [resolve(workspace, 'apps/desktop'), '--hidden'],
@@ -80,6 +86,11 @@ test(
         .locator('.sidebar button.item')
         .filter({ hasText: 'Call History' })
         .click();
+      await page.getByRole('button', { name: 'Sync connectors' }).click();
+      await page
+        .locator('.status')
+        .filter({ hasText: 'Turn on Context Compiler' })
+        .waitFor();
       await page
         .getByRole('button', { name: 'Open Full Disk Access' })
         .waitFor();
@@ -87,8 +98,9 @@ test(
       assert.match(message, /Last sync failed:.*cannot be read/s);
       assert.match(
         message,
-        /Turn on Context Compiler in System Settings › Privacy & Security › Full Disk Access, then quit and reopen Context Compiler\./,
+        /cannot be read\. Turn on Context Compiler in System Settings › Privacy & Security › Full Disk Access\./,
       );
+      assert.doesNotMatch(message, /quit and reopen/);
       assert.doesNotMatch(message, /ChatGPT|Codex|Terminal/);
     } finally {
       try {
@@ -97,6 +109,7 @@ test(
         const spawned = transport.pid !== null;
         await client.close();
         if (spawned) await exited.promise;
+        chmodSync(callHistory, 0o700);
       }
     }
   },

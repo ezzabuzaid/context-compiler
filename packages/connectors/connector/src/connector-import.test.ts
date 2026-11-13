@@ -205,7 +205,6 @@ test(
     };
     settings.select([selection], {
       facts: () => connector,
-      permissions: () => connector.guidance(),
     });
     const stop = new AbortController();
     const lost = 'The flight is no longer this pass’s';
@@ -260,7 +259,6 @@ test(
     };
     settings.select([selection], {
       facts: () => connector,
-      permissions: () => connector.guidance(),
     });
     // The same import in a process of its own, whose source commits the
     // first note and then waits until the process is killed, as a process
@@ -384,7 +382,6 @@ test(
     };
     settings.select([selection], {
       facts: () => connector,
-      permissions: () => connector.guidance(),
     });
     const texts = () => {
       using database = open(settings.database(selection), {

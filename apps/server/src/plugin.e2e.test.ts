@@ -456,6 +456,9 @@ test(
       return { action: 'accept', content: { connectors: ['notes'] } };
     });
     const other = new Client({ name: 'another-chat', version: '1.0.0' });
+    // Messages' folder, which macOS keeps from ChatGPT: no one but root can
+    // list it.
+    const messagesStore = join(scratch.path, 'Library/Messages');
     const transport = await connect(client);
     const otherTransport = await connect(other);
     try {
@@ -735,6 +738,8 @@ test(
       );
 
       // A connector macOS does not allow fails alone, and Notes keeps its import.
+      mkdirSync(messagesStore, { recursive: true });
+      chmodSync(messagesStore, 0o000);
       await invoke(client, 'configure', {
         connectors: [
           {
@@ -894,6 +899,7 @@ test(
       await transport.close();
       await other.close();
       await otherTransport.close();
+      if (existsSync(messagesStore)) chmodSync(messagesStore, 0o700);
     }
     assert.ok(!diagnostics.includes('Error'), diagnostics);
   },
@@ -998,6 +1004,10 @@ test(
         ['messages', 'books'],
       );
       assert.match(connected.unavailable[0].error, /Full Disk Access/);
+      // A read that failed says its own remedy; only a connector the check
+      // before any read blocked gets the host's guidance beside it.
+      for (const { error, permissions } of connected.unavailable)
+        if (/ is not there\./.test(error)) assert.equal(permissions, null);
       assert.deepEqual(
         connected.connectors.map(
           ({
@@ -1860,6 +1870,13 @@ async function chat(
       client.callTool({ name: 'connectors', arguments: {} }, undefined, {
         signal,
       }),
+    // What the chat's SessionStart hook adds to its context.
+    context: () =>
+      client.callTool(
+        { name: 'context', arguments: { event: 'SessionStart' } },
+        undefined,
+        { signal },
+      ),
     // A monitor the chat wrote, added for the chat Codex names in _meta.
     addMonitor: (name: string, thread: string) =>
       client.callTool(
@@ -2782,6 +2799,76 @@ test(
     assert.match(status('albums', rows)?.text ?? '', /ENOENT|no such file/);
     assert.equal(status('photos', rows)?.state, 'succeeded');
     assert.deepEqual(photoIds(scratch.path), ['p1', 'p2', 'p3']);
+  },
+);
+
+test(
+  'a store macOS keeps from ChatGPT fails with the store’s remedy once, naming ChatGPT, on the connector page and in the chat status',
+  { timeout: 120_000, skip: process.getuid?.() === 0 },
+  async (t) => {
+    await using scratch = await new TemporaryFiles().directory('plugin-e2e-', {
+      parent: homes,
+    });
+    const plugin = join(scratch.path, 'plugin');
+    cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
+    // macOS keeps CallHistoryDB from the server: no one but root can list it.
+    const callHistory = join(
+      scratch.path,
+      'Library/Application Support/CallHistoryDB',
+    );
+    mkdirSync(callHistory, { recursive: true });
+    chmodSync(callHistory, 0o000);
+    try {
+      await using user = await chat(t.signal, plugin, scratch.path);
+      await user.configure(['call-history']);
+
+      const synced = await user.sync('call-history');
+      const context = await user.context();
+
+      const remedy =
+        'Turn on ChatGPT in System Settings › Privacy & Security › Full Disk Access.';
+      const text = String(
+        z
+          .object({
+            structuredContent: z.object({
+              connectors: z.array(
+                z.object({
+                  name: z.string(),
+                  status: z.object({ text: z.string() }),
+                }),
+              ),
+            }),
+          })
+          .parse(synced)
+          .structuredContent.connectors.find(
+            ({ name }) => name === 'call-history',
+          )?.status.text,
+      );
+      assert.ok(text.startsWith('Last sync failed: '), text);
+      assert.ok(text.endsWith(`cannot be read. ${remedy}`), text);
+      // elt names each copy's failure, so the remedy follows each one; nothing
+      // else tells the user what to turn on.
+      assert.equal(
+        text.split('Turn on').length,
+        text.split(remedy).length,
+        text,
+      );
+      const line = String(
+        z
+          .object({ content: z.array(z.object({ text: z.string() })) })
+          .parse(context)
+          .content.flatMap((part) => part.text.split('\n'))
+          .find((row) => row.startsWith('- Call History:')),
+      );
+      assert.ok(line.includes(`cannot be read. ${remedy}; `), line);
+      assert.equal(
+        line.split('Turn on').length,
+        line.split(remedy).length,
+        line,
+      );
+    } finally {
+      chmodSync(callHistory, 0o700);
+    }
   },
 );
 

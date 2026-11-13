@@ -174,7 +174,6 @@ function selected(
   };
   settings.select([selection], {
     facts: () => connector,
-    permissions: () => connector.guidance(),
   });
   return selection;
 }
@@ -296,10 +295,6 @@ test(
     assert.equal(
       connector.failureType(new Error('The archive is corrupt.')),
       'system',
-    );
-    assert.equal(
-      connector.failure(denied),
-      'Dia’s archive is behind access. — Allow Codex to read both stores.',
     );
   },
 );

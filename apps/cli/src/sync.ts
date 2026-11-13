@@ -3,7 +3,6 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import {
   type CopyOutcome,
   CopyProgress,
-  type FailureType,
   PassFailed,
   PassFinished,
   PassStarted,
@@ -11,7 +10,6 @@ import {
   type Target,
   passChannels,
   passError,
-  passFailureType,
   passStatus,
 } from '@eltjs/elt';
 import type { Connector } from '@workspace/connector/connector';
@@ -55,7 +53,7 @@ const running = new AsyncLocalStorage<ObservedPasses>();
 // gave it no pass.
 type ConnectionPass =
   | { readonly outcomes: readonly CopyOutcome<Target>[] }
-  | { readonly error: unknown; readonly failureType: FailureType };
+  | { readonly error: unknown };
 
 // Hears the passes of one connector that run inside run(): it shows each
 // copy's progress while it runs, and hands how each connection's pass ended,
@@ -74,10 +72,7 @@ abstract class ObservedPasses implements Disposable {
     if (message instanceof PassFinished)
       this.ended(message.connection.name, { outcomes: message.outcomes });
     if (message instanceof PassFailed)
-      this.ended(message.connection.name, {
-        error: message.error,
-        failureType: message.failureType,
-      });
+      this.ended(message.connection.name, { error: message.error });
   };
 
   constructor(connector: Connector, report: PassReport) {
@@ -145,7 +140,7 @@ export class WatchPasses extends ObservedPasses {
       this.connector,
       'outcomes' in pass
         ? summarize(this.connector, pass.outcomes, this.seconds(connection))
-        : failed(this.connector, pass.error, 0, pass.failureType),
+        : failed(this.connector, pass.error, 0),
     );
   }
 }
@@ -172,9 +167,7 @@ function combined(
         : 'partial',
     error: [
       ...(loaded.error === null ? [] : [loaded.error]),
-      ...failures.map(({ error, failureType }) =>
-        connector.failure(error, failureType),
-      ),
+      ...failures.map(({ error }) => message(error)),
     ].join('\n'),
   };
 }
@@ -195,10 +188,7 @@ function summarize(
       deleted,
       errors: failures.map(({ error }) => message(error)),
     })),
-    error:
-      error === null
-        ? null
-        : connector.failure(error, passFailureType(outcomes)),
+    error: error === null ? null : message(error),
   };
 }
 
@@ -206,14 +196,13 @@ export function failed(
   connector: Connector,
   error: unknown,
   seconds: number,
-  failureType: FailureType = connector.failureType(error),
 ): PassSummary {
   return {
     connector: connector.name,
     status: 'failed',
     seconds,
     streams: [],
-    error: connector.failure(error, failureType),
+    error: message(error),
   };
 }
 

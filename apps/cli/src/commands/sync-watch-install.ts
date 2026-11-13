@@ -9,7 +9,7 @@ export class SyncWatchInstallCommand extends Command {
 
   protected async run(): Promise<Output> {
     const watch = await this.imports.installWatch();
-    const node = watch.node();
+    const { node } = watch;
     return {
       data: { node, log: watch.log },
       text: () =>

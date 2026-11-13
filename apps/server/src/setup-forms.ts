@@ -74,8 +74,9 @@ export async function setUpWithForms(
     ({ connector }) =>
       !plugin.connectors.some(({ name }) => name === connector),
   );
-  // Connectors that could not be read; permissions says what to grant when
-  // macOS access is what is missing.
+  // Connectors that could not be read. A failed read's error carries its own
+  // remedy; permissions says what to grant only when the check before any
+  // read found the access missing.
   const unavailable: {
     connector: string;
     error: string;
@@ -98,10 +99,7 @@ export async function setUpWithForms(
       unavailable.push({
         connector,
         error: Error.isError(error) ? error.message : String(error),
-        permissions:
-          blocked.includes(connector) || loaded.failureType(error) === 'config'
-            ? loaded.guidance()
-            : null,
+        permissions: blocked.includes(connector) ? loaded.guidance() : null,
       });
       const kept = previous.get(connector);
       if (kept !== undefined) configuration.push(kept);

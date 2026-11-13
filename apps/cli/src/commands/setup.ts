@@ -181,7 +181,9 @@ export class SetupCommand extends Command {
       try {
         choices.set(connector, await connector.listChoices());
       } catch (error) {
-        denied.push(`${connector.title}: ${connector.failure(error)}`);
+        denied.push(
+          `${connector.title}: ${Error.isError(error) ? error.message : String(error)}`,
+        );
       }
     checking.stop(
       `Checked access to ${chosen.map(({ title }) => title).join(', ')}`,

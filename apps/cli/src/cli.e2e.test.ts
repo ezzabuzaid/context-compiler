@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { execFile, spawn, spawnSync } from 'node:child_process';
 import { hash } from 'node:crypto';
 import {
+  chmodSync,
   constants,
   existsSync,
   mkdirSync,
@@ -1190,40 +1191,45 @@ const lines = (stdout: string) =>
     .split('\n')
     .map((line) => JSON.parse(line));
 
-test('a connector whose app macOS will not open fails alone, named with the access to grant, while the others load', async () => {
-  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
-    parent: homes,
-  });
-  await withNotes(mac.path);
-  assert.equal(
-    cli(mac.path, 'setup', '--connector', 'notes', '--connector', 'messages')
-      .status,
-    0,
-  );
+test(
+  'a connector whose app macOS will not open fails alone, named with the access to grant, while the others load',
+  { skip: process.getuid?.() === 0 },
+  async () => {
+    await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+      parent: homes,
+    });
+    await withNotes(mac.path);
+    assert.equal(
+      cli(mac.path, 'setup', '--connector', 'notes', '--connector', 'messages')
+        .status,
+      0,
+    );
+    using _withheld = withheld(join(mac.path, 'Library/Messages'));
 
-  const synced = cli(mac.path, 'sync');
+    const synced = cli(mac.path, 'sync');
 
-  assert.equal(synced.status, 1);
-  const passes = Object.fromEntries(
-    lines(synced.stdout).map((pass) => [pass.connector, pass]),
-  );
-  assert.equal(passes.notes.status, 'succeeded');
-  assert.equal(passes.messages.status, 'failed');
-  assert.match(passes.messages.error, /Full Disk Access/);
-  const status = JSON.parse(cli(mac.path, 'status', '--json').stdout);
-  assert.deepEqual(
-    status
-      .filter(({ enabled }: { enabled: boolean }) => enabled)
-      .map(({ connector, state }: { connector: string; state: string }) => [
-        connector,
-        state,
-      ]),
-    [
-      ['notes', 'succeeded'],
-      ['messages', 'failed'],
-    ],
-  );
-});
+    assert.equal(synced.status, 1);
+    const passes = Object.fromEntries(
+      lines(synced.stdout).map((pass) => [pass.connector, pass]),
+    );
+    assert.equal(passes.notes.status, 'succeeded');
+    assert.equal(passes.messages.status, 'failed');
+    assert.match(passes.messages.error, /Full Disk Access/);
+    const status = JSON.parse(cli(mac.path, 'status', '--json').stdout);
+    assert.deepEqual(
+      status
+        .filter(({ enabled }: { enabled: boolean }) => enabled)
+        .map(({ connector, state }: { connector: string; state: string }) => [
+          connector,
+          state,
+        ]),
+      [
+        ['notes', 'succeeded'],
+        ['messages', 'failed'],
+      ],
+    );
+  },
+);
 
 test('a second sync of an import another sync is importing says so, waits for that pass and shows it', async (t) => {
   await using mac = await new TemporaryFiles().directory('cli-e2e-', {
@@ -2961,11 +2967,10 @@ test('call history syncs from where callhistoryd keeps it, and --since keeps the
   ]);
 });
 
-test('call history that macOS keeps behind Full Disk Access fails its sync naming that access', async () => {
+test('call history with no store under HOME fails its sync saying it is not there, naming no grant', async () => {
   await using mac = await new TemporaryFiles().directory('cli-e2e-', {
     parent: homes,
   });
-  // No store under HOME: SQLite cannot open it, as under a privacy denial.
   assert.equal(cli(mac.path, 'setup', '--connector', 'call-history').status, 0);
 
   const synced = cli(mac.path, 'sync');
@@ -2974,8 +2979,67 @@ test('call history that macOS keeps behind Full Disk Access fails its sync namin
   const [pass] = lines(synced.stdout);
   assert.equal(pass.connector, 'call-history');
   assert.equal(pass.status, 'failed');
-  assert.match(pass.error, /Full Disk Access/);
+  assert.match(pass.error, /is not there\./);
+  assert.doesNotMatch(pass.error, /Turn on|Full Disk Access/);
 });
+
+// A folder of HOME that macOS keeps from the CLI: no one but root can list
+// it, as under a privacy denial. Disposing gives it back to its owner, so the
+// temporary HOME can be removed.
+function withheld(directory: string) {
+  mkdirSync(directory, { recursive: true });
+  chmodSync(directory, 0o000);
+  return { [Symbol.dispose]: () => chmodSync(directory, 0o700) };
+}
+
+test(
+  'call history that macOS keeps from the CLI fails its sync and status with the store’s remedy once, naming the node launchd runs',
+  { skip: process.platform === 'win32' || process.getuid?.() === 0 },
+  async () => {
+    await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+      parent: homes,
+    });
+    withCallHistory(mac.path);
+    assert.equal(
+      cli(mac.path, 'setup', '--connector', 'call-history').status,
+      0,
+    );
+    using _withheld = withheld(
+      join(mac.path, 'Library/Application Support/CallHistoryDB'),
+    );
+    // As launchd starts a job: XPC_SERVICE_NAME is its label, and no app
+    // launched it.
+    const { __CFBundleIdentifier: _, ...inherited } = process.env;
+    const asJob = (...args: string[]) =>
+      spawnSync(process.execPath, [entry, ...args], {
+        cwd: mac.path,
+        env: {
+          ...inherited,
+          HOME: mac.path,
+          XPC_SERVICE_NAME: 'com.example.job',
+        },
+        encoding: 'utf8',
+      });
+
+    const synced = asJob('sync');
+    const status = asJob('status', '--json');
+
+    const remedy = `Turn on ${process.execPath} in System Settings › Privacy & Security › Full Disk Access.`;
+    assert.equal(synced.status, 1);
+    const [pass] = lines(synced.stdout);
+    assert.equal(pass.status, 'failed');
+    assert.ok(pass.error.endsWith(`cannot be read. ${remedy}`), pass.error);
+    // elt names each copy's failure, so the remedy follows each one; nothing
+    // else tells the user what to turn on.
+    assert.equal(
+      pass.error.split('Turn on').length,
+      pass.error.split(remedy).length,
+      pass.error,
+    );
+    const [shown] = JSON.parse(status.stdout);
+    assert.equal(shown.error, pass.error);
+  },
+);
 
 // The user's Notification Center, where usernoted keeps it under HOME: the
 // tables the reader reads, as macOS 27's usernoted declares them, holding a
@@ -3704,11 +3768,10 @@ test('teams syncs from the store the Teams app keeps, and --since keeps the mess
   ]);
 });
 
-test('teams without access to the Teams app’s store fails its sync naming Full Disk Access', async () => {
+test('teams with no store of the Teams app under HOME fails its sync saying it is not there, naming no grant', async () => {
   await using mac = await new TemporaryFiles().directory('cli-e2e-', {
     parent: homes,
   });
-  // No store under HOME, as when macOS withholds the app's container.
   assert.equal(cli(mac.path, 'setup', '--connector', 'teams').status, 0);
 
   const synced = cli(mac.path, 'sync');
@@ -3717,7 +3780,8 @@ test('teams without access to the Teams app’s store fails its sync naming Full
   const [pass] = lines(synced.stdout);
   assert.equal(pass.connector, 'teams');
   assert.equal(pass.status, 'failed');
-  assert.match(pass.error, /Full Disk Access/);
+  assert.match(pass.error, /is not there\. Open Teams, sign in/);
+  assert.doesNotMatch(pass.error, /Turn on|Full Disk Access/);
 });
 
 test('teams options name the account by its organization’s domain, a team without a name by its ID and its channels after it', async () => {
@@ -3895,33 +3959,40 @@ function jobProcess(mac: string): number | undefined {
   return pid === undefined ? undefined : Number(pid);
 }
 
-test('once a background watch is installed, status names the node it runs under as the program to allow for a store that watch cannot open', async () => {
-  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
-    parent: homes,
-  });
-  // No store under HOME: SQLite cannot open it, as under a privacy denial.
-  cli(mac.path, 'setup', '--connector', 'call-history');
-  // Another node than the one that asks for the status, as after a Node.js
-  // upgrade: the same program at its own path.
-  const node = join(mac.path, 'node');
-  await cp(process.execPath, node, { mode: constants.COPYFILE_FICLONE });
-  try {
-    const installed = spawnSync(node, [entry, 'sync', 'watch', 'install'], {
-      cwd: mac.path,
-      env: { ...process.env, HOME: mac.path },
-      encoding: 'utf8',
+test(
+  'once a background watch is installed, status names the node it runs under as the program to allow for a store that watch cannot open',
+  { skip: process.getuid?.() === 0 },
+  async () => {
+    await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+      parent: homes,
     });
-
-    assert.equal(installed.status, 0, installed.stderr);
-    const { error } = await reaches(mac.path, 'call-history', 'failed');
-    assert.ok(
-      error?.includes(`Turn on ${node} in System Settings`),
-      String(error),
+    withCallHistory(mac.path);
+    cli(mac.path, 'setup', '--connector', 'call-history');
+    using _withheld = withheld(
+      join(mac.path, 'Library/Application Support/CallHistoryDB'),
     );
-  } finally {
-    cli(mac.path, 'sync', 'watch', 'uninstall');
-  }
-});
+    // Another node than the one that asks for the status, as after a Node.js
+    // upgrade: the same program at its own path.
+    const node = join(mac.path, 'node');
+    await cp(process.execPath, node, { mode: constants.COPYFILE_FICLONE });
+    try {
+      const installed = spawnSync(node, [entry, 'sync', 'watch', 'install'], {
+        cwd: mac.path,
+        env: { ...process.env, HOME: mac.path },
+        encoding: 'utf8',
+      });
+
+      assert.equal(installed.status, 0, installed.stderr);
+      const { error } = await reaches(mac.path, 'call-history', 'failed');
+      assert.ok(
+        error?.includes(`Turn on ${node} in System Settings`),
+        String(error),
+      );
+    } finally {
+      cli(mac.path, 'sync', 'watch', 'uninstall');
+    }
+  },
+);
 
 test('a background watch whose process is killed comes back and loads what changed meanwhile', async () => {
   await using mac = await new TemporaryFiles().directory('cli-e2e-', {

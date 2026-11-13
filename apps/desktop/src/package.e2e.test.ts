@@ -1,7 +1,14 @@
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
 import { on, once } from 'node:events';
-import { accessSync, constants, existsSync, readdirSync } from 'node:fs';
+import {
+  accessSync,
+  chmodSync,
+  constants,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+} from 'node:fs';
 import { join, resolve } from 'node:path';
 import { test } from 'node:test';
 
@@ -168,11 +175,18 @@ test(
 
 test(
   'the packaged Vite frontend loads from ASAR and connects to its bundled server',
-  { timeout: 60_000 },
+  { timeout: 60_000, skip: process.getuid?.() === 0 },
   async () => {
     await using home = await new TemporaryFiles().directory('cc-packaged-ui-', {
       parent: '/tmp',
     });
+    // macOS keeps CallHistoryDB from the app: no one but root can list it.
+    const callHistory = join(
+      home.path,
+      'Library/Application Support/CallHistoryDB',
+    );
+    mkdirSync(callHistory, { recursive: true });
+    chmodSync(callHistory, 0o000);
     // The signed app disables Node's inspector. Chromium's debugging protocol
     // drives the real renderer without changing any production fuse.
     const child = spawn(
@@ -217,7 +231,6 @@ test(
         .getByRole('heading', { name: 'Audio transcription', exact: true })
         .waitFor();
       assert.equal((await page.locator('.sidebar').boundingBox())?.width, 275);
-      // The real source cannot read CallHistory.storedata in this empty home.
       await page
         .getByRole('switch', { name: 'Call History connected' })
         .click();
@@ -232,8 +245,9 @@ test(
       assert.match(failure, /Last sync failed:.*cannot be read/s);
       assert.match(
         failure,
-        /Turn on Context Compiler in System Settings › Privacy & Security › Full Disk Access, then quit and reopen Context Compiler\./,
+        /cannot be read\. Turn on Context Compiler in System Settings › Privacy & Security › Full Disk Access\./,
       );
+      assert.doesNotMatch(failure, /quit and reopen/);
       assert.doesNotMatch(failure, /ChatGPT|Codex|Terminal/);
       const cdp = await browser.newBrowserCDPSession();
       // Electron may exit before acknowledging this protocol command.
@@ -246,6 +260,7 @@ test(
         child.kill();
         await exited;
       }
+      chmodSync(callHistory, 0o700);
     }
   },
 );
