@@ -1,5 +1,6 @@
 import { existsSync, rmSync } from 'node:fs';
 import { relative, resolve, sep } from 'node:path';
+import { setTimeout as sleep } from 'node:timers/promises';
 
 import { SqliteElection } from '@zukhruf/election';
 import {
@@ -42,11 +43,16 @@ export type SyncObserver = PassReport & {
 };
 
 // Shows a watch as a sync, and also each import it waits to own while another
-// process does, and each import whose watch stopped on its own.
+// process does, each import whose watch stopped on its own, and each time it
+// has nothing to watch until a setup selects a connector.
 export type WatchObserver = SyncObserver & {
   waiting(connector: Connector): void;
   stopped(connector: Connector): void;
+  unselected(): void;
 };
+
+// How soon a watch hears that a setup selected a connector.
+const followMs = 1_000;
 
 // One selected connector's import, as a sync or a watch runs it, and where it
 // shows each line.
@@ -240,48 +246,79 @@ export class Imports {
 
   // Keeps each selected connector's import current, or only those named: a
   // pass at once, then one for each change its source reports, until Ctrl-C
-  // or SIGTERM stops it. One process owns an import at a time: a watch that
+  // or SIGTERM stops it. Each second it reads the selection and starts a
+  // watch for each import it does not watch yet; with nothing selected it
+  // waits for a setup. One process owns an import at a time: a watch that
   // finds another owner, a sync running a pass or another watch, waits and
   // owns the import once that one ends or dies. An import's watch ends on its
-  // own once another setup removes its connector, or once its source's change
-  // signals cannot be declared or break the contract.
+  // own once a setup removes or narrows its connector, and a setup that
+  // selects it again starts a new one; or once its source's change signals
+  // cannot be declared or break the contract.
   async watch(
     only: readonly string[] | undefined,
     observer: WatchObserver,
   ): Promise<void> {
-    await this.#each(only, observer, async (run) => {
-      const { settings, connector, selection, show } = run;
-      const election = owners(settings, settings.directory(selection));
-      // Every owner stops once its connector is removed, so a watch that
-      // waits always gets the import, and then hears of the removal itself.
-      let owner = await election.campaign();
-      if (owner === undefined) observer.waiting(connector);
-      while (owner === undefined)
-        owner = await election.campaign({ timeout: Number.POSITIVE_INFINITY });
-      // Held until the process ends; the kernel frees it if the process dies.
-      await using _ = owner;
-      using observed = new WatchPasses(connector, {
-        progress: (...args) => observer.progress(...args),
-        passed: (_, summary) => show(summary),
-      });
-      const outcome = await observed.run(() =>
-        connector.watch(settings, selection),
+    using settings = new Settings(this.root);
+    for (const name of only ?? [])
+      if (!settings.selections().some(({ connector }) => connector === name))
+        throw new Error(`${name} is not set up; run: setup`);
+    await this.#parsing.prepare();
+    {
+      await using flights = this.#flights();
+      await removeStale(settings, flights);
+    }
+    using _ = interruptible(observer);
+    const watched = new Set<string>();
+    // A watch failed in a way no pass recorded, as when an import's sync
+    // history cannot install itself: the whole watch fails with it.
+    const broken = new AbortController();
+    let idle = false;
+    observer.start();
+    while (!broken.signal.aborted) {
+      const wanted = settings
+        .selections()
+        .filter(({ connector }) => only?.includes(connector) ?? true);
+      if (wanted.length === 0 && !idle) observer.unselected();
+      idle = wanted.length === 0;
+      for (const selection of wanted) {
+        const directory = settings.directory(selection);
+        if (watched.has(directory)) continue;
+        watched.add(directory);
+        const connector = this.#loaded(selection.connector);
+        // A selected connector that is not loaded cannot be watched; status
+        // says so, and the others are still watched.
+        if (connector === undefined)
+          settings.saveConnectionFailure(
+            selection,
+            unloaded(selection.connector),
+            'system',
+          );
+        else
+          keepCurrent(
+            {
+              settings,
+              connector,
+              selection,
+              show: shown(observer, connector),
+            },
+            observer,
+          ).then(
+            (removed) => {
+              if (removed) watched.delete(directory);
+            },
+            (error: unknown) => broken.abort(error),
+          );
+      }
+      await sleep(followMs, undefined, { signal: broken.signal }).catch(
+        () => undefined,
       );
-      if (outcome.status === 'unconnected')
-        show(failed(connector, outcome.error, 0));
-      else if (outcome.status === 'removed')
-        show({ connector: connector.name, status: 'removed' });
-      else observer.stopped(connector);
-    });
+    }
+    throw broken.signal.reason;
   }
 
   // Keeps every selected connector current with no terminal, as watch does:
-  // from now on, from each login on, and again whenever that watch dies. It
-  // takes the place of the one installed before, which is how a connector
-  // set up since then comes to be watched.
+  // from now on, from each login on, and again whenever that watch dies.
   async installWatch(): Promise<BackgroundWatch> {
-    using settings = new Settings(this.root);
-    selected(settings);
     await this.#background.install();
     return this.#background;
   }
@@ -290,9 +327,9 @@ export class Imports {
     await this.#background.uninstall();
   }
 
-  // What sync and watch share: the selection, less the imports it no longer
-  // names; each selected connector, or each one named, run side by side and
-  // shown through the observer; Ctrl-C and SIGTERM; and the exit status.
+  // The selection, less the imports it no longer names; each selected
+  // connector, or each one named, run side by side and shown through the
+  // observer; Ctrl-C and SIGTERM; and the exit status.
   async #each(
     only: readonly string[] | undefined,
     observer: SyncObserver,
@@ -318,53 +355,26 @@ export class Imports {
         unsynced = true;
       } else imports.push({ connector, selection });
     }
-    // The signal ends the process the default way: process.exit would first
-    // wait for a source stuck in a filesystem call, such as a pipe no one
-    // writes, and never return. A listener left for the signal, such as this
-    // sync's own when clack exits, would take it instead, and it would be lost.
-    const interrupt = (signal: NodeJS.Signals) => {
-      observer.interrupted();
-      process.removeAllListeners(signal);
-      process.kill(process.pid, signal);
-    };
-    process.once('SIGINT', interrupt);
-    process.once('SIGTERM', interrupt);
-    // In a terminal clack's spinner reads Ctrl-C itself and exits with 0,
-    // which no finished sync does.
-    const cancelled = (code: number) => {
-      if (code === 0) interrupt('SIGINT');
-    };
-    process.on('exit', cancelled);
+    using _ = interruptible(observer);
     const passes: PassSummary[] = [];
     const show = (connector: Connector) => (line: SyncLine) => {
-      if (
-        line.status === 'removed' ||
-        line.status === 'interrupted' ||
-        line.status === 'watched'
-      ) {
-        if (line.status === 'interrupted') unsynced = true;
-        observer.skipped(connector, line.status);
-      } else {
+      if (line.status === 'interrupted') unsynced = true;
+      else if (line.status !== 'removed' && line.status !== 'watched')
         passes.push(line);
-        observer.passed(connector, line);
-      }
+      shown(observer, connector)(line);
     };
     observer.start();
-    try {
-      await Promise.all(
-        imports.map(({ connector, selection }) =>
-          each({
-            settings,
-            flights,
-            connector,
-            selection,
-            show: show(connector),
-          }),
-        ),
-      );
-    } finally {
-      process.off('exit', cancelled);
-    }
+    await Promise.all(
+      imports.map(({ connector, selection }) =>
+        each({
+          settings,
+          flights,
+          connector,
+          selection,
+          show: show(connector),
+        }),
+      ),
+    );
     observer.finish();
     process.exitCode =
       !unsynced &&
@@ -457,7 +467,79 @@ export class Imports {
   }
 }
 
-// The selection a sync or a watch runs, which must name a connector.
+// Ctrl-C and SIGTERM for a sync or a watch, until disposed. The signal ends
+// the process the default way: process.exit would first wait for a source
+// stuck in a filesystem call, such as a pipe no one writes, and never return.
+// A listener left for the signal, such as this one when clack exits, would
+// take it instead, and it would be lost.
+function interruptible(observer: SyncObserver): Disposable {
+  const interrupt = (signal: NodeJS.Signals) => {
+    observer.interrupted();
+    process.removeAllListeners(signal);
+    process.kill(process.pid, signal);
+  };
+  process.once('SIGINT', interrupt);
+  process.once('SIGTERM', interrupt);
+  // In a terminal clack's spinner reads Ctrl-C itself and exits with 0,
+  // which no finished sync does.
+  const cancelled = (code: number) => {
+    if (code === 0) interrupt('SIGINT');
+  };
+  process.on('exit', cancelled);
+  return { [Symbol.dispose]: () => process.off('exit', cancelled) };
+}
+
+// Shows one line of an import through the observer: a pass, or an import
+// that was not loaded.
+function shown(observer: SyncObserver, connector: Connector) {
+  return (line: SyncLine) => {
+    if (
+      line.status === 'removed' ||
+      line.status === 'interrupted' ||
+      line.status === 'watched'
+    )
+      observer.skipped(connector, line.status);
+    else observer.passed(connector, line);
+  };
+}
+
+// Owns the import once no other process does, then watches it until the
+// watch ends on its own, and says whether a setup removed its connector. A
+// watch the removal ended removes its import while it still owns it, so a
+// later setup of the same connector loads it from the start.
+async function keepCurrent(
+  run: Omit<ImportRun, 'flights'>,
+  observer: WatchObserver,
+): Promise<boolean> {
+  const { settings, connector, selection, show } = run;
+  const directory = settings.directory(selection);
+  const election = owners(settings, directory);
+  // Every owner stops once its connector is removed, so a watch that waits
+  // always gets the import, and then hears of the removal itself.
+  let owner = await election.campaign();
+  if (owner === undefined) observer.waiting(connector);
+  while (owner === undefined)
+    owner = await election.campaign({ timeout: Number.POSITIVE_INFINITY });
+  // Held until the watch ends; the kernel frees it if the process dies.
+  await using _ = owner;
+  using observed = new WatchPasses(connector, {
+    progress: (...args) => observer.progress(...args),
+    passed: (_, summary) => show(summary),
+  });
+  const outcome = await observed.run(() =>
+    connector.watch(settings, selection),
+  );
+  if (outcome.status === 'unconnected')
+    show(failed(connector, outcome.error, 0));
+  else if (outcome.status === 'removed')
+    show({ connector: connector.name, status: 'removed' });
+  else observer.stopped(connector);
+  if (settings.staleImports().includes(directory))
+    rmSync(directory, { recursive: true, force: true });
+  return outcome.status === 'removed';
+}
+
+// The selection a sync runs, which must name a connector.
 function selected(settings: Settings): Selection[] {
   const selections = settings.selections();
   if (selections.length === 0)
@@ -473,8 +555,7 @@ function unloaded(name: string): string {
 // Who owns an import: the process holding its claim, a sync for one pass or a
 // sync watch until it stops. The claim sits at the store's root, beside the
 // settings, so the removal of an import's folder never deletes a claim a
-// waiting watch holds open. The Context Compiler plugin has a copy in
-// apps/server/src/plugin.ts: change both.
+// waiting watch holds open.
 function owners(settings: Settings, directory: string): SqliteElection {
   const name = relative(settings.root, directory).replaceAll(sep, '.');
   return new SqliteElection({
@@ -489,7 +570,6 @@ function owners(settings: Settings, directory: string): SqliteElection {
 // pass now or a sync watch still owns it: joining that pass's flight gives up
 // the wait at once, a watch hears of the removal within a second, and the next
 // setup or sync removes it. While a removal runs, a sync of the import waits.
-// The Context Compiler plugin removes stale imports the same way.
 async function removeStale(
   settings: Settings,
   flights: SingleFlight<readonly SyncLine[]>,

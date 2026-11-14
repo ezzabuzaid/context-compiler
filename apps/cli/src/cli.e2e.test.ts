@@ -2279,7 +2279,7 @@ test('a sync of a connector a sync watch keeps current says so and exits 0, runn
   }
 });
 
-test('a setup that removes a watched connector keeps its import while the watch owns it, the watch then stops within seconds, and the next sync removes it', async () => {
+test('a setup that removes a watched connector keeps its import while the watch owns it, then the watch stops watching it within seconds, removes its import and keeps running', async () => {
   await using mac = await new TemporaryFiles().directory('cli-e2e-', {
     parent: homes,
   });
@@ -2322,23 +2322,95 @@ test('a setup that removes a watched connector keeps its import while the watch 
     // Photos read gets its next message and the pass ends.
     await sleep(3_000);
     await writeFile(pictures, JSON.stringify([{ id: 'p1', title: 'Beach' }]));
-    const stopped = await Promise.race([
-      watch.exited,
-      sleep(5_000).then(() => null),
-    ]);
+    await watch.prints(
+      ({ connector, status }) => connector === 'photos' && status === 'removed',
+    );
 
     assert.equal(removed.status, 0, removed.stderr);
     assert.equal(kept, true, 'the setup removed an import a watch owned');
-    if (stopped === null)
-      assert.fail('the watch still ran 5 s after its pass ended');
-    assert.equal(stopped.status, 0, stopped.stderr);
-    assert.deepEqual(lines(stopped.stdout).at(-1), {
-      connector: 'photos',
-      status: 'removed',
-    });
-    assert.equal(existsSync(imported), true);
-    assert.equal(cli(mac.path, 'sync').status, 0);
+    assert.equal(watch.child.exitCode, null, 'the watch exited');
     assert.equal(existsSync(imported), false);
+  } finally {
+    watch.child.kill('SIGKILL');
+    await watch.exited;
+  }
+});
+
+test('a sync watch started with no connector set up keeps running, and loads a connector set up under it', async () => {
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
+  await withSafari(mac.path);
+  const watch = started(mac.path, 'sync', 'watch', '--json');
+  try {
+    await watch.prints(({ status }) => status === 'unselected');
+    // Longer than the watch takes to read the selection a few times.
+    await sleep(3_000);
+    const idle = watch.child.exitCode;
+
+    cli(mac.path, 'setup', '--connector', 'safari');
+
+    assert.equal(idle, null, 'the watch exited with nothing set up');
+    await watch.prints(
+      ({ connector, status }) =>
+        connector === 'safari' && status === 'succeeded',
+    );
+  } finally {
+    watch.child.kill('SIGKILL');
+    await watch.exited;
+  }
+});
+
+test('a sync watch reports a connector another setup removed, keeps running, and watches it again once it is set up again', async () => {
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
+  await withSafari(mac.path);
+  await withNotes(mac.path);
+  cli(mac.path, 'setup', '--connector', 'safari');
+  const watch = started(mac.path, 'sync', 'watch', '--json');
+  try {
+    await watch.prints(
+      ({ connector, status }) =>
+        connector === 'safari' && status === 'succeeded',
+    );
+
+    cli(mac.path, 'setup', '--connector', 'notes');
+    await watch.prints(
+      ({ connector, status }) => connector === 'safari' && status === 'removed',
+    );
+    // Longer than the watch takes to read the selection a few times, so a
+    // watch that started Safari again from the old selection shows its pass.
+    await sleep(3_000);
+    const meanwhile = watch.printed();
+    const running = watch.child.exitCode;
+    cli(mac.path, 'setup', '--connector', 'safari');
+
+    assert.equal(running, null, 'the watch exited once Safari was removed');
+    assert.deepEqual(
+      meanwhile
+        .slice(
+          meanwhile.findIndex(
+            ({ connector, status }) =>
+              connector === 'safari' && status === 'removed',
+          ) + 1,
+        )
+        .filter(({ connector }) => connector === 'safari'),
+      [],
+    );
+    await watch.prints(() => {
+      const shown = watch.printed();
+      const removal = shown.findIndex(
+        ({ connector, status }) =>
+          connector === 'safari' && status === 'removed',
+      );
+      return shown
+        .slice(removal + 1)
+        .some(
+          ({ connector, status }) =>
+            connector === 'safari' && status === 'succeeded',
+        );
+    });
   } finally {
     watch.child.kill('SIGKILL');
     await watch.exited;
@@ -4015,16 +4087,15 @@ test('a background watch whose process is killed comes back and loads what chang
   }
 });
 
-test('sync watch install with no connector set up fails, says to run setup, and installs no job', async () => {
+test('sync watch install with no connector set up installs the job, which waits for a setup', async () => {
   await using mac = await new TemporaryFiles().directory('cli-e2e-', {
     parent: homes,
   });
   try {
     const installed = cli(mac.path, 'sync', 'watch', 'install');
 
-    assert.equal(installed.status, 1);
-    assert.match(installed.stderr, /No connectors are set up; run: setup/);
-    assert.equal(existsSync(join(mac.path, 'Library/LaunchAgents')), false);
+    assert.equal(installed.status, 0, installed.stderr);
+    assert.equal(readdirSync(join(mac.path, 'Library/LaunchAgents')).length, 1);
   } finally {
     cli(mac.path, 'sync', 'watch', 'uninstall');
   }

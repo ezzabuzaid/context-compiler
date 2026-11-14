@@ -7,8 +7,8 @@ import { SyncReport } from './sync-report.ts';
 
 // Shows a watch as a sync report shows a sync, with the spinner saying it
 // watches between passes, and a line for each import it waits to own while
-// another process does and for each whose watch stopped on its own. Without a
-// terminal, a JSON line for each.
+// another process does, for each whose watch stopped on its own, and for each
+// time nothing is selected to watch. Without a terminal, a JSON line for each.
 export class WatchReport extends SyncReport implements WatchObserver {
   protected override readonly idle = 'Watching for changes';
   protected override readonly spinsWhenIdle = true;
@@ -23,6 +23,12 @@ export class WatchReport extends SyncReport implements WatchObserver {
   stopped({ name, title }: Connector): void {
     this.line({ connector: name, status: 'stopped' }, () =>
       log.info(`${title.padEnd(10)} stopped watching`),
+    );
+  }
+
+  unselected(): void {
+    this.line({ status: 'unselected' }, () =>
+      log.info('No connectors are set up · waiting for setup…'),
     );
   }
 
