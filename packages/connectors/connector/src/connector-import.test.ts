@@ -366,7 +366,7 @@ test(
 );
 
 test(
-  'an import whose signal aborts once its pass committed reads no text of the files it stored, and the next import reads it',
+  'an import whose signal aborts once its pass committed is imported with its pass succeeded, and the next import has the text of the files it stored',
   { timeout: 30_000 },
   async () => {
     await using scratch = await new TemporaryFiles().directory('import-');
@@ -383,18 +383,19 @@ test(
     settings.select([selection], {
       facts: () => connector,
     });
-    const texts = () => {
+    const read = (sql: string) => {
       using database = open(settings.database(selection), {
         readOnly: true,
       });
       return database
-        .prepare('SELECT content FROM attachment_text')
+        .prepare(sql)
         .all()
-        .map(({ content }) => content);
+        .map((row) => ({ ...row }));
     };
     const stop = new AbortController();
     // The pass is recorded before its end is published, so the signal aborts
-    // between the pass and the reading of the text.
+    // after the pass committed. The text may be read by then or not: each
+    // commit starts a refresh of the derived data while the pass goes on.
     const abort = (message: unknown) => {
       if (message instanceof PassFinished) stop.abort();
     };
@@ -403,12 +404,16 @@ test(
     subscription.defer(() => passChannels.finish.unsubscribe(abort));
 
     const first = await connector.import(settings, selection, stop.signal);
-    const unread = texts();
     const next = await connector.import(settings, selection);
 
     assert.deepEqual(first, { status: 'imported' });
-    assert.deepEqual(unread, []);
     assert.deepEqual(next, { status: 'imported' });
-    assert.deepEqual(texts(), ['Careem invoice 4471']);
+    assert.deepEqual(
+      read('SELECT status FROM sync_attempts ORDER BY attempt_id'),
+      [{ status: 'succeeded' }, { status: 'succeeded' }],
+    );
+    assert.deepEqual(read('SELECT content FROM attachment_text'), [
+      { content: 'Careem invoice 4471' },
+    ]);
   },
 );
