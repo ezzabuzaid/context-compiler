@@ -158,6 +158,7 @@ test('an import narrowed to a chat loads that chat and what hangs off it, and le
     groupMembers: 0,
     groupMembersChanges: 0,
     messageAssociations: 0,
+    messageCopies: 0,
     messageDataItems: 0,
     messageReactionCounts: 0,
     messageReactions: 0,
