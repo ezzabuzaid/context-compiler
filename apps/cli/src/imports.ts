@@ -384,7 +384,8 @@ export class Imports {
   }
 
   // Every connector, enabled ones first: disabled connectors have no sync
-  // state; enabled ones show their import's latest pass or connection failure.
+  // state; enabled ones show their connection failure, each stream whose
+  // latest attempt failed, or else their import's latest pass.
   status(): ConnectorStatus[] {
     using settings = new Settings(this.root);
     const selections = settings.selections();
@@ -428,13 +429,23 @@ export class Imports {
       const { pass, streams } = readPassStatus(path);
       // Not synced yet, or no pass began.
       if (pass === null) return never;
+      // A pass reads only the streams whose change signal changed, so a
+      // stream's latest attempt can be older than the latest pass.
+      const failures = streams.filter((stream) => stream.error !== null);
+      let state = pass.state;
+      if (failures.length > 0) {
+        const everyStreamFailed =
+          failures.length === streams.length &&
+          failures.every((stream) => stream.state === 'failed');
+        state = everyStreamFailed ? 'failed' : 'partial';
+      }
       return {
         ...base,
-        state: pass.state,
+        state,
         completedAt: pass.completedAt,
         lastSuccessAt: pass.lastSucceededAt,
         currentAsOf: pass.currentAsOf,
-        error: pass.error,
+        error: failures.length === 0 ? pass.error : streamFailures(failures),
         streams: streams.map(
           ({ stream, state, lastSucceededAt, currentAsOf }) => ({
             stream,
@@ -465,6 +476,21 @@ export class Imports {
         })),
     ];
   }
+}
+
+// Each distinct error of the streams whose latest attempt failed, once, with
+// the streams that failed with it, as elt's describeFailures names a pass's
+// copies: a store that refuses five streams gives its remedy once.
+function streamFailures(
+  failures: readonly { readonly stream: string; readonly error: string }[],
+): string {
+  const failed = new Map<string, string[]>();
+  for (const { stream, error } of failures)
+    failed.getOrInsertComputed(error, () => []).push(stream);
+  return Array.from(
+    failed,
+    ([error, streams]) => `${streams.join(', ')}: ${error}`,
+  ).join('; ');
 }
 
 // Ctrl-C and SIGTERM for a sync or a watch, until disposed. The signal ends

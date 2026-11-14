@@ -39,6 +39,8 @@ import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import { IndexedDBWriter } from '@eltjs/codec-chromium-indexeddb/test';
 
+import type { ConnectorStatus } from './imports.ts';
+
 // The workspace root: the tests read its fixtures and builds from any
 // working directory.
 const workspace = resolve(import.meta.dirname, '../../..');
@@ -2757,6 +2759,189 @@ test('a copy that fails is shown as the pass its sync history recorded, not as a
   assert.doesNotMatch(synced.stderr, /^error:/m);
 });
 
+test("status shows a connector partial, naming the stream and its error, while that stream's latest attempt failed behind later passes that did not read it, until its next attempt succeeds", async () => {
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
+  // A connector with a stream per file, each read again only once its own
+  // file changes, as a change signal per stream reads it (elt ADR 0020).
+  const connector = join(
+    mac.path,
+    'Library/Application Support/Context Compiler/Connectors/library',
+  );
+  await mkdir(connector, { recursive: true });
+  await writeFile(
+    join(connector, 'package.json'),
+    JSON.stringify({
+      type: 'module',
+      exports: './library-connector.ts',
+      contextCompiler: { name: 'library', title: 'Library' },
+    }),
+  );
+  await writeFile(
+    join(connector, 'library-connector.ts'),
+    `import { readFile, stat } from 'node:fs/promises';
+import { join } from 'node:path';
+
+import { Catalog, type ChangeSignal, Gauge, Source, Stream } from '@eltjs/elt';
+import type { Choice } from '@workspace/connector/choice';
+import { Connector } from '@workspace/connector/connector';
+
+const stream = (name: string) =>
+  new Stream({
+    name,
+    jsonSchema: {
+      type: 'object',
+      description: 'One entry of ' + name + '.json.',
+      properties: { id: { type: 'string', description: 'The entry identifier.' } },
+    },
+    primaryKey: ['id'],
+    sourceDefinedCursor: true,
+    supportedSyncModes: ['full_refresh', 'incremental'],
+  });
+
+class Written extends Gauge<number> {
+  readonly #path: string;
+
+  constructor(path: string) {
+    super();
+    this.#path = path;
+  }
+
+  protected async read(): Promise<number> {
+    return (await stat(this.#path)).mtimeMs;
+  }
+}
+
+class LibrarySource extends Source {
+  readonly identity = 'library';
+  readonly #home: string;
+  protected readonly catalog = new Catalog([stream('albums'), stream('photos')]);
+
+  constructor(home: string) {
+    super();
+    this.#home = home;
+  }
+
+  coverage() {
+    return { description: 'every entry in albums.json and photos.json', selection: {} };
+  }
+
+  async currentAsOf() {
+    return null;
+  }
+
+  protected async open() {
+    return new AsyncDisposableStack();
+  }
+
+  #file(name: string): string {
+    return join(this.#home, 'Pictures', name + '.json');
+  }
+
+  changeSignals(streams: readonly Stream[]): ChangeSignal[] {
+    return streams.map((one) => ({
+      gauge: new Written(this.#file(one.name)),
+      streams: [one],
+      interval: 100,
+      timeout: 1000,
+    }));
+  }
+
+  protected async *extract(configuration: { readonly stream: Stream }) {
+    const { name } = configuration.stream;
+    const listed: unknown = JSON.parse(await readFile(this.#file(name), 'utf8'));
+    if (!Array.isArray(listed)) throw new TypeError(name + '.json is a list');
+    for (const entry of listed) {
+      if (typeof entry !== 'object' || entry === null)
+        throw new TypeError('Each entry in ' + name + '.json is an object');
+      yield { stream: name, data: entry };
+    }
+  }
+}
+
+export default class LibraryConnector extends Connector {
+  readonly datedBy = null;
+  readonly fullDiskAccess = true;
+  protected readonly choices: readonly Choice[] = [];
+  protected readonly unscoped = [];
+  protected readonly storeCopies = [];
+
+  protected access(): string {
+    return 'Open the library once.';
+  }
+
+  protected sources(): readonly [Source] {
+    return [new LibrarySource(this.host.home)];
+  }
+}
+`,
+  );
+  const albums = join(mac.path, 'Pictures/albums.json');
+  const photos = join(mac.path, 'Pictures/photos.json');
+  await mkdir(join(mac.path, 'Pictures'));
+  await writeFile(albums, JSON.stringify([{ id: 'a1' }]));
+  await writeFile(photos, JSON.stringify([{ id: 'p1' }, 'not a photo']));
+  assert.equal(cli(mac.path, 'setup', '--connector', 'library').status, 0);
+  const status = () => {
+    const shown = cli(mac.path, 'status', '--json');
+    assert.equal(shown.status, 0, shown.stderr);
+    const rows: ConnectorStatus[] = JSON.parse(shown.stdout);
+    const row = rows.find(({ connector }) => connector === 'library');
+    assert.ok(row, shown.stdout);
+    return row;
+  };
+  const read = (line: Record<string, unknown>, stream: string) =>
+    line.connector === 'library' &&
+    Array.isArray(line.streams) &&
+    line.streams.some((copy) => copy.stream === stream);
+  const watch = started(mac.path, 'sync', 'watch', '--json');
+  try {
+    await watch.prints((line) => read(line, 'photos'));
+    await watch.prints((line) => read(line, 'albums'));
+    const before = watch.printed().length;
+    const since = (count: number) => watch.printed().slice(count);
+
+    await writeFile(albums, JSON.stringify([{ id: 'a1' }, { id: 'a2' }]));
+    await watch.prints(() =>
+      since(before).some((line) => read(line, 'albums')),
+    );
+    const later = since(before);
+    assert.ok(
+      later.every((line) => !read(line, 'photos')),
+      JSON.stringify(later),
+    );
+    assert.deepEqual(
+      later
+        .filter((line) => line.connector === 'library')
+        .map(({ status }) => status),
+      ['succeeded'],
+    );
+    const hidden = status();
+    assert.equal(hidden.state, 'partial', JSON.stringify(hidden));
+    assert.match(String(hidden.error), /photos/);
+    assert.match(
+      String(hidden.error),
+      /Each entry in photos\.json is an object/,
+    );
+    assert.doesNotMatch(String(hidden.error), /albums/);
+
+    const fixed = watch.printed().length;
+    await writeFile(photos, JSON.stringify([{ id: 'p1' }]));
+    await watch.prints(() =>
+      since(fixed).some(
+        (line) => read(line, 'photos') && line.status === 'succeeded',
+      ),
+    );
+    const cleared = status();
+    assert.equal(cleared.state, 'succeeded', JSON.stringify(cleared));
+    assert.equal(cleared.error, null);
+  } finally {
+    watch.child.kill('SIGKILL');
+    await watch.exited;
+  }
+});
+
 test('a pass that fails with an error its sync history never recorded makes sync exit 1 naming it, though the error aggregates others', async () => {
   await using mac = await new TemporaryFiles().directory('cli-e2e-', {
     parent: homes,
@@ -3105,8 +3290,15 @@ test(
     // it, so the remedy of the store appears once; nothing else tells the
     // user what to turn on.
     assert.equal(pass.error.split('Turn on').length, 2, pass.error);
+    // Status names the streams whose latest attempt failed, each distinct
+    // failure once with its streams, so the remedy appears once there too.
     const [shown] = JSON.parse(status.stdout);
-    assert.equal(shown.error, pass.error);
+    assert.match(
+      shown.error,
+      /^callParticipants, callTimers, calls, emergencyMediaItems, saintDavidsCounts: The call history store at /,
+    );
+    assert.ok(shown.error.endsWith(`cannot be read. ${remedy}`), shown.error);
+    assert.equal(shown.error.split('Turn on').length, 2, shown.error);
   },
 );
 
