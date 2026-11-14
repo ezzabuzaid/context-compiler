@@ -3101,13 +3101,10 @@ test(
     const [pass] = lines(synced.stdout);
     assert.equal(pass.status, 'failed');
     assert.ok(pass.error.endsWith(`cannot be read. ${remedy}`), pass.error);
-    // elt names each copy's failure, so the remedy follows each one; nothing
-    // else tells the user what to turn on.
-    assert.equal(
-      pass.error.split('Turn on').length,
-      pass.error.split(remedy).length,
-      pass.error,
-    );
+    // elt names each distinct failure once, with the copies that failed with
+    // it, so the remedy of the store appears once; nothing else tells the
+    // user what to turn on.
+    assert.equal(pass.error.split('Turn on').length, 2, pass.error);
     const [shown] = JSON.parse(status.stdout);
     assert.equal(shown.error, pass.error);
   },
