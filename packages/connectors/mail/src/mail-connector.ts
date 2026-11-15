@@ -25,7 +25,7 @@ export default class MailConnector extends Connector {
   readonly datedBy = 'date received (date sent if missing)';
   readonly fullDiskAccess = true;
   protected readonly choices: readonly Choice[] = [
-    accounts(accountName),
+    { ...accounts(accountName), id: (row) => String(row.identifier) },
     {
       stream: 'mailboxes',
       scope: 'collectionIds',
@@ -36,7 +36,7 @@ export default class MailConnector extends Connector {
         const url = new URL(String(row.url));
         const account = rows
           .get('accounts')
-          ?.find(({ id }) => id === url.hostname);
+          ?.find(({ identifier }) => identifier === url.hostname);
         const path = decodeURIComponent(url.pathname.slice(1));
         return account === undefined
           ? path
