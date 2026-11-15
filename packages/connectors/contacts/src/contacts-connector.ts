@@ -4,7 +4,7 @@ import {
 } from '@eltjs/sdk-apple-contacts';
 import { AppleContactsSource } from '@eltjs/source-apple-contacts/apple-contacts-source';
 import type { ImportScope } from '@eltjs/source-apple-macos/import-scope';
-import { type Choice, byId, name } from '@workspace/connector/choice';
+import { type Choice, name } from '@workspace/connector/choice';
 import { Connector } from '@workspace/connector/connector';
 
 export default class ContactsConnector extends Connector {
@@ -15,7 +15,8 @@ export default class ContactsConnector extends Connector {
       stream: 'containers',
       scope: 'collectionIds',
       title: 'accounts',
-      id: byId,
+      // The source narrows to containers by their uniqueId; id is a Z_PK.
+      id: (row) => String(row.uniqueId),
       label: name,
     },
   ];
