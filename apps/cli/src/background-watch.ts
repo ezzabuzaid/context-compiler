@@ -1,20 +1,18 @@
-import { execFileSync } from 'node:child_process';
 import { hash } from 'node:crypto';
-import { chmodSync, mkdirSync, rmSync } from 'node:fs';
-import { homedir, userInfo } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
-import { setTimeout as sleep } from 'node:timers/promises';
+import { resolve } from 'node:path';
+
+import {
+  type AbsolutePath,
+  Launchd,
+  ServiceNotFoundError,
+  isAbsolutePath,
+} from '@zukhruf/launchd';
 
 // What sync watch reads from its environment. launchd passes on none of the
-// installing shell's, so the job gets these as the install saw them: the home
-// the apps' stores and this store sit under, and the Google client of
-// Calendar's attachments with where its session is kept.
-const inherited = [
-  'HOME',
-  'XDG_CONFIG_HOME',
-  'GOOGLE_OAUTH_CLIENT_ID',
-  'GOOGLE_OAUTH_CLIENT_SECRET',
-];
+// starting shell's, so the job gets these as the start saw them: the home
+// the apps' stores and this store sit under, and the configuration folder
+// that holds the Google client of Calendar's attachments and its session.
+const inherited = ['HOME', 'XDG_CONFIG_HOME'];
 
 // The launchd job that keeps sync watch running for one store with no
 // terminal: launchd starts it at login and again whenever it dies. Each store
@@ -24,80 +22,60 @@ const inherited = [
 export class BackgroundWatch {
   readonly #label: string;
   // Where the job's own errors go; its passes show in status.
-  readonly log: string;
+  readonly log: AbsolutePath;
   // The node the job runs, which needs the access the terminal app had.
   readonly node = process.execPath;
-  readonly #plist: string;
-  readonly #program: string[];
-  readonly #domain = `gui/${userInfo().uid}`;
+  readonly #program: [string, ...string[]];
 
   // entry: the CLI's entry script, which the job runs as this process does.
   constructor(directory: string, entry: string) {
     const root = resolve(directory);
+    if (!isAbsolutePath(root))
+      throw new Error(`${root} is not an absolute path.`);
     this.#label = `com.ezzabuzaid.context-compiler.sync-watch.${hash('sha256', root).slice(0, 16)}`;
-    this.log = join(root, 'sync-watch.log');
-    this.#plist = join(
-      homedir(),
-      'Library/LaunchAgents',
-      `${this.#label}.plist`,
-    );
+    this.log = `${root}/sync-watch.log`;
     this.#program = [this.node, entry, '--directory', root, 'sync', 'watch'];
   }
 
-  // Starts the job now and at each login, in place of the one installed
-  // before: launchd refuses a label it already runs.
-  async install(): Promise<void> {
-    mkdirSync(dirname(this.#plist), { recursive: true });
-    execFileSync(
-      '/usr/bin/plutil',
-      ['-convert', 'xml1', '-o', this.#plist, '-'],
-      {
-        input: JSON.stringify({
-          Label: this.#label,
-          ProgramArguments: this.#program,
-          EnvironmentVariables: Object.fromEntries(
-            inherited.flatMap((name) => {
-              const value = process.env[name];
-              return value === undefined ? [] : [[name, value]];
-            }),
-          ),
-          KeepAlive: true,
-          StandardErrorPath: this.log,
+  // Runs the job now and at each login, in place of a changed one started
+  // before; an unchanged job that launchd runs stays as it is.
+  async start(): Promise<void> {
+    await this.#agents().install({
+      Label: this.#label,
+      ProgramArguments: this.#program,
+      EnvironmentVariables: Object.fromEntries(
+        inherited.flatMap((name) => {
+          const value = process.env[name];
+          return value === undefined ? [] : [[name, value]];
         }),
-      },
-    );
-    // It holds the Google client secret.
-    chmodSync(this.#plist, 0o600);
-    await this.#stop();
-    this.#launchctl('bootstrap', this.#domain, this.#plist);
+      ),
+      KeepAlive: true,
+      StandardErrorPath: this.log,
+    });
   }
 
-  async uninstall(): Promise<void> {
-    await this.#stop();
-    rmSync(this.#plist, { force: true });
-  }
-
-  // Ends the job's process and takes the job out of launchd. launchd answers
-  // before the process is gone and refuses the label until then, so this asks
-  // again until launchd has no such job, as brew services does. It ends:
-  // launchd kills a process that outlives its exit timeout.
-  async #stop(): Promise<void> {
-    for (;;) {
-      try {
-        this.#launchctl('bootout', `${this.#domain}/${this.#label}`);
-      } catch (error) {
-        const status =
-          Error.isError(error) && 'status' in error ? error.status : undefined;
-        // 3: no such job.
-        if (status === 3) return;
-        // 36: the removal asked for before is still in progress.
-        if (status !== 36) throw error;
-      }
-      await sleep(100);
+  // Ends the job's process and runs it again, as after a change of the
+  // access its node has.
+  async restart(): Promise<void> {
+    try {
+      await this.#agents().service(this.#label).kickstart({ kill: true });
+    } catch (error) {
+      if (error instanceof ServiceNotFoundError)
+        throw new Error(
+          'No background watch runs for this store. Run sync watch start.',
+          { cause: error },
+        );
+      throw error;
     }
   }
 
-  #launchctl(...command: string[]): void {
-    execFileSync('/bin/launchctl', command, { stdio: 'pipe' });
+  // Ends the job and removes it, so nothing runs it at login.
+  async stop(): Promise<void> {
+    await this.#agents().service(this.#label).uninstall();
+  }
+
+  // This user's agents, looked up only by the commands that change the job.
+  #agents() {
+    return Launchd.agents({ clock: globalThis });
   }
 }

@@ -318,13 +318,17 @@ export class Imports {
 
   // Keeps every selected connector current with no terminal, as watch does:
   // from now on, from each login on, and again whenever that watch dies.
-  async installWatch(): Promise<BackgroundWatch> {
-    await this.#background.install();
+  async startWatch(): Promise<BackgroundWatch> {
+    await this.#background.start();
     return this.#background;
   }
 
-  async uninstallWatch(): Promise<void> {
-    await this.#background.uninstall();
+  async restartWatch(): Promise<void> {
+    await this.#background.restart();
+  }
+
+  async stopWatch(): Promise<void> {
+    await this.#background.stop();
   }
 
   // The selection, less the imports it no longer names; each selected

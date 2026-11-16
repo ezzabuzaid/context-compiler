@@ -39,6 +39,7 @@
     "@eltjs/source-apple-macos": "0.0.1",
     "@eltjs/transcription-local": "0.0.1",
     "@zukhruf/election": "^0.8.10",
+    "@zukhruf/launchd": "^0.8.19",
     "@zukhruf/pool": "^0.8.10",
     "@zukhruf/single-flight": "^0.8.10",
     "@zukhruf/sqlite-federation": "^0.8.18",

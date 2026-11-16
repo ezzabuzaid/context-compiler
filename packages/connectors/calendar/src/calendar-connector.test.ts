@@ -20,9 +20,8 @@ test('an import that stores no attachments needs no Google session, and one that
   const { contextCompiler } = JSON.parse(
     readFileSync(join(folder, 'package.json'), 'utf8'),
   );
-  // The CLI's host without GOOGLE_OAUTH_CLIENT_ID and
-  // GOOGLE_OAUTH_CLIENT_SECRET: asking it for a Google session throws. Setting
-  // up an import reads nothing through EventKit.
+  // The CLI's host with no Google client file: asking it for a Google session
+  // throws. Setting up an import reads nothing through EventKit.
   const calendar = new CalendarConnector(
     {
       clock: globalThis,
@@ -34,7 +33,7 @@ test('an import that stores no attachments needs no Google session, and one that
       google: () =>
         Promise.reject(
           new Error(
-            "Set GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET for Calendar's Drive/Gmail attachments.",
+            "Calendar's Drive and Gmail attachments need your Google OAuth client in /Users/me/.config/context-compiler/client_secret.json.",
           ),
         ),
     },
@@ -57,6 +56,6 @@ test('an import that stores no attachments needs no Google session, and one that
       scope: {},
       includeAttachments: true,
     }),
-    /GOOGLE_OAUTH_CLIENT_ID/,
+    /client_secret\.json/,
   );
 });

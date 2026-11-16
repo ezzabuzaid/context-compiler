@@ -6,9 +6,11 @@ import type { DocumentParser } from '@eltjs/elt';
 import { type GoogleRequester, googleSession } from '@eltjs/google-auth';
 import type { ConnectorHost } from '@workspace/connector/connector';
 
+import { GoogleClientFile } from './google-client-file.ts';
+
 // The CLI as the host of the connectors: macOS grants access to the program
 // the entry point names, and Google content is read with the user's own OAuth
-// client.
+// client, from the CLI's configuration folder.
 export class TerminalHost implements ConnectorHost {
   readonly #parser: () => DocumentParser;
   readonly grantee: string;
@@ -31,21 +33,20 @@ export class TerminalHost implements ConnectorHost {
     import.meta.resolve('@eltjs/sdk-apple-eventkit/eventkit-helper'),
   );
 
-  google(scopes: readonly string[]): Promise<GoogleRequester> {
-    const clientId = process.env.GOOGLE_OAUTH_CLIENT_ID;
-    const clientSecret = process.env.GOOGLE_OAUTH_CLIENT_SECRET;
-    if (!clientId || !clientSecret)
-      throw new Error(
-        "Set GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET for Calendar's Drive/Gmail attachments.",
-      );
+  // The CLI's configuration folder, which holds the Google client and the
+  // session it signs in.
+  readonly #config = join(
+    process.env.XDG_CONFIG_HOME ?? join(homedir(), '.config'),
+    'context-compiler',
+  );
+
+  readonly #googleClient = new GoogleClientFile(this.#config);
+
+  async google(scopes: readonly string[]): Promise<GoogleRequester> {
     return googleSession({
-      clientId,
-      clientSecret,
+      ...(await this.#googleClient.read()),
       scopes,
-      directory: join(
-        process.env.XDG_CONFIG_HOME ?? join(homedir(), '.config'),
-        'context-compiler',
-      ),
+      directory: this.#config,
       clock: globalThis,
     });
   }

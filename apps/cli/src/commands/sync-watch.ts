@@ -2,8 +2,9 @@ import { type Command as Declaration, Option } from 'commander';
 
 import { WatchReport } from '../watch-report.ts';
 import { Command, type Output } from './command.ts';
-import { SyncWatchInstallCommand } from './sync-watch-install.ts';
-import { SyncWatchUninstallCommand } from './sync-watch-uninstall.ts';
+import { SyncWatchRestartCommand } from './sync-watch-restart.ts';
+import { SyncWatchStartCommand } from './sync-watch-start.ts';
+import { SyncWatchStopCommand } from './sync-watch-stop.ts';
 
 export class SyncWatchCommand extends Command {
   readonly name = 'watch';
@@ -19,8 +20,9 @@ export class SyncWatchCommand extends Command {
         'watch only these connectors',
       ).choices(this.imports.names),
     );
-    new SyncWatchInstallCommand(this.imports).attach(declaration);
-    new SyncWatchUninstallCommand(this.imports).attach(declaration);
+    new SyncWatchStartCommand(this.imports).attach(declaration);
+    new SyncWatchRestartCommand(this.imports).attach(declaration);
+    new SyncWatchStopCommand(this.imports).attach(declaration);
   }
 
   protected async run(

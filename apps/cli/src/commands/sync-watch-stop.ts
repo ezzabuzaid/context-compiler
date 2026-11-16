@@ -1,12 +1,12 @@
 import { Command } from './command.ts';
 
-export class SyncWatchUninstallCommand extends Command {
-  readonly name = 'uninstall';
+export class SyncWatchStopCommand extends Command {
+  readonly name = 'stop';
   readonly summary = 'Stop keeping the connectors current in the background';
 
   protected configure(): void {}
 
   protected async run(): Promise<undefined> {
-    await this.imports.uninstallWatch();
+    await this.imports.stopWatch();
   }
 }
