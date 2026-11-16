@@ -1,4 +1,3 @@
-import { AsyncLocalStorage } from 'node:async_hooks';
 import { existsSync, rmSync } from 'node:fs';
 import { relative, sep } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
@@ -7,7 +6,6 @@ import { SqliteElection } from '@zukhruf/election';
 import { SingleFlight } from '@zukhruf/single-flight';
 import { z } from 'zod';
 
-import { PassFinished, passChannels } from '@eltjs/elt';
 import { type PassStatus, readPassStatus } from '@eltjs/elt-sqlite';
 import type { ImportScope } from '@eltjs/source-apple-macos/import-scope';
 import type {
@@ -22,17 +20,11 @@ import {
   Settings,
 } from '@workspace/settings';
 
-import type { Monitors } from './monitors.ts';
-
 const ids = z.array(z.string().min(1).max(1024)).max(1000);
 
 // How soon a server hears that the user switched a connector to keep current
 // or back, and how soon one whose plugin was updated stops its watches.
 const followMs = 1_000;
-
-// The import whose watch a pass runs in, by its directory: Node calls a
-// subscriber in the async context of the pass that publishes.
-const watched = new AsyncLocalStorage<string>();
 
 // A connector by its name. Connectors are rediscovered on use, so the name
 // is checked when a tool runs, not by an enum fixed when the chat began.
@@ -104,8 +96,6 @@ export class Plugin {
   readonly directory: string;
   readonly #discovery: Connectors;
   readonly #host: ConnectorHost;
-  // The monitors each import is checked against.
-  readonly monitors: Monitors | null;
   #connectors: readonly Connector[] = [];
   #broken: readonly BrokenConnector[] = [];
 
@@ -114,13 +104,11 @@ export class Plugin {
     host: ConnectorHost,
     versionFile: string,
     directory: string,
-    monitors: Monitors | null,
   ) {
     this.#discovery = discovery;
     this.#host = host;
     this.#versionFile = versionFile;
     this.directory = directory;
-    this.monitors = monitors;
   }
 
   get connectors(): readonly Connector[] {
@@ -311,21 +299,6 @@ export class Plugin {
         });
       }),
     );
-    // Like each pass, the check settles: a monitor's failure, settings it
-    // cannot read included, is recorded on the monitor. Only a check that
-    // cannot open monitors.sqlite has nowhere to say so; it runs again at the
-    // next import.
-    await this.#check().catch(() => undefined);
-  }
-
-  // One check at a time across the servers: one that imports while another
-  // checks joins that check, so both read the cursors it saved and a match
-  // is sent once. What its own import brought is checked at the next import.
-  async #check(): Promise<void> {
-    const monitors = this.monitors;
-    if (monitors === null) return;
-    await using flights = this.flights();
-    await flights.run('monitors', () => monitors.check(() => this.#imports()));
   }
 
   // Switches a connector to be kept current, or back to Sync only; every
@@ -379,11 +352,10 @@ export class Plugin {
   }
 
   // Owns the import once no other server does, then watches it until signal
-  // aborts or the watch ends on its own, checking the monitors after each
-  // pass. The import is won back from an owner that may have stopped because
-  // the user switched it off within the last second, which this server has
-  // not followed yet, so it reads the settings again first. A watch the
-  // user's removal ended removes its import.
+  // aborts or the watch ends on its own. The import is won back from an owner
+  // that may have stopped because the user switched it off within the last
+  // second, which this server has not followed yet, so it reads the settings
+  // again first. A watch the user's removal ended removes its import.
   async #keepCurrent(selection: Selection, signal: AbortSignal): Promise<void> {
     const connector = this.connector(selection.connector);
     using settings = this.#open();
@@ -393,45 +365,12 @@ export class Plugin {
       signal,
     });
     if (!keptCurrent(settings).has(directory)) return;
-    // A pass of this watch, not of an import this server runs meanwhile.
-    const check = (message: unknown) => {
-      if (message instanceof PassFinished && watched.getStore() === directory)
-        void this.#check().catch(() => undefined);
-    };
-    passChannels.finish.subscribe(check);
     try {
-      await watched.run(directory, () =>
-        connector.watch(settings, selection, signal),
-      );
+      await connector.watch(settings, selection, signal);
     } finally {
-      passChannels.finish.unsubscribe(check);
       if (settings.staleImports().includes(directory))
         rmSync(directory, { recursive: true, force: true });
     }
-  }
-
-  // Registers a monitor for the chat that asked; see Monitors.add.
-  async addMonitor(name: string, thread: string): Promise<void> {
-    if (this.monitors === null)
-      throw new Error(
-        'This launcher does not provide chat delivery for monitors.',
-      );
-    await this.monitors.add(name, thread, this.#imports());
-  }
-
-  // Where each selected connector's import is, by the connector's name, for
-  // the monitors; one not imported yet is not there.
-  #imports(): ReadonlyMap<string, string> {
-    using settings = this.#open();
-    return new Map(
-      settings
-        .selections()
-        .map((selection): [string, string] => [
-          selection.connector,
-          settings.database(selection),
-        ])
-        .filter(([, database]) => existsSync(database)),
-    );
   }
 
   async options(name: string) {

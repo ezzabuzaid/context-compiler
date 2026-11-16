@@ -19,7 +19,6 @@ import { Transcription } from '@workspace/connector/transcription';
 import {
   choicesResult,
   connectorsResult,
-  monitorsResult,
   transcriptionResult,
 } from '@workspace/ui/contract';
 
@@ -31,8 +30,6 @@ import {
   updateConnector,
 } from './connector-page.ts';
 import { openFullDiskAccessSettings } from './full-disk-access.ts';
-import { monitorRows } from './monitor-page.ts';
-import { Monitors } from './monitors.ts';
 import {
   Plugin,
   PluginUpdatedError,
@@ -51,8 +48,6 @@ if (!grantee)
   );
 macOSAccess.install({ program: grantee });
 const pageUri = process.env.CONTEXT_COMPILER_PAGE_URI?.trim() || null;
-const chatUri = process.env.CONTEXT_COMPILER_CHAT_URI?.trim() || null;
-const codex = process.env.CODEX_CLI_PATH?.trim();
 const versionFile = fileURLToPath(new URL('version.json', import.meta.url));
 const { version } = z
   .object({ version: z.string().min(1) })
@@ -63,7 +58,7 @@ const { version } = z
 provideHostModules(
   ({ file }) => new URL(`modules/${file}.mjs`, import.meta.url).href,
 );
-// Where the plugin keeps settings.sqlite, monitors.sqlite and every import;
+// Where the plugin keeps settings.sqlite and every import;
 // the query skill tells readers the same path.
 const store = join(
   homedir(),
@@ -96,16 +91,6 @@ const plugin = new Plugin(
   },
   versionFile,
   store,
-  codex && chatUri !== null
-    ? new Monitors({
-        root: join(
-          homedir(),
-          'Library/Application Support/Context Compiler/Monitors',
-        ),
-        store: join(store, 'monitors.sqlite'),
-        codex,
-      })
-    : null,
 );
 // Settings may have been changed by another chat or by the CLI.
 async function refresh(): Promise<void> {
@@ -201,38 +186,6 @@ mcpServer.registerTool(
     await refresh();
     void plugin.import(await plugin.configure(input));
     return structured(plugin.status());
-  },
-);
-mcpServer.registerTool(
-  'monitor_add',
-  {
-    title: 'Add a monitor',
-    description:
-      'Start a monitor written in the Monitors folder ($add-monitor) for this chat: after each sync, each new match of its condition is sent to this chat as the monitor’s instruction. What it matches now is its baseline and is not sent. Adding it again from another chat moves it there.',
-    inputSchema: {
-      name: z
-        .string()
-        .min(1)
-        .describe(
-          'The monitor’s name: contextCompiler.name in its package.json.',
-        ),
-    },
-    annotations: {
-      readOnlyHint: false,
-      destructiveHint: false,
-      idempotentHint: true,
-      openWorldHint: false,
-    },
-  },
-  async ({ name }, { _meta }) => {
-    // Codex names the calling chat on every tool call.
-    const thread = z.string().min(1).safeParse(_meta?.threadId);
-    if (!thread.success)
-      throw new Error(
-        'This host did not say which chat called, so the monitor has no chat to send to.',
-      );
-    await plugin.addMonitor(name, thread.data);
-    return structured({ monitors: await monitorRows(plugin, chatUri) });
   },
 );
 // Tools only the hooks and the Context Compiler page call; Codex keeps them from the
@@ -341,44 +294,6 @@ mcpServer.registerTool(
           .connectors.filter(({ includeAttachments }) => includeAttachments),
       );
     return structured(await transcription.choices());
-  },
-);
-mcpServer.registerTool(
-  'monitors',
-  {
-    title: 'List monitors',
-    description:
-      'Every monitor for the Context Compiler page: what it watches and does, the chat it sends to, and its status.',
-    inputSchema: {},
-    outputSchema: monitorsResult,
-    annotations: { readOnlyHint: true, openWorldHint: false },
-    _meta: appOnly,
-  },
-  async () => structured({ monitors: await monitorRows(plugin, chatUri) }),
-);
-mcpServer.registerTool(
-  'monitor_remove',
-  {
-    title: 'Remove a monitor',
-    description:
-      'Forget a monitor and delete its folder from the Context Compiler page; it sends nothing more.',
-    inputSchema: { name: z.string().min(1) },
-    outputSchema: monitorsResult,
-    annotations: {
-      readOnlyHint: false,
-      destructiveHint: true,
-      idempotentHint: true,
-      openWorldHint: false,
-    },
-    _meta: appOnly,
-  },
-  async ({ name }) => {
-    if (plugin.monitors === null)
-      throw new Error(
-        'This launcher does not provide chat delivery for monitors.',
-      );
-    await plugin.monitors.remove(name);
-    return structured({ monitors: await monitorRows(plugin, chatUri) });
   },
 );
 mcpServer.registerTool(

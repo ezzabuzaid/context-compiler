@@ -470,9 +470,6 @@ test(
         'connector_watch',
         'connectors',
         'context',
-        'monitor_add',
-        'monitor_remove',
-        'monitors',
         'open_full_disk_access',
         'options',
         'page',
@@ -495,12 +492,8 @@ test(
         'transcription',
         'transcription_update',
         'open_full_disk_access',
-        'monitors',
-        'monitor_remove',
       ])
         assert.deepEqual(metaOf(name), { ui: { visibility: ['app'] } }, name);
-      // A chat's agent adds the monitor it wrote, so the model sees this one.
-      assert.equal(metaOf('monitor_add'), undefined);
       // ChatGPT lists the Context Compiler page in its sidebar, finds it in Settings
       // search by its connectors' names, and opens it from the page's own
       // resource.
@@ -550,8 +543,6 @@ test(
         'transcription',
         'transcription_update',
         'open_full_disk_access',
-        'monitors',
-        'monitor_remove',
       ])
         assert.ok(
           pageResource &&
@@ -1475,297 +1466,105 @@ test(
   },
 );
 
-for (const codex of [undefined, '/missing/codex'])
-  test(
-    `the standalone server imports and syncs without chat delivery (${codex === undefined ? 'no executable' : 'executable without chat context'})`,
-    { timeout: 120_000 },
-    async (t) => {
-      const scratch = await new TemporaryFiles().directory('plugin-host-', {
-        parent: homes,
-      });
-      const client = new Client({ name: 'standalone-host', version: '1.0.0' });
-      const bundle = join(scratch.path, 'server');
-      const transport = new StdioClientTransport({
-        command: process.execPath,
-        args: [join(bundle, 'main.mjs')],
-        env: {
-          HOME: scratch.path,
-          PATH: '',
-          CONTEXT_COMPILER_GRANTEE: 'Context Compiler',
-          ...(codex === undefined ? {} : { CODEX_CLI_PATH: codex }),
-        },
-        stderr: 'pipe',
-      });
-      let diagnostics = '';
-      transport.stderr?.on('data', (data) => {
-        diagnostics += String(data);
-      });
-      try {
-        cpSync(join(root, 'plugins/context-compiler/server'), bundle, {
-          recursive: true,
-        });
-        await withConnectors(scratch.path);
-        const monitor = join(
-          scratch.path,
-          'Library/Application Support/Context Compiler/Monitors/probe',
-        );
-        const evaluated = join(scratch.path, 'monitor-loaded');
-        mkdirSync(monitor, { recursive: true });
-        writeFileSync(
-          join(monitor, 'package.json'),
-          JSON.stringify({
-            type: 'module',
-            exports: './probe.ts',
-            contextCompiler: {
-              name: 'probe',
-              title: 'Probe',
-              description: 'A photo arrives',
-              instruction: 'Describe the photo.',
-            },
-          }),
-        );
-        writeFileSync(
-          join(monitor, 'probe.ts'),
-          `import { writeFileSync } from 'node:fs';
-writeFileSync(${JSON.stringify(evaluated)}, 'loaded');
-export default { async evaluate() { return []; } };`,
-        );
-        await client.connect(transport, { signal: t.signal, timeout: 10_000 });
-        const call = (name: string, args: Record<string, unknown> = {}) =>
-          client.callTool({ name, arguments: args }, undefined, {
-            signal: t.signal,
-          });
-        assert.equal(
-          client.getServerVersion()?.version,
-          JSON.parse(readFileSync(join(bundle, 'version.json'), 'utf8'))
-            .version,
-        );
-        assert.match(
-          client.getServerVersion()?.icons?.[0]?.src ?? '',
-          /^data:image\/png;base64,/,
-        );
-        assert.match(
-          client.getInstructions() ?? '',
-          /while Context Compiler is open/,
-        );
-        assert.doesNotMatch(client.getInstructions() ?? '', /ChatGPT|Codex/);
-        const { contents } = await client.readResource({
-          uri: 'ui://context-compiler/page.html',
-        });
-        const [pageResource] = contents;
-        assert.ok(pageResource && 'text' in pageResource);
-        assert.match(String(pageResource.text), /^<!doctype html>/);
-        const listed = await call('monitors');
-        assert.notEqual(listed.isError, true);
-        assert.deepEqual(listed.structuredContent, { monitors: null });
-        for (const name of ['monitor_add', 'monitor_remove']) {
-          const refused = await client.callTool({
-            name,
-            arguments: { name: 'probe' },
-            _meta: { threadId: 'unused-chat' },
-          });
-          assert.equal(refused.isError, true);
-          assert.match(
-            JSON.stringify(refused.content),
-            /does not provide chat delivery for monitors/,
-          );
-        }
-        const configured = await call('configure', {
-          connectors: [{ connector: 'photos' }],
-        });
-        assert.notEqual(
-          configured.isError,
-          true,
-          JSON.stringify(configured.content),
-        );
-        await eventually(
-          () => passes(scratch.path, 'photos').join() === 'succeeded',
-          'the standalone server did not import Photos',
-          () => diagnostics,
-        );
-        assert.deepEqual(photoIds(scratch.path), ['p1', 'p2']);
-        photograph(scratch.path, [beach, snow, dunes]);
-
-        const synced = await call('sync', { connector: 'photos' });
-
-        assert.notEqual(synced.isError, true, JSON.stringify(synced.content));
-        assert.equal(photosRow(synced)?.state, 'succeeded');
-        assert.deepEqual(photoIds(scratch.path), ['p1', 'p2', 'p3']);
-        assert.deepEqual(passes(scratch.path, 'photos'), [
-          'succeeded',
-          'succeeded',
-        ]);
-        assert.equal(existsSync(evaluated), false);
-        assert.equal(existsSync(join(monitor, 'probe.ts')), true);
-        assert.equal(
-          existsSync(
-            join(
-              scratch.path,
-              'Library/Application Support/Context Compiler/Imports/monitors.sqlite',
-            ),
-          ),
-          false,
-        );
-        // The bundle ships @zukhruf/sqlite-open with its native library, so
-        // the import keeps its -wal and -shm files once the server ends, for
-        // the agents that read it with sqlite3 -readonly.
-        const photos = importOf(scratch.path, 'photos');
-        assert.ok(photos);
-        await client.close();
-        await transport.close();
-        assert.deepEqual(
-          ['-wal', '-shm'].map((suffix) => existsSync(photos + suffix)),
-          [true, true],
-        );
-        assert.deepEqual(read(photos, 'PRAGMA journal_mode').rows, [
-          { journal_mode: 'wal' },
-        ]);
-      } finally {
-        await client.close();
-        await transport.close();
-        await scratch.cleanup();
-      }
-    },
-  );
-
 test(
-  'a chat adds the monitor it wrote, and the next sync queues the monitor’s instruction into that chat through the codex the server was given',
+  'the standalone server imports and syncs',
   { timeout: 120_000 },
   async (t) => {
-    await using scratch = await new TemporaryFiles().directory('plugin-e2e-', {
+    const scratch = await new TemporaryFiles().directory('plugin-host-', {
       parent: homes,
     });
-    const plugin = join(scratch.path, 'plugin');
-    cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
-    const runtime =
-      process.env.CODEX_MCP_NODE_PATH ??
-      join(
-        homedir(),
-        '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node',
-      );
-    // A real `codex queue` writes into the user's own ~/.codex, so the server
-    // gets an executable that records each call instead.
-    const calls = join(scratch.path, 'codex-calls.jsonl');
-    const codex = join(scratch.path, 'codex');
-    writeFileSync(
-      codex,
-      `#!${process.execPath}\nrequire('node:fs').appendFileSync(${JSON.stringify(calls)}, JSON.stringify(process.argv.slice(2)) + '\\n');\n`,
-      { mode: 0o755 },
-    );
-    await withConnectors(scratch.path);
-    const monitor = join(
-      scratch.path,
-      'Library/Application Support/Context Compiler/Monitors/new-photos',
-    );
-    mkdirSync(monitor, { recursive: true });
-    writeFileSync(
-      join(monitor, 'package.json'),
-      JSON.stringify({
-        type: 'module',
-        exports: './new-photos-monitor.ts',
-        contextCompiler: {
-          name: 'new-photos',
-          title: 'New photos',
-          description: 'A photo is added to Photos',
-          instruction: 'Describe the new photo.',
-        },
-      }),
-    );
-    writeFileSync(
-      join(monitor, 'new-photos-monitor.ts'),
-      `import type { Query } from '@zukhruf/sqlite-federation';
-
-export default {
-  async evaluate(sql: Query) {
-    return sql.all\`SELECT id FROM photos_photos\`.map((row) => ({ key: String(row.id), data: null }));
-  },
-};`,
-    );
-    const {
-      mcpServers: { 'context-compiler': launcher },
-    } = JSON.parse(readFileSync(join(plugin, '.mcp.json'), 'utf8'));
+    const client = new Client({ name: 'standalone-host', version: '1.0.0' });
+    const bundle = join(scratch.path, 'server');
     const transport = new StdioClientTransport({
-      command: join(plugin, launcher.command),
-      args: launcher.args,
-      cwd: join(plugin, launcher.cwd),
+      command: process.execPath,
+      args: [join(bundle, 'main.mjs')],
       env: {
         HOME: scratch.path,
-        CODEX_MCP_NODE_PATH: runtime,
-        CODEX_CLI_PATH: codex,
         PATH: '',
+        CONTEXT_COMPILER_GRANTEE: 'Context Compiler',
       },
       stderr: 'pipe',
     });
-    const client = new Client({ name: 'plugin-e2e', version: '1.0.0' });
-    await client.connect(transport, { signal: t.signal, timeout: 10_000 });
+    let diagnostics = '';
+    transport.stderr?.on('data', (data) => {
+      diagnostics += String(data);
+    });
     try {
-      await client.callTool({
-        name: 'configure',
-        arguments: { connectors: [{ connector: 'photos' }] },
+      cpSync(join(root, 'plugins/context-compiler/server'), bundle, {
+        recursive: true,
       });
-      await client.callTool({ name: 'sync', arguments: {} });
-      // Codex names the calling chat in each tool call's _meta.
-      const unnamed = await client.callTool({
-        name: 'monitor_add',
-        arguments: { name: 'new-photos' },
-      });
-      const added = await client.callTool({
-        name: 'monitor_add',
-        arguments: { name: 'new-photos' },
-        _meta: { threadId: 'chat-e2e' },
-      });
-      writeFileSync(
-        join(scratch.path, 'Pictures/photos.json'),
-        JSON.stringify([
-          { id: 'p1', title: 'Beach' },
-          { id: 'p2', title: 'Snow' },
-          { id: 'p3', title: 'Dunes' },
-        ]),
+      await withConnectors(scratch.path);
+      await client.connect(transport, { signal: t.signal, timeout: 10_000 });
+      const call = (name: string, args: Record<string, unknown> = {}) =>
+        client.callTool({ name, arguments: args }, undefined, {
+          signal: t.signal,
+        });
+      assert.equal(
+        client.getServerVersion()?.version,
+        JSON.parse(readFileSync(join(bundle, 'version.json'), 'utf8')).version,
       );
+      assert.match(
+        client.getServerVersion()?.icons?.[0]?.src ?? '',
+        /^data:image\/png;base64,/,
+      );
+      assert.match(
+        client.getInstructions() ?? '',
+        /while Context Compiler is open/,
+      );
+      assert.doesNotMatch(client.getInstructions() ?? '', /ChatGPT|Codex/);
+      const { contents } = await client.readResource({
+        uri: 'ui://context-compiler/page.html',
+      });
+      const [pageResource] = contents;
+      assert.ok(pageResource && 'text' in pageResource);
+      assert.match(String(pageResource.text), /^<!doctype html>/);
+      const configured = await call('configure', {
+        connectors: [{ connector: 'photos' }],
+      });
+      assert.notEqual(
+        configured.isError,
+        true,
+        JSON.stringify(configured.content),
+      );
+      await eventually(
+        () => passes(scratch.path, 'photos').join() === 'succeeded',
+        'the standalone server did not import Photos',
+        () => diagnostics,
+      );
+      assert.deepEqual(photoIds(scratch.path), ['p1', 'p2']);
+      photograph(scratch.path, [beach, snow, dunes]);
 
-      await client.callTool({ name: 'sync', arguments: {} });
+      const synced = await call('sync', { connector: 'photos' });
 
-      assert.equal(unnamed.isError, true);
-      assert.notEqual(added.isError, true, JSON.stringify(added.content));
+      assert.notEqual(synced.isError, true, JSON.stringify(synced.content));
+      assert.equal(photosRow(synced)?.state, 'succeeded');
+      assert.deepEqual(photoIds(scratch.path), ['p1', 'p2', 'p3']);
+      assert.deepEqual(passes(scratch.path, 'photos'), [
+        'succeeded',
+        'succeeded',
+      ]);
+      // The bundle ships @zukhruf/sqlite-open with its native library, so
+      // the import keeps its -wal and -shm files once the server ends, for
+      // the agents that read it with sqlite3 -readonly.
+      const photos = importOf(scratch.path, 'photos');
+      assert.ok(photos);
+      await client.close();
+      await transport.close();
       assert.deepEqual(
-        readFileSync(calls, 'utf8')
-          .trim()
-          .split('\n')
-          .map((line) => JSON.parse(line)),
-        [
-          [
-            'queue',
-            '--thread',
-            'chat-e2e',
-            '--message',
-            'Monitor "New photos" triggered: Describe the new photo.\nNew matches:\n- p3',
-          ],
-        ],
+        ['-wal', '-shm'].map((suffix) => existsSync(photos + suffix)),
+        [true, true],
       );
-      const { structuredContent } = await client.callTool({
-        name: 'monitors',
-        arguments: {},
-      });
-      assert.deepEqual(
-        z
-          .object({
-            monitors: z.array(
-              z.object({
-                chat: z.string().nullable(),
-                status: z.object({ state: z.string() }),
-              }),
-            ),
-          })
-          .parse(structuredContent).monitors,
-        [{ chat: 'codex://threads/chat-e2e', status: { state: 'watching' } }],
-      );
+      assert.deepEqual(read(photos, 'PRAGMA journal_mode').rows, [
+        { journal_mode: 'wal' },
+      ]);
     } finally {
       await client.close();
+      await transport.close();
+      await scratch.cleanup();
     }
   },
 );
 
-// Freezing a server and resuming it needs POSIX signals.
 const onUnix = {
   skip:
     process.platform === 'win32'
@@ -1790,13 +1589,7 @@ function readerOf(pipe: string) {
 // A chat's Context Compiler server on the installed plugin, started as Codex starts it.
 // closed settles once its process ended; send signals it only until then,
 // so no other process that takes its ID gets the signal.
-async function chat(
-  signal: AbortSignal,
-  plugin: string,
-  home: string,
-  // The codex a monitor's match is queued through, when the test checks one.
-  codex?: string,
-) {
+async function chat(signal: AbortSignal, plugin: string, home: string) {
   const {
     mcpServers: { 'context-compiler': launcher },
   } = JSON.parse(readFileSync(join(plugin, '.mcp.json'), 'utf8'));
@@ -1812,7 +1605,6 @@ async function chat(
           homedir(),
           '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node',
         ),
-      ...(codex === undefined ? {} : { CODEX_CLI_PATH: codex }),
       PATH: '',
     },
     stderr: 'pipe',
@@ -1874,17 +1666,6 @@ async function chat(
     context: () =>
       client.callTool(
         { name: 'context', arguments: { event: 'SessionStart' } },
-        undefined,
-        { signal },
-      ),
-    // A monitor the chat wrote, added for the chat Codex names in _meta.
-    addMonitor: (name: string, thread: string) =>
-      client.callTool(
-        {
-          name: 'monitor_add',
-          arguments: { name },
-          _meta: { threadId: thread },
-        },
         undefined,
         { signal },
       ),
@@ -2623,94 +2404,6 @@ test(
     );
     assert.ok(keptWhileReading, 'the import was removed while its pass read');
     assert.equal(existsSync(directory), false);
-  },
-);
-
-test(
-  'a monitor’s match that a watched pass loaded is queued into its chat with no Sync',
-  { timeout: 180_000 },
-  async (t) => {
-    await using scratch = await new TemporaryFiles().directory('plugin-e2e-', {
-      parent: homes,
-    });
-    const plugin = join(scratch.path, 'plugin');
-    cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
-    // A real `codex queue` writes into the user's own ~/.codex, so the server
-    // gets an executable that records each call instead.
-    const calls = join(scratch.path, 'codex-calls.jsonl');
-    const codex = join(scratch.path, 'codex');
-    writeFileSync(
-      codex,
-      `#!${process.execPath}\nrequire('node:fs').appendFileSync(${JSON.stringify(calls)}, JSON.stringify(process.argv.slice(2)) + '\\n');\n`,
-      { mode: 0o755 },
-    );
-    await withWatchedPhotos(scratch.path);
-    const monitor = join(
-      scratch.path,
-      'Library/Application Support/Context Compiler/Monitors/new-photos',
-    );
-    mkdirSync(monitor, { recursive: true });
-    writeFileSync(
-      join(monitor, 'package.json'),
-      JSON.stringify({
-        type: 'module',
-        exports: './new-photos-monitor.ts',
-        contextCompiler: {
-          name: 'new-photos',
-          title: 'New photos',
-          description: 'A photo is added to Photos',
-          instruction: 'Describe the new photo.',
-        },
-      }),
-    );
-    writeFileSync(
-      join(monitor, 'new-photos-monitor.ts'),
-      `import type { Query } from '@zukhruf/sqlite-federation';
-
-export default {
-  async evaluate(sql: Query) {
-    return sql.all\`SELECT id FROM photos_photos\`.map((row) => ({ key: String(row.id), data: null }));
-  },
-};`,
-    );
-    await using user = await chat(t.signal, plugin, scratch.path, codex);
-    await user.configure(['photos']);
-    await eventually(
-      () => passes(scratch.path, 'photos').join() === 'succeeded',
-      'the first import did not load',
-      () => user.diagnostics,
-    );
-    const added = await user.addMonitor('new-photos', 'chat-e2e');
-    await user.watch('photos', true);
-    await eventually(
-      () => passes(scratch.path, 'photos').length === 2,
-      'the watch ran no pass',
-      () => user.diagnostics,
-    );
-
-    photograph(scratch.path, [beach, snow, dunes]);
-    await eventually(
-      () => existsSync(calls),
-      'no match was queued',
-      () => user.diagnostics,
-    );
-
-    assert.notEqual(added.isError, true, JSON.stringify(added.content));
-    assert.deepEqual(
-      readFileSync(calls, 'utf8')
-        .trim()
-        .split('\n')
-        .map((line) => JSON.parse(line)),
-      [
-        [
-          'queue',
-          '--thread',
-          'chat-e2e',
-          '--message',
-          'Monitor "New photos" triggered: Describe the new photo.\nNew matches:\n- p3',
-        ],
-      ],
-    );
   },
 );
 

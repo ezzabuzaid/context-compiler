@@ -2,18 +2,16 @@ import type { ReactNode } from 'react';
 
 import { ConnectorMenu } from './connector-menu.tsx';
 import { ConnectorSwitch } from './connector-switch.tsx';
-import type { ConnectorRow, MonitorRow } from './contract.ts';
-import { MonitorMenu } from './monitor-menu.tsx';
+import type { ConnectorRow } from './contract.ts';
 import { usePage } from './page-context.tsx';
 
 // The Context Compiler page's sidebar, drawn like the sidebar of ChatGPT's Space: its
 // title with Sync, which imports every connected connector again and turns
 // until the last pass ends, the page's failure to read or sync, then its
-// monitors and its connectors, each a section that folds away.
+// connectors, in a section that folds away.
 export function Sidebar() {
   const {
     rows,
-    monitors,
     failure,
     sync,
     syncing,
@@ -47,18 +45,6 @@ export function Sidebar() {
         <p role="alert" className="text-small text-destructive sidebar-failure">
           {failure}
         </p>
-      )}
-      {monitors !== null && (
-        <Section title="Monitors">
-          {monitors?.length === 0 && (
-            <li className="empty text-small text-muted">
-              None yet. In a chat, ask: When …, then …
-            </li>
-          )}
-          {monitors?.map((monitor) => (
-            <MonitorLink key={monitor.name} monitor={monitor} />
-          ))}
-        </Section>
       )}
       <Section title="Connectors">
         {rows?.map((row) => (
@@ -123,36 +109,6 @@ function ConnectorLink({ row }: { row: ConnectorRow }) {
         </span>
       )}
       <ConnectorSwitch row={row} />
-    </li>
-  );
-}
-
-// A monitor with its status on hover and its menu on right-click; it has no
-// switch, since a sync checks every monitor.
-function MonitorLink({ monitor }: { monitor: MonitorRow }) {
-  const { openedMonitor, openMonitor } = usePage();
-  const glyphs = {
-    watching: 'synced',
-    failed: 'troubled',
-    inactive: 'off',
-  } as const;
-  return (
-    <li>
-      <MonitorMenu monitor={monitor}>
-        <button
-          type="button"
-          className="item"
-          title={monitor.status.text}
-          aria-current={openedMonitor === monitor.name ? 'page' : undefined}
-          onClick={() => openMonitor(monitor.name)}
-        >
-          <Glyph
-            glyph={glyphs[monitor.status.state]}
-            label={monitor.status.text}
-          />
-          <span className="item-title">{monitor.title}</span>
-        </button>
-      </MonitorMenu>
     </li>
   );
 }

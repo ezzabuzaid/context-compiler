@@ -12,20 +12,16 @@ import type { PageClient } from './client.ts';
 import {
   type ConnectorRow,
   type ConnectorSelection,
-  type MonitorRow,
   connectorIn,
   connectorsResult,
-  monitorsResult,
 } from './contract.ts';
 
 // What every part of the Context Compiler page shares: its connection to the host, the
-// connector and monitor rows it keeps current, the changes it makes, and
-// which connector's or monitor's page is open.
+// connector rows it keeps current, the changes it makes, and which page is
+// open.
 type Page = {
   readonly app: PageClient | null;
   readonly rows: readonly ConnectorRow[] | null;
-  readonly monitors: readonly MonitorRow[] | null | undefined;
-  readonly removeMonitor: (name: string) => Promise<void>;
   readonly failure: string | null;
   // What a selection leaves out takes the defaults setup uses.
   readonly update: (
@@ -44,8 +40,6 @@ type Page = {
   readonly openTranscription: () => void;
   readonly opened: string | null;
   readonly open: (connector: string | null) => void;
-  readonly openedMonitor: string | null;
-  readonly openMonitor: (name: string) => void;
 };
 
 const PageContext = createContext<Page | null>(null);
@@ -75,8 +69,6 @@ export function PageProvider({
   link: string | undefined;
 }) {
   const [rows, setRows] = useState<readonly ConnectorRow[] | null>(null);
-  const [monitors, setMonitors] = useState<readonly MonitorRow[] | null>();
-  const [openedMonitor, setOpenedMonitor] = useState<string | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
   const [reads, setReads] = useState(0);
   const [openedTranscription, setOpenedTranscription] = useState(false);
@@ -89,12 +81,13 @@ export function PageProvider({
   const read = useCallback(async () => {
     if (app === null) return;
     try {
-      const [{ connectors }, listed] = await Promise.all([
-        callTool(app, 'connectors', {}, connectorsResult),
-        callTool(app, 'monitors', {}, monitorsResult),
-      ]);
+      const { connectors } = await callTool(
+        app,
+        'connectors',
+        {},
+        connectorsResult,
+      );
       setRows(connectors);
-      setMonitors(listed.monitors);
       setFailure(null);
     } catch (error) {
       setFailure(messageOf(error));
@@ -137,7 +130,6 @@ export function PageProvider({
     setFollowed(link);
     if (link !== undefined) {
       setOpened(connectorIn(link) ?? null);
-      setOpenedMonitor(null);
       setOpenedTranscription(link === '/transcription');
     }
   }
@@ -198,28 +190,11 @@ export function PageProvider({
         );
         setRows(connectors);
         setFailure(null);
-        // A sync checks the monitors too, so their last runs moved on.
-        void read();
       } catch (error) {
         setFailure(messageOf(error));
       } finally {
         mark(false);
       }
-    },
-    [app, read],
-  );
-
-  const removeMonitor = useCallback(
-    async (name: string) => {
-      if (app === null) return;
-      const listed = await callTool(
-        app,
-        'monitor_remove',
-        { name },
-        monitorsResult,
-      );
-      setMonitors(listed.monitors);
-      setOpenedMonitor((opened) => (opened === name ? null : opened));
     },
     [app],
   );
@@ -227,19 +202,11 @@ export function PageProvider({
   const open = useCallback((connector: string | null) => {
     setOpenedTranscription(false);
     setOpened(connector);
-    setOpenedMonitor(null);
-  }, []);
-
-  const openMonitor = useCallback((name: string) => {
-    setOpenedTranscription(false);
-    setOpenedMonitor(name);
-    setOpened(null);
   }, []);
 
   const openTranscription = useCallback(() => {
     setOpenedTranscription(true);
     setOpened(null);
-    setOpenedMonitor(null);
   }, []);
 
   return (
@@ -247,8 +214,6 @@ export function PageProvider({
       value={{
         app,
         rows,
-        monitors,
-        removeMonitor,
         failure,
         update,
         watch,
@@ -259,8 +224,6 @@ export function PageProvider({
         openTranscription,
         opened,
         open,
-        openedMonitor,
-        openMonitor,
       }}
     >
       {children}

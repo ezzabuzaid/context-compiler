@@ -149,13 +149,6 @@ test(
       );
       assert.notEqual(connectors.isError, true, JSON.stringify(connectors));
       assert.ok(connectors.structuredContent?.connectors instanceof Array);
-      const monitors = CallToolResultSchema.parse(
-        await client.callTool({
-          name: 'monitors',
-          arguments: {},
-        }),
-      );
-      assert.equal(monitors.structuredContent?.monitors, null);
       assert.equal(
         existsSync(
           join(

@@ -45,14 +45,7 @@ test(
         await page.evaluate(() => Object.keys(window.desktop).sort()),
         ['callTool', 'cancelTool', 'onState', 'retry', 'state'],
       );
-      for (const name of [
-        'setup',
-        'context',
-        'configure',
-        'monitor_add',
-        'monitor_remove',
-        'hooks',
-      ]) {
+      for (const name of ['setup', 'context', 'configure', 'hooks']) {
         await assert.rejects(
           () =>
             page.evaluate(async (name) => {

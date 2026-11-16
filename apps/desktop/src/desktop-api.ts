@@ -13,7 +13,6 @@ const pageTools = [
   'sync',
   'transcription',
   'transcription_update',
-  'monitors',
   'open_full_disk_access',
 ] as const;
 

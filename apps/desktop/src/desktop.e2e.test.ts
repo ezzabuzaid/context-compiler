@@ -14,7 +14,7 @@ import { type ElectronApplication, _electron } from 'playwright';
 const workspace = resolve(import.meta.dirname, '../../..');
 
 test(
-  'the Apple page connects Photos, syncs the real store, hides Monitors, reopens and quits its backend',
+  'the Apple page connects Photos, syncs the real store, reopens and quits its backend',
   { timeout: 120_000 },
   async () => {
     await using homeDirectory = await new TemporaryFiles().directory('cc-d-', {
@@ -61,9 +61,7 @@ writeFileSync(join(homedir(), 'backend.json'), JSON.stringify({ pid: process.pid
           HOME: home,
           PATH: process.env.PATH ?? '',
           TMPDIR: '/tmp',
-          CODEX_CLI_PATH: '/does/not/exist',
           CONTEXT_COMPILER_PAGE_URI: 'codex://unwanted',
-          CONTEXT_COMPILER_CHAT_URI: 'codex://unwanted',
         },
       });
       const page = await application.firstWindow();
@@ -90,10 +88,6 @@ writeFileSync(join(homedir(), 'backend.json'), JSON.stringify({ pid: process.pid
       assert.equal(exitCode, 0);
       second = undefined;
       assert.equal(application.windows().length, 1);
-      assert.equal(
-        await page.getByText('Monitors', { exact: true }).count(),
-        0,
-      );
       await page.getByRole('switch', { name: 'Photos connected' }).click();
       await page
         .getByRole('switch', { name: 'Photos connected', checked: true })
@@ -213,12 +207,7 @@ writeFileSync(join(homedir(), 'backend.json'), JSON.stringify({ pid: process.pid
       );
       assert.equal(backend.env.ELECTRON_RUN_AS_NODE, '1');
       assert.equal(backend.env.CONTEXT_COMPILER_GRANTEE, 'Context Compiler');
-      for (const key of [
-        'CODEX_CLI_PATH',
-        'CONTEXT_COMPILER_PAGE_URI',
-        'CONTEXT_COMPILER_CHAT_URI',
-      ])
-        assert.equal(backend.env[key], undefined);
+      assert.equal(backend.env.CONTEXT_COMPILER_PAGE_URI, undefined);
 
       await page.close();
       assert.equal(application.process().exitCode, null);
