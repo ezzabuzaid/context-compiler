@@ -2,7 +2,7 @@
 
 ## Before a commit
 
-The pre-commit hook (`.husky/pre-commit.ts`) runs `nx sync` and checks the format of the staged files. It does not lint or type-check. Run `npx nx run <project>:typecheck` for each project you changed before you commit. That target checks the format, lints and type-checks the project, and writes no file. Run `npx nx run <project>:format` to format a project in which no other session has uncommitted files, or `npx prettier --write <file>` by path.
+The pre-commit hook (`.husky/pre-commit.ts`) runs `nx sync`, checks the format of the staged files and runs the npm install checks of `@zukhruf/git-hooks` (pins, `.npmrc`, lockfile, Dockerfiles, the `package.json` of each touched project). It does not lint the source or type-check. Run `npx nx run <project>:typecheck` for each project you changed before you commit. That target checks the format, lints and type-checks the project, and writes no file. Run `npx nx run <project>:format` to format a project in which no other session has uncommitted files, or `npx prettier --write <file>` by path.
 
 ## The library lives in elt
 
