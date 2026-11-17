@@ -16,7 +16,8 @@
   },
   "devDependencies": {
     "@workspace/settings": "0.0.1",
-    "@zukhruf/sqlite-open": "^0.8.10",
-    "@zukhruf/testing": "^0.8.10"
+    "@zukhruf/fs": "^0.8.22",
+    "@zukhruf/sqlite-open": "^0.8.22",
+    "@zukhruf/testing": "^0.8.22"
   }
 }

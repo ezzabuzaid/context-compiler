@@ -27,9 +27,9 @@ import {
   ElicitRequestSchema,
   type ElicitResult,
 } from '@modelcontextprotocol/sdk/types.js';
+import { TemporaryFiles } from '@zukhruf/fs';
 import { open as openDatabase } from '@zukhruf/sqlite-open';
 import { timebox } from '@zukhruf/testing/async';
-import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { z } from 'zod';
 
 // NoteStore.sqlite's tables as macOS 26.6.2 creates them (schema only, no

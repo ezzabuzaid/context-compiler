@@ -1,13 +1,14 @@
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 import { promisify } from 'node:util';
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import { TemporaryFiles } from '@zukhruf/testing/fs';
+import { TemporaryFiles } from '@zukhruf/fs';
 
 // The workspace root: the tests read its fixtures and builds from any
 // working directory.
@@ -44,10 +45,22 @@ for (const shutdown of ['stdin', 'SIGTERM'] as const)
     );
     await mkdir(model, { recursive: true });
     await writeFile(join(model, 'ggml-small.bin'), 'lmgg');
+    // Records each SIGTERM that the server gets. The server keeps its own
+    // SIGTERM handler, so the record changes nothing that the server does.
+    const signals = join(home.path, 'signals.log');
+    const recorder = join(home.path, 'record-sigterm.mjs');
+    await writeFile(
+      recorder,
+      `import { appendFileSync } from 'node:fs';\nprocess.on('SIGTERM', () => appendFileSync(${JSON.stringify(signals)}, 'SIGTERM\\n'));\n`,
+    );
     const client = new Client({ name: 'ocr-test', version: '1.0.0' });
     const transport = new StdioClientTransport({
       command: process.execPath,
-      args: [resolve(workspace, 'plugins/context-compiler/server/main.mjs')],
+      args: [
+        '--import',
+        pathToFileURL(recorder).href,
+        resolve(workspace, 'plugins/context-compiler/server/main.mjs'),
+      ],
       env: { HOME: home.path, CONTEXT_COMPILER_GRANTEE: 'Context Compiler' },
       stderr: 'pipe',
     });
@@ -73,7 +86,6 @@ for (const shutdown of ['stdin', 'SIGTERM'] as const)
         );
       }
       workers = (await children(transport.pid)).map(({ pid }) => pid);
-      const started = performance.now();
       if (shutdown === 'stdin') await client.close();
       else {
         const closed = new Promise<void>((resolve) => {
@@ -82,10 +94,12 @@ for (const shutdown of ['stdin', 'SIGTERM'] as const)
         process.kill(transport.pid, shutdown);
         await closed;
       }
-      assert.ok(
-        performance.now() - started < 2_000,
-        'stdin close must exit before the MCP client resorts to SIGTERM',
-      );
+      if (shutdown === 'stdin')
+        await assert.rejects(
+          readFile(signals, 'utf8'),
+          { code: 'ENOENT' },
+          'stdin close must exit before the MCP client resorts to SIGTERM',
+        );
       for (const pid of workers)
         assert.throws(() => process.kill(pid, 0), { code: 'ESRCH' });
     } finally {

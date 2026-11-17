@@ -8,13 +8,13 @@ import { test } from 'node:test';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 
+import { TemporaryFiles } from '@zukhruf/fs';
 import {
   PersistentWriteAheadLog,
   RollbackJournal,
   open,
 } from '@zukhruf/sqlite-open';
 import { timebox } from '@zukhruf/testing/async';
-import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { z } from 'zod';
 
 import type { FailureType } from '@eltjs/elt';
@@ -628,9 +628,8 @@ test('two servers importing one selection at once load it in one pass, the secon
     join(home, 'Pictures/photos.json'),
     JSON.stringify([{ id: 'p1', title: 'Beach' }]),
   );
-  const settled = await Promise.race([both, sleep(30_000).then(() => null)]);
+  await both;
 
-  if (settled === null) assert.fail('an import never settled');
   using data = open(
     join(importDirectory(plugin.directory, photos), 'data.sqlite'),
     { readOnly: true },
@@ -676,12 +675,8 @@ test('a connector switched off while its pass runs loses its import once the pas
     join(home, 'Pictures/photos.json'),
     JSON.stringify([{ id: 'p1', title: 'Beach' }]),
   );
-  const settled = await Promise.race([
-    importing.then(() => true),
-    sleep(30_000).then(() => false),
-  ]);
+  await importing;
 
-  assert.equal(settled, true, 'the pass never ended');
   assert.equal(keptWhileRunning, true);
   assert.equal(existsSync(directory), false);
 });

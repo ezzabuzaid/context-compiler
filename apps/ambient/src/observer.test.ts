@@ -10,8 +10,8 @@ import { type TestContext, test } from 'node:test';
 import { setTimeout } from 'node:timers/promises';
 import { promisify } from 'node:util';
 
+import { TemporaryFiles } from '@zukhruf/fs';
 import { PersistentWriteAheadLog, open } from '@zukhruf/sqlite-open';
-import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { z } from 'zod';
 
 import { Journal } from './journal/journal.ts';

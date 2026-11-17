@@ -4,9 +4,9 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import { TemporaryFiles } from '@zukhruf/fs';
 import { Fixed, LeaderFirst, NoEviction, Pool } from '@zukhruf/pool';
 import { open } from '@zukhruf/sqlite-open';
-import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import {
   Catalog,

@@ -4,8 +4,8 @@ import { existsSync, mkdirSync, realpathSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { test } from 'node:test';
 
+import { TemporaryFiles } from '@zukhruf/fs';
 import { RollbackJournal, open } from '@zukhruf/sqlite-open';
-import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 const entry = join(import.meta.dirname, '../dist/main.js');
 

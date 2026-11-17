@@ -15,9 +15,9 @@ import { setTimeout as sleep } from 'node:timers/promises';
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { TemporaryFiles } from '@zukhruf/fs';
 import { open as openDatabase } from '@zukhruf/sqlite-open';
 import { settleWithin, timebox } from '@zukhruf/testing/async';
-import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { type ElectronApplication, _electron } from 'playwright';
 
 // The workspace root: the tests read its fixtures and builds from any

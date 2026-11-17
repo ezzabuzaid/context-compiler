@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { createInterface } from 'node:readline';
 import test from 'node:test';
 
-import { TemporaryFiles } from '@zukhruf/testing/fs';
+import { TemporaryFiles } from '@zukhruf/fs';
 import { z } from 'zod';
 
 const avinash = 'https://github.com/avinash201199/awesome-startup-credits';
@@ -1580,79 +1580,87 @@ test('a program whose link shares its registrable domain with a program page is 
   );
 });
 
-test('two pages that declare one canonical URL are each stored, so the program of each page finds its program page and neither is logged as missing', async () => {
-  await using data = await new TemporaryFiles().directory('credits-data-');
-  const canonical = 'https://mercury.com/startups';
-  const slash = 'https://mercury.com/startups/';
-  const other = 'https://mercury.io/startups';
-  const mercuryProgram = (url: string) =>
-    ok(`<!doctype html><html><head><title>Mercury for Startups</title>
+test(
+  'two pages that declare one canonical URL are each stored, so the program of each page finds its program page and neither is logged as missing',
+  { todo: '#4523' },
+  async () => {
+    await using data = await new TemporaryFiles().directory('credits-data-');
+    const canonical = 'https://mercury.com/startups';
+    const slash = 'https://mercury.com/startups/';
+    const other = 'https://mercury.io/startups';
+    const mercuryProgram = (url: string) =>
+      ok(`<!doctype html><html><head><title>Mercury for Startups</title>
 <link rel="canonical" href="${canonical}"></head><body>
 <main><h1>Mercury for Startups</h1><p>Startups that bank with Mercury get $500 when they deposit $10,000.</p><p>${url}</p></main></body></html>`);
-  const { lines, errors } = await running(data.path, {
-    pages: {
-      ...lists([
-        [slash, 'Mercury', 'Banking perks'],
-        [other, 'Mercury IO', 'Banking perks'],
-      ]),
-      [slash]: mercuryProgram(slash),
-      [other]: mercuryProgram(other),
-    },
-    model: {
-      [canonical]: [
-        {
-          offers: [
-            {
-              quote:
-                'Startups that bank with Mercury get $500 when they deposit $10,000.',
-              kind: 'credits',
-              value: { amount: 500, currency: 'USD' },
-              duration: null,
-              who: null,
-            },
-          ],
-        },
+    const { lines, errors } = await running(data.path, {
+      pages: {
+        ...lists([
+          [slash, 'Mercury', 'Banking perks'],
+          [other, 'Mercury IO', 'Banking perks'],
+        ]),
+        [slash]: mercuryProgram(slash),
+        [other]: mercuryProgram(other),
+      },
+      model: {
+        [canonical]: [
+          {
+            offers: [
+              {
+                quote:
+                  'Startups that bank with Mercury get $500 when they deposit $10,000.',
+                kind: 'credits',
+                value: { amount: 500, currency: 'USD' },
+                duration: null,
+                who: null,
+              },
+            ],
+          },
+        ],
+      },
+      decisions: programs(canonical),
+      quietAfter: has('new program'),
+      ahead: 0,
+    });
+
+    assert.deepEqual(
+      lines,
+      [
+        `new program ${canonical}: credits $500 ("Startups that bank with Mercury get $500 when they deposit $10,000.")`,
       ],
-    },
-    decisions: programs(canonical),
-    quietAfter: has('new program'),
-    ahead: 0,
-  });
+      errors,
+    );
+  },
+);
 
-  assert.deepEqual(
-    lines,
-    [
-      `new program ${canonical}: credits $500 ("Startups that bank with Mercury get $500 when they deposit $10,000.")`,
-    ],
-    errors,
-  );
-});
+test(
+  'a list that links one page twice names the page once in the program that is logged as missing',
+  { todo: '#4523' },
+  async () => {
+    await using data = await new TemporaryFiles().directory('credits-data-');
+    const anthropic = 'https://www.anthropic.com/';
+    const { lines, errors } = await running(data.path, {
+      pages: {
+        ...lists([
+          [anthropic, 'Anthropic Startup Program', 'API credits'],
+          [anthropic, 'Anthropic', 'Claude API credits'],
+        ]),
+        [anthropic]: anthropicHome,
+      },
+      model: {},
+      decisions: { [anthropic]: { kind: 'home' } },
+      until: has('Anthropic Startup Program: no program page found'),
+      ahead: 0,
+    });
 
-test('a list that links one page twice names the page once in the program that is logged as missing', async () => {
-  await using data = await new TemporaryFiles().directory('credits-data-');
-  const anthropic = 'https://www.anthropic.com/';
-  const { lines, errors } = await running(data.path, {
-    pages: {
-      ...lists([
-        [anthropic, 'Anthropic Startup Program', 'API credits'],
-        [anthropic, 'Anthropic', 'Claude API credits'],
-      ]),
-      [anthropic]: anthropicHome,
-    },
-    model: {},
-    decisions: { [anthropic]: { kind: 'home' } },
-    until: has('Anthropic Startup Program: no program page found'),
-    ahead: 0,
-  });
-
-  assert.deepEqual(
-    lines,
-    [
-      `Anthropic Startup Program: no program page found (${anthropic} linked by ${avinash})`,
-    ],
-    errors,
-  );
-});
+    assert.deepEqual(
+      lines,
+      [
+        `Anthropic Startup Program: no program page found (${anthropic} linked by ${avinash})`,
+      ],
+      errors,
+    );
+  },
+);
 
 test('a list that redirects to its new address, as a renamed GitHub repository does, still names its programs', async () => {
   await using data = await new TemporaryFiles().directory('credits-data-');

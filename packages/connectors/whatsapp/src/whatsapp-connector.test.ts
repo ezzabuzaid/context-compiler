@@ -4,8 +4,8 @@ import { dirname, join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import { TemporaryFiles } from '@zukhruf/fs';
 import { open } from '@zukhruf/sqlite-open';
-import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import { Pipeline, PipelineError } from '@eltjs/elt';
 import { SQLiteSyncHistory } from '@eltjs/elt-sqlite';

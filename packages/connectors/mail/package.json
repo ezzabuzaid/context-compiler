@@ -15,10 +15,11 @@
     "@eltjs/sdk-apple-mail": "0.0.1",
     "@eltjs/source-apple-macos": "0.0.1",
     "@eltjs/source-apple-mail": "0.0.1",
-    "@zukhruf/sqlite-open": "^0.8.10"
+    "@zukhruf/sqlite-open": "^0.8.22"
   },
   "devDependencies": {
     "@workspace/settings": "0.0.1",
-    "@zukhruf/testing": "^0.8.10"
+    "@zukhruf/fs": "^0.8.22",
+    "@zukhruf/testing": "^0.8.22"
   }
 }

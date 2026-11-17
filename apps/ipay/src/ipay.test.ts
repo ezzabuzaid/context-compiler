@@ -15,8 +15,8 @@ import type { SQLOutputValue } from 'node:sqlite';
 import test, { type TestContext } from 'node:test';
 import { setTimeout as sleep } from 'node:timers/promises';
 
+import { TemporaryFiles } from '@zukhruf/fs';
 import { RollbackJournal, open } from '@zukhruf/sqlite-open';
-import { TemporaryFiles } from '@zukhruf/testing/fs';
 import { z } from 'zod';
 
 import { Pipeline } from '@eltjs/elt';

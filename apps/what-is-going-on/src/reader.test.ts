@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import test from 'node:test';
 import { stripVTControlCharacters } from 'node:util';
 
-import { TemporaryFiles } from '@zukhruf/testing/fs';
+import { TemporaryFiles } from '@zukhruf/fs';
 
 // The app reads XDG_DATA_HOME once, at import, so its reader tests run in a
 // child process that has a data folder of its own in its env; the child's

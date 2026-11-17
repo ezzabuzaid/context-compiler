@@ -6,7 +6,7 @@ import { test } from 'node:test';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { CallToolRequestSchema } from '@modelcontextprotocol/sdk/types.js';
-import { TemporaryFiles } from '@zukhruf/testing/fs';
+import { TemporaryFiles } from '@zukhruf/fs';
 import { build } from 'esbuild';
 import { chromium } from 'playwright';
 

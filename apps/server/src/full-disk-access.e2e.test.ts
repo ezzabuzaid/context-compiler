@@ -4,7 +4,7 @@ import { test } from 'node:test';
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import { TemporaryFiles } from '@zukhruf/testing/fs';
+import { TemporaryFiles } from '@zukhruf/fs';
 import { z } from 'zod';
 
 // The workspace root: the test starts the plugin's built server from any

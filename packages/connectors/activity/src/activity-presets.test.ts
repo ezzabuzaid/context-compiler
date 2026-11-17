@@ -6,8 +6,8 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { crc32 } from 'node:zlib';
 
+import { TemporaryFiles } from '@zukhruf/fs';
 import { RollbackJournal, open } from '@zukhruf/sqlite-open';
-import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import { Pipeline } from '@eltjs/elt';
 import { SQLiteSyncHistory } from '@eltjs/elt-sqlite';

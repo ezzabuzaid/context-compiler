@@ -4,8 +4,8 @@ import { chmodSync, mkdirSync, renameSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { test } from 'node:test';
 
+import { TemporaryFiles } from '@zukhruf/fs';
 import { PersistentWriteAheadLog, open } from '@zukhruf/sqlite-open';
-import { TemporaryFiles } from '@zukhruf/testing/fs';
 
 import {
   type ConnectorFacts,
