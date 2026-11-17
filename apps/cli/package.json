@@ -38,17 +38,17 @@
     "@workspace/settings": "0.0.1",
     "@eltjs/source-apple-macos": "0.0.1",
     "@eltjs/transcription-local": "0.0.1",
-    "@zukhruf/election": "^0.8.22",
-    "@zukhruf/launchd": "^0.8.22",
-    "@zukhruf/pool": "^0.8.22",
-    "@zukhruf/single-flight": "^0.8.22",
-    "@zukhruf/sqlite-federation": "^0.8.22",
+    "@zukhruf/election": "^0.8.25",
+    "@zukhruf/launchd": "^0.8.25",
+    "@zukhruf/pool": "^0.8.25",
+    "@zukhruf/single-flight": "^0.8.25",
+    "@zukhruf/sqlite-federation": "^0.8.25",
     "commander": "15.0.0"
   },
   "devDependencies": {
     "@eltjs/codec-chromium-indexeddb": "0.0.1",
-    "@zukhruf/fs": "^0.8.22",
-    "@zukhruf/sqlite-open": "^0.8.22",
-    "@zukhruf/testing": "^0.8.22"
+    "@zukhruf/fs": "^0.8.25",
+    "@zukhruf/sqlite-open": "^0.8.25",
+    "@zukhruf/testing": "^0.8.25"
   }
 }

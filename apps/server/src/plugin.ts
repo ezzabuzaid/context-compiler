@@ -2,6 +2,7 @@ import { existsSync, rmSync } from 'node:fs';
 import { relative, sep } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 
+import { WaitGroup } from '@zukhruf/async';
 import { SqliteElection } from '@zukhruf/election';
 import { SingleFlight } from '@zukhruf/single-flight';
 import { z } from 'zod';
@@ -319,7 +320,7 @@ export class Plugin {
   // watches do: each pass records how it ended in its import's sync history.
   async watch(signal: AbortSignal): Promise<void> {
     const watches = new Map<string, AbortController>();
-    const running = new Set<Promise<void>>();
+    const running = new WaitGroup();
     try {
       using settings = this.#open();
       while (!this.#replaced) {
@@ -333,12 +334,13 @@ export class Plugin {
           if (!watches.has(directory)) {
             const watch = new AbortController();
             watches.set(directory, watch);
-            const ended = this.#keepCurrent(
+            const keeping = running.add();
+            void this.#keepCurrent(
               selection,
               AbortSignal.any([signal, watch.signal]),
-            ).catch(() => undefined);
-            running.add(ended);
-            void ended.then(() => running.delete(ended));
+            )
+              .catch(() => undefined)
+              .finally(() => keeping[Symbol.dispose]());
           }
         await sleep(followMs, undefined, { signal });
       }
@@ -347,7 +349,7 @@ export class Plugin {
       // next follows them again.
     } finally {
       for (const watch of watches.values()) watch.abort();
-      await Promise.all(running);
+      await running.wait({ signal: undefined });
     }
   }
 

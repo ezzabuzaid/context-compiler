@@ -1,4 +1,4 @@
-import { type Clock, Latch } from '@zukhruf/async';
+import { type Clock, Future, WaitGroup } from '@zukhruf/async';
 import { Fixed, IdleTimeout, Parallel, Pool } from '@zukhruf/pool';
 
 import type { DocumentParser } from '@eltjs/elt';
@@ -23,9 +23,10 @@ export class Transcription implements AsyncDisposable {
   readonly #helper: string;
   #choice: Loading | Loaded | Failed = new Loaded(null);
   #engines: Pool<TranscriptionWorker> | NoEngines = new NoEngines();
-  // The closes of the engine pools that a later choice replaced. A failed
-  // close stays, so refresh and disposal report it.
-  readonly #closings = new Set<Latch<Outcome>>();
+  // The closes of the engine pools that a later choice replaced, and the
+  // closes that failed: a failure stays, so refresh and disposal report it.
+  readonly #closings = new WaitGroup();
+  readonly #failedClosings: unknown[] = [];
   readonly #image: ImageFormat;
   readonly #clock: Clock & { readonly Date: { now(): number } };
   #parser: DocumentParser;
@@ -55,10 +56,7 @@ export class Transcription implements AsyncDisposable {
   async refresh(): Promise<void> {
     this.#reload();
     const choice = this.#choice;
-    if (choice instanceof Loading) {
-      const outcome = await choice.done.wait();
-      if (!outcome.ok) throw outcome.error;
-    }
+    if (choice instanceof Loading) await choice.done.wait();
     await this.#closed();
   }
 
@@ -86,7 +84,7 @@ export class Transcription implements AsyncDisposable {
           ? undefined
           : (await this.#models.find(loading.chosen))?.configuration;
       if (this.#choice !== loading) {
-        loading.done.open({ ok: true });
+        loading.done.resolve();
         return;
       }
       const previous = this.#engines;
@@ -111,31 +109,26 @@ export class Transcription implements AsyncDisposable {
       }
       this.#parser = new MacOSDocumentParser(formats);
       this.#choice = new Loaded(loading.chosen);
-      if (previous instanceof Pool) this.#close(previous);
-      loading.done.open({ ok: true });
+      if (previous instanceof Pool) void this.#close(previous);
+      loading.done.resolve();
     } catch (error) {
       if (this.#choice === loading) this.#choice = new Failed();
-      loading.done.open({ ok: false, error });
+      loading.done.reject(error);
     }
   }
 
-  #close(engines: Pool<TranscriptionWorker>): void {
-    const closed = new Latch<Outcome>();
-    this.#closings.add(closed);
-    engines[Symbol.asyncDispose]().then(
-      () => {
-        this.#closings.delete(closed);
-        closed.open({ ok: true });
-      },
-      (error: unknown) => closed.open({ ok: false, error }),
-    );
+  async #close(engines: Pool<TranscriptionWorker>): Promise<void> {
+    using _closing = this.#closings.add();
+    try {
+      await engines[Symbol.asyncDispose]();
+    } catch (error) {
+      this.#failedClosings.push(error);
+    }
   }
 
   async #closed(): Promise<void> {
-    for (const outcome of await Promise.all(
-      [...this.#closings].map((closed) => closed.wait()),
-    ))
-      if (!outcome.ok) throw outcome.error;
+    await this.#closings.wait({ signal: undefined });
+    if (this.#failedClosings.length > 0) throw this.#failedClosings[0];
   }
 
   // Saves the installed model with this file name, or null to stop
@@ -176,13 +169,10 @@ export class Transcription implements AsyncDisposable {
   }
 }
 
-type Outcome =
-  { readonly ok: true } | { readonly ok: false; readonly error: unknown };
-
-// A search for the chosen model; done opens with how it ended.
+// A search for the chosen model; done ends as the search ends.
 class Loading {
   readonly chosen: string | null;
-  readonly done = new Latch<Outcome>();
+  readonly done = new Future<void>();
 
   constructor(chosen: string | null) {
     this.chosen = chosen;

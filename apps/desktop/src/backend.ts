@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { CallToolResultSchema } from '@modelcontextprotocol/sdk/types.js';
-import { Latch } from '@zukhruf/async';
+import { Future, Latch } from '@zukhruf/async';
 
 import { type BackendState, type PageToolParams } from './desktop-api.ts';
 
@@ -32,11 +32,7 @@ export class Backend {
   async start(): Promise<void> {
     const lifecycle = this.#lifecycle;
     if (lifecycle instanceof Running) return;
-    if (lifecycle instanceof Starting) {
-      const outcome = await lifecycle.settled.wait();
-      if (!outcome.ok) throw outcome.error;
-      return;
-    }
+    if (lifecycle instanceof Starting) return lifecycle.settled.wait();
     if (lifecycle instanceof Stopping) {
       await lifecycle.closed.wait();
       return this.start();
@@ -45,10 +41,10 @@ export class Backend {
     this.#lifecycle = starting;
     try {
       await this.#start();
-      starting.settled.open({ ok: true });
+      starting.settled.resolve();
     } catch (error) {
       this.#lifecycle = new Stopped();
-      starting.settled.open({ ok: false, error });
+      starting.settled.reject(error);
       throw error;
     }
   }
@@ -120,8 +116,7 @@ export class Backend {
   async quit(): Promise<void> {
     const lifecycle = this.#lifecycle;
     if (lifecycle instanceof Starting) {
-      const outcome = await lifecycle.settled.wait();
-      if (!outcome.ok) throw outcome.error;
+      await lifecycle.settled.wait();
       return this.quit();
     }
     if (lifecycle instanceof Stopping) return lifecycle.closed.wait();
@@ -141,11 +136,9 @@ export class Backend {
 // process failed to start or exited.
 class Stopped {}
 
-// A start in progress; settled opens with how it ended.
+// A start in progress; settled ends as the start ends.
 class Starting {
-  readonly settled = new Latch<
-    { readonly ok: true } | { readonly ok: false; readonly error: unknown }
-  >();
+  readonly settled = new Future<void>();
 }
 
 // A backend process and the client connected to it; exited opens once the
