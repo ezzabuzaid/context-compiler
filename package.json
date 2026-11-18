@@ -51,6 +51,8 @@
     "nx": false,
     "unrs-resolver": false,
     "fsevents": false,
-    "protobufjs": false
+    "protobufjs": false,
+    "ssh2": false,
+    "cpu-features": false
   }
 }
