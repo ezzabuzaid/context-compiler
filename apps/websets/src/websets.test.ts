@@ -368,23 +368,25 @@ type Serving = {
 
 // Runs the app with its files in the data folder until the test's calls to
 // its API end, then stops it as Ctrl-C does. A run that stops first, at the
-// thirty seconds, fails the test, as does a failed call or a model request
+// test's limit, fails the test, as does a failed call or a model request
 // that the test did not plan. Gives each model request and the URLs that
 // the app requested.
 async function running(
   data: string,
   {
     during,
+    signal: deadline,
     ...planned
-  }: Internet & { readonly during: (app: Serving) => Promise<void> },
+  }: Internet & {
+    readonly signal: AbortSignal;
+    readonly during: (app: Serving) => Promise<void>;
+  },
 ) {
   await using folder = await new TemporaryFiles().directory('internet-');
   const setup = join(folder.path, 'internet.mjs');
   await writeFile(setup, internet(planned));
   await writeFile(join(folder.path, 'auth.json'), codexLogin, { mode: 0o600 });
   const ended = new AbortController();
-  // The thirty seconds after which the harness sends a second SIGINT.
-  const deadline = AbortSignal.timeout(30_000);
   const app = spawn(
     process.execPath,
     ['--expose-gc', '--import', setup, join(import.meta.dirname, 'main.ts')],
@@ -581,9 +583,10 @@ const errorCode = (body: unknown) =>
 const urls = (body: unknown) =>
   itemsSchema.parse(body).data.map(({ url }) => url);
 
-test('the API answers only its consumers: no key or a wrong key gets 401, and each key that the app names gets the datasets', async () => {
+test('the API answers only its consumers: no key or a wrong key gets 401, and each key that the app names gets the datasets', async (t) => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   await running(data.path, {
+    signal: t.signal,
     pages,
     ahead: 0,
     during: async ({ api }) => {
@@ -605,9 +608,10 @@ test('the API answers only its consumers: no key or a wrong key gets 401, and ea
   });
 });
 
-test("a dataset's items are the pages its list links that meet every criterion, each with its evaluations and its fields in their formats", async () => {
+test("a dataset's items are the pages its list links that meet every criterion, each with its evaluations and its fields in their formats", async (t) => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   await running(data.path, {
+    signal: t.signal,
     pages,
     evaluations,
     fields: fieldAnswers,
@@ -681,10 +685,11 @@ test("a dataset's items are the pages its list links that meet every criterion, 
   });
 });
 
-test("a dataset's search finds pages with the query and the criteria, the crawl reads them, and they become its items, with the search and its pages in the dataset's progress", async () => {
+test("a dataset's search finds pages with the query and the criteria, the crawl reads them, and they become its items, with the search and its pages in the dataset's progress", async (t) => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   const query = 'AI labs that give startups free credits';
   const { searched } = await running(data.path, {
+    signal: t.signal,
     pages,
     evaluations,
     searches: [{ for: [query, givesCredits], pages: [{ url: claude }] }],
@@ -726,9 +731,10 @@ test("a dataset's search finds pages with the query and the criteria, the crawl 
   );
 });
 
-test('an options field is asked with its options, and a value outside them is a failed field, not a value', async () => {
+test('an options field is asked with its options, and a value outside them is a failed field, not a value', async (t) => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   const { read } = await running(data.path, {
+    signal: t.signal,
     pages: { ...pages, [list]: listPage([claude]) },
     evaluations,
     fields: {
@@ -775,9 +781,10 @@ test('an options field is asked with its options, and a value outside them is a 
   );
 });
 
-test('two datasets over the same list have the items of their own criteria', async () => {
+test('two datasets over the same list have the items of their own criteria', async (t) => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   await running(data.path, {
+    signal: t.signal,
     pages,
     evaluations,
     fields: fieldAnswers,
@@ -799,11 +806,12 @@ test('two datasets over the same list have the items of their own criteria', asy
   });
 });
 
-test('a change that adds or drops a starting URL while a pass runs is no longer refused: a new dataset of another list is made, and the only dataset of a list is deleted', async () => {
+test('a change that adds or drops a starting URL while a pass runs is no longer refused: a new dataset of another list is made, and the only dataset of a list is deleted', async (t) => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   const held = 'https://slow.example.com/startups';
   const otherList = 'https://lists.example.com/agent-memory';
   await running(data.path, {
+    signal: t.signal,
     pages: { ...pages, [list]: listPage([held]), [held]: { hold: true } },
     ahead: 0,
     during: async ({ api, quiet }) => {
@@ -830,10 +838,11 @@ test('a change that adds or drops a starting URL while a pass runs is no longer 
   });
 });
 
-test('a dataset over pages that the crawl read is judged while a pass runs, and is deleted, with no new pipeline, and a criterion that two datasets ask is judged once for each page', async () => {
+test('a dataset over pages that the crawl read is judged while a pass runs, and is deleted, with no new pipeline, and a criterion that two datasets ask is judged once for each page', async (t) => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   const held = 'https://slow.example.com/startups';
   await running(data.path, {
+    signal: t.signal,
     pages: {
       ...pages,
       [list]: listPage([claude, paper, held]),
@@ -894,11 +903,12 @@ test('a dataset over pages that the crawl read is judged while a pass runs, and 
   });
 });
 
-test('the events give item.created for each page that comes to meet the criteria, and the last event of each item gives its fields as the items do; a later run gives item.updated with the fields before a change and item.removed for a page that no longer meets them, which the old cursor reads alone', async () => {
+test('the events give item.created for each page that comes to meet the criteria, and the last event of each item gives its fields as the items do; a later run gives item.updated with the fields before a change and item.removed for a page that no longer meets them, which the old cursor reads alone', async (t) => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   let id = '';
   let after = '';
   await running(data.path, {
+    signal: t.signal,
     pages,
     evaluations,
     fields: fieldAnswers,
@@ -941,6 +951,7 @@ test('the events give item.created for each page that comes to meet the criteria
     ),
   );
   await running(data.path, {
+    signal: t.signal,
     pages: {
       ...pages,
       [claude]: noCredits,
@@ -997,11 +1008,12 @@ test('the events give item.created for each page that comes to meet the criteria
   });
 });
 
-test('after the event log starts again, a cursor of the old log is gone with resync_required, and a cursor the API never gave is invalid', async () => {
+test('after the event log starts again, a cursor of the old log is gone with resync_required, and a cursor the API never gave is invalid', async (t) => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   let id = '';
   let old = '';
   await running(data.path, {
+    signal: t.signal,
     pages,
     evaluations,
     fields: fieldAnswers,
@@ -1018,6 +1030,7 @@ test('after the event log starts again, a cursor of the old log is gone with res
   await rm(join(data.path, 'websets', 'api.sqlite'));
   // The dataset went with the file, so the run makes it again.
   await running(data.path, {
+    signal: t.signal,
     pages,
     evaluations,
     fields: fieldAnswers,
@@ -1038,7 +1051,7 @@ test('after the event log starts again, a cursor of the old log is gone with res
   });
 });
 
-test("a search that fails is failed with its reason in the dataset's progress, and the pages of its list are still judged", async () => {
+test("a search that fails is failed with its reason in the dataset's progress, and the pages of its list are still judged", async (t) => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   const query = 'AI labs that give startups free credits';
   // The endpoint's 500, as the AI SDK retries it twice before it gives up.
@@ -1053,6 +1066,7 @@ test("a search that fails is failed with its reason in the dataset's progress, a
     },
   };
   await running(data.path, {
+    signal: t.signal,
     pages,
     evaluations,
     fields: fieldAnswers,
@@ -1091,9 +1105,10 @@ test("a search that fails is failed with its reason in the dataset's progress, a
   });
 });
 
-test('a dataset that the API cannot keep is refused with invalid_argument and not kept: no criteria', async () => {
+test('a dataset that the API cannot keep is refused with invalid_argument and not kept: no criteria', async (t) => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   await running(data.path, {
+    signal: t.signal,
     pages,
     ahead: 0,
     during: async ({ api }) => {
@@ -1123,9 +1138,10 @@ test('a dataset that the API cannot keep is refused with invalid_argument and no
   });
 });
 
-test('a deleted dataset is gone: 204, then not_found, and no dataset is listed', async () => {
+test('a deleted dataset is gone: 204, then not_found, and no dataset is listed', async (t) => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   await running(data.path, {
+    signal: t.signal,
     pages,
     evaluations,
     fields: fieldAnswers,
@@ -1144,9 +1160,10 @@ test('a deleted dataset is gone: 204, then not_found, and no dataset is listed',
   });
 });
 
-test('calls to the API request no website: it answers from what the crawl stored', async () => {
+test('calls to the API request no website: it answers from what the crawl stored', async (t) => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   await running(data.path, {
+    signal: t.signal,
     pages,
     evaluations,
     fields: fieldAnswers,
@@ -1179,10 +1196,11 @@ test('calls to the API request no website: it answers from what the crawl stored
   });
 });
 
-test('a search answers the pages that the web search found, best first, for its query alone, and keeps no dataset', async () => {
+test('a search answers the pages that the web search found, best first, for its query alone, and keeps no dataset', async (t) => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   const query = 'AI labs that give startups free credits';
   const { searched } = await running(data.path, {
+    signal: t.signal,
     pages,
     searches: [{ for: [query], pages: [{ url: claude }, { url: microsoft }] }],
     ahead: 0,
@@ -1225,7 +1243,7 @@ test('a search answers the pages that the web search found, best first, for its 
   );
 });
 
-test('a search whose web search fails answers 502 search_failed', async () => {
+test('a search whose web search fails answers 502 search_failed', async (t) => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   const query = 'AI labs that give startups free credits';
   // The endpoint's 500, as the AI SDK retries it twice before it gives up.
@@ -1240,6 +1258,7 @@ test('a search whose web search fails answers 502 search_failed', async () => {
     },
   };
   await running(data.path, {
+    signal: t.signal,
     pages,
     searches: [failure, failure, failure],
     ahead: 0,
@@ -1269,10 +1288,11 @@ const fetchSchema = z.object({
   errors: z.array(z.object({ url: z.string(), reason: z.string() })),
 });
 
-test("a fetch answers the article of each page now and keeps no dataset; a page that the website's robots.txt disallows is an error and is never requested, and a missing page is an error with its reason", async () => {
+test("a fetch answers the article of each page now and keeps no dataset; a page that the website's robots.txt disallows is an error and is never requested, and a missing page is an error with its reason", async (t) => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   const missing = 'https://claude.com/programs/missing';
   const { requests } = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...pages,
       'https://papers.example.com/robots.txt': {
@@ -1376,7 +1396,7 @@ const requested =
   ({ requests }) =>
     requests.filter((request) => request === url).length >= times;
 
-test('a monitor whose target cannot be read records the failed run with its reason and reports nothing: a missing page, a page that its website disallows, which is never requested, and a web search that fails', async () => {
+test('a monitor whose target cannot be read records the failed run with its reason and reports nothing: a missing page, a page that its website disallows, which is never requested, and a web search that fails', async (t) => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   const missing = 'https://claude.com/programs/missing';
   const query = 'AI labs that give startups free credits';
@@ -1392,6 +1412,7 @@ test('a monitor whose target cannot be read records the failed run with its reas
     },
   };
   const { requests } = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...pages,
       'https://papers.example.com/robots.txt': {
@@ -1443,9 +1464,10 @@ test('a monitor whose target cannot be read records the failed run with its reas
   assert.equal(requests.includes(paper), false);
 });
 
-test('a monitor that the API cannot keep is refused with invalid_argument and not kept: a cron that is not one, a target of two kinds, a dataset that does not exist, and a dataset with no search', async () => {
+test('a monitor that the API cannot keep is refused with invalid_argument and not kept: a cron that is not one, a target of two kinds, a dataset that does not exist, and a dataset with no search', async (t) => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   await running(data.path, {
+    signal: t.signal,
     pages,
     evaluations,
     fields: fieldAnswers,
@@ -1493,7 +1515,7 @@ const pageChangedSchema = z.object({
   data: z.object({ url: z.string(), diff: z.string() }),
 });
 
-test("a page monitor's first run reads its baseline and reports nothing; a later run reports page.changed with a unified diff of the page's text when it changed, and nothing when it did not; a cursor reads only the changes after it", async () => {
+test("a page monitor's first run reads its baseline and reports nothing; a later run reports page.changed with a unified diff of the page's text when it changed, and nothing when it did not; a cursor reads only the changes after it", async (t) => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   const credits =
     'Access discounts and credits worth up to $45,000 from companies building with Claude.';
@@ -1506,6 +1528,7 @@ test("a page monitor's first run reads its baseline and reports nothing; a later
   let unchanged = '';
   let after = '';
   await running(data.path, {
+    signal: t.signal,
     pages,
     ahead: 0,
     during: async ({ api, quiet }) => {
@@ -1548,6 +1571,7 @@ test("a page monitor's first run reads its baseline and reports nothing; a later
   // A day later, at the next run: Claude's page no longer gives credits, and
   // Microsoft's page is the same.
   await running(data.path, {
+    signal: t.signal,
     pages: { ...pages, [claude]: claudeSays(community) },
     ahead: day,
     during: async ({ api, quiet }) => {
@@ -1580,6 +1604,7 @@ test("a page monitor's first run reads its baseline and reports nothing; a later
 
   // Two days later: the page gives credits again, a larger amount.
   await running(data.path, {
+    signal: t.signal,
     pages: { ...pages, [claude]: claudeSays(moreCredits) },
     ahead: 2 * day,
     during: async ({ api, quiet }) => {
@@ -1608,7 +1633,7 @@ const searchFoundSchema = z.object({
   data: z.object({ urls: z.array(z.string()) }),
 });
 
-test("a search monitor's first run reads its baseline and reports nothing; a later run reports search.found with only the pages that no earlier run found, searched for its query alone; a failed run is recorded with its reason and keeps what the runs found", async () => {
+test("a search monitor's first run reads its baseline and reports nothing; a later run reports search.found with only the pages that no earlier run found, searched for its query alone; a failed run is recorded with its reason and keeps what the runs found", async (t) => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   const query = 'AI labs that give startups free credits';
   // The endpoint's 500, as the AI SDK retries it twice before it gives up.
@@ -1625,6 +1650,7 @@ test("a search monitor's first run reads its baseline and reports nothing; a lat
   let id = '';
   let after = '';
   await running(data.path, {
+    signal: t.signal,
     pages,
     searches: [{ for: [query], pages: [{ url: claude }] }],
     ahead: 0,
@@ -1645,6 +1671,7 @@ test("a search monitor's first run reads its baseline and reports nothing; a lat
 
   // A day later, the search finds Microsoft's program in place of Claude's.
   const { searched } = await running(data.path, {
+    signal: t.signal,
     pages,
     searches: [{ for: [query], pages: [{ url: microsoft }] }],
     ahead: day,
@@ -1678,6 +1705,7 @@ test("a search monitor's first run reads its baseline and reports nothing; a lat
 
   // Two days later, the web search fails.
   await running(data.path, {
+    signal: t.signal,
     pages,
     searches: [failure, failure, failure],
     ahead: 2 * day,
@@ -1699,6 +1727,7 @@ test("a search monitor's first run reads its baseline and reports nothing; a lat
   // Three days later, the search finds Claude's program again, which the
   // first run found, and a paper.
   await running(data.path, {
+    signal: t.signal,
     pages,
     searches: [{ for: [query], pages: [{ url: claude }, { url: paper }] }],
     ahead: 3 * day,
@@ -1715,7 +1744,7 @@ test("a search monitor's first run reads its baseline and reports nothing; a lat
   });
 });
 
-test("a dataset monitor runs the dataset's search again with its query and criteria; the pages that the dataset did not have become its pages and items, and search.found reports them; a failed search is recorded in the monitor's run and the dataset's progress; deleting the dataset deletes its monitors", async () => {
+test("a dataset monitor runs the dataset's search again with its query and criteria; the pages that the dataset did not have become its pages and items, and search.found reports them; a failed search is recorded in the monitor's run and the dataset's progress; deleting the dataset deletes its monitors", async (t) => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   const query = 'AI labs that give startups free credits';
   // The endpoint's 500, as the AI SDK retries it twice before it gives up.
@@ -1733,6 +1762,7 @@ test("a dataset monitor runs the dataset's search again with its query and crite
   let id = '';
   let after = '';
   await running(data.path, {
+    signal: t.signal,
     pages,
     evaluations,
     searches: [{ for: [query, givesCredits], pages: [{ url: claude }] }],
@@ -1758,6 +1788,7 @@ test("a dataset monitor runs the dataset's search again with its query and crite
 
   // A day later, the dataset's search finds Microsoft's program too.
   const { searched } = await running(data.path, {
+    signal: t.signal,
     pages,
     evaluations,
     searches: [
@@ -1806,6 +1837,7 @@ test("a dataset monitor runs the dataset's search again with its query and crite
 
   // Two days later, the dataset's search fails.
   await running(data.path, {
+    signal: t.signal,
     pages,
     evaluations,
     searches: [failure, failure, failure],
@@ -1849,10 +1881,11 @@ test("a dataset monitor runs the dataset's search again with its query and crite
   });
 });
 
-test('a deleted monitor is gone: 204, then not_found, it is not listed, and it does not run again', async () => {
+test('a deleted monitor is gone: 204, then not_found, it is not listed, and it does not run again', async (t) => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   let kept = '';
   await running(data.path, {
+    signal: t.signal,
     pages,
     ahead: 0,
     during: async ({ api, quiet }) => {
@@ -1886,6 +1919,7 @@ test('a deleted monitor is gone: 204, then not_found, it is not listed, and it d
 
   // A day later, the kept monitor runs, and the deleted one does not.
   const { requests } = await running(data.path, {
+    signal: t.signal,
     pages,
     ahead: day,
     during: async ({ quiet }) => {
@@ -1895,10 +1929,11 @@ test('a deleted monitor is gone: 204, then not_found, it is not listed, and it d
   assert.equal(requests.includes(claude), false);
 });
 
-test("after the event log starts again, a monitor's cursor of the old log is gone with resync_required", async () => {
+test("after the event log starts again, a monitor's cursor of the old log is gone with resync_required", async (t) => {
   await using data = await new TemporaryFiles().directory('websets-data-');
   let old = '';
   await running(data.path, {
+    signal: t.signal,
     pages,
     ahead: 0,
     during: async ({ api, quiet }) => {
@@ -1915,6 +1950,7 @@ test("after the event log starts again, a monitor's cursor of the old log is gon
   await rm(join(data.path, 'websets', 'api.sqlite'));
   // The monitor went with the file, so the run makes it again.
   await running(data.path, {
+    signal: t.signal,
     pages,
     ahead: 0,
     during: async ({ api, quiet }) => {

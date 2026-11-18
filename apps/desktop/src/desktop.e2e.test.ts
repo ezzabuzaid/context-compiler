@@ -16,7 +16,7 @@ const workspace = resolve(import.meta.dirname, '../../..');
 test(
   'the Apple page connects Photos, syncs the real store, reopens and quits its backend',
   { timeout: 120_000 },
-  async () => {
+  async (t) => {
     await using homeDirectory = await new TemporaryFiles().directory('cc-d-', {
       parent: '/tmp',
     });
@@ -82,9 +82,7 @@ writeFileSync(join(homedir(), 'backend.json'), JSON.stringify({ pid: process.pid
           stdio: 'ignore',
         },
       );
-      const [exitCode] = await once(second, 'exit', {
-        signal: AbortSignal.timeout(15_000),
-      });
+      const [exitCode] = await once(second, 'exit', { signal: t.signal });
       assert.equal(exitCode, 0);
       second = undefined;
       assert.equal(application.windows().length, 1);

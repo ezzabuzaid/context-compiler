@@ -17,7 +17,7 @@ import { test } from 'node:test';
 import { Latch } from '@zukhruf/async';
 import { TemporaryFiles } from '@zukhruf/fs';
 import { open } from '@zukhruf/sqlite-open';
-import { timebox } from '@zukhruf/testing/async';
+import { timebox, waitFor } from '@zukhruf/testing/async';
 import { MockTranscriptionModelV4 } from 'ai/test';
 
 import {
@@ -417,9 +417,9 @@ test(
 
     const sync = store.sync(parser);
     try {
-      await t.waitFor(
+      await waitFor(
         () => assert.ok(parser.inFlight > 0, 'the reads to start'),
-        { timeout: 20_000 },
+        { signal: t.signal },
       );
       await eventually(
         () =>
@@ -451,9 +451,9 @@ test('a watched import loads and commits its rows while a file is still being re
   const passes = (await store.watching(parser)).watch({ signal: stop.signal });
   try {
     await passes.next();
-    await t.waitFor(
+    await waitFor(
       () => assert.equal(parser.inFlight, 1, 'the held read to start'),
-      { timeout: 20_000 },
+      { signal: t.signal },
     );
     await store.put('invoice.txt', 'Careem invoice 4471');
     store.source.changed();
@@ -483,8 +483,8 @@ test('a sync stopped while files are read keeps the text it read, and the next s
   const stop = new AbortController();
   const sync = store.sync(parser, stop.signal);
   try {
-    await t.waitFor(() => assert.ok(parser.inFlight > 0, 'a read held'), {
-      timeout: 20_000,
+    await waitFor(() => assert.ok(parser.inFlight > 0, 'a read held'), {
+      signal: t.signal,
     });
   } finally {
     stop.abort();

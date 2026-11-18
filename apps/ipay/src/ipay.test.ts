@@ -17,6 +17,7 @@ import { setTimeout as sleep } from 'node:timers/promises';
 
 import { TemporaryFiles } from '@zukhruf/fs';
 import { RollbackJournal, open } from '@zukhruf/sqlite-open';
+import { waitFor } from '@zukhruf/testing/async';
 import { z } from 'zod';
 
 import { Pipeline } from '@eltjs/elt';
@@ -820,15 +821,15 @@ async function running(
   try {
     for (const step of steps) {
       if ('exit' in step) {
-        await t.waitFor(() => assert.ok(ended, `ipay exits\n${stderr}`), {
+        await waitFor(() => assert.ok(ended, `ipay exits\n${stderr}`), {
+          signal: t.signal,
           interval: 200,
-          timeout: 60_000,
         });
         break;
       }
       const { until, then } = step;
       // A table or view ipay has not made yet fails the check until it does.
-      await t.waitFor(
+      await waitFor(
         () => {
           if (ended) return;
           assert.ok(
@@ -836,7 +837,7 @@ async function running(
             `ipay reaches ${until}\n${stderr}`,
           );
         },
-        { interval: 200, timeout: 60_000 },
+        { signal: t.signal, interval: 200 },
       );
       if (ended)
         assert.fail(`ipay exited before it reached ${until}\n${stderr}`);
@@ -848,9 +849,9 @@ async function running(
   // ipay ends soon after Ctrl-C, or the stop failed; a process that does
   // not stop is killed, so no test leaves one running.
   try {
-    await t.waitFor(
+    await waitFor(
       () => assert.ok(ended, `ipay stops after Ctrl-C\n${stderr}`),
-      { interval: 200, timeout: 30_000 },
+      { signal: t.signal, interval: 200 },
     );
   } catch (error) {
     app.kill('SIGKILL');

@@ -12,6 +12,7 @@ import { promisify } from 'node:util';
 
 import { TemporaryFiles } from '@zukhruf/fs';
 import { PersistentWriteAheadLog, open } from '@zukhruf/sqlite-open';
+import { waitFor } from '@zukhruf/testing/async';
 import { z } from 'zod';
 
 const imports = (home: string) =>
@@ -86,13 +87,13 @@ async function ambient(t: TestContext, home: string) {
   try {
     await ready;
     // The announcement comes as the server starts to listen.
-    await t.waitFor(
+    await waitFor(
       async () =>
         assert.deepEqual(await get('/health'), {
           status: 'ready',
           model: 'gpt-6-luna',
         }),
-      { timeout: 5000, interval: 50 },
+      { signal: t.signal, interval: 50 },
     );
   } catch (error) {
     await stop();
@@ -216,7 +217,7 @@ test(
     try {
       await using app = await ambient(t, home);
       async function settled(count: number) {
-        await t.waitFor(
+        await waitFor(
           async () => {
             const decisions = await app.decisions();
             assert.equal(decisions.length, count);
@@ -225,7 +226,7 @@ test(
               /"decision":null,"failure":null/,
             );
           },
-          { timeout: 100_000, interval: 500 },
+          { signal: t.signal, interval: 500 },
         );
       }
       try {

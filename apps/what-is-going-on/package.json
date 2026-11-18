@@ -12,14 +12,14 @@
     "@eltjs/elt-sqlite": "*",
     "@eltjs/sdk-web-crawler": "0.0.1",
     "@eltjs/source-web-pages": "0.0.1",
-    "@zukhruf/async": "^0.8.25",
-    "@zukhruf/embeddings": "^0.8.25",
-    "@zukhruf/event-detection": "^0.8.25",
-    "@zukhruf/relevance-filtering": "^0.8.25",
-    "@zukhruf/shutdown": "^0.8.25",
-    "@zukhruf/sqlite-drift": "^0.8.25",
-    "@zukhruf/sqlite-open": "^0.8.25",
-    "@zukhruf/sqlite-transaction": "^0.8.25",
+    "@zukhruf/async": "^0.8.27",
+    "@zukhruf/embeddings": "^0.8.27",
+    "@zukhruf/event-detection": "^0.8.27",
+    "@zukhruf/relevance-filtering": "^0.8.27",
+    "@zukhruf/shutdown": "^0.8.27",
+    "@zukhruf/sqlite-drift": "^0.8.27",
+    "@zukhruf/sqlite-open": "^0.8.27",
+    "@zukhruf/sqlite-transaction": "^0.8.27",
     "ai": "^7.0.165",
     "feedscout": "2.2.1",
     "feedsmith": "3.0.1",
@@ -27,7 +27,7 @@
     "zod": "4.6.5"
   },
   "devDependencies": {
-    "@zukhruf/fs": "^0.8.25",
-    "@zukhruf/testing": "^0.8.25"
+    "@zukhruf/fs": "^0.8.27",
+    "@zukhruf/testing": "^0.8.27"
   }
 }

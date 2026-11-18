@@ -169,7 +169,7 @@ test(
 test(
   'the packaged Vite frontend loads from ASAR and connects to its bundled server',
   { timeout: 60_000, skip: process.getuid?.() === 0 },
-  async () => {
+  async (t) => {
     await using home = await new TemporaryFiles().directory('cc-packaged-ui-', {
       parent: '/tmp',
     });
@@ -198,7 +198,7 @@ test(
     try {
       let diagnostics = '';
       for await (const [chunk] of on(child.stderr, 'data', {
-        signal: AbortSignal.timeout(15_000),
+        signal: t.signal,
       })) {
         diagnostics += String(chunk);
         const endpoint = /(?<=DevTools listening on )ws:\/\/\S+/.exec(

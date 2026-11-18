@@ -15,9 +15,10 @@ import { setTimeout as sleep } from 'node:timers/promises';
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { untilAborted } from '@zukhruf/async';
 import { TemporaryFiles } from '@zukhruf/fs';
 import { open as openDatabase } from '@zukhruf/sqlite-open';
-import { settleWithin, timebox } from '@zukhruf/testing/async';
+import { timebox } from '@zukhruf/testing/async';
 import { type ElectronApplication, _electron } from 'playwright';
 
 // The workspace root: the tests read its fixtures and builds from any
@@ -252,7 +253,7 @@ test(
 test(
   'cancelling a page tool request reaches the main process and rejects the pending MCP call',
   { timeout: 90_000 },
-  async () => {
+  async (t) => {
     await using homeDirectory = await new TemporaryFiles().directory('cc-b-', {
       parent: '/tmp',
     });
@@ -295,14 +296,7 @@ test(
       });
       writer = await readerOf(pipe);
       await page.evaluate(() => window.desktop.cancelTool('cancelled-sync'));
-      assert.match(
-        await settleWithin(
-          result,
-          'the cancellation to reject the tool call',
-          5000,
-        ),
-        /abort|cancel/i,
-      );
+      assert.match(await untilAborted(result, t.signal), /abort|cancel/i);
       await writer.writeFile(JSON.stringify([{ id: 'p1', title: 'Beach' }]));
     } finally {
       try {

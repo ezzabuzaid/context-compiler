@@ -280,7 +280,7 @@ type Holds = (
 type End = { readonly until: Holds } | { readonly quietAfter: Holds };
 
 // Runs the app with its files in the data folder until end holds, it exits,
-// or thirty seconds pass, then stops it as Ctrl-C does. Gives its lines, the URLs it requested, each
+// or the test's signal aborts, then stops it as Ctrl-C does. Gives its lines, the URLs it requested, each
 // request to the offer model (asked) and to the decision model (decided), its
 // exit code or the signal that ended it, and stderr. A model request that the
 // test did not plan fails the test.
@@ -291,8 +291,10 @@ async function running(
     model,
     decisions,
     ahead,
+    signal: limit,
     ...end
   }: {
+    readonly signal: AbortSignal;
     readonly pages: Readonly<Record<string, Page>>;
     readonly model: Readonly<Record<string, readonly Answer[]>>;
     readonly decisions: Readonly<Record<string, Decision>>;
@@ -318,7 +320,7 @@ async function running(
         CODEX_HOME: folder.path,
         OPENROUTER_API_KEY: openRouterKey,
       },
-      signal: AbortSignal.any([ended.signal, AbortSignal.timeout(30_000)]),
+      signal: AbortSignal.any([ended.signal, limit]),
       killSignal: 'SIGINT',
     },
   );
@@ -391,7 +393,7 @@ const askedAbout =
   (_lines: readonly string[], asked: readonly Asked[]) =>
     asked.filter((call) => call.page === page).length >= calls;
 
-test('a 401 from the model ends the app with the reason, and logs no page as not extracted', async () => {
+test('a 401 from the model ends the app with the reason, and logs no page as not extracted', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   // The body of a real 401 of the Codex Responses endpoint, captured on
   // 2026-11-02.
@@ -403,6 +405,7 @@ test('a 401 from the model ends the app with the reason, and logs no page as not
     },
   };
   const { lines, code, errors } = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists([
         ['https://aws.amazon.com/startups/credits', 'AWS', 'Up to $200,000'],
@@ -435,7 +438,7 @@ test('a 401 from the model ends the app with the reason, and logs no page as not
   );
 });
 
-test('a page whose model calls stay rate limited after the AI SDK retries is logged as could not extract once, also when it fails again after a restart, the other page still reports, and a later pass that succeeds reports the page', async () => {
+test('a page whose model calls stay rate limited after the AI SDK retries is logged as could not extract once, also when it fails again after a restart, the other page still reports, and a later pass that succeeds reports the page', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const aws = 'https://aws.amazon.com/startups/credits';
   const microsoft = 'https://www.microsoft.com/en-us/startups';
@@ -479,6 +482,7 @@ test('a page whose model calls stay rate limited after the AI SDK retries is log
     ],
   };
   const first = await running(data.path, {
+    signal: t.signal,
     pages,
     model: {
       // A first call and the AI SDK's two retries.
@@ -516,6 +520,7 @@ test('a page whose model calls stay rate limited after the AI SDK retries is log
   // A month later the failed page is asked again and fails for another
   // reason.
   const second = await running(data.path, {
+    signal: t.signal,
     pages,
     model: { [aws]: [overloaded, overloaded, overloaded] },
     quietAfter: askedAbout(aws, 3),
@@ -526,6 +531,7 @@ test('a page whose model calls stay rate limited after the AI SDK retries is log
   assert.deepEqual(second.lines, [], second.errors);
 
   const third = await running(data.path, {
+    signal: t.signal,
     pages,
     model: { [aws]: [awsOffers] },
     until: has('new program'),
@@ -541,10 +547,11 @@ test('a page whose model calls stay rate limited after the AI SDK retries is log
   );
 });
 
-test('an answer that does not match the offer schema is logged as could not extract', async () => {
+test('an answer that does not match the offer schema is logged as could not extract', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const aws = 'https://aws.amazon.com/startups/credits';
   const { lines, errors } = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists([[aws, 'AWS', 'Up to $200,000']]),
       [aws]: awsProgram('$200,000'),
@@ -565,7 +572,7 @@ test('an answer that does not match the offer schema is logged as could not extr
   );
 });
 
-test('an offer whose quote is not in the page is not reported, and a program page whose quotes are all invented is logged as a new program with no offer found', async () => {
+test('an offer whose quote is not in the page is not reported, and a program page whose quotes are all invented is logged as a new program with no offer found', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const aws = 'https://aws.amazon.com/startups/credits';
   const microsoft = 'https://www.microsoft.com/en-us/startups';
@@ -578,6 +585,7 @@ test('an offer whose quote is not in the page is not reported, and a program pag
     who: null,
   };
   const { lines, errors } = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists([
         [aws, 'AWS', 'Up to $200,000'],
@@ -628,7 +636,7 @@ test('an offer whose quote is not in the page is not reported, and a program pag
   );
 });
 
-test('an offer that the answer repeats, with the same kind and value or a value-less offer of an overlapping sentence, is reported once, and two different support offers both stay', async () => {
+test('an offer that the answer repeats, with the same kind and value or a value-less offer of an overlapping sentence, is reported once, and two different support offers both stay', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const vercel = 'https://vercel.com/startups';
   const credits = (quote: string) => ({
@@ -653,6 +661,7 @@ test('an offer that the answer repeats, with the same kind and value or a value-
     who: null,
   });
   const { lines, errors } = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists([[vercel, 'Vercel', 'Up to $30,000']]),
       [vercel]:
@@ -719,7 +728,7 @@ test('an offer that the answer repeats, with the same kind and value or a value-
   );
 });
 
-test('a program page is logged as a new program with the kind, value and quote of each offer, Jev 1.14 labels it through OpenRouter with the key, the offer model gets the whole page from GPT-6-Luna with the ChatGPT login, and no other page of GitHub is requested', async () => {
+test('a program page is logged as a new program with the kind, value and quote of each offer, Jev 1.14 labels it through OpenRouter with the key, the offer model gets the whole page from GPT-6-Luna with the ChatGPT login, and no other page of GitHub is requested', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const ovh = 'https://startup.ovhcloud.com/en/';
   // Questions and answers that put the last offer after the first 20,000
@@ -730,6 +739,7 @@ test('a program page is logged as a new program with the kind, value and quote o
       `<p>Question ${index + 1}: who can apply? ${'Startups that are less than five years old, that have raised less than ten million euros, and that build a digital product can apply to the program through one of our partners or directly on this page. '.repeat(4)}</p>`,
   ).join('\n');
   const { lines, requests, asked, decided, errors } = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists([[ovh, 'OVHcloud', 'Up to €100,000']]),
       [ovh]:
@@ -856,7 +866,7 @@ const microsoftOffers: Answer = {
   ],
 };
 
-test('a program whose offers change is logged as offers changed after a restart, the restart logs nothing else, and only the changed page goes to the model', async () => {
+test('a program whose offers change is logged as offers changed after a restart, the restart logs nothing else, and only the changed page goes to the model', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const aws = 'https://aws.amazon.com/startups/credits';
   const microsoft = 'https://www.microsoft.com/en-us/startups';
@@ -865,6 +875,7 @@ test('a program whose offers change is logged as offers changed after a restart,
     [microsoft, 'Microsoft', 'Up to $150,000'],
   ] as const;
   const first = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists(rows),
       [aws]: awsWithSupport('$200,000', 6),
@@ -894,6 +905,7 @@ test('a program whose offers change is logged as offers changed after a restart,
   // A month later, when every page is due again. The model is planned for
   // the changed page only.
   const second = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists(rows),
       [aws]: awsWithSupport('$100,000', 3),
@@ -927,11 +939,12 @@ test('a program whose offers change is logged as offers changed after a restart,
   );
 });
 
-test('a page whose text changes outside its offers, and whose new answer quotes the same offers in other words, logs nothing after a restart', async () => {
+test('a page whose text changes outside its offers, and whose new answer quotes the same offers in other words, logs nothing after a restart', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const microsoft = 'https://www.microsoft.com/en-us/startups';
   const rows = [[microsoft, 'Microsoft', 'Up to $150,000']] as const;
   const first = await running(data.path, {
+    signal: t.signal,
     pages: { ...lists(rows), [microsoft]: microsoftProgram },
     model: { [microsoft]: [microsoftOffers] },
     until: has('new program'),
@@ -941,6 +954,7 @@ test('a page whose text changes outside its offers, and whose new answer quotes 
   assert.ok(has('new program')(first.lines), first.errors);
 
   const second = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists(rows),
       [microsoft]:
@@ -973,7 +987,7 @@ test('a page whose text changes outside its offers, and whose new answer quotes 
   assert.deepEqual(second.lines, [], second.errors);
 });
 
-test('a page whose text changes, and whose new answer adds an offer with no value and quotes its free period in other words, logs nothing after a restart', async () => {
+test('a page whose text changes, and whose new answer adds an offer with no value and quotes its free period in other words, logs nothing after a restart', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const notion = 'https://www.notion.com/startups';
   const rows = [[notion, 'Notion', 'Free Plus plan']] as const;
@@ -990,6 +1004,7 @@ test('a page whose text changes, and whose new answer adds an offer with no valu
     who: null,
   };
   const first = await running(data.path, {
+    signal: t.signal,
     pages: { ...lists(rows), [notion]: page('') },
     model: {
       [notion]: [
@@ -1021,6 +1036,7 @@ test('a page whose text changes, and whose new answer adds an offer with no valu
   // The new answer lists the offers in the other order, and adds a free
   // period that states no length.
   const second = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists(rows),
       [notion]: page(
@@ -1063,7 +1079,7 @@ test('a page whose text changes, and whose new answer adds an offer with no valu
   assert.deepEqual(second.lines, [], second.errors);
 });
 
-test('a page whose free period changes its months, and a page whose discount changes its percent, are each logged as offers changed after a restart', async () => {
+test('a page whose free period changes its months, and a page whose discount changes its percent, are each logged as offers changed after a restart', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const linear = 'https://linear.app/startups';
   const mintlify = 'https://www.mintlify.com/startups';
@@ -1107,6 +1123,7 @@ test('a page whose free period changes its months, and a page whose discount cha
     ],
   });
   const first = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists(rows),
       [linear]: linearPage(6),
@@ -1126,6 +1143,7 @@ test('a page whose free period changes its months, and a page whose discount cha
 
   // A month later, when every page is due again.
   const second = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists(rows),
       [linear]: linearPage(3),
@@ -1154,7 +1172,7 @@ test('a page whose free period changes its months, and a page whose discount cha
   ]);
 });
 
-test('a fee waiver that the answer states as a 0% discount is logged as a discount with no percent, and a later answer that states it with no percent logs nothing after a restart', async () => {
+test('a fee waiver that the answer states as a 0% discount is logged as a discount with no percent, and a later answer that states it with no percent logs nothing after a restart', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const openrouter = 'https://openrouter.ai/startup-program';
   const rows = [[openrouter, 'OpenRouter', 'Inference credits']] as const;
@@ -1183,6 +1201,7 @@ test('a fee waiver that the answer states as a 0% discount is logged as a discou
   };
   // Haiku 5.5's answer for the page on both eval runs of 2026-10-31.
   const first = await running(data.path, {
+    signal: t.signal,
     pages: { ...lists(rows), [openrouter]: page('') },
     model: { [openrouter]: [{ offers: [credits, { ...waiver, percent: 0 }] }] },
     until: has('new program'),
@@ -1201,6 +1220,7 @@ test('a fee waiver that the answer states as a 0% discount is logged as a discou
   // waiver with no percent, as answers of the earlier prompt did on one of
   // two runs (#3481).
   const second = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists(rows),
       [openrouter]: page(
@@ -1219,9 +1239,10 @@ test('a fee waiver that the answer states as a 0% discount is logged as a discou
   assert.deepEqual(second.lines, [], second.errors);
 });
 
-test('a company page that refuses the crawl is logged as not read, with its address and answer, and its program is not logged as missing, as no page of it was read', async () => {
+test('a company page that refuses the crawl is logged as not read, with its address and answer, and its program is not logged as missing, as no page of it was read', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const { lines, errors } = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists([['https://openai.com/startups/', 'OpenAI', 'API credits']]),
       'https://openai.com/startups/': cloudflareChallenge,
@@ -1247,7 +1268,7 @@ test('a company page that refuses the crawl is logged as not read, with its addr
   );
 });
 
-test('stopping the app during a model call stores no failure, so the page is still reported when it fails after a restart', async () => {
+test('stopping the app during a model call stores no failure, so the page is still reported when it fails after a restart', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const aws = 'https://aws.amazon.com/startups/credits';
   const pages = {
@@ -1255,6 +1276,7 @@ test('stopping the app during a model call stores no failure, so the page is sti
     [aws]: awsProgram('$200,000'),
   };
   const first = await running(data.path, {
+    signal: t.signal,
     pages,
     model: { [aws]: [{ hold: true }] },
     until: (_lines, asked) => asked.length === 1,
@@ -1276,6 +1298,7 @@ test('stopping the app during a model call stores no failure, so the page is sti
     body: { error: { message: 'Internal server error', type: 'server_error' } },
   };
   const second = await running(data.path, {
+    signal: t.signal,
     pages,
     model: { [aws]: [failing, failing, failing] },
     until: has('could not extract'),
@@ -1290,7 +1313,7 @@ test('stopping the app during a model call stores no failure, so the page is sti
   );
 });
 
-test('a page that Jev labels home or list is not sent to the offer model, and the program that the list names for it is logged as no program page found, a program page whose answer states no offer is logged as a new program with no offer found, and a later answer that states one is logged as offers changed', async () => {
+test('a page that Jev labels home or list is not sent to the offer model, and the program that the list names for it is logged as no program page found, a program page whose answer states no offer is logged as a new program with no offer found, and a later answer that states one is logged as offers changed', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const anthropic = 'https://www.anthropic.com/';
   const directory = 'https://startupsmap.co.in/';
@@ -1310,6 +1333,7 @@ test('a page that Jev labels home or list is not sent to the offer model, and th
     ok(`<!doctype html><html><head><title>Startups Map</title></head><body>
 <main><h1>Startup programs in India</h1><p>Accelerators, incubators and credits for founders, by city.</p></main></body></html>`);
   const first = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists(rows),
       [anthropic]: anthropicHome,
@@ -1346,6 +1370,7 @@ test('a page that Jev labels home or list is not sent to the offer model, and th
   // A month later the page gains a sentence and the new answer states the
   // credits.
   const second = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists(rows),
       [anthropic]: anthropicHome,
@@ -1369,11 +1394,12 @@ test('a page that Jev labels home or list is not sent to the offer model, and th
   );
 });
 
-test('a page that Jev cannot label after the AI SDK retries is logged as could not label, and the other page still reports', async () => {
+test('a page that Jev cannot label after the AI SDK retries is logged as could not label, and the other page still reports', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const aws = 'https://aws.amazon.com/startups/credits';
   const microsoft = 'https://www.microsoft.com/en-us/startups';
   const { lines, decided, errors } = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists([
         [aws, 'AWS', 'Up to $200,000'],
@@ -1404,10 +1430,11 @@ test('a page that Jev cannot label after the AI SDK retries is logged as could n
   assert.equal(decided.filter(({ page }) => page === aws).length, 3);
 });
 
-test('a 401 from OpenRouter ends the app with the reason, and logs no page as not labelled', async () => {
+test('a 401 from OpenRouter ends the app with the reason, and logs no page as not labelled', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const aws = 'https://aws.amazon.com/startups/credits';
   const { lines, code, errors } = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists([[aws, 'AWS', 'Up to $200,000']]),
       [aws]: awsProgram('$200,000'),
@@ -1427,10 +1454,11 @@ test('a 401 from OpenRouter ends the app with the reason, and logs no page as no
   );
 });
 
-test('a program that a list names and whose page Jev labels home is logged as no program page found, with its name, link and list', async () => {
+test('a program that a list names and whose page Jev labels home is logged as no program page found, with its name, link and list', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const anthropic = 'https://www.anthropic.com/';
   const { lines, errors } = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists([[anthropic, 'Anthropic Startup Program', 'API credits']]),
       [anthropic]: anthropicHome,
@@ -1467,7 +1495,7 @@ const claudeOffers: Answer = {
   ],
 };
 
-test('a program whose list links a page that gives no text, such as a page that only a script fills, is logged as no program page found once the crawl of the list is complete', async () => {
+test('a program whose list links a page that gives no text, such as a page that only a script fills, is logged as no program page found once the crawl of the list is complete', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const linear = 'https://linear.app/startups';
   // A page that a script renders, as Vite's index.html is: the crawler runs
@@ -1476,6 +1504,7 @@ test('a program whose list links a page that gives no text, such as a page that 
     ok(`<!doctype html><html><head><title>Linear</title></head><body>
 <div id="root"></div><script type="module" src="/assets/index.js"></script></body></html>`);
   const { lines, decided, errors } = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists([[linear, 'Linear', 'Free Business plan']]),
       [linear]: shell,
@@ -1494,12 +1523,13 @@ test('a program whose list links a page that gives no text, such as a page that 
   assert.deepEqual(decided, []);
 });
 
-test('a program whose name another list gives to a program page on another website is not logged as missing', async () => {
+test('a program whose name another list gives to a program page on another website is not logged as missing', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const anthropic = 'https://www.anthropic.com/';
   const claude = 'https://claude.com/programs/startups';
   // Both lists as they link Anthropic's program on 2026-10-31.
   const { lines, errors } = await running(data.path, {
+    signal: t.signal,
     pages: {
       [avinash]: githubList('/avinash201199/awesome-startup-credits', [
         [
@@ -1531,11 +1561,12 @@ test('a program whose name another list gives to a program page on another websi
   );
 });
 
-test('a program whose link shares its registrable domain with a program page is not logged as missing', async () => {
+test('a program whose link shares its registrable domain with a program page is not logged as missing', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const home = 'https://vercel.com/';
   const startups = 'https://vercel.com/startups';
   const { lines, errors } = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists([
         [home, 'Vercel', 'Credits + AI Accelerator'],
@@ -1583,7 +1614,7 @@ test('a program whose link shares its registrable domain with a program page is 
 test(
   'two pages that declare one canonical URL are each stored, so the program of each page finds its program page and neither is logged as missing',
   { todo: '#4523' },
-  async () => {
+  async (t) => {
     await using data = await new TemporaryFiles().directory('credits-data-');
     const canonical = 'https://mercury.com/startups';
     const slash = 'https://mercury.com/startups/';
@@ -1593,6 +1624,7 @@ test(
 <link rel="canonical" href="${canonical}"></head><body>
 <main><h1>Mercury for Startups</h1><p>Startups that bank with Mercury get $500 when they deposit $10,000.</p><p>${url}</p></main></body></html>`);
     const { lines, errors } = await running(data.path, {
+      signal: t.signal,
       pages: {
         ...lists([
           [slash, 'Mercury', 'Banking perks'],
@@ -1635,10 +1667,11 @@ test(
 test(
   'a list that links one page twice names the page once in the program that is logged as missing',
   { todo: '#4523' },
-  async () => {
+  async (t) => {
     await using data = await new TemporaryFiles().directory('credits-data-');
     const anthropic = 'https://www.anthropic.com/';
     const { lines, errors } = await running(data.path, {
+      signal: t.signal,
       pages: {
         ...lists([
           [anthropic, 'Anthropic Startup Program', 'API credits'],
@@ -1662,11 +1695,12 @@ test(
   },
 );
 
-test('a list that redirects to its new address, as a renamed GitHub repository does, still names its programs', async () => {
+test('a list that redirects to its new address, as a renamed GitHub repository does, still names its programs', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const anthropic = 'https://www.anthropic.com/';
   const renamed = 'https://github.com/avinash201199/startup-credits';
   const { lines, errors } = await running(data.path, {
+    signal: t.signal,
     pages: {
       [avinash]: { status: 301, location: renamed },
       [renamed]: githubList('/avinash201199/startup-credits', [
@@ -1713,12 +1747,13 @@ const vercelCredits: Answer = {
   ],
 };
 
-test('a home page that a list links is searched one step, so the program page that its menu links is reported and the program is not missing, a link that matches no expand pattern is not requested, and a sitemap that its robots.txt names but that does not load is not logged', async () => {
+test('a home page that a list links is searched one step, so the program page that its menu links is reported and the program is not missing, a link that matches no expand pattern is not requested, and a sitemap that its robots.txt names but that does not load is not logged', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const home = 'https://vercel.com/';
   const startups = 'https://vercel.com/startups';
   const broken = 'https://vercel.com/broken-sitemap.xml';
   const { lines, requests, errors } = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists([[home, 'Vercel', 'Credits + AI Accelerator']]),
       [home]: vercelHome,
@@ -1747,7 +1782,7 @@ test('a home page that a list links is searched one step, so the program page th
   assert.ok(!requests.includes('https://vercel.com/pricing'), errors);
 });
 
-test('the search inside a linked website keeps a page whose last path segment names startups, such as /startups, /hubspot-for-startups-for-education or /startup-program/, and requests no page under a startup section, such as its blog or its events', async () => {
+test('the search inside a linked website keeps a page whose last path segment names startups, such as /startups, /hubspot-for-startups-for-education or /startup-program/, and requests no page under a startup section, such as its blog or its events', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const home = 'https://www.hubspot.com/';
   const startups = 'https://www.hubspot.com/startups';
@@ -1762,6 +1797,7 @@ test('the search inside a linked website keeps a page whose last path segment na
   const offer =
     'Eligible startups get up to 90% off HubSpot software in year one.';
   const { lines, requests, errors } = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists([
         [home, 'HubSpot', 'Discount on HubSpot'],
@@ -1850,13 +1886,14 @@ test('the search inside a linked website keeps a page whose last path segment na
   );
 });
 
-test("a partner's program page that a home page links on another website is reported, and does not stand for the program that the list names", async () => {
+test("a partner's program page that a home page links on another website is reported, and does not stand for the program that the list names", async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const home = 'https://vercel.com/';
   // AWS's program page: the search inside a linked website keeps a page
   // whose last path segment names startups.
   const partner = 'https://aws.amazon.com/startups';
   const { lines, errors } = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists([[home, 'Vercel', 'Credits + AI Accelerator']]),
       [home]:
@@ -1897,11 +1934,12 @@ test("a partner's program page that a home page links on another website is repo
   );
 });
 
-test('a program whose list link redirects to the company page that Jev labels home is logged as no program page found, with the link the list gives', async () => {
+test('a program whose list link redirects to the company page that Jev labels home is logged as no program page found, with the link the list gives', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const linked = 'https://anthropic.com/';
   const home = 'https://www.anthropic.com/';
   const { lines, errors } = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists([[linked, 'Anthropic Startup Program', 'API credits']]),
       [linked]: { status: 301, location: home },
@@ -1950,7 +1988,7 @@ const trainingCredits: Answer = {
   ],
 };
 
-test('a page and its German copy, which each declare the other, go to Jev and to the offer model once, as the English copy, and the program is logged once', async () => {
+test('a page and its German copy, which each declare the other, go to Jev and to the offer model once, as the English copy, and the program is logged once', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const english = 'https://aws.amazon.com/training/startups/';
   const german = 'https://aws.amazon.com/de/training/startups/';
@@ -1959,6 +1997,7 @@ test('a page and its German copy, which each declare the other, go to Jev and to
     ['de-de', german],
   ] as const;
   const { lines, requests, asked, decided, errors } = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists([[english, 'AWS Training', 'Credits for training']]),
       [english]: localized('AWS Training for Startups', trainingOffer, copies),
@@ -1990,7 +2029,7 @@ test('a page and its German copy, which each declare the other, go to Jev and to
   );
 });
 
-test('of the copies that declare each other, the x-default one goes to the models, else an English one, also when another URL is smaller, else the smallest URL, whatever order a page declares them in', async () => {
+test('of the copies that declare each other, the x-default one goes to the models, else an English one, also when another URL is smaller, else the smallest URL, whatever order a page declares them in', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const stripe = 'https://stripe.com/startups';
   const stripeCopies = [
@@ -2022,6 +2061,7 @@ test('of the copies that declare each other, the x-default one goes to the model
       ]),
     );
   const { lines, decided, errors } = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists([
         [stripe, 'Stripe', 'Discount'],
@@ -2057,13 +2097,14 @@ test('of the copies that declare each other, the x-default one goes to the model
   ]);
 });
 
-test("copies that a page's head and a sitemap's xhtml:link declare between them are one group, though neither declaration alone names both ways", async () => {
+test("copies that a page's head and a sitemap's xhtml:link declare between them are one group, though neither declaration alone names both ways", async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const home = 'https://www.hubspot.com/';
   const english = 'https://www.hubspot.com/startups';
   const german = 'https://www.hubspot.com/de/startups';
   const sitemap = 'https://www.hubspot.com/sitemap-startups.xml';
   const { lines, requests, decided, errors } = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists([[home, 'HubSpot', 'Discount on HubSpot']]),
       [home]:
@@ -2105,11 +2146,12 @@ test("copies that a page's head and a sitemap's xhtml:link declare between them 
   assert.deepEqual(decided.map(({ page }) => page).toSorted(), [home, english]);
 });
 
-test('a copy that names a page which does not name it back is its own group, so both pages go to the models', async () => {
+test('a copy that names a page which does not name it back is its own group, so both pages go to the models', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const english = 'https://aws.amazon.com/training/startups/';
   const german = 'https://aws.amazon.com/de/training/startups/';
   const { lines, decided, errors } = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists([[english, 'AWS Training', 'Credits for training']]),
       [english]: localized(
@@ -2148,7 +2190,7 @@ test('a copy that names a page which does not name it back is its own group, so 
   ]);
 });
 
-test("a program whose list links a German copy takes the label of the copy's English page, so when Jev labels that page home the program is logged as no program page found", async () => {
+test("a program whose list links a German copy takes the label of the copy's English page, so when Jev labels that page home the program is logged as no program page found", async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const english = 'https://aws.amazon.com/training/startups/';
   const german = 'https://aws.amazon.com/de/training/startups/';
@@ -2157,6 +2199,7 @@ test("a program whose list links a German copy takes the label of the copy's Eng
     ['de-de', german],
   ] as const;
   const { lines, errors } = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists([[german, 'AWS Training', 'Credits for training']]),
       [english]: localized(
@@ -2184,7 +2227,7 @@ test("a program whose list links a German copy takes the label of the copy's Eng
   );
 });
 
-test("a program whose list links a German copy is not logged as missing while Jev cannot label the copy's English page", async () => {
+test("a program whose list links a German copy is not logged as missing while Jev cannot label the copy's English page", async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const english = 'https://aws.amazon.com/training/startups/';
   const german = 'https://aws.amazon.com/de/training/startups/';
@@ -2193,6 +2236,7 @@ test("a program whose list links a German copy is not logged as missing while Je
     ['de-de', german],
   ] as const;
   const { lines, errors } = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists([[german, 'AWS Training', 'Credits for training']]),
       [english]: localized('AWS Training for Startups', trainingOffer, copies),
@@ -2218,11 +2262,12 @@ test("a program whose list links a German copy is not logged as missing while Je
   );
 });
 
-test('copies whose pages disagree on which one is x-default still send one page to the models, the smallest URL of those that any of them calls x-default', async () => {
+test('copies whose pages disagree on which one is x-default still send one page to the models, the smallest URL of those that any of them calls x-default', async (t) => {
   await using data = await new TemporaryFiles().directory('credits-data-');
   const global = 'https://www.figma.com/startups';
   const british = 'https://www.figma.com/gb/startups';
   const { lines, decided, errors } = await running(data.path, {
+    signal: t.signal,
     pages: {
       ...lists([[british, 'Figma', 'Free seats']]),
       [global]: localized('Figma for Startups', 'Our startup program.', [

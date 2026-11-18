@@ -35,7 +35,7 @@ import {
   RollbackJournal,
   open as openDatabase,
 } from '@zukhruf/sqlite-open';
-import { timebox } from '@zukhruf/testing/async';
+import { timebox, waitFor } from '@zukhruf/testing/async';
 
 import { IndexedDBWriter } from '@eltjs/codec-chromium-indexeddb/test';
 
@@ -1134,10 +1134,10 @@ function terminal(t: TestContext, mac: string, ...args: string[]) {
       return screen;
     },
     async shows(text: string) {
-      await t.waitFor(
+      await waitFor(
         () =>
           assert.ok(screen.includes(text), `never showed ${text}:\n${screen}`),
-        { interval: 100, timeout: 30_000 },
+        { signal: t.signal, interval: 100 },
       );
     },
     async type(...keys: string[]) {
@@ -3108,13 +3108,13 @@ test('sync watch in a terminal says it watches between passes, and Ctrl-C stops 
     // The spinner comes back after the pass's line, not only before it.
     const sincePass = () =>
       watch.screen.slice(watch.screen.lastIndexOf(' streams · '));
-    await t.waitFor(
+    await waitFor(
       () =>
         assert.ok(
           sincePass().includes('Watching for changes'),
           `no spinner after the pass:\n${watch.screen}`,
         ),
-      { interval: 100, timeout: 10_000 },
+      { signal: t.signal, interval: 100 },
     );
 
     await watch.type(ctrlC);
@@ -3486,7 +3486,7 @@ test('sync watch reads the files an import stores, with no command of its own', 
         '--json',
       );
 
-    const found = await t.waitFor(
+    const found = await waitFor(
       () => {
         const answer = read();
         assert.ok(
@@ -3498,7 +3498,7 @@ test('sync watch reads the files an import stores, with no command of its own', 
       // Vision compiles its models on the first run of a new helper binary,
       // which took 85 s here and up to about 195 s (VisionWorker in elt), so the
       // wait sits above that and under the test's 240 s limit (#3427).
-      { interval: 1000, timeout: 200_000 },
+      { signal: t.signal, interval: 1000 },
     );
 
     assert.deepEqual(JSON.parse(found.stdout), [

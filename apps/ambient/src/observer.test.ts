@@ -12,6 +12,7 @@ import { promisify } from 'node:util';
 
 import { TemporaryFiles } from '@zukhruf/fs';
 import { PersistentWriteAheadLog, open } from '@zukhruf/sqlite-open';
+import { waitFor } from '@zukhruf/testing/async';
 import { z } from 'zod';
 
 import { Journal } from './journal/journal.ts';
@@ -112,13 +113,13 @@ async function ambient(t: TestContext, home: string) {
   try {
     await ready;
     // The announcement comes as the server starts to listen.
-    await t.waitFor(
+    await waitFor(
       async () =>
         assert.deepEqual(await get('/health'), {
           status: 'ready',
           model: 'gpt-6-luna',
         }),
-      { timeout: 5000, interval: 50 },
+      { signal: t.signal, interval: 50 },
     );
   } catch (error) {
     await stop();
@@ -156,7 +157,7 @@ async function removeMicroVm(home: string) {
 const baselines = () => setTimeout(2100);
 
 async function settled(t: TestContext, app: Ambient, count: number) {
-  await t.waitFor(
+  await waitFor(
     async () => {
       const decisions = await app.decisions();
       assert.equal(decisions.length, count);
@@ -165,7 +166,7 @@ async function settled(t: TestContext, app: Ambient, count: number) {
         /"decision":null,"failure":null/,
       );
     },
-    { timeout: 120_000, interval: 500 },
+    { signal: t.signal, interval: 500 },
   );
 }
 
