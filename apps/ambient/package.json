@@ -20,7 +20,7 @@
     "@zukhruf/sqlite-transaction": "^0.8.27",
     "ai": "^7.0.165",
     "hono": "4.13.14",
-    "microsandbox": "0.7.8",
+    "microsandbox": "0.7.16",
     "pg-boss": "12.29.0",
     "zod": "4.4.3"
   },
