@@ -41,7 +41,10 @@ const source = new WebSource({
     {
       stream: new WebStream({
         name: 'program_pages',
-        primaryKey: ['articleUrl'],
+        // A page is stored under its own URL: many pages can declare one
+        // canonical URL, and a reader groups them by their article URL (elt
+        // ADR 0022).
+        primaryKey: ['pageUrl'],
         // Each list hands back the pages it links on every website. A linked
         // page on another website is searched one step, its links and its
         // robots.txt sitemaps, for the pages that expand matches (the crawler
@@ -110,7 +113,7 @@ const languageGroups = new View({
     FROM program_pages p, json_each(p.listedVersions) copy
   ),
   -- A copy is a stored page, named by its article URL, the canonical URL
-  -- that keys its row.
+  -- that its pages declare.
   copies(page, copy, language) AS (
     SELECT declared.page, program_pages.articleUrl, declared.language
     FROM declared JOIN program_pages ON program_pages.articleUrl = declared.url
@@ -147,7 +150,9 @@ WHERE NOT EXISTS (
       OR (better.rank = ranks.rank AND better.member < ranks.member))
 )`,
 });
-// Only the page that stands for its copies goes to Jev.
+// Only the page that stands for its copies goes to Jev. Of the pages that
+// declare one canonical URL, a computed dataset reads the first (elt-sqlite
+// ComputedDataset: a key read twice keeps its first input).
 const representatives = new View({
   into: destination,
   name: 'representative_pages',

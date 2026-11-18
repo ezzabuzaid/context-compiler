@@ -15,13 +15,9 @@ const routeRow = z.object({
   text: z.string().nullable(),
 });
 const crawlRow = z.object({ inputUrl: z.string(), complete: z.number() });
-const pageRow = z.object({ pageUrl: z.string(), articleUrl: z.string() });
+const pageRow = z.object({ pageUrl: z.string() });
 const failureRow = z.object({ url: z.string() });
-const kindRow = z.object({
-  pageUrl: z.string(),
-  articleUrl: z.string(),
-  kind: z.string(),
-});
+const kindRow = z.object({ pageUrl: z.string(), kind: z.string() });
 
 type MissingProgram = {
   // The name that a list gives the program, or null when its links have no
@@ -76,23 +72,20 @@ export class MissingPrograms extends Alert<MissingProgram> {
           : [],
     );
     // Jev labels only the page that stands for its language copies, and each
-    // copy has that page's label.
+    // copy has that page's label. The crawl stores each page that it reads
+    // under its own URL, so a link finds its page by that URL.
     const kinds = new Map<string, string>();
     for (const row of rows(
       () =>
-        sql.all`SELECT p.pageUrl, p.articleUrl, k.kind FROM program_pages p JOIN language_groups g USING (articleUrl) JOIN page_kinds k ON k.articleUrl = g.representative WHERE k.status = 'computed'`,
+        sql.all`SELECT p.pageUrl, k.kind FROM program_pages p JOIN language_groups g USING (articleUrl) JOIN page_kinds k ON k.articleUrl = g.representative WHERE k.status = 'computed'`,
     )) {
-      const { pageUrl, articleUrl, kind } = kindRow.parse(row);
+      const { pageUrl, kind } = kindRow.parse(row);
       kinds.set(pageUrl, kind);
-      kinds.set(articleUrl, kind);
     }
     const stored = new Set(
-      rows(
-        () => sql.all`SELECT pageUrl, articleUrl FROM program_pages`,
-      ).flatMap((row) => {
-        const { pageUrl, articleUrl } = pageRow.parse(row);
-        return [pageUrl, articleUrl];
-      }),
+      rows(() => sql.all`SELECT pageUrl FROM program_pages`).map(
+        (row) => pageRow.parse(row).pageUrl,
+      ),
     );
     const failed = new Set(
       rows(() => sql.all`SELECT url FROM program_pages_failures`).map(
@@ -161,10 +154,16 @@ export class MissingPrograms extends Alert<MissingProgram> {
         ),
       );
       if (found) return [];
+      // A list that links one page twice names it once.
+      const unique = new Map(
+        links.map((link) => [`${link.list} ${link.url}`, link]),
+      );
       return [
         {
           name: links.find(({ text }) => text !== null)?.text ?? null,
-          links: links.toSorted((a, b) => a.url.localeCompare(b.url)),
+          links: [...unique.values()].toSorted((a, b) =>
+            a.url.localeCompare(b.url),
+          ),
         },
       ];
     });
