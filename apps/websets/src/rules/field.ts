@@ -1,7 +1,12 @@
 import { Output, generateText } from 'ai';
 import { z } from 'zod';
 
-import { type LoadedRow, Rule, type RuleResult } from '@eltjs/elt';
+import {
+  type LoadedRow,
+  Rule,
+  type RuleResult,
+  type RuleValues,
+} from '@eltjs/elt';
 import { ruleIdentity } from '@workspace/model-calls/rule-identity';
 import { ground } from '@workspace/quote-grounding';
 
@@ -78,27 +83,29 @@ const instruction = (field: Field) =>
       : []),
   ].join('\n');
 
+const columns = {
+  value: {
+    type: 'text',
+    description:
+      'The value as JSON: a string, a number or null. NULL unless status is computed.',
+  },
+  quote: {
+    type: 'text',
+    description:
+      'The sentence of the page text that states the value, or NULL when the page has none.',
+  },
+} as const;
+
 // A field of a page that meets every criterion, as GPT-6-Luna reads the
 // page. Each page and field is one input, whatever the datasets that read
 // it. The quote stays only when it is in the page text.
-export class FieldValue extends Rule<Asked, string> {
+export class FieldValue extends Rule<Asked, typeof columns> {
   override readonly key = {
     name: 'pair',
     description:
       'The article URL of the page and the field, as a JSON array of the URL, the description, the format and the options.',
   };
-  override readonly output = {
-    value: {
-      type: 'text',
-      description:
-        'The value as JSON: a string, a number or null. NULL unless status is computed.',
-    },
-    quote: {
-      type: 'text',
-      description:
-        'The sentence of the page text that states the value, or NULL when the page has none.',
-    },
-  } as const;
+  override readonly output = columns;
   override readonly batch = 1;
   override readonly concurrency = 4;
 
@@ -129,14 +136,14 @@ export class FieldValue extends Rule<Asked, string> {
   override async compute(
     inputs: readonly Asked[],
     signal?: AbortSignal,
-  ): Promise<readonly RuleResult<Readonly<Record<string, string>>>[]> {
+  ): Promise<readonly RuleResult<RuleValues<typeof columns>>[]> {
     return Promise.all(inputs.map((input) => this.#extract(input, signal)));
   }
 
   async #extract(
     { page, field }: Asked,
     signal: AbortSignal | undefined,
-  ): Promise<RuleResult<Readonly<Record<string, string>>>> {
+  ): Promise<RuleResult<RuleValues<typeof columns>>> {
     let answer;
     try {
       ({ output: answer } = await generateText({

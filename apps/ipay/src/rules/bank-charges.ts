@@ -1,47 +1,54 @@
-import { type LoadedRow, Rule, type RuleResult } from '@eltjs/elt';
+import {
+  type LoadedRow,
+  Rule,
+  type RuleResult,
+  type RuleValues,
+} from '@eltjs/elt';
 
 import { movement, parser } from './arab-bank-sms.ts';
 
 type Text = { readonly text: string; readonly sentAt: string };
 
+const columns = {
+  kind: {
+    type: 'text',
+    description:
+      'purchase (a card purchase), withdrawal (cash), cliq (a CliQ payment), bill (a bill payment), card_payment (a payment to a credit card), transfer_out or transfer_in. NULL unless status is computed.',
+  },
+  direction: {
+    type: 'text',
+    description:
+      'debit when money left the account, credit when it came in. NULL unless status is computed.',
+  },
+  counterparty: {
+    type: 'text',
+    description:
+      'The merchant, branch, CliQ recipient or account the text names; NULL when it names none.',
+  },
+  amount: {
+    type: 'text',
+    description:
+      'The amount as the bank writes it, as a decimal number. NULL unless status is computed.',
+  },
+  currency: {
+    type: 'text',
+    description:
+      'The ISO 4217 code of the amount, such as JOD, or AED for a purchase abroad. NULL unless status is computed.',
+  },
+  booked_on: {
+    type: 'text',
+    description:
+      'The day the bank books the movement on, on the bank’s clock (Asia/Amman): the date the text states, else the day it was sent. NULL unless status is computed.',
+  },
+} as const;
+
 // The movement of the user's money that each of the bank's texts tells of.
-export class BankCharges extends Rule<Text, string> {
+export class BankCharges extends Rule<Text, typeof columns> {
   override readonly key = {
     name: 'guid',
     description: 'The GUID of the bank text the movement is read from.',
   };
-  override readonly output = {
-    kind: {
-      type: 'text',
-      description:
-        'purchase (a card purchase), withdrawal (cash), cliq (a CliQ payment), bill (a bill payment), card_payment (a payment to a credit card), transfer_out or transfer_in. NULL unless status is computed.',
-    },
-    direction: {
-      type: 'text',
-      description:
-        'debit when money left the account, credit when it came in. NULL unless status is computed.',
-    },
-    counterparty: {
-      type: 'text',
-      description:
-        'The merchant, branch, CliQ recipient or account the text names; NULL when it names none.',
-    },
-    amount: {
-      type: 'text',
-      description:
-        'The amount as the bank writes it, as a decimal number. NULL unless status is computed.',
-    },
-    currency: {
-      type: 'text',
-      description:
-        'The ISO 4217 code of the amount, such as JOD, or AED for a purchase abroad. NULL unless status is computed.',
-    },
-    booked_on: {
-      type: 'text',
-      description:
-        'The day the bank books the movement on, on the bank’s clock (Asia/Amman): the date the text states, else the day it was sent. NULL unless status is computed.',
-    },
-  } as const;
+  override readonly output = columns;
   // Reading a text takes microseconds: one call takes many.
   override readonly batch = 500;
   override readonly concurrency = 1;
@@ -63,7 +70,7 @@ export class BankCharges extends Rule<Text, string> {
 
   override async compute(
     texts: readonly Text[],
-  ): Promise<readonly RuleResult<Readonly<Record<string, string>>>[]> {
+  ): Promise<readonly RuleResult<RuleValues<typeof columns>>[]> {
     return texts.map(({ text, sentAt }) => {
       const found = movement(text, sentAt);
       if (found === null) return { empty: true };

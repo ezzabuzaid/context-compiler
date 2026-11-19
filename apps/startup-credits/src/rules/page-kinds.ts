@@ -4,7 +4,12 @@ import {
   experimental_decide as decide,
 } from 'ai';
 
-import { type LoadedRow, Rule, type RuleResult } from '@eltjs/elt';
+import {
+  type LoadedRow,
+  Rule,
+  type RuleResult,
+  type RuleValues,
+} from '@eltjs/elt';
 import { CallFailures } from '@workspace/model-calls/call-failures';
 import { ruleIdentity } from '@workspace/model-calls/rule-identity';
 
@@ -48,26 +53,28 @@ const failures = new CallFailures(
   InvalidResponseDataError,
 );
 
+const columns = {
+  kind: {
+    type: 'text',
+    description: `The kind of the page: ${pageKinds.join(', ')}. NULL unless status is computed.`,
+  },
+  answer: {
+    type: 'text',
+    description:
+      "Jev's whole answer as JSON: its choice and, when Jev gives them, the probability of each kind. NULL unless status is computed.",
+  },
+} as const;
+
 // The kind of each stored page, labelled by Jev: the app reads offers only
 // from the pages labelled program.
-export class PageKinds extends Rule<string, string> {
+export class PageKinds extends Rule<string, typeof columns> {
   readonly #model = openRouterDecisionModel(modelId);
 
   override readonly key = {
     name: 'articleUrl',
     description: 'The article URL of the labelled page.',
   };
-  override readonly output = {
-    kind: {
-      type: 'text',
-      description: `The kind of the page: ${pageKinds.join(', ')}. NULL unless status is computed.`,
-    },
-    answer: {
-      type: 'text',
-      description:
-        "Jev's whole answer as JSON: its choice and, when Jev gives them, the probability of each kind. NULL unless status is computed.",
-    },
-  } as const;
+  override readonly output = columns;
   // One page for each call and 16 calls at once: OpenRouter answered 16
   // requests at once with no refusal (2026-10-31).
   override readonly batch = 1;
@@ -105,7 +112,7 @@ export class PageKinds extends Rule<string, string> {
   override async compute(
     states: readonly string[],
     signal?: AbortSignal,
-  ): Promise<readonly RuleResult<Readonly<Record<string, string>>>[]> {
+  ): Promise<readonly RuleResult<RuleValues<typeof columns>>[]> {
     return Promise.all(
       states.map(async (state) => {
         try {

@@ -1,7 +1,12 @@
 import { Output, generateText } from 'ai';
 import { z } from 'zod';
 
-import { type LoadedRow, Rule, type RuleResult } from '@eltjs/elt';
+import {
+  type LoadedRow,
+  Rule,
+  type RuleResult,
+  type RuleValues,
+} from '@eltjs/elt';
 import { ruleIdentity } from '@workspace/model-calls/rule-identity';
 import { ground } from '@workspace/quote-grounding';
 
@@ -54,34 +59,36 @@ export const placeholder: Page = {
   text: '{text}',
 };
 
+const columns = {
+  satisfied: {
+    type: 'text',
+    description:
+      'yes, no or unclear: whether the page shows that the criterion holds. NULL unless status is computed.',
+  },
+  reasoning: {
+    type: 'text',
+    description:
+      "The model's reasoning, in one sentence. NULL unless status is computed.",
+  },
+  quote: {
+    type: 'text',
+    description:
+      'The sentence of the page text that decides the criterion, or NULL when the page has none.',
+  },
+} as const;
+
 // Whether a page meets a criterion, as GPT-6-Luna reads the page. Each page
 // and criterion is one input, whatever the datasets that ask it, so a pair
 // that two datasets share is judged once. The quote stays only when it is in
 // the page text, so an invented sentence is never the evidence of an
 // evaluation.
-export class Evaluation extends Rule<Judged, string> {
+export class Evaluation extends Rule<Judged, typeof columns> {
   override readonly key = {
     name: 'pair',
     description:
       'The article URL of the page and the criterion, as a JSON array.',
   };
-  override readonly output = {
-    satisfied: {
-      type: 'text',
-      description:
-        'yes, no or unclear: whether the page shows that the criterion holds. NULL unless status is computed.',
-    },
-    reasoning: {
-      type: 'text',
-      description:
-        "The model's reasoning, in one sentence. NULL unless status is computed.",
-    },
-    quote: {
-      type: 'text',
-      description:
-        'The sentence of the page text that decides the criterion, or NULL when the page has none.',
-    },
-  } as const;
+  override readonly output = columns;
   // One page for each model call, four at once.
   override readonly batch = 1;
   override readonly concurrency = 4;
@@ -109,14 +116,14 @@ export class Evaluation extends Rule<Judged, string> {
   override async compute(
     inputs: readonly Judged[],
     signal?: AbortSignal,
-  ): Promise<readonly RuleResult<Readonly<Record<string, string>>>[]> {
+  ): Promise<readonly RuleResult<RuleValues<typeof columns>>[]> {
     return Promise.all(inputs.map((input) => this.#evaluate(input, signal)));
   }
 
   async #evaluate(
     { page, criterion }: Judged,
     signal: AbortSignal | undefined,
-  ): Promise<RuleResult<Readonly<Record<string, string>>>> {
+  ): Promise<RuleResult<RuleValues<typeof columns>>> {
     let answer;
     try {
       ({ output: answer } = await generateText({

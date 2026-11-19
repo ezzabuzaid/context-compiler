@@ -6,7 +6,12 @@ import {
 } from 'ai';
 import { z } from 'zod';
 
-import { type LoadedRow, Rule, type RuleResult } from '@eltjs/elt';
+import {
+  type LoadedRow,
+  Rule,
+  type RuleResult,
+  type RuleValues,
+} from '@eltjs/elt';
 import { CallFailures } from '@workspace/model-calls/call-failures';
 import { ruleIdentity } from '@workspace/model-calls/rule-identity';
 import { ground } from '@workspace/quote-grounding';
@@ -51,22 +56,24 @@ const failures = new CallFailures(
   NoOutputGeneratedError,
 );
 
+const columns = {
+  payments: {
+    type: 'text',
+    description:
+      'A JSON array of the payments that the email confirms, each with its company, service, amount, currency, its quote and the span of the quote in the email text. NULL unless status is computed.',
+  },
+} as const;
+
 // The payments that each email Jev decided payment confirms, as GPT-6-Luna
 // reads them. A payment stays only when its quote is in the email, so an
 // invented amount is never a payment.
-export class InvoicePayments extends Rule<Email, string> {
+export class InvoicePayments extends Rule<Email, typeof columns> {
   override readonly key = {
     name: 'id',
     description:
       "Mail's local identifier of the email that states the payments.",
   };
-  override readonly output = {
-    payments: {
-      type: 'text',
-      description:
-        'A JSON array of the payments that the email confirms, each with its company, service, amount, currency, its quote and the span of the quote in the email text. NULL unless status is computed.',
-    },
-  } as const;
+  override readonly output = columns;
   // One email for each model call. Four calls at once stay inside the rate
   // limits of a ChatGPT subscription, as startup-credits' offers do.
   override readonly batch = 1;
@@ -87,14 +94,14 @@ export class InvoicePayments extends Rule<Email, string> {
   override async compute(
     emails: readonly Email[],
     signal?: AbortSignal,
-  ): Promise<readonly RuleResult<Readonly<Record<string, string>>>[]> {
+  ): Promise<readonly RuleResult<RuleValues<typeof columns>>[]> {
     return Promise.all(emails.map((email) => this.#payments(email, signal)));
   }
 
   async #payments(
     email: Email,
     signal: AbortSignal | undefined,
-  ): Promise<RuleResult<Readonly<Record<string, string>>>> {
+  ): Promise<RuleResult<RuleValues<typeof columns>>> {
     let payments;
     try {
       ({

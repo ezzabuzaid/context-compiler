@@ -7,7 +7,12 @@ import {
 } from 'ai';
 import { z } from 'zod';
 
-import { type LoadedRow, Rule, type RuleResult } from '@eltjs/elt';
+import {
+  type LoadedRow,
+  Rule,
+  type RuleResult,
+  type RuleValues,
+} from '@eltjs/elt';
 import { CallFailures } from '@workspace/model-calls/call-failures';
 import { ruleIdentity } from '@workspace/model-calls/rule-identity';
 import { ground } from '@workspace/quote-grounding';
@@ -82,21 +87,23 @@ const waived = (offer: Offer): Offer =>
     ? { ...offer, percent: null }
     : offer;
 
+const columns = {
+  offers: {
+    type: 'text',
+    description:
+      'A JSON array of the offers that the page states, each with its kind, its value, its quote and the span of the quote in the page text. NULL unless status is computed.',
+  },
+} as const;
+
 // The offers that each stored program page states, as GPT-6-Luna reads
 // them. An offer stays only when its quote is in the page text, so an
 // invented quote or an echo of the prompt is never an offer.
-export class ProgramOffers extends Rule<Page, string> {
+export class ProgramOffers extends Rule<Page, typeof columns> {
   override readonly key = {
     name: 'articleUrl',
     description: 'The article URL of the page that states the offers.',
   };
-  override readonly output = {
-    offers: {
-      type: 'text',
-      description:
-        'A JSON array of the offers that the page states, each with its kind, its value, its quote and the span of the quote in the page text. NULL unless status is computed.',
-    },
-  } as const;
+  override readonly output = columns;
   // One page for each model call. Four calls at once stay inside the rate
   // limits of a Claude subscription.
   override readonly batch = 1;
@@ -123,7 +130,7 @@ export class ProgramOffers extends Rule<Page, string> {
   override async compute(
     pages: readonly Page[],
     signal?: AbortSignal,
-  ): Promise<readonly RuleResult<Readonly<Record<string, string>>>[]> {
+  ): Promise<readonly RuleResult<RuleValues<typeof columns>>[]> {
     return Promise.all(
       pages.map(async (page) => {
         const outcome = await this.outcome(page, signal);

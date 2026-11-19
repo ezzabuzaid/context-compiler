@@ -5,7 +5,12 @@ import {
   experimental_decide as decide,
 } from 'ai';
 
-import { type LoadedRow, Rule, type RuleResult } from '@eltjs/elt';
+import {
+  type LoadedRow,
+  Rule,
+  type RuleResult,
+  type RuleValues,
+} from '@eltjs/elt';
 import { CallFailures } from '@workspace/model-calls/call-failures';
 import { ruleIdentity } from '@workspace/model-calls/rule-identity';
 
@@ -70,34 +75,36 @@ const failures = new CallFailures(
   InvalidResponseDataError,
 );
 
+const columns = {
+  kind: {
+    type: 'text',
+    description: `What the email says about the user's money: ${choices('kind')}. NULL unless status is computed.`,
+  },
+  category: {
+    type: 'text',
+    description: `What the money is for: ${choices('category')}. NULL unless status is computed.`,
+  },
+  frequency: {
+    type: 'text',
+    description: `How often the user is charged: ${choices('frequency')}. NULL unless status is computed.`,
+  },
+  answer: {
+    type: 'text',
+    description:
+      "Jev's whole answers as JSON: its choice for each question and, when Jev gives them, the probability of each choice. NULL unless status is computed.",
+  },
+} as const;
+
 // What each candidate email says about the user's money, as Jev decides it:
 // ipay reads payments only from the emails decided payment.
-export class PaymentKinds extends Rule<string, string> {
+export class PaymentKinds extends Rule<string, typeof columns> {
   readonly #model = openRouterDecisionModel(modelId);
 
   override readonly key = {
     name: 'id',
     description: "Mail's local identifier of the decided email.",
   };
-  override readonly output = {
-    kind: {
-      type: 'text',
-      description: `What the email says about the user's money: ${choices('kind')}. NULL unless status is computed.`,
-    },
-    category: {
-      type: 'text',
-      description: `What the money is for: ${choices('category')}. NULL unless status is computed.`,
-    },
-    frequency: {
-      type: 'text',
-      description: `How often the user is charged: ${choices('frequency')}. NULL unless status is computed.`,
-    },
-    answer: {
-      type: 'text',
-      description:
-        "Jev's whole answers as JSON: its choice for each question and, when Jev gives them, the probability of each choice. NULL unless status is computed.",
-    },
-  } as const;
+  override readonly output = columns;
   // One email for each call and 16 calls at once, as startup-credits'
   // PageKinds: OpenRouter answered 16 requests at once with no refusal
   // (2026-10-31).
@@ -121,7 +128,7 @@ export class PaymentKinds extends Rule<string, string> {
   override async compute(
     states: readonly string[],
     signal?: AbortSignal,
-  ): Promise<readonly RuleResult<Readonly<Record<string, string>>>[]> {
+  ): Promise<readonly RuleResult<RuleValues<typeof columns>>[]> {
     return Promise.all(
       states.map(async (state) => {
         try {
