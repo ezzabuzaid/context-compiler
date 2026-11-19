@@ -366,7 +366,7 @@ test(
     const outcome = await connector.import(settings, selection);
 
     const database = settings.database(selection);
-    const rows = read(database, 'SELECT id FROM raw_notes');
+    const rows = read(database, 'SELECT id FROM notes');
     const [owner, refused] =
       rows[0]?.id === 'dia'
         ? ['dia-desktop', 'chromium:dia']
@@ -386,7 +386,7 @@ test(
             : [
                 refused,
                 'failed',
-                `The following copies did not load completely: ${refused}:notes: Target raw_notes is written by {"copy":"${owner}:notes"}; {"copy":"${refused}:notes"} cannot write it. A target has one writer; clear the owning copy, or drop the target, to reassign it.`,
+                `The following copies did not load completely: ${refused}:notes: Target notes is written by {"copy":"${owner}:notes"}; {"copy":"${refused}:notes"} cannot write it. A target has one writer; clear the owning copy, or drop the target, to reassign it.`,
               ],
         ),
     );

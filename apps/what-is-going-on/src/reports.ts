@@ -218,16 +218,15 @@ function articles(connections: readonly Connection<SQLiteTable>[]) {
     using database = destinationReader(destination.path);
     if (database === undefined) return [];
     return steps.flatMap(({ to }) => {
-      const relation = to.readerView ?? to.name;
       if (
         database
           .prepare('SELECT 1 FROM sqlite_schema WHERE name = ?')
-          .get(relation) === undefined
+          .get(to.name) === undefined
       )
         return [];
       return database
         .prepare(
-          `SELECT inputUrl, articleUrl, title, publishedTime, published, inferredPublished, textContent FROM "${relation}"
+          `SELECT inputUrl, articleUrl, title, publishedTime, published, inferredPublished, textContent FROM "${to.name}"
           WHERE NOT list AND title IS NOT NULL`,
         )
         .all()

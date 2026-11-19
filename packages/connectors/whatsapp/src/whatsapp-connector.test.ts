@@ -122,15 +122,18 @@ async function importWhatsApp(
     readOnly: true,
   });
   return Object.fromEntries(
-    database
-      .prepare(
-        "SELECT name FROM sqlite_master WHERE type = 'table' AND name LIKE 'raw\\_%' ESCAPE '\\' ORDER BY name",
+    connection.steps
+      .filter(
+        ({ to }) =>
+          database
+            .prepare(
+              "SELECT 1 FROM sqlite_master WHERE type = 'view' AND name = ?",
+            )
+            .get(to.name) !== undefined,
       )
-      .all()
-      .map(({ name }) => [
-        String(name).slice('raw_'.length),
-        database.prepare(`SELECT count(*) AS n FROM "${String(name)}"`).get()
-          ?.n,
+      .map(({ from, to }) => [
+        from.name,
+        database.prepare(`SELECT count(*) AS n FROM "${to.name}"`).get()?.n,
       ]),
   );
 }

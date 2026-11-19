@@ -238,7 +238,7 @@ export abstract class Connector {
     return covers === 'everything' ? this.title : `${this.title} (${covers})`;
   }
 
-  // The reader view of a stream: raw_inlineAttachments reads as
+  // The reader view of a stream: inlineAttachments reads as
   // inline_attachments.
   view(stream: string): string {
     return stream.replaceAll(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
@@ -457,9 +457,9 @@ export abstract class Connector {
     return { status: 'imported' };
   }
 
-  // The streams of the connector's sources, loaded incrementally into
-  // raw_<stream> tables of the import directory's data.sqlite and read through
-  // documented views, with checkpoints.sqlite and attachment copies in files/
+  // The streams of the connector's sources, loaded incrementally into the
+  // import directory's data.sqlite and read through each stream's documented
+  // view, with checkpoints.sqlite and attachment copies in files/
   // beside it: one connection for each source, named by the source's identity.
   // Two sources that declare one stream are two writers of its table, which
   // the destination refuses rather than mixing their rows. Its derived
@@ -496,19 +496,15 @@ export abstract class Connector {
         .filter(({ name }) => !(narrowed && this.unscoped.includes(name)))
         .map((stream) => ({
           stream,
-          target: destination
-            .table(
-              `raw_${stream.name}`,
-              withFiles(stream)
-                ? (columns) => [
-                    ...SQLiteColumns.fromSchema(stream.jsonSchema),
-                    columns
-                      .text('attachmentRef')
-                      .from(stream.file.store(files)),
-                  ]
-                : undefined,
-            )
-            .withReaderView(this.view(stream.name)),
+          target: destination.table(
+            this.view(stream.name),
+            withFiles(stream)
+              ? (columns) => [
+                  ...SQLiteColumns.fromSchema(stream.jsonSchema),
+                  columns.text('attachmentRef').from(stream.file.store(files)),
+                ]
+              : undefined,
+          ),
         }));
       const connection = new Connection({
         name: source.identity,

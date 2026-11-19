@@ -18,7 +18,7 @@ Paths are relative to the repository root. The _source_ is the elt package that 
 - `Connectors` in `packages/connectors/manifest` discovers every connector folder. The CLI reads `packages/connectors`. The plugin bundle ships each built-in connector as its own folder beside the server. Nothing lists connectors by name.
 - A connector's presets are SQL files in `packages/connectors/<name>/presets`. Each `presets/<view>.sql` holds one `CREATE TEMP VIEW <view>`, after `-- <view>: …` and `-- <column>: …` comment lines. The bundle copies them.
 - A connector outside the repository goes in `~/Library/Application Support/Context Compiler/Connectors/<name>/`. Its `package.json` names a `.ts` entry. The entry is strip-only TypeScript. It imports only Node built-ins and the host modules in `packages/connectors/manifest/src/host-modules.ts`. The model is `packages/connectors/manifest/src/fixtures/photos`. The plugin's `$add-connector` skill tells the agent how to write one for a user.
-- Each import loads `raw_<stream>` tables into its own `data.sqlite`, read through `<snake_stream>` views. See [Connectors and their hosts](../../../docs/connectors-and-hosts.md).
+- Each import loads each stream into its own `data.sqlite`, read through a `<snake_stream>` view over the table `raw_<snake_stream>`. See [Connectors and their hosts](../../../docs/connectors-and-hosts.md).
 
 ## Steps
 
