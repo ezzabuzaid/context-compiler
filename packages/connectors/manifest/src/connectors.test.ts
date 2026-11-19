@@ -69,7 +69,7 @@ test('every connector folder loads as its connector for the host, and one that c
   assert.equal(slack?.title, 'Slack');
   assert.equal(
     slack?.guidance(),
-    'Turn on Terminal in System Settings › Privacy & Security › Full Disk Access, then quit and reopen Terminal. macOS does not ask for this access. Open Slack in each workspace to import and let it run: it saves what it has loaded every few minutes and when it quits, and only messages it has loaded on this Mac are imported.',
+    'Turn on Terminal in System Settings › Privacy & Security › Full Disk Access, then quit and reopen Terminal. macOS does not ask for this access. Open Slack in each workspace to import and let it run: it saves what it has loaded when its window is hidden or closed, when it loses the network, and about once an hour while the window stays visible, so hide the window to import what it just loaded. Only messages it has loaded on this Mac are imported.',
   );
   const dia = connectors.find(({ name }) => name === 'dia');
   assert.equal(dia?.title, 'Dia');
