@@ -15,7 +15,6 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { open, writeFile } from 'node:fs/promises';
-import { homedir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { test } from 'node:test';
 import { setTimeout as sleep } from 'node:timers/promises';
@@ -279,7 +278,7 @@ function read(database: string, sql: string, ...commands: string[]) {
 }
 
 test(
-  'the committed Context Compiler plugin installs from the repo marketplace, sets up through Codex bundled Node, imports in the background and serves it to the skill read command',
+  'the committed Context Compiler plugin installs from the repo marketplace, sets up through the Node its launcher is given, imports in the background and serves it to the skill read command',
   {
     timeout: 180_000,
   },
@@ -315,16 +314,8 @@ test(
       mcpServers: { 'context-compiler': launcher },
     } = JSON.parse(readFileSync(join(plugin, manifest.mcpServers), 'utf8'));
     accessSync(join(plugin, launcher.command), constants.X_OK);
-    const runtime =
-      process.env.CODEX_MCP_NODE_PATH ??
-      join(
-        homedir(),
-        '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node',
-      );
-    assert.ok(
-      existsSync(runtime),
-      'Open the ChatGPT desktop app to install the Codex bundled runtime',
-    );
+    const runtime = process.env.CODEX_MCP_NODE_PATH ?? process.execPath;
+    assert.ok(existsSync(runtime), 'CODEX_MCP_NODE_PATH names no file');
     // The user's Notes, where the server looks for them under this HOME.
     const noteStore = await noteStoreFixture(
       join(scratch.path, 'Library/Group Containers/group.com.apple.notes'),
@@ -918,12 +909,7 @@ test(
     const {
       mcpServers: { 'context-compiler': launcher },
     } = JSON.parse(readFileSync(join(plugin, manifest.mcpServers), 'utf8'));
-    const runtime =
-      process.env.CODEX_MCP_NODE_PATH ??
-      join(
-        homedir(),
-        '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node',
-      );
+    const runtime = process.env.CODEX_MCP_NODE_PATH ?? process.execPath;
     // Under this HOME, Notes has a store, macOS denies chat.db and Books was
     // never opened, so it has no stores.
     await noteStoreFixture(
@@ -1229,12 +1215,7 @@ export default class LockedConnector extends Connector {
     const store = join(scratch.path, 'locked.sqlite');
     openDatabase(store).close();
     chmodSync(store, 0o000);
-    const runtime =
-      process.env.CODEX_MCP_NODE_PATH ??
-      join(
-        homedir(),
-        '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node',
-      );
+    const runtime = process.env.CODEX_MCP_NODE_PATH ?? process.execPath;
     const {
       mcpServers: { 'context-compiler': launcher },
     } = JSON.parse(readFileSync(join(plugin, '.mcp.json'), 'utf8'));
@@ -1299,12 +1280,7 @@ test(
     });
     const plugin = join(scratch.path, 'plugin');
     cpSync(join(root, 'plugins/context-compiler'), plugin, { recursive: true });
-    const runtime =
-      process.env.CODEX_MCP_NODE_PATH ??
-      join(
-        homedir(),
-        '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node',
-      );
+    const runtime = process.env.CODEX_MCP_NODE_PATH ?? process.execPath;
     const {
       mcpServers: { 'context-compiler': launcher },
     } = JSON.parse(readFileSync(join(plugin, '.mcp.json'), 'utf8'));
@@ -1599,12 +1575,7 @@ async function chat(signal: AbortSignal, plugin: string, home: string) {
     cwd: join(plugin, launcher.cwd),
     env: {
       HOME: home,
-      CODEX_MCP_NODE_PATH:
-        process.env.CODEX_MCP_NODE_PATH ??
-        join(
-          homedir(),
-          '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node',
-        ),
+      CODEX_MCP_NODE_PATH: process.env.CODEX_MCP_NODE_PATH ?? process.execPath,
       PATH: '',
     },
     stderr: 'pipe',
@@ -2573,12 +2544,7 @@ test(
       parent: homes,
     });
     const plugin = join(root, 'plugins/context-compiler');
-    const runtime =
-      process.env.CODEX_MCP_NODE_PATH ??
-      join(
-        homedir(),
-        '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node',
-      );
+    const runtime = process.env.CODEX_MCP_NODE_PATH ?? process.execPath;
     const {
       mcpServers: { 'context-compiler': launcher },
     } = JSON.parse(readFileSync(join(plugin, '.mcp.json'), 'utf8'));
