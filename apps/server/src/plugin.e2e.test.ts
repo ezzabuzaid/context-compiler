@@ -485,6 +485,15 @@ test(
         'open_full_disk_access',
       ])
         assert.deepEqual(metaOf(name), { ui: { visibility: ['app'] } }, name);
+      // The page parses the Full Disk Access button's reply with z.object({}).
+      // A declared output schema makes the SDK refuse a reply without
+      // structuredContent, so the test need not call the tool, which opens
+      // System Settings.
+      assert.equal(
+        tools.find((tool) => tool.name === 'open_full_disk_access')
+          ?.outputSchema?.type,
+        'object',
+      );
       // ChatGPT lists the Context Compiler page in its sidebar, finds it in Settings
       // search by its connectors' names, and opens it from the page's own
       // resource.
