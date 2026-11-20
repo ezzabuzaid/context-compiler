@@ -9,16 +9,16 @@
     "title": "Instagram"
   },
   "dependencies": {
-    "@workspace/connector": "0.0.1",
     "@eltjs/source-apple-macos": "0.0.1",
-    "@eltjs/source-instagram-web": "0.0.1"
+    "@eltjs/source-instagram-web": "0.0.1",
+    "@workspace/connector": "0.0.1"
   },
   "devDependencies": {
     "@eltjs/elt": "*",
     "@eltjs/elt-sqlite": "*",
     "@eltjs/sdk-chromium-cookies": "0.0.1",
     "@zukhruf/fs": "^0.8.27",
-    "@zukhruf/pool": "^0.8.27",
+    "@zukhruf/pool": "^0.8.45",
     "@zukhruf/sqlite-open": "^0.8.27",
     "@zukhruf/testing": "^0.8.27",
     "msw": "^3.0.3"

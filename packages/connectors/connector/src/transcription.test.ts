@@ -5,7 +5,13 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import { TemporaryFiles } from '@zukhruf/fs';
-import { Fixed, LeaderFirst, NoEviction, Pool } from '@zukhruf/pool';
+import {
+  Fixed,
+  LeaderFirst,
+  NoEviction,
+  Pool,
+  PoolWorkers,
+} from '@zukhruf/pool';
 import { open } from '@zukhruf/sqlite-open';
 
 import {
@@ -19,6 +25,7 @@ import {
 import { SQLiteSyncHistory } from '@eltjs/elt-sqlite';
 import { SpeechModels } from '@eltjs/sdk-macos-speech-models';
 import { VisionWorker } from '@eltjs/source-apple-macos/vision';
+import { visionKind } from '@eltjs/source-apple-macos/vision-kind';
 import { Settings } from '@workspace/settings';
 
 import { Connector, type ConnectorHost } from './connector.ts';
@@ -124,7 +131,11 @@ test('an existing import pipeline reads audio with a model saved or disabled by 
   );
   await mkdir(snapshot, { recursive: true });
   await writeFile(join(snapshot, 'ggml-small.bin'), 'lmgg');
-  await using ocr = new Pool({
+  // The Vision pool on a store of the test's own: a Pool sends the reads and
+  // a PoolWorkers offers the worker.
+  await using _vision = new PoolWorkers({
+    kind: visionKind,
+    store: join(directory.path, 'pool.sqlite'),
     clock: globalThis,
     size: new Fixed(1),
     startup: new LeaderFirst(),
@@ -137,6 +148,11 @@ test('an existing import pipeline reads audio with a model saved or disabled by 
         globalThis,
       ),
   });
+  await using ocr = new Pool({
+    kind: visionKind,
+    store: join(directory.path, 'pool.sqlite'),
+    clock: globalThis,
+  });
   await using host = new Transcription(
     directory.path,
     new SpeechModels({
@@ -147,6 +163,7 @@ test('an existing import pipeline reads audio with a model saved or disabled by 
     fileURLToPath(
       import.meta.resolve('@eltjs/transcription-local/transcribe-local'),
     ),
+    join(directory.path, 'pool.sqlite'),
     globalThis,
   );
   using other = new Settings(directory.path);

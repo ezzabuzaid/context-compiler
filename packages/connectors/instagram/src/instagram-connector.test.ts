@@ -7,7 +7,13 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 import { TemporaryFiles } from '@zukhruf/fs';
-import { Fixed, LeaderFirst, NoEviction, Pool } from '@zukhruf/pool';
+import {
+  Fixed,
+  LeaderFirst,
+  NoEviction,
+  Pool,
+  PoolWorkers,
+} from '@zukhruf/pool';
 import { open } from '@zukhruf/sqlite-open';
 import { Msw } from '@zukhruf/testing/msw';
 import { HttpResponse, http } from 'msw';
@@ -18,6 +24,7 @@ import { ScratchMac } from '@eltjs/sdk-chromium-cookies/test';
 import { ImageFormat } from '@eltjs/source-apple-macos/image-format';
 import { MacOSDocumentParser } from '@eltjs/source-apple-macos/macos-document-parser';
 import { VisionWorker } from '@eltjs/source-apple-macos/vision';
+import { visionKind } from '@eltjs/source-apple-macos/vision-kind';
 
 import InstagramConnector from './instagram-connector.ts';
 
@@ -355,7 +362,14 @@ test('an everything import keeps each followed profile once across overlapping p
 });
 
 test('an import that keeps attachments, as setup does by default, makes the text on a timetable slide searchable', async () => {
-  await using ocr = new Pool({
+  await using vision = await new TemporaryFiles().directory(
+    'instagram-vision-',
+  );
+  // The Vision pool on a store of the test's own: a Pool sends the reads and
+  // a PoolWorkers offers the worker.
+  await using _vision = new PoolWorkers({
+    kind: visionKind,
+    store: join(vision.path, 'store.sqlite'),
     clock: globalThis,
     size: new Fixed(1),
     startup: new LeaderFirst(),
@@ -367,6 +381,11 @@ test('an import that keeps attachments, as setup does by default, makes the text
         ),
         globalThis,
       ),
+  });
+  await using ocr = new Pool({
+    kind: visionKind,
+    store: join(vision.path, 'store.sqlite'),
+    clock: globalThis,
   });
   await using mac = await signedInMac();
   const slides = new Map<string, Buffer>();

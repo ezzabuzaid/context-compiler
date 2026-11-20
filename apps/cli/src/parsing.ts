@@ -2,11 +2,23 @@ import { availableParallelism, homedir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { HillClimbing, IdleTimeout, LeaderFirst, Pool } from '@zukhruf/pool';
+import {
+  HillClimbing,
+  IdleTimeout,
+  LeaderFirst,
+  Pool,
+  PoolWorkers,
+  computerStore,
+} from '@zukhruf/pool';
 
 import type { DocumentParser } from '@eltjs/elt';
 import { SpeechModels } from '@eltjs/sdk-macos-speech-models';
 import { VisionWorker } from '@eltjs/source-apple-macos/vision';
+import {
+  type VisionRead,
+  type VisionText,
+  visionKind,
+} from '@eltjs/source-apple-macos/vision-kind';
 import { Transcription } from '@workspace/connector/transcription';
 
 // The OCR workers and the speech engine that read the files an import
@@ -51,14 +63,21 @@ class Idle implements AsyncDisposable {
 }
 
 // A command reads files: the OCR workers and the speech engine run until the
-// CLI exits.
+// CLI exits. They are workers of the pools of the computer, so the CLI and
+// the servers on this Mac share them, and the owner that the election picks
+// runs every read.
 class Started implements AsyncDisposable {
-  readonly #ocr: Pool<VisionWorker>;
+  readonly #visionWorkers: PoolWorkers<VisionRead, VisionText>;
+  readonly #ocr: Pool<VisionRead, VisionText>;
   readonly transcription: Transcription;
 
   constructor(directory: string) {
+    const store = computerStore(process.env);
     // The server builds the same pool: change both.
-    this.#ocr = new Pool({
+    this.#visionWorkers = new PoolWorkers({
+      kind: visionKind,
+      store,
+      clock: globalThis,
       size: new HillClimbing({
         memoryPerWorker: VisionWorker.memory,
         computer: {
@@ -70,7 +89,6 @@ class Started implements AsyncDisposable {
       // Idle Vision workers close after 5 minutes, so a server that does no work,
       // such as one Codex keeps after a plugin refresh, holds no helpers (#3516).
       eviction: new IdleTimeout({ after: 300_000 }),
-      clock: globalThis,
       create: () =>
         new VisionWorker(
           fileURLToPath(
@@ -79,6 +97,7 @@ class Started implements AsyncDisposable {
           globalThis,
         ),
     });
+    this.#ocr = new Pool({ kind: visionKind, store, clock: globalThis });
     this.transcription = new Transcription(
       directory,
       new SpeechModels({
@@ -89,6 +108,7 @@ class Started implements AsyncDisposable {
       fileURLToPath(
         import.meta.resolve('@eltjs/transcription-local/transcribe-local'),
       ),
+      store,
       globalThis,
     );
   }
@@ -96,5 +116,6 @@ class Started implements AsyncDisposable {
   async [Symbol.asyncDispose](): Promise<void> {
     await this.transcription[Symbol.asyncDispose]();
     await this.#ocr[Symbol.asyncDispose]();
+    await this.#visionWorkers[Symbol.asyncDispose]();
   }
 }

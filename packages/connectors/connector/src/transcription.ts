@@ -1,5 +1,5 @@
-import { type Clock, Future, WaitGroup } from '@zukhruf/async';
-import { Fixed, IdleTimeout, Parallel, Pool } from '@zukhruf/pool';
+import { Future, WaitGroup, type WallClock } from '@zukhruf/async';
+import { Fixed, IdleTimeout, Parallel, Pool, PoolWorkers } from '@zukhruf/pool';
 
 import type { DocumentParser } from '@eltjs/elt';
 import type { SpeechModels } from '@eltjs/sdk-macos-speech-models';
@@ -7,42 +7,59 @@ import { AudioFormat } from '@eltjs/source-apple-macos/audio-format';
 import type { DocumentFormat } from '@eltjs/source-apple-macos/document-format';
 import { ImageFormat } from '@eltjs/source-apple-macos/image-format';
 import { MacOSDocumentParser } from '@eltjs/source-apple-macos/macos-document-parser';
-import type { VisionWorker } from '@eltjs/source-apple-macos/vision';
-import { LocalTranscriptionModel } from '@eltjs/transcription-local';
+import type {
+  VisionRead,
+  VisionText,
+} from '@eltjs/source-apple-macos/vision-kind';
+import {
+  type LocalTranscriptionConfiguration,
+  LocalTranscriptionModel,
+} from '@eltjs/transcription-local';
+import {
+  type Transcript,
+  type TranscriptionRead,
+  transcriptionKind,
+} from '@eltjs/transcription-local/transcription-kind';
 import { TranscriptionWorker } from '@eltjs/transcription-local/transcription-worker';
 import { Settings } from '@workspace/settings';
 
 // The hosts share the user's saved choice: the file name of a speech model,
 // which each host finds wherever it is installed on its own Mac. Each host
-// owns its OCR pool; this owns the pool of the chosen model's engine, which
-// loads the weights as soon as the model is chosen. refresh notices choices
-// another CLI or plugin process saved in the same store.
+// builds its Vision pool; this builds the pool of the chosen model's engine
+// on the store of the computer, so the hosts that chose the same model share
+// one engine, which loads the weights as soon as the model is chosen.
+// refresh notices choices another CLI or plugin process saved in the same
+// settings.
 export class Transcription implements AsyncDisposable {
   readonly #settings: Settings;
   readonly #models: SpeechModels;
   readonly #helper: string;
   #choice: Loading | Loaded | Failed = new Loaded(null);
-  #engines: Pool<TranscriptionWorker> | NoEngines = new NoEngines();
+  #engines: Engines | NoEngines = new NoEngines();
   // The closes of the engine pools that a later choice replaced, and the
   // closes that failed: a failure stays, so refresh and disposal report it.
   readonly #closings = new WaitGroup();
   readonly #failedClosings: unknown[] = [];
   readonly #image: ImageFormat;
-  readonly #clock: Clock & { readonly Date: { now(): number } };
+  readonly #store: string;
+  readonly #clock: WallClock;
   #parser: DocumentParser;
 
   constructor(
     directory: string,
     models: SpeechModels,
-    ocr: Pool<VisionWorker>,
+    ocr: Pool<VisionRead, VisionText>,
     helper: string,
+    // The store of the engines' pool: an app gives computerStore(process.env).
+    store: string,
     // The clock of the engines' pool and of each transcription: an app gives
     // globalThis.
-    clock: Clock & { readonly Date: { now(): number } },
+    clock: WallClock,
   ) {
     this.#settings = new Settings(directory);
     this.#models = models;
     this.#helper = helper;
+    this.#store = store;
     this.#clock = clock;
     this.#image = new ImageFormat(ocr);
     this.#parser = new MacOSDocumentParser([this.#image]);
@@ -91,25 +108,26 @@ export class Transcription implements AsyncDisposable {
       this.#engines = new NoEngines();
       const formats: DocumentFormat[] = [this.#image];
       if (configuration !== undefined) {
-        const engines = new Pool({
-          size: new Fixed(1),
-          startup: new Parallel(),
-          // The engine holds the model's weights; it closes after 5 idle
-          // minutes and the next audio loads it again.
-          eviction: new IdleTimeout({ after: 300_000 }),
-          create: () => new TranscriptionWorker(this.#helper, configuration),
-          clock: this.#clock,
-        });
+        const engines = new Engines(
+          configuration,
+          this.#helper,
+          this.#store,
+          this.#clock,
+        );
         this.#engines = engines;
         formats.push(
           new AudioFormat(
-            new LocalTranscriptionModel(configuration, engines, this.#clock),
+            new LocalTranscriptionModel(
+              configuration,
+              engines.pool,
+              this.#clock,
+            ),
           ),
         );
       }
       this.#parser = new MacOSDocumentParser(formats);
       this.#choice = new Loaded(loading.chosen);
-      if (previous instanceof Pool) void this.#close(previous);
+      if (previous instanceof Engines) void this.#close(previous);
       loading.done.resolve();
     } catch (error) {
       if (this.#choice === loading) this.#choice = new Failed();
@@ -117,7 +135,7 @@ export class Transcription implements AsyncDisposable {
     }
   }
 
-  async #close(engines: Pool<TranscriptionWorker>): Promise<void> {
+  async #close(engines: Engines): Promise<void> {
     using _closing = this.#closings.add();
     try {
       await engines[Symbol.asyncDispose]();
@@ -161,10 +179,46 @@ export class Transcription implements AsyncDisposable {
       const engines = this.#engines;
       await Promise.all([
         this.#closed(),
-        engines instanceof Pool ? engines[Symbol.asyncDispose]() : undefined,
+        engines instanceof Engines ? engines[Symbol.asyncDispose]() : undefined,
       ]);
     } finally {
       this.#settings[Symbol.dispose]();
+    }
+  }
+}
+
+// The engine of one chosen model: this host offers one engine for the
+// model's kind, and sends its audio to the pool of that kind.
+class Engines implements AsyncDisposable {
+  readonly pool: Pool<TranscriptionRead, Transcript>;
+  readonly #workers: PoolWorkers<TranscriptionRead, Transcript>;
+
+  constructor(
+    configuration: LocalTranscriptionConfiguration,
+    helper: string,
+    store: string,
+    clock: WallClock,
+  ) {
+    const kind = transcriptionKind(configuration);
+    this.#workers = new PoolWorkers({
+      kind,
+      store,
+      clock,
+      size: new Fixed(1),
+      startup: new Parallel(),
+      // The engine holds the model's weights; it closes after 5 idle minutes
+      // and the next audio loads it again.
+      eviction: new IdleTimeout({ after: 300_000 }),
+      create: () => new TranscriptionWorker(helper, configuration),
+    });
+    this.pool = new Pool({ kind, store, clock });
+  }
+
+  async [Symbol.asyncDispose](): Promise<void> {
+    try {
+      await this.pool[Symbol.asyncDispose]();
+    } finally {
+      await this.#workers[Symbol.asyncDispose]();
     }
   }
 }

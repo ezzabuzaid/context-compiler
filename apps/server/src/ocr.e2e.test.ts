@@ -9,6 +9,7 @@ import { promisify } from 'node:util';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { TemporaryFiles } from '@zukhruf/fs';
+import { waitFor } from '@zukhruf/testing/async';
 
 // The workspace root: the tests read its fixtures and builds from any
 // working directory.
@@ -37,7 +38,7 @@ async function ocrWorkers(parent: number) {
 }
 
 for (const shutdown of ['stdin', 'SIGTERM'] as const)
-  test(`the MCP server starts OCR before any tool call, reuses it across settings changes and stops it on ${shutdown}`, async () => {
+  test(`the MCP server starts OCR before any tool call, reuses it across settings changes and stops it on ${shutdown}`, async (t) => {
     await using home = await new TemporaryFiles().directory('server-ocr-');
     const model = join(
       home.path,
@@ -67,11 +68,21 @@ for (const shutdown of ['stdin', 'SIGTERM'] as const)
     let workers: number[] = [];
     try {
       await client.connect(transport, { timeout: 120_000 });
-      assert.ok(transport.pid);
-      const ocr = await ocrWorkers(transport.pid);
-      assert.ok(
-        ocr.length >= 1,
-        'OCR must already be warming up before the first tool call',
+      const pid = transport.pid;
+      assert.ok(pid);
+      // The server starts OCR by itself once its PoolWorkers owns the Vision
+      // pool of the computer, a moment after it opens the store: no tool call
+      // starts it.
+      const ocr = await waitFor(
+        async () => {
+          const pids = await ocrWorkers(pid);
+          assert.ok(
+            pids.length >= 1,
+            'OCR must be warming up before the first tool call',
+          );
+          return pids;
+        },
+        { signal: t.signal, interval: 50 },
       );
       for (const model of ['ggml-small.bin', null]) {
         const changed = await client.callTool({
@@ -79,19 +90,19 @@ for (const shutdown of ['stdin', 'SIGTERM'] as const)
           arguments: { model },
         });
         assert.equal(changed.isError, undefined);
-        const running = await ocrWorkers(transport.pid);
+        const running = await ocrWorkers(pid);
         assert.ok(
           ocr.every((pid) => running.includes(pid)),
           'a settings change must keep the OCR workers',
         );
       }
-      workers = (await children(transport.pid)).map(({ pid }) => pid);
+      workers = (await children(pid)).map(({ pid }) => pid);
       if (shutdown === 'stdin') await client.close();
       else {
         const closed = new Promise<void>((resolve) => {
           client.onclose = resolve;
         });
-        process.kill(transport.pid, shutdown);
+        process.kill(pid, shutdown);
         await closed;
       }
       if (shutdown === 'stdin')

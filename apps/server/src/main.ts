@@ -1,4 +1,4 @@
-import { ocr } from './startup.ts';
+import { ocr, poolStore, visionWorkers } from './startup.ts';
 
 import { readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
@@ -72,6 +72,7 @@ const transcription = new Transcription(
   }),
   ocr,
   fileURLToPath(new URL('transcribe-local', import.meta.url)),
+  poolStore,
   globalThis,
 );
 const plugin = new Plugin(
@@ -442,6 +443,7 @@ mcpServer.server.onclose = () => {
   watching.abort();
   void transcription[Symbol.asyncDispose]();
   void ocr[Symbol.asyncDispose]();
+  void visionWorkers[Symbol.asyncDispose]();
 };
 // The server lives as long as the process, so the shutdown is never disposed.
 const shutdown = new Shutdown();
