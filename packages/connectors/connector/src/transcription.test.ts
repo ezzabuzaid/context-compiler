@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
-import { mkdir, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { basename, join } from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
@@ -207,7 +207,12 @@ test('an existing import pipeline reads audio with a model saved or disabled by 
   assert.equal(status(), 'empty');
   other.setTranscription('ggml-small.bin');
   await host.refresh();
-  const identity = await host.parser.identityFor(audio);
+  // The stored voice note as the attachment text rule gives it to the parser.
+  const stored = {
+    name: basename(audio),
+    head: async (length: number) => (await readFile(audio)).subarray(0, length),
+  };
+  const identity = await host.parser.identityFor(stored);
   assert.ok(identity?.includes('ggml-small.bin'));
   // The real decoder fails on these deliberately corrupt bytes. Its failure
   // proves that the already-built pipeline used the newly enabled model.
@@ -216,7 +221,7 @@ test('an existing import pipeline reads audio with a model saved or disabled by 
   // A model not installed on this Mac reads no audio.
   other.setTranscription('missing');
   await host.refresh();
-  assert.notEqual(await host.parser.identityFor(audio), identity);
+  assert.notEqual(await host.parser.identityFor(stored), identity);
   other.setTranscription(null);
   await host.refresh();
   await pipeline.run();

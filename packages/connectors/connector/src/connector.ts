@@ -551,7 +551,7 @@ export abstract class Connector {
                 from: stored,
                 compute: new DocumentText({
                   parser: () => this.host.documentParser,
-                  files: files.directory,
+                  files,
                   column: 'attachmentRef',
                 }),
               }),

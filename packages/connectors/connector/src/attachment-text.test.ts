@@ -23,6 +23,7 @@ import { MockTranscriptionModelV4 } from 'ai/test';
 import {
   Catalog,
   type CopyConfiguration,
+  type DocumentFile,
   DocumentParser,
   Gauge,
   PassFinished,
@@ -260,10 +261,10 @@ class CountingParser extends DocumentParser {
     super(identity);
   }
 
-  override identityFor(path: string) {
+  override identityFor(file: DocumentFile) {
     return this.identity === this.#parser.identity
-      ? this.#parser.identityFor(path)
-      : super.identityFor(path);
+      ? this.#parser.identityFor(file)
+      : super.identityFor(file);
   }
 
   override parse(path: string) {
@@ -284,8 +285,8 @@ class HoldingParser extends DocumentParser {
     super(new MacOSDocumentParser().identity);
   }
 
-  override identityFor(path: string) {
-    return this.#parser.identityFor(path);
+  override identityFor(file: DocumentFile) {
+    return this.#parser.identityFor(file);
   }
 
   release() {

@@ -62,7 +62,7 @@ FROM attachments a JOIN attachment_text t ON t.ref = a.attachmentRef
 WHERE t.content LIKE '%invoice%';
 ```
 
-The attachment text is a derived dataset of the import. No source reads it. `Connector.connections` declares it when the import stores files: elt-sqlite's `ComputedDataset` named `attachment_text`, over the tables of the streams of each source that store files, with elt's `DocumentText` as its rule. The rule reads the `attachmentRef` column and asks the host's parser for the text. The data is in the table `raw_attachment_text`. When the declaration of that table changes, a refresh replaces the table, and the parser reads each file again.
+The attachment text is a derived dataset of the import. No source reads it. `Connector.connections` declares it when the import stores files: elt-sqlite's `ComputedDataset` named `attachment_text`, over the tables of the streams of each source that store files, with elt's `DocumentText` as its rule. The rule reads the `attachmentRef` column, opens each file through the import's `LocalFiles`, and asks the host's parser for the text. The data is in the table `raw_attachment_text`. When the declaration of that table changes, a refresh replaces the table, and the parser reads each file again.
 
 The pipeline refreshes the dataset after each pass. Each refresh does these steps:
 
