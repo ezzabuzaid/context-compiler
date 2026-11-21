@@ -386,23 +386,45 @@ test('a file whose read failed is read again on the next sync', async () => {
   );
 });
 
-test('a stored copy removed while it is read leaves no row and no failure', async () => {
+test('under a watch, a stored copy that a commit removes with its document while the copy is read leaves no row and no failure once the refresh after that commit ends', async (t) => {
   await using directory = await new TemporaryFiles().directory('att-');
   const store = await importStore(directory.path);
-  await store.put('invoice.txt', 'Careem invoice 4471');
-  // Only a commit that lands mid-read removes a copy, and a test cannot time
-  // a real commit into that window, so the parser removes it first.
-  const racing = new (class extends DocumentParser {
-    readonly #parser = new MacOSDocumentParser();
-    override async parse(path: string) {
-      await rm(path);
-      return this.#parser.parse(path);
-    }
-  })(new MacOSDocumentParser().identity);
+  await store.put('invoice.txt', 'hold Careem invoice 4471');
+  await store.put('note.txt', 'Dinner at eight');
+  const parser = new HoldingParser();
+  const stop = new AbortController();
+  const passes = (await store.watching(parser)).watch({ signal: stop.signal });
+  const status = `SELECT state, inputs, computed, failed, pending FROM derived_status WHERE dataset = 'attachment_text'`;
+  try {
+    await passes.next();
+    await waitFor(
+      () => assert.equal(parser.inFlight, 1, 'the held read to start'),
+      { signal: t.signal },
+    );
+    await store.remove('invoice.txt');
+    store.source.changed();
+    await passes.next();
+    parser.release();
 
-  await store.sync(racing);
+    // The refresh that read invoice.txt counts two inputs; the one after the
+    // commit that removed it counts one.
+    await waitFor(
+      () =>
+        assert.deepEqual(store.read(status), [
+          { state: 'current', inputs: 1, computed: 1, failed: 0, pending: 0 },
+        ]),
+      { signal: t.signal },
+    );
 
-  assert.deepEqual(store.read('SELECT ref, status FROM attachment_text'), []);
+    assert.deepEqual(
+      store.read('SELECT status, content, error FROM attachment_text'),
+      [{ status: 'computed', content: 'Dinner at eight', error: null }],
+    );
+  } finally {
+    parser.release();
+    stop.abort();
+    await passes.return(undefined);
+  }
 });
 
 test(
