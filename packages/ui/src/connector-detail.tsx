@@ -1,4 +1,5 @@
-import { type ReactNode, useEffect, useState } from 'react';
+import { Checkbox } from '@zukhruf/shadcn';
+import { type ReactNode, useEffect, useId, useState } from 'react';
 
 import { callTool, messageOf } from './call-tool.ts';
 import { ConfirmDialog } from './confirm-dialog.tsx';
@@ -9,6 +10,7 @@ import {
   type ConnectorSelection,
   choicesResult,
 } from './contract.ts';
+import { DatePicker, localDay } from './date-picker.tsx';
 import { KeepCurrent } from './keep-current.tsx';
 import { usePage } from './page-context.tsx';
 
@@ -147,14 +149,9 @@ const sorted = ({ scope, includeAttachments }: ConnectorSelection) => ({
   includeAttachments,
 });
 
-// Date inputs hold the user's local days; a selection holds UTC instants with
+// Date pickers hold the user's local days; a selection holds UTC instants with
 // an exclusive end, so the last day the user picks is included.
-const pad = (value: number) => String(value).padStart(2, '0');
-
-function dayOf(instant: string): string {
-  const date = new Date(instant);
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-}
+const dayOf = (instant: string) => localDay(new Date(instant));
 
 const lastDayBefore = (end: string) =>
   dayOf(new Date(Date.parse(end) - 1).toISOString());
@@ -180,6 +177,7 @@ function ScopeForm({
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
+  const attachmentsId = useId();
   const selection = selectionOf(draft);
   const connected = row.selection !== null;
   const changed =
@@ -228,59 +226,50 @@ function ScopeForm({
           <legend>Dates</legend>
           <p className="text-small text-muted">By {choices.datedBy}.</p>
           <div className="dates">
-            <label>
-              <span className="form-label">From</span>
-              <input
-                type="date"
-                className="form-control"
-                value={draft.startAt === undefined ? '' : dayOf(draft.startAt)}
-                onChange={(event) =>
-                  setDraft({
-                    ...draft,
-                    startAt:
-                      event.target.value === ''
-                        ? undefined
-                        : startOfDay(event.target.value),
-                  })
-                }
-              />
-            </label>
-            <label>
-              <span className="form-label">Until</span>
-              <input
-                type="date"
-                className="form-control"
-                value={
-                  draft.endAt === undefined ? '' : lastDayBefore(draft.endAt)
-                }
-                onChange={(event) =>
-                  setDraft({
-                    ...draft,
-                    endAt:
-                      event.target.value === ''
-                        ? undefined
-                        : endAfterDay(event.target.value),
-                  })
-                }
-              />
-            </label>
+            <DatePicker
+              label="From"
+              day={
+                draft.startAt === undefined ? undefined : dayOf(draft.startAt)
+              }
+              onChange={(day) =>
+                setDraft({
+                  ...draft,
+                  startAt: day === undefined ? undefined : startOfDay(day),
+                })
+              }
+            />
+            <DatePicker
+              label="Until"
+              day={
+                draft.endAt === undefined
+                  ? undefined
+                  : lastDayBefore(draft.endAt)
+              }
+              onChange={(day) =>
+                setDraft({
+                  ...draft,
+                  endAt: day === undefined ? undefined : endAfterDay(day),
+                })
+              }
+            />
           </div>
         </fieldset>
       )}
-      <label className="form-check">
-        <input
-          type="checkbox"
-          className="form-check-input"
+      <div className="form-check">
+        <Checkbox
+          id={attachmentsId}
           checked={draft.includeAttachments}
-          onChange={() =>
+          onCheckedChange={() =>
             setDraft({
               ...draft,
               includeAttachments: !draft.includeAttachments,
             })
           }
         />
-        <span className="form-check-label">Copy attachments</span>
-      </label>
+        <label htmlFor={attachmentsId} className="form-check-label">
+          Copy attachments
+        </label>
+      </div>
       {typeof selection === 'string' && (
         <p className="text-small text-destructive">{selection}</p>
       )}
@@ -339,6 +328,7 @@ function ChoiceGroup({
   onChange: (picked: string[]) => void;
 }) {
   const [filter, setFilter] = useState('');
+  const groupId = useId();
   const all = picked.length === choice.options.length;
   const shown = choice.options.filter(({ label }) =>
     label.toLocaleLowerCase().includes(filter.toLocaleLowerCase()),
@@ -346,17 +336,18 @@ function ChoiceGroup({
   return (
     <fieldset className="choice">
       <legend>{choice.title}</legend>
-      <label className="form-check">
-        <input
-          type="checkbox"
-          className="form-check-input"
+      <div className="form-check">
+        <Checkbox
+          id={`${groupId}-all`}
           checked={all}
-          onChange={() =>
+          onCheckedChange={() =>
             onChange(all ? [] : choice.options.map(({ id }) => id))
           }
         />
-        <span className="form-check-label">All {choice.title}</span>
-      </label>
+        <label htmlFor={`${groupId}-all`} className="form-check-label">
+          All {choice.title}
+        </label>
+      </div>
       {choice.options.length > filterFrom && (
         <input
           type="search"
@@ -368,12 +359,11 @@ function ChoiceGroup({
       )}
       <div className="options">
         {shown.map(({ id, label }) => (
-          <label key={id} className="form-check">
-            <input
-              type="checkbox"
-              className="form-check-input"
+          <div key={id} className="form-check">
+            <Checkbox
+              id={`${groupId}-${encodeURIComponent(id)}`}
               checked={picked.includes(id)}
-              onChange={() =>
+              onCheckedChange={() =>
                 onChange(
                   picked.includes(id)
                     ? picked.filter((item) => item !== id)
@@ -381,8 +371,13 @@ function ChoiceGroup({
                 )
               }
             />
-            <span className="form-check-label">{label}</span>
-          </label>
+            <label
+              htmlFor={`${groupId}-${encodeURIComponent(id)}`}
+              className="form-check-label"
+            >
+              {label}
+            </label>
+          </div>
         ))}
       </div>
     </fieldset>

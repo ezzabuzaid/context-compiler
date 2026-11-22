@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { Switch } from '@zukhruf/shadcn';
+import { useId, useState } from 'react';
 
 import { messageOf } from './call-tool.ts';
 import type { ConnectorRow } from './contract.ts';
@@ -8,6 +9,7 @@ export function KeepCurrent({ row }: { row: ConnectorRow }) {
   const { watch } = usePage();
   const [busy, setBusy] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
+  const id = useId();
 
   const change = async (watched: boolean) => {
     setBusy(true);
@@ -23,17 +25,15 @@ export function KeepCurrent({ row }: { row: ConnectorRow }) {
 
   return (
     <section className="card scope">
-      <label className="toggle">
-        <span>Keep current</span>
-        <input
-          type="checkbox"
-          role="switch"
-          className="switch"
+      <div className="toggle">
+        <label htmlFor={id}>Keep current</label>
+        <Switch
+          id={id}
           checked={row.watched}
           disabled={busy}
-          onChange={(event) => void change(event.target.checked)}
+          onCheckedChange={(checked) => void change(checked)}
         />
-      </label>
+      </div>
       {failure !== null && (
         <p role="alert" className="text-small text-destructive">
           {failure}

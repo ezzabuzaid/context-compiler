@@ -1,3 +1,4 @@
+import { Switch } from '@zukhruf/shadcn';
 import { useState } from 'react';
 
 import { messageOf } from './call-tool.ts';
@@ -29,14 +30,12 @@ export function ConnectorSwitch({ row }: { row: ConnectorRow }) {
 
   return (
     <>
-      <input
-        type="checkbox"
-        role="switch"
-        className="switch"
+      <Switch
+        size="sm"
         aria-label={`${row.title} connected`}
         checked={on}
         disabled={busy || (!row.loaded && !on)}
-        onChange={() => {
+        onCheckedChange={() => {
           if (on) setConfirming(true);
           else void change({});
         }}

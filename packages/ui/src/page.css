@@ -7,12 +7,6 @@
 @import '@zukhruf/shadcn/styles.css';
 @import '@openai/mcp-extensions/app/styles.css';
 
-/* OpenAI's check mark is 7px by 4px inside its 2px borders, which the
-   preflight's border-box would take from it. */
-.form-check-input:checked::after {
-  box-sizing: content-box;
-}
-
 /* The sidebar follows ChatGPT's Space sidebar (ChatGPT 26.1007): 275px wide,
    30px rows, 14px text, a 14px chevron that shows on hover or while folded.
    The page gets no hover colour from ChatGPT, so it mixes Space's own. The
@@ -200,22 +194,6 @@
   padding-inline-end: 8px;
 }
 
-/* A sidebar row's switch is the small one, as a row is only 30px tall. */
-.section .switch {
-  width: 26px;
-  height: 15px;
-  border-radius: 7.5px;
-}
-
-.section .switch::after {
-  width: 11px;
-  height: 11px;
-}
-
-.section .switch:checked::after {
-  transform: translateX(11px);
-}
-
 /* A switch's failure takes its own line under the row. */
 .section li > p {
   flex-basis: 100%;
@@ -340,50 +318,6 @@ button.item:hover,
   flex-direction: column;
   align-items: flex-start;
   gap: 6px;
-}
-
-.switch {
-  appearance: none;
-  position: relative;
-  width: 32px;
-  height: 18px;
-  flex: none;
-  margin: 0;
-  border-radius: 9px;
-  background: var(--muted);
-  cursor: var(--cursor-interaction, pointer);
-  transition: background 120ms ease-out;
-}
-
-.switch::after {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--background);
-  box-shadow: 0 1px 2px rgb(0 0 0 / 20%);
-  content: '';
-  transition: transform 120ms ease-out;
-}
-
-.switch:checked {
-  background: var(--primary);
-}
-
-.switch:checked::after {
-  transform: translateX(14px);
-}
-
-.switch:disabled {
-  cursor: not-allowed;
-  opacity: 0.4;
-}
-
-.switch:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 2px;
 }
 
 .card h3 {

@@ -4,8 +4,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  Switch,
 } from '@zukhruf/shadcn';
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 
 import { callTool, messageOf } from './call-tool.ts';
 import { type TranscriptionChoices, transcriptionResult } from './contract.ts';
@@ -55,6 +56,7 @@ function TranscriptionForm({ choices }: { choices: TranscriptionChoices }) {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [failure, setFailure] = useState<string | null>(null);
+  const switchId = useId();
 
   const save = async () => {
     if (app === null) return;
@@ -89,20 +91,18 @@ function TranscriptionForm({ choices }: { choices: TranscriptionChoices }) {
         void save();
       }}
     >
-      <label className="toggle">
-        <span>Transcribe audio</span>
-        <input
-          className="switch"
-          type="checkbox"
-          role="switch"
+      <div className="toggle">
+        <label htmlFor={switchId}>Transcribe audio</label>
+        <Switch
+          id={switchId}
           checked={enabled}
           disabled={saving || (choices.models.length === 0 && !enabled)}
-          onChange={(event) => {
-            setEnabled(event.target.checked);
+          onCheckedChange={(checked) => {
+            setEnabled(checked);
             setMessage(null);
           }}
         />
-      </label>
+      </div>
       {choices.models.length === 0 ? (
         <p className="text-muted">
           No speech model is installed on this Mac. Download one, such as Cohere
