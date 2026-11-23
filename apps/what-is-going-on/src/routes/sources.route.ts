@@ -5,7 +5,7 @@ import { z } from 'zod';
 import db from '../db.ts';
 import { SiteError, discoverSite } from '../discover-site.ts';
 import events from '../events.ts';
-import reading from '../reading.ts';
+import type { Reading } from '../reading.ts';
 import settings from '../settings.ts';
 import { leftOut } from '../sources.ts';
 import { controlsSchema } from '../views/controls.ts';
@@ -88,7 +88,7 @@ async function page(c: Context, notice?: string) {
   });
 }
 
-export default function (router: Hono) {
+export default function (router: Hono, reading: Pick<Reading, 'restart'>) {
   router.get('/sources', async (c) => c.html(await page(c)));
 
   // Finds how to read the address, keeps it, and reads the sources again.

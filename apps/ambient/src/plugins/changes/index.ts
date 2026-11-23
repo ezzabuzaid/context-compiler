@@ -2,6 +2,7 @@ import type {
   AgentPluginDefinition,
   AgentPluginHost,
 } from '@deepagents/experimental/zukhruf';
+import { BackgroundService } from '@zukhruf/async';
 
 import type { Evidence } from '../../contracts/evidence.ts';
 import type { Journal } from '../../journal/journal.ts';
@@ -52,23 +53,19 @@ const changes: AgentPluginDefinition<{
       journal,
       failure: failure.promise,
       async work(host) {
-        const stop = new AbortController();
-        const running = followWarehouse(
-          warehouse,
-          positions,
-          stop.signal,
-          async (source, batch) => {
-            for (const change of batch)
-              await enqueue(host, journal.capture(source, change));
-          },
+        const following = BackgroundService.start((signal) =>
+          followWarehouse(
+            warehouse,
+            positions,
+            signal,
+            async (source, batch) => {
+              for (const change of batch)
+                await enqueue(host, journal.capture(source, change));
+            },
+          ),
         );
-        void running.catch(failure.reject);
-        return {
-          async [Symbol.asyncDispose]() {
-            stop.abort();
-            await running;
-          },
-        };
+        void following.ended.catch(failure.reject);
+        return following;
       },
       async initialize(host) {
         // Complete only the ingestion handoff interrupted before a queue receipt.

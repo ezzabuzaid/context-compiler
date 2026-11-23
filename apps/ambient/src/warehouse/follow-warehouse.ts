@@ -2,7 +2,7 @@ import { hash } from 'node:crypto';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 
-import { ChangeWatcher } from '@zukhruf/async';
+import { BackgroundService, ChangeWatcher } from '@zukhruf/async';
 import {
   Baseline,
   type ChangeEvent,
@@ -27,10 +27,8 @@ export async function followWarehouse(
   const stopped = new AbortController();
   const lifetime = AbortSignal.any([signal, stopped.signal]);
   const failure = Promise.withResolvers<never>();
-  const sources = new Map<
-    string,
-    { stop: AbortController; done: Promise<void> }
-  >();
+  // One watch of each selected source's changefeed, by its key.
+  const sources = new Map<string, BackgroundService>();
 
   async function reconcile() {
     const selected = new Map(
@@ -43,16 +41,13 @@ export async function followWarehouse(
     );
     for (const [key, worker] of sources) {
       if (selected.has(key)) continue;
-      worker.stop.abort();
-      await worker.done;
       sources.delete(key);
+      await worker[Symbol.asyncDispose]();
     }
     for (const [key, source] of selected) {
       if (sources.has(key)) continue;
-      const stop = new AbortController();
-      const sourceSignal = AbortSignal.any([lifetime, stop.signal]);
       const position = join(directory, `${hash('sha256', key)}.sqlite`);
-      const done = (async () => {
+      const worker = BackgroundService.start(async (watching) => {
         // A notice is about a change, not about the rows that were there
         // before Ambient first ran: the first pass is a baseline.
         using feed = new Changefeed(source.database, {
@@ -61,7 +56,7 @@ export async function followWarehouse(
         });
         for await (const changes of feed.watch({
           interval: 1000,
-          signal: sourceSignal,
+          signal: watching,
           clock: globalThis,
         })) {
           // elt's own tables (sync history, coverage, descriptions, file
@@ -71,11 +66,9 @@ export async function followWarehouse(
           );
           if (data.length > 0) await accept(source.name, data);
         }
-      })().catch((error) => {
-        if (sourceSignal.aborted && error === sourceSignal.reason) return;
-        failure.reject(error);
       });
-      sources.set(key, { stop, done });
+      void worker.ended.catch(failure.reject);
+      sources.set(key, worker);
     }
   }
 
@@ -96,13 +89,13 @@ export async function followWarehouse(
   })();
   try {
     await Promise.race([settings, failure.promise]);
-  } catch (error) {
-    if (!lifetime.aborted || error !== lifetime.reason) throw error;
   } finally {
     stopped.abort();
     await Promise.allSettled([
       settings,
-      ...Array.from(sources.values(), (worker) => worker.done),
+      ...Array.from(sources.values(), (worker) =>
+        worker[Symbol.asyncDispose](),
+      ),
     ]);
   }
 }

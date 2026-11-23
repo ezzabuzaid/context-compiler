@@ -14,6 +14,7 @@ if (process.env.XDG_DATA_HOME === undefined)
     'Run these tests through reader.test.ts, which gives them their own XDG_DATA_HOME.',
   );
 const { default: app } = await import('../app.ts');
+const { Reading } = await import('../reading.ts');
 
 // A web site: each path answers its page, every other path 404, and there is
 // no robots.txt.
@@ -37,9 +38,15 @@ function listening(address: string | AddressInfo | null) {
   return address;
 }
 
-// The app's server, as main.ts serves it.
+// The app's server, as main.ts serves it, over a reading of no sources but
+// the sites a test adds.
 async function serveApp() {
-  const server = serve({ fetch: app.fetch, port: 0, hostname: '127.0.0.1' });
+  const reading = new Reading([]);
+  const server = serve({
+    fetch: app(reading).fetch,
+    port: 0,
+    hostname: '127.0.0.1',
+  });
   await once(server, 'listening');
   const { port } = listening(server.address());
   return {
@@ -47,6 +54,7 @@ async function serveApp() {
     [Symbol.asyncDispose]: async () => {
       server.close();
       await once(server, 'close');
+      await reading[Symbol.asyncDispose]();
     },
   };
 }
