@@ -1,6 +1,7 @@
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -129,11 +130,13 @@ function TranscriptionForm({ choices }: { choices: TranscriptionChoices }) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent alignItemWithTrigger={false}>
-              {choices.models.map(({ id, title }) => (
-                <SelectItem key={id} value={id}>
-                  {title}
-                </SelectItem>
-              ))}
+              <SelectGroup>
+                {choices.models.map(({ id, title }) => (
+                  <SelectItem key={id} value={id}>
+                    {title}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
             </SelectContent>
           </Select>
         </div>

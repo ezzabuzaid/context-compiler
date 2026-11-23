@@ -18,7 +18,7 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import { untilAborted } from '@zukhruf/async';
 import { TemporaryFiles } from '@zukhruf/fs';
 import { open as openDatabase } from '@zukhruf/sqlite-open';
-import { timebox } from '@zukhruf/testing/async';
+import { retryUntilReady } from '@zukhruf/testing/async';
 import { type ElectronApplication, _electron } from 'playwright';
 
 // The workspace root: the tests read its fixtures and builds from any
@@ -358,9 +358,12 @@ function imported(home: string): string {
 
 // ENXIO: no process has the pipe open to read yet.
 function readerOf(pipe: string): Promise<FileHandle> {
-  return timebox(() => open(pipe, constants.O_WRONLY | constants.O_NONBLOCK), {
-    minTimeout: 100,
-    maxRetryTime: 30_000,
-    shouldRetry: ({ error }) => 'code' in error && error.code === 'ENXIO',
-  });
+  return retryUntilReady(
+    () => open(pipe, constants.O_WRONLY | constants.O_NONBLOCK),
+    {
+      minTimeout: 100,
+      maxRetryTime: 30_000,
+      shouldRetry: ({ error }) => 'code' in error && error.code === 'ENXIO',
+    },
+  );
 }

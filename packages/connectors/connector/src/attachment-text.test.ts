@@ -17,7 +17,7 @@ import { test } from 'node:test';
 import { Latch } from '@zukhruf/async';
 import { TemporaryFiles } from '@zukhruf/fs';
 import { open } from '@zukhruf/sqlite-open';
-import { timebox, waitFor } from '@zukhruf/testing/async';
+import { waitFor } from '@zukhruf/testing/async';
 import { MockTranscriptionModelV4 } from 'ai/test';
 
 import {
@@ -306,15 +306,6 @@ class HoldingParser extends DocumentParser {
   }
 }
 
-// Waits until check() holds, polling, or fails after a deadline.
-async function eventually(check: () => boolean, what: string) {
-  await timebox(() => assert.ok(check(), `Timed out waiting for ${what}`), {
-    minTimeout: 50,
-    maxRetryTime: 20_000,
-    shouldRetry: ({ error }) => error instanceof assert.AssertionError,
-  });
-}
-
 // One page with a line of text in Helvetica: a PDF with a text layer.
 function textPdf(text: string): string {
   const content = `BT /F1 18 Tf 20 100 Td (${text}) Tj ET`;
@@ -444,11 +435,14 @@ test(
         () => assert.ok(parser.inFlight > 0, 'the reads to start'),
         { signal: t.signal },
       );
-      await eventually(
+      await waitFor(
         () =>
-          store.texts().filter(({ name }) => name !== 'a-slow.txt').length ===
-          6,
-        'every file but the held one to be read',
+          assert.equal(
+            store.texts().filter(({ name }) => name !== 'a-slow.txt').length,
+            6,
+            'every file but the held one is read',
+          ),
+        { signal: t.signal, interval: 50 },
       );
       assert.ok(parser.peak > 1 && parser.peak <= readers);
     } finally {

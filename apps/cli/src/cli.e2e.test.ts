@@ -35,7 +35,7 @@ import {
   RollbackJournal,
   open as openDatabase,
 } from '@zukhruf/sqlite-open';
-import { timebox, waitFor } from '@zukhruf/testing/async';
+import { retryUntilReady, waitFor } from '@zukhruf/testing/async';
 
 import { IndexedDBWriter } from '@eltjs/codec-chromium-indexeddb/test';
 
@@ -1081,18 +1081,17 @@ function started(mac: string, ...args: string[]) {
     child,
     exited,
     printed,
-    async prints(matches: (line: Record<string, unknown>) => boolean) {
-      await timebox(
+    async prints(
+      matches: (line: Record<string, unknown>) => boolean,
+      signal: AbortSignal,
+    ) {
+      await waitFor(
         () =>
           assert.ok(
             printed().some(matches),
             `never printed it:\n${stdout}${stderr}`,
           ),
-        {
-          minTimeout: 100,
-          maxRetryTime: 30_000,
-          shouldRetry: ({ error }) => error instanceof assert.AssertionError,
-        },
+        { signal, interval: 100 },
       );
     },
   };
@@ -1150,19 +1149,15 @@ function terminal(t: TestContext, mac: string, ...args: string[]) {
 }
 
 // Polls status until the only selected connector's pass runs.
-async function passRunning(mac: string) {
-  await timebox(
+async function passRunning(mac: string, signal: AbortSignal) {
+  await waitFor(
     () =>
       assert.equal(
         JSON.parse(cli(mac, 'status', '--json').stdout)[0]?.state,
         'running',
-        'the sync did not start its pass within a minute',
+        'the sync did not start its pass',
       ),
-    {
-      minTimeout: 100,
-      maxRetryTime: 60_000,
-      shouldRetry: ({ error }) => error instanceof assert.AssertionError,
-    },
+    { signal, interval: 100 },
   );
 }
 
@@ -1171,7 +1166,7 @@ async function passRunning(mac: string) {
 // never came would hang the whole run instead of failing this test.
 async function feed(pipe: string, content: string): Promise<void> {
   // ENXIO: no process has the pipe open to read yet.
-  await using handle = await timebox(
+  await using handle = await retryUntilReady(
     () => open(pipe, constants.O_WRONLY | constants.O_NONBLOCK),
     {
       minTimeout: 100,
@@ -1316,7 +1311,7 @@ test('a second sync of an import another sync is importing says so, waits for th
   cli(mac.path, 'setup', '--connector', 'photos');
   const first = started(mac.path, 'sync', '--json');
   try {
-    await passRunning(mac.path);
+    await passRunning(mac.path, t.signal);
     const second = terminal(t, mac.path, 'sync');
     try {
       await second.shows('a sync is importing it');
@@ -1361,7 +1356,7 @@ test('a sync waiting on another sync whose pass is killed says the pass was inte
   cli(mac.path, 'setup', '--connector', 'photos');
   const first = started(mac.path, 'sync', '--json');
   try {
-    await passRunning(mac.path);
+    await passRunning(mac.path, t.signal);
     const second = terminal(t, mac.path, 'sync');
     try {
       await second.shows('a sync is importing it');
@@ -1385,7 +1380,7 @@ test('a sync waiting on another sync whose pass is killed says the pass was inte
   }
 });
 
-test('a sync of one connector runs while another sync waits on a read of a different one', async () => {
+test('a sync of one connector runs while another sync waits on a read of a different one', async (t) => {
   await using mac = await new TemporaryFiles().directory('cli-e2e-', {
     parent: homes,
   });
@@ -1398,7 +1393,7 @@ test('a sync of one connector runs while another sync waits on a read of a diffe
   cli(mac.path, 'setup', '--connector', 'photos', '--connector', 'notes');
   const photos = started(mac.path, 'sync', '--json', '--connector', 'photos');
   try {
-    await passRunning(mac.path);
+    await passRunning(mac.path, t.signal);
     const notes = started(mac.path, 'sync', '--json', '--connector', 'notes');
     try {
       const synced = await notes.exited;
@@ -1420,7 +1415,7 @@ test('a sync of one connector runs while another sync waits on a read of a diffe
   }
 });
 
-test('Ctrl-C stops a sync at once while a connector waits on a read', async () => {
+test('Ctrl-C stops a sync at once while a connector waits on a read', async (t) => {
   await using mac = await new TemporaryFiles().directory('cli-e2e-', {
     parent: homes,
   });
@@ -1433,7 +1428,7 @@ test('Ctrl-C stops a sync at once while a connector waits on a read', async () =
   cli(mac.path, 'setup', '--connector', 'photos');
   const sync = started(mac.path, 'sync', '--json');
   try {
-    await passRunning(mac.path);
+    await passRunning(mac.path, t.signal);
 
     sync.child.kill('SIGINT');
     await sync.exited;
@@ -1457,7 +1452,7 @@ test('Ctrl-C typed in a terminal stops a sync at once while a connector waits on
   cli(mac.path, 'setup', '--connector', 'photos');
   const sync = terminal(t, mac.path, 'sync');
   try {
-    await passRunning(mac.path);
+    await passRunning(mac.path, t.signal);
     await sync.shows('Photos photos');
 
     await sync.type(ctrlC);
@@ -1482,7 +1477,7 @@ test('SIGTERM stops a sync in a terminal at once while its spinner shows', async
   cli(mac.path, 'setup', '--connector', 'photos');
   const sync = terminal(t, mac.path, 'sync');
   try {
-    await passRunning(mac.path);
+    await passRunning(mac.path, t.signal);
     await sync.shows('Photos photos');
     // expect runs the CLI as its only child.
     const pid = spawnSync('/usr/bin/pgrep', ['-P', String(sync.child.pid)], {
@@ -1548,7 +1543,7 @@ test('only a command that reads files starts the OCR workers', async (t) => {
   cli(mac.path, 'setup', '--connector', 'photos');
   const sync = started(mac.path, 'sync', '--json');
   try {
-    await passRunning(mac.path);
+    await passRunning(mac.path, t.signal);
     assert.notDeepEqual(await ocrWorkers(sync.child.pid!), []);
   } finally {
     sync.child.kill('SIGTERM');
@@ -1556,7 +1551,7 @@ test('only a command that reads files starts the OCR workers', async (t) => {
   }
 });
 
-test('a setup that removes a connector stops the sync importing it, while the rest loads, and the next sync removes its import', async () => {
+test('a setup that removes a connector stops the sync importing it, while the rest loads, and the next sync removes its import', async (t) => {
   await using mac = await new TemporaryFiles().directory('cli-e2e-', {
     parent: homes,
   });
@@ -1570,25 +1565,17 @@ test('a setup that removes a connector stops the sync importing it, while the re
   cli(mac.path, 'setup', '--connector', 'notes', '--connector', 'photos');
   const sync = started(mac.path, 'sync', '--json');
   try {
-    const imported: string = await timebox(
+    const imported: string = await waitFor(
       () => {
         const photos = JSON.parse(
           cli(mac.path, 'status', '--json').stdout,
         ).find(
           ({ connector }: { connector: string }) => connector === 'photos',
         );
-        assert.equal(
-          photos?.state,
-          'running',
-          'the Photos pass did not start within a minute',
-        );
+        assert.equal(photos?.state, 'running', 'the Photos pass did not start');
         return photos.database;
       },
-      {
-        minTimeout: 100,
-        maxRetryTime: 60_000,
-        shouldRetry: ({ error }) => error instanceof assert.AssertionError,
-      },
+      { signal: t.signal, interval: 100 },
     );
 
     const removed = cli(mac.path, 'setup', '--connector', 'notes');
@@ -2284,7 +2271,7 @@ test('a sync of a connector a sync watch keeps current says so and exits 0, runn
   cli(mac.path, 'setup', '--connector', 'safari');
   const watch = started(mac.path, 'sync', 'watch', '--json');
   try {
-    await watch.prints(({ connector }) => connector === 'safari');
+    await watch.prints(({ connector }) => connector === 'safari', t.signal);
     const before = attempts(mac.path, 'safari');
 
     const sync = started(mac.path, 'sync', '--json');
@@ -2317,7 +2304,7 @@ test('a sync of a connector a sync watch keeps current says so and exits 0, runn
   }
 });
 
-test('a setup that removes a watched connector keeps its import while the watch owns it, then the watch stops watching it within seconds, removes its import and keeps running', async () => {
+test('a setup that removes a watched connector keeps its import while the watch owns it, then the watch stops watching it within seconds, removes its import and keeps running', async (t) => {
   await using mac = await new TemporaryFiles().directory('cli-e2e-', {
     parent: homes,
   });
@@ -2333,25 +2320,17 @@ test('a setup that removes a watched connector keeps its import while the watch 
   cli(mac.path, 'setup', '--connector', 'photos');
   const watch = started(mac.path, 'sync', 'watch', '--json');
   try {
-    const imported: string = await timebox(
+    const imported: string = await waitFor(
       () => {
         const photos = JSON.parse(
           cli(mac.path, 'status', '--json').stdout,
         ).find(
           ({ connector }: { connector: string }) => connector === 'photos',
         );
-        assert.equal(
-          photos?.state,
-          'running',
-          'the Photos pass did not start within a minute',
-        );
+        assert.equal(photos?.state, 'running', 'the Photos pass did not start');
         return dirname(photos.database);
       },
-      {
-        minTimeout: 100,
-        maxRetryTime: 60_000,
-        shouldRetry: ({ error }) => error instanceof assert.AssertionError,
-      },
+      { signal: t.signal, interval: 100 },
     );
 
     const removed = cli(mac.path, 'setup', '--connector', 'safari');
@@ -2362,6 +2341,7 @@ test('a setup that removes a watched connector keeps its import while the watch 
     await writeFile(pictures, JSON.stringify([{ id: 'p1', title: 'Beach' }]));
     await watch.prints(
       ({ connector, status }) => connector === 'photos' && status === 'removed',
+      t.signal,
     );
 
     assert.equal(removed.status, 0, removed.stderr);
@@ -2374,14 +2354,14 @@ test('a setup that removes a watched connector keeps its import while the watch 
   }
 });
 
-test('a sync watch started with no connector set up keeps running, and loads a connector set up under it', async () => {
+test('a sync watch started with no connector set up keeps running, and loads a connector set up under it', async (t) => {
   await using mac = await new TemporaryFiles().directory('cli-e2e-', {
     parent: homes,
   });
   await withSafari(mac.path);
   const watch = started(mac.path, 'sync', 'watch', '--json');
   try {
-    await watch.prints(({ status }) => status === 'unselected');
+    await watch.prints(({ status }) => status === 'unselected', t.signal);
     // Longer than the watch takes to read the selection a few times.
     await sleep(3_000);
     const idle = watch.child.exitCode;
@@ -2392,6 +2372,7 @@ test('a sync watch started with no connector set up keeps running, and loads a c
     await watch.prints(
       ({ connector, status }) =>
         connector === 'safari' && status === 'succeeded',
+      t.signal,
     );
   } finally {
     watch.child.kill('SIGKILL');
@@ -2399,7 +2380,7 @@ test('a sync watch started with no connector set up keeps running, and loads a c
   }
 });
 
-test('a sync watch reports a connector another setup removed, keeps running, and watches it again once it is set up again', async () => {
+test('a sync watch reports a connector another setup removed, keeps running, and watches it again once it is set up again', async (t) => {
   await using mac = await new TemporaryFiles().directory('cli-e2e-', {
     parent: homes,
   });
@@ -2411,11 +2392,13 @@ test('a sync watch reports a connector another setup removed, keeps running, and
     await watch.prints(
       ({ connector, status }) =>
         connector === 'safari' && status === 'succeeded',
+      t.signal,
     );
 
     cli(mac.path, 'setup', '--connector', 'notes');
     await watch.prints(
       ({ connector, status }) => connector === 'safari' && status === 'removed',
+      t.signal,
     );
     // Longer than the watch takes to read the selection a few times, so a
     // watch that started Safari again from the old selection shows its pass.
@@ -2448,14 +2431,14 @@ test('a sync watch reports a connector another setup removed, keeps running, and
           ({ connector, status }) =>
             connector === 'safari' && status === 'succeeded',
         );
-    });
+    }, t.signal);
   } finally {
     watch.child.kill('SIGKILL');
     await watch.exited;
   }
 });
 
-test('a second sync watch of a connector another one keeps current waits without a pass, and takes over once that one is stopped', async () => {
+test('a second sync watch of a connector another one keeps current waits without a pass, and takes over once that one is stopped', async (t) => {
   await using mac = await new TemporaryFiles().directory('cli-e2e-', {
     parent: homes,
   });
@@ -2463,15 +2446,15 @@ test('a second sync watch of a connector another one keeps current waits without
   cli(mac.path, 'setup', '--connector', 'safari');
   const first = started(mac.path, 'sync', 'watch', '--json');
   try {
-    await first.prints(({ connector }) => connector === 'safari');
+    await first.prints(({ connector }) => connector === 'safari', t.signal);
     const second = started(mac.path, 'sync', 'watch', '--json');
     try {
-      await second.prints(({ status }) => status === 'waiting');
+      await second.prints(({ status }) => status === 'waiting', t.signal);
       const waited = attempts(mac.path, 'safari');
 
       first.child.kill('SIGINT');
       await first.exited;
-      await second.prints(({ status }) => status === 'succeeded');
+      await second.prints(({ status }) => status === 'succeeded', t.signal);
 
       assert.equal(waited, 1);
       assert.equal(first.child.signalCode, 'SIGINT');
@@ -2493,7 +2476,7 @@ test('a second sync watch of a connector another one keeps current waits without
   }
 });
 
-test('a connector whose change signals break the contract stops alone and says so, while the others keep loading what changes', async () => {
+test('a connector whose change signals break the contract stops alone and says so, while the others keep loading what changes', async (t) => {
   await using mac = await new TemporaryFiles().directory('cli-e2e-', {
     parent: homes,
   });
@@ -2516,8 +2499,9 @@ test('a connector whose change signals break the contract stops alone and says s
   try {
     await watch.prints(
       ({ connector, status }) => connector === 'photos' && status === 'stopped',
+      t.signal,
     );
-    await watch.prints(({ connector }) => connector === 'safari');
+    await watch.prints(({ connector }) => connector === 'safari', t.signal);
 
     visit(history, '2026-04-02T00:00:00Z');
     await watch.prints(
@@ -2527,6 +2511,7 @@ test('a connector whose change signals break the contract stops alone and says s
         streams.some(
           ({ stream, written }) => stream === 'historyVisits' && written === 1,
         ),
+      t.signal,
     );
 
     const photosLines = watch
@@ -2547,7 +2532,7 @@ test('a connector whose change signals break the contract stops alone and says s
   }
 });
 
-test('a connector whose change signal fails for a system reason is reported failed with its error and read again at the next check, while the others keep loading what changes', async () => {
+test('a connector whose change signal fails for a system reason is reported failed with its error and read again at the next check, while the others keep loading what changes', async (t) => {
   await using mac = await new TemporaryFiles().directory('cli-e2e-', {
     parent: homes,
   });
@@ -2605,13 +2590,14 @@ ${sourceClass}`,
     await watch.prints(
       ({ connector, status }) =>
         connector === 'photos' && status === 'succeeded',
+      t.signal,
     );
-    await watch.prints(({ connector }) => connector === 'safari');
+    await watch.prints(({ connector }) => connector === 'safari', t.signal);
 
     const library = join(mac.path, 'Pictures/photos.json');
     const listed = await readFile(library);
     await rm(library);
-    await watch.prints(() => statuses().includes('failed'));
+    await watch.prints(() => statuses().includes('failed'), t.signal);
     // The library is back before the watcher watches again.
     await writeFile(library, listed);
     visit(history, '2026-04-03T00:00:00Z');
@@ -2622,9 +2608,12 @@ ${sourceClass}`,
         streams.some(
           ({ stream, written }) => stream === 'historyVisits' && written === 1,
         ),
+      t.signal,
     );
-    await watch.prints(() =>
-      statuses().slice(statuses().indexOf('failed')).includes('succeeded'),
+    await watch.prints(
+      () =>
+        statuses().slice(statuses().indexOf('failed')).includes('succeeded'),
+      t.signal,
     );
 
     assert.deepEqual(statuses(), ['succeeded', 'failed', 'succeeded']);
@@ -2639,7 +2628,7 @@ ${sourceClass}`,
   }
 });
 
-test('sync watch --connector watches only the connectors it names', async () => {
+test('sync watch --connector watches only the connectors it names', async (t) => {
   await using mac = await new TemporaryFiles().directory('cli-e2e-', {
     parent: homes,
   });
@@ -2656,7 +2645,7 @@ test('sync watch --connector watches only the connectors it names', async () => 
     'photos',
   );
   try {
-    await watch.prints(({ connector }) => connector === 'photos');
+    await watch.prints(({ connector }) => connector === 'photos', t.signal);
     // A watch passes every connector it watches at once, side by side, so a
     // watched Safari would pass within moments of Photos.
     await sleep(2_000);
@@ -2672,7 +2661,7 @@ test('sync watch --connector watches only the connectors it names', async () => 
   }
 });
 
-test('status says a watched connector is current as of the watch’s latest check while its store changes nothing', async () => {
+test('status says a watched connector is current as of the watch’s latest check while its store changes nothing', async (t) => {
   await using mac = await new TemporaryFiles().directory('cli-e2e-', {
     parent: homes,
   });
@@ -2682,14 +2671,14 @@ test('status says a watched connector is current as of the watch’s latest chec
   cli(mac.path, 'setup', '--connector', 'wallet');
   const watch = started(mac.path, 'sync', 'watch', '--json');
   try {
-    await watch.prints(({ connector }) => connector === 'wallet');
+    await watch.prints(({ connector }) => connector === 'wallet', t.signal);
     const status = () =>
       JSON.parse(cli(mac.path, 'status', '--json').stdout)[0];
     const passed = status();
 
     // A pass is current as of when it began, before it completed: only a
     // later check can make the connector current past its last success.
-    const shown = await timebox(
+    const shown = await waitFor(
       () => {
         const current = status();
         assert.ok(
@@ -2698,11 +2687,7 @@ test('status says a watched connector is current as of the watch’s latest chec
         );
         return current;
       },
-      {
-        minTimeout: 200,
-        maxRetryTime: 10_000,
-        shouldRetry: ({ error }) => error instanceof assert.AssertionError,
-      },
+      { signal: t.signal, interval: 200 },
     );
 
     assert.equal(shown.lastSuccessAt, passed.lastSuccessAt);
@@ -2719,7 +2704,7 @@ test('status says a watched connector is current as of the watch’s latest chec
   }
 });
 
-test('sync watch loads each change Safari commits until SIGTERM stops it, keeping every pass it finished', async () => {
+test('sync watch loads each change Safari commits until SIGTERM stops it, keeping every pass it finished', async (t) => {
   await using mac = await new TemporaryFiles().directory('cli-e2e-', {
     parent: homes,
   });
@@ -2727,7 +2712,7 @@ test('sync watch loads each change Safari commits until SIGTERM stops it, keepin
   cli(mac.path, 'setup', '--connector', 'safari');
   const watch = started(mac.path, 'sync', 'watch', '--json');
   try {
-    await watch.prints(({ connector }) => connector === 'safari');
+    await watch.prints(({ connector }) => connector === 'safari', t.signal);
     const visited = (count: number) =>
       watch.prints(
         ({ streams }) =>
@@ -2736,6 +2721,7 @@ test('sync watch loads each change Safari commits until SIGTERM stops it, keepin
             ({ stream, written }) =>
               stream === 'historyVisits' && written === count,
           ),
+        t.signal,
       );
 
     visit(history, '2026-04-01T00:00:00Z');
@@ -2786,7 +2772,7 @@ test('a copy that fails is shown as the pass its sync history recorded, not as a
   assert.doesNotMatch(synced.stderr, /^error:/m);
 });
 
-test("status shows a connector partial, naming the stream and its error, while that stream's latest attempt failed behind later passes that did not read it, until its next attempt succeeds", async () => {
+test("status shows a connector partial, naming the stream and its error, while that stream's latest attempt failed behind later passes that did not read it, until its next attempt succeeds", async (t) => {
   await using mac = await new TemporaryFiles().directory('cli-e2e-', {
     parent: homes,
   });
@@ -2924,14 +2910,15 @@ export default class LibraryConnector extends Connector {
     line.streams.some((copy) => copy.stream === stream);
   const watch = started(mac.path, 'sync', 'watch', '--json');
   try {
-    await watch.prints((line) => read(line, 'photos'));
-    await watch.prints((line) => read(line, 'albums'));
+    await watch.prints((line) => read(line, 'photos'), t.signal);
+    await watch.prints((line) => read(line, 'albums'), t.signal);
     const before = watch.printed().length;
     const since = (count: number) => watch.printed().slice(count);
 
     await writeFile(albums, JSON.stringify([{ id: 'a1' }, { id: 'a2' }]));
-    await watch.prints(() =>
-      since(before).some((line) => read(line, 'albums')),
+    await watch.prints(
+      () => since(before).some((line) => read(line, 'albums')),
+      t.signal,
     );
     const later = since(before);
     assert.ok(
@@ -2955,10 +2942,12 @@ export default class LibraryConnector extends Connector {
 
     const fixed = watch.printed().length;
     await writeFile(photos, JSON.stringify([{ id: 'p1' }]));
-    await watch.prints(() =>
-      since(fixed).some(
-        (line) => read(line, 'photos') && line.status === 'succeeded',
-      ),
+    await watch.prints(
+      () =>
+        since(fixed).some(
+          (line) => read(line, 'photos') && line.status === 'succeeded',
+        ),
+      t.signal,
     );
     const cleared = status();
     assert.equal(cleared.state, 'succeeded', JSON.stringify(cleared));
@@ -3055,7 +3044,7 @@ test('a connector whose import fails before a pass can record it fails alone: th
   );
 });
 
-test('sync watch exits 1 and names the error when an import’s sync history cannot record a pass, though another connector keeps watching', async () => {
+test('sync watch exits 1 and names the error when an import’s sync history cannot record a pass, though another connector keeps watching', async (t) => {
   await using mac = await new TemporaryFiles().directory('cli-e2e-', {
     parent: homes,
   });
@@ -3064,8 +3053,8 @@ test('sync watch exits 1 and names the error when an import’s sync history can
   cli(mac.path, 'setup', '--connector', 'safari', '--connector', 'photos');
   const watch = started(mac.path, 'sync', 'watch', '--json');
   try {
-    await watch.prints(({ connector }) => connector === 'safari');
-    await watch.prints(({ connector }) => connector === 'photos');
+    await watch.prints(({ connector }) => connector === 'safari', t.signal);
+    await watch.prints(({ connector }) => connector === 'photos', t.signal);
     // No operation makes the history fail; a table dropped under it does.
     {
       using imported = openDatabase(
@@ -3129,7 +3118,7 @@ test('sync watch in a terminal says it watches between passes, and Ctrl-C stops 
   }
 });
 
-test('a sync watch started while a sync runs a pass of the connector waits for that pass, then watches', async () => {
+test('a sync watch started while a sync runs a pass of the connector waits for that pass, then watches', async (t) => {
   await using mac = await new TemporaryFiles().directory('cli-e2e-', {
     parent: homes,
   });
@@ -3142,16 +3131,16 @@ test('a sync watch started while a sync runs a pass of the connector waits for t
   cli(mac.path, 'setup', '--connector', 'photos');
   const sync = started(mac.path, 'sync', '--json');
   try {
-    await passRunning(mac.path);
+    await passRunning(mac.path, t.signal);
     const watch = started(mac.path, 'sync', 'watch', '--json');
     try {
-      await watch.prints(({ status }) => status === 'waiting');
+      await watch.prints(({ status }) => status === 'waiting', t.signal);
 
       await feed(pictures, JSON.stringify([{ id: 'p1', title: 'Beach' }]));
       const synced = await sync.exited;
       // The pipe is read again by the watch's own pass.
       await feed(pictures, JSON.stringify([{ id: 'p2', title: 'Snow' }]));
-      await watch.prints(({ status }) => status === 'succeeded');
+      await watch.prints(({ status }) => status === 'succeeded', t.signal);
       assert.equal(synced.status, 0, synced.stderr);
       assert.deepEqual(
         watch.printed().map(({ connector, status }) => [connector, status]),
@@ -3474,7 +3463,7 @@ test('sync watch reads the files an import stores, with no command of its own', 
 
   const watch = started(mac.path, 'sync', 'watch', '--json');
   try {
-    await watch.prints(({ connector }) => connector === 'wallet');
+    await watch.prints(({ connector }) => connector === 'wallet', t.signal);
     // Reading the text is a step no host prints, so a reader asks for it.
     const read = () =>
       cli(
@@ -4163,20 +4152,21 @@ test('a Mac copied to another home resumes its imports from their checkpoints, w
   );
 });
 
-// Waits, for a minute, until status shows the connector's latest pass in the
-// state given; resolves with what status says of the connector. A wait that
-// gives up says what the background watch wrote to its log, or that launchd
-// never started it.
+// Waits, until signal aborts, for status to show the connector's latest
+// pass in the state given; resolves with what status says of the connector.
+// A wait that gives up says what the background watch wrote to its log, or
+// that launchd never started it.
 async function reaches(
   mac: string,
   connector: string,
   state: 'succeeded' | 'failed',
+  signal: AbortSignal,
 ): Promise<{ error: string | null }> {
   const log = join(
     mac,
     'Library/Application Support/Context Compiler/Imports/sync-watch.log',
   );
-  return timebox(
+  return waitFor(
     () => {
       const status = JSON.parse(cli(mac, 'status', '--json').stdout).find(
         (status: { connector: string }) => status.connector === connector,
@@ -4184,22 +4174,22 @@ async function reaches(
       assert.equal(
         status?.state,
         state,
-        `${connector} is not ${state} after a minute; ${existsSync(log) ? `the watch wrote:\n${readFileSync(log, 'utf8')}` : 'launchd never started the watch'}`,
+        `${connector} is not ${state}; ${existsSync(log) ? `the watch wrote:\n${readFileSync(log, 'utf8')}` : 'launchd never started the watch'}`,
       );
       return status;
     },
-    {
-      minTimeout: 100,
-      maxRetryTime: 60_000,
-      shouldRetry: ({ error }) => error instanceof assert.AssertionError,
-    },
+    { signal, interval: 100 },
   );
 }
 
-// Waits, for a minute, until the Safari import holds this many visits of
-// April 2026, which no fixture has.
-async function holdsAprilVisits(mac: string, count: number): Promise<void> {
-  await timebox(
+// Waits, until signal aborts, for the Safari import to hold this many visits
+// of April 2026, which no fixture has.
+async function holdsAprilVisits(
+  mac: string,
+  count: number,
+  signal: AbortSignal,
+): Promise<void> {
+  await waitFor(
     () =>
       assert.equal(
         JSON.parse(
@@ -4213,11 +4203,7 @@ async function holdsAprilVisits(mac: string, count: number): Promise<void> {
         )[0].n,
         count,
       ),
-    {
-      minTimeout: 100,
-      maxRetryTime: 60_000,
-      shouldRetry: ({ error }) => error instanceof assert.AssertionError,
-    },
+    { signal, interval: 100 },
   );
 }
 
@@ -4273,7 +4259,12 @@ test(
       });
 
       assert.equal(start.status, 0, start.stderr);
-      const { error } = await reaches(mac.path, 'call-history', 'failed');
+      const { error } = await reaches(
+        mac.path,
+        'call-history',
+        'failed',
+        t.signal,
+      );
       assert.ok(
         error?.includes(`Turn on ${node} in System Settings`),
         String(error),
@@ -4290,14 +4281,14 @@ test('a background watch whose process is killed comes back and loads what chang
   cli(mac.path, 'setup', '--connector', 'safari');
   try {
     cli(mac.path, 'sync', 'watch', 'start');
-    await reaches(mac.path, 'safari', 'succeeded');
+    await reaches(mac.path, 'safari', 'succeeded', t.signal);
     const watching = await jobProcess(mac.path);
     assert.ok(watching !== undefined, 'launchd runs no process for the job');
 
     process.kill(watching, 'SIGKILL');
     visit(history, '2026-04-02T00:00:00Z');
 
-    await holdsAprilVisits(mac.path, 1);
+    await holdsAprilVisits(mac.path, 1, t.signal);
   } finally {
     cli(mac.path, 'sync', 'watch', 'stop');
   }
@@ -4321,7 +4312,7 @@ test('after sync watch stop a sync runs its own pass again, and nothing is left 
   cli(mac.path, 'setup', '--connector', 'safari');
   try {
     cli(mac.path, 'sync', 'watch', 'start');
-    await reaches(mac.path, 'safari', 'succeeded');
+    await reaches(mac.path, 'safari', 'succeeded', t.signal);
     const watched = cli(mac.path, 'sync', '--json');
 
     const stopped = cli(mac.path, 'sync', 'watch', 'stop');
@@ -4350,14 +4341,14 @@ test("a background watch started for one store keeps loading that store's change
   cli(other.path, 'setup', '--connector', 'safari');
   try {
     cli(mac.path, 'sync', 'watch', 'start');
-    await reaches(mac.path, 'safari', 'succeeded');
+    await reaches(mac.path, 'safari', 'succeeded', t.signal);
 
     const start = cli(other.path, 'sync', 'watch', 'start');
 
     assert.equal(start.status, 0, start.stderr);
-    await reaches(other.path, 'safari', 'succeeded');
+    await reaches(other.path, 'safari', 'succeeded', t.signal);
     visit(history, '2026-04-03T00:00:00Z');
-    await holdsAprilVisits(mac.path, 1);
+    await holdsAprilVisits(mac.path, 1, t.signal);
   } finally {
     cli(mac.path, 'sync', 'watch', 'stop');
     cli(other.path, 'sync', 'watch', 'stop');
@@ -4373,10 +4364,10 @@ test('sync watch start loads every connector that is set up and then each change
     const start = cli(mac.path, 'sync', 'watch', 'start');
 
     assert.equal(start.status, 0, start.stderr);
-    await reaches(mac.path, 'safari', 'succeeded');
-    await reaches(mac.path, 'photos', 'succeeded');
+    await reaches(mac.path, 'safari', 'succeeded', t.signal);
+    await reaches(mac.path, 'photos', 'succeeded', t.signal);
     visit(history, '2026-04-04T00:00:00Z');
-    await holdsAprilVisits(mac.path, 1);
+    await holdsAprilVisits(mac.path, 1, t.signal);
     assert.deepEqual(
       JSON.parse(
         cli(
@@ -4401,15 +4392,15 @@ test('a sync watch start, after a setup added a connector, keeps the watch, whic
   cli(mac.path, 'setup', '--connector', 'safari');
   try {
     cli(mac.path, 'sync', 'watch', 'start');
-    await reaches(mac.path, 'safari', 'succeeded');
+    await reaches(mac.path, 'safari', 'succeeded', t.signal);
     cli(mac.path, 'setup', '--connector', 'safari', '--connector', 'photos');
 
     const again = cli(mac.path, 'sync', 'watch', 'start');
 
     assert.equal(again.status, 0, again.stderr);
-    await reaches(mac.path, 'photos', 'succeeded');
+    await reaches(mac.path, 'photos', 'succeeded', t.signal);
     visit(history, '2026-04-05T00:00:00Z');
-    await holdsAprilVisits(mac.path, 1);
+    await holdsAprilVisits(mac.path, 1, t.signal);
   } finally {
     cli(mac.path, 'sync', 'watch', 'stop');
   }
@@ -4421,7 +4412,7 @@ test('a second sync watch start with nothing changed keeps the watch launchd run
   cli(mac.path, 'setup', '--connector', 'safari');
   try {
     cli(mac.path, 'sync', 'watch', 'start');
-    await reaches(mac.path, 'safari', 'succeeded');
+    await reaches(mac.path, 'safari', 'succeeded', t.signal);
     const watching = await jobProcess(mac.path);
     assert.ok(watching !== undefined, 'launchd runs no process for the job');
 
@@ -4440,7 +4431,7 @@ test('sync watch restart ends the process of the watch and launchd runs a new on
   cli(mac.path, 'setup', '--connector', 'safari');
   try {
     cli(mac.path, 'sync', 'watch', 'start');
-    await reaches(mac.path, 'safari', 'succeeded');
+    await reaches(mac.path, 'safari', 'succeeded', t.signal);
     const watching = await jobProcess(mac.path);
     assert.ok(watching !== undefined, 'launchd runs no process for the job');
 
@@ -4450,7 +4441,7 @@ test('sync watch restart ends the process of the watch and launchd runs a new on
     const now = await jobProcess(mac.path);
     assert.ok(now !== undefined && now !== watching, `pid ${now}`);
     visit(history, '2026-04-06T00:00:00Z');
-    await holdsAprilVisits(mac.path, 1);
+    await holdsAprilVisits(mac.path, 1, t.signal);
   } finally {
     cli(mac.path, 'sync', 'watch', 'stop');
   }
@@ -4511,7 +4502,7 @@ test('a background watch runs under the node that started it, the one the user g
       env: { ...process.env, HOME: mac.path },
       encoding: 'utf8',
     });
-    await reaches(mac.path, 'safari', 'succeeded');
+    await reaches(mac.path, 'safari', 'succeeded', t.signal);
 
     const watching = await jobProcess(mac.path);
 

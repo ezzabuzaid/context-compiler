@@ -130,7 +130,13 @@ test(
               clearTimeout(timer);
               resolve(event.violatedDirective);
             });
-            void fetch('https://example.invalid/probe').catch(() => undefined);
+            // The policy blocks the request, so the fetch rejects with a
+            // TypeError.
+            void fetch('https://example.invalid/probe').catch(
+              (error: unknown) => {
+                if (!(error instanceof TypeError)) throw error;
+              },
+            );
           });
         }),
         'connect-src',

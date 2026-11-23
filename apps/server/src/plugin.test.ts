@@ -14,7 +14,7 @@ import {
   RollbackJournal,
   open,
 } from '@zukhruf/sqlite-open';
-import { timebox } from '@zukhruf/testing/async';
+import { waitFor } from '@zukhruf/testing/async';
 import { z } from 'zod';
 
 import type { FailureType } from '@eltjs/elt';
@@ -599,7 +599,7 @@ test('the next import replaces a pass a killed process left, so syncing a connec
   assert.match(String(statusOf()?.text), /^Synced just now/);
 });
 
-test('two servers importing one selection at once load it in one pass, the second waiting for the first', async () => {
+test('two servers importing one selection at once load it in one pass, the second waiting for the first', async (t) => {
   await using scratch = await new TemporaryFiles().directory('plugin-');
   // A pipe the test writes once the pass runs: the Photos read waits on it,
   // so the second import asks while the first one's pass still runs.
@@ -610,18 +610,14 @@ test('two servers importing one selection at once load it in one pass, the secon
   const photos = { connector: 'photos', scope: {}, includeAttachments: true };
   const imports = await plugin.configure({ connectors: [photos] });
   const both = Promise.all([plugin.import(imports), plugin.import(imports)]);
-  await timebox(
+  await waitFor(
     () =>
       assert.equal(
         plugin.status().connectors[0]?.sync?.state,
         'running',
         'no import started its pass',
       ),
-    {
-      minTimeout: 50,
-      maxRetryTime: 30_000,
-      shouldRetry: ({ error }) => error instanceof assert.AssertionError,
-    },
+    { signal: t.signal, interval: 50 },
   );
 
   await writeFile(
@@ -643,7 +639,7 @@ test('two servers importing one selection at once load it in one pass, the secon
   );
 });
 
-test('a connector switched off while its pass runs loses its import once the pass ends', async () => {
+test('a connector switched off while its pass runs loses its import once the pass ends', async (t) => {
   await using scratch = await new TemporaryFiles().directory('plugin-');
   // A pipe the test writes once the connector is switched off: the Photos
   // read waits on it, so the pass is still running when the switch happens.
@@ -655,18 +651,14 @@ test('a connector switched off while its pass runs loses its import once the pas
   const imports = await plugin.configure({ connectors: [photos] });
   const directory = importDirectory(plugin.directory, photos);
   const importing = plugin.import(imports);
-  await timebox(
+  await waitFor(
     () =>
       assert.equal(
         plugin.status().connectors[0]?.sync?.state,
         'running',
         'no import started its pass',
       ),
-    {
-      minTimeout: 50,
-      maxRetryTime: 30_000,
-      shouldRetry: ({ error }) => error instanceof assert.AssertionError,
-    },
+    { signal: t.signal, interval: 50 },
   );
 
   await plugin.configure({ connectors: [] });

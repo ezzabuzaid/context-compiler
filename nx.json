@@ -27,13 +27,43 @@
   ],
   "targetDefaults": {
     "typecheck": {
-      "dependsOn": ["format:check", "lint", "..."]
+      "dependsOn": ["format:check", "lint", "...", "generate", "^sdk"],
+      "inputs": [
+        "...",
+        {
+          "dependentTasksOutputFiles": "**/*.ts"
+        }
+      ]
     },
     "test": {
-      "dependsOn": ["...", "build"]
+      "dependsOn": ["...", "build", "generate", "^sdk"]
+    },
+    "build": {
+      "dependsOn": ["generate", "^sdk", "..."],
+      "inputs": [
+        "...",
+        {
+          "dependentTasksOutputFiles": "**/*.ts"
+        }
+      ]
+    },
+    "lint": {
+      "dependsOn": ["generate", "^sdk", "^build", "..."],
+      "inputs": [
+        "...",
+        {
+          "dependentTasksOutputFiles": "**/*.ts"
+        }
+      ]
+    },
+    "dev": {
+      "dependsOn": ["generate", "^sdk", "..."]
     }
   },
   "sync": {
     "applyChanges": true
+  },
+  "affected": {
+    "legacy": true
   }
 }

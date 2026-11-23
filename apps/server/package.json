@@ -38,16 +38,16 @@
     "@workspace/connector-whatsapp-desktop": "0.0.1",
     "@workspace/settings": "0.0.1",
     "@workspace/ui": "0.0.1",
-    "@zukhruf/async": "^0.8.27",
-    "@zukhruf/election": "^0.8.27",
-    "@zukhruf/pool": "^0.8.45",
-    "@zukhruf/shutdown": "^0.8.27",
-    "@zukhruf/single-flight": "^0.8.27",
-    "@zukhruf/sqlite-drift": "^0.8.27",
-    "@zukhruf/sqlite-open": "^0.8.27",
-    "@zukhruf/sqlite-transaction": "^0.8.27",
-    "react": "19.3.0",
-    "react-dom": "19.3.0",
+    "@zukhruf/async": "^0.8.82",
+    "@zukhruf/election": "^0.8.82",
+    "@zukhruf/pool": "^0.8.82",
+    "@zukhruf/shutdown": "^0.8.82",
+    "@zukhruf/single-flight": "^0.8.82",
+    "@zukhruf/sqlite-drift": "^0.8.82",
+    "@zukhruf/sqlite-open": "^0.8.82",
+    "@zukhruf/sqlite-transaction": "^0.8.82",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
     "zod": "4.6.5"
   },
   "devDependencies": {
@@ -57,9 +57,9 @@
     "@tailwindcss/oxide": "4.3.3",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "@zukhruf/fs": "^0.8.27",
-    "@zukhruf/testing": "^0.8.27",
+    "@zukhruf/fs": "^0.8.82",
+    "@zukhruf/testing": "^0.8.82",
     "playwright": "1.64.1",
-    "tailwindcss": "4.3.3"
+    "tailwindcss": "4.3.5"
   }
 }

@@ -309,8 +309,12 @@ export class Imports {
             (error: unknown) => broken.abort(error),
           );
       }
+      // The wait ends early only when broken aborts, and the loop then
+      // throws its reason.
       await sleep(followMs, undefined, { signal: broken.signal }).catch(
-        () => undefined,
+        (error: unknown) => {
+          if (!broken.signal.aborted) throw error;
+        },
       );
     }
     throw broken.signal.reason;

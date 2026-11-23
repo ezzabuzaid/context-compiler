@@ -8,7 +8,7 @@ import { promisify } from 'node:util';
 
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
-import { TemporaryFiles } from '@zukhruf/fs';
+import { TemporaryFiles, isErrno } from '@zukhruf/fs';
 import { waitFor } from '@zukhruf/testing/async';
 
 // The workspace root: the tests read its fixtures and builds from any
@@ -66,62 +66,63 @@ for (const shutdown of ['stdin', 'SIGTERM'] as const)
       stderr: 'pipe',
     });
     let workers: number[] = [];
-    try {
-      await client.connect(transport, { timeout: 120_000 });
-      const pid = transport.pid;
-      assert.ok(pid);
-      // The server starts OCR by itself once its PoolWorkers owns the Vision
-      // pool of the computer, a moment after it opens the store: no tool call
-      // starts it.
-      const ocr = await waitFor(
-        async () => {
-          const pids = await ocrWorkers(pid);
-          assert.ok(
-            pids.length >= 1,
-            'OCR must be warming up before the first tool call',
-          );
-          return pids;
-        },
-        { signal: t.signal, interval: 50 },
-      );
-      for (const model of ['ggml-small.bin', null]) {
-        const changed = await client.callTool({
-          name: 'transcription_update',
-          arguments: { model },
-        });
-        assert.equal(changed.isError, undefined);
-        const running = await ocrWorkers(pid);
-        assert.ok(
-          ocr.every((pid) => running.includes(pid)),
-          'a settings change must keep the OCR workers',
-        );
-      }
-      workers = (await children(pid)).map(({ pid }) => pid);
-      if (shutdown === 'stdin') await client.close();
-      else {
-        const closed = new Promise<void>((resolve) => {
-          client.onclose = resolve;
-        });
-        process.kill(pid, shutdown);
-        await closed;
-      }
-      if (shutdown === 'stdin')
-        await assert.rejects(
-          readFile(signals, 'utf8'),
-          { code: 'ENOENT' },
-          'stdin close must exit before the MCP client resorts to SIGTERM',
-        );
-      for (const pid of workers)
-        assert.throws(() => process.kill(pid, 0), { code: 'ESRCH' });
-    } finally {
+    // Each worker that is left is killed. One that already stopped gives
+    // ESRCH.
+    await using cleanup = new AsyncDisposableStack();
+    cleanup.defer(async () => {
       await client.close();
       await transport.close();
-      for (const pid of workers) {
+      for (const pid of workers)
         try {
           process.kill(pid, 'SIGKILL');
-        } catch {
-          /* Already stopped. */
+        } catch (error) {
+          if (!isErrno(error, 'ESRCH')) throw error;
         }
-      }
+    });
+    await client.connect(transport, { timeout: 120_000 });
+    const pid = transport.pid;
+    assert.ok(pid);
+    // The server starts OCR by itself once its PoolWorkers owns the Vision
+    // pool of the computer, a moment after it opens the store: no tool call
+    // starts it.
+    const ocr = await waitFor(
+      async () => {
+        const pids = await ocrWorkers(pid);
+        assert.ok(
+          pids.length >= 1,
+          'OCR must be warming up before the first tool call',
+        );
+        return pids;
+      },
+      { signal: t.signal, interval: 50 },
+    );
+    for (const model of ['ggml-small.bin', null]) {
+      const changed = await client.callTool({
+        name: 'transcription_update',
+        arguments: { model },
+      });
+      assert.equal(changed.isError, undefined);
+      const running = await ocrWorkers(pid);
+      assert.ok(
+        ocr.every((pid) => running.includes(pid)),
+        'a settings change must keep the OCR workers',
+      );
     }
+    workers = (await children(pid)).map(({ pid }) => pid);
+    if (shutdown === 'stdin') await client.close();
+    else {
+      const closed = new Promise<void>((resolve) => {
+        client.onclose = resolve;
+      });
+      process.kill(pid, shutdown);
+      await closed;
+    }
+    if (shutdown === 'stdin')
+      await assert.rejects(
+        readFile(signals, 'utf8'),
+        { code: 'ENOENT' },
+        'stdin close must exit before the MCP client resorts to SIGTERM',
+      );
+    for (const pid of workers)
+      assert.throws(() => process.kill(pid, 0), { code: 'ESRCH' });
   });

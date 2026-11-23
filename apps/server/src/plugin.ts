@@ -1,6 +1,7 @@
 import { existsSync, rmSync } from 'node:fs';
 import { relative, sep } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
+import { inspect } from 'node:util';
 
 import { WaitGroup } from '@zukhruf/async';
 import { SqliteElection } from '@zukhruf/election';
@@ -335,18 +336,25 @@ export class Plugin {
             const watch = new AbortController();
             watches.set(directory, watch);
             const keeping = running.add();
-            void this.#keepCurrent(
-              selection,
-              AbortSignal.any([signal, watch.signal]),
-            )
-              .catch(() => undefined)
+            const kept = AbortSignal.any([signal, watch.signal]);
+            void this.#keepCurrent(selection, kept)
+              .catch((error: unknown) => {
+                // A stop ends the watch with the reason of its signal.
+                if (error !== kept.reason)
+                  logged(
+                    `could not keep ${selection.connector} current`,
+                    error,
+                  );
+              })
               .finally(() => keeping[Symbol.dispose]());
           }
         await sleep(followMs, undefined, { signal });
       }
-    } catch {
-      // Stopped, or the settings could not be read: a server that starts
-      // next follows them again.
+    } catch (error) {
+      // A stop ends the wait early. Any other failure, such as settings that
+      // cannot be read, goes to the log, and a server that starts next
+      // follows the settings again.
+      if (!signal.aborted) logged('stopped following the settings', error);
     } finally {
       for (const watch of watches.values()) watch.abort();
       await running.wait({ signal: undefined });
@@ -385,6 +393,11 @@ export class Plugin {
       note: connector.note,
     };
   }
+}
+
+// What the server writes to stderr is its log.
+function logged(what: string, error: unknown): void {
+  process.stderr.write(`Context Compiler ${what}: ${inspect(error)}\n`);
 }
 
 // Each import the user keeps current, by its folder.

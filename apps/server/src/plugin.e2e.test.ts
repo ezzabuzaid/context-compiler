@@ -25,10 +25,11 @@ import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import {
   ElicitRequestSchema,
   type ElicitResult,
+  ErrorCode,
 } from '@modelcontextprotocol/sdk/types.js';
 import { TemporaryFiles } from '@zukhruf/fs';
 import { open as openDatabase } from '@zukhruf/sqlite-open';
-import { timebox } from '@zukhruf/testing/async';
+import { retryUntilReady, waitFor } from '@zukhruf/testing/async';
 import { z } from 'zod';
 
 // NoteStore.sqlite's tables as macOS 26.6.2 creates them (schema only, no
@@ -403,17 +404,13 @@ test(
       what: string,
       done: (connectors: SelectedConnector[]) => boolean,
     ): Promise<SelectedConnector[]> =>
-      timebox(
+      waitFor(
         () => {
           const connectors = selected();
           assert.ok(done(connectors), `The import never ${what}`);
           return connectors;
         },
-        {
-          minTimeout: 500,
-          maxRetryTime: 30_000,
-          shouldRetry: ({ error }) => error instanceof assert.AssertionError,
-        },
+        { signal: t.signal, interval: 500 },
       );
     const notesOf = (connectors: SelectedConnector[]) =>
       connectors.find(({ connector }) => connector === 'notes');
@@ -1013,7 +1010,7 @@ test(
         scratch.path,
         'Library/Application Support/Context Compiler/Imports/settings.sqlite',
       );
-      await timebox(
+      await waitFor(
         () => {
           const [notes] = read(
             settings,
@@ -1028,11 +1025,7 @@ test(
             'the Notes import never loaded the store’s notes',
           );
         },
-        {
-          minTimeout: 500,
-          maxRetryTime: 30_000,
-          shouldRetry: ({ error }) => error instanceof assert.AssertionError,
-        },
+        { signal: t.signal, interval: 500 },
       );
 
       // A selection the user narrowed in chat survives setting up again.
@@ -1247,7 +1240,7 @@ export default class LockedConnector extends Connector {
         true,
         JSON.stringify(configured.content),
       );
-      const attempt = await timebox(
+      const attempt = await waitFor(
         () => {
           const database = importOf(scratch.path, 'locked');
           assert.ok(database, 'Locked has no import');
@@ -1258,13 +1251,7 @@ export default class LockedConnector extends Connector {
           assert.ok(row, 'Locked has no failed pass');
           return row;
         },
-        {
-          minTimeout: 500,
-          maxRetryTime: 30_000,
-          shouldRetry: ({ error }) =>
-            error instanceof assert.AssertionError ||
-            (Error.isError(error) && /no such table/.test(error.message)),
-        },
+        { signal: t.signal, interval: 500 },
       );
 
       assert.deepEqual(attempt, { status: 'failed', failure_type: 'config' });
@@ -1317,7 +1304,7 @@ test(
         scratch.path,
         'Library/Application Support/Context Compiler/Imports/settings.sqlite',
       );
-      const photos = await timebox(
+      const photos = await waitFor(
         () => {
           const [selected] = read(
             settings,
@@ -1333,11 +1320,7 @@ test(
           assert.notEqual(rows.length, 0, 'the Photos import loaded no photos');
           return rows;
         },
-        {
-          minTimeout: 500,
-          maxRetryTime: 30_000,
-          shouldRetry: ({ error }) => error instanceof assert.AssertionError,
-        },
+        { signal: t.signal, interval: 500 },
       );
       const connector = join(
         scratch.path,
@@ -1512,6 +1495,7 @@ test(
         JSON.stringify(configured.content),
       );
       await eventually(
+        t.signal,
         () => passes(scratch.path, 'photos').join() === 'succeeded',
         'the standalone server did not import Photos',
         () => diagnostics,
@@ -1564,11 +1548,14 @@ const onUnix = {
 // thread of Node's pool that no test can stop.
 // ENXIO: no process has the pipe open to read yet.
 function readerOf(pipe: string) {
-  return timebox(() => open(pipe, constants.O_WRONLY | constants.O_NONBLOCK), {
-    minTimeout: 100,
-    maxRetryTime: 30_000,
-    shouldRetry: ({ error }) => 'code' in error && error.code === 'ENXIO',
-  });
+  return retryUntilReady(
+    () => open(pipe, constants.O_WRONLY | constants.O_NONBLOCK),
+    {
+      minTimeout: 100,
+      maxRetryTime: 30_000,
+      shouldRetry: ({ error }) => 'code' in error && error.code === 'ENXIO',
+    },
+  );
 }
 
 // A chat's Context Compiler server on the installed plugin, started as Codex starts it.
@@ -1785,18 +1772,15 @@ function photoIds(home: string): string[] {
 // Waits until what a test expects holds, or fails with what the servers
 // wrote to stderr.
 async function eventually(
+  signal: AbortSignal,
   holds: () => boolean,
   failure: string,
   said: () => string,
 ) {
-  await timebox(
-    () => assert.ok(holds(), `${failure} within 60 s:\n${said()}`),
-    {
-      minTimeout: 500,
-      maxRetryTime: 60_000,
-      shouldRetry: ({ error }) => error instanceof assert.AssertionError,
-    },
-  );
+  await waitFor(() => assert.ok(holds(), `${failure}:\n${said()}`), {
+    signal,
+    interval: 500,
+  });
 }
 
 // Three chats' servers on one store, as when a customer's import
@@ -1842,6 +1826,7 @@ async function frozenLeader(signal: AbortSignal, home: string) {
     const coordinator = await start();
     await coordinator.configure(['photos', 'albums']);
     await eventually(
+      signal,
       () =>
         passes(home, 'photos').join() === 'succeeded' &&
         passes(home, 'albums').join() === 'succeeded',
@@ -1856,8 +1841,10 @@ async function frozenLeader(signal: AbortSignal, home: string) {
       rmSync(pipe);
       spawnSync('/usr/bin/mkfifo', [pipe]);
     }
-    // Its Albums pass waits for good: the server dies first.
-    coordinator.sync('albums').catch(() => undefined);
+    // Its Albums pass waits for good: the server dies first, which ends the
+    // call with the closed connection.
+    const albumsSync = coordinator.sync('albums');
+    albumsSync.catch(() => undefined);
     owned.use(await readerOf(pictures.albums));
     const leader = await start();
     const led = leader.sync('photos');
@@ -1867,6 +1854,7 @@ async function frozenLeader(signal: AbortSignal, home: string) {
     owned.defer(() => leader.send('SIGCONT'));
     coordinator.send('SIGKILL');
     await coordinator.closed;
+    await assert.rejects(albumsSync, { code: ErrorCode.ConnectionClosed });
     return {
       start,
       leader,
@@ -2000,6 +1988,7 @@ async function ownedWatch(signal: AbortSignal, home: string) {
     const said = () => `${owner.diagnostics}\n${other.diagnostics}`;
     await owner.configure(['photos']);
     await eventually(
+      signal,
       () => passes(home, 'photos').join() === 'succeeded',
       'the first import did not load',
       said,
@@ -2008,6 +1997,7 @@ async function ownedWatch(signal: AbortSignal, home: string) {
     try {
       await owner.watch('photos', true);
       await eventually(
+        signal,
         () => passes(home, 'photos').length === 2,
         'the watch ran no pass',
         said,
@@ -2039,6 +2029,7 @@ test(
     const exitedIn = await scene.owner.hangUp();
     photograph(scratch.path, [beach, snow, dunes]);
     await eventually(
+      t.signal,
       () => photoIds(scratch.path).includes('p3'),
       'the other chat’s server did not load the change',
       scene.said,
@@ -2072,6 +2063,7 @@ test(
     ]);
     photograph(scratch.path, [beach, snow, dunes]);
     await eventually(
+      t.signal,
       () => photoIds(scratch.path).includes('p3'),
       'the other chat’s server did not load the change',
       scene.said,
@@ -2145,6 +2137,7 @@ test(
     const said = () => `${first.diagnostics}\n${second.diagnostics}`;
     await first.configure(['photos']);
     await eventually(
+      t.signal,
       () => passes(scratch.path, 'photos').join() === 'succeeded',
       'the first import did not load',
       said,
@@ -2152,6 +2145,7 @@ test(
 
     await first.watch('photos', true);
     await eventually(
+      t.signal,
       () => passes(scratch.path, 'photos').length === 2,
       'the watch ran no pass',
       said,
@@ -2160,6 +2154,7 @@ test(
     await sleep(2_000);
     photograph(scratch.path, [beach, snow, dunes]);
     await eventually(
+      t.signal,
       () => photoIds(scratch.path).includes('p3'),
       'no server loaded the change',
       said,
@@ -2210,6 +2205,7 @@ test(
     await using user = await chat(t.signal, plugin, scratch.path);
     await user.configure(['photos', 'albums']);
     await eventually(
+      t.signal,
       () =>
         passes(scratch.path, 'photos').join() === 'succeeded' &&
         passes(scratch.path, 'albums').join() === 'succeeded',
@@ -2228,6 +2224,7 @@ test(
     );
     renameSync(`${albums}.new`, albums);
     await eventually(
+      t.signal,
       () => photoIds(scratch.path).includes('p3'),
       'Photos did not load the change',
       () => user.diagnostics,
@@ -2278,12 +2275,14 @@ test(
     await using stale = await chat(t.signal, old, scratch.path);
     await stale.configure(['photos']);
     await eventually(
+      t.signal,
       () => passes(scratch.path, 'photos').join() === 'succeeded',
       'the first import did not load',
       () => stale.diagnostics,
     );
     await stale.watch('photos', true);
     await eventually(
+      t.signal,
       () => passes(scratch.path, 'photos').length === 2,
       'the watch ran no pass',
       () => stale.diagnostics,
@@ -2310,6 +2309,7 @@ test(
     }
     await using fresh = await chat(t.signal, current, scratch.path);
     await eventually(
+      t.signal,
       () => photoIds(scratch.path).includes('p3'),
       'the new version’s server did not load the change',
       () => `${stale.diagnostics}\n${fresh.diagnostics}`,
@@ -2339,12 +2339,14 @@ test(
     await using user = await chat(t.signal, plugin, scratch.path);
     await user.configure(['photos']);
     await eventually(
+      t.signal,
       () => passes(scratch.path, 'photos').join() === 'succeeded',
       'the first import did not load',
       () => user.diagnostics,
     );
     await user.watch('photos', true);
     await eventually(
+      t.signal,
       () => passes(scratch.path, 'photos').length === 2,
       'the watch ran no pass',
       () => user.diagnostics,
@@ -2371,6 +2373,7 @@ test(
       await reading.close();
     }
     await eventually(
+      t.signal,
       () => !existsSync(directory),
       'the import was not removed',
       () => user.diagnostics,
@@ -2424,6 +2427,7 @@ test(
     await using user = await chat(t.signal, plugin, scratch.path);
     await user.configure(['photos', 'albums']);
     await eventually(
+      t.signal,
       () =>
         passes(scratch.path, 'photos').join() === 'succeeded' &&
         passes(scratch.path, 'albums').join() === 'succeeded',
@@ -2433,6 +2437,7 @@ test(
     await user.watch('photos', true);
     await user.watch('albums', true);
     await eventually(
+      t.signal,
       () =>
         passes(scratch.path, 'photos').length === 2 &&
         passes(scratch.path, 'albums').length === 2,
@@ -2442,12 +2447,14 @@ test(
 
     rmSync(albums);
     await eventually(
+      t.signal,
       () => passes(scratch.path, 'albums').at(-1) === 'failed',
       'the Albums watch did not fail',
       () => user.diagnostics,
     );
     photograph(scratch.path, [beach, snow, dunes]);
     await eventually(
+      t.signal,
       () => photoIds(scratch.path).includes('p3'),
       'Photos did not load the change',
       () => user.diagnostics,

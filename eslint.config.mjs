@@ -36,7 +36,7 @@ export default defineConfig(
       'zukhruf/base',
       'zukhruf/tests',
       'zukhruf/diagnostics',
-      'zukhruf/react',
+      'zukhruf/shadcn',
       'island/recommended',
       'manifest/recommended',
     ],
