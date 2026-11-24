@@ -150,10 +150,10 @@ export class PaymentKinds extends Rule<string, typeof columns> {
           // The TypeSafe provider names its own TYPESAFE_AI_API_KEY when it
           // has no key, not the variable ipay reads.
           if (LoadAPIKeyError.isInstance(error))
-            throw new Error(
-              "ipay asks OpenRouter's Decisions API about each candidate email: set OPENROUTER_API_KEY to your OpenRouter key",
-              { cause: error },
-            );
+            throw new LoadAPIKeyError({
+              message:
+                "ipay asks OpenRouter's Decisions API about each candidate email: set OPENROUTER_API_KEY to your OpenRouter key",
+            });
           return { error: failures.reason(error) };
         }
       }),

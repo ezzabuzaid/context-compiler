@@ -80,8 +80,9 @@ const cloudflareChallenge: Served = {
 
 // One planned answer of the Codex Responses endpoint to one request about a
 // page: the offers whose quote is in the request (invented ones are sent as
-// they are), a raw text, an error status with the body the endpoint sends,
-// or no answer until the app stops.
+// they are), a raw text, an error status with the body the endpoint sends, a
+// stream that starts the answer and then fails with this message, or no
+// answer until the app stops.
 type Answer =
   | {
       readonly offers: readonly Record<string, unknown>[];
@@ -89,6 +90,7 @@ type Answer =
     }
   | { readonly text: string }
   | { readonly status: number; readonly body: Record<string, unknown> }
+  | { readonly failed: string }
   | { readonly hold: true };
 
 // The ChatGPT login of Codex in the app's CODEX_HOME: an access token that
@@ -193,6 +195,8 @@ const { server } = new Msw().intercept(
       return HttpResponse.json(answer.body, { status: answer.status, headers: { 'retry-after': '0' } });
     const text = 'text' in answer
       ? answer.text
+      : 'failed' in answer
+      ? ''
       : JSON.stringify({
           offers: [
             ...answer.offers.filter(({ quote }) => fold(prompt).includes(fold(quote))),
@@ -205,10 +209,18 @@ const { server } = new Msw().intercept(
     const done = { ...item, status: 'completed', content: [part] };
     const response = (status, output) => ({ id, object: 'response', created_at: 1793598162, status, model: body.model, output, error: null, incomplete_details: null, service_tier: 'default' });
     const position = { item_id: item.id, output_index: 0, content_index: 0 };
-    const events = [
+    const started = [
       { type: 'response.created', response: response('in_progress', []) },
       { type: 'response.in_progress', response: response('in_progress', []) },
       { type: 'response.output_item.added', output_index: 0, item: { ...item, status: 'in_progress', content: [] } },
+    ];
+    // A response that fails after its answer started ends with
+    // response.failed, in the shape of OpenAI's Responses API reference.
+    const events = 'failed' in answer ? [
+      ...started,
+      { type: 'response.failed', response: { ...response('failed', []), error: { code: 'server_error', message: answer.failed } } },
+    ] : [
+      ...started,
       { type: 'response.content_part.added', ...position, part: { ...part, text: '' } },
       { type: 'response.output_text.delta', ...position, delta: text, logprobs: [] },
       { type: 'response.output_text.done', ...position, text },
@@ -314,11 +326,16 @@ async function running(
       // Only what the app needs, and none of the developer's logins:
       // XDG_DATA_HOME, the test's own folder, holds the app's files,
       // CODEX_HOME holds the test's ChatGPT login, which the Codex provider
-      // reads, and the decision model sends OPENROUTER_API_KEY.
+      // reads, and the decision model sends OPENROUTER_API_KEY. NODE_OPTIONS
+      // and WRITE_TEST_MUTANT are what the write-test skill's mutate.mjs sets
+      // for the processes of a proof, as in ipay's test; a run outside a proof
+      // has neither, and an unset variable is not passed.
       env: {
         XDG_DATA_HOME: data,
         CODEX_HOME: folder.path,
         OPENROUTER_API_KEY: openRouterKey,
+        NODE_OPTIONS: process.env.NODE_OPTIONS,
+        WRITE_TEST_MUTANT: process.env.WRITE_TEST_MUTANT,
       },
       signal: AbortSignal.any([ended.signal, limit]),
       killSignal: 'SIGINT',
@@ -436,6 +453,56 @@ test('a 401 from the model ends the app with the reason, and logs no page as not
     lines.filter((line) => line.startsWith('could not extract')),
     [],
   );
+});
+
+test('a refresh that fails for another reason than the credential is logged, the app keeps running, and a later refresh reports the page', async (t) => {
+  await using data = await new TemporaryFiles().directory('credits-data-');
+  const aws = 'https://aws.amazon.com/startups/credits';
+  const quote =
+    'Apply for up to $200,000 in AWS Activate Credits, with additional credits available for AI startups ready to scale.';
+  const { lines, asked, errors } = await running(data.path, {
+    signal: t.signal,
+    pages: {
+      ...lists([[aws, 'AWS', 'Up to $200,000']]),
+      [aws]: awsProgram('$200,000'),
+    },
+    model: {
+      // A stream that fails after the answer started is no failure of the
+      // page but of the program_offers refresh.
+      [aws]: [
+        { failed: 'The model failed to generate a response.' },
+        {
+          offers: [
+            {
+              quote,
+              kind: 'credits',
+              value: { amount: 200_000, currency: 'USD' },
+              duration: null,
+              who: null,
+            },
+          ],
+        },
+      ],
+    },
+    until: has('new program'),
+    decisions: programs(aws),
+    ahead: 0,
+  });
+
+  // The Codex provider of @deepagents/experimental 7.7.0 turns the stream's
+  // error into new Error(String(error)), so the reason reads [object Object];
+  // only the dataset is asserted.
+  assert.deepEqual(
+    lines.map((line) =>
+      line.startsWith('could not refresh') ? line.split(':')[0] : line,
+    ),
+    [
+      'could not refresh program_offers',
+      `new program ${aws}: credits $200,000 ("${quote}")`,
+    ],
+    errors,
+  );
+  assert.equal(asked.length, 2);
 });
 
 test('a page whose model calls stay rate limited after the AI SDK retries is logged as could not extract once, also when it fails again after a restart, the other page still reports, and a later pass that succeeds reports the page', async (t) => {

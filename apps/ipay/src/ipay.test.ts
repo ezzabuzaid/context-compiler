@@ -522,10 +522,12 @@ type Payment = {
 
 // One planned answer of the Codex Responses endpoint to one request about an
 // email: the payments it states, an error status with the body the endpoint
-// sends, or no answer until ipay stops.
+// sends, a stream that starts the answer and then fails with this message, or
+// no answer until ipay stops.
 type Answer =
   | { readonly payments: readonly Payment[] }
   | { readonly status: number; readonly body: Record<string, unknown> }
+  | { readonly failed: string }
   | { readonly hold: true };
 
 // One planned answer of OpenRouter's Decisions API to one request about an
@@ -640,10 +642,18 @@ new Msw().intercept(
     const done = { ...item, status: 'completed', content: [part] };
     const response = (status, output) => ({ id, object: 'response', created_at: 1793598162, status, model: body.model, output, error: null, incomplete_details: null, service_tier: 'default' });
     const position = { item_id: item.id, output_index: 0, content_index: 0 };
-    const events = [
+    const started = [
       { type: 'response.created', response: response('in_progress', []) },
       { type: 'response.in_progress', response: response('in_progress', []) },
       { type: 'response.output_item.added', output_index: 0, item: { ...item, status: 'in_progress', content: [] } },
+    ];
+    // A response that fails after its answer started ends with
+    // response.failed, in the shape of OpenAI's Responses API reference.
+    const events = 'failed' in answer ? [
+      ...started,
+      { type: 'response.failed', response: { ...response('failed', []), error: { code: 'server_error', message: answer.failed } } },
+    ] : [
+      ...started,
       { type: 'response.content_part.added', ...position, part: { ...part, text: '' } },
       { type: 'response.output_text.delta', ...position, delta: text, logprobs: [] },
       { type: 'response.output_text.done', ...position, text },
@@ -1131,6 +1141,54 @@ test('a ChatGPT login the endpoint rejects stops ipay with the reason, and no em
     ),
     0,
   );
+});
+
+test('a refresh that fails for another reason than the credential leaves ipay running, and a later pass refreshes the dataset again', async (t) => {
+  await using home = await new TemporaryFiles().directory('ipay-');
+  mailStore(home.path, [spotifyReceipt]);
+  chatStore(home.path, []);
+  await contextCompilerSync(home.path, ['mail', 'messages']);
+
+  const run = await running(
+    t,
+    home.path,
+    {
+      luna: {
+        // A stream that fails after the answer started is no failure of the
+        // email but of the invoice_payments refresh.
+        [spotifyReceipt.subject]: [
+          { failed: 'The model failed to generate a response.' },
+          { payments: [spotifyPayment] },
+        ],
+      },
+      jev: { [spotifyReceipt.subject]: [paid('entertainment', 'monthly')] },
+    },
+    {
+      until: (_read, stderr) => stderr.includes('model {'),
+      // Context Compiler syncs again: the import commits, which is ipay's
+      // next pass, and the refresh after it tries invoice_payments again.
+      then: () => contextCompilerSync(home.path, ['mail', 'messages']),
+    },
+    {
+      until: (read) =>
+        count(
+          read,
+          "SELECT count(*) AS n FROM payments WHERE company = 'Spotify'",
+        ) === 1,
+    },
+  );
+
+  assert.deepEqual(run.unplanned, []);
+  // The Codex provider of @deepagents/experimental 7.7.0 turns the stream's
+  // error into new Error(String(error)), so the reason reads [object Object];
+  // only the dataset is asserted.
+  assert.deepEqual(
+    run.stdout
+      .filter((line) => line.startsWith('could not refresh'))
+      .map((line) => line.split(':')[0]),
+    ['could not refresh invoice_payments'],
+  );
+  assert.equal(run.asked.length, 2);
 });
 
 test('ipay tells the user to set up and sync a connector it reads when Context Compiler has no import of it', async (t) => {

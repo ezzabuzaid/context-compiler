@@ -46,8 +46,15 @@ await Promise.all([
     // datasets' starting URLs from api.sqlite at each check, and the
     // definitions source their criteria and fields.
     const built = await pipeline();
-    for await (const { outcomes } of built.watch({ signal: watching })) {
-      for (const { failures, cancelled } of outcomes) {
+    for await (const event of built.watch({ signal: watching })) {
+      // A derived dataset that failed fails alone; the passes go on.
+      if (event.kind === 'refresh') {
+        console.log(
+          `could not refresh ${event.dataset}: ${reasonOf(event.error)}`,
+        );
+        continue;
+      }
+      for (const { failures, cancelled } of event.outcomes) {
         // A pass that the stop ended is cancelled, not failed.
         if (cancelled) continue;
         for (const { error } of failures) {

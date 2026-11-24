@@ -3,7 +3,13 @@ import { createServer } from 'node:http';
 import { test } from 'node:test';
 
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
-import { APICallError, NoObjectGeneratedError, Output, generateText } from 'ai';
+import {
+  APICallError,
+  LoadAPIKeyError,
+  NoObjectGeneratedError,
+  Output,
+  generateText,
+} from 'ai';
 import { z } from 'zod';
 
 import { CallFailures } from './call-failures.ts';
@@ -89,6 +95,31 @@ test('a call that the API rejects with a 401 throws, so the run fails', async ()
     );
   } finally {
     server.close();
+  }
+});
+
+test('a 401 and a missing key are credential errors, and a call that fails after the retries with a 500 is not', async () => {
+  const { model: rejecting, server: rejects } = await api(() => ({
+    status: 401,
+    body: { error: { message: 'No auth credentials found' } },
+  }));
+  const { model: busy, server: busies } = await api(() => ({
+    status: 500,
+    body: { error: { message: 'The server is busy.' } },
+  }));
+  try {
+    const rejected = await failed(rejecting);
+    const failedAfterRetries = await failed(busy);
+    // What a provider's loadApiKey throws when neither its option nor its
+    // environment variable holds a key.
+    const missing = new LoadAPIKeyError({ message: 'API key is missing.' });
+
+    assert.equal(CallFailures.isCredentialError(rejected), true);
+    assert.equal(CallFailures.isCredentialError(missing), true);
+    assert.equal(CallFailures.isCredentialError(failedAfterRetries), false);
+  } finally {
+    rejects.close();
+    busies.close();
   }
 });
 

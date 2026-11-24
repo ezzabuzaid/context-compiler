@@ -28,6 +28,8 @@ try {
 - An answer error that the rule names is the failure of its item. The answer errors are different for each call: `generateText` has `NoObjectGeneratedError` and `NoOutputGeneratedError`, and `experimental_decide` has `Experimental_DecisionRefusalError` and `InvalidResponseDataError`.
 - Every other error throws, a stop among them.
 
+`CallFailures.isCredentialError(error)` tells whether a call failed for its credential: a `LoadAPIKeyError`, as a provider throws with no key, or a 401. Every call fails alike, so an app that hears it from a failed refresh stops, and lets every other failed refresh pass.
+
 ## A rule's identity
 
 ```ts

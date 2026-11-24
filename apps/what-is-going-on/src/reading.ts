@@ -46,7 +46,13 @@ export class Reading implements AsyncDisposable {
 
 async function read(sources: readonly Source[], signal: AbortSignal) {
   const reader = await pipeline({ sources });
-  for await (const { connection, outcomes } of reader.watch({ signal }))
+  for await (const event of reader.watch({ signal })) {
+    // A derived dataset that failed fails alone; the passes go on.
+    if (event.kind === 'refresh') {
+      console.log(`could not refresh ${event.dataset}: ${String(event.error)}`);
+      continue;
+    }
+    const { connection, outcomes } = event;
     for (const { count, deleted, failures } of outcomes)
       console.log(
         `${connection.name}: ${count} written, ${deleted} deleted${
@@ -58,4 +64,5 @@ async function read(sources: readonly Source[], signal: AbortSignal) {
                 .slice(0, 500)}`
         }`,
       );
+  }
 }

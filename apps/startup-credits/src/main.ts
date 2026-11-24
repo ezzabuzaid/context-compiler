@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { Shutdown } from '@zukhruf/shutdown';
 
 import { CrawlError } from '@eltjs/sdk-web-crawler';
+import { CallFailures } from '@workspace/model-calls/call-failures';
 
 import { MissingPrograms } from './alerts/missing-programs.ts';
 import { ModelFailures } from './alerts/model-failures.ts';
@@ -31,8 +32,18 @@ const failed = new AbortController();
 const watching = AbortSignal.any([shutdown.signal, failed.signal]);
 await Promise.all([
   (async () => {
-    for await (const { outcomes } of pipeline.watch({ signal: watching }))
-      for (const { failures, cancelled } of outcomes) {
+    for await (const event of pipeline.watch({ signal: watching })) {
+      // A derived dataset that failed fails alone and the passes go on, but
+      // a missing or rejected credential fails every refresh, so the app
+      // stops.
+      if (event.kind === 'refresh') {
+        if (CallFailures.isCredentialError(event.error)) throw event.error;
+        console.log(
+          `could not refresh ${event.dataset}: ${reasonOf(event.error)}`,
+        );
+        continue;
+      }
+      for (const { failures, cancelled } of event.outcomes) {
         // A pass that the stop ended is cancelled, not failed.
         if (cancelled) continue;
         for (const { error } of failures)
@@ -49,6 +60,7 @@ await Promise.all([
             );
           }
       }
+    }
   })().catch((error: unknown) => failed.abort(error)),
   (async () => {
     for await (const _ of warehouse.commits(watching))
