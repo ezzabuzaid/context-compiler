@@ -1634,7 +1634,7 @@ test("a sync leaves the key locks of the store's single flight in place and camp
   );
 });
 
-test("status waits out a write to the store's settings instead of printing nothing", async () => {
+test("status prints the connectors while a write holds the store's settings, instead of printing nothing", async () => {
   await using mac = await new TemporaryFiles().directory('cli-e2e-', {
     parent: homes,
   });
@@ -1650,22 +1650,15 @@ test("status waits out a write to the store's settings instead of printing nothi
   );
   writer.exec('BEGIN EXCLUSIVE');
 
-  const status = started(mac.path, 'status', '--json');
+  let reported: Awaited<ReturnType<typeof started>['exited']>;
   try {
-    const during = await Promise.race([
-      status.exited.then(() => 'exited'),
-      sleep(3_000, 'waiting'),
-    ]);
-    assert.equal(
-      during,
-      'waiting',
-      'status exited while the write held the settings',
-    );
+    // The settings are in write-ahead-log mode, so status reads what the
+    // last commit holds while the write is open.
+    reported = await started(mac.path, 'status', '--json').exited;
   } finally {
     writer.exec('ROLLBACK');
     writer.close();
   }
-  const reported = await status.exited;
 
   assert.equal(reported.status, 0, reported.stderr);
   assert.deepEqual(
