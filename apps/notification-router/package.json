@@ -1,0 +1,14 @@
+{
+  "name": "@workspace/notification-router",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "0.3.331",
+    "@zukhruf/election": "^0.8.82",
+    "@zukhruf/pipes": "^0.8.82",
+    "@zukhruf/shutdown": "^0.8.82",
+    "@zukhruf/sqlite-open": "^0.8.82",
+    "commander": "15.0.0",
+    "zod": "4.6.7"
+  }
+}

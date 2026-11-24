@@ -1,0 +1,5 @@
+{
+  "name": "notification-router",
+  "sourceRoot": "apps/notification-router/src",
+  "projectType": "application"
+}
