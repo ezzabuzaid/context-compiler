@@ -16,8 +16,8 @@
   },
   "devDependencies": {
     "@eltjs/source-apple-macos": "0.0.1",
-    "@zukhruf/fs": "^0.8.82",
-    "@zukhruf/sqlite-open": "^0.8.82",
-    "@zukhruf/testing": "^0.8.82"
+    "@zukhruf/fs": "^0.8.105",
+    "@zukhruf/sqlite-open": "^0.8.105",
+    "@zukhruf/testing": "^0.8.105"
   }
 }

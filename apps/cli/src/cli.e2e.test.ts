@@ -1652,7 +1652,15 @@ test("status waits out a write to the store's settings instead of printing nothi
 
   const status = started(mac.path, 'status', '--json');
   try {
-    await Promise.race([status.exited, sleep(3_000)]);
+    const during = await Promise.race([
+      status.exited.then(() => 'exited'),
+      sleep(3_000, 'waiting'),
+    ]);
+    assert.equal(
+      during,
+      'waiting',
+      'status exited while the write held the settings',
+    );
   } finally {
     writer.exec('ROLLBACK');
     writer.close();

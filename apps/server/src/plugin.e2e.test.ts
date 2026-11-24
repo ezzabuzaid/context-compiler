@@ -27,6 +27,7 @@ import {
   type ElicitResult,
   ErrorCode,
 } from '@modelcontextprotocol/sdk/types.js';
+import { untilAborted } from '@zukhruf/async';
 import { TemporaryFiles } from '@zukhruf/fs';
 import { open as openDatabase } from '@zukhruf/sqlite-open';
 import { retryUntilReady, waitFor } from '@zukhruf/testing/async';
@@ -2057,10 +2058,8 @@ test(
     await using scene = await ownedWatch(t.signal, scratch.path);
 
     scene.owner.send('SIGTERM');
-    const exited = await Promise.race([
-      scene.owner.closed.then(() => true),
-      sleep(5_000).then(() => false),
-    ]);
+    // A server that keeps running after SIGTERM never closes, and the test's limit ends the wait.
+    await untilAborted(scene.owner.closed, t.signal);
     photograph(scratch.path, [beach, snow, dunes]);
     await eventually(
       t.signal,
@@ -2069,7 +2068,6 @@ test(
       scene.said,
     );
 
-    assert.ok(exited, 'the server kept running 5 s after SIGTERM');
     assert.deepEqual(photoIds(scratch.path), ['p1', 'p2', 'p3']);
   },
 );

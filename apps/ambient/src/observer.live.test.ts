@@ -10,6 +10,7 @@ import { type TestContext, test } from 'node:test';
 import { setTimeout } from 'node:timers/promises';
 import { promisify } from 'node:util';
 
+import { untilAborted } from '@zukhruf/async';
 import { TemporaryFiles } from '@zukhruf/fs';
 import { PersistentWriteAheadLog, open } from '@zukhruf/sqlite-open';
 import { waitFor } from '@zukhruf/testing/async';
@@ -78,10 +79,13 @@ async function ambient(t: TestContext, home: string) {
   const stop = async () => {
     if (child.exitCode !== null || child.signalCode !== null) return;
     child.kill('SIGINT');
-    await Promise.race([exited, setTimeout(30_000, undefined, { ref: false })]);
-    if (child.exitCode === null && child.signalCode === null) {
-      child.kill('SIGKILL');
-      await exited;
+    try {
+      await untilAborted(exited, t.signal);
+    } finally {
+      if (child.exitCode === null && child.signalCode === null) {
+        child.kill('SIGKILL');
+        await exited;
+      }
     }
   };
   try {

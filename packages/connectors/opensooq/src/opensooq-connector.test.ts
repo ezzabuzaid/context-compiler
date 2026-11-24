@@ -103,7 +103,7 @@ function openSooq() {
 
 test('an import with no category chosen loads the categories alone, and requests no category page', async () => {
   await using scratch = await new TemporaryFiles().directory('opensooq-');
-  using wire = openSooq();
+  await using wire = openSooq();
   const opensooq = connector();
   using settings = new Settings(join(scratch.path, 'Imports'));
   const selection = {
@@ -141,7 +141,7 @@ test('an import with no category chosen loads the categories alone, and requests
 });
 
 test('setup offers the categories of OpenSooq Jordan, each under its top-level category', async () => {
-  using _wire = openSooq();
+  await using _wire = openSooq();
 
   const [categories] = await connector().listChoices();
 
@@ -161,7 +161,7 @@ test('setup offers the categories of OpenSooq Jordan, each under its top-level c
 
 test('an import of the categories chosen in setup loads their listings and the categories, from jo.opensooq.com alone', async () => {
   await using scratch = await new TemporaryFiles().directory('opensooq-');
-  using wire = openSooq();
+  await using wire = openSooq();
   const opensooq = connector();
   const [categories] = await opensooq.listChoices();
   const chosen = (categories?.options ?? [])

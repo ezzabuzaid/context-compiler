@@ -43,9 +43,12 @@ export class Router {
     socket.on('error', (error) =>
       log('socket-failed', { error: String(error) }),
     );
-    createInterface({ input: socket }).once('line', (line) => {
-      this.#open(waitRequestSchema.parse(JSON.parse(line)), socket);
-    });
+    createInterface({ input: socket })
+      .once('line', (line) => {
+        this.#open(waitRequestSchema.parse(JSON.parse(line)), socket);
+      })
+      // readline emits the socket's errors again here; the socket's own listener logs them.
+      .on('error', () => {});
   }
 
   async run(signal: AbortSignal): Promise<void> {

@@ -275,7 +275,7 @@ function instagram(slides: ReadonlyMap<string, Buffer>) {
 
 test('setup offers the accounts the browser’s Instagram account follows, by username and name', async () => {
   await using mac = await signedInMac();
-  using _wire = instagram(new Map());
+  await using _wire = instagram(new Map());
 
   const [profiles] = await connector(
     new MacOSDocumentParser(),
@@ -323,7 +323,7 @@ test('an everything import keeps each followed profile once across overlapping p
       },
     ],
   ]);
-  using _wire = msw.intercept(
+  await using _wire = msw.intercept(
     http.get(
       'https://www.instagram.com/',
       () =>
@@ -397,7 +397,7 @@ test('an import that keeps attachments, as setup does by default, makes the text
     renderedText(path, text);
     slides.set(id, readFileSync(path));
   }
-  using _wire = instagram(slides);
+  await using _wire = instagram(slides);
   await using imports = await new TemporaryFiles().directory(
     'instagram-import-',
   );
