@@ -40,7 +40,7 @@ State and log: `~/Library/Application Support/Context Compiler/Notification Rout
 
 ## Limits
 
-- A question an agent asks through an `AskUserQuestion` dialog is not covered: the turn does not end, so no `Stop` hook runs.
+- A question an agent asks through an `AskUserQuestion` dialog is not covered: the turn does not end, so no `Stop` hook runs. Ezz's global `~/.claude/CLAUDE.md` tells agents to end the turn with what they wait for instead, when a notification will bring it.
 - The router knows only what reaches Notification Center and the import. When macOS loses its Notification Center database (it did when the disk filled up on 2026-11-24), nothing arrives until `usernoted` starts again; the trigger health ping says so.
 - The trigger health check runs only while a session waits, because the router runs only then.
 - Matching reads the last message of every idle session, so a vague last message can match a notification it was not waiting for. Delivered text names its sender app, and agents check it: a code that came from Script Editor instead of Messages was not used.
