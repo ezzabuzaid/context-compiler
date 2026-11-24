@@ -59,6 +59,32 @@ export function recentNotifications(now: Date): Notification[] {
     );
 }
 
+export interface StreamHealth {
+  status: string;
+  error: string;
+}
+
+/**
+ * The last load of the import's notifications stream. The router sees nothing
+ * new while it fails, as when macOS lost its Notification Center store after the
+ * disk filled up (2026-11-24); a failure of another stream does not blind it.
+ */
+export function notificationsStreamHealth(): StreamHealth | undefined {
+  const database = notificationImport();
+  if (database === undefined) return undefined;
+  using db = open(database, { readOnly: true });
+  const row = db
+    .prepare(
+      `SELECT stream.status, attempt.error FROM stream_status AS stream
+       LEFT JOIN sync_attempts AS attempt ON attempt.attempt_id = stream.latest_attempt_id
+       WHERE stream.stream = 'notifications'`,
+    )
+    .get();
+  return row === undefined
+    ? undefined
+    : { status: String(row.status), error: String(row.error ?? '') };
+}
+
 function notificationImport(): string | undefined {
   using settings = open(join(importsFolder, 'settings.sqlite'), {
     readOnly: true,

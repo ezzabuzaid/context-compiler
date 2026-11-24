@@ -7,13 +7,18 @@ import { claudeSession } from './claude-sessions.ts';
 import { Delivered } from './delivered.ts';
 import { type Match, type OpenWait, judge } from './judge.ts';
 import { log } from './log.ts';
-import { type Notification, recentNotifications } from './notifications.ts';
+import {
+  type Notification,
+  notificationsStreamHealth,
+  recentNotifications,
+} from './notifications.ts';
 import { ping } from './ping.ts';
 import {
   type Delivery,
   type WaitRequest,
   waitRequestSchema,
 } from './protocol.ts';
+import { Seeing, type TriggerState } from './trigger.ts';
 
 interface Wait extends OpenWait {
   socket: Socket;
@@ -32,6 +37,7 @@ export class Router {
   readonly #delivered = new Delivered(Date.now());
   #idleSince = Date.now();
   #judgeAfter = 0;
+  #trigger: TriggerState = new Seeing();
 
   accept(socket: Socket): void {
     socket.on('error', (error) =>
@@ -49,6 +55,9 @@ export class Router {
         this.#closeMovedOn();
         if (this.#waits.size === 0) continue;
         this.#idleSince = Date.now();
+        this.#trigger = await this.#trigger.observe(
+          notificationsStreamHealth(),
+        );
         await this.#route();
       }
     } catch (error) {

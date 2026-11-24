@@ -22,6 +22,7 @@ When a Claude Code session ends its turn waiting for something, such as "send me
 - **Notifications:** every two seconds, while waits are open, the router reads the last 15 minutes of the Notification Center import (the `notifications` view of the `notification-center` connector that `cli sync watch` keeps current). It skips cmux's own notifications, macOS chores and its own pings.
 - **Matching:** each new notification goes to Claude Code's harness (`@anthropic-ai/claude-agent-sdk`, `claude-sonnet-5-5`, Ezz's main Claude login) with the open waits. The call has no tools and loads none of Ezz's settings, so it cannot run the `Stop` hook itself. It returns the waits that the notification answers.
 - **Delivery:** one match wakes that session with the notification, its sender app and the value it asked for. Two or more matches deliver nothing. Either way Ezz gets a macOS notification ("Sent the Stripe verification code to meddit-d7", or which sessions it could be for). A notification goes to one session once: `delivered.json` keeps that across restarts, because the woken session ends its turn again.
+- **Trigger health:** while waits are open, the router reads the import's `stream_status` row of the `notifications` stream. When that stream starts failing, Ezz gets one macOS notification with the import's error, and one more when it loads again. A failure of another stream of the import (such as `categories`, elt #5528) does not blind the router and raises nothing.
 
 ## Files
 
@@ -29,7 +30,8 @@ When a Claude Code session ends its turn waiting for something, such as "send me
 - `src/wait.ts`: the hook side: reads the hook input, connects (starting the router when none listens), prints the delivery.
 - `src/serve.ts`: the daemon: election, socket, shutdown.
 - `src/router.ts`: open waits, routing, delivery, ties.
-- `src/notifications.ts`: reads the recent notifications from the import.
+- `src/notifications.ts`: reads the recent notifications and the notifications stream's status from the import.
+- `src/trigger.ts`: the two states of the trigger (seeing, blind), each of which tells Ezz when it ends.
 - `src/judge.ts`: the matching call.
 - `src/claude-sessions.ts`: reads `~/.claude/sessions/<pid>.json` for a session's name and status.
 - `src/delivered.ts`, `src/ping.ts`, `src/log.ts`, `src/places.ts`, `src/protocol.ts`.
@@ -39,5 +41,6 @@ State and log: `~/Library/Application Support/Context Compiler/Notification Rout
 ## Limits
 
 - A question an agent asks through an `AskUserQuestion` dialog is not covered: the turn does not end, so no `Stop` hook runs.
-- The router knows only what reaches Notification Center and the import. When macOS loses its Notification Center database (it did when the disk filled up on 2026-11-24), nothing arrives until `usernoted` starts again.
+- The router knows only what reaches Notification Center and the import. When macOS loses its Notification Center database (it did when the disk filled up on 2026-11-24), nothing arrives until `usernoted` starts again; the trigger health ping says so.
+- The trigger health check runs only while a session waits, because the router runs only then.
 - Matching reads the last message of every idle session, so a vague last message can match a notification it was not waiting for. Delivered text names its sender app, and agents check it: a code that came from Script Editor instead of Messages was not used.
