@@ -5,11 +5,12 @@ import { z } from 'zod';
 
 import { sessionsFolder } from './places.ts';
 
+// A session's file can lack its status for a moment (seen 2026-11-24 12:10:00).
 const registryEntrySchema = z.object({
   sessionId: z.string(),
   name: z.string(),
-  status: z.string(),
-  statusUpdatedAt: z.number(),
+  status: z.string().optional(),
+  statusUpdatedAt: z.number().optional(),
 });
 export type ClaudeSession = z.infer<typeof registryEntrySchema>;
 

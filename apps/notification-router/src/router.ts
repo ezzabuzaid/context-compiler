@@ -78,6 +78,7 @@ export class Router {
       const movedOn =
         session === undefined ||
         (session.status === 'busy' &&
+          session.statusUpdatedAt !== undefined &&
           session.statusUpdatedAt > wait.openedAt + settle);
       if (!movedOn) continue;
       this.#waits.delete(wait.session);
