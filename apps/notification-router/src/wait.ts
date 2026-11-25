@@ -26,6 +26,9 @@ const startTimeout = 10_000;
  * exit code 0 ends the wait silently.
  */
 export async function wait(): Promise<number> {
+  // `claude -p` ends with its reply, so no later turn exists for a notification
+  // to wake, and its process does not exit while this hook waits.
+  if (process.env.CLAUDE_CODE_ENTRYPOINT === 'sdk-cli') return 0;
   const input = stopInputSchema.parse(JSON.parse(await text(process.stdin)));
   const request = input.last_assistant_message?.trim();
   if (!request) return 0;
