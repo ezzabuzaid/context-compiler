@@ -28,8 +28,7 @@ import { Settings } from '@workspace/settings';
 // builds its Vision pool; this builds the pool of the chosen model's engine
 // on the store of the computer, so the hosts that chose the same model share
 // one engine, which loads the weights as soon as the model is chosen.
-// refresh notices choices another CLI or plugin process saved in the same
-// settings.
+// refresh notices choices another CLI process saved in the same settings.
 export class Transcription implements AsyncDisposable {
   readonly #settings: Settings;
   readonly #models: SpeechModels;

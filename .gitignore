@@ -146,8 +146,3 @@ vite.config.ts.timestamp-*
 outputs/
 # Test reporter output
 test-results.xml
-
-# The plugin's server, built by `nx run plugin:bundle`. `nx run plugin:release`
-# publishes it with the rest of plugins/context-compiler to the release branch,
-# which Codex installs from.
-/plugins/context-compiler/server

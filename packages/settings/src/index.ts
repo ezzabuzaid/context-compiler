@@ -1,8 +1,4 @@
-export {
-  ConnectorRemovedError,
-  Settings,
-  importDirectory,
-} from './settings.ts';
+export { ConnectorRemovedError, Settings } from './settings.ts';
 export {
   type ConnectorFacts,
   type Selection,

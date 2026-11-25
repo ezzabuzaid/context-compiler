@@ -3,12 +3,6 @@
   "files": [],
   "references": [
     {
-      "path": "./apps/desktop"
-    },
-    {
-      "path": "./apps/server"
-    },
-    {
       "path": "./apps/cli"
     },
     {
@@ -73,9 +67,6 @@
     },
     {
       "path": "./packages/connectors/whatsapp"
-    },
-    {
-      "path": "./packages/ui"
     },
     {
       "path": "./apps/what-is-going-on"

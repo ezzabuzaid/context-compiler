@@ -2,7 +2,6 @@ import nx from '@nx/eslint-plugin';
 import zukhruf from '@zukhruf/eslint';
 import modernNode from '@zukhruf/eslint/modern-node';
 import island, { manifest, moduleBoundaries } from '@zukhruf/eslint/nx';
-import react from '@zukhruf/eslint/react';
 import { defineConfig } from 'eslint/config';
 
 export default defineConfig(
@@ -10,25 +9,13 @@ export default defineConfig(
   nx.configs['flat/typescript'],
   nx.configs['flat/javascript'],
   {
-    // Flat config never reads .gitignore, so build output and the bundled
-    // plugin server are listed here.
+    // Flat config never reads .gitignore, so build output is listed here.
     ignores: [
       '**/dist',
       '**/out-tsc',
-      'plugins/context-compiler/server',
       // sdk-it generates it from apps/websets/openapi.ts.
       'packages/websets-client/src',
     ],
-  },
-  // The React preset comes before the zukhruf configs, so base's changes to
-  // third-party rules win.
-  {
-    files: [
-      'packages/ui/**',
-      'apps/desktop/frontend/**',
-      'apps/server/src/page/**',
-    ],
-    extends: [react],
   },
   {
     plugins: { zukhruf, island, manifest },
@@ -36,7 +23,6 @@ export default defineConfig(
       'zukhruf/base',
       'zukhruf/tests',
       'zukhruf/diagnostics',
-      'zukhruf/shadcn',
       'island/recommended',
       'manifest/recommended',
     ],
@@ -44,40 +30,15 @@ export default defineConfig(
     // passes values in, and a package reports through the errors it throws
     // and the values it returns, never through console.
     settings: { island: { libraries: ['packages/**/*.{ts,tsx}'] } },
-    rules: {
-      'manifest/dependency-checks': [
-        'error',
-        {
-          // The desktop's Vite config builds its frontend; it never ships.
-          ignoredFiles: ['{projectRoot}/frontend/vite.config.mts'],
-          // Electron runs the desktop app; the app does not ship it.
-          projects: { 'apps/desktop': { ignoredDependencies: ['electron'] } },
-        },
-      ],
-    },
   },
-  // Modern Node is for code that runs on Node. packages/ui and the two frontends
-  // run in a browser page, where a fix such as Error.isError can throw: MDN marks
-  // it limited availability. apps/startup-credits stays out because the user
-  // said: "don't change anything on startupcredit". These globs resolve from the
-  // folder of the config that ESLint loads, so they match nothing under
-  // apps/ambient, which spreads this config. That is correct: it runs on Node.
+  // Modern Node is for code that runs on Node. apps/startup-credits stays out
+  // because the user said: "don't change anything on startupcredit". The glob
+  // resolves from the folder of the config that ESLint loads, so it matches
+  // nothing under apps/ambient, which spreads this config.
   {
-    ignores: [
-      'packages/ui/**',
-      'apps/desktop/frontend/**',
-      'apps/server/src/page/**',
-      'apps/startup-credits/**',
-    ],
+    ignores: ['apps/startup-credits/**'],
     plugins: { 'modern-node': modernNode },
     extends: ['modern-node/recommended'],
-  },
-  // The React components of packages/ui wait on the timers of the browser. How
-  // a component gets a clock is not decided yet (zukhruf #3600), so
-  // island/no-ambient-time does not reach them, as in zukhruf's ui and shadcn.
-  {
-    files: ['packages/ui/src/**'],
-    rules: { 'island/no-ambient-time': 'off' },
   },
   {
     files: ['**/*.ts', '**/*.js'],
@@ -86,13 +47,12 @@ export default defineConfig(
         'error',
         moduleBoundaries({
           // The Calendar connector imports ./google-calendar-attachments with
-          // a dynamic import() so gaxios stays out of the plugin's startup
-          // code, and its source statically from the same package. Nx marks
-          // the whole project edge lazy once one dynamic import crosses it
-          // (@nx/eslint-plugin runtime-lint-utils hasDynamicImport) and then
-          // rejects every static import of it; that guards per-project code
-          // splitting, while the plugin bundle splits per module. Matched as
-          // an unanchored regex, hence the anchors.
+          // a dynamic import() so gaxios loads only for an import that uses a
+          // Google session, and its source statically from the same package.
+          // Nx marks the whole project edge lazy once one dynamic import
+          // crosses it (@nx/eslint-plugin runtime-lint-utils hasDynamicImport)
+          // and then rejects every static import of it. Matched as an
+          // unanchored regex, hence the anchors.
           checkDynamicDependenciesExceptions: [
             '^@eltjs/source-apple-calendar(/.*)?$',
           ],

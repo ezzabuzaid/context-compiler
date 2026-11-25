@@ -39,7 +39,7 @@ function connectorUnder(home: string): Connector {
   );
 }
 
-// The import the plugin makes: one pass into data.sqlite with sync history
+// The import the CLI makes: one pass into data.sqlite with sync history
 // and catalog.
 async function importActivity(
   connector: Connector,

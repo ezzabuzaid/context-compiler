@@ -9,5 +9,5 @@ A decision model by its id, through `@ai-sdk/typesafe-ai`, at OpenRouter's `/api
 
 ## Where Context Compiler keeps its files
 
-**`apps/cli/src/main.ts` (`--directory` default) and `apps/server/src/main.ts` (`store`) → `src/imports.ts` (`contextCompiler`).**
+**`apps/cli/src/main.ts` (`--directory` default) → `src/imports.ts` (`contextCompiler`).**
 `~/Library/Application Support/Context Compiler`, with the imports and `settings.sqlite` in `Imports`. ipay reads only the `selected_connectors` view of `settings.sqlite`, and its code does not import `@workspace/settings`, whose `Settings` writes the file it opens; a shared constant would be a new dependency for one line. Only its tests import `Settings`, to set Context Compiler up as a user does.

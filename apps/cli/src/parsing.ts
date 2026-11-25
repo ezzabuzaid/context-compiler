@@ -73,7 +73,6 @@ class Started implements AsyncDisposable {
 
   constructor(directory: string) {
     const store = computerStore(process.env);
-    // The server builds the same pool: change both.
     this.#visionWorkers = new PoolWorkers({
       kind: visionKind,
       store,
@@ -86,8 +85,8 @@ class Started implements AsyncDisposable {
         },
       }),
       startup: new LeaderFirst(),
-      // Idle Vision workers close after 5 minutes, so a server that does no work,
-      // such as one Codex keeps after a plugin refresh, holds no helpers (#3516).
+      // Idle Vision workers close after 5 minutes, so a sync watch that waits for
+      // changes holds no helpers between passes (#3516).
       eviction: new IdleTimeout({ after: 300_000 }),
       create: () =>
         new VisionWorker(

@@ -168,7 +168,7 @@ test('an existing import pipeline reads audio with a model saved or disabled by 
   );
   using other = new Settings(directory.path);
   // The host offers its connectors the parser of the choice it read last, as
-  // the plugin's server does.
+  // the CLI's TerminalHost does.
   const connector = new VoiceNoteConnector(
     {
       clock: globalThis,

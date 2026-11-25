@@ -50,11 +50,11 @@ export type ConnectorHost = {
   // process has it: its TZ gives an all-day item its dates.
   readonly env: NodeJS.ProcessEnv;
   readonly documentParser: DocumentParser;
-  // The app macOS grants access to: ChatGPT for the plugin, the terminal
-  // that launched the CLI.
+  // The app macOS grants access to: the terminal that launched the CLI, or
+  // its node binary when no terminal did.
   readonly grantee: string;
-  // The compiled EventKit helper Calendar and Reminders read through: beside
-  // the plugin's bundled server, or in @eltjs/sdk-apple-eventkit's dist.
+  // The compiled EventKit helper Calendar and Reminders read through, in
+  // @eltjs/sdk-apple-eventkit's dist.
   readonly eventKitHelper: string;
   // The clock of every pipeline a connector builds: a host gives globalThis,
   // a test a fake clock that it moves (elt ADR 0019).
