@@ -294,7 +294,8 @@ export abstract class Connector {
           }),
       ),
       new Map(),
-      { clock: this.host.clock },
+      // A choices read has no checkpoint, so it has no saved entries.
+      { clock: this.host.clock, entries: async () => new Map() },
     )) {
       if (message instanceof StreamStatus) {
         if (message.status === 'FAILED') throw message.error;
