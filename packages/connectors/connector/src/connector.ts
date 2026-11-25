@@ -129,12 +129,6 @@ export abstract class Connector {
     return [];
   }
 
-  // Content availability the app can establish from its imported reader views.
-  // This does not turn a successful local copy into a claim about cloud data.
-  contentStatus(_database: string): readonly string[] {
-    return [];
-  }
-
   // Only the connector knows which upstream errors a fresh pass can recover.
   protected retryImport(_error: unknown): boolean {
     return false;

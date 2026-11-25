@@ -654,15 +654,6 @@ test('mail_messages reads each message with both body formats, recipients, subje
                 },
               ],
             );
-            const status = connector
-              .contentStatus(settings.database(selection))
-              .join('\n');
-            assert.match(status, /Cloud inbox freshness is unknown/);
-            assert.match(
-              status,
-              /4 messages: 1 without a downloaded message file; 1 without readable body text/,
-            );
-            assert.match(status, /3 attachments: 1 unavailable/);
           }
         } finally {
           writeFileSync(file, original);

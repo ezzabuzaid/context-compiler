@@ -1,5 +1,3 @@
-import { open } from '@zukhruf/sqlite-open';
-
 import type { SQLiteDestination } from '@eltjs/elt-sqlite';
 import { AccountsStore, accountsStorePath } from '@eltjs/sdk-apple-accounts';
 import { MailChangingError, mailDirectory } from '@eltjs/sdk-apple-mail';
@@ -50,34 +48,6 @@ export default class MailConnector extends Connector {
 
   protected override derived(destination: SQLiteDestination) {
     return [mailContentStatus(destination)];
-  }
-
-  override contentStatus(path: string): readonly string[] {
-    using database = open(path, { readOnly: true, timeout: 30_000 });
-    const boundary =
-      'This import reads the local Mail store. Cloud inbox freshness is unknown.';
-    if (
-      database
-        .prepare(
-          "SELECT 1 FROM sqlite_schema WHERE type = 'view' AND name = 'mail_content_status'",
-        )
-        .get() === undefined
-    )
-      return [
-        boundary,
-        'Content availability is not known until the Mail content streams finish importing.',
-      ];
-    const row = database.prepare('SELECT * FROM mail_content_status').get();
-    if (row === undefined) return [boundary];
-    return [
-      boundary,
-      row.latest_received_at === null
-        ? 'No locally received message date is available in this selection.'
-        : `Newest locally received message: ${row.latest_received_at}.`,
-      `${row.message_count} messages: ${row.missing_message_files} without a downloaded message file; ${row.missing_text_bodies} without readable body text.`,
-      `${row.attachment_count} attachments: ${row.unavailable_attachments} unavailable on this Mac.`,
-      'To obtain newer or missing content, let Mail download it from its accounts, then sync this import.',
-    ];
   }
 
   protected override retryImport(error: unknown): boolean {
