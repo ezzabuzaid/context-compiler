@@ -5,7 +5,6 @@ import { basename, extname, join } from 'node:path';
 
 import { Command as Program } from 'commander';
 
-import { macOSAccess } from '@eltjs/sdk-macos-app-database';
 import { builtInConnectors } from '@workspace/connector-manifest/built-in-connectors';
 import { Connectors } from '@workspace/connector-manifest/connectors';
 import { provideHostModules } from '@workspace/connector-manifest/host-modules';
@@ -35,7 +34,8 @@ setDefaultAutoSelectFamilyAttemptTimeout(2_000);
 // TERM_PROGRAM cannot name it (cmux, for one, reports ghostty); or, when
 // launchd started it, as it starts the background watch, the node it runs.
 // launchd sets XPC_SERVICE_NAME to the job's label, and a terminal's child
-// has 0. Otherwise the stores' errors name no program.
+// has 0. Only the connectors' access guidance reads it: the stores' errors
+// take the client from macOS through @zukhruf/tcc (#5755 moves the guidance).
 function responsibleProgram(): string | undefined {
   const bundle = process.env.__CFBundleIdentifier;
   if (bundle !== undefined && /^[\w.-]+$/.test(bundle))
@@ -56,7 +56,6 @@ function responsibleProgram(): string | undefined {
     : undefined;
 }
 const grantee = responsibleProgram();
-if (grantee !== undefined) macOSAccess.install({ program: grantee });
 
 // The user's own connectors import elt and Connector from this CLI's copies.
 provideHostModules(({ specifier }) => import.meta.resolve(specifier));

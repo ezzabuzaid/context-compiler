@@ -35,6 +35,7 @@ import {
   RollbackJournal,
   open as openDatabase,
 } from '@zukhruf/sqlite-open';
+import { Client, FullDiskAccess } from '@zukhruf/tcc';
 import { retryUntilReady, waitFor } from '@zukhruf/testing/async';
 
 import { IndexedDBWriter } from '@eltjs/codec-chromium-indexeddb/test';
@@ -3254,7 +3255,7 @@ function withheld(directory: string) {
 }
 
 test(
-  'call history that macOS keeps from the CLI fails its sync and status with the store’s remedy once, naming the node launchd runs',
+  'call history that macOS keeps from the CLI fails its sync and status with the store’s remedy once, naming the client that macOS charges',
   { skip: process.platform === 'win32' || process.getuid?.() === 0 },
   async () => {
     await using mac = await new TemporaryFiles().directory('cli-e2e-', {
@@ -3268,24 +3269,14 @@ test(
     using _withheld = withheld(
       join(mac.path, 'Library/Application Support/CallHistoryDB'),
     );
-    // As launchd starts a job: XPC_SERVICE_NAME is its label, and no app
-    // launched it.
-    const { __CFBundleIdentifier: _, ...inherited } = process.env;
-    const asJob = (...args: string[]) =>
-      spawnSync(process.execPath, [entry, ...args], {
-        cwd: mac.path,
-        env: {
-          ...inherited,
-          HOME: mac.path,
-          XPC_SERVICE_NAME: 'com.example.job',
-        },
-        encoding: 'utf8',
-      });
+    const synced = cli(mac.path, 'sync');
+    const status = cli(mac.path, 'status', '--json');
 
-    const synced = asJob('sync');
-    const status = asJob('status', '--json');
-
-    const remedy = `Turn on ${process.execPath} in System Settings › Privacy & Security › Full Disk Access.`;
+    // The CLI runs as a child of this test, so macOS charges it to the same
+    // client as the test, which @zukhruf/tcc finds.
+    const remedy = new FullDiskAccess().remedy(
+      Client.responsibleFor(process.pid),
+    );
     assert.equal(synced.status, 1);
     const [pass] = lines(synced.stdout);
     assert.equal(pass.status, 'failed');
