@@ -16,6 +16,6 @@
     "@eltjs/elt-sqlite": "*",
     "@eltjs/sdk-web-crawler": "0.0.1",
     "@eltjs/source-web-pages": "0.0.1",
-    "@zukhruf/shutdown": "^0.8.105"
+    "@zukhruf/shutdown": "^0.8.109"
   }
 }

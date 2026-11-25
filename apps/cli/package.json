@@ -38,17 +38,17 @@
     "@workspace/connector-slack-desktop": "0.0.1",
     "@workspace/connector-whatsapp-desktop": "0.0.1",
     "@workspace/settings": "0.0.1",
-    "@zukhruf/election": "^0.8.105",
-    "@zukhruf/launchd": "^0.8.105",
-    "@zukhruf/pool": "^0.8.105",
-    "@zukhruf/single-flight": "^0.8.105",
-    "@zukhruf/sqlite-federation": "^0.8.105",
+    "@zukhruf/election": "^0.8.109",
+    "@zukhruf/launchd": "^0.8.109",
+    "@zukhruf/pool": "^0.8.109",
+    "@zukhruf/single-flight": "^0.8.109",
+    "@zukhruf/sqlite-federation": "^0.8.109",
     "commander": "15.0.0"
   },
   "devDependencies": {
     "@eltjs/codec-chromium-indexeddb": "0.0.1",
-    "@zukhruf/fs": "^0.8.105",
-    "@zukhruf/sqlite-open": "^0.8.105",
-    "@zukhruf/testing": "^0.8.105"
+    "@zukhruf/fs": "^0.8.109",
+    "@zukhruf/sqlite-open": "^0.8.109",
+    "@zukhruf/testing": "^0.8.109"
   }
 }
