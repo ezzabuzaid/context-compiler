@@ -1,3 +1,5 @@
+import { Client, FullDiskAccess } from '@zukhruf/tcc';
+
 import { Command, type Output } from './command.ts';
 
 export class SyncWatchStartCommand extends Command {
@@ -15,7 +17,8 @@ export class SyncWatchStartCommand extends Command {
       text: () =>
         [
           'Watching in the background, from each login on.',
-          `Connectors that need Full Disk Access fail until ${node} is on in System Settings › Privacy & Security › Full Disk Access; then run sync watch restart.`,
+          // The job runs node itself, so macOS charges node, not the terminal.
+          `Connectors that need Full Disk Access fail until then. ${new FullDiskAccess().remedy(Client.executable(node))} sync watch restart starts it again.`,
           `Errors: ${log}`,
         ].join('\n'),
     };
