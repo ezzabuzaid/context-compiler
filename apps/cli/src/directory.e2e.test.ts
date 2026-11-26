@@ -2,14 +2,14 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, realpathSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { test } from 'node:test';
 
 import { TemporaryFiles } from '@zukhruf/fs';
+import { test } from '@zukhruf/parameterized-test';
 import { RollbackJournal, open } from '@zukhruf/sqlite-open';
 
 const entry = join(import.meta.dirname, '../dist/main.js');
 
-for (const mode of ['default', 'relative', 'absolute'])
+void test.each(['default', 'relative', 'absolute'], (mode) =>
   test(`CLI uses the ${mode} store for setup, status and query`, async () => {
     // Keep the shared store's Unix socket within macOS's 103-byte path limit.
     await using scratch = await new TemporaryFiles().directory(
@@ -80,7 +80,8 @@ for (const mode of ['default', 'relative', 'absolute'])
     assert.equal(watch.status, 0, watch.stderr);
     assert.match(watch.stdout, /--connector/);
     assert.equal(existsSync(join(scratch.path, 'outputs')), false);
-  });
+  }),
+);
 
 test('--directory requires a path before any store is opened', async () => {
   await using scratch = await new TemporaryFiles().directory('cli-directory-', {

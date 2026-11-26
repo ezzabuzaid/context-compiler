@@ -10,11 +10,11 @@
     "@workspace/connector-apple-mail": "0.0.1",
     "@workspace/model-calls": "0.0.1",
     "@workspace/quote-grounding": "0.0.1",
-    "@zukhruf/shutdown": "^0.8.137",
-    "@zukhruf/snapshot-differential": "^0.8.137",
-    "@zukhruf/sqlite-data-version": "^0.8.137",
-    "@zukhruf/sqlite-open": "^0.8.137",
-    "@zukhruf/sqlite-snapshot": "^0.8.137",
+    "@zukhruf/shutdown": "^0.8.144",
+    "@zukhruf/snapshot-differential": "^0.8.144",
+    "@zukhruf/sqlite-data-version": "^0.8.144",
+    "@zukhruf/sqlite-open": "^0.8.144",
+    "@zukhruf/sqlite-snapshot": "^0.8.144",
     "ai": "^7.0.177",
     "html-to-text": "10.0.1",
     "zod": "4.6.7"
@@ -24,8 +24,9 @@
     "@types/html-to-text": "9.0.4",
     "@workspace/connector-apple-messages": "0.0.1",
     "@workspace/settings": "0.0.1",
-    "@zukhruf/fs": "^0.8.137",
-    "@zukhruf/testing": "^0.8.137",
+    "@zukhruf/fs": "^0.8.144",
+    "@zukhruf/parameterized-test": "^0.8.144",
+    "@zukhruf/testing": "^0.8.144",
     "msw": "^3.0.3"
   }
 }

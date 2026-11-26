@@ -12,10 +12,11 @@ import {
 import { findPackageJSON } from 'node:module';
 import { dirname, join } from 'node:path';
 import type { SQLOutputValue } from 'node:sqlite';
-import test, { type TestContext } from 'node:test';
+import type { TestContext } from 'node:test';
 import { setTimeout as sleep } from 'node:timers/promises';
 
 import { TemporaryFiles } from '@zukhruf/fs';
+import { test } from '@zukhruf/parameterized-test';
 import { RollbackJournal, open } from '@zukhruf/sqlite-open';
 import { waitFor } from '@zukhruf/testing/async';
 import { z } from 'zod';
@@ -1190,30 +1191,32 @@ test('a refresh that fails for another reason than the credential leaves ipay ru
   assert.equal(run.asked.length, 2);
 });
 
-test('ipay tells the user to set up and sync a connector it reads when Context Compiler has no import of it', async (t) => {
-  for (const [missing, present] of [
+void test.each(
+  [
     ['mail', 'messages'],
     ['messages', 'mail'],
-  ] as const) {
-    await using home = await new TemporaryFiles().directory('ipay-');
-    mailStore(home.path, []);
-    chatStore(home.path, []);
-    await contextCompilerSync(home.path, [present]);
+  ] as const,
+  ([missing, present]) =>
+    test(`ipay tells the user to set up and sync the ${missing} connector, which it reads, when Context Compiler has no import of it`, async (t) => {
+      await using home = await new TemporaryFiles().directory('ipay-');
+      mailStore(home.path, []);
+      chatStore(home.path, []);
+      await contextCompilerSync(home.path, [present]);
 
-    const run = await running(t, home.path, {}, { exit: true });
+      const run = await running(t, home.path, {}, { exit: true });
 
-    assert.equal(run.signal, null, missing);
-    assert.equal(run.code, 1, missing);
-    assert.match(
-      run.stderr,
-      new RegExp(
-        `Context Compiler has no ${missing} import: set up ${missing} in Context Compiler and sync it`,
-        'u',
-      ),
-    );
-    assert.deepEqual(run.asked, []);
-  }
-});
+      assert.equal(run.signal, null, missing);
+      assert.equal(run.code, 1, missing);
+      assert.match(
+        run.stderr,
+        new RegExp(
+          `Context Compiler has no ${missing} import: set up ${missing} in Context Compiler and sync it`,
+          'u',
+        ),
+      );
+      assert.deepEqual(run.asked, []);
+    }),
+);
 
 // A text from Arab Bank, as Messages keeps it.
 const bank = (guid: string, text: string, sent: string): Text => ({

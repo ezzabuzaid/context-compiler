@@ -4,7 +4,7 @@ import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { TemporaryFiles } from '@zukhruf/fs';
-import { describe, test } from '@zukhruf/testing/node';
+import { describe, test } from '@zukhruf/parameterized-test';
 
 import { promptfoo } from '../src/testing/promptfoo.ts';
 

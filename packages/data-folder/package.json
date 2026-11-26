@@ -10,7 +10,7 @@
     }
   },
   "devDependencies": {
-    "@zukhruf/fs": "^0.8.137",
-    "@zukhruf/testing": "^0.8.137"
+    "@zukhruf/fs": "^0.8.144",
+    "@zukhruf/testing": "^0.8.144"
   }
 }
