@@ -6,7 +6,6 @@ import { Connector } from '@workspace/connector/connector';
 
 export default class WhatsAppConnector extends Connector {
   readonly datedBy = 'date sent';
-  readonly fullDiskAccess = true;
   override readonly note =
     'WhatsApp saves messages to this Mac only while it runs, so messages sent while it is closed are imported once it has run again.';
   protected readonly choices: readonly Choice[] = [
@@ -45,10 +44,6 @@ export default class WhatsAppConnector extends Connector {
     'changedNumbers',
   ];
   protected readonly storeCopies = [];
-
-  protected access(): string {
-    return 'Open WhatsApp and let it run: it keeps what it has synced from your phone, and saves new messages to this Mac while it runs.';
-  }
 
   protected sources(scope: ImportScope) {
     return [

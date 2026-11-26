@@ -94,7 +94,6 @@ class VoiceNoteSource extends Source {
 
 class VoiceNoteConnector extends Connector {
   readonly datedBy = null;
-  readonly fullDiskAccess = false;
   protected readonly choices = [];
   protected readonly unscoped = [];
   protected readonly storeCopies = [];
@@ -107,10 +106,6 @@ class VoiceNoteConnector extends Connector {
       folder: '/nonexistent',
     });
     this.#file = file;
-  }
-
-  protected access(): string {
-    return 'Nothing to grant.';
   }
 
   protected sources() {
@@ -172,7 +167,6 @@ test('an existing import pipeline reads audio with a model saved or disabled by 
   const connector = new VoiceNoteConnector(
     {
       clock: globalThis,
-      grantee: 'Codex',
       get documentParser() {
         return host.parser;
       },

@@ -6,7 +6,6 @@ import { Connector } from '@workspace/connector/connector';
 
 export default class SafariConnector extends Connector {
   readonly datedBy = 'visit time';
-  readonly fullDiskAccess = true;
   override readonly note =
     'Profiles select history, windows, tab groups, tabs, recently closed tabs and downloads. Dates select history visits, and the pages and topics those visits reach.';
   protected readonly choices: readonly Choice[] = [
@@ -31,10 +30,6 @@ export default class SafariConnector extends Connector {
     'cloudTabCloseRequests',
   ];
   protected readonly storeCopies = [];
-
-  protected access(): string {
-    return 'Open Safari to let it fetch history and tabs from your other devices.';
-  }
 
   protected sources(scope: ImportScope) {
     return [

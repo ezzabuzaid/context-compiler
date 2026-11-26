@@ -11,7 +11,6 @@ import { Connector } from '@workspace/connector/connector';
 
 export default class NotesConnector extends Connector {
   readonly datedBy = 'date last edited';
-  readonly fullDiskAccess = true;
   override readonly note =
     'Exact containing folders; select descendants separately. Smart folders are saved searches and cannot be selected as containing folders.';
   protected readonly choices: readonly Choice[] = [
@@ -20,10 +19,6 @@ export default class NotesConnector extends Connector {
   ];
   protected readonly unscoped = [];
   protected readonly storeCopies = [];
-
-  protected access(): string {
-    return 'Open Notes to let it finish syncing iCloud changes.';
-  }
 
   protected sources(scope: ImportScope) {
     return [

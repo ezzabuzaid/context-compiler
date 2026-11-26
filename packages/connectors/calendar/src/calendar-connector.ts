@@ -19,17 +19,12 @@ import { Connector, type Selection } from '@workspace/connector/connector';
 export default class CalendarConnector extends Connector {
   readonly datedBy =
     'event dates (events that overlap the range; with none, every event from 2000 until a year after each import)';
-  readonly fullDiskAccess = false;
   protected readonly choices: readonly Choice[] = [
     accounts(name),
     collections('calendars', 'calendars'),
   ];
   protected readonly unscoped = [];
   protected readonly storeCopies = [];
-
-  protected access(grantee: string): string {
-    return `Allow ${grantee} full Calendar access when macOS asks, or in System Settings › Privacy & Security › Calendars.`;
-  }
 
   // Calendar reads occurrences within a window: every event from 2000 to a
   // year ahead.

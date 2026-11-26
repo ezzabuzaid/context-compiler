@@ -6,7 +6,6 @@ import { Connector } from '@workspace/connector/connector';
 
 export default class NotificationCenterConnector extends Connector {
   readonly datedBy = 'delivery date';
-  readonly fullDiskAccess = true;
   // One store of every app's notifications; a date range is the only
   // narrowing.
   protected readonly choices: readonly Choice[] = [];
@@ -14,10 +13,6 @@ export default class NotificationCenterConnector extends Connector {
   protected override readonly probe = 'notifications';
   protected readonly unscoped = [];
   protected readonly storeCopies = [];
-
-  protected access(): string {
-    return 'No app needs to be open: macOS keeps every app’s notifications in one store while Notification Center holds them.';
-  }
 
   protected sources(scope: ImportScope) {
     return [

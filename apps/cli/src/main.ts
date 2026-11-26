@@ -1,7 +1,6 @@
-import { execFileSync } from 'node:child_process';
 import { setDefaultAutoSelectFamilyAttemptTimeout } from 'node:net';
 import { homedir } from 'node:os';
-import { basename, extname, join } from 'node:path';
+import { join } from 'node:path';
 
 import { Command as Program } from 'commander';
 
@@ -28,34 +27,6 @@ if (process.platform !== 'darwin')
 // on a Mac whose network has no IPv6 route, then fails on every address.
 // RFC 8305 allows such an attempt 2 seconds at most.
 setDefaultAutoSelectFamilyAttemptTimeout(2_000);
-
-// The program macOS charges what this process reads to, as System Settings
-// lists it: the app that launched it, named by its bundle identifier, since
-// TERM_PROGRAM cannot name it (cmux, for one, reports ghostty); or, when
-// launchd started it, as it starts the background watch, the node it runs.
-// launchd sets XPC_SERVICE_NAME to the job's label, and a terminal's child
-// has 0. Only the connectors' access guidance reads it: the stores' errors
-// take the client from macOS through @zukhruf/tcc (#5755 moves the guidance).
-function responsibleProgram(): string | undefined {
-  const bundle = process.env.__CFBundleIdentifier;
-  if (bundle !== undefined && /^[\w.-]+$/.test(bundle))
-    try {
-      const [path] = execFileSync(
-        '/usr/bin/mdfind',
-        [`kMDItemCFBundleIdentifier == '${bundle}'`],
-        { encoding: 'utf8', timeout: 5_000 },
-      ).split('\n');
-      return path ? basename(path, extname(path)) : undefined;
-    } catch {
-      // Spotlight is unavailable: the errors name no program.
-      return undefined;
-    }
-  const service = process.env.XPC_SERVICE_NAME;
-  return service !== undefined && service !== '0'
-    ? process.execPath
-    : undefined;
-}
-const grantee = responsibleProgram();
 
 // The user's own connectors import elt and Connector from this CLI's copies.
 provideHostModules(({ specifier }) => import.meta.resolve(specifier));
@@ -100,7 +71,7 @@ const background = new BackgroundWatch(directory, import.meta.filename);
 const { connectors, broken } = await new Connectors([
   builtInConnectors,
   userConnectors,
-]).load(new TerminalHost(() => parsing.parser, grantee ?? process.execPath));
+]).load(new TerminalHost(() => parsing.parser));
 
 for (const { title, error } of broken)
   process.stderr.write(`${title} could not be loaded: ${error}\n`);

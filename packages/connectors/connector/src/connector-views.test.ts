@@ -94,7 +94,6 @@ type ViewSpec = Omit<ConstructorParameters<typeof View>[0], 'into'>;
 // A connector with views over its stores' views.
 class TwoStoreConnector extends Connector {
   readonly datedBy = null;
-  readonly fullDiskAccess = false;
   protected readonly choices = [];
   protected readonly unscoped = [];
   protected readonly storeCopies = [];
@@ -105,7 +104,6 @@ class TwoStoreConnector extends Connector {
     super(
       {
         clock: globalThis,
-        grantee: 'Codex',
         documentParser: new MacOSDocumentParser(),
         home: '',
         env: {},
@@ -119,10 +117,6 @@ class TwoStoreConnector extends Connector {
 
   protected override derived(destination: SQLiteDestination) {
     return this.#views.map((view) => new View({ into: destination, ...view }));
-  }
-
-  protected access(): string {
-    return 'Nothing to grant.';
   }
 
   protected sources() {

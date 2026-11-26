@@ -27,7 +27,6 @@ function options(
 
 export default class InstagramConnector extends Connector {
   readonly datedBy = 'date posted';
-  readonly fullDiskAccess = false;
   override readonly note =
     'Instagram has no Mac app, so the import reads instagram.com with the session of the browser you signed in to Instagram with. Pick the profiles among the accounts you follow; follow a profile on Instagram to add it. A long profile is complete after several hourly syncs.';
   protected readonly choices: readonly Choice[] = [
@@ -41,10 +40,6 @@ export default class InstagramConnector extends Connector {
   ];
   protected readonly unscoped = ['following'];
   protected readonly storeCopies = [];
-
-  protected access(): string {
-    return 'Sign in to Instagram in Dia, Google Chrome, Arc, Microsoft Edge or Brave. When macOS asks whether security may use the browser’s Safe Storage key, click Always Allow.';
-  }
 
   protected sources(scope: ImportScope): readonly [InstagramWebSource] {
     return [new InstagramWebSource(options(this.host.home, scope))];

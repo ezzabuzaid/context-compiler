@@ -39,7 +39,6 @@ const conversation: Choice['label'] = (row, rows) => {
 
 export default class TeamsConnector extends Connector {
   readonly datedBy = 'date sent';
-  readonly fullDiskAccess = true;
   override readonly note =
     'Teams keeps only the messages it has loaded on this Mac, so older history is imported only once Teams loads it.';
   protected readonly choices: readonly Choice[] = [
@@ -54,10 +53,6 @@ export default class TeamsConnector extends Connector {
   ];
   protected readonly unscoped = [];
   protected readonly storeCopies = [];
-
-  protected access(): string {
-    return 'Open Microsoft Teams, sign in and let it run: it saves what it loads as you use it, and only what it has loaded on this Mac is imported.';
-  }
 
   protected sources(scope: ImportScope) {
     return [

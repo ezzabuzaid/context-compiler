@@ -46,7 +46,6 @@ function connector(
       clock: globalThis,
       home,
       env: {},
-      grantee: 'Codex',
       documentParser,
       eventKitHelper: '',
     },

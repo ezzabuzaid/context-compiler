@@ -11,17 +11,12 @@ import { Connector } from '@workspace/connector/connector';
 
 export default class RemindersConnector extends Connector {
   readonly datedBy = null;
-  readonly fullDiskAccess = false;
   protected readonly choices: readonly Choice[] = [
     accounts(name),
     collections('lists', 'lists'),
   ];
   protected readonly unscoped = [];
   protected readonly storeCopies = [];
-
-  protected access(grantee: string): string {
-    return `Allow ${grantee} full Reminders access when macOS asks, or in System Settings › Privacy & Security › Reminders.`;
-  }
 
   protected sources(scope: ImportScope) {
     return [

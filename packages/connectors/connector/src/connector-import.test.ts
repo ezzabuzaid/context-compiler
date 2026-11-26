@@ -153,7 +153,6 @@ class OneFileSource extends LiveSource {
 
 class OneSourceConnector extends Connector {
   readonly datedBy = null;
-  readonly fullDiskAccess = false;
   protected readonly choices = [];
   protected readonly unscoped = [];
   protected readonly storeCopies = [];
@@ -163,7 +162,6 @@ class OneSourceConnector extends Connector {
     super(
       {
         clock: globalThis,
-        grantee: 'Codex',
         documentParser: new MacOSDocumentParser(),
         home: '',
         env: {},
@@ -172,10 +170,6 @@ class OneSourceConnector extends Connector {
       { name: 'one-source', title: 'One Source', folder: '/nonexistent' },
     );
     this.#source = source;
-  }
-
-  protected access(): string {
-    return 'Nothing to grant.';
   }
 
   protected sources() {
@@ -296,14 +290,12 @@ test(
       }
       class OneSourceConnector extends Connector {
         datedBy = null;
-        fullDiskAccess = false;
         choices = [];
         unscoped = [];
         storeCopies = [];
         constructor() {
-          super({ grantee: 'Codex', documentParser: new MacOSDocumentParser(), eventKitHelper: '', home: '', env: {}, clock: globalThis }, { name: 'one-source', title: 'One Source', folder: '/nonexistent' });
+          super({ documentParser: new MacOSDocumentParser(), eventKitHelper: '', home: '', env: {}, clock: globalThis }, { name: 'one-source', title: 'One Source', folder: '/nonexistent' });
         }
-        access() { return 'Nothing to grant.'; }
         sources() { return [new TwoNotesSource()]; }
       }
       await new OneSourceConnector().import(new Settings(process.env.STORE), JSON.parse(process.env.SELECTION));

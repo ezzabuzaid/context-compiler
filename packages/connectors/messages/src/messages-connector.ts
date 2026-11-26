@@ -6,7 +6,6 @@ import { Connector } from '@workspace/connector/connector';
 
 export default class MessagesConnector extends Connector {
   readonly datedBy = 'message date';
-  readonly fullDiskAccess = true;
   protected readonly choices: readonly Choice[] = [
     {
       stream: 'chats',
@@ -18,10 +17,6 @@ export default class MessagesConnector extends Connector {
   ];
   protected readonly unscoped = [];
   protected readonly storeCopies = [];
-
-  protected access(): string {
-    return 'Only messages synced to this Mac can be imported.';
-  }
 
   protected sources(scope: ImportScope) {
     return [

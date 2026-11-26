@@ -5,14 +5,9 @@ import { Connector } from '@workspace/connector/connector';
 // A second connector named notes.
 export default class NotesAgainConnector extends Connector {
   readonly datedBy = 'date taken';
-  readonly fullDiskAccess = true;
   protected readonly choices: readonly Choice[] = [];
   protected readonly unscoped = [];
   protected readonly storeCopies = [];
-
-  protected access(): string {
-    return 'Open Photos once.';
-  }
 
   protected sources(): readonly [Source] {
     throw new Error('The Photos fixture reads nothing.');

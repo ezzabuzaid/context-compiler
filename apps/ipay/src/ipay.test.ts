@@ -442,7 +442,6 @@ function connector(
       clock: globalThis,
       home,
       env: {},
-      grantee: 'Codex',
       documentParser: new MacOSDocumentParser(),
       eventKitHelper: '',
     },

@@ -8,17 +8,14 @@ import type { ConnectorHost } from '@workspace/connector/connector';
 
 import { GoogleClientFile } from './google-client-file.ts';
 
-// The CLI as the host of the connectors: macOS grants access to the program
-// the entry point names, and Google content is read with the user's own OAuth
-// client, from the CLI's configuration folder.
+// The CLI as the host of the connectors: Google content is read with the
+// user's own OAuth client, from the CLI's configuration folder.
 export class TerminalHost implements ConnectorHost {
   readonly #parser: () => DocumentParser;
-  readonly grantee: string;
   readonly clock = globalThis;
 
-  constructor(parser: () => DocumentParser, grantee: string) {
+  constructor(parser: () => DocumentParser) {
     this.#parser = parser;
-    this.grantee = grantee;
   }
 
   get documentParser(): DocumentParser {

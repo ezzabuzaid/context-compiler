@@ -117,7 +117,6 @@ class Store extends Source {
 
 class TwoStoreConnector extends Connector {
   readonly datedBy = null;
-  readonly fullDiskAccess = false;
   protected readonly choices: readonly Choice[];
   protected override readonly probe?: string;
   protected readonly unscoped = [];
@@ -132,7 +131,6 @@ class TwoStoreConnector extends Connector {
     super(
       {
         clock: globalThis,
-        grantee: 'Codex',
         documentParser: new MacOSDocumentParser(),
         home: '',
         env: {},
@@ -143,10 +141,6 @@ class TwoStoreConnector extends Connector {
     this.#sources = sources;
     this.choices = choices;
     this.probe = probe;
-  }
-
-  protected access(): string {
-    return 'Allow Codex to read both stores.';
   }
 
   protected sources() {

@@ -22,7 +22,6 @@ function conversationLabel(row: Parameters<typeof name>[0]): string {
 
 export default class SlackConnector extends Connector {
   readonly datedBy = 'date sent';
-  readonly fullDiskAccess = true;
   override readonly note =
     'Slack keeps only the messages it has loaded on this Mac, so older history is imported only once Slack loads it.';
   protected readonly choices: readonly Choice[] = [
@@ -43,10 +42,6 @@ export default class SlackConnector extends Connector {
   ];
   protected readonly unscoped = [];
   protected readonly storeCopies = [];
-
-  protected access(): string {
-    return 'Open Slack in each workspace to import and let it run: it saves what it has loaded when its window is hidden or closed, when it loses the network, and about once an hour while the window stays visible, so hide the window to import what it just loaded. Only messages it has loaded on this Mac are imported.';
-  }
 
   protected sources(scope: ImportScope) {
     return [

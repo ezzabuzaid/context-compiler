@@ -6,7 +6,6 @@ import { Connector } from '@workspace/connector/connector';
 
 export default class CallHistoryConnector extends Connector {
   readonly datedBy = 'call date';
-  readonly fullDiskAccess = true;
   // One small store of every call on this Mac; a date range is the only
   // narrowing.
   protected readonly choices: readonly Choice[] = [];
@@ -14,10 +13,6 @@ export default class CallHistoryConnector extends Connector {
   protected override readonly probe = 'calls';
   protected readonly unscoped = [];
   protected readonly storeCopies = [];
-
-  protected access(): string {
-    return 'No app needs to be open: macOS keeps the calls from Phone, FaceTime and your iPhone in one store.';
-  }
 
   protected sources(scope: ImportScope) {
     return [

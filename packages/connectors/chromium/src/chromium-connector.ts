@@ -11,7 +11,6 @@ import { Connector } from '@workspace/connector/connector';
 // read beside it.
 export abstract class ChromiumConnector extends Connector {
   readonly datedBy = 'visit time';
-  readonly fullDiskAccess = false;
   protected readonly choices: readonly Choice[] = [
     {
       stream: 'profiles',
@@ -28,10 +27,6 @@ export abstract class ChromiumConnector extends Connector {
 
   // The sources of what the browser keeps of its own, beside Chromium's.
   protected abstract ownSources(scope: ImportScope): readonly Source[];
-
-  protected access(): string {
-    return `${this.browser.name} needs no access granted: the import reads the profiles it keeps in your Library folder, also while it runs.`;
-  }
 
   protected sources(scope: ImportScope) {
     return [

@@ -2877,14 +2877,9 @@ class LibrarySource extends Source {
 
 export default class LibraryConnector extends Connector {
   readonly datedBy = null;
-  readonly fullDiskAccess = true;
   protected readonly choices: readonly Choice[] = [];
   protected readonly unscoped = [];
   protected readonly storeCopies = [];
-
-  protected access(): string {
-    return 'Open the library once.';
-  }
 
   protected sources(): readonly [Source] {
     return [new LibrarySource(this.host.home)];

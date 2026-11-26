@@ -1,6 +1,6 @@
 ---
 name: register-connector
-description: Registers a built-in connector in context-compiler, so that the CLI loads a source from elt. Use when a new source exists in elt and the CLI must offer it, when you change what a connector can be narrowed by, its permission guidance or its presets, or when the request says "make the CLI import X". The source itself is written in elt first, with elt's add-elt-source skill.
+description: Registers a built-in connector in context-compiler, so that the CLI loads a source from elt. Use when a new source exists in elt and the CLI must offer it, when you change what a connector can be narrowed by or its presets, or when the request says "make the CLI import X". The source itself is written in elt first, with elt's add-elt-source skill.
 ---
 
 # Register a connector
@@ -11,7 +11,7 @@ Paths are relative to the repository root. The _source_ is the elt package that 
 
 - Write the source in elt first. Use elt's add-elt-source skill in `../elt`. Build elt (`npx nx run-many -t build` in `../elt`). A capability the connector needs and elt lacks is an elt gap. Fix it in elt. Commit elt before this repository.
 - A connector package is `packages/connectors/<name>`. Its package name is `@workspace/connector-<source>` and its Nx project is `connector-<source>`, where `<source>` is its elt source's name without `source-`: `source-apple-mail` gives `connector-apple-mail`, and `source-slack-desktop` gives `connector-slack-desktop`. The folder `<name>` is the app's short name. When several connectors read one source that a browser or app configures, each is named after that source's platform and its app: the Chromium browsers over `source-chromium-browser` are `connector-chromium-dia`, `connector-chromium-chrome`, `connector-chromium-arc` and `connector-chromium-edge`, over one abstract base package, `connector-chromium`, whose `package.json` has no `contextCompiler` field, so no host loads it as a connector. It is not an island, because `Connector` writes to the import store.
-- The entry is `src/<name>-connector.ts`. Its default export is the `Connector` subclass. It imports its source from the source package. It declares what the connector can be narrowed by (`choices`, from `@workspace/connector/choice`), its permission guidance (`access()`, `fullDiskAccess`) and how it loads (`sources(scope)`: a non-empty list, one source for most apps; a browser adds the sources of what it keeps of its own, beside its Chromium source).
+- The entry is `src/<name>-connector.ts`. Its default export is the `Connector` subclass. It imports its source from the source package. It declares what the connector can be narrowed by (`choices`, from `@workspace/connector/choice`) and how it loads (`sources(scope)`: a non-empty list, one source for most apps; a browser adds the sources of what it keeps of its own, beside its Chromium source).
 - `package.json` is the manifest. It has `"type": "module"`, `"exports": "./dist/<name>-connector.js"` and a `contextCompiler` field with the connector's `name` and `title`. The class does not declare the name or the title.
 - What the connectors share is in `packages/connectors`: `Connector` in `connector`, and discovery and the host modules in `connector-manifest`. `apps/` holds no libraries.
 - A connector package exports only its entry: the `exports` string names that one file. Other packages export each public module as an explicit subpath (`@workspace/connector/connector`), never a barrel.
@@ -28,7 +28,7 @@ Paths are relative to the repository root. The _source_ is the elt package that 
 4. Write `src/<name>-connector.ts`. Start from the connector whose app is most similar.
 5. Add `@workspace/connector-<source>` to the dependencies of `apps/cli/package.json`. Nx then builds it before the CLI.
 6. Run `npm install`. Nx keeps the TypeScript project references current itself (`sync.applyChanges` in `nx.json`).
-7. Add the connector's row to the permissions table in `README.md` when it needs a grant. Describe host behavior in `docs/connectors-and-hosts.md` only when this connector changes it. Stream details go in the README of the source's package in elt; elt's `docs/reference.md` is being retired, so add nothing to it.
+7. Add the connector's row to the permissions table in `README.md`: the grant it needs, and whether its app must be open or run for the import to be current. Describe host behavior in `docs/connectors-and-hosts.md` only when this connector changes it. Stream details go in the README of the source's package in elt; elt's `docs/reference.md` is being retired, so add nothing to it.
 8. Run `npx nx run connector-<source>:typecheck` and `npx nx run cli:typecheck`.
 9. Run `npx nx run connector-manifest:test` and `npx nx run cli:test`.
 
@@ -38,7 +38,7 @@ Paths are relative to the repository root. The _source_ is the elt package that 
 - **The class declares its name or title.** The manifest owns both. Take them out of the class.
 - **The `exports` field is an object or names more than the entry.** Discovery reads one entry string. Name only `./dist/<name>-connector.js`.
 - **The connector works around an elt gap.** The next connector meets the same gap. Fix it in elt and commit there first.
-- **The connector repeats source logic** (streams, schemas, store paths, change signals). That belongs to the source or its SDK in elt. The connector holds titles, choices, permission guidance and settings wiring only.
+- **The connector repeats source logic** (streams, schemas, store paths, change signals). That belongs to the source or its SDK in elt. The connector holds titles, choices and settings wiring only.
 - **A preset answers one question.** A preset is the source's data in a shape readers ask for. Write the question as a query over the preset instead.
 
 ## Done when

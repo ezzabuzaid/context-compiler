@@ -9,7 +9,6 @@ import { Connector } from '@workspace/connector/connector';
 
 export default class ContactsConnector extends Connector {
   readonly datedBy = null;
-  readonly fullDiskAccess = false;
   protected readonly choices: readonly Choice[] = [
     {
       stream: 'containers',
@@ -22,10 +21,6 @@ export default class ContactsConnector extends Connector {
   ];
   protected readonly unscoped = [];
   protected readonly storeCopies = [];
-
-  protected access(grantee: string): string {
-    return `Allow ${grantee} when macOS asks for Contacts access, or turn it on in System Settings › Privacy & Security › Contacts. Full Disk Access for ${grantee} also works.`;
-  }
 
   protected sources(scope: ImportScope) {
     return [

@@ -134,7 +134,6 @@ class FolderSource extends LiveSource {
 // transcription choice saved last.
 class FolderConnector extends Connector {
   readonly datedBy = null;
-  readonly fullDiskAccess = false;
   protected readonly choices = [];
   protected readonly unscoped = [];
   protected readonly storeCopies = [];
@@ -144,7 +143,6 @@ class FolderConnector extends Connector {
     super(
       {
         clock: globalThis,
-        grantee: 'Codex',
         get documentParser() {
           return host.documentParser;
         },
@@ -155,10 +153,6 @@ class FolderConnector extends Connector {
       { name: 'folder', title: 'Folder', folder: '/nonexistent' },
     );
     this.#source = source;
-  }
-
-  protected access(): string {
-    return 'Nothing to grant.';
   }
 
   protected sources() {

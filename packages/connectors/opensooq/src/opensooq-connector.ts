@@ -16,7 +16,6 @@ const category: Choice['label'] = ({ name, group }) =>
 
 export default class OpenSooqConnector extends Connector {
   readonly datedBy = null;
-  readonly fullDiskAccess = false;
   override readonly note =
     'OpenSooq has no Mac app, so the import reads jo.opensooq.com, the OpenSooq site for Jordan. Pick the categories to import; with none, the import loads the category list alone. A listing that was sold keeps its row, so some listings may no longer be for sale.';
   protected readonly choices: readonly Choice[] = [
@@ -30,10 +29,6 @@ export default class OpenSooqConnector extends Connector {
   ];
   protected readonly unscoped = [];
   protected readonly storeCopies = [];
-
-  protected access(): string {
-    return 'Choose the OpenSooq categories to import when you set up the connector.';
-  }
 
   // The categories alone, for the choices. The home page sends no ETag or
   // Last-Modified, so a cache saves no download; one file in the OS's

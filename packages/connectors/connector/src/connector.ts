@@ -50,9 +50,6 @@ export type ConnectorHost = {
   // process has it: its TZ gives an all-day item its dates.
   readonly env: NodeJS.ProcessEnv;
   readonly documentParser: DocumentParser;
-  // The app macOS grants access to: the terminal that launched the CLI, or
-  // its node binary when no terminal did.
-  readonly grantee: string;
   // The compiled EventKit helper Calendar and Reminders read through, in
   // @eltjs/sdk-apple-eventkit's dist.
   readonly eventKitHelper: string;
@@ -103,9 +100,6 @@ export abstract class Connector {
   readonly presetsFolder: string;
   // What a date range selects, or null when this app's records have no date.
   abstract readonly datedBy: string | null;
-  // Whether macOS keeps the app's store behind Full Disk Access, which it
-  // never asks for.
-  abstract readonly fullDiskAccess: boolean;
   // What to know before narrowing this connector, such as how the app's
   // collections nest.
   readonly note?: string;
@@ -156,9 +150,6 @@ export abstract class Connector {
       }));
   }
 
-  // What macOS needs granted to the grantee, besides Full Disk Access.
-  protected abstract access(grantee: string): string;
-
   // The elt sources that read the app, such as the Chromium source every
   // Chromium browser shares and one that reads what only Dia keeps. An import
   // loads all of them into one file, one connection for each.
@@ -183,18 +174,6 @@ export abstract class Connector {
 
   narrowsBy(kind: Choice['scope']): boolean {
     return this.choices.some(({ scope }) => scope === kind);
-  }
-
-  guidance(): string {
-    const { grantee } = this.host;
-    return [
-      ...(this.fullDiskAccess
-        ? [
-            `Turn on ${grantee} in System Settings › Privacy & Security › Full Disk Access, then quit and reopen ${grantee}. macOS does not ask for this access.`,
-          ]
-        : []),
-      this.access(grantee),
-    ].join(' ');
   }
 
   // Whose an error is to fix: the user's when any of this connector's sources

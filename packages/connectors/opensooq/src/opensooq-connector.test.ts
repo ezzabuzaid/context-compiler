@@ -27,7 +27,6 @@ function connector(): OpenSooqConnector {
   return new OpenSooqConnector(
     {
       clock: globalThis,
-      grantee: 'Codex',
       documentParser: new MacOSDocumentParser(),
       home: '',
       env: {},

@@ -19,7 +19,6 @@ test('every connector folder loads as its connector for the host, and one that c
     clock: globalThis,
     home: homedir(),
     env: process.env,
-    grantee: 'Terminal',
     documentParser: new MacOSDocumentParser(),
     eventKitHelper: fileURLToPath(
       import.meta.resolve('@eltjs/sdk-apple-eventkit/eventkit-helper'),
@@ -52,59 +51,27 @@ test('every connector folder loads as its connector for the host, and one that c
     'wallet',
     'whatsapp',
   ]);
-  const callHistory = connectors.find(({ name }) => name === 'call-history');
   assert.equal(
-    callHistory?.guidance(),
-    'Turn on Terminal in System Settings › Privacy & Security › Full Disk Access, then quit and reopen Terminal. macOS does not ask for this access. No app needs to be open: macOS keeps the calls from Phone, FaceTime and your iPhone in one store.',
+    connectors.find(({ name }) => name === 'notification-center')?.title,
+    'Notification Center',
   );
-  const notificationCenter = connectors.find(
-    ({ name }) => name === 'notification-center',
-  );
-  assert.equal(notificationCenter?.title, 'Notification Center');
+  assert.equal(connectors.find(({ name }) => name === 'slack')?.title, 'Slack');
+  assert.equal(connectors.find(({ name }) => name === 'dia')?.title, 'Dia');
   assert.equal(
-    notificationCenter?.guidance(),
-    'Turn on Terminal in System Settings › Privacy & Security › Full Disk Access, then quit and reopen Terminal. macOS does not ask for this access. No app needs to be open: macOS keeps every app’s notifications in one store while Notification Center holds them.',
+    connectors.find(({ name }) => name === 'teams')?.title,
+    'Microsoft Teams',
   );
-  const slack = connectors.find(({ name }) => name === 'slack');
-  assert.equal(slack?.title, 'Slack');
   assert.equal(
-    slack?.guidance(),
-    'Turn on Terminal in System Settings › Privacy & Security › Full Disk Access, then quit and reopen Terminal. macOS does not ask for this access. Open Slack in each workspace to import and let it run: it saves what it has loaded when its window is hidden or closed, when it loses the network, and about once an hour while the window stays visible, so hide the window to import what it just loaded. Only messages it has loaded on this Mac are imported.',
+    connectors.find(({ name }) => name === 'instagram')?.title,
+    'Instagram',
   );
-  const dia = connectors.find(({ name }) => name === 'dia');
-  assert.equal(dia?.title, 'Dia');
   assert.equal(
-    dia?.guidance(),
-    'Dia needs no access granted: the import reads the profiles it keeps in your Library folder, also while it runs.',
+    connectors.find(({ name }) => name === 'wallet')?.title,
+    'Wallet',
   );
-  const teams = connectors.find(({ name }) => name === 'teams');
-  assert.equal(teams?.title, 'Microsoft Teams');
   assert.equal(
-    teams?.guidance(),
-    'Turn on Terminal in System Settings › Privacy & Security › Full Disk Access, then quit and reopen Terminal. macOS does not ask for this access. Open Microsoft Teams, sign in and let it run: it saves what it loads as you use it, and only what it has loaded on this Mac is imported.',
-  );
-  const instagram = connectors.find(({ name }) => name === 'instagram');
-  assert.equal(instagram?.title, 'Instagram');
-  assert.equal(
-    instagram?.guidance(),
-    'Sign in to Instagram in Dia, Google Chrome, Arc, Microsoft Edge or Brave. When macOS asks whether security may use the browser’s Safe Storage key, click Always Allow.',
-  );
-  const wallet = connectors.find(({ name }) => name === 'wallet');
-  assert.equal(wallet?.title, 'Wallet');
-  assert.equal(
-    wallet?.guidance(),
-    'No app needs to be open: macOS keeps the passes in Wallet on this Mac, with those iCloud brings from your iPhone.',
-  );
-  const whatsapp = connectors.find(({ name }) => name === 'whatsapp');
-  assert.equal(whatsapp?.title, 'WhatsApp');
-  assert.equal(
-    whatsapp?.guidance(),
-    'Turn on Terminal in System Settings › Privacy & Security › Full Disk Access, then quit and reopen Terminal. macOS does not ask for this access. Open WhatsApp and let it run: it keeps what it has synced from your phone, and saves new messages to this Mac while it runs.',
-  );
-  const photos = connectors.find(({ name }) => name === 'photos');
-  assert.equal(
-    photos?.guidance(),
-    'Turn on Terminal in System Settings › Privacy & Security › Full Disk Access, then quit and reopen Terminal. macOS does not ask for this access. Open Photos once.',
+    connectors.find(({ name }) => name === 'whatsapp')?.title,
+    'WhatsApp',
   );
   assert.deepEqual(
     broken.sort((a, b) => a.title.localeCompare(b.title)),

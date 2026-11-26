@@ -85,14 +85,9 @@ class PhotosSource extends Source {
 
 export default class PhotosConnector extends Connector {
   readonly datedBy = null;
-  readonly fullDiskAccess = true;
   protected readonly choices: readonly Choice[] = [];
   protected readonly unscoped = [];
   protected readonly storeCopies = [];
-
-  protected access(): string {
-    return 'Open Photos once.';
-  }
 
   protected sources(): readonly [Source] {
     return [new PhotosSource(this.host.home)];

@@ -21,7 +21,6 @@ const accountName = (row: Row) =>
 
 export default class MailConnector extends Connector {
   readonly datedBy = 'date received (date sent if missing)';
-  readonly fullDiskAccess = true;
   protected readonly choices: readonly Choice[] = [
     { ...accounts(accountName), id: (row) => String(row.identifier) },
     {
@@ -52,10 +51,6 @@ export default class MailConnector extends Connector {
 
   protected override retryImport(error: unknown): boolean {
     return error instanceof MailChangingError;
-  }
-
-  protected access(): string {
-    return 'The import reads Mail’s local store even while Mail is closed. Open Mail and let its accounts update to download newer messages and missing content; syncing this import does not fetch cloud mail. Account settings come from the macOS Accounts store.';
   }
 
   protected sources(scope: ImportScope) {
