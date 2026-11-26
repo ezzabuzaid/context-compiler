@@ -118,6 +118,9 @@
     },
     {
       "path": "./apps/notification-router"
+    },
+    {
+      "path": "./tsconfig.scripts.json"
     }
   ]
 }

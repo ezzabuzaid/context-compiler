@@ -4,10 +4,10 @@
   "type": "module",
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "0.3.331",
-    "@zukhruf/election": "^0.8.115",
-    "@zukhruf/pipes": "^0.8.115",
-    "@zukhruf/shutdown": "^0.8.115",
-    "@zukhruf/sqlite-open": "^0.8.115",
+    "@zukhruf/election": "^0.8.137",
+    "@zukhruf/pipes": "^0.8.137",
+    "@zukhruf/shutdown": "^0.8.137",
+    "@zukhruf/sqlite-open": "^0.8.137",
     "commander": "15.0.0",
     "zod": "4.6.7"
   }

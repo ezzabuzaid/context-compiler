@@ -13,13 +13,13 @@
     "@eltjs/elt": "*",
     "@eltjs/elt-sqlite": "*",
     "@eltjs/source-apple-macos": "0.0.1",
-    "@zukhruf/sqlite-data-version": "^0.8.115",
-    "@zukhruf/sqlite-drift": "^0.8.115",
-    "@zukhruf/sqlite-open": "^0.8.115",
-    "@zukhruf/sqlite-transaction": "^0.8.115"
+    "@zukhruf/sqlite-data-version": "^0.8.137",
+    "@zukhruf/sqlite-drift": "^0.8.137",
+    "@zukhruf/sqlite-open": "^0.8.137",
+    "@zukhruf/sqlite-transaction": "^0.8.137"
   },
   "devDependencies": {
-    "@zukhruf/fs": "^0.8.115",
-    "@zukhruf/testing": "^0.8.115"
+    "@zukhruf/fs": "^0.8.137",
+    "@zukhruf/testing": "^0.8.137"
   }
 }
