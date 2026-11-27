@@ -48,6 +48,8 @@ There is no separate decision model call or structured decision output. The noti
 
 Citation validation proves that a source was received, not that every claim follows from it. Model usefulness, factual grounding, timing, and semantic repetition still need evaluation. The interrupted-handoff test verifies replay of a captured initial row without resampling. General exactly-once delivery across arbitrary schema changes and crashes is not claimed. Suppression of equivalent discoveries from different changes remains model-driven. Warehouse queries read current data. Historical evaluation must supply a warehouse snapshot containing only information available at that point. SQL reads are synchronous; the SQLite timeout is a lock-wait timeout, not a query execution deadline.
 
+The tsconfig files set `skipLibCheck`, and the source is still checked strictly. The declarations of `@deepagents/context` import packages that Ambient does not install (`@daytona/sdk`, `mssql`, the types of `pg`), and the declarations of PGlite use the Emscripten types.
+
 ## Files
 
 `src/` follows the layout of Zukhruf (`@deepagents/experimental/zukhruf`). The Zukhruf parts are at the root:
