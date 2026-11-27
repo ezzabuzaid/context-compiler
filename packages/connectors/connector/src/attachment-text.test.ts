@@ -25,6 +25,7 @@ import {
   type CopyConfiguration,
   type DocumentFile,
   DocumentParser,
+  EscalatedFailure,
   Gauge,
   PassFinished,
   Pipeline,
@@ -36,6 +37,7 @@ import {
 import { SQLiteSyncHistory } from '@eltjs/elt-sqlite';
 import { AudioFormat } from '@eltjs/source-apple-macos/audio-format';
 import { MacOSDocumentParser } from '@eltjs/source-apple-macos/macos-document-parser';
+import { Settings } from '@workspace/settings';
 
 import { Connector } from './connector.ts';
 
@@ -369,6 +371,110 @@ test('a file whose read failed is read again on the next sync', async () => {
     store.texts().map(({ status, content }) => ({ status, content })),
     [{ status: 'computed', content: 'Careem invoice 4471' }],
   );
+});
+
+// The import of a folder as a host watches it: a selection the settings
+// keep, over a folder in upstream, read with the parser the test gives.
+async function watchedImport(directory: string, parser: DocumentParser) {
+  const upstream = join(directory, 'upstream');
+  await mkdir(upstream, { recursive: true });
+  const source = new FolderSource(upstream);
+  const connector = new FolderConnector({ documentParser: parser }, source);
+  const settings = new Settings(join(directory, 'Imports'));
+  const selection = {
+    connector: connector.name,
+    scope: {},
+    includeAttachments: true,
+  };
+  settings.select([selection], { facts: () => connector });
+  return {
+    connector,
+    settings,
+    selection,
+    source,
+    put: (name: string, content: string) =>
+      writeFile(join(upstream, name), content),
+    texts: () => {
+      using database = open(settings.database(selection), { readOnly: true });
+      return database
+        .prepare(
+          `SELECT d.name, t.status, t.error
+           FROM documents d JOIN attachment_text t ON t.ref = d.attachmentRef
+           ORDER BY d.name`,
+        )
+        .all()
+        .map((row) => ({ ...row }));
+    },
+  };
+}
+
+test('under a watch, a file whose parse escalates a failure ends the watch with that failure, and the connector keeps no connection failure, since its connection did not fail', async () => {
+  await using directory = await new TemporaryFiles().directory('att-');
+  // The real parser escalates only when the store of its OCR pool holds a
+  // newer revision, which the CLI's sync watch test drives for real.
+  const escalated = new EscalatedFailure(
+    new Error('The pool of vision revision 1 is deprecated'),
+  );
+  const parser = new (class extends DocumentParser {
+    override async parse(): Promise<string | null> {
+      throw escalated;
+    }
+  })(new MacOSDocumentParser().identity);
+  const watched = await watchedImport(directory.path, parser);
+  using settings = watched.settings;
+  await watched.put('invoice.txt', 'Careem invoice 4471');
+
+  await assert.rejects(
+    watched.connector.watch(settings, watched.selection),
+    (error) => error === escalated,
+  );
+
+  assert.equal(settings.connectionFailure(watched.selection), undefined);
+});
+
+test('under a watch, a file whose parse fails loads as failed with its error, and the watch goes on to read the next file', async (t) => {
+  await using directory = await new TemporaryFiles().directory('att-');
+  const real = new MacOSDocumentParser();
+  const parser = new (class extends DocumentParser {
+    // The stored copy has a name of its own, so the file is known by its
+    // text.
+    override async parse(path: string) {
+      if ((await readFile(path, 'utf8')).includes('invoice'))
+        throw new Error('Vision failed');
+      return real.parse(path);
+    }
+  })(real.identity);
+  const watched = await watchedImport(directory.path, parser);
+  using settings = watched.settings;
+  await watched.put('invoice.txt', 'Careem invoice 4471');
+  const stop = new AbortController();
+  const watching = watched.connector.watch(
+    settings,
+    watched.selection,
+    stop.signal,
+  );
+  try {
+    await waitFor(() => assert.equal(watched.texts().length, 1), {
+      signal: t.signal,
+      interval: 10,
+    });
+
+    await watched.put('note.txt', 'Dinner at eight');
+    watched.source.changed();
+
+    await waitFor(
+      () =>
+        assert.deepEqual(watched.texts(), [
+          { name: 'invoice.txt', status: 'failed', error: 'Vision failed' },
+          { name: 'note.txt', status: 'computed', error: null },
+        ]),
+      { signal: t.signal, interval: 10 },
+    );
+  } finally {
+    stop.abort();
+  }
+  assert.deepEqual(await watching, { status: 'imported' });
+  assert.equal(settings.connectionFailure(watched.selection), undefined);
 });
 
 test('under a watch, a stored copy that a commit removes with its document while the copy is read leaves no row and no failure once the refresh after that commit ends', async (t) => {

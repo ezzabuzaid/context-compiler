@@ -11,6 +11,7 @@ import {
   type DerivedDataset,
   type DocumentParser,
   DocumentText,
+  EscalatedFailure,
   type FailureType,
   LocalFiles,
   Pipeline,
@@ -419,6 +420,10 @@ export abstract class Connector {
       // load, or why the watch stopped.
       if (error instanceof PipelineError || error instanceof WatchError)
         return { status: 'imported' };
+      // A failure the host must act on, such as a pool deprecated by a newer
+      // host on the Mac: the connection did not fail, so status keeps none,
+      // and the caller ends with it (elt ADR 0037).
+      if (error instanceof EscalatedFailure) throw error;
       // No history recorded this one, such as the history's own failure to
       // install, so the settings keep it where status reads it.
       settings.saveConnectionFailure(

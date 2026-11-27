@@ -30,6 +30,7 @@ import { deflateSync, gzipSync } from 'node:zlib';
 
 import { TemporaryFiles } from '@zukhruf/fs';
 import { Launchd } from '@zukhruf/launchd';
+import { Pool, WorkerKind, computerStore } from '@zukhruf/pool';
 import {
   PersistentWriteAheadLog,
   RollbackJournal,
@@ -39,6 +40,11 @@ import { Client, FullDiskAccess } from '@zukhruf/tcc';
 import { retryUntilReady, waitFor } from '@zukhruf/testing/async';
 
 import { IndexedDBWriter } from '@eltjs/codec-chromium-indexeddb/test';
+import {
+  type VisionRead,
+  type VisionText,
+  visionKind,
+} from '@eltjs/source-apple-macos/vision-kind';
 
 import type { ConnectorStatus } from './imports.ts';
 
@@ -3484,6 +3490,76 @@ test('sync watch reads the files an import stores, with no command of its own', 
     watch.child.kill('SIGKILL');
     await watch.exited;
   }
+});
+
+test('sync watch exits 1 with the pool’s message once a newer host deprecated the OCR pool of its files, and status shows no connection failure, so launchd starts it again on the newer code', async (t) => {
+  await using mac = await new TemporaryFiles().directory('cli-e2e-', {
+    parent: homes,
+  });
+  withWallet(mac.path);
+  const bundle = join(
+    mac.path,
+    'Library/Passes/Cards/Rj5JgNLqUsLcgX514jcGtHwF+aI=.pkpass',
+  );
+  const icon = Buffer.from(
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+    'base64',
+  );
+  writeFileSync(join(bundle, 'icon.png'), icon);
+  const manifest = JSON.parse(
+    readFileSync(join(bundle, 'manifest.json'), 'utf8'),
+  );
+  writeFileSync(
+    join(bundle, 'manifest.json'),
+    JSON.stringify({ ...manifest, 'icon.png': hash('sha1', icon) }),
+  );
+  const setup = cli(mac.path, 'setup', '--connector', 'wallet');
+  assert.equal(setup.status, 0, setup.stderr);
+  // A newer host started on this Mac: the pool store under HOME holds the
+  // next revision of the OCR kind, as that host's Pool leaves it.
+  const { name, revision, policy, retryLimit, expireInSeconds } = visionKind;
+  {
+    await using newer = new Pool({
+      kind: new WorkerKind<VisionRead, VisionText>({
+        name,
+        revision: revision + 1,
+        policy,
+        retryLimit,
+        expireInSeconds,
+      }),
+      store: computerStore({ HOME: mac.path }),
+      clock: globalThis,
+    });
+    // A read waits for the start of the Pool, which creates the queue of its
+    // revision in the store.
+    await newer.stats();
+  }
+
+  const watch = started(mac.path, 'sync', 'watch', '--json');
+  const exited = await Promise.race([
+    watch.exited,
+    new Promise<never>((_, reject) =>
+      t.signal.addEventListener('abort', () => reject(t.signal.reason)),
+    ),
+  ]).finally(() => watch.child.kill('SIGKILL'));
+  const status = cli(mac.path, 'status', '--json');
+
+  // The program shows the usage of the command after any error, so the
+  // error is the first line of stderr.
+  assert.deepEqual(
+    { status: exited.status, error: exited.stderr.split('\n')[0] },
+    {
+      status: 1,
+      error: `error: Revision ${revision} of the kind ${name} is deprecated: the store holds revision ${revision + 1}. Update the host.`,
+    },
+  );
+  assert.equal(status.status, 0, status.stderr);
+  const rows: ConnectorStatus[] = JSON.parse(status.stdout);
+  const wallet = rows.find(({ connector }) => connector === 'wallet');
+  assert.deepEqual(
+    { state: wallet?.state, error: wallet?.error },
+    { state: 'succeeded', error: null },
+  );
 });
 
 test('wallet syncs the passes where passd keeps them, with their fields', async () => {
