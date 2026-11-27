@@ -10,14 +10,14 @@
     "@electric-sql/pglite": "0.5.4",
     "@eltjs/elt-sqlite": "*",
     "@hono/node-server": "2.1.5",
-    "@zukhruf/async": "^0.8.144",
-    "@zukhruf/shutdown": "^0.8.144",
-    "@zukhruf/sqlite-changefeed": "^0.8.144",
-    "@zukhruf/sqlite-data-version": "^0.8.144",
-    "@zukhruf/sqlite-drift": "^0.8.144",
-    "@zukhruf/sqlite-federation": "^0.8.144",
-    "@zukhruf/sqlite-open": "^0.8.144",
-    "@zukhruf/sqlite-transaction": "^0.8.144",
+    "@zukhruf/async": "^0.8.190",
+    "@zukhruf/shutdown": "^0.8.190",
+    "@zukhruf/sqlite-changefeed": "^0.8.190",
+    "@zukhruf/sqlite-data-version": "^0.8.190",
+    "@zukhruf/sqlite-drift": "^0.8.190",
+    "@zukhruf/sqlite-federation": "^0.8.190",
+    "@zukhruf/sqlite-open": "^0.8.190",
+    "@zukhruf/sqlite-transaction": "^0.8.190",
     "ai": "^7.0.177",
     "hono": "4.13.20",
     "microsandbox": "0.7.16",
@@ -25,7 +25,7 @@
     "zod": "4.4.3"
   },
   "devDependencies": {
-    "@zukhruf/fs": "^0.8.144",
-    "@zukhruf/testing": "^0.8.144"
+    "@zukhruf/fs": "^0.8.190",
+    "@zukhruf/testing": "^0.8.190"
   }
 }

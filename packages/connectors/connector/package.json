@@ -25,14 +25,14 @@
     "@eltjs/source-apple-macos": "0.0.1",
     "@eltjs/transcription-local": "0.0.1",
     "@workspace/settings": "0.0.1",
-    "@zukhruf/async": "^0.8.144",
-    "@zukhruf/pool": "^0.8.144",
+    "@zukhruf/async": "^0.8.190",
+    "@zukhruf/pool": "^0.8.190",
     "p-retry": "^8.0.1"
   },
   "devDependencies": {
-    "@zukhruf/fs": "^0.8.144",
-    "@zukhruf/sqlite-open": "^0.8.144",
-    "@zukhruf/testing": "^0.8.144",
+    "@zukhruf/fs": "^0.8.190",
+    "@zukhruf/sqlite-open": "^0.8.190",
+    "@zukhruf/testing": "^0.8.190",
     "ai": "^7.0.177"
   }
 }

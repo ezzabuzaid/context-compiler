@@ -12,14 +12,14 @@
     "@hono/node-server": "2.1.5",
     "@sdk-it/hono": "0.46.11",
     "@workspace/data-folder": "0.0.1",
-    "@zukhruf/async": "^0.8.144",
-    "@zukhruf/embeddings": "^0.8.144",
-    "@zukhruf/event-detection": "^0.8.144",
-    "@zukhruf/relevance-filtering": "^0.8.144",
-    "@zukhruf/shutdown": "^0.8.144",
-    "@zukhruf/sqlite-drift": "^0.8.144",
-    "@zukhruf/sqlite-open": "^0.8.144",
-    "@zukhruf/sqlite-transaction": "^0.8.144",
+    "@zukhruf/async": "^0.8.190",
+    "@zukhruf/embeddings": "^0.8.190",
+    "@zukhruf/event-detection": "^0.8.190",
+    "@zukhruf/relevance-filtering": "^0.8.190",
+    "@zukhruf/shutdown": "^0.8.190",
+    "@zukhruf/sqlite-drift": "^0.8.190",
+    "@zukhruf/sqlite-open": "^0.8.190",
+    "@zukhruf/sqlite-transaction": "^0.8.190",
     "ai": "^7.0.177",
     "feedscout": "2.2.1",
     "feedsmith": "3.0.1",
@@ -27,7 +27,7 @@
     "zod": "4.6.5"
   },
   "devDependencies": {
-    "@zukhruf/fs": "^0.8.144",
-    "@zukhruf/testing": "^0.8.144"
+    "@zukhruf/fs": "^0.8.190",
+    "@zukhruf/testing": "^0.8.190"
   }
 }
