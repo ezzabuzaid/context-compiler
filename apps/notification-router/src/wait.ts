@@ -72,7 +72,7 @@ async function tryConnect(): Promise<Socket | undefined> {
 function startRouter(): void {
   // The router outlives this session, and matches on Ezz's own Claude login:
   // it must not inherit this session's messaging token or another account's
-  // OAuth token (lclaude sets CLAUDE_CODE_OAUTH_TOKEN).
+  // OAuth token (a setup-token wrapper such as dclaude sets CLAUDE_CODE_OAUTH_TOKEN).
   const env = Object.fromEntries(
     Object.entries(process.env).filter(
       ([name]) => !/^(CLAUDE|ANTHROPIC|CMUX)/.test(name),
