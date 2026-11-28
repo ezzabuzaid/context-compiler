@@ -246,7 +246,9 @@ export class Imports {
 
   // Keeps each selected connector's import current, or only those named: a
   // pass at once, then one for each change its source reports, until Ctrl-C
-  // or SIGTERM stops it. Each second it reads the selection and starts a
+  // or SIGTERM stops it, or until an EscalatedFailure of elt ends it (a newer
+  // revision of the Vision pool started): then it rejects with it, and the
+  // command exits 1. Each second it reads the selection and starts a
   // watch for each import it does not watch yet; with nothing selected it
   // waits for a setup. One process owns an import at a time: a watch that
   // finds another owner, a sync running a pass or another watch, waits and
